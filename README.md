@@ -1,4 +1,4 @@
-<img src="https://iili.io/HYBJFA7.png" width="64" height="64" align="right" />
+<img src="https://iili.io/JEatihb.png" width="64" height="64" align="right" />
 
 # AskAI
 >
