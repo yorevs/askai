@@ -1,0 +1,31 @@
+name: 'tag-version'
+description: 'Create a Git Tag version'
+
+inputs:
+  tag-name:
+    description: 'The tag name'
+    required: true
+  message:
+    description: 'The tag commit message'
+    required: true
+    default: '[@Github] Push for new Tag'
+  github-token:
+    description: 'Github repository token'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: "Git Tag Version"
+      id: tag-version
+      shell: bash
+      run: |
+        if [ -z $(git status --porcelain) ]; then
+          echo "No changes to commit!"
+        else
+          git config --global user.name "$(git log -n 1 --pretty=format:%an)"
+          git config --global user.email "$(git log -n 1 --pretty=format:%ae)"
+          git config github.token "${{ inputs.github-token }}"
+          git tag -a "${{ inputs.tag-name }}" -m "${{ inputs.message }}"
+          git push origin --tags
+        fi

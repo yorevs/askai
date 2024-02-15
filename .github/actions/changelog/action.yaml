@@ -1,0 +1,34 @@
+name: 'changelog'
+description: 'Generate Changelog between previous and newly pushed tags'
+
+inputs:
+  tag-name:
+    description: 'The newly created tag name'
+    required: true
+
+outputs:
+  changelog:
+    description: "The changelog text"
+    value: ${{ steps.change-log.outputs.changelog }}
+
+runs:
+  using: composite
+  steps:
+  - name: Detect Last Tag
+    id: last-tag
+    shell: bash
+    run: |
+      git fetch --prune --unshallow
+      lastTag=$(git describe --tags --abbrev=0 HEAD^)
+      echo "lastTag=$(echo $lastTag)" >> $GITHUB_OUTPUT
+  - name: Generate Changelog
+    id: change-log
+    shell: bash
+    run: |
+      echo "changelog<<EOF" >> ${GITHUB_OUTPUT}
+      echo "
+         ### Changelog ${{ inputs.tag-name }}:
+         ------------------------------------------------------------
+         $(git log --oneline --pretty='%h %ad %s' --date=short ${{ steps.last-tag.outputs.lastTag }}..HEAD)
+      " >> ${GITHUB_OUTPUT}
+      echo 'EOF' >> ${GITHUB_OUTPUT}

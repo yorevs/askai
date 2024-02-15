@@ -1,0 +1,94 @@
+name: publish
+run-name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      gradle_debug_params:
+        description: 'Gradle debug parameters'
+        default: ''
+        required: false
+        type: string
+      comment:
+        description: 'Publish description'
+        default: 'Push for new revision'
+        required: false
+        type: string
+      release_type:
+        description: 'Release type: Major/Minor/Patch'
+        type: choice
+        required: true
+        default: 'patch'
+        options:
+          - 'patch'
+          - 'minor'
+          - 'major'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.publish-it.outputs.version }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: ${{ vars.JAVA_VERSION }}
+      - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: ${{ vars.GRADLE_VERSION }}
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+      - uses: actions/setup-python@v3
+        with:
+          python-version: ${{ vars.PYTHON_VERSION }}
+      - name: Install Python tools
+        run: gradle installBuildTools ${gradle_debug_params}
+      - name: Publish
+        id: publish-it
+        run: |
+          bumpver update "--${{ inputs.release_type }}"
+          version="$(awk '/./{line=$0} END{print line}' .version)"
+          echo "version=$( echo "$version" )" >> $GITHUB_OUTPUT
+          git config --global user.name "$(git log -n 1 --pretty=format:%an)"
+          git config --global user.email "$(git log -n 1 --pretty=format:%ae)"
+          git config github.token "${{ secrets.GITHUB_TOKEN }}"
+          git commit -a -m "[@${{ github.actor }}] ${{ inputs.comment }}"
+          git pull --rebase -Xtheirs && git push --atomic origin HEAD
+
+  create-release:
+    needs: publish
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Git Tag Version
+        uses: yorevs/hspylib/.github/actions/tag-version@master
+        with:
+          tag-name: "v${{ needs.publish.outputs.version }}"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Changelog
+        id: change-log
+        uses: yorevs/hspylib/.github/actions/changelog@master
+        with:
+          tag-name: "v${{ needs.publish.outputs.version }}"
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "v${{ needs.publish.outputs.version }}"
+          release_name: "${{ vars.APP_NAME }}-v${{ needs.publish.outputs.version }}-r${{ github.run_number }}"
+          body: |
+            ${{ steps.change-log.outputs.changelog }}
+          draft: false
+          prerelease: false

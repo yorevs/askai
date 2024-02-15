@@ -1,0 +1,23 @@
+[MASTER]
+extension-pkg-whitelist=PyQt5,confluent_kafka,binascii
+init-hook='import sys; sys.path.append("src/main"); sys.path.append("src/demo"); sys.path.append("src/test");'
+
+[TYPECHECK]
+ignored-classes=struct,termios,select,socket,math
+
+[FORMAT]
+max-line-length=120
+
+[MISCELLANEOUS]
+notes=TODO
+
+[MESSAGES CONTROL]
+enable=useless-suppression
+disable=locally-disabled
+
+[DESIGN]
+min-public-methods=1
+max-attributes=15
+max-args=10
+max-statements=55
+max-locals=18

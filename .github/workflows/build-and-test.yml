@@ -1,0 +1,118 @@
+name: build-and-test
+run-name: "Build & Test"
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      gradle_debug_params:
+        description: 'Gradle debug parameters'
+        default: ''
+        required: false
+        type: string
+      build_python3_10:
+        description: 'Check to build using python@3.10'
+        default: true
+        required: true
+        type: boolean
+      build_python3_11:
+        description: 'Check to build using python@3.11'
+        default: true
+        required: true
+        type: boolean
+      build_python3_12:
+        description: 'Check to build using python@3.12'
+        default: false
+        required: true
+        type: boolean
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'modules/**'
+      - 'gradle/*.gradle'
+      - 'build.gradle'
+
+jobs:
+  set-python-matrix:
+    runs-on: "ubuntu-latest"
+    outputs:
+      exclude-array: ${{ steps.set-matrix-items.outputs.excludes }}
+    steps:
+      - name: Show Selected Input
+        run: |
+          echo "Use Python@3.10: ${{ inputs.build_python3_10 || true }}"
+          echo "Use Python@3.11: ${{ inputs.build_python3_11 || true }}"
+          echo "Use Python@3.12: ${{ inputs.build_python3_12 || false }}"
+      - name: Set Exclusion Matrix
+        id: set-matrix-items
+        run: |
+          count=0
+          all=('3.10' '3.11' '3.12')
+          while read -r next; do
+          if [[ (${next} == '3.10' && "false" == "${{ inputs.build_python3_10 || true }}") ||
+                (${next} == '3.11' && "false" == "${{ inputs.build_python3_11 || true }}") ||
+                (${next} == '3.12' && "false" == "${{ inputs.build_python3_12 || false }}") ]]; then
+              item="{\"python-version\":\"${next}\"},"
+              [[ "${JSON}" != *"${item}"* ]] && JSON="${JSON}${item}"
+              ((count+=1))
+          fi
+          done < <(printf '%s\n' "${all[@]}")
+          [[ $JSON == *, ]] && JSON="${JSON%?}"
+          [[ ${count} -eq ${#all[@]} ]] && JSON="{\"python-version\":\"3.10\"}"
+          JSON="[${JSON}]"
+          echo "JSON: ${JSON}"
+          echo "excludes=$( echo "${JSON}" )" >> $GITHUB_OUTPUT
+
+  build:
+    needs: set-python-matrix
+    strategy:
+      matrix:
+        os:
+          - 'ubuntu-latest'
+        python-version:
+          - '3.10'
+          - '3.11'
+          - '3.12'
+        module:
+          - "hspylib"
+          - "cfman"
+          - "clitt"
+          - "datasource"
+          - "firebase"
+          - "hqt"
+          - "kafman"
+          - "setman"
+          - "vault"
+        exclude: ${{ fromJSON(needs.set-python-matrix.outputs.exclude-array) }}
+    runs-on: ${{ matrix.os }}
+    env:
+      PYTHON_VERSION: ${{ matrix.python-version }}
+      PYRCC_VERSION: 5
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: ${{ vars.JAVA_VERSION }}
+      - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: ${{ vars.GRADLE_VERSION }}
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+      - uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Update PIP
+        run: pip install --upgrade pip
+      - name: Build HSPyLib modules
+        run: |
+          gradle "${{ matrix.module }}:clean" \
+            "${{ matrix.module }}:installModule" \
+            "${{ matrix.module }}:build" ${{ inputs.gradle_debug_params }}

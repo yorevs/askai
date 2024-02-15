@@ -1,7 +1,7 @@
-###### Requirements file for askai ######
+###### Requirements file for AskAi ######
 
 hspylib
-hspylib-clitt>=0.9.113
+hspylib-clitt>=0.9.116
 retry
 pause
 requests
