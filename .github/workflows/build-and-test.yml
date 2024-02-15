@@ -76,16 +76,6 @@ jobs:
           - '3.10'
           - '3.11'
           - '3.12'
-        module:
-          - "hspylib"
-          - "cfman"
-          - "clitt"
-          - "datasource"
-          - "firebase"
-          - "hqt"
-          - "kafman"
-          - "setman"
-          - "vault"
         exclude: ${{ fromJSON(needs.set-python-matrix.outputs.exclude-array) }}
     runs-on: ${{ matrix.os }}
     env:
@@ -111,8 +101,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Update PIP
         run: pip install --upgrade pip
-      - name: Build HSPyLib modules
+      - name: Build AskAI
         run: |
-          gradle "${{ matrix.module }}:clean" \
-            "${{ matrix.module }}:installModule" \
-            "${{ matrix.module }}:build" ${{ inputs.gradle_debug_params }}
+          gradle ${{ inputs.gradle_debug_params }} clean build installModule
