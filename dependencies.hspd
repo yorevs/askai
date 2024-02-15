@@ -1,0 +1,28 @@
+/*
+  Python dependencies file
+  Project: hspylib-askai
+  Created: 05th Jan, 2024
+
+  !! Syntax for dependencies !!
+  package: <pkg_name>, version: <latest|versionNum>, mode: <gt|ge|eq|ne|compat|none>
+*/
+
+/* Module dependencies */
+
+package: hspylib
+package: hspylib-clitt, version: 0.9.116, mode: ge
+
+/* Application dependencies */
+
+package: retry
+package: pause
+package: requests
+package: argostranslate
+package: soundfile
+package: langchain
+package: langchain-openai
+package: PyAudio
+package: SpeechRecognition
+package: openai-whisper
+package: urllib3, version: 2.0.0, mode: lt
+package: openai, version: 1.7.2, mode: ge

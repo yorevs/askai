@@ -1,0 +1,16 @@
+###### Requirements file for askai ######
+
+hspylib
+hspylib-clitt>=0.9.113
+retry
+pause
+requests
+argostranslate
+soundfile
+langchain
+langchain-openai
+PyAudio
+SpeechRecognition
+openai-whisper
+urllib3<2.0.0
+openai>=1.7.2

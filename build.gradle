@@ -1,0 +1,39 @@
+plugins {
+  id 'idea'
+  id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.7"
+}
+
+idea {
+  module {
+    settings {
+      rootModuleType = 'PYTHON_MODULE'
+    }
+    sourceDirs += file('src/main')
+    testSourceDirs += file('src/test')
+    excludeDirs += file('.idea')
+    excludeDirs += file('.gradle')
+    excludeDirs += file('.vscode')
+    excludeDirs += file('src/main/build')
+    excludeDirs += file('src/main/dist')
+    excludeDirs += file('src/main/hspylib_' + project.name + '.egg-info')
+  }
+}
+
+ext {
+  sourceRoot = "$rootDir/modules/$project.name/src"
+  application = "$sourceRoot/main/__main__.py"
+  pythonPath = "$sourceRoot/main:$sourceRoot/test:$sourceRoot/demo"
+}
+
+dependencies {
+    project(':hspylib')
+    project(':clitt')
+}
+
+apply from: "$rootDir/gradle/dependencies.gradle"
+apply from: "$rootDir/gradle/python.gradle"
+apply from: "$rootDir/gradle/versioning.gradle"
+apply from: "$rootDir/gradle/pypi-publish.gradle"
+apply from: "$rootDir/gradle/docker.gradle"
+apply from: "$rootDir/gradle/oracle.gradle"
+apply from: "$rootDir/gradle/docgen.gradle"
