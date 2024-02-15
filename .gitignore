@@ -11,13 +11,10 @@ build/
 *.log
 *.dat
 requirements.txt
-.vault*
-.firebase*
-api_endpoints.txt
 lib/
 dist/
 *.egg-info/
 *.bak
 data/
-.kafman-history.properties
 gradlew.bat
+.run/
