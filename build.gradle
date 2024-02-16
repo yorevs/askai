@@ -25,16 +25,15 @@ configurations {
 }
 
 ext {
+  python = "python" + (System.getenv('PYTHON_VERSION') ?: '3.11')
+  pyrcc = "pyrcc" + (System.getenv('PYRCC_VERSION') ?: '5')
   sourceRoot = "$rootDir/src"
   application = "$sourceRoot/main/__main__.py"
   pythonPath = "$sourceRoot/main:$sourceRoot/test:$sourceRoot/demo"
-  python = "python" + (System.getenv('PYTHON_VERSION') ?: '3.11')
-  pyrcc = "pyrcc" + (System.getenv('PYRCC_VERSION') ?: '5')
+  buildToolsFile = new File("${project.projectDir}/buildTools.txt")
   buildTools = "${buildTools}".split(",")
   startTime = System.currentTimeMillis()
   verbose = findProperty('verbose') ?: false
-  buildToolsFile = new File("${project.projectDir}/buildTools.txt")
-  space = detectSpace()
 }
 
 apply from: "$rootDir/gradle/dependencies.gradle"
@@ -45,68 +44,3 @@ apply from: "$rootDir/gradle/docker.gradle"
 apply from: "$rootDir/gradle/oracle.gradle"
 apply from: "$rootDir/gradle/docgen.gradle"
 apply from: "$rootDir/gradle/idea.gradle"
-
-/* Helper Functions -------------------------------------------------------- */
-String detectSpace() {
-
-  def output = new ByteArrayOutputStream()
-  exec {
-    commandLine 'sh', '-c', "${project.ext.python} -c \"from sys import prefix, base_prefix; print(prefix != base_prefix);\""
-    standardOutput = output
-  }
-  def is_venv = Boolean.parseBoolean(output.toString())
-
-  return is_venv ? '--global' : '--user'
-}
-
-/* Install hspylib build tools using Global space */
-task installBuildTools(type: Task) {
-  group = 'Install'
-  description = 'Install hspylib build tools'
-  doLast {
-    buildToolsFile.setText("###### Build Tools Files for $project.name ######\n\n")
-    println "Installing \"${project.name}\" build tools: "
-    println "Packages:"
-    rootProject.buildTools.each { tool ->
-      println "  |-${tool.trim()}"
-      buildToolsFile.append("${tool.trim()}\n")
-    }
-    println "Space: --global"
-    def args = [
-      rootProject.python, '-m', 'pip', 'install', '-q',
-      project.ext.space, '--upgrade', '-r', buildToolsFile,
-      '--no-warn-script-location', '--break-system-packages'
-    ]
-    exec {
-      commandLine args.flatten()
-    }
-  }
-}
-
-/* Generate a changelog with the commits from last git tag */
-task changelog(type: Task) {
-  group = 'Publish'
-  description = "Generate a changelog with the commits from last git tag"
-  doLast {
-    def out = new ByteArrayOutputStream()
-    exec {
-      commandLine 'git', 'describe', '--tags', '--abbrev=0', 'HEAD^'
-      standardOutput = out
-    }
-    def lastTag = out.toString().trim()
-    if (!lastTag) {
-      raise new StopActionException("Unable to fetch latest tag")
-    }
-    out.reset()
-    exec {
-      commandLine 'git', 'log', '--oneline', "--pretty='%h %ad %s'", '--date=short', "${lastTag}..HEAD"
-      standardOutput = out
-      errorOutput = standardOutput
-    }
-    println("\nShowing changelog commits from: ${lastTag}")
-    println("--------------------------------------------------------------------------------")
-    out.each(s ->
-      println(s)
-    )
-  }
-}
