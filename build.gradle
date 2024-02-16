@@ -9,6 +9,7 @@ idea {
       rootModuleType = 'PYTHON_MODULE'
     }
     sourceDirs += file('src/main')
+    sourceDirs += file('src/demo')
     testSourceDirs += file('src/test')
     excludeDirs += file('.idea')
     excludeDirs += file('.gradle')
@@ -26,7 +27,7 @@ configurations {
 ext {
   sourceRoot = "$rootDir/src"
   application = "$sourceRoot/main/__main__.py"
-  pythonPath = "$sourceRoot/main:$sourceRoot/test"
+  pythonPath = "$sourceRoot/main:$sourceRoot/test:$sourceRoot/demo"
   python = "python" + (System.getenv('PYTHON_VERSION') ?: '3.11')
   pyrcc = "pyrcc" + (System.getenv('PYRCC_VERSION') ?: '5')
   buildTools = "${buildTools}".split(",")
