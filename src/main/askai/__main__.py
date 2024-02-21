@@ -20,7 +20,6 @@ from askai.core.askai import AskAi
 from askai.core.engine.openai.openai_engine import OpenAIEngine
 from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.engine.protocols.ai_engine import AIEngine
-from askai.core.exception.exceptions import NoSuchEngineError
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.dict_tools import get_or_default
@@ -34,6 +33,8 @@ from typing import List
 
 import logging as log
 import sys
+
+from askai.exception.exceptions import NoSuchEngineError
 
 
 class Main(TUIApplication):

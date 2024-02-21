@@ -5,7 +5,7 @@ from hspylib.modules.cli.keyboard import Keyboard
 class Constants:
     """Provide as class contains all AskAi constants."""
 
-    # Interative mode termination expressions.
+    # Interactive mode termination expressions.
     TERM_EXPRESSIONS = r"^((good)?(bye ?)+|(tchau ?)+|(ciao ?)|quit|exit|[tT]hank(s| you)).*"
 
     # Default application language.

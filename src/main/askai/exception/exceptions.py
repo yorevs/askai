@@ -16,6 +16,10 @@
 from hspylib.core.exception.exceptions import HSBaseException
 
 
+class NoSuchEngineError(HSBaseException):
+    """Raised when the provided engine does not exist"""
+
+
 class InvalidRecognitionApiError(HSBaseException):
     """Raised when an invalid recognition API callback is provided."""
 
