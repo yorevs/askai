@@ -19,7 +19,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def welcome(self, username: str = "user") -> str:
-        return self.translate(f"Hello %VIOLET%{username.title()}%NC%, How can I assist you today?")
+        return self.translate(f"Hello {username.title()}, How can I assist you today?")
 
     @lru_cache
     def wait(self) -> str:
@@ -27,11 +27,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def listening(self) -> str:
-        return self.translate("%BLUE%I'm listening.%NC%")
+        return self.translate("I'm listening.")
 
     @lru_cache
     def transcribing(self) -> str:
-        return self.translate("Transcribing %GREEN%your voice%NC%, please wait.")
+        return self.translate("Processing your voice, please wait.")
 
     @lru_cache
     def goodbye(self) -> str:
@@ -39,11 +39,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def executing(self, cmd_line: str) -> str:
-        return self.translate(f"Executing command %GREEN%`{cmd_line}'%NC%, please wait.")
+        return self.translate(f"Executing command `{cmd_line}', please wait.")
 
     @lru_cache
     def cmd_success(self, exit_code: ExitStatus) -> str:
-        return self.translate(f"OK, the command returned with code: %GREEN%{exit_code}%NC%")
+        return self.translate(f"OK, the command returned with code: {exit_code}")
 
     @lru_cache
     def cmd_no_output(self) -> str:
@@ -51,15 +51,15 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def cmd_no_exist(self, command: str) -> str:
-        return self.translate(f"Sorry! Command %RED%`{command}'%NC% does not exist !")
+        return self.translate(f"Sorry! Command `{command}' does not exist !")
 
     @lru_cache
     def cmd_failed(self, cmd_line: str) -> str:
-        return self.translate(f"Sorry! Command %RED%`{cmd_line}'%NC% failed to execute !")
+        return self.translate(f"Sorry! Command %RED%`{cmd_line}' failed to execute !")
 
     @lru_cache
-    def security_warning(self) -> str:
-        return self.translate("%YELLOW%Warning, your confidential data may be compromised. Continue (yes/[no])?%NC%")
+    def access_grant(self) -> str:
+        return self.translate("AskAI requires access to your files, folders and apps. Continue (yes/[no])?")
 
     @lru_cache
     def translate(self, text: str) -> str:

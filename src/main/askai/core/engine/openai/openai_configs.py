@@ -17,8 +17,10 @@ from hspylib.core.config.app_config import AppConfigs
 from hspylib.core.metaclass.singleton import Singleton
 from typing import Literal
 
+from askai.core.askai_configs import AskAiConfigs
 
-class OpenAiConfigs(metaclass=Singleton):
+
+class OpenAiConfigs(AskAiConfigs, metaclass=Singleton):
     """Provides access to OpenAI configurations."""
 
     INSTANCE = None
@@ -27,6 +29,7 @@ class OpenAiConfigs(metaclass=Singleton):
     RESOURCE_DIR = str(_Classpath.resource_path())
 
     def __init__(self):
+        super().__init__()
         self._configs = AppConfigs.INSTANCE or AppConfigs(self.RESOURCE_DIR)
         self._stt_model = self._configs.get("openai.speech-to-text.model")
         self._tts_model = self._configs.get("openai.text-to-speech.model")

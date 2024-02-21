@@ -143,6 +143,11 @@ class OpenAIEngine(AIEngine):
         :param fn_listening: The function to display the listening message.
         :param fn_processing: The function to display the processing message.
         """
-        text = input_mic(fn_listening, fn_processing, speech_rec.Recognizer.recognize_whisper)
+        text = input_mic(
+            fn_listening,
+            fn_processing,
+            speech_rec.Recognizer.recognize_whisper,
+            language=self._configs.language.language
+        )
         log.debug(f"Audio transcribed to: {text}")
         return text

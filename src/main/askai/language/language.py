@@ -168,28 +168,49 @@ class Language(Enumeration):
 
     @property
     def locale(self) -> tuple:
+        """Return a tuple containing the locale attributes.
+        E.g:. (en_US, utf-8)
+        """
         return self._locale
 
     @property
     def idiom(self) -> str:
+        """Return a string representing the idiom.
+        E.g:. en_US
+        """
         return self._idiom
 
     @property
+    def encoding(self) -> Charset:
+        """Return the charset (encoding) required for the language to be properly displayed.
+        E.g:. utf-8
+        """
+        return self._encoding
+
+    @property
     def name(self) -> str:
+        """Return the language name.
+        E.g:. English
+        """
         return self._name
 
     @property
     def country(self) -> str:
+        """Return the country where the language is spoken.
+        E.g:. U.S.A.
+        """
         return self._country
 
     @property
     def language(self) -> str:
+        """Return a mnemonic representing the language.
+        E.g:. en
+        """
         return self._language
 
     @property
     def territory(self) -> str:
+        """Return a mnemonic representing the territory (Alpha-2 code).
+        E.g:. US
+        """
         return self._territory
-
-    @property
-    def encoding(self) -> Charset:
-        return self._encoding

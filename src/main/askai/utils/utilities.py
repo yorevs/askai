@@ -134,12 +134,14 @@ def stream(
 def input_mic(
     fn_listening: partial,
     fn_processing: partial,
-    fn_recognition: Callable[[AudioData], str]
+    fn_recognition: Callable[[AudioData], str],
+    language: str = Language.EN_US.language
 ) -> str:
     """Listen to the microphone and transcribe the speech into text.
     :param fn_listening: The function to display the listening message.
     :param fn_processing: The function to display the processing message.
     :param fn_recognition: The AI engine API to use to recognize the speech.
+    :param language: The language used to recognize the speech.
     """
     rec: Recognizer = Recognizer()
     with Microphone() as source:
@@ -151,12 +153,14 @@ def input_mic(
         try:
             recognizer_api = getattr(rec, fn_recognition.__name__)
             if recognizer_api and isinstance(recognizer_api, Callable):
-                return recognizer_api(audio).strip()
+                return recognizer_api(audio, language=language).strip()
             raise InvalidRecognitionApiError(str(fn_recognition or "<none>"))
         except UnknownValueError as err:
             raise IntelligibleAudioError(str(err)) from err
         except RequestError as err:
             raise RecognitionApiRequestError(str(err))
+        except ValueError as err:
+            log.error("Failed to recognize speech using language '%s' => %s", language, err)
         finally:
             Terminal.INSTANCE.cursor.erase_line()
 

@@ -42,6 +42,7 @@ You may want to install HsPyLib on other OS's and it will probably work, but the
 The following software are required:
 
 - FFMPEG (To allow playing audio and video files from your terminal).
+- PORTAUDIO (To allow microphone recordings).
 
 #### Required python packages
 
