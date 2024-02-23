@@ -29,7 +29,6 @@ from hspylib.modules.eventbus.eventbus import subscribe
 
 from askai.__classpath__ import _Classpath
 from askai.core.askai_events import AskAiEvents
-from askai.core.components.stream_capturer import StreamCapturer
 from askai.language.language import Language
 from askai.utils.constants import Constants
 from askai.utils.presets import Presets
@@ -54,7 +53,6 @@ class Display(metaclass=Singleton):
             daemon=True, target=self._run
         )
         self._display_thread.start()
-        self._capturer = StreamCapturer().start()
 
     @property
     def screen(self) -> Screen:

@@ -12,16 +12,8 @@ class Constants:
 
     DISPLAY_BUS = "display-bus"
 
-    CAPTURER_BUS = "capturer-bus"
-
     DISPLAY_EVENT = "display-event"
 
     STREAM_EVENT = "stream-event"
 
     TERM_EVENT = "terminate-event"
-
-    STDOUT_CAPTURED = "stdout-captured"
-
-    STDERR_CAPTURED = "stderr-captured"
-
-

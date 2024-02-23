@@ -45,12 +45,6 @@ class AskAiEvents(Enumeration):
         stream=_Event(Constants.STREAM_EVENT, tempo=1, lang=Language.EN_US),
         terminate=_Event(Constants.TERM_EVENT)
     )
-
-    CAPTURER_BUS = _EventBus(
-        Constants.CAPTURER_BUS,
-        stdoutCaptured=_Event(Constants.STDOUT_CAPTURED),
-        stderrCaptured=_Event(Constants.STDERR_CAPTURED)
-    )
     # fmt: on
 
     def __init__(self, bus: _EventBus):
