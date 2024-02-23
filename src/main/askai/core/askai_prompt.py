@@ -34,3 +34,6 @@ class AskAiPrompt(metaclass=Singleton):
             shell=self._shell,
             os_type=self._os_type
         )
+
+
+assert AskAiPrompt().INSTANCE is not None

@@ -18,24 +18,24 @@ import re
 import sys
 from functools import partial
 from shutil import which
-from threading import Thread
-from typing import List, Optional
+from typing import List, Optional, Any
 
+import pause
 from clitt.core.term.terminal import Terminal
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.commons import sysout
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.application.exit_status import ExitStatus
 
 from askai.core.askai_configs import AskAiConfigs
+from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_prompt import AskAiPrompt
+from askai.core.components.audio_player import AudioPlayer
 from askai.core.engine.protocols.ai_engine import AIEngine
 from askai.language.language import Language
 from askai.utils.cache_service import CacheService
 from askai.utils.constants import Constants
-from askai.utils.utilities import stream, start_delay
 
 
 class AskAi(metaclass=Singleton):
@@ -59,10 +59,9 @@ class AskAi(metaclass=Singleton):
         engine: AIEngine,
         query_string: str | List[str],
     ):
-        self._configs: AskAiConfigs = AskAiConfigs.INSTANCE or AskAiConfigs()
-        self._prompts = AskAiPrompt.INSTANCE or AskAiPrompt()
+        self._configs: AskAiConfigs = AskAiConfigs.INSTANCE
+        self._prompts = AskAiPrompt.INSTANCE
         self._interactive: bool = interactive
-        self._terminal: Terminal = Terminal.INSTANCE
         self._engine: AIEngine = engine
         self._query_string: str = str(" ".join(query_string) if isinstance(query_string, list) else query_string)
         self._user: str = os.getenv("USER", "you")
@@ -133,19 +132,18 @@ class AskAi(metaclass=Singleton):
         if processing:
             self._reply(self.MSG.wait())
         elif not processing and self._processing is not None and processing != self._processing:
-            self._terminal.cursor.erase_line()
+            Terminal.INSTANCE.cursor.erase_line()
         self._processing = processing
 
     def run(self) -> None:
         """Run the program."""
         if self._interactive:
             self._startup()
-            sysout(self)
             self._prompt()
         elif self._query_string:
             if not re.match(Constants.TERM_EXPRESSIONS, self._query_string.lower()):
-                sysout("", end="")
-                sysout(f"{self.user}: {self._query_string}")
+                self._display_text("", end="")
+                self._display_text(f"{self.user}: {self._query_string}")
                 self._ask_and_reply(self._query_string)
 
     def _startup(self) -> None:
@@ -153,27 +151,20 @@ class AskAi(metaclass=Singleton):
         CacheService.set_cache_enable(self.cache_enabled)
         CacheService.read_query_history()
         if self.is_speak:
-            start_delay()
+            AudioPlayer.INSTANCE.start_delay()
+        pause.seconds(1)
+        self._display_text(self)
 
-    def _input(self, prompt: str) -> Optional[str]:
-        """Prompt for user input.
-        :param prompt: The prompt to display to the user.
+    def _display_text(self, text: Any, end: str = os.linesep, erase_line=False) -> None:
+        """TODO"""
+        AskAiEvents.DISPLAY_BUS.events.display.emit(text=str(text), end=end, erase_line=erase_line)
+
+    def _stream_text(self, text: Any) -> None:
+        """Stream the message using default parameters.
+        :param text: The message to be streamed.
         """
-        ret = line_input(prompt)
-        if self.is_speak and ret == Constants.PUSH_TO_TALK:  # Use audio as input method.
-            self._terminal.cursor.erase_line()
-            spoken_text = self._engine.speech_to_text(
-                partial(self._reply, self.MSG.listening()),
-                partial(self._reply, self.MSG.transcribing())
-            )
-            if spoken_text:
-                sysout(f"{self.user}: {spoken_text}")
-                ret = spoken_text
-        elif not self.is_speak and not isinstance(ret, str):
-            self._terminal.cursor.erase_line()
-            sysout(f"{self.user}: %YELLOW%Speech-To-Text is disabled!%NC%")
-
-        return ret if isinstance(ret, str) else ret.val
+        self._display_text(f"{self.engine}: ", end="")
+        AskAiEvents.DISPLAY_BUS.events.stream.emit(text=str(text), tempo=self._configs.stream_speed)
 
     def _prompt(self) -> None:
         """Prompt for user interaction."""
@@ -188,7 +179,28 @@ class AskAi(metaclass=Singleton):
                 self._ask_and_reply(query)
         if not query:
             self._reply(self.MSG.goodbye())
-        sysout("")
+        self._display_text("")
+        AskAiEvents.DISPLAY_BUS.events.terminate.emit()
+
+    def _input(self, prompt: str) -> Optional[str]:
+        """Prompt for user input.
+        :param prompt: The prompt to display to the user.
+        """
+        self._display_text(prompt, end="")
+        ret = line_input()
+        if self.is_speak and ret == Constants.PUSH_TO_TALK:  # Use audio as input method.
+            Terminal.INSTANCE.cursor.erase_line()
+            spoken_text = self._engine.speech_to_text(
+                partial(self._reply, self.MSG.listening()),
+                partial(self._reply, self.MSG.transcribing())
+            )
+            if spoken_text:
+                self._display_text(f"{self.user}: {spoken_text}")
+                ret = spoken_text
+        elif not self.is_speak and not isinstance(ret, str):
+            self._display_text(f"{self.user}: %YELLOW%Speech-To-Text is disabled!%NC%", erase_line=True)
+
+        return ret if isinstance(ret, str) else ret.val
 
     def _reply(self, reply_message: str, speak: bool = True) -> str:
         """Reply to the user with the AI response.
@@ -198,12 +210,12 @@ class AskAi(metaclass=Singleton):
         if self.is_stream and speak and self.is_speak:
             self._engine.text_to_speech(reply_message, self._configs.stream_speed, cb_started=self._stream_text)
         elif not self.is_stream and speak and self.is_speak:
-            self._engine.text_to_speech(reply_message, self._configs.stream_speed, cb_started=sysout)
+            self._engine.text_to_speech(reply_message, self._configs.stream_speed, cb_started=self._display_text)
         elif self.is_stream:
             self._stream_text(reply_message)
         else:
             reply_message = f"{self.engine}: {reply_message}"
-            sysout(reply_message)
+            self._display_text(reply_message)
 
         return reply_message
 
@@ -211,16 +223,7 @@ class AskAi(metaclass=Singleton):
         """Reply API or system errors.
         :param error_message: The error message to be displayed.
         """
-        sysout(f"{self.engine}: {ensure_endswith(error_message, os.linesep)}")
-
-    def _stream_text(self, message: str) -> None:
-        """Stream the message using default parameters.
-        :param message: The message to be streamed.
-        """
-        sysout(f"{self.engine}: ", end="")
-        stream_thread = Thread(target=stream, args=(message, self._configs.stream_speed))
-        stream_thread.start()
-        stream_thread.join()  # Block until the text is fully streamed.
+        self._display_text(f"{self.engine}: {ensure_endswith(error_message, os.linesep)}")
 
     def _ask_and_reply(self, query: str) -> None:
         """Ask the question and provide the reply.
@@ -247,7 +250,7 @@ class AskAi(metaclass=Singleton):
             cmd_line = cmd_line.replace("~", os.getenv("HOME"))
             self._reply(self.MSG.executing(cmd_line))
             log.debug("Processing command `%s'", cmd_line)
-            output, exit_code = self._terminal.shell_exec(cmd_line, shell=True)
+            output, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
             if exit_code == ExitStatus.SUCCESS:
                 self._reply(self.MSG.cmd_success(exit_code))
                 if output:

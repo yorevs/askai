@@ -1,4 +1,3 @@
-from hspylib.core.enums.charset import Charset
 from hspylib.modules.cli.keyboard import Keyboard
 
 
@@ -8,11 +7,15 @@ class Constants:
     # Interactive mode termination expressions.
     TERM_EXPRESSIONS = r"^((good)?(bye ?)+|(tchau ?)+|(ciao ?)|quit|exit|[tT]hank(s| you)).*"
 
-    # Default application language.
-    DEFAULT_LANGUAGE = "en_US"
-
-    # Default application text encoding.
-    DEFAULT_ENCODING = Charset.UTF_8.val
-
     # Push to talk string value.
     PUSH_TO_TALK = Keyboard.VK_CTRL_L
+
+    DISPLAY_BUS = "display-bus"
+
+    DISPLAY_EVENT = "display-event"
+
+    STREAM_EVENT = "stream-event"
+
+    TERM_EVENT = "terminate-event"
+
+

@@ -67,3 +67,6 @@ class OpenAiConfigs(AskAiConfigs, metaclass=Singleton):
     @tts_format.setter
     def tts_format(self, value: Literal["mp3", "opus", "aac", "flac"]) -> None:
         self._tts_format = value
+
+
+assert OpenAiConfigs().INSTANCE is not None

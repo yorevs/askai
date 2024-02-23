@@ -19,11 +19,12 @@ from threading import Thread
 from typing import Callable, Optional, List
 
 import pause
-import speech_recognition as speech_rec
 from hspylib.modules.cli.vt100.vt_color import VtColor
 from openai import APIError, OpenAI, BadRequestError
 
 from askai.core.askai_prompt import AskAiPrompt
+from askai.core.components.audio_player import AudioPlayer
+from askai.core.components.recorder import Recorder
 from askai.core.engine.openai.openai_configs import OpenAiConfigs
 from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.engine.openai.openai_reply import OpenAIReply
@@ -31,7 +32,6 @@ from askai.core.engine.protocols.ai_engine import AIEngine
 from askai.core.engine.protocols.ai_model import AIModel
 from askai.core.engine.protocols.ai_reply import AIReply
 from askai.utils.cache_service import CacheService
-from askai.utils.utilities import input_mic, play_audio_file, start_delay
 
 
 class OpenAIEngine(AIEngine):
@@ -39,18 +39,16 @@ class OpenAIEngine(AIEngine):
 
     def __init__(self, model: AIModel = OpenAIModel.GPT_3_5_TURBO):
         super().__init__()
-        self._nickname = "ChatGPT"
-        self._url = "https://api.openai.com/v1/chat/completions"
-        self._configs: OpenAiConfigs = OpenAiConfigs()
-        self._prompts = AskAiPrompt.INSTANCE or AskAiPrompt()
+        self._nickname: str = "ChatGPT"
+        self._url: str = "https://api.openai.com/v1/chat/completions"
+        self._configs: OpenAiConfigs = OpenAiConfigs.INSTANCE
+        self._prompts: AskAiPrompt = AskAiPrompt.INSTANCE
+        self._player: AudioPlayer = AudioPlayer.INSTANCE
+        self._recorder: Recorder = Recorder.INSTANCE
         self._balance = 0
-        self._model_name = model.model_name()
+        self._model_name: str = model.model_name()
         self._chat_context = [{"role": "system", "content": self._prompts.setup()}]
-        self._client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"), organization=os.environ.get("OPENAI_ORG_ID"))
-
-    @property
-    def start_delay(self) -> float:
-        return start_delay()
+        self._llm = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"), organization=os.environ.get("OPENAI_ORG_ID"))
 
     @property
     def url(self):
@@ -81,7 +79,7 @@ class OpenAIEngine(AIEngine):
             try:
                 self._chat_context.append({"role": "user", "content": question})
                 log.debug(f"Generating AI answer for: {question}")
-                response = self._client.chat.completions.create(
+                response = self._llm.chat.completions.create(
                     model=self._model_name, messages=self._chat_context,
                     temperature=0.0, top_p=0.0
                 )
@@ -122,17 +120,17 @@ class OpenAIEngine(AIEngine):
         speech_file_path, file_exists = CacheService.get_audio_file(text, self._configs.tts_format)
         if not file_exists:
             log.debug(f'Audio file "%s" not found in cache. Querying AI engine.', speech_file_path)
-            response = self._client.audio.speech.create(
+            response = self._llm.audio.speech.create(
                 input=VtColor.strip_colors(text),
                 model=self._configs.tts_model,
                 voice=self._configs.tts_voice,
                 response_format=self._configs.tts_format,
             )
             response.stream_to_file(speech_file_path)  # Save the audio file locally.
-        speak_thread = Thread(daemon=True, target=play_audio_file, args=(speech_file_path, speed))
+        speak_thread = Thread(daemon=True, target=self._player.play_audio_file, args=(speech_file_path, speed))
         speak_thread.start()
         if cb_started:
-            pause.seconds(self.start_delay)
+            pause.seconds(self._player.start_delay())
             cb_started(text)
         speak_thread.join()  # Block until the speech has finished.
         if cb_finished:
@@ -143,11 +141,6 @@ class OpenAIEngine(AIEngine):
         :param fn_listening: The function to display the listening message.
         :param fn_processing: The function to display the processing message.
         """
-        text = input_mic(
-            fn_listening,
-            fn_processing,
-            speech_rec.Recognizer.recognize_whisper,
-            language=self._configs.language.language
-        )
+        _, text = self._recorder.listen(Recorder.RecognitionApi.OPEN_AI, self._configs.language)
         log.debug(f"Audio transcribed to: {text}")
         return text
