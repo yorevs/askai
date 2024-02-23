@@ -51,11 +51,15 @@ class Recorder(metaclass=Singleton):
     def __init__(self):
         self._rec: Recognizer = Recognizer()
         self._devices = self.get_device_list() or []
-        self._device_index = 1 if len(self._devices) > 0 else 0
+        self._device_index = 1
 
     @property
     def devices(self) -> List[Tuple[int, str]]:
         return self._devices
+
+    def select_device(self, index: int = 1) -> None:
+        """Select an available device for recording."""
+        self._device_index = index if len(self._devices) >= index else 0
 
     def listen(
         self,

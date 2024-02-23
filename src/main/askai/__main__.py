@@ -12,14 +12,12 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from clitt.core.term.terminal import Terminal
-from hspylib.core.tools.commons import is_debugging
 
-from askai.__classpath__ import _Classpath
-from askai.core.askai import AskAi
-from askai.core.engine.openai.openai_engine import OpenAIEngine
-from askai.core.engine.openai.openai_model import OpenAIModel
-from askai.core.engine.protocols.ai_engine import AIEngine
+import logging as log
+import sys
+from textwrap import dedent
+from typing import List
+
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.dict_tools import get_or_default
@@ -27,13 +25,12 @@ from hspylib.core.zoned_datetime import now
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
-from textwrap import dedent
-from time import sleep
-from typing import List
 
-import logging as log
-import sys
-
+from askai.__classpath__ import _Classpath
+from askai.core.askai import AskAi
+from askai.core.engine.openai.openai_engine import OpenAIEngine
+from askai.core.engine.openai.openai_model import OpenAIModel
+from askai.core.engine.protocols.ai_engine import AIEngine
 from askai.exception.exceptions import NoSuchEngineError
 
 
@@ -59,7 +56,7 @@ class Main(TUIApplication):
         model = engine_model.lower() if isinstance(engine_model, str) else engine_model[0].lower()
         match engine:
             case "openai":
-                return OpenAIEngine(OpenAIModel.of_value(model) or OpenAIModel.GPT_3_5_TURBO)
+                return OpenAIEngine(OpenAIModel.of_value(model) or OpenAIModel.GPT_3_5_TURBO_16K_0613)
             case "palm":
                 raise NoSuchEngineError("Google 'paml' is not yet implemented!")
             case _:
@@ -68,7 +65,7 @@ class Main(TUIApplication):
     def __init__(self, app_name: str):
         version = Version.load(load_dir=self.VERSION_DIR)
         super().__init__(app_name, version, self.DESCRIPTION.format(version), resource_dir=self.RESOURCE_DIR)
-        self._ai = None
+        self._askai = None
 
     def _setup_arguments(self) -> None:
         """Initialize application parameters and options."""
@@ -82,7 +79,7 @@ class Main(TUIApplication):
             .option(
                 "model", "m", "model",
                 "specifies which AI model to use (depends on the engine).",
-                nargs=1, default='gpt-3.5-turbo')\
+                nargs=1, default='gpt-3.5-turbo-16k-0613')\
             .option(
                 "interactive", "i", "interactive",
                 "whether you would like to run the program in an interactive mode.",
@@ -106,7 +103,7 @@ class Main(TUIApplication):
 
     def _main(self, *params, **kwargs) -> ExitStatus:
         """Run the application with the command line arguments."""
-        self._ai = AskAi(
+        self._askai = AskAi(
             self.get_arg("interactive"),
             self.get_arg("flat"),
             self.get_arg("quiet"),
@@ -130,7 +127,7 @@ class Main(TUIApplication):
 
     def _exec_application(self) -> ExitStatus:
         """Execute the application main flow."""
-        self._ai.run()
+        self._askai.run()
 
         return ExitStatus.SUCCESS
 

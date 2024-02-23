@@ -252,7 +252,7 @@ class AskAi(metaclass=Singleton):
         if (response := self._engine.ask(query)) and response.is_success():
             self.is_processing = False
             if (reply := response.reply_text()) and (
-                mat := re.match(r".*`{3}(bash|zsh)(.+)`{3}.*", reply.strip().replace("\n", ""), re.I | re.M)
+                mat := re.match(r".*`{3}(bash|zsh)?(.+)`{3}.*", reply.strip().replace("\n", ""), re.I | re.M)
             ):
                 self._process_command(mat.group(2))
             else:
