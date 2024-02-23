@@ -143,4 +143,4 @@ class OpenAIEngine(AIEngine):
         """
         _, text = self._recorder.listen(Recorder.RecognitionApi.OPEN_AI, self._configs.language)
         log.debug(f"Audio transcribed to: {text}")
-        return text
+        return text.strip()

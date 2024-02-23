@@ -101,11 +101,11 @@ class AskAi(metaclass=Singleton):
 
     @property
     def user(self) -> str:
-        return f"%EL0% {os.getenv('USER', 'you').title()}"
+        return f"%EL0%  {os.getenv('USER', 'you').title()}"
 
     @property
     def llm(self) -> str:
-        return f"%EL0% {self._engine.nickname()}"
+        return f"%EL0%  {self._engine.nickname()}"
 
     @property
     def cache_enabled(self) -> bool:
@@ -154,6 +154,7 @@ class AskAi(metaclass=Singleton):
                 self._ask_and_reply(self._query_string)
 
     def _splash(self) -> None:
+        """Display the AskAI splash screen."""
         Screen.INSTANCE.clear()
         sysout(f"%GREEN%{self.SPLASH}%NC%")
         while not self._ready:
@@ -206,37 +207,38 @@ class AskAi(metaclass=Singleton):
         """Prompt for user input.
         :param prompt: The prompt to display to the user.
         """
-        ret = line_input(prompt)
-        if self.is_speak and ret == Constants.PUSH_TO_TALK:  # Use audio as input method.
-            Terminal.INSTANCE.cursor.erase_line()
-            spoken_text = self._engine.speech_to_text(
-                partial(self._reply, self.MSG.listening()),
-                partial(self._reply, self.MSG.transcribing())
-            )
-            if spoken_text:
-                display_text(f"{self.user}: {spoken_text}")
-                ret = spoken_text
-        elif not self.is_speak and not isinstance(ret, str):
-            display_text(f"{self.user}: %YELLOW%Speech-To-Text is disabled!%NC%", erase_last=True)
-            ret = None
+        ret = None
+        while ret is None:
+            ret = line_input(prompt)
+            if self.is_speak and ret == Constants.PUSH_TO_TALK:  # Use audio as input method.
+                Terminal.INSTANCE.cursor.erase_line()
+                spoken_text = self._engine.speech_to_text(
+                    partial(self._reply, self.MSG.listening()),
+                    partial(self._reply, self.MSG.transcribing())
+                )
+                if spoken_text:
+                    display_text(f"{self.user}: {spoken_text}")
+                    ret = spoken_text
+            elif not self.is_speak and not isinstance(ret, str):
+                display_text(f"{self.user}: %YELLOW%Speech-To-Text is disabled!%NC%", erase_last=True)
+                ret = None
 
         return ret if not ret or isinstance(ret, str) else ret.val
 
-    def _reply(self, reply_message: str, speak: bool = True) -> str:
+    def _reply(self, message: str) -> str:
         """Reply to the user with the AI response.
-        :param reply_message: The message to reply to the user.
-        :param speak: Whether to speak the reply or not.
+        :param message: The message to reply to the user.
         """
-        if self.is_stream and speak and self.is_speak:
-            self._engine.text_to_speech(reply_message, self._configs.tempo, cb_started=self._stream_text)
-        elif not self.is_stream and speak and self.is_speak:
-            self._engine.text_to_speech(reply_message, self._configs.tempo, cb_started=display_text)
+        if self.is_stream and self.is_speak:
+            self._engine.text_to_speech(message, self._configs.tempo, cb_started=self._stream_text)
+        elif not self.is_stream and self.is_speak:
+            self._engine.text_to_speech(message, self._configs.tempo, cb_started=display_text)
         elif self.is_stream:
-            self._stream_text(reply_message)
+            self._stream_text(message)
         else:
-            display_text(f"{self.llm}: {reply_message}")
+            display_text(f"{self.llm}: {message}")
 
-        return reply_message
+        return message
 
     def _reply_error(self, error_message: str) -> None:
         """Reply API or system errors.

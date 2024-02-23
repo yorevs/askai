@@ -134,4 +134,4 @@ class Main(TUIApplication):
 
 # Application entry point
 if __name__ == "__main__":
-    Main("ask-ai").INSTANCE.run(sys.argv[1:])
+    Main("AskAI").INSTANCE.run(sys.argv[1:])
