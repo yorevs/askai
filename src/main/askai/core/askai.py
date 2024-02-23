@@ -36,6 +36,7 @@ from askai.core.askai_configs import AskAiConfigs
 from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_prompt import AskAiPrompt
 from askai.core.components.audio_player import AudioPlayer
+from askai.core.components.recorder import Recorder
 from askai.core.engine.protocols.ai_engine import AIEngine
 from askai.language.language import Language
 from askai.utils.cache_service import CacheService
@@ -78,6 +79,7 @@ class AskAi(metaclass=Singleton):
         self._query_num = 0
         self._configs.is_stream = is_stream
         self._configs.is_speak = is_speak
+        self._configs.tempo = tempo
         self.MSG.llm = self.llm
 
     def __str__(self) -> str:
@@ -115,7 +117,7 @@ class AskAi(metaclass=Singleton):
 
     @property
     def stream_speed(self) -> int:
-        return self._configs.stream_speed
+        return self._configs.tempo
 
     @property
     def is_stream(self) -> bool:
@@ -169,6 +171,10 @@ class AskAi(metaclass=Singleton):
         CacheService.read_query_history()
         if self.is_speak:
             AudioPlayer.INSTANCE.start_delay()
+            log.debug(
+                "Available audio devices:\n%s",
+                "\n".join([f"{d[0]} - {d[1]}" for d in Recorder.INSTANCE.devices])
+            )
         self._ready = True
         log.info("AskAI is ready !")
         splash_thread.join()
@@ -222,9 +228,9 @@ class AskAi(metaclass=Singleton):
         :param speak: Whether to speak the reply or not.
         """
         if self.is_stream and speak and self.is_speak:
-            self._engine.text_to_speech(reply_message, self._configs.stream_speed, cb_started=self._stream_text)
+            self._engine.text_to_speech(reply_message, self._configs.tempo, cb_started=self._stream_text)
         elif not self.is_stream and speak and self.is_speak:
-            self._engine.text_to_speech(reply_message, self._configs.stream_speed, cb_started=display_text)
+            self._engine.text_to_speech(reply_message, self._configs.tempo, cb_started=display_text)
         elif self.is_stream:
             self._stream_text(reply_message)
         else:

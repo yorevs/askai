@@ -13,7 +13,6 @@
    Copyright·(c)·2024,·HSPyLib
 """
 import logging as log
-import os
 from pathlib import Path
 from typing import Callable, List, Tuple
 
@@ -26,14 +25,8 @@ from speech_recognition import AudioData, Recognizer, Microphone, UnknownValueEr
 from askai.core.askai_messages import AskAiMessages
 from askai.exception.exceptions import IntelligibleAudioError, InvalidRecognitionApiError
 from askai.language.language import Language
+from askai.utils.cache_service import REC_DIR
 from askai.utils.utilities import display_text
-
-CACHE_DIR: Path = Path(f'{os.getenv("HHS_DIR", os.getenv("TEMP", "/tmp"))}/askai')
-
-# Voice recordings directory.
-REC_DIR: Path = Path(str(CACHE_DIR) + "/cache/recordings")
-if not REC_DIR.exists():
-    REC_DIR.mkdir(parents=True, exist_ok=True)
 
 
 class Recorder(metaclass=Singleton):
@@ -47,8 +40,9 @@ class Recorder(metaclass=Singleton):
         GOOGLE  = 'recognize_google'
         # fmt: on
 
-    @staticmethod
-    def get_device_list() -> List[Tuple[int, str]]:
+    @classmethod
+    def get_device_list(cls) -> List[Tuple[int, str]]:
+        """Return a list of available devices."""
         devices = []
         for index, name in enumerate(Microphone.list_microphone_names()):
             devices.append((index, name))
@@ -56,24 +50,32 @@ class Recorder(metaclass=Singleton):
 
     def __init__(self):
         self._rec: Recognizer = Recognizer()
-        self._device_index = 1
+        self._devices = self.get_device_list() or []
+        self._device_index = 1 if len(self._devices) > 0 else 0
+
+    @property
+    def devices(self) -> List[Tuple[int, str]]:
+        return self._devices
 
     def listen(
         self,
         recognition_api: RecognitionApi = RecognitionApi.OPEN_AI,
         language: Language = Language.EN_US
     ) -> Tuple[Path, str]:
-        """Listen to the microphone and save the AudioData as an mp3 file.
+        """Listen to the microphone, save the AudioData as a wav file and then, transcribe the speech.
+        :param recognition_api: the API to be used to recognize the speech.
+        :param language: the spoken language.
         """
         audio_path = Path(f"{REC_DIR}/askai-stt-{now_ms()}.wav")
-        with Microphone(device_index=1) as source:
+        with Microphone(device_index=self._device_index) as source:
             try:
                 self._detect_noise()
                 display_text(AskAiMessages.INSTANCE.listening(), erase_last=True)
-                audio: AudioData = self._rec.listen(source, 2, 5)
+                audio: AudioData = self._rec.listen(source, phrase_time_limit=5)
                 display_text(AskAiMessages.INSTANCE.transcribing(), erase_last=True)
                 with open(audio_path, "wb") as f_rec:
                     f_rec.write(audio.get_wav_data())
+                    log.debug("Voice recorded and saved as %s", audio_path)
                 if api := getattr(self._rec, recognition_api.value):
                     log.debug("Recognizing voice using %s", recognition_api)
                     assert isinstance(api, Callable)
@@ -90,7 +92,9 @@ class Recorder(metaclass=Singleton):
         return audio_path, stt_text
 
     def _detect_noise(self, interval: float = 1) -> None:
-        """TODO"""
+        """Detect and adjust the background noise level.
+        :param interval: the interval in seconds of the noise detection.
+        """
         with Microphone() as source:
             try:
                 display_text(AskAiMessages.INSTANCE.noise_levels())

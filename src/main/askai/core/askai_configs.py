@@ -34,7 +34,7 @@ class AskAiConfigs(metaclass=Singleton):
     def __init__(self):
         self._configs = AppConfigs.INSTANCE or AppConfigs(self.RESOURCE_DIR)
         self._is_cache = self._configs.get_bool("askai.cache.enabled")
-        self._stream_speed = self._configs.get_int("askai.stream.speed")
+        self._tempo = self._configs.get_int("askai.stream.speed")
         self._is_stream = self._configs.get_bool("askai.stream.response")
         self._is_speak = self._configs.get_bool("askai.speak.response")
         self._language = Language.of_locale(
@@ -50,12 +50,12 @@ class AskAiConfigs(metaclass=Singleton):
         self._is_cache = value
 
     @property
-    def stream_speed(self) -> int:
-        return self._stream_speed
+    def tempo(self) -> int:
+        return self._tempo
 
-    @stream_speed.setter
-    def stream_speed(self, value: int) -> None:
-        self._stream_speed = value
+    @tempo.setter
+    def tempo(self, value: int) -> None:
+        self._tempo = value
 
     @property
     def is_stream(self) -> bool:
