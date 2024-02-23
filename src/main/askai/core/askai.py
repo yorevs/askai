@@ -186,8 +186,7 @@ class AskAi(metaclass=Singleton):
         """Prompt for user input.
         :param prompt: The prompt to display to the user.
         """
-        self._display_text(prompt, end="")
-        ret = line_input()
+        ret = line_input(prompt)
         if self.is_speak and ret == Constants.PUSH_TO_TALK:  # Use audio as input method.
             Terminal.INSTANCE.cursor.erase_line()
             spoken_text = self._engine.speech_to_text(

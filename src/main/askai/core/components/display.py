@@ -19,6 +19,7 @@ import pause
 from clitt.core.term.cursor import Cursor
 from clitt.core.term.screen import Screen
 from clitt.core.term.terminal import Terminal
+from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.enums.charset import Charset
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import is_debugging
@@ -28,6 +29,7 @@ from hspylib.modules.eventbus.eventbus import subscribe
 
 from askai.__classpath__ import _Classpath
 from askai.core.askai_events import AskAiEvents
+from askai.core.components.stream_capturer import StreamCapturer
 from askai.language.language import Language
 from askai.utils.constants import Constants
 from askai.utils.presets import Presets
@@ -52,6 +54,7 @@ class Display(metaclass=Singleton):
             daemon=True, target=self._run
         )
         self._display_thread.start()
+        self._capturer = StreamCapturer().start()
 
     @property
     def screen(self) -> Screen:
@@ -60,6 +63,9 @@ class Display(metaclass=Singleton):
     @property
     def cursor(self) -> Cursor:
         return self.screen.cursor
+
+    def join(self) -> None:
+        self._display_thread.join()
 
     def _terminate(self) -> None:
         self._done = True
@@ -195,4 +201,8 @@ if __name__ == '__main__':
     AskAiEvents.DISPLAY_BUS.events.display.emit(text="Second displayed text!!!", erase_last=True)
     AskAiEvents.DISPLAY_BUS.events.stream.emit(text="Text to be streamed!!!")
     AskAiEvents.DISPLAY_BUS.events.stream.emit(text="Second text to be streamed!!!")
-    AskAiEvents.DISPLAY_BUS.events.terminate.emit()
+    pause.seconds(5)
+    line_input("Terminate ??? ")
+    # print("AQUI")
+    # AskAiEvents.DISPLAY_BUS.events.terminate.emit()
+    d.join()
