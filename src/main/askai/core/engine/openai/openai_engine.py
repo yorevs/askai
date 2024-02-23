@@ -23,8 +23,8 @@ from hspylib.modules.cli.vt100.vt_color import VtColor
 from openai import APIError, OpenAI, BadRequestError
 
 from askai.core.askai_prompt import AskAiPrompt
-from askai.core.components.audio_player import AudioPlayer
-from askai.core.components.recorder import Recorder
+from askai.core.component.audio_player import AudioPlayer
+from askai.core.component.recorder import Recorder
 from askai.core.engine.openai.openai_configs import OpenAiConfigs
 from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.engine.openai.openai_reply import OpenAIReply

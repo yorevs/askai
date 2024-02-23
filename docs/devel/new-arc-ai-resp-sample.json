@@ -1,5 +1,5 @@
 {
-  "prompt_type": 1,
+  "query_type": "Type-1",
   "question": "<user_question>",
   "commands": [{
       "cmd_line": "<command_line>",

@@ -35,8 +35,8 @@ from askai.__classpath__ import _Classpath
 from askai.core.askai_configs import AskAiConfigs
 from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_prompt import AskAiPrompt
-from askai.core.components.audio_player import AudioPlayer
-from askai.core.components.recorder import Recorder
+from askai.core.component.audio_player import AudioPlayer
+from askai.core.component.recorder import Recorder
 from askai.core.engine.protocols.ai_engine import AIEngine
 from askai.language.language import Language
 from askai.utils.cache_service import CacheService
