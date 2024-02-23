@@ -20,16 +20,13 @@ from typing import Callable, List, Tuple
 from clitt.core.term.terminal import Terminal
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.commons import safe_delete_file
 from hspylib.core.zoned_datetime import now_ms
 from speech_recognition import AudioData, Recognizer, Microphone, UnknownValueError, RequestError
 
-from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import AskAiMessages
-from askai.core.components.audio_player import AudioPlayer
-from askai.core.components.display import Display
 from askai.exception.exceptions import IntelligibleAudioError, InvalidRecognitionApiError
 from askai.language.language import Language
+from askai.utils.utilities import display_text
 
 CACHE_DIR: Path = Path(f'{os.getenv("HHS_DIR", os.getenv("TEMP", "/tmp"))}/askai')
 
@@ -72,9 +69,9 @@ class Recorder(metaclass=Singleton):
         with Microphone(device_index=1) as source:
             try:
                 self._detect_noise()
-                AskAiEvents.DISPLAY_BUS.events.display.emit(text=AskAiMessages.INSTANCE.listening())
+                display_text(AskAiMessages.INSTANCE.listening(), erase_last=True)
                 audio: AudioData = self._rec.listen(source, 2, 5)
-                AskAiEvents.DISPLAY_BUS.events.display.emit(text=AskAiMessages.INSTANCE.transcribing(), erase_line=True)
+                display_text(AskAiMessages.INSTANCE.transcribing(), erase_last=True)
                 with open(audio_path, "wb") as f_rec:
                     f_rec.write(audio.get_wav_data())
                 if api := getattr(self._rec, recognition_api.value):
@@ -96,7 +93,7 @@ class Recorder(metaclass=Singleton):
         """TODO"""
         with Microphone() as source:
             try:
-                AskAiEvents.DISPLAY_BUS.events.display.emit(text=AskAiMessages.INSTANCE.noise_levels())
+                display_text(AskAiMessages.INSTANCE.noise_levels())
                 self._rec.adjust_for_ambient_noise(source, duration=interval)
                 Terminal.INSTANCE.cursor.erase_line()
             except UnknownValueError as err:
@@ -104,13 +101,3 @@ class Recorder(metaclass=Singleton):
 
 
 assert Recorder().INSTANCE is not None
-
-
-if __name__ == '__main__':
-    d = Display.INSTANCE
-    r = Recorder.INSTANCE
-    p = AudioPlayer.INSTANCE
-    rec_path, text = r.listen()
-    print('Recorded at:', rec_path, "Text:", text)
-    p.play_audio_file(str(rec_path))
-    safe_delete_file(str(rec_path))

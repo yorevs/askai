@@ -12,6 +12,8 @@ class Constants:
 
     DISPLAY_BUS = "display-bus"
 
+    DISPLAY_READY_EVENT = "display-ready"
+
     DISPLAY_EVENT = "display-event"
 
     STREAM_EVENT = "stream-event"
