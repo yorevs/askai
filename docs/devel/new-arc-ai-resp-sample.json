@@ -6,7 +6,7 @@
       "os": "<linux|macos|windows>",
       "shell": "<bash|zsh|fish>"
   }],
-  "summarization": [{
+  "summarizations": [{
     "base_path": "<path_to_file_or_folder>",
     "files": [
       "file1", "file2", "fileN"
