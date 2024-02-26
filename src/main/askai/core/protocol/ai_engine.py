@@ -12,8 +12,8 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from askai.core.engine.protocols.ai_model import AIModel
-from askai.core.engine.protocols.ai_reply import AIReply
+from askai.core.protocol.ai_model import AIModel
+from askai.core.protocol.ai_reply import AIReply
 from functools import partial
 from typing import Callable, List, Optional, Protocol
 

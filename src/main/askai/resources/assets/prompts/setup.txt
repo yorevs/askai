@@ -15,4 +15,5 @@ Step  5 - Determine if you need to summarize documents or any content.
 Step  6 - Determine if you need me to download any content from any URL.
 Step  7 - Determine if you need me to upload any file for the final answer.
 Step  8 - You always return a formatted JSON with no additional description or context.
-Step  9 - It should have the fields "query_type", "question", "require_internet", "require_summarization", "require_command".
+Step  9 - It should have the boolean fields: "intelligible", "require_internet", "require_summarization", "require_command", and the string fields: "query_type", "question", "response".
+

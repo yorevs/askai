@@ -37,7 +37,7 @@ from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_prompt import AskAiPrompt
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.recorder import Recorder
-from askai.core.engine.protocols.ai_engine import AIEngine
+from askai.core.protocol.ai_engine import AIEngine
 from askai.language.language import Language
 from askai.utils.cache_service import CacheService
 from askai.utils.constants import Constants

@@ -12,7 +12,7 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from askai.core.engine.protocols.ai_model import AIModel
+from askai.core.protocol.ai_model import AIModel
 from hspylib.core.enums.enumeration import Enumeration
 from typing import List
 

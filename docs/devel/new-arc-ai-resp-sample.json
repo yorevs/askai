@@ -12,5 +12,6 @@
       "file1", "file2", "fileN"
     ]
   }],
-  "require_internet": true
+  "require_internet": true,
+  "intelligible": true
 }

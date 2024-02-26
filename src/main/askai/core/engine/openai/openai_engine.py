@@ -28,9 +28,9 @@ from askai.core.component.recorder import Recorder
 from askai.core.engine.openai.openai_configs import OpenAiConfigs
 from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.engine.openai.openai_reply import OpenAIReply
-from askai.core.engine.protocols.ai_engine import AIEngine
-from askai.core.engine.protocols.ai_model import AIModel
-from askai.core.engine.protocols.ai_reply import AIReply
+from askai.core.protocol.ai_engine import AIEngine
+from askai.core.protocol.ai_model import AIModel
+from askai.core.protocol.ai_reply import AIReply
 from askai.utils.cache_service import CacheService
 
 
@@ -45,7 +45,6 @@ class OpenAIEngine(AIEngine):
         self._prompts: AskAiPrompt = AskAiPrompt.INSTANCE
         self._player: AudioPlayer = AudioPlayer.INSTANCE
         self._recorder: Recorder = Recorder.INSTANCE
-        self._balance = 0
         self._model_name: str = model.model_name()
         self._chat_context = [{"role": "system", "content": self._prompts.setup()}]
         self._llm = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"), organization=os.environ.get("OPENAI_ORG_ID"))

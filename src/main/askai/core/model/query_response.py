@@ -10,21 +10,17 @@
    Copyright·(c)·2024,·HSPyLib
 """
 from dataclasses import dataclass
-from typing import List
-
-from askai.core.model.query_type import QueryType
 
 
 @dataclass
 class QueryResponse:
     """Keep track of the query responses."""
 
-    query_type: QueryType
+    query_type: str
     question: str
+    intelligible: bool
     require_internet: bool
-    commands: List[dict]
-    summarization: List[dict]
-    uploads: List[dict]
-    downloads: List[dict]
-
+    require_summarization: bool
+    require_command: bool
+    response: str
 
