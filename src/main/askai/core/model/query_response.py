@@ -14,7 +14,7 @@ from dataclasses import dataclass
 
 @dataclass
 class QueryResponse:
-    """Keep track of the query responses."""
+    """Keep track of the first-query responses."""
 
     query_type: str
     question: str

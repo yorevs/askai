@@ -42,11 +42,10 @@ class OpenAIEngine(AIEngine):
         self._nickname: str = "ChatGPT"
         self._url: str = "https://api.openai.com/v1/chat/completions"
         self._configs: OpenAiConfigs = OpenAiConfigs.INSTANCE
-        self._prompts: AskAiPrompt = AskAiPrompt.INSTANCE
         self._player: AudioPlayer = AudioPlayer.INSTANCE
         self._recorder: Recorder = Recorder.INSTANCE
         self._model_name: str = model.model_name()
-        self._chat_context = [{"role": "system", "content": self._prompts.setup()}]
+        self._chat_context = [{"role": "system", "content": AskAiPrompt.INSTANCE.setup}]
         self._llm = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"), organization=os.environ.get("OPENAI_ORG_ID"))
 
     @property
@@ -101,7 +100,7 @@ class OpenAIEngine(AIEngine):
 
     def forget(self) -> None:
         """Forget all of the chat context."""
-        self._chat_context = [{"role": "system", "content": self._prompts.setup()}]
+        self._chat_context = [{"role": "system", "content": AskAiPrompt.INSTANCE.setup()}]
 
     def text_to_speech(
         self,

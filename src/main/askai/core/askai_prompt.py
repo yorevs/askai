@@ -13,10 +13,17 @@
    Copyright·(c)·2024,·HSPyLib
 """
 import os
-from hspylib.core.metaclass.singleton import Singleton
+from functools import lru_cache
 from string import Template
+from typing import List
 
-from askai.utils.utilities import read_prompt
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_argument
+from hspylib.core.tools.commons import file_is_not_empty
+from hspylib.core.tools.text_tools import ensure_endswith
+
+from askai.__classpath__ import _Classpath
+from askai.core.processor.ai_processor import get_query_types
 
 
 class AskAiPrompt(metaclass=Singleton):
@@ -24,16 +31,45 @@ class AskAiPrompt(metaclass=Singleton):
 
     INSTANCE = None
 
-    def __init__(self):
-        self._shell = os.getenv("HHS_MY_SHELL", "bash")
-        self._os_type = os.getenv("HHS_MY_OS_RELEASE", "linux")
-        self._setup = Template(read_prompt("homesetup.txt"))
+    # AI Prompts directory.
+    PROMPT_DIR = str(_Classpath.resource_path()) + "/assets/prompts"
 
+    def __init__(self):
+        self._shell: str = os.getenv("HHS_MY_SHELL", "bash")
+        self._os_type: str = os.getenv("HHS_MY_OS_RELEASE", "linux")
+        self._query_types: List[str] = get_query_types()
+        self._setup: Template = Template(self.read_prompt("setup.txt"))
+
+    @property
+    def os_type(self) -> str:
+        return self._os_type.lower()
+
+    @property
+    def shell(self) -> str:
+        return self._shell.lower()
+
+    @property
     def setup(self) -> str:
         return self._setup.substitute(
-            shell=self._shell,
-            os_type=self._os_type
+            query_types='\n'.join(self._query_types)
         )
+
+    @lru_cache
+    def read_prompt(self, filename: str) -> str:
+        """Read the prompt specified by the filename.
+        :param filename: The filename of the prompt.
+        """
+        filename = f"{self.PROMPT_DIR}/{ensure_endswith(filename, '.txt')}"
+        check_argument(file_is_not_empty(filename), f"Prompt file does not exist: {filename}")
+        with open(filename) as f_prompt:
+            return "".join(f_prompt.readlines())
+
+    @lru_cache
+    def read_template(self, filename: str) -> Template:
+        """Read the template specified by the filename.
+        :param filename: The filename of the prompt.
+        """
+        return Template(self.read_prompt(filename))
 
 
 assert AskAiPrompt().INSTANCE is not None
