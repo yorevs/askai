@@ -12,10 +12,10 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+from typing import Callable, List, Protocol
+
 from askai.core.protocol.ai_model import AIModel
 from askai.core.protocol.ai_reply import AIReply
-from functools import partial
-from typing import Callable, List, Optional, Protocol
 
 
 class AIEngine(Protocol):
@@ -49,22 +49,20 @@ class AIEngine(Protocol):
 
     def text_to_speech(
         self,
-        text: str = None,
-        speed: int = 0,
-        cb_started: Optional[Callable[[str], None]] = None,
-        cb_finished: Optional[Callable] = None,
+        text: str,
+        cb_started: Callable[[str], None]
     ) -> None:
         """Text-T0-Speech the provided text.
         :param text: The text to speech.
-        :param speed: The tempo to play the generated audio [1..3].
         :param cb_started: The callback function called when the speaker starts.
-        :param cb_finished: The callback function called when the speaker ends.
         """
         ...
 
-    def speech_to_text(self, fn_listening: partial, fn_processing: partial) -> str:
+    def speech_to_text(
+        self,
+        fn_reply: Callable[[str], None]
+    ) -> str:
         """Transcribes audio input from the microphone into the text input language.
-        :param fn_listening: The function to display the listening message.
-        :param fn_processing: The function to display the processing message.
+        :param fn_reply: The function to reply to the user using TTS.
         """
         ...

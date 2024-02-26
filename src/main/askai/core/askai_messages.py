@@ -16,7 +16,6 @@ class AskAiMessages(metaclass=Singleton):
     def __init__(self):
         self._configs: AskAiConfigs = AskAiConfigs.INSTANCE
         self._translator = ArgosTranslator.INSTANCE or ArgosTranslator(Language.EN_US, self._configs.language)
-        self.llm = "%EL0% AskAI"
 
     @lru_cache
     def welcome(self, username: str) -> str:
@@ -28,15 +27,15 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def listening(self) -> str:
-        return self.translate(f"{self.llm}: I'm listening…")
+        return self.translate(f"I'm listening…")
 
     @lru_cache
     def noise_levels(self) -> str:
-        return self.translate(f"{self.llm}: Adjusting noise levels…")
+        return self.translate(f"Adjusting noise levels…")
 
     @lru_cache
     def transcribing(self) -> str:
-        return self.translate(f"{self.llm}: Processing your voice, please wait…")
+        return self.translate(f"I'm processing your voice, please wait…")
 
     @lru_cache
     def goodbye(self) -> str:

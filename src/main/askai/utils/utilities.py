@@ -37,7 +37,7 @@ def display_text(text: Any, end: str = os.linesep, erase_last=False) -> None:
     """TODO"""
     if erase_last:
         Cursor.INSTANCE.erase_line()
-    sysout(text, end=end)
+    sysout(f"%EL0%{text}", end=end)
 
 
 def stream_text(

@@ -16,7 +16,6 @@ import logging as log
 import os
 import re
 import sys
-from functools import partial
 from shutil import which
 from threading import Thread
 from typing import List, Optional, Any
@@ -30,6 +29,7 @@ from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import sysout
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.cli.keyboard import Keyboard
 
 from askai.__classpath__ import _Classpath
 from askai.core.askai_configs import AskAiConfigs
@@ -40,7 +40,6 @@ from askai.core.component.recorder import Recorder
 from askai.core.protocol.ai_engine import AIEngine
 from askai.language.language import Language
 from askai.utils.cache_service import CacheService
-from askai.utils.constants import Constants
 from askai.utils.utilities import stream_text, display_text
 
 
@@ -101,11 +100,11 @@ class AskAi(metaclass=Singleton):
 
     @property
     def user(self) -> str:
-        return f"%EL0%  {os.getenv('USER', 'you').title()}"
+        return f"  {os.getenv('USER', 'you').title()}"
 
     @property
     def llm(self) -> str:
-        return f"%EL0%  {self._engine.nickname()}"
+        return f"  {self._engine.nickname()}"
 
     @property
     def cache_enabled(self) -> bool:
@@ -149,9 +148,8 @@ class AskAi(metaclass=Singleton):
             self._startup()
             self._prompt()
         elif self._query_string:
-            if not re.match(Constants.TERM_EXPRESSIONS, self._query_string.lower()):
-                display_text(f"{self.user}: {self._query_string}%EOL%")
-                self._ask_and_reply(self._query_string)
+            display_text(f"{self.user}: {self._query_string}%EOL%")
+            self._ask_and_reply(self._query_string)
 
     def _splash(self) -> None:
         """Display the AskAI splash screen."""
@@ -182,23 +180,10 @@ class AskAi(metaclass=Singleton):
         display_text(self)
         self._reply(self.MSG.welcome(os.getenv('USER', 'you')))
 
-    def _stream_text(self, text: Any) -> None:
-        """Stream the message using default parameters.
-        :param text: The message to be streamed.
-        """
-        display_text(f"{self.llm}: ", end="")
-        stream_text(text)
-
     def _prompt(self) -> None:
         """Prompt for user interaction."""
         while query := self._input(f"{self.user}: "):
-            if not query:
-                continue
-            elif re.match(Constants.TERM_EXPRESSIONS, query.lower()):
-                self._reply(self.MSG.goodbye())
-                break
-            else:
-                self._ask_and_reply(query)
+            self._ask_and_reply(query)
         if not query:
             self._reply(self.MSG.goodbye())
         display_text("")
@@ -210,12 +195,9 @@ class AskAi(metaclass=Singleton):
         ret = None
         while ret is None:
             ret = line_input(prompt)
-            if self.is_speak and ret == Constants.PUSH_TO_TALK:  # Use audio as input method.
+            if self.is_speak and ret == Keyboard.VK_CTRL_L:  # Use audio as input method.
                 Terminal.INSTANCE.cursor.erase_line()
-                spoken_text = self._engine.speech_to_text(
-                    partial(self._reply, self.MSG.listening()),
-                    partial(self._reply, self.MSG.transcribing())
-                )
+                spoken_text = self._engine.speech_to_text(self._reply)
                 if spoken_text:
                     display_text(f"{self.user}: {spoken_text}")
                     ret = spoken_text
@@ -224,27 +206,6 @@ class AskAi(metaclass=Singleton):
                 ret = None
 
         return ret if not ret or isinstance(ret, str) else ret.val
-
-    def _reply(self, message: str) -> str:
-        """Reply to the user with the AI response.
-        :param message: The message to reply to the user.
-        """
-        if self.is_stream and self.is_speak:
-            self._engine.text_to_speech(message, self._configs.tempo, cb_started=self._stream_text)
-        elif not self.is_stream and self.is_speak:
-            self._engine.text_to_speech(message, self._configs.tempo, cb_started=display_text)
-        elif self.is_stream:
-            self._stream_text(message)
-        else:
-            display_text(f"{self.llm}: {message}")
-
-        return message
-
-    def _reply_error(self, error_message: str) -> None:
-        """Reply API or system errors.
-        :param error_message: The error message to be displayed.
-        """
-        display_text(f"{self.llm}: {ensure_endswith(error_message, os.linesep)}")
 
     def _ask_and_reply(self, query: str) -> None:
         """Ask the question and provide the reply.
@@ -262,6 +223,25 @@ class AskAi(metaclass=Singleton):
         else:
             self.is_processing = False
             self._reply_error(response.reply_text())
+
+    def _reply(self, message: str) -> None:
+        """Reply to the user with the AI response.
+        :param message: The message to reply to the user.
+        """
+        if self.is_stream and self.is_speak:
+            self._engine.text_to_speech(message, self._stream_text)
+        elif not self.is_stream and self.is_speak:
+            self._engine.text_to_speech(message, display_text)
+        elif self.is_stream:
+            self._stream_text(message)
+        else:
+            display_text(f"{self.llm}: {message}")
+
+    def _reply_error(self, error_message: str) -> None:
+        """Reply API or system errors.
+        :param error_message: The error message to be displayed.
+        """
+        display_text(f"{self.llm}: {ensure_endswith(error_message, os.linesep)}")
 
     def _process_command(self, cmd_line: str) -> None:
         """Attempt to process command.
@@ -282,3 +262,10 @@ class AskAi(metaclass=Singleton):
                 self._reply(self.MSG.cmd_failed(command))
         else:
             self._reply(self.MSG.cmd_no_exist(command))
+
+    def _stream_text(self, text: Any) -> None:
+        """Stream the message using default parameters.
+        :param text: The message to be streamed.
+        """
+        display_text(f"{self.llm}: ", end="")
+        stream_text(text)

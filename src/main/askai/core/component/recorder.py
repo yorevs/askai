@@ -64,19 +64,22 @@ class Recorder(metaclass=Singleton):
     def listen(
         self,
         recognition_api: RecognitionApi = RecognitionApi.OPEN_AI,
+        fn_reply: Callable[[str], None] = display_text,
         language: Language = Language.EN_US
     ) -> Tuple[Path, str]:
         """Listen to the microphone, save the AudioData as a wav file and then, transcribe the speech.
         :param recognition_api: the API to be used to recognize the speech.
+        :param fn_reply: function to provide a TTS reply.
         :param language: the spoken language.
         """
         audio_path = Path(f"{REC_DIR}/askai-stt-{now_ms()}.wav")
         with Microphone(device_index=self._device_index) as source:
             try:
                 self._detect_noise()
-                display_text(AskAiMessages.INSTANCE.listening(), erase_last=True)
+                fn_reply(AskAiMessages.INSTANCE.listening())
                 audio: AudioData = self._rec.listen(source, phrase_time_limit=5)
-                display_text(AskAiMessages.INSTANCE.transcribing(), erase_last=True)
+                Terminal.INSTANCE.cursor.erase_line()
+                fn_reply(AskAiMessages.INSTANCE.transcribing())
                 with open(audio_path, "wb") as f_rec:
                     f_rec.write(audio.get_wav_data())
                     log.debug("Voice recorded and saved as %s", audio_path)
@@ -101,9 +104,8 @@ class Recorder(metaclass=Singleton):
         """
         with Microphone() as source:
             try:
-                display_text(AskAiMessages.INSTANCE.noise_levels())
+                log.debug(AskAiMessages.INSTANCE.noise_levels())
                 self._rec.adjust_for_ambient_noise(source, duration=interval)
-                Terminal.INSTANCE.cursor.erase_line()
             except UnknownValueError as err:
                 raise IntelligibleAudioError(f"Unable to detect noise => {str(err)}") from err
 
