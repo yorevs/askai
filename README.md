@@ -20,7 +20,7 @@ At the heart of AskAI lies its innovative integration of Speech-to-Text and Text
 
 Furthermore, AskAI embraces diversity by breaking language barriers, ensuring that no matter the tongue spoken, users can communicate effectively with their systems. Its adaptive language capabilities ensure that commands are understood and executed accurately, regardless of linguistic nuances. By championing inclusivity on all fronts, AskAI redefines the landscape of computing accessibility, empowering individuals with disabilities to navigate the digital realm with confidence and autonomy.
 
-> No matter which language you speak, AskAI speaks you language.
+> No matter which language you speak, AskAI speaks your language.
 
 ## Key Features
 

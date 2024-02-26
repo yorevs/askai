@@ -6,8 +6,8 @@ from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
 
 
-class GenericProcessor(AIProcessor):
-    """Process a generic question process."""
+class AnalysisProcessor(AIProcessor):
+    """Process an analysis question process."""
 
     def __init__(self, query_response: QueryResponse = None):
         self._response = query_response
@@ -26,10 +26,10 @@ class GenericProcessor(AIProcessor):
         return f"Type-{self.processor_id}"
 
     def query_desc(self) -> str:
-        return "Prompts about content that can be retrieved from your database."
+        return "Prompts where the user asks questions about command outputs, previously provided by him."
 
     def prompt(self) -> str:
-        return AskAiPrompt.INSTANCE.read_prompt('generic-prompt')
+        return AskAiPrompt.INSTANCE.read_prompt('analysis-prompt')
 
     def process(self) -> Tuple[bool, str]:
         return True, self._response.response
