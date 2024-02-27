@@ -12,15 +12,15 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import os
+from shutil import which
+
+from hspylib.core.config.app_config import AppConfigs
 from hspylib.core.enums.charset import Charset
+from hspylib.core.metaclass.singleton import Singleton
 
 from askai.__classpath__ import _Classpath
 from askai.language.language import Language
-from hspylib.core.config.app_config import AppConfigs
-from hspylib.core.metaclass.singleton import Singleton
-from shutil import which
-
-import os
 
 
 class AskAiConfigs(metaclass=Singleton):
@@ -34,8 +34,7 @@ class AskAiConfigs(metaclass=Singleton):
     def __init__(self):
         self._configs = AppConfigs.INSTANCE or AppConfigs(self.RESOURCE_DIR)
         self._is_cache = self._configs.get_bool("askai.cache.enabled")
-        self._tempo = self._configs.get_int("askai.stream.speed")
-        self._is_stream = self._configs.get_bool("askai.stream.response")
+        self._tempo = self._configs.get_int("askai.speech.tempo")
         self._is_speak = self._configs.get_bool("askai.speak.response")
         self._language = Language.of_locale(
             os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG", os.getenv("LANGUAGE", "en_US.UTF-8"))))
@@ -56,14 +55,6 @@ class AskAiConfigs(metaclass=Singleton):
     @tempo.setter
     def tempo(self, value: int) -> None:
         self._tempo = value
-
-    @property
-    def is_stream(self) -> bool:
-        return self._is_stream
-
-    @is_stream.setter
-    def is_stream(self, value: bool) -> None:
-        self._is_stream = value
 
     @property
     def is_speak(self) -> bool:

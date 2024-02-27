@@ -19,9 +19,8 @@ from typing import Callable, List
 
 import pause
 from hspylib.modules.cli.vt100.vt_color import VtColor
-from openai import APIError, OpenAI, BadRequestError
+from openai import APIError, OpenAI
 
-from askai.core.askai_prompt import AskAiPrompt
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.recorder import Recorder
 from askai.core.engine.openai.openai_configs import OpenAiConfigs
@@ -31,6 +30,7 @@ from askai.core.protocol.ai_engine import AIEngine
 from askai.core.protocol.ai_model import AIModel
 from askai.core.protocol.ai_reply import AIReply
 from askai.utils.cache_service import CacheService
+from askai.utils.utilities import stream_text
 
 
 class OpenAIEngine(AIEngine):
@@ -42,7 +42,6 @@ class OpenAIEngine(AIEngine):
         self._url: str = "https://api.openai.com/v1/chat/completions"
         self._configs: OpenAiConfigs = OpenAiConfigs.INSTANCE
         self._model_name: str = model.model_name()
-        self._chat_context = [{"role": "system", "content": AskAiPrompt.INSTANCE.setup}]
         self._llm = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"), organization=os.environ.get("OPENAI_ORG_ID"))
 
     @property
@@ -65,52 +64,32 @@ class OpenAIEngine(AIEngine):
         """Get the list of available models for the engine."""
         return OpenAIModel.models()
 
-    def ask(self, question: str) -> AIReply:
+    def ask(self, question: str, chat_context: List[dict]) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
         :param question: The question to send to the AI engine.
+        :param chat_context: The chat history or context.
         """
-        if not (reply := CacheService.read_reply(question)):
-            log.debug('Response not found for: "%s" in cache. Querying AI engine.', question)
-            try:
-                self._chat_context.append({"role": "user", "content": question})
-                log.debug(f"Generating AI answer for: {question}")
-                response = self._llm.chat.completions.create(
-                    model=self._model_name, messages=self._chat_context,
-                    temperature=0.0, top_p=0.0
-                )
-                reply = OpenAIReply(response.choices[0].message.content, True)
-                self._chat_context.append({"role": "assistant", "content": reply.message})
-                CacheService.save_reply(question, reply.message)
-                CacheService.save_query_history()
-            except APIError as error:
-                body: dict = error.body or {"message": "Message not provided"}
-                reply = OpenAIReply(f"%RED%{error.__class__.__name__} => {body['message']}%NC%", False)
-                if isinstance(error, BadRequestError):
-                    self.forget()
-        else:
-            log.debug('Response found for: "%s" in cache.', question)
-            reply = OpenAIReply(reply, True)
-            self._chat_context.append({"role": "user", "content": question})
-            self._chat_context.append({"role": "assistant", "content": reply.message})
+        chat_context.append({"role": "user", "content": question})
+        try:
+            log.debug(f"Generating AI answer for: {question}")
+            response = self._llm.chat.completions.create(
+                model=self._model_name, messages=chat_context,
+                temperature=0.0, top_p=0.0
+            )
+            reply = OpenAIReply(response.choices[0].message.content, True)
+        except APIError as error:
+            body: dict = error.body or {"message": "Message not provided"}
+            reply = OpenAIReply(f"%RED%{error.__class__.__name__} => {body['message']}%NC%", False)
 
         return reply
 
-    def forget(self) -> None:
-        """Forget all of the chat context."""
-        self._chat_context = [{"role": "system", "content": AskAiPrompt.INSTANCE.setup()}]
-
-    def text_to_speech(
-        self,
-        text: str,
-        cb_started: Callable[[str], None]
-    ) -> None:
+    def text_to_speech(self, text: str) -> None:
         """Text-T0-Speech the provided text.
         :param text: The text to speech.
-        :param cb_started: The callback function called when the speaker starts.
         """
         speech_file_path, file_exists = CacheService.get_audio_file(text, self._configs.tts_format)
         if not file_exists:
-            log.debug(f'Audio file "%s" not found in cache. Querying AI engine.', speech_file_path)
+            log.debug(f'Audio file "%s" not found in cache. Generating from %s.', self.nickname(), speech_file_path)
             response = self._llm.audio.speech.create(
                 input=VtColor.strip_colors(text),
                 model=self._configs.tts_model,
@@ -118,16 +97,17 @@ class OpenAIEngine(AIEngine):
                 response_format=self._configs.tts_format,
             )
             response.stream_to_file(speech_file_path)  # Save the audio file locally.
-        log.debug(f"Speech created to: '{text}' -> {speech_file_path}")
+            log.debug(f"Audio file created: '%s' at %s", text, speech_file_path)
+        else:
+            log.debug(f"Audio file found in cache: '%s' at %s", text, speech_file_path)
         speak_thread = Thread(
             daemon=True,
             target=AudioPlayer.INSTANCE.play_audio_file,
             args=(speech_file_path, self._configs.tempo)
         )
         speak_thread.start()
-        if cb_started:
-            pause.seconds(AudioPlayer.INSTANCE.start_delay())
-            cb_started(text)
+        pause.seconds(AudioPlayer.INSTANCE.start_delay())
+        stream_text(text)
         speak_thread.join()  # Block until the speech has finished.
 
     def speech_to_text(self, fn_reply: Callable[[str], None]) -> str:

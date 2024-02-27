@@ -85,10 +85,6 @@ class Main(TUIApplication):
                 "whether you would like to run the program in an interactive mode.",
                 nargs="?", action=ParserAction.STORE_TRUE, default=False)\
             .option(
-                "flat", "f", "flat",
-                "whether you want a streamed (typewriter effect) or flat response.",
-                nargs="?", action=ParserAction.STORE_FALSE, default=True)\
-            .option(
                 "quiet", "q", "quiet",
                 "whether you want to speak (audio) the response.",
                 nargs="?", action=ParserAction.STORE_FALSE, default=True)\
@@ -105,7 +101,6 @@ class Main(TUIApplication):
         """Run the application with the command line arguments."""
         self._askai = AskAi(
             self.get_arg("interactive"),
-            self.get_arg("flat"),
             self.get_arg("quiet"),
             int(get_or_default(self.get_arg("tempo") or [], 0, "1")),
             self._find_engine(self.get_arg("engine"), self.get_arg("model")),

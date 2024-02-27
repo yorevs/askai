@@ -18,7 +18,7 @@ import re
 import sys
 from shutil import which
 from threading import Thread
-from typing import List, Optional, Any
+from typing import List, Optional
 
 import pause
 from clitt.core.term.screen import Screen
@@ -40,7 +40,7 @@ from askai.core.component.recorder import Recorder
 from askai.core.protocol.ai_engine import AIEngine
 from askai.language.language import Language
 from askai.utils.cache_service import CacheService
-from askai.utils.utilities import stream_text, display_text
+from askai.utils.utilities import display_text
 
 
 class AskAi(metaclass=Singleton):
@@ -60,7 +60,6 @@ class AskAi(metaclass=Singleton):
     def __init__(
         self,
         interactive: bool,
-        is_stream: bool,
         is_speak: bool,
         tempo: int,
         engine: AIEngine,
@@ -76,10 +75,8 @@ class AskAi(metaclass=Singleton):
         self._processing: bool | None = None
         self._cmd_num = 0
         self._query_num = 0
-        self._configs.is_stream = is_stream
         self._configs.is_speak = is_speak
         self._configs.tempo = tempo
-        self.MSG.llm = self.llm
 
     def __str__(self) -> str:
         return (
@@ -91,7 +88,6 @@ class AskAi(metaclass=Singleton):
             f"{'--' * 40} %EOL%"
             f"   Language: {self.language.name} %EOL%"
             f"Interactive: ON %EOL%"
-            f"  Streaming: {'ON' if self.is_stream else 'OFF'} %EOL%"
             f"   Speaking: {'ON' if self.is_speak else 'OFF'} %EOL%"
             f"    Caching: {'ON' if CacheService.is_cache_enabled() else 'OFF'} %EOL%"
             f"      Tempo: {self.stream_speed} %EOL%"
@@ -117,10 +113,6 @@ class AskAi(metaclass=Singleton):
     @property
     def stream_speed(self) -> int:
         return self._configs.tempo
-
-    @property
-    def is_stream(self) -> bool:
-        return self._configs.is_stream
 
     @property
     def is_speak(self) -> bool:
@@ -207,35 +199,40 @@ class AskAi(metaclass=Singleton):
 
         return ret if not ret or isinstance(ret, str) else ret.val
 
-    def _ask_and_reply(self, query: str) -> None:
+    def _ask_and_reply(self, question: str) -> None:
         """Ask the question and provide the reply.
-        :param query: The question to ask to the AI engine.
+        :param question: The question to ask to the AI engine.
         """
-        self.is_processing = True
-        if (response := self._engine.ask(query)) and response.is_success():
-            self.is_processing = False
-            if (reply := response.reply_text()) and (
-                mat := re.match(r".*`{3}(bash|zsh)?(.+)`{3}.*", reply.strip().replace("\n", ""), re.I | re.M)
-            ):
-                self._process_command(mat.group(2))
+        if not (reply := CacheService.read_reply(question)):
+            log.debug('Response not found for "%s" in cache. Querying from %s.', question, self._engine.nickname())
+            self.is_processing = True
+            if (response := self._engine.ask(question, [])) and response.is_success():
+                self.is_processing = False
+                reply = response.reply_text()
+                if reply and (
+                    mat := re.match(r".*`{3}(bash|zsh)?(.+)`{3}.*", reply.strip().replace("\n", ""), re.I | re.M)
+                ):
+                    self._process_command(mat.group(2))
+                else:
+                    CacheService.save_reply(question, reply)
+                    CacheService.save_query_history()
+                    self._reply(reply)
             else:
-                self._reply(reply)
+                self.is_processing = False
+                self._reply_error(response.reply_text())
         else:
-            self.is_processing = False
-            self._reply_error(response.reply_text())
+            log.debug('Reply found for "%s" in cache.', question)
+            self._reply(reply)
 
     def _reply(self, message: str) -> None:
         """Reply to the user with the AI response.
         :param message: The message to reply to the user.
         """
-        if self.is_stream and self.is_speak:
-            self._engine.text_to_speech(message, self._stream_text)
-        elif not self.is_stream and self.is_speak:
-            self._engine.text_to_speech(message, display_text)
-        elif self.is_stream:
-            self._stream_text(message)
+        display_text(f"{self.llm}: ", end="")
+        if self.is_speak:
+            self._engine.text_to_speech(message)
         else:
-            display_text(f"{self.llm}: {message}")
+            display_text(message)
 
     def _reply_error(self, error_message: str) -> None:
         """Reply API or system errors.
@@ -250,7 +247,7 @@ class AskAi(metaclass=Singleton):
         if (command := cmd_line.split(" ")[0]) and which(command):
             cmd_line = cmd_line.replace("~", os.getenv("HOME"))
             self._reply(self.MSG.executing())
-            log.info("Processing command `%s'", cmd_line)
+            log.info("Executing command `%s'", cmd_line)
             output, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
             if exit_code == ExitStatus.SUCCESS:
                 self._reply(self.MSG.cmd_success(exit_code))
@@ -262,10 +259,3 @@ class AskAi(metaclass=Singleton):
                 self._reply(self.MSG.cmd_failed(command))
         else:
             self._reply(self.MSG.cmd_no_exist(command))
-
-    def _stream_text(self, text: Any) -> None:
-        """Stream the message using default parameters.
-        :param text: The message to be streamed.
-        """
-        display_text(f"{self.llm}: ", end="")
-        stream_text(text)

@@ -37,9 +37,10 @@ class AIEngine(Protocol):
         """Get the list of available models for the engine."""
         ...
 
-    def ask(self, question: str) -> AIReply:
+    def ask(self, question: str, chat_context: List) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
         :param question: The question to send to the AI engine.
+        :param chat_context: The chat history or context.
         """
         ...
 
@@ -47,11 +48,10 @@ class AIEngine(Protocol):
         """Forget the chat context and start over."""
         ...
 
-    def text_to_speech(
-        self,
-        text: str,
-        cb_started: Callable[[str], None]
-    ) -> None:
+    def text_to_speech(self,text: str) -> None:
+        """Text-T0-Speech the provided text.
+        :param text: The text to speech.
+        """
         """Text-T0-Speech the provided text.
         :param text: The text to speech.
         :param cb_started: The callback function called when the speaker starts.
