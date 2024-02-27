@@ -42,11 +42,15 @@ class OpenAIEngine(AIEngine):
         self._url: str = "https://api.openai.com/v1/chat/completions"
         self._configs: OpenAiConfigs = OpenAiConfigs.INSTANCE
         self._model_name: str = model.model_name()
-        self._llm = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"), organization=os.environ.get("OPENAI_ORG_ID"))
+        self._client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"), organization=os.environ.get("OPENAI_ORG_ID"))
 
     @property
-    def url(self):
+    def url(self) -> str:
         return self._url
+
+    @property
+    def client(self) -> OpenAI:
+        return self._client
 
     def ai_name(self) -> str:
         """Get the AI model name."""
@@ -72,7 +76,7 @@ class OpenAIEngine(AIEngine):
         chat_context.append({"role": "user", "content": question})
         try:
             log.debug(f"Generating AI answer for: {question}")
-            response = self._llm.chat.completions.create(
+            response = self.client.chat.completions.create(
                 model=self._model_name, messages=chat_context,
                 temperature=0.0, top_p=0.0
             )
@@ -90,7 +94,7 @@ class OpenAIEngine(AIEngine):
         speech_file_path, file_exists = CacheService.get_audio_file(text, self._configs.tts_format)
         if not file_exists:
             log.debug(f'Audio file "%s" not found in cache. Generating from %s.', self.nickname(), speech_file_path)
-            response = self._llm.audio.speech.create(
+            response = self.client.audio.speech.create(
                 input=VtColor.strip_colors(text),
                 model=self._configs.tts_model,
                 voice=self._configs.tts_voice,

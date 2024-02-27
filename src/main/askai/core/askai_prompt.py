@@ -15,12 +15,12 @@
 import os
 from functools import lru_cache
 from string import Template
-from typing import List
 
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.tools.text_tools import ensure_endswith
+from langchain_core.prompts import PromptTemplate
 
 from askai.__classpath__ import _Classpath
 from askai.core.processor.ai_processor import get_query_types
@@ -37,8 +37,11 @@ class AskAiPrompt(metaclass=Singleton):
     def __init__(self):
         self._shell: str = os.getenv("HHS_MY_SHELL", "bash")
         self._os_type: str = os.getenv("HHS_MY_OS_RELEASE", "linux")
-        self._query_types: List[str] = get_query_types()
-        self._setup: Template = Template(self.read_prompt("setup.txt"))
+        self._query_types: str = get_query_types()
+        self._setup: PromptTemplate = PromptTemplate(
+            input_variables=["query_types"],
+            template=self.read_prompt("setup.txt")
+        )
 
     @property
     def os_type(self) -> str:
@@ -50,9 +53,7 @@ class AskAiPrompt(metaclass=Singleton):
 
     @property
     def setup(self) -> str:
-        return self._setup.substitute(
-            query_types='\n'.join(self._query_types)
-        )
+        return self._setup.format(query_types=self._query_types)
 
     @lru_cache
     def read_prompt(self, filename: str) -> str:

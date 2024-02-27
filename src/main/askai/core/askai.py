@@ -34,7 +34,6 @@ from hspylib.modules.cli.keyboard import Keyboard
 from askai.__classpath__ import _Classpath
 from askai.core.askai_configs import AskAiConfigs
 from askai.core.askai_messages import AskAiMessages
-from askai.core.askai_prompt import AskAiPrompt
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.recorder import Recorder
 from askai.core.protocol.ai_engine import AIEngine
@@ -66,15 +65,12 @@ class AskAi(metaclass=Singleton):
         query_string: str | List[str],
     ):
         self._configs: AskAiConfigs = AskAiConfigs.INSTANCE
-        self._prompts = AskAiPrompt.INSTANCE
         self._interactive: bool = interactive
         self._engine: AIEngine = engine
         self._query_string: str = str(" ".join(query_string) if isinstance(query_string, list) else query_string)
-        self._done: bool = False
         self._ready: bool = False
         self._processing: bool | None = None
-        self._cmd_num = 0
-        self._query_num = 0
+        # Setting configs from program args.
         self._configs.is_speak = is_speak
         self._configs.tempo = tempo
 
@@ -187,7 +183,7 @@ class AskAi(metaclass=Singleton):
         ret = None
         while ret is None:
             ret = line_input(prompt)
-            if self.is_speak and ret == Keyboard.VK_CTRL_L:  # Use audio as input method.
+            if self.is_speak and ret == Keyboard.VK_CTRL_L:  # Use speech as input method.
                 Terminal.INSTANCE.cursor.erase_line()
                 spoken_text = self._engine.speech_to_text(self._reply)
                 if spoken_text:

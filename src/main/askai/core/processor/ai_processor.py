@@ -16,13 +16,13 @@ import os
 from functools import lru_cache
 from importlib import import_module
 from os.path import basename, dirname
-from typing import Protocol, Optional, Tuple, List
+from typing import Protocol, Optional, Tuple
 
 from hspylib.core.tools.text_tools import camelcase
 
 
 @lru_cache
-def get_query_types() -> List[str]:
+def get_query_types() -> str:
     q_types = []
     for root, _, files in os.walk(dirname(__file__)):
         procs = list(filter(lambda m: m.endswith("_processor.py") and m != basename(__file__), files))
@@ -31,7 +31,7 @@ def get_query_types() -> List[str]:
             p_mod = import_module(f"{__package__}.{proc_name}")
             p_class = getattr(p_mod, camelcase(proc_name, capitalized=True))
             q_types.append(str(p_class()))
-    return q_types
+    return os.linesep.join(q_types)
 
 
 class AIProcessor(Protocol):
