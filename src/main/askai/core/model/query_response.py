@@ -2,7 +2,7 @@
    @project: HsPyLib-AskAI
    @package: askai.core.model
       @file: query_response.py
-   @created: Fri, 23 May 2024
+   @created: Fri, 23 Feb 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
       @site: https://github.com/yorevs/hspylib
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>

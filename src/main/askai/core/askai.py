@@ -204,15 +204,8 @@ class AskAi(metaclass=Singleton):
             self.is_processing = True
             if (response := self._engine.ask(question, [])) and response.is_success():
                 self.is_processing = False
-                reply = response.reply_text()
-                if reply and (
-                    mat := re.match(r".*`{3}(bash|zsh)?(.+)`{3}.*", reply.strip().replace("\n", ""), re.I | re.M)
-                ):
-                    self._process_command(mat.group(2))
-                else:
-                    CacheService.save_reply(question, reply)
-                    CacheService.save_query_history()
-                    self._reply(reply)
+                query_response = eval(response.reply_text())
+                print(query_response)
             else:
                 self.is_processing = False
                 self._reply_error(response.reply_text())

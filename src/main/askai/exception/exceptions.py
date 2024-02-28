@@ -34,3 +34,12 @@ class RecognitionApiRequestError(HSBaseException):
 
 class TranslationPackageError(HSBaseException):
     """Raised when an there was an error installing an Argos translation package."""
+
+
+class TokenLengthExceeded(HSBaseException):
+    """Raised when the token is too big to fit the token context window."""
+
+
+class InvalidMapping(HSBaseException):
+    """Raised when an invalid mapping is provided."""
+
