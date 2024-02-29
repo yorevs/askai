@@ -218,12 +218,7 @@ class AskAi:
                 self.is_processing = False
                 query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)
                 log.debug("Received a query_response for '%s' -> %s", question, query_response)
-                if not query_response.intelligible:
-                    self._reply_error(self.MSG.intelligible())
-                elif query_response.terminating:
-                    return False
-                else:
-                    return self._process_response(query_response)
+                self._process_response(query_response)
             else:
                 self.is_processing = False
                 self._reply_error(response.reply_text())
@@ -250,14 +245,19 @@ class AskAi:
 
     def _process_response(self, query_response: QueryResponse) -> bool:
         """TODO"""
-        if query_response.query_type:
+        if not query_response.intelligible:
+            self._reply_error(self.MSG.intelligible())
+        elif query_response.terminating:
+            log.info("User wants to terminate the conversation.")
+        elif query_response.query_type:
             processor: AIProcessor = AIProcessor.get_processor(query_response.query_type)
-            log.info("Using processor %s to process the response", processor)
+            log.info("Using processor %s to process the response.", processor)
             status, output = processor.process(query_response)
             self._reply(output) if status else self._reply_error(output)
             return status
+        else:
+            self._reply_error(f"Unknown query type: %EOL%{query_response}%EOL%")
 
-        self._reply_error(f"Unknown query type: %EOL%{query_response}%EOL%")
         return False
 
     def _process_command(self, cmd_line: str) -> None:
