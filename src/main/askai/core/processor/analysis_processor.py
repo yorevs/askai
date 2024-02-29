@@ -1,5 +1,4 @@
-from functools import cached_property
-from typing import Optional, Tuple
+from typing import Tuple, Optional
 
 from askai.core.askai_prompt import AskAiPrompt
 from askai.core.model.query_response import QueryResponse
@@ -9,32 +8,26 @@ from askai.core.processor.ai_processor import AIProcessor
 class AnalysisProcessor(AIProcessor):
     """Process an analysis question process."""
 
-    def __init__(self, query_response: QueryResponse = None):
-        self._response = query_response
-
     def __str__(self):
-        return f"\"{self.query_name()}\": {self.query_desc()}"
+        return f"\"{self.query_type()}\": {self.query_desc()}"
 
     def supports(self, q_type: str) -> bool:
-        return q_type == self.query_name
+        return q_type == self.query_type()
 
     def processor_id(self) -> str:
         return str(abs(hash(self.__class__.__name__)))
 
-    def query_name(self) -> str:
+    def query_type(self) -> str:
         return f"Type-{self.processor_id()}"
 
     def query_desc(self) -> str:
         return "Prompts where the user asks questions about command outputs, previously provided by him."
 
-    def prompt(self) -> str:
-        return AskAiPrompt.INSTANCE.read_prompt('analysis-prompt')
+    def template(self) -> str:
+        return AskAiPrompt.INSTANCE.read_template('analysis-prompt')
 
-    def process(self, query_response: QueryResponse) -> Tuple[bool, str]:
-        return True, self._response.response
+    def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
+        return True, query_response.response
 
-    def prev_in_chain(self) -> Optional[AIProcessor]:
-        return None
-
-    def next_in_chain(self) -> Optional[AIProcessor]:
+    def next_in_chain(self) -> Optional['AIProcessor']:
         return None

@@ -15,7 +15,7 @@
 import logging as log
 import os
 from threading import Thread
-from typing import Callable, List
+from typing import Callable, List, Any, Type
 
 import pause
 from hspylib.core.preconditions import check_not_none
@@ -39,19 +39,24 @@ class OpenAIEngine(AIEngine):
 
     def __init__(self, model: AIModel = OpenAIModel.GPT_3_5_TURBO):
         super().__init__()
-        self._nickname: str = "ChatGPT"
-        self._url: str = "https://api.openai.com/v1/chat/completions"
         self._model = model
         self._configs: OpenAiConfigs = OpenAiConfigs.INSTANCE
-        self._client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"), organization=os.environ.get("OPENAI_ORG_ID"))
+        self._api_key: str = os.environ.get("OPENAI_API_KEY")
+        self._client = OpenAI(api_key=self._api_key)
 
     @property
     def url(self) -> str:
-        return self._url
+        return "https://api.openai.com/v1/chat/completions"
 
     @property
     def client(self) -> OpenAI:
         return self._client
+
+    def lc_model(self, llm: Type, **kwargs: Any) -> Any:
+        """Create a LangChain AI model instance.
+        :param llm: The LangChain model Class type.
+        """
+        return llm(openai_api_key=self._api_key, **kwargs)
 
     def ai_name(self) -> str:
         """Get the AI model name."""
@@ -67,13 +72,13 @@ class OpenAIEngine(AIEngine):
 
     def nickname(self) -> str:
         """Get the AI engine nickname."""
-        return self._nickname
+        return "ChatGPT"
 
     def models(self) -> List[AIModel]:
         """Get the list of available models for the engine."""
         return OpenAIModel.models()
 
-    def ask(self, chat_context: List[dict]) -> AIReply:
+    def ask(self, chat_context: List, **kwargs: Any) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
         :param chat_context: The chat history or context.
         """
@@ -82,7 +87,7 @@ class OpenAIEngine(AIEngine):
             log.debug(f"Generating AI answer")
             response = self.client.chat.completions.create(
                 model=self.ai_model_name(), messages=chat_context,
-                temperature=0.8, top_p=0.8
+                **kwargs
             )
             reply = OpenAIReply(response.choices[0].message.content, True)
         except APIError as error:

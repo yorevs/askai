@@ -44,8 +44,15 @@ class AIProcessor(Protocol):
 
     @classmethod
     @lru_cache
-    def get_processor(cls, query_type: str) -> Optional['AIProcessor']:
+    def find_by_query_type(cls, query_type: str) -> Optional['AIProcessor']:
+        """TODO"""
         return next((p for p in cls._PROCESSORS.values() if p.supports(query_type)), None)
+
+    @classmethod
+    @lru_cache
+    def find_by_name(cls, name: str) -> Optional['AIProcessor']:
+        """TODO"""
+        return next((p for p in cls._PROCESSORS.values() if type(p).__name__ == name), None)
 
     def supports(self, q_type: str) -> bool:
         """TODO"""
@@ -55,7 +62,7 @@ class AIProcessor(Protocol):
         """TODO"""
         ...
 
-    def query_name(self) -> str:
+    def query_type(self) -> str:
         """TODO"""
         ...
 
@@ -63,15 +70,11 @@ class AIProcessor(Protocol):
         """TODO"""
         ...
 
-    def prompt(self) -> str:
+    def template(self) -> str:
         """TODO"""
         ...
 
-    def process(self, query_response: QueryResponse) -> Tuple[bool, str]:
-        """TODO"""
-        ...
-
-    def prev_in_chain(self) -> Optional['AIProcessor']:
+    def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         """TODO"""
         ...
 

@@ -23,6 +23,7 @@ from clitt.core.term.screen import Screen
 from clitt.core.term.terminal import Terminal
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.enums.charset import Charset
+from hspylib.core.preconditions import check_not_none
 from hspylib.core.tools.commons import sysout
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.cli.keyboard import Keyboard
@@ -91,6 +92,10 @@ class AskAi:
         )
 
     @property
+    def engine(self) -> AIEngine:
+        return self._engine
+
+    @property
     def username(self) -> str:
         return f"  {os.getenv('USER', 'you').title()}"
 
@@ -133,7 +138,7 @@ class AskAi:
     @is_processing.setter
     def is_processing(self, processing: bool) -> None:
         if processing:
-            self._reply(self.MSG.wait())
+            self.reply(self.MSG.wait())
         elif not processing and self._processing is not None and processing != self._processing:
             Terminal.INSTANCE.cursor.erase_line()
         self._processing = processing
@@ -146,6 +151,22 @@ class AskAi:
         elif self._query_string:
             display_text(f"{self.username}: {self._query_string}%EOL%")
             self._ask_and_reply(self._query_string)
+
+    def reply(self, message: str) -> None:
+        """Reply to the user with the AI response.
+        :param message: The message to reply to the user.
+        """
+        display_text(f"{self.nickname}: ", end="")
+        if self.is_speak:
+            self._engine.text_to_speech(message)
+        else:
+            display_text(message)
+
+    def reply_error(self, error_message: str) -> None:
+        """Reply API or system errors.
+        :param error_message: The error message to be displayed.
+        """
+        display_text(f"%RED%{self.nickname}: {error_message}%NC%")
 
     def _splash(self) -> None:
         """Display the AskAI splash screen."""
@@ -174,7 +195,7 @@ class AskAi:
         log.info("AskAI is ready !")
         splash_thread.join()
         display_text(self)
-        self._reply(self.MSG.welcome(os.getenv('USER', 'you')))
+        self.reply(self.MSG.welcome(os.getenv('USER', 'you')))
 
     def _prompt(self) -> None:
         """Prompt for user interaction."""
@@ -183,7 +204,7 @@ class AskAi:
                 query = None
                 break
         if not query:
-            self._reply(self.MSG.goodbye())
+            self.reply(self.MSG.goodbye())
         display_text("")
 
     def _input(self, prompt: str) -> Optional[str]:
@@ -195,7 +216,7 @@ class AskAi:
             ret = line_input(prompt)
             if self.is_speak and ret == Keyboard.VK_CTRL_L:  # Use speech as input method.
                 Terminal.INSTANCE.cursor.erase_line()
-                spoken_text = self._engine.speech_to_text(self._reply)
+                spoken_text = self._engine.speech_to_text(self.reply)
                 if spoken_text:
                     display_text(f"{self.username}: {spoken_text}")
                     ret = spoken_text
@@ -209,52 +230,53 @@ class AskAi:
         """Ask the question and provide the reply.
         :param question: The question to ask to the AI engine.
         """
+        status = False
         if not (reply := CacheService.read_reply(question)):
             log.debug('Response not found for "%s" in cache. Querying from %s.', question, self._engine.nickname())
             self.is_processing = True
             context = self._chat_context.set("SETUP", AskAiPrompt.INSTANCE.setup(question), 'user')
-            if (response := self._engine.ask(context)) and response.is_success():
+            if (response := self._engine.ask(context, temperature=1, top_p=1)) and response.is_success():
                 self.is_processing = False
                 query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)
                 log.debug("Received a query_response for '%s' -> %s", question, query_response)
-                self._process_response(query_response)
+                return self._process_response(query_response)
             else:
                 self.is_processing = False
-                self._reply_error(response.reply_text())
+                self.reply_error(response.reply_text())
         else:
             log.debug('Reply found for "%s" in cache.', question)
-            self._reply(reply)
-        return True
-
-    def _reply(self, message: str) -> None:
-        """Reply to the user with the AI response.
-        :param message: The message to reply to the user.
-        """
-        display_text(f"{self.nickname}: ", end="")
-        if self.is_speak:
-            self._engine.text_to_speech(message)
-        else:
-            display_text(message)
-
-    def _reply_error(self, error_message: str) -> None:
-        """Reply API or system errors.
-        :param error_message: The error message to be displayed.
-        """
-        display_text(f"%RED%{self.nickname}: {error_message}%NC%")
+            self.reply(reply)
+            status = True
+        return status
 
     def _process_response(self, query_response: QueryResponse) -> bool:
         """Process a query response using a processor that supports the query type."""
         if not query_response.intelligible:
-            self._reply_error(self.MSG.intelligible())
+            self.reply_error(self.MSG.intelligible())
         elif query_response.terminating:
             log.info("User wants to terminate the conversation.")
         elif query_response.query_type:
-            processor: AIProcessor = AIProcessor.get_processor(query_response.query_type)
-            log.info("Using processor %s to process the response.", processor)
-            status, output = processor.process(query_response)
-            self._reply(output) if status else self._reply_error(output)
-            return status
+            processor: AIProcessor = AIProcessor.find_by_query_type(query_response.query_type)
+            check_not_none(processor, f"Unable to find a proper processor for query type: {query_response.query_type}")
+            while processor:
+                log.info("Using processor %s to process the response.", processor)
+                status, output = processor.process(query_response)
+                if status and (processor := processor.next_in_chain()):
+                    self._process_response(
+                        QueryResponse(
+                            processor.query_type(), query_response.question,
+                            output, False, True
+                        ))
+                elif status:
+                    self.reply(output)
+                else:
+                    self.reply_error(output)
+                return status
+        elif query_response.response:
+            self.reply(query_response.response)
+            CacheService.save_reply(query_response.question, query_response.question)
+            CacheService.save_query_history()
         else:
-            self._reply_error(f"Unknown query type: %EOL%{query_response}%EOL%")
+            self.reply_error(f"Unknown query type: %EOL%{query_response}")
 
         return False

@@ -79,7 +79,7 @@ class Main(TUIApplication):
             .option(
                 "model", "m", "model",
                 "specifies which AI model to use (depends on the engine).",
-                nargs=1, default='gpt-3.5-turbo-16k-0613')\
+                nargs=1, default='gpt-3.5-turbo')\
             .option(
                 "interactive", "i", "interactive",
                 "whether you would like to run the program in an interactive mode.",

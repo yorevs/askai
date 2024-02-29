@@ -12,7 +12,7 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from typing import Callable, List, Protocol
+from typing import Callable, List, Protocol, Any, Type
 
 from askai.core.protocol.ai_model import AIModel
 from askai.core.protocol.ai_reply import AIReply
@@ -20,6 +20,9 @@ from askai.core.protocol.ai_reply import AIReply
 
 class AIEngine(Protocol):
     """Provide an interface for AI engines."""
+
+    def lc_model(self, llm: Type, **kwargs: Any) -> Any:
+        """Create a LangChain AI model instance."""
 
     def ai_name(self) -> str:
         """Get the AI engine name."""
@@ -41,17 +44,13 @@ class AIEngine(Protocol):
         """Get the list of available models for the engine."""
         ...
 
-    def ask(self, chat_context: List) -> AIReply:
+    def ask(self, chat_context: List, **kwargs: Any) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
         :param chat_context: The chat history or context.
         """
         ...
 
-    def forget(self) -> None:
-        """Forget the chat context and start over."""
-        ...
-
-    def text_to_speech(self,text: str) -> None:
+    def text_to_speech(self, text: str) -> None:
         """Text-T0-Speech the provided text.
         :param text: The text to speech.
         """

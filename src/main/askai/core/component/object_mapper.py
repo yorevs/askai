@@ -17,13 +17,14 @@ from typing import Type, Callable, Dict, Optional, Any, TypeAlias
 
 from hspylib.core.metaclass.singleton import Singleton
 
+from askai.core.model.query_response import QueryResponse
 from askai.exception.exceptions import InvalidMapping
 
 FnConverter: TypeAlias = Callable[[Any, Type], Any]
 
 
 class ObjectMapper(metaclass=Singleton):
-    """TODO"""
+    """Provide a utility class to convert one object into the other, and vice-versa."""
 
     INSTANCE: 'ObjectMapper' = None
 
@@ -72,3 +73,18 @@ class ObjectMapper(metaclass=Singleton):
 
 
 assert ObjectMapper().INSTANCE is not None
+
+
+if __name__ == '__main__':
+    o = ObjectMapper.INSTANCE
+    s = """
+    {
+        "query_type": "Type 1",
+        "question": "list my downloads",
+        "require_internet": false,
+        "require_summarization": false,
+        "require_command": true
+    }
+    """
+    r = o.of_json(s, QueryResponse)
+    print(r)

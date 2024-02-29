@@ -14,6 +14,4 @@ Step  9 - Create the adequate terminal command.
 Step 10 - The output should be a markdown code snippet, including the leading "\'\'\'{shell}" and "\'\'\'".
 Step 11 - You always return the required command with no additional description or context.
 
-%QUESTION:
-
-{question}
+QUESTION: "{question}"
