@@ -14,8 +14,10 @@
 """
 import os
 from functools import lru_cache
+from pathlib import Path
 from string import Template
 
+from hspylib.core.enums.charset import Charset
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty
@@ -39,7 +41,7 @@ class AskAiPrompt(metaclass=Singleton):
         self._os_type: str = os.getenv("HHS_MY_OS_RELEASE", "linux")
         self._query_types: str = AIProcessor.get_query_types()
         self._setup: PromptTemplate = PromptTemplate(
-            input_variables=["query_types"],
+            input_variables=["query_types", "question"],
             template=self.read_prompt("setup.txt")
         )
 
@@ -51,9 +53,8 @@ class AskAiPrompt(metaclass=Singleton):
     def shell(self) -> str:
         return self._shell.lower()
 
-    @property
-    def setup(self) -> str:
-        return self._setup.format(query_types=self._query_types)
+    def setup(self, question: str) -> str:
+        return self._setup.format(query_types=self._query_types, question=question)
 
     @lru_cache
     def read_prompt(self, filename: str) -> str:
@@ -62,8 +63,7 @@ class AskAiPrompt(metaclass=Singleton):
         """
         filename = f"{self.PROMPT_DIR}/{ensure_endswith(filename, '.txt')}"
         check_argument(file_is_not_empty(filename), f"Prompt file does not exist: {filename}")
-        with open(filename) as f_prompt:
-            return "".join(f_prompt.readlines())
+        return Path(filename).read_text(encoding=Charset.UTF_8.val)
 
     @lru_cache
     def read_template(self, filename: str) -> Template:

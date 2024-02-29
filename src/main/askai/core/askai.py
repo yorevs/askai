@@ -15,7 +15,6 @@
 import logging as log
 import os
 import sys
-from shutil import which
 from threading import Thread
 from typing import List, Optional
 
@@ -172,7 +171,6 @@ class AskAi:
                 "\n".join([f"{d[0]} - {d[1]}" for d in Recorder.INSTANCE.devices])
             )
         self._ready = True
-        self._chat_context.push("SETUP", AskAiPrompt.INSTANCE.setup, 'system')
         log.info("AskAI is ready !")
         splash_thread.join()
         display_text(self)
@@ -214,7 +212,8 @@ class AskAi:
         if not (reply := CacheService.read_reply(question)):
             log.debug('Response not found for "%s" in cache. Querying from %s.', question, self._engine.nickname())
             self.is_processing = True
-            if (response := self._engine.ask(question, self._chat_context.get('SETUP'))) and response.is_success():
+            context = self._chat_context.set("SETUP", AskAiPrompt.INSTANCE.setup(question), 'user')
+            if (response := self._engine.ask(context)) and response.is_success():
                 self.is_processing = False
                 query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)
                 log.debug("Received a query_response for '%s' -> %s", question, query_response)
@@ -244,7 +243,7 @@ class AskAi:
         display_text(f"%RED%{self.nickname}: {error_message}%NC%")
 
     def _process_response(self, query_response: QueryResponse) -> bool:
-        """TODO"""
+        """Process a query response using a processor that supports the query type."""
         if not query_response.intelligible:
             self._reply_error(self.MSG.intelligible())
         elif query_response.terminating:
@@ -259,23 +258,3 @@ class AskAi:
             self._reply_error(f"Unknown query type: %EOL%{query_response}%EOL%")
 
         return False
-
-    def _process_command(self, cmd_line: str) -> None:
-        """Attempt to process command.
-        :param cmd_line: The command line to execute.
-        """
-        if (command := cmd_line.split(" ")[0]) and which(command):
-            cmd_line = cmd_line.replace("~", os.getenv("HOME"))
-            self._reply(self.MSG.executing())
-            log.info("Executing command `%s'", cmd_line)
-            output, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
-            if exit_code == ExitStatus.SUCCESS:
-                self._reply(self.MSG.cmd_success(exit_code))
-                if output:
-                    self._ask_and_reply(f"%COMMAND OUTPUT: \n\n{output}")
-                else:
-                    self._reply(self.MSG.cmd_no_output())
-            else:
-                self._reply(self.MSG.cmd_failed(command))
-        else:
-            self._reply(self.MSG.cmd_no_exist(command))

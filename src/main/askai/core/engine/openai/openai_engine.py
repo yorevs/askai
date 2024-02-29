@@ -18,6 +18,7 @@ from threading import Thread
 from typing import Callable, List
 
 import pause
+from hspylib.core.preconditions import check_not_none
 from hspylib.modules.cli.vt100.vt_color import VtColor
 from openai import APIError, OpenAI
 
@@ -72,17 +73,16 @@ class OpenAIEngine(AIEngine):
         """Get the list of available models for the engine."""
         return OpenAIModel.models()
 
-    def ask(self, question: str, chat_context: List[dict]) -> AIReply:
+    def ask(self, chat_context: List[dict]) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
-        :param question: The question to send to the AI engine.
         :param chat_context: The chat history or context.
         """
-        chat_context.append({"role": "user", "content": question})
         try:
-            log.debug(f"Generating AI answer for: {question}")
+            check_not_none(chat_context)
+            log.debug(f"Generating AI answer")
             response = self.client.chat.completions.create(
                 model=self.ai_model_name(), messages=chat_context,
-                temperature=0.0, top_p=0.0
+                temperature=0.8, top_p=0.8
             )
             reply = OpenAIReply(response.choices[0].message.content, True)
         except APIError as error:

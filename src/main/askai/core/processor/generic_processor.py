@@ -12,7 +12,7 @@ class GenericProcessor(AIProcessor):
         self._response = query_response
 
     def __str__(self):
-        return f"{self.query_name()}: {self.query_desc()}"
+        return f"\"{self.query_name()}\": {self.query_desc()}"
 
     def supports(self, q_type: str) -> bool:
         return q_type == self.query_name

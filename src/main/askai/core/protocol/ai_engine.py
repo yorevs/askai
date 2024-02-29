@@ -41,9 +41,8 @@ class AIEngine(Protocol):
         """Get the list of available models for the engine."""
         ...
 
-    def ask(self, question: str, chat_context: List) -> AIReply:
+    def ask(self, chat_context: List) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
-        :param question: The question to send to the AI engine.
         :param chat_context: The chat history or context.
         """
         ...
