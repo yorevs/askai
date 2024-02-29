@@ -24,7 +24,6 @@ from clitt.core.term.screen import Screen
 from clitt.core.term.terminal import Terminal
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.enums.charset import Charset
-from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import sysout
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.cli.keyboard import Keyboard
@@ -39,15 +38,14 @@ from askai.core.component.object_mapper import ObjectMapper
 from askai.core.component.recorder import Recorder
 from askai.core.model.chat_context import ChatContext
 from askai.core.model.query_response import QueryResponse
+from askai.core.processor.ai_processor import AIProcessor
 from askai.core.protocol.ai_engine import AIEngine
 from askai.language.language import Language
 from askai.utils.utilities import display_text
 
 
-class AskAi(metaclass=Singleton):
+class AskAi:
     """Responsible for the OpenAI functionalities."""
-
-    INSTANCE: 'AskAi' = None
 
     MSG = AskAiMessages.INSTANCE
 
@@ -252,7 +250,15 @@ class AskAi(metaclass=Singleton):
 
     def _process_response(self, query_response: QueryResponse) -> bool:
         """TODO"""
+        if query_response.query_type:
+            processor: AIProcessor = AIProcessor.get_processor(query_response.query_type)
+            log.info("Using processor %s to process the response", processor)
+            status, output = processor.process(query_response)
+            self._reply(output) if status else self._reply_error(output)
+            return status
 
+        self._reply_error(f"Unknown query type: %EOL%{query_response}%EOL%")
+        return False
 
     def _process_command(self, cmd_line: str) -> None:
         """Attempt to process command.

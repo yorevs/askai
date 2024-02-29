@@ -18,12 +18,11 @@ class AnalysisProcessor(AIProcessor):
     def supports(self, q_type: str) -> bool:
         return q_type == self.query_name
 
-    @cached_property
-    def processor_id(self):
-        return abs(hash(self.__class__.__name__))
+    def processor_id(self) -> str:
+        return str(abs(hash(self.__class__.__name__)))
 
     def query_name(self) -> str:
-        return f"Type-{self.processor_id}"
+        return f"Type-{self.processor_id()}"
 
     def query_desc(self) -> str:
         return "Prompts where the user asks questions about command outputs, previously provided by him."
@@ -31,7 +30,7 @@ class AnalysisProcessor(AIProcessor):
     def prompt(self) -> str:
         return AskAiPrompt.INSTANCE.read_prompt('analysis-prompt')
 
-    def process(self) -> Tuple[bool, str]:
+    def process(self, query_response: QueryResponse) -> Tuple[bool, str]:
         return True, self._response.response
 
     def prev_in_chain(self) -> Optional[AIProcessor]:

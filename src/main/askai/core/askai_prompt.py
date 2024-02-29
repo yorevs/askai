@@ -23,7 +23,7 @@ from hspylib.core.tools.text_tools import ensure_endswith
 from langchain_core.prompts import PromptTemplate
 
 from askai.__classpath__ import _Classpath
-from askai.core.processor.ai_processor import get_query_types
+from askai.core.processor.ai_processor import AIProcessor
 
 
 class AskAiPrompt(metaclass=Singleton):
@@ -37,7 +37,7 @@ class AskAiPrompt(metaclass=Singleton):
     def __init__(self):
         self._shell: str = os.getenv("HHS_MY_SHELL", "bash")
         self._os_type: str = os.getenv("HHS_MY_OS_RELEASE", "linux")
-        self._query_types: str = get_query_types()
+        self._query_types: str = AIProcessor.get_query_types()
         self._setup: PromptTemplate = PromptTemplate(
             input_variables=["query_types"],
             template=self.read_prompt("setup.txt")
