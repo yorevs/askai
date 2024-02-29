@@ -39,7 +39,7 @@ if not REC_DIR.exists():
 class CacheService(metaclass=Singleton):
     """Provide a cache service for previously used queries, audio generation, etc..."""
 
-    INSTANCE = None
+    INSTANCE: 'CacheService' = None
 
     _ttl_cache: TTLCache[str] = TTLCache(ttl_minutes=30)
 

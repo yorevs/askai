@@ -25,8 +25,12 @@ class AIEngine(Protocol):
         """Get the AI engine name."""
         ...
 
-    def ai_model(self) -> str:
+    def ai_model_name(self) -> str:
         """Get the AI model name."""
+        ...
+
+    def ai_token_limit(self) -> int:
+        """Get the AI model tokens limit."""
         ...
 
     def nickname(self) -> str:

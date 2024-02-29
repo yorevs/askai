@@ -23,16 +23,16 @@ from hspylib.core.zoned_datetime import now_ms
 from speech_recognition import AudioData, Recognizer, Microphone, UnknownValueError, RequestError
 
 from askai.core.askai_messages import AskAiMessages
+from askai.core.component.cache_service import REC_DIR
 from askai.exception.exceptions import IntelligibleAudioError, InvalidRecognitionApiError
 from askai.language.language import Language
-from askai.utils.cache_service import REC_DIR
 from askai.utils.utilities import display_text
 
 
 class Recorder(metaclass=Singleton):
     """Provide an interface to record voice using the microphone device."""
 
-    INSTANCE = None
+    INSTANCE: 'Recorder' = None
 
     class RecognitionApi(Enumeration):
         # fmt: off

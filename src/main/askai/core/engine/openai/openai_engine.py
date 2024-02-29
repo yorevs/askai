@@ -22,6 +22,7 @@ from hspylib.modules.cli.vt100.vt_color import VtColor
 from openai import APIError, OpenAI
 
 from askai.core.component.audio_player import AudioPlayer
+from askai.core.component.cache_service import CacheService
 from askai.core.component.recorder import Recorder
 from askai.core.engine.openai.openai_configs import OpenAiConfigs
 from askai.core.engine.openai.openai_model import OpenAIModel
@@ -29,7 +30,6 @@ from askai.core.engine.openai.openai_reply import OpenAIReply
 from askai.core.protocol.ai_engine import AIEngine
 from askai.core.protocol.ai_model import AIModel
 from askai.core.protocol.ai_reply import AIReply
-from askai.utils.cache_service import CacheService
 from askai.utils.utilities import stream_text
 
 
@@ -40,8 +40,8 @@ class OpenAIEngine(AIEngine):
         super().__init__()
         self._nickname: str = "ChatGPT"
         self._url: str = "https://api.openai.com/v1/chat/completions"
+        self._model = model
         self._configs: OpenAiConfigs = OpenAiConfigs.INSTANCE
-        self._model_name: str = model.model_name()
         self._client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"), organization=os.environ.get("OPENAI_ORG_ID"))
 
     @property
@@ -56,9 +56,13 @@ class OpenAIEngine(AIEngine):
         """Get the AI model name."""
         return self.__class__.__name__
 
-    def ai_model(self) -> str:
+    def ai_model_name(self) -> str:
         """Get the AI model name."""
-        return self._model_name
+        return self._model.model_name()
+
+    def ai_token_limit(self) -> int:
+        """Get the AI model tokens limit."""
+        return self._model.token_limit()
 
     def nickname(self) -> str:
         """Get the AI engine nickname."""
@@ -77,7 +81,7 @@ class OpenAIEngine(AIEngine):
         try:
             log.debug(f"Generating AI answer for: {question}")
             response = self.client.chat.completions.create(
-                model=self._model_name, messages=chat_context,
+                model=self.ai_model_name(), messages=chat_context,
                 temperature=0.0, top_p=0.0
             )
             reply = OpenAIReply(response.choices[0].message.content, True)

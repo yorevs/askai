@@ -56,7 +56,7 @@ class Main(TUIApplication):
         model = engine_model.lower() if isinstance(engine_model, str) else engine_model[0].lower()
         match engine:
             case "openai":
-                return OpenAIEngine(OpenAIModel.of_value(model) or OpenAIModel.GPT_3_5_TURBO_16K_0613)
+                return OpenAIEngine(OpenAIModel.of_name(model) or OpenAIModel.GPT_3_5_TURBO_16K_0613)
             case "palm":
                 raise NoSuchEngineError("Google 'paml' is not yet implemented!")
             case _:

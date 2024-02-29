@@ -26,7 +26,7 @@ from askai.language.language import Language
 class AskAiConfigs(metaclass=Singleton):
     """Provides access to AskAI configurations."""
 
-    INSTANCE = None
+    INSTANCE: 'AskAiConfigs' = None
 
     # The resources folder
     RESOURCE_DIR = str(_Classpath.resource_path())

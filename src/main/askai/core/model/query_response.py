@@ -18,9 +18,10 @@ class QueryResponse:
 
     query_type: str
     question: str
+    response: str
+    terminating: bool
     intelligible: bool
+    require_command: bool
     require_internet: bool
     require_summarization: bool
-    require_command: bool
-    response: str
 

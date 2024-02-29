@@ -1,7 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Ask Interactive Mute" type="PythonConfigurationType" factoryName="Python">
     <module name="AskAi" />
-    <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <envs>
@@ -18,7 +17,7 @@
       <option name="DIRENV_TRUSTED" value="false" />
     </EXTENSION>
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/main/askai/__main__.py" />
-    <option name="PARAMETERS" value="-i -f -q" />
+    <option name="PARAMETERS" value="-i -q" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="true" />
     <option name="MODULE_MODE" value="false" />

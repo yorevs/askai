@@ -14,7 +14,7 @@ import sys
 class ArgosTranslator(metaclass=Singleton):
     """Provides a multi-lingual offline translation engine."""
 
-    INSTANCE = None
+    INSTANCE: 'ArgosTranslator' = None
 
     @staticmethod
     def _get_argos_model(source: Language, target: Language) -> Optional[ITranslation]:

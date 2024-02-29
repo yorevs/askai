@@ -21,3 +21,7 @@ class AIModel(Protocol):
     def model_name(self) -> str:
         """Get the official model's name."""
         ...
+
+    def token_limit(self) -> int:
+        """Get the official model tokens limit."""
+        ...

@@ -11,7 +11,7 @@ from askai.language.language import Language
 class AskAiMessages(metaclass=Singleton):
     """Provide access to static 'translated' messages."""
 
-    INSTANCE = None
+    INSTANCE: 'AskAiMessages' = None
 
     def __init__(self):
         self._configs: AskAiConfigs = AskAiConfigs.INSTANCE
@@ -60,6 +60,10 @@ class AskAiMessages(metaclass=Singleton):
     @lru_cache
     def cmd_failed(self, cmd_line: str) -> str:
         return self.translate(f"Sorry! Command `{cmd_line}' failed to execute !")
+
+    @lru_cache
+    def intelligible(self) -> str:
+        return self.translate(f"Your question is not clear, please rephrase!")
 
     @lru_cache
     def access_grant(self) -> str:

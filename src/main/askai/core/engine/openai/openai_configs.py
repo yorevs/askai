@@ -23,7 +23,7 @@ from askai.core.askai_configs import AskAiConfigs
 class OpenAiConfigs(AskAiConfigs, metaclass=Singleton):
     """Provides access to OpenAI configurations."""
 
-    INSTANCE = None
+    INSTANCE: 'OpenAiConfigs' = None
 
     # The resources folder
     RESOURCE_DIR = str(_Classpath.resource_path())

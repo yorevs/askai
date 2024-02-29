@@ -31,7 +31,7 @@ from askai.__classpath__ import _Classpath
 class AudioPlayer(metaclass=Singleton):
     """Provide an interface to play audio using the default speaker device."""
 
-    INSTANCE = None
+    INSTANCE: 'AudioPlayer' = None
 
     # Sound effects directory.
     SFX_DIR = str(_Classpath.resource_path()) + "/assets/sound-fx"

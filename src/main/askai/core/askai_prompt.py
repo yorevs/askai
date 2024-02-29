@@ -29,7 +29,7 @@ from askai.core.processor.ai_processor import get_query_types
 class AskAiPrompt(metaclass=Singleton):
     """Provide the prompts used by the AskAi."""
 
-    INSTANCE = None
+    INSTANCE: 'AskAiPrompt' = None
 
     # AI Prompts directory.
     PROMPT_DIR = str(_Classpath.resource_path()) + "/assets/prompts"

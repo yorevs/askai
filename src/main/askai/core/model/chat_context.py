@@ -29,10 +29,10 @@ class ChatContext:
     def __str__(self):
         return os.linesep.join(f"'{k}': '{v}'" for k, v in self._context.items())
 
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> List[ContextEntry]:
         return self._context[key]
 
-    def push(self, key: str, content: Any, role: Literal['system', 'user', 'assistant'] = 'user') -> int:
+    def push(self, key: str, content: Any, role: Literal['system', 'user', 'assistant'] = 'user') -> List[dict]:
         """TODO"""
         entry = ChatContext.ContextEntry(role, str(content))
         ctx = self._context[key]
@@ -40,7 +40,7 @@ class ChatContext:
         if (token_length := token_length + len(content)) > self._token_limit:
             raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
         ctx.append(entry)
-        return min(0, len(ctx) - 1)
+        return self.get(key)
 
     def remove(self, key: str, index: int) -> Optional[str]:
         """TODO"""
@@ -51,7 +51,7 @@ class ChatContext:
                 del ctx[index]
         return val
 
-    def get(self, key: str) -> List[ContextEntry]:
+    def get(self, key: str) -> List[dict]:
         """TODO"""
         return [{'role': c.role, 'content': c.content} for c in self._context[key]] or []
 

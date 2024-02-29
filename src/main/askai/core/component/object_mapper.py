@@ -9,18 +9,23 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import inspect
 import json
 from inspect import isclass
 from types import SimpleNamespace
 from typing import Type, Callable, Dict, Optional, Any, TypeAlias
+
+from hspylib.core.metaclass.singleton import Singleton
 
 from askai.exception.exceptions import InvalidMapping
 
 FnConverter: TypeAlias = Callable[[Any, Type], Any]
 
 
-class ObjectMapper:
+class ObjectMapper(metaclass=Singleton):
     """TODO"""
+
+    INSTANCE: 'ObjectMapper' = None
 
     @staticmethod
     def _hash(type_from: Any, type_to: Type) -> str:
@@ -30,10 +35,14 @@ class ObjectMapper:
         else:
             return str(hash(type_from.__class__.__name__) + hash(type_to.__name__))
 
-    @staticmethod
-    def _default_converter(type1: Any, type2: Type) -> Any:
+    @classmethod
+    def _default_converter(cls, type1: Any, type2: Type) -> Any:
         """Default conversion function using the object variables. Attribute names must be equal in both classes."""
         return type2(**vars(type1))
+
+    @classmethod
+    def get_class_attributes(cls, clazz: Type):
+        return [item[0] for item in inspect.getmembers(clazz) if not callable(getattr(clazz, item[0])) and not item[0].startswith('__')]
 
     def __init__(self):
         self._converters: Dict[str, FnConverter] = {}
@@ -60,3 +69,6 @@ class ObjectMapper:
     def _get_converter(self, mapping_hash: str) -> Optional[FnConverter]:
         """Retrieve the converter for the provided the mapping hash."""
         return next((c for h, c in self._converters.items() if h == mapping_hash), self._default_converter)
+
+
+assert ObjectMapper().INSTANCE is not None
