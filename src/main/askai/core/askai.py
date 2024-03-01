@@ -19,6 +19,7 @@ from threading import Thread
 from typing import List, Optional
 
 import pause
+from clitt.core.term.cursor import Cursor
 from clitt.core.term.screen import Screen
 from clitt.core.term.terminal import Terminal
 from clitt.core.tui.line_input.line_input import line_input
@@ -27,9 +28,11 @@ from hspylib.core.preconditions import check_not_none
 from hspylib.core.tools.commons import sysout
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.cli.keyboard import Keyboard
+from hspylib.modules.eventbus.event import Event
 
 from askai.__classpath__ import _Classpath
 from askai.core.askai_configs import AskAiConfigs
+from askai.core.askai_events import AskAiEvents, ASKAI_BUS_NAME, REPLY_EVENT
 from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_prompt import AskAiPrompt
 from askai.core.component.audio_player import AudioPlayer
@@ -167,6 +170,12 @@ class AskAi:
         """
         display_text(f"%RED%{self.nickname}: {error_message} &nbsp; %NC%")
 
+    def _cb_reply_event(self, ev: Event) -> None:
+        """TODO"""
+        if ev.args.erase_last:
+            Cursor.INSTANCE.erase_line()
+        self.reply(ev.args.message)
+
     def _splash(self) -> None:
         """Display the AskAI splash screen."""
         splash_interval = 500
@@ -191,6 +200,8 @@ class AskAi:
                 "Available audio devices:\n%s",
                 "\n".join([f"{d[0]} - {d[1]}" for d in Recorder.INSTANCE.devices])
             )
+        askai_bus = AskAiEvents.get_bus(ASKAI_BUS_NAME)
+        askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
         self._ready = True
         log.info("AskAI is ready !")
         splash_thread.join()
@@ -216,7 +227,7 @@ class AskAi:
             ret = line_input(prompt)
             if self.is_speak and ret == Keyboard.VK_CTRL_L:  # Use speech as input method.
                 Terminal.INSTANCE.cursor.erase_line()
-                spoken_text = self._engine.speech_to_text(self.reply)
+                spoken_text = self._engine.speech_to_text()
                 if spoken_text:
                     display_text(f"{self.username}: {spoken_text}")
                     ret = spoken_text

@@ -15,7 +15,7 @@
 import logging as log
 import os
 from threading import Thread
-from typing import Callable, List, Any, Type
+from typing import List, Any, Type, Optional
 
 import pause
 from hspylib.core.preconditions import check_not_none
@@ -126,12 +126,11 @@ class OpenAIEngine(AIEngine):
         stream_text(text)
         speak_thread.join()  # Block until the speech has finished.
 
-    def speech_to_text(self, fn_reply: Callable[[str], None]) -> str:
+    def speech_to_text(self) -> Optional[str]:
         """Transcribes audio input from the microphone into the text input language.
-        :param fn_reply: The function to reply to the user using TTS.
         """
         _, text = Recorder.INSTANCE.listen(
-            Recorder.RecognitionApi.OPEN_AI, fn_reply, self._configs.language
+            Recorder.RecognitionApi.OPEN_AI, self._configs.language
         )
         log.debug(f"Audio transcribed to: {text}")
         return text.strip()

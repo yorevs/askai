@@ -57,6 +57,7 @@ class OutputProcessor(AIProcessor):
             output = self._llm(final_prompt).lstrip()
             status = True
         except Exception as err:
+            log.error(err)
             output = self.MSG.llm_error(str(err))
         finally:
             return status, output

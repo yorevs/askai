@@ -12,7 +12,7 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from typing import Callable, List, Protocol, Any, Type
+from typing import List, Protocol, Any, Type, Optional
 
 from askai.core.model.ai_model import AIModel
 from askai.core.model.ai_reply import AIReply
@@ -57,11 +57,7 @@ class AIEngine(Protocol):
         """
         ...
 
-    def speech_to_text(
-        self,
-        fn_reply: Callable[[str], None]
-    ) -> str:
+    def speech_to_text(self) -> Optional[str]:
         """Transcribes audio input from the microphone into the text input language.
-        :param fn_reply: The function to reply to the user using TTS.
         """
         ...

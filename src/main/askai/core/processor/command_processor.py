@@ -9,13 +9,13 @@ from hspylib.modules.application.exit_status import ExitStatus
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import OpenAI
 
+from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_prompt import AskAiPrompt
 from askai.core.model.query_response import QueryResponse
 from askai.core.model.terminal_command import TerminalCommand, SupportedShells, SupportedPlatforms
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.processor.output_processor import OutputProcessor
-from askai.utils.utilities import display_text
 
 
 class CommandProcessor(AIProcessor):
@@ -104,11 +104,11 @@ class CommandProcessor(AIProcessor):
         try:
             if command and which(command):
                 cmd_line = cmd_line.replace("~", os.getenv("HOME"))
-                display_text(self.MSG.executing())
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=self.MSG.executing())
                 log.info("Executing command `%s'", cmd_line)
                 cmd_out, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
                 if exit_code == ExitStatus.SUCCESS:
-                    display_text(self.MSG.cmd_success(exit_code))
+                    AskAiEvents.ASKAI_BUS.events.reply.emit(message=self.MSG.cmd_success(exit_code), erase_last=True)
                     status = True
                     if not cmd_out:
                         cmd_out = self.MSG.cmd_no_output()
@@ -119,6 +119,7 @@ class CommandProcessor(AIProcessor):
             else:
                 cmd_out = self.MSG.cmd_no_exist(command)
         except Exception as err:
+            log.error(err)
             cmd_out = self.MSG.cmd_failed(command) + f" -> {str(err)}"
 
         return status, cmd_out

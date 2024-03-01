@@ -48,7 +48,11 @@ def replace_icons(text: str) -> str:
 
 
 def display_text(text: Any, end: str = os.linesep, erase_last=False) -> None:
-    """TODO"""
+    """Display the provided text ina proper way.
+    :param text: The text to be displayed.
+    :param end: String appended after the last value, default a newline.
+    :param erase_last: Whether to erase the last displayed line.
+    """
     if erase_last:
         Cursor.INSTANCE.erase_line()
     sysout(f"%EL0%{replace_icons(str(text))}", end=end)

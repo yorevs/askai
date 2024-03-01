@@ -52,6 +52,7 @@ class GenericProcessor(AIProcessor):
             CacheService.save_query_history()
             return True, output
         except Exception as err:
+            log.error(err)
             return False, self.MSG.llm_error(str(err))
 
     def next_in_chain(self) -> Optional['AIProcessor']:

@@ -22,11 +22,11 @@ from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.zoned_datetime import now_ms
 from speech_recognition import AudioData, Recognizer, Microphone, UnknownValueError, RequestError
 
+from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import AskAiMessages
 from askai.core.component.cache_service import REC_DIR
 from askai.exception.exceptions import IntelligibleAudioError, InvalidRecognitionApiError
 from askai.language.language import Language
-from askai.utils.utilities import display_text
 
 
 class Recorder(metaclass=Singleton):
@@ -64,22 +64,20 @@ class Recorder(metaclass=Singleton):
     def listen(
         self,
         recognition_api: RecognitionApi = RecognitionApi.OPEN_AI,
-        fn_reply: Callable[[str], None] = display_text,
         language: Language = Language.EN_US
     ) -> Tuple[Path, str]:
         """Listen to the microphone, save the AudioData as a wav file and then, transcribe the speech.
         :param recognition_api: the API to be used to recognize the speech.
-        :param fn_reply: function to provide a TTS reply.
         :param language: the spoken language.
         """
         audio_path = Path(f"{REC_DIR}/askai-stt-{now_ms()}.wav")
         with Microphone(device_index=self._device_index) as source:
             try:
                 self._detect_noise()
-                fn_reply(AskAiMessages.INSTANCE.listening())
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=AskAiMessages.INSTANCE.listening())
                 audio: AudioData = self._rec.listen(source, phrase_time_limit=5)
                 Terminal.INSTANCE.cursor.erase_line()
-                fn_reply(AskAiMessages.INSTANCE.transcribing())
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=AskAiMessages.INSTANCE.transcribing(), erase_last=True)
                 with open(audio_path, "wb") as f_rec:
                     f_rec.write(audio.get_wav_data())
                     log.debug("Voice recorded and saved as %s", audio_path)
