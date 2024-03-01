@@ -14,7 +14,7 @@
 """
 import hashlib
 import os
-from typing import Any
+from typing import Any, List
 
 import pause
 from clitt.core.term.cursor import Cursor
@@ -34,15 +34,17 @@ def hash_text(text: str) -> str:
 
 
 def replace_icons(text: str) -> str:
-    return (
-        text
-        .replace('%000%', '\n')
-        .replace('%001%', ' ')
-        .replace('%002%', '')
-        .replace('%003%', '')
-        .replace('%004%', '')
-        .replace('%005%', '')
-    )
+    codes: List[str] = [
+        '&br;', '&nbsp;', '&error;',
+        '&lamp;', '&poop;', '&smile;'
+    ]
+    icons: List[str] = [
+        '\n', ' ', '',
+        '', '', ''
+    ]
+    for code, icon in zip(codes, icons):
+        text = text.replace(code, icon)
+    return text
 
 
 def display_text(text: Any, end: str = os.linesep, erase_last=False) -> None:
@@ -122,3 +124,9 @@ def stream_text(
             word_count = 0
         pause.seconds(presets.base_speed)
     sysout("")
+
+
+if __name__ == '__main__':
+    s = """RESPONSE: The size of the moon? Well, it's not your regular beach ball, that's for sure. The moon measures about 3,474 kilometers (2,159 miles) in diameter. That's one giant leap for a measuring tape! %000%%000%%004% But I hear it makes a fantastic nightlight for celestial beings. %000%"""
+    s = s.replace('RESPONSE: ', '')
+    print(replace_icons(s))

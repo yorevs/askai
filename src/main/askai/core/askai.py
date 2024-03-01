@@ -156,9 +156,8 @@ class AskAi:
         """Reply to the user with the AI response.
         :param message: The message to reply to the user.
         """
-        display_text(f"{self.nickname}: ", end="")
         if self.is_speak:
-            self._engine.text_to_speech(message)
+            self._engine.text_to_speech(f"{self.nickname}: ", message)
         else:
             display_text(message)
 

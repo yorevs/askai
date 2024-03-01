@@ -4,6 +4,7 @@ from typing import Tuple, Optional
 from langchain_openai import OpenAI
 from langchain_core.prompts import PromptTemplate
 
+from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_prompt import AskAiPrompt
 from askai.core.component.cache_service import CacheService
 from askai.core.model.query_response import QueryResponse
@@ -12,6 +13,8 @@ from askai.core.processor.ai_processor import AIProcessor
 
 class GenericProcessor(AIProcessor):
     """Process a generic question process."""
+
+    MSG: AskAiMessages = AskAiMessages.INSTANCE
 
     def __str__(self):
         return f"\"{self.query_type()}\": {self.query_desc()}"
@@ -49,7 +52,7 @@ class GenericProcessor(AIProcessor):
             CacheService.save_query_history()
             return True, output
         except Exception as err:
-            return False, f"LLM returned an error: {str(err)}"
+            return False, self.MSG.llm_error(str(err))
 
     def next_in_chain(self) -> Optional['AIProcessor']:
         return None

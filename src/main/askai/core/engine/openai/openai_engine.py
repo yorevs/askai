@@ -31,7 +31,7 @@ from askai.core.engine.openai.openai_reply import OpenAIReply
 from askai.core.protocol.ai_engine import AIEngine
 from askai.core.protocol.ai_model import AIModel
 from askai.core.protocol.ai_reply import AIReply
-from askai.utils.utilities import stream_text
+from askai.utils.utilities import stream_text, replace_icons, display_text
 
 
 class OpenAIEngine(AIEngine):
@@ -96,15 +96,17 @@ class OpenAIEngine(AIEngine):
 
         return reply
 
-    def text_to_speech(self, text: str) -> None:
+    def text_to_speech(self, prefix: str, text: str) -> None:
         """Text-T0-Speech the provided text.
         :param text: The text to speech.
+        :param prefix: The prefix of the streamed text.
         """
+        text = replace_icons(VtColor.strip_colors(text))
         speech_file_path, file_exists = CacheService.get_audio_file(text, self._configs.tts_format)
         if not file_exists:
             log.debug(f'Audio file "%s" not found in cache. Generating from %s.', self.nickname(), speech_file_path)
             response = self.client.audio.speech.create(
-                input=VtColor.strip_colors(text),
+                input=text,
                 model=self._configs.tts_model,
                 voice=self._configs.tts_voice,
                 response_format=self._configs.tts_format,
@@ -120,6 +122,7 @@ class OpenAIEngine(AIEngine):
         )
         speak_thread.start()
         pause.seconds(AudioPlayer.INSTANCE.start_delay())
+        display_text(prefix, end="")
         stream_text(text)
         speak_thread.join()  # Block until the speech has finished.
 

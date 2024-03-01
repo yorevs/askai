@@ -21,7 +21,7 @@ from askai.utils.utilities import display_text
 class CommandProcessor(AIProcessor):
     """Process a command based question process."""
 
-    MSG = AskAiMessages.INSTANCE
+    MSG: AskAiMessages = AskAiMessages.INSTANCE
 
     # Match most commonly used shells.
     RE_SHELLS = '(ba|c|da|k|tc|z)?sh'
@@ -82,11 +82,11 @@ class CommandProcessor(AIProcessor):
             output = self._llm(final_prompt).replace("\n", " ").strip()
             if mat := re.match(self.RE_CMD, output, re.I | re.M):
                 if mat.groups() != 3 and mat.group(1) != self.shell:
-                    output = f"Returned command '{mat.group(1)}' is not a {self.shell} command!"
+                    output = self.MSG = AskAiMessages.INSTANCE.not_a_command(mat.group(1), str(self.shell))
                 else:
                     status, output = self._process_command(query_response, mat.group(3).strip())
             else:
-                output = f"Returned command does not match the correct format: %s", output
+                output = self.MSG.invalid_cmd_format(output)
         except Exception as err:
             output = f"LLM returned an error: {str(err)}"
         finally:

@@ -50,13 +50,10 @@ class AIEngine(Protocol):
         """
         ...
 
-    def text_to_speech(self, text: str) -> None:
+    def text_to_speech(self, prefix: str, text: str) -> None:
         """Text-T0-Speech the provided text.
         :param text: The text to speech.
-        """
-        """Text-T0-Speech the provided text.
-        :param text: The text to speech.
-        :param cb_started: The callback function called when the speaker starts.
+        :param prefix: The prefix of the streamed text.
         """
         ...
 

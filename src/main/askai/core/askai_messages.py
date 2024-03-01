@@ -18,6 +18,13 @@ class AskAiMessages(metaclass=Singleton):
         self._translator = ArgosTranslator.INSTANCE or ArgosTranslator(Language.EN_US, self._configs.language)
 
     @lru_cache
+    def translate(self, text: str) -> str:
+        """Translate text using the configured language."""
+        return self._translator.translate(text)
+
+    # Informational
+
+    @lru_cache
     def welcome(self, username: str) -> str:
         return self.translate(f"Hello {username.title()}, How can I assist you today?")
 
@@ -49,9 +56,25 @@ class AskAiMessages(metaclass=Singleton):
     def cmd_success(self, exit_code: ExitStatus) -> str:
         return self.translate(f"OK, the command returned with code: {exit_code}")
 
+    # Warnings and alerts
+
     @lru_cache
     def cmd_no_output(self) -> str:
         return self.translate(f"The command didn't return an output !")
+
+    @lru_cache
+    def access_grant(self) -> str:
+        return self.translate(f"AskAI requires access to your files, folders and apps. Continue (yes/[no])?")
+
+    @lru_cache
+    def not_a_command(self, shell: str, content: str) -> str:
+        return self.translate(f"Returned context '{content}' is not a '{shell}' command!")
+
+    @lru_cache
+    def invalid_cmd_format(self, output: str) -> str:
+        return self.translate(f"Returned command output '{output}' does not match the correct format!")
+
+    # Failures
 
     @lru_cache
     def cmd_no_exist(self, command: str) -> str:
@@ -66,13 +89,8 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"Your question is not clear, please rephrase!")
 
     @lru_cache
-    def access_grant(self) -> str:
-        return self.translate(f"AskAI requires access to your files, folders and apps. Continue (yes/[no])?")
-
-    @lru_cache
-    def translate(self, text: str) -> str:
-        """Translate text using the configured language."""
-        return self._translator.translate(text)
+    def llm_error(self, error: str) -> str:
+        return self.translate(f"LLM returned an error: {error}")
 
 
 assert AskAiMessages().INSTANCE is not None

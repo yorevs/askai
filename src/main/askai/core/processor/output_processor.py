@@ -4,6 +4,7 @@ from typing import Tuple, Optional
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import OpenAI
 
+from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_prompt import AskAiPrompt
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
@@ -11,6 +12,8 @@ from askai.core.processor.ai_processor import AIProcessor
 
 class OutputProcessor(AIProcessor):
     """Process a command output process."""
+
+    MSG: AskAiMessages = AskAiMessages.INSTANCE
 
     def __init__(self):
         self._llm: OpenAI = OpenAI(temperature=0.0, top_p=0.0)
@@ -54,7 +57,7 @@ class OutputProcessor(AIProcessor):
             output = self._llm(final_prompt).lstrip()
             status = True
         except Exception as err:
-            output = f"LLM returned an error: {str(err)}"
+            output = self.MSG.llm_error(str(err))
         finally:
             return status, output
 
