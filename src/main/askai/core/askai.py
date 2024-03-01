@@ -40,6 +40,7 @@ from askai.core.component.cache_service import CacheService
 from askai.core.component.object_mapper import ObjectMapper
 from askai.core.component.recorder import Recorder
 from askai.core.engine.ai_engine import AIEngine
+from askai.core.engine.engine_factory import EngineFactory
 from askai.core.model.chat_context import ChatContext
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
@@ -64,12 +65,13 @@ class AskAi:
         interactive: bool,
         is_speak: bool,
         tempo: int,
-        engine: AIEngine,
+        engine_name: str,
+        model_name: str,
         query_string: str | List[str],
     ):
         self._configs: AskAiConfigs = AskAiConfigs.INSTANCE
         self._interactive: bool = interactive
-        self._engine: AIEngine = engine
+        self._engine: AIEngine = EngineFactory.INSTANCE.create_engine(engine_name, model_name)
         self._query_string: str = str(" ".join(query_string) if isinstance(query_string, list) else query_string)
         self._ready: bool = False
         self._processing: bool | None = None
@@ -82,9 +84,9 @@ class AskAi:
         return (
             f"%GREEN%"
             f"{'-=' * 40} %EOL%"
-            f"     Engine: {self._engine.ai_name()} %EOL%"
-            f"      Model: {self._engine.ai_model_name()} - {self._engine.ai_token_limit()} tokens %EOL%"
-            f"   Nickname: {self._engine.nickname()} %EOL%"
+            f"     Engine: {self.engine.ai_name()} %EOL%"
+            f"      Model: {self.engine.ai_model_name()} - {self.engine.ai_token_limit()} tokens %EOL%"
+            f"   Nickname: {self.engine.nickname()} %EOL%"
             f"{'--' * 40} %EOL%"
             f"   Language: {self.language.name} %EOL%"
             f"Interactive: ON %EOL%"
@@ -104,15 +106,15 @@ class AskAi:
 
     @property
     def nickname(self) -> str:
-        return f"  {self._engine.nickname()}"
+        return f"  {self.engine.nickname()}"
 
     @property
     def model(self) -> str:
-        return self._engine.ai_model_name()
+        return self.engine.ai_model_name()
 
     @property
     def token_limit(self) -> int:
-        return self._engine.ai_token_limit()
+        return self.engine.ai_token_limit()
 
     @property
     def cache_enabled(self) -> bool:
@@ -160,7 +162,7 @@ class AskAi:
         :param message: The message to reply to the user.
         """
         if self.is_speak:
-            self._engine.text_to_speech(f"{self.nickname}: ", message)
+            self.engine.text_to_speech(f"{self.nickname}: ", message)
         else:
             display_text(f"%GREEN%{self.nickname}: {message}%NC%")
 
@@ -227,7 +229,7 @@ class AskAi:
             ret = line_input(prompt)
             if self.is_speak and ret == Keyboard.VK_CTRL_L:  # Use speech as input method.
                 Terminal.INSTANCE.cursor.erase_line()
-                spoken_text = self._engine.speech_to_text()
+                spoken_text = self.engine.speech_to_text()
                 if spoken_text:
                     display_text(f"{self.username}: {spoken_text}")
                     ret = spoken_text
@@ -243,10 +245,10 @@ class AskAi:
         """
         status = False
         if not (reply := CacheService.read_reply(question)):
-            log.debug('Response not found for "%s" in cache. Querying from %s.', question, self._engine.nickname())
+            log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
             self.is_processing = True
             context = self._chat_context.set("SETUP", AskAiPrompt.INSTANCE.setup(question), 'user')
-            if (response := self._engine.ask(context, temperature=1, top_p=1)) and response.is_success():
+            if (response := self.engine.ask(context, temperature=1, top_p=1)) and response.is_success():
                 self.is_processing = False
                 query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)
                 log.debug("Received a query_response for '%s' -> %s", question, query_response)

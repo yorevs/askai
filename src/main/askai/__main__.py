@@ -16,7 +16,6 @@
 import logging as log
 import sys
 from textwrap import dedent
-from typing import List
 
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
@@ -28,14 +27,10 @@ from hspylib.modules.application.version import Version
 
 from askai.__classpath__ import _Classpath
 from askai.core.askai import AskAi
-from askai.core.engine.ai_engine import AIEngine
-from askai.core.engine.openai.openai_engine import OpenAIEngine
-from askai.core.engine.openai.openai_model import OpenAIModel
-from askai.exception.exceptions import NoSuchEngineError
 
 
 class Main(TUIApplication):
-    """HsPyLib Ask-AI Terminal Tools - AI on the palm of your shell."""
+    """HomeSetup Ask-AI - Unleash the Power of AI in Your Terminal."""
 
     # The welcome message
     DESCRIPTION = _Classpath.get_source_path("welcome.txt").read_text(encoding=Charset.UTF_8.val)
@@ -45,22 +40,6 @@ class Main(TUIApplication):
 
     # The resources folder
     RESOURCE_DIR = str(_Classpath.resource_path())
-
-    @staticmethod
-    def _find_engine(engine_name: str | List[str], engine_model: str | List[str]) -> AIEngine:
-        """Find the suitable AI engine according to the provided engine name.
-        :param engine_name: the AI engine name.
-        :param engine_model: the AI engine model.
-        """
-        engine = engine_name.lower() if isinstance(engine_name, str) else engine_name[0].lower()
-        model = engine_model.lower() if isinstance(engine_model, str) else engine_model[0].lower()
-        match engine:
-            case "openai":
-                return OpenAIEngine(OpenAIModel.of_name(model) or OpenAIModel.GPT_3_5_TURBO_16K_0613)
-            case "palm":
-                raise NoSuchEngineError("Google 'paml' is not yet implemented!")
-            case _:
-                raise NoSuchEngineError(f"Engine name: {engine_name}  model: {engine_model}")
 
     def __init__(self, app_name: str):
         version = Version.load(load_dir=self.VERSION_DIR)
@@ -86,7 +65,7 @@ class Main(TUIApplication):
                 nargs="?", action=ParserAction.STORE_TRUE, default=False)\
             .option(
                 "quiet", "q", "quiet",
-                "whether you want to speak (audio) the response.",
+                "whether you want touse speaking (audio in/out).",
                 nargs="?", action=ParserAction.STORE_FALSE, default=True)\
             .option(
                 "tempo", "t", "tempo",
@@ -103,7 +82,8 @@ class Main(TUIApplication):
             self.get_arg("interactive"),
             self.get_arg("quiet"),
             int(get_or_default(self.get_arg("tempo") or [], 0, "1")),
-            self._find_engine(self.get_arg("engine"), self.get_arg("model")),
+            self.get_arg("engine"),
+            self.get_arg("model"),
             self.get_arg("query_string"),
         )
 
