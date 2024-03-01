@@ -9,6 +9,7 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import json
 from dataclasses import dataclass, field
 from typing import List
 
@@ -29,3 +30,5 @@ class QueryResponse:
     require_summarization: bool = False
     commands: List[TerminalCommand] = field(default_factory=list)
 
+    def __str__(self):
+        return json.dumps(self.__dict__, default=lambda obj: obj.__dict__)

@@ -12,6 +12,7 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -38,6 +39,7 @@ class AskAiPrompt(metaclass=Singleton):
     def __init__(self):
         self._shell: SupportedShells = get_shell()
         self._os_type: SupportedPlatforms = get_os()
+        self._user: str = os.getenv("USER", "user")
         self._query_types: str = AIProcessor.get_query_types()
         self._setup: PromptTemplate = PromptTemplate(
             input_variables=["query_types", "question"],
@@ -51,6 +53,10 @@ class AskAiPrompt(metaclass=Singleton):
     @property
     def shell(self) -> SupportedShells:
         return self._shell
+
+    @property
+    def user(self) -> str:
+        return self._user
 
     def setup(self, question: str) -> str:
         return self._setup.format(query_types=self._query_types, question=question)

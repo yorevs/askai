@@ -11,6 +11,10 @@ class AnalysisProcessor(AIProcessor):
     def __str__(self):
         return f"\"{self.query_type()}\": {self.query_desc()}"
 
+    @property
+    def name(self) -> str:
+        return type(self).__name__
+
     def supports(self, q_type: str) -> bool:
         return q_type == self.query_type()
 
@@ -18,7 +22,7 @@ class AnalysisProcessor(AIProcessor):
         return str(abs(hash(self.__class__.__name__)))
 
     def query_type(self) -> str:
-        return f"Type-{self.processor_id()}"
+        return self.name
 
     def query_desc(self) -> str:
         return "Prompts where the user asks questions about command outputs, previously provided by him."

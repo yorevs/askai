@@ -33,11 +33,23 @@ def hash_text(text: str) -> str:
     return hashlib.md5(text.encode(Charset.UTF_8.val)).hexdigest()
 
 
+def replace_icons(text: str) -> str:
+    return (
+        text
+        .replace('%000%', '\n')
+        .replace('%001%', ' ')
+        .replace('%002%', '')
+        .replace('%003%', '')
+        .replace('%004%', '')
+        .replace('%005%', '')
+    )
+
+
 def display_text(text: Any, end: str = os.linesep, erase_last=False) -> None:
     """TODO"""
     if erase_last:
         Cursor.INSTANCE.erase_line()
-    sysout(f"%EL0%{text}", end=end)
+    sysout(f"%EL0%{replace_icons(str(text))}", end=end)
 
 
 def stream_text(
@@ -51,7 +63,7 @@ def stream_text(
     :param tempo: the speed multiplier of the typewriter effect. Defaults to 1.
     :param language: the language used to stream the text. Defaults to en_US.
     """
-    text: str = VtColor.strip_colors(text)
+    text: str = replace_icons(VtColor.strip_colors(text))
     presets: Presets = Presets.get(language.language, tempo=tempo)
     word_count: int = 0
     ln: str = os.linesep

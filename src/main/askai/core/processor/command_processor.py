@@ -36,6 +36,10 @@ class CommandProcessor(AIProcessor):
         return f"\"{self.query_type()}\": {self.query_desc()}"
 
     @property
+    def name(self) -> str:
+        return type(self).__name__
+
+    @property
     def shell(self) -> SupportedShells:
         return AskAiPrompt.INSTANCE.shell
 
@@ -50,7 +54,7 @@ class CommandProcessor(AIProcessor):
         return str(abs(hash(self.__class__.__name__)))
 
     def query_type(self) -> str:
-        return f"Type-{self.processor_id()}"
+        return self.name
 
     def query_desc(self) -> str:
         return (
@@ -73,14 +77,14 @@ class CommandProcessor(AIProcessor):
             shell=self.shell,
             question=query_response.question
         )
-        log.info("CommandProcessor QUESTION: '%s'", final_prompt)
+        log.info("%s::[QUESTION] '%s'", self.name, final_prompt)
         try:
             output = self._llm(final_prompt).replace("\n", " ").strip()
             if mat := re.match(self.RE_CMD, output, re.I | re.M):
                 if mat.groups() != 3 and mat.group(1) != self.shell:
                     output = f"Returned command '{mat.group(1)}' is not a {self.shell} command!"
                 else:
-                    status, output = self._process_command(mat.group(3).strip())
+                    status, output = self._process_command(query_response, mat.group(3).strip())
             else:
                 output = f"Returned command does not match the correct format: %s", output
         except Exception as err:
@@ -91,7 +95,7 @@ class CommandProcessor(AIProcessor):
     def next_in_chain(self) -> AIProcessor:
         return self.find_by_name(OutputProcessor.__name__)
 
-    def _process_command(self, cmd_line: str) -> Tuple[bool, Optional[str]]:
+    def _process_command(self, query_response: QueryResponse, cmd_line: str) -> Tuple[bool, Optional[str]]:
         """Process a terminal command.
         :param cmd_line: The command line to execute.
         """
@@ -109,7 +113,7 @@ class CommandProcessor(AIProcessor):
                     if not cmd_out:
                         cmd_out = self.MSG.cmd_no_output()
                     else:
-                        cmd_out = self._wrap_output(cmd_line, cmd_out)
+                        cmd_out = self._wrap_output(query_response, cmd_line, cmd_out)
                 else:
                     cmd_out = self.MSG.cmd_failed(command)
             else:
@@ -119,6 +123,9 @@ class CommandProcessor(AIProcessor):
 
         return status, cmd_out
 
-    def _wrap_output(self, cmd_line: str, cmd_out: str) -> str:
+    def _wrap_output(self, query_response: QueryResponse, cmd_line: str, cmd_out: str) -> str:
         """TODO"""
-        return str(TerminalCommand(cmd_line, cmd_out, self.os_type, self.shell))
+        query_response.query_type = self.next_in_chain().query_type()
+        query_response.require_command = False
+        query_response.commands.append(TerminalCommand(cmd_line, cmd_out, self.os_type, self.shell))
+        return str(query_response)

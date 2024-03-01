@@ -41,4 +41,4 @@ class TerminalCommand:
     shell: SupportedShells = get_shell()
 
     def __str__(self):
-        return json.dumps(self.__dict__)
+        return json.dumps(self.__dict__, default=lambda obj: obj.__dict__)

@@ -166,7 +166,7 @@ class AskAi:
         """Reply API or system errors.
         :param error_message: The error message to be displayed.
         """
-        display_text(f"%RED%{self.nickname}: {error_message}%NC%")
+        display_text(f"%RED%{self.nickname}: {error_message} %001% %NC%")
 
     def _splash(self) -> None:
         """Display the AskAI splash screen."""
@@ -253,20 +253,18 @@ class AskAi:
         """Process a query response using a processor that supports the query type."""
         if not query_response.intelligible:
             self.reply_error(self.MSG.intelligible())
+            return True
         elif query_response.terminating:
             log.info("User wants to terminate the conversation.")
         elif query_response.query_type:
             processor: AIProcessor = AIProcessor.find_by_query_type(query_response.query_type)
             check_not_none(processor, f"Unable to find a proper processor for query type: {query_response.query_type}")
             while processor:
-                log.info("Using processor %s to process the response.", processor)
+                log.info("%s::Processing response for '%s'", processor, query_response.question)
                 status, output = processor.process(query_response)
-                if status and (processor := processor.next_in_chain()):
-                    self._process_response(
-                        QueryResponse(
-                            processor.query_type(), query_response.question,
-                            output, False, True
-                        ))
+                if status and processor.next_in_chain():
+                    query_response = ObjectMapper.INSTANCE.of_json(output, QueryResponse)
+                    self._process_response(query_response)
                 elif status:
                     self.reply(output)
                 else:
