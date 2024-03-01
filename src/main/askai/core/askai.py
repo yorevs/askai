@@ -36,10 +36,10 @@ from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.cache_service import CacheService
 from askai.core.component.object_mapper import ObjectMapper
 from askai.core.component.recorder import Recorder
+from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
-from askai.core.protocol.ai_engine import AIEngine
 from askai.language.language import Language
 from askai.utils.utilities import display_text
 
@@ -159,21 +159,22 @@ class AskAi:
         if self.is_speak:
             self._engine.text_to_speech(f"{self.nickname}: ", message)
         else:
-            display_text(f"{self.nickname}: {message}")
+            display_text(f"%GREEN%{self.nickname}: {message}%NC%")
 
     def reply_error(self, error_message: str) -> None:
         """Reply API or system errors.
         :param error_message: The error message to be displayed.
         """
-        display_text(f"%RED%{self.nickname}: {error_message} %001% %NC%")
+        display_text(f"%RED%{self.nickname}: {error_message} &nbsp; %NC%")
 
     def _splash(self) -> None:
         """Display the AskAI splash screen."""
+        splash_interval = 500
         Screen.INSTANCE.clear()
         sysout(f"%GREEN%{self.SPLASH}%NC%")
         while not self._ready:
-            pause.milliseconds(500)
-        pause.seconds(1)
+            pause.milliseconds(splash_interval)
+        pause.milliseconds(splash_interval * 2)
         Screen.INSTANCE.clear()
 
     def _startup(self) -> None:

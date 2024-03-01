@@ -12,8 +12,7 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-
-from askai.core.protocol.ai_reply import AIReply
+from askai.core.model.ai_reply import AIReply
 
 
 class OpenAIReply(AIReply):

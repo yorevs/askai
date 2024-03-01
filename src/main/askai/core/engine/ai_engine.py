@@ -3,7 +3,7 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.engine.protocols
+   @package: askai.core.model
       @file: ai_engine.py
    @created: Fri, 5 May 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
@@ -14,8 +14,8 @@
 """
 from typing import Callable, List, Protocol, Any, Type
 
-from askai.core.protocol.ai_model import AIModel
-from askai.core.protocol.ai_reply import AIReply
+from askai.core.model.ai_model import AIModel
+from askai.core.model.ai_reply import AIReply
 
 
 class AIEngine(Protocol):

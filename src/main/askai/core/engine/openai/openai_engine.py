@@ -25,12 +25,12 @@ from openai import APIError, OpenAI
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.cache_service import CacheService
 from askai.core.component.recorder import Recorder
+from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.openai.openai_configs import OpenAiConfigs
 from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.engine.openai.openai_reply import OpenAIReply
-from askai.core.protocol.ai_engine import AIEngine
-from askai.core.protocol.ai_model import AIModel
-from askai.core.protocol.ai_reply import AIReply
+from askai.core.model.ai_model import AIModel
+from askai.core.model.ai_reply import AIReply
 from askai.utils.utilities import stream_text, replace_icons, display_text
 
 

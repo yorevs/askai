@@ -14,9 +14,10 @@
 """
 from hspylib.core.preconditions import check_not_none
 
-from askai.core.protocol.ai_model import AIModel
 from hspylib.core.enums.enumeration import Enumeration
 from typing import List
+
+from askai.core.model.ai_model import AIModel
 
 
 class OpenAIModel(Enumeration):
