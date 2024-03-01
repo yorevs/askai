@@ -16,11 +16,11 @@ Born from the idea of empowering individuals with disabilities to navigate the d
 
 At the heart of AskAI lies its innovative integration of Speech-to-Text and Text-to-Speech technologies, offering a seamless experience for both visually and hearing impaired users. Through these cutting-edge features, individuals can interact with their computers using their natural voice, transcending the barriers imposed by traditional input methods. Moreover, AskAI introduces a unique push-to-talk input mechanism, enabling users to issue commands effortlessly, enhancing the fluidity and ease of interaction.
 
-<img src="https://iili.io/JGvYrfs.png)" style="padding-right: 10px" width="150" height="150" align="left" />
+> The world speaks many languages. AskAI understands them all.
+
+<img src="https://iili.io/JMWbjf4.jpg)" style="padding-right: 10px" width="233" height="150" align="left" />
 
 Furthermore, AskAI embraces diversity by breaking language barriers, ensuring that no matter the tongue spoken, users can communicate effectively with their systems. Its adaptive language capabilities ensure that commands are understood and executed accurately, regardless of linguistic nuances. By championing inclusivity on all fronts, AskAI redefines the landscape of computing accessibility, empowering individuals with disabilities to navigate the digital realm with confidence and autonomy.
-
-> No matter which language you speak, AskAI speaks your language.
 
 ## Key Features
 
