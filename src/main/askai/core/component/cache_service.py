@@ -21,7 +21,7 @@ from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.modules.cache.ttl_cache import TTLCache
 
-from askai.utils.utilities import hash_text
+from askai.core.support.utilities import hash_text
 
 CACHE_DIR: Path = Path(f'{os.getenv("HHS_DIR", os.getenv("TEMP", "/tmp"))}/askai/cache')
 

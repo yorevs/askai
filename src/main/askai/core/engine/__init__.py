@@ -7,6 +7,7 @@
 
 __all__ = [
     'ai_engine', 
+    'engine_factory', 
     'openai'
 ]
 __version__ = '0.9.8'

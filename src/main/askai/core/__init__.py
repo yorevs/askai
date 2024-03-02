@@ -8,11 +8,13 @@
 __all__ = [
     'askai', 
     'askai_configs', 
+    'askai_events', 
     'askai_messages', 
     'askai_prompt', 
     'component', 
     'engine', 
     'model', 
-    'processor'
+    'processor', 
+    'support'
 ]
 __version__ = '0.9.8'

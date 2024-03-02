@@ -2,11 +2,10 @@
 #
 # 'askai' v0.9.8
 #
-# Package: main.askai.utils
+# Package: main.askai.core.support
 """Package initialization."""
 
 __all__ = [
-    'presets', 
-    'utilities'
+    'shared_instances'
 ]
 __version__ = '0.9.8'

@@ -31,7 +31,7 @@ from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.engine.openai.openai_reply import OpenAIReply
 from askai.core.model.ai_model import AIModel
 from askai.core.model.ai_reply import AIReply
-from askai.utils.utilities import stream_text, replace_icons, display_text
+from askai.core.support.utilities import stream_text, replace_icons, display_text
 
 
 class OpenAIEngine(AIEngine):

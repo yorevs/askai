@@ -10,12 +10,11 @@ from langchain_core.prompts import PromptTemplate
 from langchain_openai import OpenAI
 
 from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import AskAiMessages
-from askai.core.askai_prompt import AskAiPrompt
 from askai.core.model.query_response import QueryResponse
 from askai.core.model.terminal_command import TerminalCommand, SupportedShells, SupportedPlatforms
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.processor.output_processor import OutputProcessor
+from askai.core.support.shared_instances import shared
 
 
 class CommandProcessor(AIProcessor):
@@ -39,11 +38,11 @@ class CommandProcessor(AIProcessor):
 
     @property
     def shell(self) -> SupportedShells:
-        return AskAiPrompt.INSTANCE.shell
+        return shared.prompt.shell
 
     @property
     def os_type(self) -> SupportedPlatforms:
-        return AskAiPrompt.INSTANCE.os_type
+        return shared.prompt.os_type
 
     def supports(self, q_type: str) -> bool:
         return q_type == self.query_type()
@@ -61,7 +60,7 @@ class CommandProcessor(AIProcessor):
     )
 
     def template(self) -> str:
-        return AskAiPrompt.INSTANCE.read_template('command-prompt')
+        return shared.prompt.read_template('command-prompt')
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
@@ -80,18 +79,18 @@ class CommandProcessor(AIProcessor):
             output = self._llm(final_prompt).replace("\n", " ").strip()
             if mat := re.match(self.RE_CMD, output, re.I | re.M):
                 if mat.groups() != 3 and mat.group(1) != self.shell:
-                    output = AskAiMessages.INSTANCE.not_a_command(mat.group(1), str(self.shell))
+                    output = shared.msg.not_a_command(mat.group(1), str(self.shell))
                 else:
                     status, output = self._process_command(query_response, mat.group(3).strip())
             else:
-                output = AskAiMessages.INSTANCE.invalid_cmd_format(output)
+                output = shared.msg.invalid_cmd_format(output)
         except Exception as err:
             output = f"LLM returned an error: {str(err)}"
         finally:
             return status, output
 
     def next_in_chain(self) -> AIProcessor:
-        return self.find_by_name(OutputProcessor.__name__)
+        return shared.find_processor_by_name(OutputProcessor.__name__)
 
     def _process_command(self, query_response: QueryResponse, cmd_line: str) -> Tuple[bool, Optional[str]]:
         """Process a terminal command.
@@ -102,23 +101,23 @@ class CommandProcessor(AIProcessor):
         try:
             if command and which(command):
                 cmd_line = cmd_line.replace("~", os.getenv("HOME"))
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=AskAiMessages.INSTANCE.executing())
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=shared.msg.executing())
                 log.info("Executing command `%s'", cmd_line)
                 cmd_out, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
                 if exit_code == ExitStatus.SUCCESS:
-                    AskAiEvents.ASKAI_BUS.events.reply.emit(message=AskAiMessages.INSTANCE.cmd_success(exit_code), erase_last=True)
+                    AskAiEvents.ASKAI_BUS.events.reply.emit(message=shared.msg.cmd_success(exit_code), erase_last=True)
                     status = True
                     if not cmd_out:
-                        cmd_out = AskAiMessages.INSTANCE.cmd_no_output()
+                        cmd_out = shared.msg.cmd_no_output()
                     else:
                         cmd_out = self._wrap_output(query_response, cmd_line, cmd_out)
                 else:
-                    cmd_out = AskAiMessages.INSTANCE.cmd_failed(command)
+                    cmd_out = shared.msg.cmd_failed(command)
             else:
-                cmd_out = AskAiMessages.INSTANCE.cmd_no_exist(command)
+                cmd_out = shared.msg.cmd_no_exist(command)
         except Exception as err:
             log.error(err)
-            cmd_out = AskAiMessages.INSTANCE.cmd_failed(command) + f" -> {str(err)}"
+            cmd_out = shared.msg.cmd_failed(command) + f" -> {str(err)}"
 
         return status, cmd_out
 

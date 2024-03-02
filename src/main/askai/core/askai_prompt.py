@@ -24,7 +24,6 @@ from langchain_core.prompts import PromptTemplate
 
 from askai.__classpath__ import _Classpath
 from askai.core.model.terminal_command import SupportedPlatforms, get_shell, SupportedShells, get_os, get_user
-from askai.core.processor.ai_processor import AIProcessor
 
 
 class AskAiPrompt(metaclass=Singleton):
@@ -39,7 +38,7 @@ class AskAiPrompt(metaclass=Singleton):
         self._shell: SupportedShells = get_shell()
         self._os_type: SupportedPlatforms = get_os()
         self._user: str = get_user()
-        self._query_types: str = AIProcessor.get_query_types()
+        self._query_types: str = ''
         self._setup: PromptTemplate = PromptTemplate(
             input_variables=["query_types", "question"],
             template=self.read_template("setup.txt")

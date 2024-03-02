@@ -1,14 +1,13 @@
 import logging as log
 from typing import Tuple, Optional
 
-from langchain_openai import OpenAI
 from langchain_core.prompts import PromptTemplate
+from langchain_openai import OpenAI
 
-from askai.core.askai_messages import AskAiMessages
-from askai.core.askai_prompt import AskAiPrompt
 from askai.core.component.cache_service import CacheService
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
+from askai.core.support.shared_instances import shared
 
 
 class GenericProcessor(AIProcessor):
@@ -37,12 +36,12 @@ class GenericProcessor(AIProcessor):
         )
 
     def template(self) -> str:
-        return AskAiPrompt.INSTANCE.read_template('generic-prompt')
+        return shared.prompt.read_template('generic-prompt')
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         llm = OpenAI(temperature=0.6, top_p=0.8)
         template = PromptTemplate(input_variables=['question', 'user'], template=self.template())
-        final_prompt: str = template.format(question=query_response.question, user=AskAiPrompt.INSTANCE.user)
+        final_prompt: str = template.format(question=query_response.question, user=shared.prompt.user)
         log.info("%s::[QUESTION] '%s'", self.name, final_prompt)
         try:
             output = llm(final_prompt).strip().replace('RESPONSE: ', '')
@@ -51,7 +50,7 @@ class GenericProcessor(AIProcessor):
             return True, output
         except Exception as err:
             log.error(err)
-            return False, AskAiMessages.llm_error(str(err))
+            return False, shared.msg.llm_error(str(err))
 
     def next_in_chain(self) -> Optional['AIProcessor']:
         return None

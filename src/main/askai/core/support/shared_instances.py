@@ -1,4 +1,5 @@
-from typing import Optional
+from functools import lru_cache
+from typing import Optional, Dict
 
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_state
@@ -9,6 +10,7 @@ from askai.core.askai_prompt import AskAiPrompt
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
 from askai.core.model.chat_context import ChatContext
+from askai.core.processor.ai_processor import AIProcessor
 
 
 class SharedInstances(metaclass=Singleton):
@@ -16,20 +18,8 @@ class SharedInstances(metaclass=Singleton):
 
     INSTANCE: 'SharedInstances' = None
 
-    @classmethod
-    def create_engine(cls, engine_name: str, model_name: str) -> AIEngine:
-        if cls.INSTANCE._engine is None:
-            cls.INSTANCE._engine = EngineFactory.create_engine(engine_name, model_name)
-        cls._create_context(cls.INSTANCE._engine.ai_token_limit())
-        return cls.INSTANCE._engine
-
-    @classmethod
-    def _create_context(cls, token_limit: int) -> ChatContext:
-        if cls.INSTANCE._context is None:
-            cls.INSTANCE._context = ChatContext(token_limit)
-        return cls.INSTANCE._context
-
     def __init__(self) -> None:
+        self._processors: Dict[str, AIProcessor] = {}
         self._engine: Optional[AIEngine] = None
         self._context: Optional[ChatContext] = None
         self._configs: AskAiConfigs = AskAiConfigs()
@@ -80,6 +70,28 @@ class SharedInstances(metaclass=Singleton):
     def configs(self, value: AskAiConfigs) -> None:
         check_state(self._configs is None, "Once set, this instance is immutable.")
         self._configs = value
+
+    def create_engine(self, engine_name: str, model_name: str) -> AIEngine:
+        """TODO"""
+        if self._engine is None:
+            self._engine = EngineFactory.create_engine(engine_name, model_name)
+        return self._engine
+
+    def create_context(self, token_limit: int) -> ChatContext:
+        """TODO"""
+        if self._context is None:
+            self._context = ChatContext(token_limit)
+        return self._context
+
+    @lru_cache
+    def find_processor_by_query_type(self, query_type: str) -> Optional['AIProcessor']:
+        """TODO"""
+        return next((p for p in self._processors.values() if p.supports(query_type)), None)
+
+    @lru_cache
+    def find_processor_by_name(self, name: str) -> Optional['AIProcessor']:
+        """TODO"""
+        return next((p for p in self._processors.values() if type(p).__name__ == name), None)
 
 
 assert (shared := SharedInstances().INSTANCE) is not None

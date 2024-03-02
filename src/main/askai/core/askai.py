@@ -40,8 +40,8 @@ from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
-from askai.core.shared_instances import shared
-from askai.utils.utilities import display_text
+from askai.core.support.shared_instances import shared
+from askai.core.support.utilities import display_text
 
 
 class AskAi:
@@ -68,7 +68,7 @@ class AskAi:
         self._processing: Optional[bool] = None
         self._query_string: Optional[str] = str(" ".join(query_string) if isinstance(query_string, list) else query_string)
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
-        self._chat_context: ChatContext = shared.context
+        self._chat_context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         # Setting configs from program args.
         shared.configs.is_speak = is_speak
         shared.configs.tempo = tempo
@@ -247,7 +247,7 @@ class AskAi:
         elif query_response.terminating:
             log.info("User wants to terminate the conversation.")
         elif query_response.query_type:
-            processor: AIProcessor = AIProcessor.find_by_query_type(query_response.query_type)
+            processor: AIProcessor = shared.find_processor_by_query_type(query_response.query_type)
             check_not_none(processor, f"Unable to find a proper processor for query type: {query_response.query_type}")
             while processor:
                 log.info("%s::Processing response for '%s'", processor, query_response.question)
