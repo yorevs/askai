@@ -78,7 +78,7 @@ class OpenAIEngine(AIEngine):
         """Get the list of available models for the engine."""
         return OpenAIModel.models()
 
-    def ask(self, chat_context: List, **kwargs: Any) -> AIReply:
+    def ask(self, chat_context: List[dict], **kwargs: Any) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
         :param chat_context: The chat history or context.
         """

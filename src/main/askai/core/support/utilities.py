@@ -131,6 +131,5 @@ def stream_text(
 
 
 if __name__ == '__main__':
-    s = """RESPONSE: The size of the moon? Well, it's not your regular beach ball, that's for sure. The moon measures about 3,474 kilometers (2,159 miles) in diameter. That's one giant leap for a measuring tape! %000%%000%%004% But I hear it makes a fantastic nightlight for celestial beings. %000%"""
-    s = s.replace('RESPONSE: ', '')
-    print(replace_icons(s))
+    s = """%RED%&error; The AI failed to respond to the question: &br;JSON = {str(query_response)}%NC%"""
+    display_text(s)

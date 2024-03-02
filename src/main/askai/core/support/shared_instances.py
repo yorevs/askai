@@ -1,8 +1,7 @@
-from functools import lru_cache
-from typing import Optional, Any
+from typing import Optional
 
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_state, check_not_none
+from hspylib.core.preconditions import check_state
 
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
@@ -47,12 +46,6 @@ class SharedInstances(metaclass=Singleton):
         if self._context is None:
             self._context = ChatContext(token_limit)
         return self._context
-
-    @lru_cache
-    def create_langchain_model(self, **kwargs) -> Any:
-        """TODO"""
-        check_not_none(self._engine, "AI Engine was not created yet!")
-        return self.engine.lc_model(**kwargs)
 
 
 assert (shared := SharedInstances().INSTANCE) is not None

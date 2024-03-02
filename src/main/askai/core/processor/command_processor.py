@@ -11,10 +11,12 @@ from langchain_core.prompts import PromptTemplate
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_prompt import AskAiPrompt
+from askai.core.component.cache_service import CacheService
 from askai.core.model.query_response import QueryResponse
 from askai.core.model.terminal_command import TerminalCommand, SupportedShells, SupportedPlatforms
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.processor.output_processor import OutputProcessor
+from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 
 
@@ -25,7 +27,10 @@ class CommandProcessor(AIProcessor):
     RE_SHELLS = '(ba|c|da|k|tc|z)?sh'
 
     # Match a terminal command formatted in a markdown code block.
-    RE_CMD = r".*`{3}(" + RE_SHELLS + ")(.+)`{3}.*"
+    RE_CMD = r'.*`{3}(' + RE_SHELLS + ')(.+)`{3}.*'
+
+    # Match a file or folder path.
+    RE_PATH = r'.* ((\w:|[~.])?(/.+)+(.*)?) ?.*'
 
     def __str__(self):
         return f"\"{self.query_type()}\": {self.query_desc()}"
@@ -63,20 +68,17 @@ class CommandProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
-        llm = shared.create_langchain_model(temperature=0.0, top_p=0.0)
+        llm = lc_llm.create_langchain_model(temperature=0.0, top_p=0.0)
         template = PromptTemplate(
-            input_variables=['os_type', 'shell', 'question'],
-            template=self.template()
-        )
+            input_variables=['os_type', 'shell', 'last_dir', 'question'], template=self.template())
+        last_dir = str(shared.context["LAST_DIR"][0].content)
         final_prompt: str = template.format(
-            os_type=self.os_type,
-            shell=self.shell,
-            question=query_response.question
-        )
+            os_type=self.os_type, shell=self.shell, last_dir=last_dir, question=query_response.question)
         log.info("%s::[QUESTION] '%s'", self.name, final_prompt)
         try:
             output = llm(final_prompt).replace("\n", " ").strip()
             if mat := re.match(self.RE_CMD, output, re.I | re.M):
+                CacheService.save_query_history()
                 if mat.groups() != 3 and mat.group(1) != self.shell:
                     output = AskAiMessages.INSTANCE.not_a_command(mat.group(1), str(self.shell))
                 else:
@@ -93,6 +95,7 @@ class CommandProcessor(AIProcessor):
 
     def _process_command(self, query_response: QueryResponse, cmd_line: str) -> Tuple[bool, Optional[str]]:
         """Process a terminal command.
+        :param query_response: The response for the query asked by the user.
         :param cmd_line: The command line to execute.
         """
         status = False
@@ -104,16 +107,19 @@ class CommandProcessor(AIProcessor):
                 log.info("Executing command `%s'", cmd_line)
                 cmd_out, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
                 if exit_code == ExitStatus.SUCCESS:
+                    cmd_path = re.search(self.RE_PATH, cmd_line)
+                    if cmd_path:
+                        cmd_path = cmd_path.group(1)
+                        shared.context.set("LAST_DIR", f"Last used directory: '{cmd_path}'", 'assistant')
                     AskAiEvents.ASKAI_BUS.events.reply.emit(
-                        message=AskAiMessages.INSTANCE.cmd_success(exit_code),
-                        erase_last=True
+                        message=AskAiMessages.INSTANCE.cmd_success(exit_code), erase_last=True
                     )
                     status = True
-                    shared.context.push("COMMAND", query_response.question)
+                    shared.context.set("COMMAND", query_response.question)
                     if not cmd_out:
                         cmd_out = AskAiMessages.INSTANCE.cmd_no_output()
                     else:
-                        shared.context.push("OUTPUT", query_response.question)
+                        shared.context.set("OUTPUT", cmd_out, 'assistant')
                         cmd_out = self._wrap_output(query_response, cmd_line, cmd_out)
                 else:
                     cmd_out = AskAiMessages.INSTANCE.cmd_failed(command)

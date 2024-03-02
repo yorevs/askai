@@ -11,6 +11,7 @@
 """
 import inspect
 import json
+import logging as log
 from inspect import isclass
 from types import SimpleNamespace
 from typing import Type, Callable, Dict, Optional, Any, TypeAlias
@@ -43,15 +44,26 @@ class ObjectMapper(metaclass=Singleton):
 
     @classmethod
     def get_class_attributes(cls, clazz: Type):
-        return [item[0] for item in inspect.getmembers(clazz) if not callable(getattr(clazz, item[0])) and not item[0].startswith('__')]
+        return [
+            item[0] for item in inspect.getmembers(clazz)
+            if not callable(getattr(clazz, item[0])) and not item[0].startswith('__')
+        ]
 
     def __init__(self):
         self._converters: Dict[str, FnConverter] = {}
 
     def of_json(self, json_string: str, to_class: Type) -> Any:
         """"Convert a JSON string to an object on the provided type."""
-        json_obj = json.loads(json_string, object_hook=lambda d: SimpleNamespace(**d))
-        return self.convert(json_obj, to_class)
+        if not json_string:
+            return ''
+        ret_val = json_string
+        try:
+            json_obj = json.loads(json_string, object_hook=lambda d: SimpleNamespace(**d))
+            ret_val = self.convert(json_obj, to_class)
+        except ValueError as err:
+            log.warning(f"Could not decode JSON string '%s' => %s", json_string, str(err))
+        finally:
+            return ret_val
 
     def convert(self, from_obj: Any, to_class: Type) -> Any:
         """Convert one object into another of the provided class type."""
@@ -73,7 +85,6 @@ class ObjectMapper(metaclass=Singleton):
 
 
 assert ObjectMapper().INSTANCE is not None
-
 
 if __name__ == '__main__':
     o = ObjectMapper.INSTANCE

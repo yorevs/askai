@@ -7,7 +7,7 @@ from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_prompt import AskAiPrompt
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
-from askai.core.support.shared_instances import shared
+from askai.core.support.langchain_support import lc_llm
 
 
 class OutputProcessor(AIProcessor):
@@ -38,7 +38,7 @@ class OutputProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
-        llm = shared.create_langchain_model(temperature=0.0, top_p=0.0)
+        llm = lc_llm.create_langchain_model(temperature=0.5, top_p=0.0)
         template = PromptTemplate(
             input_variables=['command_line', 'shell', 'command_output'],
             template=self.template()

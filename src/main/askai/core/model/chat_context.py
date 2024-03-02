@@ -59,8 +59,15 @@ class ChatContext:
         return val
 
     def get(self, key: str) -> List[dict]:
-        """Retrieve a context message from the chat specified by key."""
+        """Retrieve a context from the specified by key."""
         return [{'role': c.role, 'content': c.content} for c in self._context[key]] or []
+
+    def get_many(self, *keys: str) -> List[dict]:
+        """Retrieve many contexts from the specified by key."""
+        context = []
+        for key in keys:
+            context += self.get(key)
+        return context
 
     def clear(self, key: str) -> int:
         """Clear the all the chat context specified by key."""

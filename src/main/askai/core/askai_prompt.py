@@ -39,7 +39,7 @@ class AskAiPrompt(metaclass=Singleton):
         self._shell: SupportedShells = get_shell()
         self._os_type: SupportedPlatforms = get_os()
         self._user: str = get_user()
-        self._query_types: str = AIProcessor.get_query_types()
+        self._query_types: str = AIProcessor.query_types()
         self._setup: PromptTemplate = PromptTemplate(
             input_variables=["query_types", "question"],
             template=self.read_template("setup.txt")
@@ -57,8 +57,8 @@ class AskAiPrompt(metaclass=Singleton):
     def user(self) -> str:
         return self._user
 
-    def setup(self, question: str) -> str:
-        return self._setup.format(query_types=self._query_types, question=question)
+    def setup(self) -> str:
+        return self._setup.format(query_types=self._query_types)
 
     @lru_cache
     def read_template(self, filename: str) -> str:

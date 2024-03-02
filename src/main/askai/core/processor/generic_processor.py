@@ -8,6 +8,7 @@ from askai.core.askai_prompt import AskAiPrompt
 from askai.core.component.cache_service import CacheService
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
+from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 
 
@@ -40,9 +41,11 @@ class GenericProcessor(AIProcessor):
         return AskAiPrompt.INSTANCE.read_template('generic-prompt')
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
-        template = PromptTemplate(input_variables=['question', 'user'], template=self.template())
-        final_prompt: str = template.format(question=query_response.question, user=AskAiPrompt.INSTANCE.user)
-        llm: Any = shared.create_langchain_model(temperature=0.6, top_p=0.6)
+        template = PromptTemplate(input_variables=['history', 'question', 'user'], template=self.template())
+        context = str(shared.context.get_many("GENERIC"))
+        final_prompt: str = template.format(
+            history=context, question=query_response.question, user=AskAiPrompt.INSTANCE.user)
+        llm: Any = lc_llm.create_langchain_model(temperature=1, top_p=1)
         log.info("%s::[QUESTION] '%s'", self.name, final_prompt)
         try:
             output = llm(final_prompt).strip().replace('RESPONSE: ', '')

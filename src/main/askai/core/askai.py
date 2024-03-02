@@ -64,12 +64,12 @@ class AskAi:
         tempo: int,
         engine_name: str,
         model_name: str,
-        query_string: str | List[str],
+        query: str | List[str],
     ):
         self._interactive: bool = interactive
         self._ready: bool = False
         self._processing: Optional[bool] = None
-        self._query_string: Optional[str] = str(" ".join(query_string) if isinstance(query_string, list) else query_string)
+        self._query_string: Optional[str] = str(" ".join(query) if isinstance(query, list) else query)
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         # Setting configs from program args.
@@ -150,14 +150,14 @@ class AskAi:
         else:
             display_text(f"%GREEN%{self.nickname}: {message}%NC%")
 
-    def reply_error(self, error_message: str) -> None:
+    def reply_error(self, message: str) -> None:
         """Reply API or system errors.
-        :param error_message: The error message to be displayed.
+        :param message: The error message to be displayed.
         """
-        display_text(f"%RED%%error; {self.nickname}: {error_message} &nbsp; %NC%")
+        display_text(f"%RED%{self.nickname}: &error; {message} &nbsp; %NC%")
 
     def _cb_reply_event(self, ev: Event) -> None:
-        """TODO"""
+        """Callback to handle reply events."""
         if ev.args.erase_last:
             Cursor.INSTANCE.erase_line()
         self.reply(ev.args.message)
@@ -188,6 +188,7 @@ class AskAi:
             )
         askai_bus = AskAiEvents.get_bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
+        shared.context.set("LAST_DIR", f"Last used directory: '{os.getcwd()}'", 'assistant')
         self._ready = True
         log.info("AskAI is ready !")
         splash_thread.join()
@@ -231,8 +232,10 @@ class AskAi:
         if not (reply := CacheService.read_reply(question)):
             log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
             self.is_processing = True
-            context = self.context.set("SETUP", prompt.setup(question), 'user')
-            if (response := self.engine.ask(context, temperature=1, top_p=1)) and response.is_success():
+            self.context.set("SETUP", prompt.setup(), 'system')
+            context = self.context.get_many("SETUP", "COMMAND", "OUTPUT", "ANALYSIS")
+            context.append({"role": "user", "content": f"%QUESTION:\n\n{question}\n"})
+            if (response := self.engine.ask(context, temperature=0.5, top_p=0.5)) and response.is_success():
                 self.is_processing = False
                 query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)
                 log.debug("Received a query_response for '%s' -> %s", question, query_response)
@@ -260,12 +263,15 @@ class AskAi:
                 log.info("%s::Processing response for '%s'", processor, query_response.question)
                 status, output = processor.process(query_response)
                 if status and processor.next_in_chain():
-                    query_response = ObjectMapper.INSTANCE.of_json(output, QueryResponse)
-                    self._process_response(query_response)
+                    mapped_response = ObjectMapper.INSTANCE.of_json(output, QueryResponse)
+                    if isinstance(mapped_response, QueryResponse):
+                        self._process_response(mapped_response)
+                    else:
+                        self.reply(str(mapped_response))
                 elif status:
-                    self.reply(output)
+                    self.reply(str(output))
                 else:
-                    self.reply_error(output)
+                    self.reply_error(str(output))
                 return status
         elif query_response.response:
             self.reply(query_response.response)
