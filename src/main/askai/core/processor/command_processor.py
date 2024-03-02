@@ -68,7 +68,7 @@ class CommandProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
-        llm = lc_llm.create_langchain_model(temperature=0.0, top_p=0.0)
+        llm = lc_llm.create_langchain_model(temperature=1, top_p=1)
         template = PromptTemplate(
             input_variables=['os_type', 'shell', 'last_dir', 'question'], template=self.template())
         last_dir = str(shared.context["LAST_DIR"][0].content)

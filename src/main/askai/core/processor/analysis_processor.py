@@ -40,7 +40,7 @@ class AnalysisProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         llm = lc_llm.create_langchain_model(temperature=1, top_p=1)
         template = PromptTemplate(input_variables=['context', 'question'], template=self.template())
-        context = str(shared.context.get_many("COMMAND", "OUTPUT", "LAST_DIR", "ANALYSIS"))
+        context = str(shared.context.get_many("COMMAND", "OUTPUT", "ANALYSIS"))
         final_prompt: str = template.format(context=context, question=query_response.question)
         log.info("%s::[QUESTION] '%s'", self.name, final_prompt)
         try:

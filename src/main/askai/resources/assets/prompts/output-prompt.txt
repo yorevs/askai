@@ -4,7 +4,7 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 Step  1 - Generate your response using only the provided contexts.
 Step  2 - Start your response with the following: "Here is a summarized version of the command output: &br;".
-Step  3 - Please specify whether each item is a file, link, folder, app or something else.
+Step  3 - Please specify whether each item is a file, link, folder or application.
 Step  4 - Please specify the file, app or folder size and last modified datetime.
 Step  5 - If the item is a file, kindly indicate the corresponding application used for its access, if applicable.
 Step  6 - Limit the list to a maximum of 5 items, please.
