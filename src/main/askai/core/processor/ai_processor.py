@@ -14,7 +14,12 @@
 """
 import os
 from functools import lru_cache
+from importlib import import_module
+from os.path import basename
 from typing import Protocol, Optional, Tuple, Dict
+
+from hspylib.core.tools.commons import dirname
+from hspylib.core.tools.text_tools import camelcase
 
 from askai.core.model.query_response import QueryResponse
 
@@ -22,12 +27,21 @@ from askai.core.model.query_response import QueryResponse
 class AIProcessor(Protocol):
     """TODO"""
 
+    _PROCESSORS: Dict[str, 'AIProcessor'] = {}
+
     @classmethod
     @lru_cache
     def get_query_types(cls) -> str:
         q_types = []
-        for processor in cls._PROCESSORS:
-            q_types.append(str(processor))
+        for root, _, files in os.walk(dirname(__file__)):
+            procs = list(filter(lambda m: m.endswith("_processor.py") and m != basename(__file__), files))
+            for proc in procs:
+                proc_name = os.path.splitext(proc)[0]
+                proc_pkg = import_module(f"{__package__}.{proc_name}")
+                proc_class = getattr(proc_pkg, camelcase(proc_name, capitalized=True))
+                proc_inst = proc_class()
+                cls._PROCESSORS[proc_inst.processor_id()] = proc_inst
+                q_types.append(str(proc_inst))
         return os.linesep.join(q_types)
 
     @classmethod

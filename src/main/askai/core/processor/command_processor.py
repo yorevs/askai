@@ -7,9 +7,10 @@ from typing import Tuple, Optional
 from clitt.core.term.terminal import Terminal
 from hspylib.modules.application.exit_status import ExitStatus
 from langchain_core.prompts import PromptTemplate
-from langchain_openai import OpenAI
 
 from askai.core.askai_events import AskAiEvents
+from askai.core.askai_messages import AskAiMessages
+from askai.core.askai_prompt import AskAiPrompt
 from askai.core.model.query_response import QueryResponse
 from askai.core.model.terminal_command import TerminalCommand, SupportedShells, SupportedPlatforms
 from askai.core.processor.ai_processor import AIProcessor
@@ -26,9 +27,6 @@ class CommandProcessor(AIProcessor):
     # Match a terminal command formatted in a markdown code block.
     RE_CMD = r".*`{3}(" + RE_SHELLS + ")(.+)`{3}.*"
 
-    def __init__(self):
-        self._llm: OpenAI = OpenAI(temperature=0.0, top_p=0.0)
-
     def __str__(self):
         return f"\"{self.query_type()}\": {self.query_desc()}"
 
@@ -38,11 +36,11 @@ class CommandProcessor(AIProcessor):
 
     @property
     def shell(self) -> SupportedShells:
-        return shared.prompt.shell
+        return AskAiPrompt.INSTANCE.shell
 
     @property
     def os_type(self) -> SupportedPlatforms:
-        return shared.prompt.os_type
+        return AskAiPrompt.INSTANCE.os_type
 
     def supports(self, q_type: str) -> bool:
         return q_type == self.query_type()
@@ -57,14 +55,15 @@ class CommandProcessor(AIProcessor):
         return (
             "Prompts that will require you to execute commands at the user's terminal "
             "(Example: list files and folders)."
-    )
+        )
 
     def template(self) -> str:
-        return shared.prompt.read_template('command-prompt')
+        return AskAiPrompt.INSTANCE.read_template('command-prompt')
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
+        llm = shared.create_langchain_model(temperature=0.0, top_p=0.0)
         template = PromptTemplate(
             input_variables=['os_type', 'shell', 'question'],
             template=self.template()
@@ -76,14 +75,14 @@ class CommandProcessor(AIProcessor):
         )
         log.info("%s::[QUESTION] '%s'", self.name, final_prompt)
         try:
-            output = self._llm(final_prompt).replace("\n", " ").strip()
+            output = llm(final_prompt).replace("\n", " ").strip()
             if mat := re.match(self.RE_CMD, output, re.I | re.M):
                 if mat.groups() != 3 and mat.group(1) != self.shell:
-                    output = shared.msg.not_a_command(mat.group(1), str(self.shell))
+                    output = AskAiMessages.INSTANCE.not_a_command(mat.group(1), str(self.shell))
                 else:
                     status, output = self._process_command(query_response, mat.group(3).strip())
             else:
-                output = shared.msg.invalid_cmd_format(output)
+                output = AskAiMessages.INSTANCE.invalid_cmd_format(output)
         except Exception as err:
             output = f"LLM returned an error: {str(err)}"
         finally:
@@ -101,23 +100,28 @@ class CommandProcessor(AIProcessor):
         try:
             if command and which(command):
                 cmd_line = cmd_line.replace("~", os.getenv("HOME"))
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=shared.msg.executing())
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=AskAiMessages.INSTANCE.executing())
                 log.info("Executing command `%s'", cmd_line)
                 cmd_out, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
                 if exit_code == ExitStatus.SUCCESS:
-                    AskAiEvents.ASKAI_BUS.events.reply.emit(message=shared.msg.cmd_success(exit_code), erase_last=True)
+                    AskAiEvents.ASKAI_BUS.events.reply.emit(
+                        message=AskAiMessages.INSTANCE.cmd_success(exit_code),
+                        erase_last=True
+                    )
                     status = True
+                    shared.context.push("COMMAND", query_response.question)
                     if not cmd_out:
-                        cmd_out = shared.msg.cmd_no_output()
+                        cmd_out = AskAiMessages.INSTANCE.cmd_no_output()
                     else:
+                        shared.context.push("OUTPUT", query_response.question)
                         cmd_out = self._wrap_output(query_response, cmd_line, cmd_out)
                 else:
-                    cmd_out = shared.msg.cmd_failed(command)
+                    cmd_out = AskAiMessages.INSTANCE.cmd_failed(command)
             else:
-                cmd_out = shared.msg.cmd_no_exist(command)
+                cmd_out = AskAiMessages.INSTANCE.cmd_no_exist(command)
         except Exception as err:
             log.error(err)
-            cmd_out = shared.msg.cmd_failed(command) + f" -> {str(err)}"
+            cmd_out = AskAiMessages.INSTANCE.cmd_failed(command) + f" -> {str(err)}"
 
         return status, cmd_out
 

@@ -15,8 +15,9 @@
 import logging as log
 import os
 from threading import Thread
-from typing import List, Any, Type, Optional
+from typing import List, Any, Optional
 
+import langchain_openai
 import pause
 from hspylib.core.preconditions import check_not_none
 from hspylib.modules.cli.vt100.vt_color import VtColor
@@ -52,11 +53,10 @@ class OpenAIEngine(AIEngine):
     def client(self) -> OpenAI:
         return self._client
 
-    def lc_model(self, llm: Type, **kwargs: Any) -> Any:
-        """Create a LangChain AI model instance.
-        :param llm: The LangChain model Class type.
+    def lc_model(self, **kwargs: Any) -> Any:
+        """Create a LangChain OpenAI llm model instance.
         """
-        return llm(openai_api_key=self._api_key, **kwargs)
+        return langchain_openai.OpenAI(openai_api_key=self._api_key, **kwargs)
 
     def ai_name(self) -> str:
         """Get the AI model name."""

@@ -3,7 +3,7 @@ from functools import lru_cache
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.modules.application.exit_status import ExitStatus
 
-from askai.core.askai_configs import AskAiConfigs
+from askai.core.askai_configs import configs
 from askai.language.argos_translator import ArgosTranslator
 from askai.language.language import Language
 
@@ -14,8 +14,7 @@ class AskAiMessages(metaclass=Singleton):
     INSTANCE: 'AskAiMessages' = None
 
     def __init__(self):
-        self._configs: AskAiConfigs = AskAiConfigs.INSTANCE
-        self._translator = ArgosTranslator.INSTANCE or ArgosTranslator(Language.EN_US, self._configs.language)
+        self._translator = ArgosTranslator(Language.EN_US, configs.language)
 
     @lru_cache
     def translate(self, text: str) -> str:
@@ -91,3 +90,6 @@ class AskAiMessages(metaclass=Singleton):
     @lru_cache
     def llm_error(self, error: str) -> str:
         return self.translate(f"LLM returned an error: {error}")
+
+
+assert (msg := AskAiMessages().INSTANCE) is not None

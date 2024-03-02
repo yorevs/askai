@@ -21,7 +21,7 @@ from askai.core.model.ai_reply import AIReply
 class AIEngine(Protocol):
     """Provide an interface for AI engines."""
 
-    def lc_model(self, llm: Type, **kwargs: Any) -> Any:
+    def lc_model(self, **kwargs: Any) -> Any:
         """Create a LangChain AI model instance."""
 
     def ai_name(self) -> str:

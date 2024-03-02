@@ -15,11 +15,8 @@
 import logging as log
 import os
 import sys
-from functools import lru_cache
-from importlib import import_module
-from os.path import basename
 from threading import Thread
-from typing import List, Optional, Dict
+from typing import List, Optional
 
 import pause
 from clitt.core.term.cursor import Cursor
@@ -28,14 +25,16 @@ from clitt.core.term.terminal import Terminal
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.enums.charset import Charset
 from hspylib.core.preconditions import check_not_none
-from hspylib.core.tools.commons import sysout, dirname
-from hspylib.core.tools.text_tools import camelcase
+from hspylib.core.tools.commons import sysout
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.cli.keyboard import Keyboard
 from hspylib.modules.eventbus.event import Event
 
 from askai.__classpath__ import _Classpath
+from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents, ASKAI_BUS_NAME, REPLY_EVENT
+from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.cache_service import CacheService
 from askai.core.component.object_mapper import ObjectMapper
@@ -58,20 +57,6 @@ class AskAi:
         """Abort the execution and exit."""
         sys.exit(ExitStatus.FAILED.val)
 
-    @staticmethod
-    @lru_cache
-    def search_processors() -> Dict[str, AIProcessor]:
-        processors = {}
-        for root, _, files in os.walk(dirname(__file__)):
-            procs = list(filter(lambda m: m.endswith("_processor.py") and m != basename(__file__), files))
-            for proc in procs:
-                proc_name = os.path.splitext(proc)[0]
-                p_mod = import_module(f"{__package__}.{proc_name}")
-                p_class = getattr(p_mod, camelcase(proc_name, capitalized=True))
-                p_inst = p_class()
-                processors[p_inst.processor_id()] = p_inst
-        return processors
-
     def __init__(
         self,
         interactive: bool,
@@ -86,10 +71,10 @@ class AskAi:
         self._processing: Optional[bool] = None
         self._query_string: Optional[str] = str(" ".join(query_string) if isinstance(query_string, list) else query_string)
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
-        self._chat_context: ChatContext = shared.create_context(self._engine.ai_token_limit())
+        self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         # Setting configs from program args.
-        shared.configs.is_speak = is_speak
-        shared.configs.tempo = tempo
+        configs.is_speak = is_speak
+        configs.tempo = tempo
 
     def __str__(self) -> str:
         return (
@@ -99,11 +84,11 @@ class AskAi:
             f"      Model: {self.engine.ai_model_name()} - {self.engine.ai_token_limit()} tokens %EOL%"
             f"   Nickname: {self.engine.nickname()} %EOL%"
             f"{'--' * 40} %EOL%"
-            f"   Language: {shared.configs.language} %EOL%"
+            f"   Language: {configs.language} %EOL%"
             f"Interactive: ON %EOL%"
             f"   Speaking: {'ON' if self.is_speak else 'OFF'} %EOL%"
             f"    Caching: {'ON' if CacheService.is_cache_enabled() else 'OFF'} %EOL%"
-            f"      Tempo: {shared.configs.tempo} %EOL%"
+            f"      Tempo: {configs.tempo} %EOL%"
             f"{'--' * 40} %EOL%%NC%"
         )
 
@@ -112,16 +97,20 @@ class AskAi:
         return self._engine
 
     @property
+    def context(self) -> ChatContext:
+        return self._context
+
+    @property
     def nickname(self) -> str:
         return f"  {self.engine.nickname()}"
 
     @property
     def username(self) -> str:
-        return f"  {shared.prompt.user.title()}"
+        return f"  {prompt.user.title()}"
 
     @property
     def cache_enabled(self) -> bool:
-        return shared.configs.is_cache
+        return configs.is_cache
 
     @property
     def query_string(self) -> str:
@@ -129,7 +118,7 @@ class AskAi:
 
     @property
     def is_speak(self) -> bool:
-        return shared.configs.is_speak
+        return configs.is_speak
 
     @property
     def is_processing(self) -> bool:
@@ -138,7 +127,7 @@ class AskAi:
     @is_processing.setter
     def is_processing(self, processing: bool) -> None:
         if processing:
-            self.reply(shared.msg.wait())
+            self.reply(msg.wait())
         elif not processing and self._processing is not None and processing != self._processing:
             Terminal.INSTANCE.cursor.erase_line()
         self._processing = processing
@@ -203,7 +192,7 @@ class AskAi:
         log.info("AskAI is ready !")
         splash_thread.join()
         display_text(self)
-        self.reply(shared.msg.welcome(os.getenv('USER', 'you')))
+        self.reply(msg.welcome(os.getenv('USER', 'you')))
 
     def _prompt(self) -> None:
         """Prompt for user interaction."""
@@ -212,16 +201,16 @@ class AskAi:
                 query = None
                 break
         if not query:
-            self.reply(shared.msg.goodbye())
+            self.reply(msg.goodbye())
         display_text("")
 
-    def _input(self, prompt: str) -> Optional[str]:
+    def _input(self, __prompt: str) -> Optional[str]:
         """Prompt for user input.
-        :param prompt: The prompt to display to the user.
+        :param __prompt: The prompt to display to the user.
         """
         ret = None
         while ret is None:
-            ret = line_input(prompt)
+            ret = line_input(__prompt)
             if self.is_speak and ret == Keyboard.VK_CTRL_L:  # Use speech as input method.
                 Terminal.INSTANCE.cursor.erase_line()
                 spoken_text = self.engine.speech_to_text()
@@ -242,7 +231,7 @@ class AskAi:
         if not (reply := CacheService.read_reply(question)):
             log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
             self.is_processing = True
-            context = self._chat_context.set("SETUP", shared.prompt.setup(question), 'user')
+            context = self.context.set("SETUP", prompt.setup(question), 'user')
             if (response := self.engine.ask(context, temperature=1, top_p=1)) and response.is_success():
                 self.is_processing = False
                 query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)
@@ -260,7 +249,7 @@ class AskAi:
     def _process_response(self, query_response: QueryResponse) -> bool:
         """Process a query response using a processor that supports the query type."""
         if not query_response.intelligible:
-            self.reply_error(shared.msg.intelligible())
+            self.reply_error(msg.intelligible())
             return True
         elif query_response.terminating:
             log.info("User wants to terminate the conversation.")

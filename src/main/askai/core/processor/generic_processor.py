@@ -1,9 +1,10 @@
 import logging as log
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Any
 
 from langchain_core.prompts import PromptTemplate
-from langchain_openai import OpenAI
 
+from askai.core.askai_messages import AskAiMessages
+from askai.core.askai_prompt import AskAiPrompt
 from askai.core.component.cache_service import CacheService
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
@@ -36,22 +37,23 @@ class GenericProcessor(AIProcessor):
         )
 
     def template(self) -> str:
-        return shared.prompt.read_template('generic-prompt')
+        return AskAiPrompt.INSTANCE.read_template('generic-prompt')
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
-        llm = OpenAI(temperature=0.6, top_p=0.8)
         template = PromptTemplate(input_variables=['question', 'user'], template=self.template())
-        final_prompt: str = template.format(question=query_response.question, user=shared.prompt.user)
+        final_prompt: str = template.format(question=query_response.question, user=AskAiPrompt.INSTANCE.user)
+        llm: Any = shared.create_langchain_model(temperature=0.6, top_p=0.6)
         log.info("%s::[QUESTION] '%s'", self.name, final_prompt)
         try:
             output = llm(final_prompt).strip().replace('RESPONSE: ', '')
             CacheService.save_reply(query_response.question, query_response.question)
             CacheService.save_query_history()
+            shared.context.push("GENERIC", query_response.question)
+            shared.context.push("GENERIC", output, 'assistant')
             return True, output
         except Exception as err:
             log.error(err)
-            return False, shared.msg.llm_error(str(err))
+            return False, AskAiMessages.INSTANCE.llm_error(str(err))
 
     def next_in_chain(self) -> Optional['AIProcessor']:
         return None
-
