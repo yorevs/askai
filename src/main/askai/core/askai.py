@@ -15,8 +15,11 @@
 import logging as log
 import os
 import sys
+from functools import lru_cache
+from importlib import import_module
+from os.path import basename
 from threading import Thread
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import pause
 from clitt.core.term.cursor import Cursor
@@ -25,7 +28,8 @@ from clitt.core.term.terminal import Terminal
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.enums.charset import Charset
 from hspylib.core.preconditions import check_not_none
-from hspylib.core.tools.commons import sysout
+from hspylib.core.tools.commons import sysout, dirname
+from hspylib.core.tools.text_tools import camelcase
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.cli.keyboard import Keyboard
 from hspylib.modules.eventbus.event import Event
@@ -53,6 +57,20 @@ class AskAi:
     def _abort():
         """Abort the execution and exit."""
         sys.exit(ExitStatus.FAILED.val)
+
+    @staticmethod
+    @lru_cache
+    def search_processors() -> Dict[str, AIProcessor]:
+        processors = {}
+        for root, _, files in os.walk(dirname(__file__)):
+            procs = list(filter(lambda m: m.endswith("_processor.py") and m != basename(__file__), files))
+            for proc in procs:
+                proc_name = os.path.splitext(proc)[0]
+                p_mod = import_module(f"{__package__}.{proc_name}")
+                p_class = getattr(p_mod, camelcase(proc_name, capitalized=True))
+                p_inst = p_class()
+                processors[p_inst.processor_id()] = p_inst
+        return processors
 
     def __init__(
         self,
@@ -247,7 +265,7 @@ class AskAi:
         elif query_response.terminating:
             log.info("User wants to terminate the conversation.")
         elif query_response.query_type:
-            processor: AIProcessor = shared.find_processor_by_query_type(query_response.query_type)
+            processor: AIProcessor = AIProcessor.get_by_query_type(query_response.query_type)
             check_not_none(processor, f"Unable to find a proper processor for query type: {query_response.query_type}")
             while processor:
                 log.info("%s::Processing response for '%s'", processor, query_response.question)

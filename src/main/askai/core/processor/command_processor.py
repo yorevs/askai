@@ -90,7 +90,7 @@ class CommandProcessor(AIProcessor):
             return status, output
 
     def next_in_chain(self) -> AIProcessor:
-        return shared.find_processor_by_name(OutputProcessor.__name__)
+        return AIProcessor.get_by_name(OutputProcessor.__name__)
 
     def _process_command(self, query_response: QueryResponse, cmd_line: str) -> Tuple[bool, Optional[str]]:
         """Process a terminal command.

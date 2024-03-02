@@ -3,7 +3,7 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.utils
+   @package: askai.core.support
       @file: utilities.py
    @created: Wed, 10 Jan 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
@@ -14,35 +14,16 @@
 """
 import hashlib
 import os
-from functools import lru_cache
-from importlib import import_module
-from os.path import basename
 from typing import Any, List
 
 import pause
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import sysout, dirname
-from hspylib.core.tools.text_tools import camelcase
+from hspylib.core.tools.commons import sysout
 from hspylib.modules.cli.vt100.vt_color import VtColor
 
 from askai.core.support.presets import Presets
 from askai.language.language import Language
-
-
-@lru_cache
-def get_query_types(self) -> str:
-    q_types = []
-    for root, _, files in os.walk(dirname(__file__)):
-        procs = list(filter(lambda m: m.endswith("_processor.py") and m != basename(__file__), files))
-        for proc in procs:
-            proc_name = os.path.splitext(proc)[0]
-            p_mod = import_module(f"{__package__}.{proc_name}")
-            p_class = getattr(p_mod, camelcase(proc_name, capitalized=True))
-            p_inst = p_class()
-            self._processors[p_inst.processor_id()] = p_inst
-            q_types.append(str(p_inst))
-    return os.linesep.join(q_types)
 
 
 def hash_text(text: str) -> str:
