@@ -7,6 +7,7 @@ from askai.core.askai_configs import AskAiConfigs
 from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_prompt import AskAiPrompt
 from askai.core.engine.ai_engine import AIEngine
+from askai.core.engine.engine_factory import EngineFactory
 from askai.core.model.chat_context import ChatContext
 
 
@@ -15,12 +16,25 @@ class SharedInstances(metaclass=Singleton):
 
     INSTANCE: 'SharedInstances' = None
 
+    @classmethod
+    def create_engine(cls, engine_name: str, model_name: str) -> AIEngine:
+        if cls.INSTANCE._engine is None:
+            cls.INSTANCE._engine = EngineFactory.create_engine(engine_name, model_name)
+        cls._create_context(cls.INSTANCE._engine.ai_token_limit())
+        return cls.INSTANCE._engine
+
+    @classmethod
+    def _create_context(cls, token_limit: int) -> ChatContext:
+        if cls.INSTANCE._context is None:
+            cls.INSTANCE._context = ChatContext(token_limit)
+        return cls.INSTANCE._context
+
     def __init__(self) -> None:
         self._engine: Optional[AIEngine] = None
-        self._msg: Optional[AskAiMessages] = None
-        self._prompt: Optional[AskAiPrompt] = None
         self._context: Optional[ChatContext] = None
-        self._configs: Optional[AskAiConfigs] = None
+        self._configs: AskAiConfigs = AskAiConfigs()
+        self._msg: AskAiMessages = AskAiMessages()
+        self._prompt: AskAiPrompt = AskAiPrompt()
 
     @property
     def engine(self) -> Optional[AIEngine]:
@@ -68,4 +82,4 @@ class SharedInstances(metaclass=Singleton):
         self._configs = value
 
 
-assert SharedInstances().INSTANCE is not None
+assert (shared := SharedInstances().INSTANCE) is not None

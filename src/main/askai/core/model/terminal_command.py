@@ -31,6 +31,10 @@ def get_shell() -> SupportedShells:
     return shell if shell and shell in ["bash", "csh", "dash", "ksh", "tcsh", "zsh", "sh"] else None
 
 
+def get_user() -> str:
+    return os.getenv("USER", "user")
+
+
 @dataclass
 class TerminalCommand:
     """Keep track of the executed terminal commands."""

@@ -91,6 +91,3 @@ class AskAiMessages(metaclass=Singleton):
     @lru_cache
     def llm_error(self, error: str) -> str:
         return self.translate(f"LLM returned an error: {error}")
-
-
-assert AskAiMessages().INSTANCE is not None

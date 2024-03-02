@@ -14,8 +14,6 @@ from askai.core.processor.ai_processor import AIProcessor
 class GenericProcessor(AIProcessor):
     """Process a generic question process."""
 
-    MSG: AskAiMessages = AskAiMessages.INSTANCE
-
     def __str__(self):
         return f"\"{self.query_type()}\": {self.query_desc()}"
 
@@ -53,7 +51,7 @@ class GenericProcessor(AIProcessor):
             return True, output
         except Exception as err:
             log.error(err)
-            return False, self.MSG.llm_error(str(err))
+            return False, AskAiMessages.llm_error(str(err))
 
     def next_in_chain(self) -> Optional['AIProcessor']:
         return None

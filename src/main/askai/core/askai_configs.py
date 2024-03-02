@@ -71,6 +71,3 @@ class AskAiConfigs(metaclass=Singleton):
     @property
     def encoding(self) -> Charset:
         return self.language.encoding
-
-
-assert AskAiConfigs().INSTANCE is not None

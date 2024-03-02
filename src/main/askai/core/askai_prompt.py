@@ -12,7 +12,6 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -24,7 +23,7 @@ from hspylib.core.tools.text_tools import ensure_endswith
 from langchain_core.prompts import PromptTemplate
 
 from askai.__classpath__ import _Classpath
-from askai.core.model.terminal_command import SupportedPlatforms, get_shell, SupportedShells, get_os
+from askai.core.model.terminal_command import SupportedPlatforms, get_shell, SupportedShells, get_os, get_user
 from askai.core.processor.ai_processor import AIProcessor
 
 
@@ -39,7 +38,7 @@ class AskAiPrompt(metaclass=Singleton):
     def __init__(self):
         self._shell: SupportedShells = get_shell()
         self._os_type: SupportedPlatforms = get_os()
-        self._user: str = os.getenv("USER", "user")
+        self._user: str = get_user()
         self._query_types: str = AIProcessor.get_query_types()
         self._setup: PromptTemplate = PromptTemplate(
             input_variables=["query_types", "question"],
@@ -69,6 +68,3 @@ class AskAiPrompt(metaclass=Singleton):
         filename = f"{self.PROMPT_DIR}/{ensure_endswith(filename, '.txt')}"
         check_argument(file_is_not_empty(filename), f"Prompt file does not exist: {filename}")
         return Path(filename).read_text(encoding=Charset.UTF_8.val)
-
-
-assert AskAiPrompt().INSTANCE is not None

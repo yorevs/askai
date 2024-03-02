@@ -31,27 +31,21 @@ from hspylib.modules.cli.keyboard import Keyboard
 from hspylib.modules.eventbus.event import Event
 
 from askai.__classpath__ import _Classpath
-from askai.core.askai_configs import AskAiConfigs
 from askai.core.askai_events import AskAiEvents, ASKAI_BUS_NAME, REPLY_EVENT
-from askai.core.askai_messages import AskAiMessages
-from askai.core.askai_prompt import AskAiPrompt
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.cache_service import CacheService
 from askai.core.component.object_mapper import ObjectMapper
 from askai.core.component.recorder import Recorder
 from askai.core.engine.ai_engine import AIEngine
-from askai.core.engine.engine_factory import EngineFactory
 from askai.core.model.chat_context import ChatContext
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
-from askai.language.language import Language
+from askai.core.shared_instances import shared
 from askai.utils.utilities import display_text
 
 
 class AskAi:
     """Responsible for the OpenAI functionalities."""
-
-    MSG = AskAiMessages.INSTANCE
 
     SPLASH = _Classpath.get_resource_path("splash.txt").read_text(encoding=Charset.UTF_8.val)
 
@@ -69,16 +63,15 @@ class AskAi:
         model_name: str,
         query_string: str | List[str],
     ):
-        self._configs: AskAiConfigs = AskAiConfigs.INSTANCE
         self._interactive: bool = interactive
-        self._engine: AIEngine = EngineFactory.INSTANCE.create_engine(engine_name, model_name)
-        self._query_string: str = str(" ".join(query_string) if isinstance(query_string, list) else query_string)
         self._ready: bool = False
-        self._processing: bool | None = None
-        self._chat_context = ChatContext(self.token_limit)
+        self._processing: Optional[bool] = None
+        self._query_string: Optional[str] = str(" ".join(query_string) if isinstance(query_string, list) else query_string)
+        self._engine: AIEngine = shared.create_engine(engine_name, model_name)
+        self._chat_context: ChatContext = shared.context
         # Setting configs from program args.
-        self._configs.is_speak = is_speak
-        self._configs.tempo = tempo
+        shared.configs.is_speak = is_speak
+        shared.configs.tempo = tempo
 
     def __str__(self) -> str:
         return (
@@ -88,11 +81,11 @@ class AskAi:
             f"      Model: {self.engine.ai_model_name()} - {self.engine.ai_token_limit()} tokens %EOL%"
             f"   Nickname: {self.engine.nickname()} %EOL%"
             f"{'--' * 40} %EOL%"
-            f"   Language: {self.language.name} %EOL%"
+            f"   Language: {shared.configs.language} %EOL%"
             f"Interactive: ON %EOL%"
             f"   Speaking: {'ON' if self.is_speak else 'OFF'} %EOL%"
             f"    Caching: {'ON' if CacheService.is_cache_enabled() else 'OFF'} %EOL%"
-            f"      Tempo: {self.stream_speed} %EOL%"
+            f"      Tempo: {shared.configs.tempo} %EOL%"
             f"{'--' * 40} %EOL%%NC%"
         )
 
@@ -101,40 +94,24 @@ class AskAi:
         return self._engine
 
     @property
-    def username(self) -> str:
-        return f"  {os.getenv('USER', 'you').title()}"
-
-    @property
     def nickname(self) -> str:
         return f"  {self.engine.nickname()}"
 
     @property
-    def model(self) -> str:
-        return self.engine.ai_model_name()
-
-    @property
-    def token_limit(self) -> int:
-        return self.engine.ai_token_limit()
+    def username(self) -> str:
+        return f"  {shared.prompt.user.title()}"
 
     @property
     def cache_enabled(self) -> bool:
-        return self._configs.is_cache
+        return shared.configs.is_cache
 
     @property
     def query_string(self) -> str:
         return self._query_string
 
     @property
-    def stream_speed(self) -> int:
-        return self._configs.tempo
-
-    @property
     def is_speak(self) -> bool:
-        return self._configs.is_speak
-
-    @property
-    def language(self) -> Language:
-        return self._configs.language
+        return shared.configs.is_speak
 
     @property
     def is_processing(self) -> bool:
@@ -143,7 +120,7 @@ class AskAi:
     @is_processing.setter
     def is_processing(self, processing: bool) -> None:
         if processing:
-            self.reply(self.MSG.wait())
+            self.reply(shared.msg.wait())
         elif not processing and self._processing is not None and processing != self._processing:
             Terminal.INSTANCE.cursor.erase_line()
         self._processing = processing
@@ -153,9 +130,9 @@ class AskAi:
         if self._interactive:
             self._startup()
             self._prompt()
-        elif self._query_string:
-            display_text(f"{self.username}: {self._query_string}%EOL%")
-            self._ask_and_reply(self._query_string)
+        elif self.query_string:
+            display_text(f"{self.username}: {self.query_string}%EOL%")
+            self._ask_and_reply(self.query_string)
 
     def reply(self, message: str) -> None:
         """Reply to the user with the AI response.
@@ -170,7 +147,7 @@ class AskAi:
         """Reply API or system errors.
         :param error_message: The error message to be displayed.
         """
-        display_text(f"%RED%{self.nickname}: {error_message} &nbsp; %NC%")
+        display_text(f"%RED%%error; {self.nickname}: {error_message} &nbsp; %NC%")
 
     def _cb_reply_event(self, ev: Event) -> None:
         """TODO"""
@@ -208,7 +185,7 @@ class AskAi:
         log.info("AskAI is ready !")
         splash_thread.join()
         display_text(self)
-        self.reply(self.MSG.welcome(os.getenv('USER', 'you')))
+        self.reply(shared.msg.welcome(os.getenv('USER', 'you')))
 
     def _prompt(self) -> None:
         """Prompt for user interaction."""
@@ -217,7 +194,7 @@ class AskAi:
                 query = None
                 break
         if not query:
-            self.reply(self.MSG.goodbye())
+            self.reply(shared.msg.goodbye())
         display_text("")
 
     def _input(self, prompt: str) -> Optional[str]:
@@ -247,7 +224,7 @@ class AskAi:
         if not (reply := CacheService.read_reply(question)):
             log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
             self.is_processing = True
-            context = self._chat_context.set("SETUP", AskAiPrompt.INSTANCE.setup(question), 'user')
+            context = self._chat_context.set("SETUP", shared.prompt.setup(question), 'user')
             if (response := self.engine.ask(context, temperature=1, top_p=1)) and response.is_success():
                 self.is_processing = False
                 query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)
@@ -265,7 +242,7 @@ class AskAi:
     def _process_response(self, query_response: QueryResponse) -> bool:
         """Process a query response using a processor that supports the query type."""
         if not query_response.intelligible:
-            self.reply_error(self.MSG.intelligible())
+            self.reply_error(shared.msg.intelligible())
             return True
         elif query_response.terminating:
             log.info("User wants to terminate the conversation.")

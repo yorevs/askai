@@ -21,8 +21,6 @@ from askai.core.processor.output_processor import OutputProcessor
 class CommandProcessor(AIProcessor):
     """Process a command based question process."""
 
-    MSG: AskAiMessages = AskAiMessages.INSTANCE
-
     # Match most commonly used shells.
     RE_SHELLS = '(ba|c|da|k|tc|z)?sh'
 
@@ -82,11 +80,11 @@ class CommandProcessor(AIProcessor):
             output = self._llm(final_prompt).replace("\n", " ").strip()
             if mat := re.match(self.RE_CMD, output, re.I | re.M):
                 if mat.groups() != 3 and mat.group(1) != self.shell:
-                    output = self.MSG = AskAiMessages.INSTANCE.not_a_command(mat.group(1), str(self.shell))
+                    output = AskAiMessages.INSTANCE.not_a_command(mat.group(1), str(self.shell))
                 else:
                     status, output = self._process_command(query_response, mat.group(3).strip())
             else:
-                output = self.MSG.invalid_cmd_format(output)
+                output = AskAiMessages.INSTANCE.invalid_cmd_format(output)
         except Exception as err:
             output = f"LLM returned an error: {str(err)}"
         finally:
@@ -104,23 +102,23 @@ class CommandProcessor(AIProcessor):
         try:
             if command and which(command):
                 cmd_line = cmd_line.replace("~", os.getenv("HOME"))
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=self.MSG.executing())
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=AskAiMessages.INSTANCE.executing())
                 log.info("Executing command `%s'", cmd_line)
                 cmd_out, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
                 if exit_code == ExitStatus.SUCCESS:
-                    AskAiEvents.ASKAI_BUS.events.reply.emit(message=self.MSG.cmd_success(exit_code), erase_last=True)
+                    AskAiEvents.ASKAI_BUS.events.reply.emit(message=AskAiMessages.INSTANCE.cmd_success(exit_code), erase_last=True)
                     status = True
                     if not cmd_out:
-                        cmd_out = self.MSG.cmd_no_output()
+                        cmd_out = AskAiMessages.INSTANCE.cmd_no_output()
                     else:
                         cmd_out = self._wrap_output(query_response, cmd_line, cmd_out)
                 else:
-                    cmd_out = self.MSG.cmd_failed(command)
+                    cmd_out = AskAiMessages.INSTANCE.cmd_failed(command)
             else:
-                cmd_out = self.MSG.cmd_no_exist(command)
+                cmd_out = AskAiMessages.INSTANCE.cmd_no_exist(command)
         except Exception as err:
             log.error(err)
-            cmd_out = self.MSG.cmd_failed(command) + f" -> {str(err)}"
+            cmd_out = AskAiMessages.INSTANCE.cmd_failed(command) + f" -> {str(err)}"
 
         return status, cmd_out
 
