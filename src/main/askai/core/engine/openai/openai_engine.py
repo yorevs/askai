@@ -14,24 +14,25 @@
 """
 import logging as log
 import os
-from functools import partial
 from threading import Thread
-from typing import Callable, Optional, List
+from typing import List, Any, Optional
 
+import langchain_openai
 import pause
-import speech_recognition as speech_rec
+from hspylib.core.preconditions import check_not_none
 from hspylib.modules.cli.vt100.vt_color import VtColor
-from openai import APIError, OpenAI, BadRequestError
+from openai import APIError, OpenAI
 
-from askai.core.askai_prompt import AskAiPrompt
+from askai.core.component.audio_player import AudioPlayer
+from askai.core.component.cache_service import CacheService
+from askai.core.component.recorder import Recorder
+from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.openai.openai_configs import OpenAiConfigs
 from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.engine.openai.openai_reply import OpenAIReply
-from askai.core.engine.protocols.ai_engine import AIEngine
-from askai.core.engine.protocols.ai_model import AIModel
-from askai.core.engine.protocols.ai_reply import AIReply
-from askai.utils.cache_service import CacheService
-from askai.utils.utilities import input_mic, play_audio_file, start_delay
+from askai.core.model.ai_model import AIModel
+from askai.core.model.ai_reply import AIReply
+from askai.core.support.utilities import stream_text, beautify, display_text
 
 
 class OpenAIEngine(AIEngine):
@@ -39,110 +40,97 @@ class OpenAIEngine(AIEngine):
 
     def __init__(self, model: AIModel = OpenAIModel.GPT_3_5_TURBO):
         super().__init__()
-        self._nickname = "ChatGPT"
-        self._url = "https://api.openai.com/v1/chat/completions"
-        self._configs: OpenAiConfigs = OpenAiConfigs()
-        self._prompts = AskAiPrompt.INSTANCE or AskAiPrompt()
-        self._balance = 0
-        self._model_name = model.model_name()
-        self._chat_context = [{"role": "system", "content": self._prompts.setup()}]
-        self._client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"), organization=os.environ.get("OPENAI_ORG_ID"))
+        self._model = model
+        self._configs: OpenAiConfigs = OpenAiConfigs.INSTANCE
+        self._api_key: str = os.environ.get("OPENAI_API_KEY")
+        self._client = OpenAI(api_key=self._api_key)
 
     @property
-    def start_delay(self) -> float:
-        return start_delay()
+    def url(self) -> str:
+        return "https://api.openai.com/v1/chat/completions"
 
     @property
-    def url(self):
-        return self._url
+    def client(self) -> OpenAI:
+        return self._client
+
+    def lc_model(self, **kwargs: Any) -> Any:
+        """Create a LangChain OpenAI llm model instance.
+        """
+        return langchain_openai.OpenAI(openai_api_key=self._api_key, **kwargs)
 
     def ai_name(self) -> str:
         """Get the AI model name."""
         return self.__class__.__name__
 
-    def ai_model(self) -> str:
+    def ai_model_name(self) -> str:
         """Get the AI model name."""
-        return self._model_name
+        return self._model.model_name()
+
+    def ai_token_limit(self) -> int:
+        """Get the AI model tokens limit."""
+        return self._model.token_limit()
 
     def nickname(self) -> str:
         """Get the AI engine nickname."""
-        return self._nickname
+        return "ChatGPT"
 
     def models(self) -> List[AIModel]:
         """Get the list of available models for the engine."""
         return OpenAIModel.models()
 
-    def ask(self, question: str) -> AIReply:
+    def ask(self, chat_context: List[dict], **kwargs: Any) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
-        :param question: The question to send to the AI engine.
+        :param chat_context: The chat history or context.
         """
-        if not (reply := CacheService.read_reply(question)):
-            log.debug('Response not found for: "%s" in cache. Querying AI engine.', question)
-            try:
-                self._chat_context.append({"role": "user", "content": question})
-                log.debug(f"Generating AI answer for: {question}")
-                response = self._client.chat.completions.create(
-                    model=self._model_name, messages=self._chat_context,
-                    temperature=0.0, top_p=0.0
-                )
-                reply = OpenAIReply(response.choices[0].message.content, True)
-                self._chat_context.append({"role": "assistant", "content": reply.message})
-                CacheService.save_reply(question, reply.message)
-                CacheService.save_query_history()
-            except APIError as error:
-                body: dict = error.body or {"message": "Message not provided"}
-                reply = OpenAIReply(f"%RED%{error.__class__.__name__} => {body['message']}%NC%", False)
-                if isinstance(error, BadRequestError):
-                    self.forget()
-        else:
-            log.debug('Response found for: "%s" in cache.', question)
-            reply = OpenAIReply(reply, True)
-            self._chat_context.append({"role": "user", "content": question})
-            self._chat_context.append({"role": "assistant", "content": reply.message})
+        try:
+            check_not_none(chat_context)
+            log.debug(f"Generating AI answer")
+            response = self.client.chat.completions.create(
+                model=self.ai_model_name(), messages=chat_context,
+                **kwargs
+            )
+            reply = OpenAIReply(response.choices[0].message.content, True)
+        except APIError as error:
+            body: dict = error.body or {"message": "Message not provided"}
+            reply = OpenAIReply(f"%RED%{error.__class__.__name__} => {body['message']}%NC%", False)
 
         return reply
 
-    def forget(self) -> None:
-        """Forget all of the chat context."""
-        self._chat_context = [{"role": "system", "content": self._prompts.setup()}]
-
-    def text_to_speech(
-        self,
-        text: str = None,
-        speed: int = 0,
-        cb_started: Optional[Callable[[str], None]] = None,
-        cb_finished: Optional[Callable] = None,
-    ) -> None:
+    def text_to_speech(self, prefix: str, text: str) -> None:
         """Text-T0-Speech the provided text.
         :param text: The text to speech.
-        :param speed: The tempo to play the generated audio [1..3].
-        :param cb_started: The callback function called when the speaker starts.
-        :param cb_finished: The callback function called when the speaker ends.
+        :param prefix: The prefix of the streamed text.
         """
+        text = beautify(VtColor.strip_colors(text))
         speech_file_path, file_exists = CacheService.get_audio_file(text, self._configs.tts_format)
         if not file_exists:
-            log.debug(f'Audio file "%s" not found in cache. Querying AI engine.', speech_file_path)
-            response = self._client.audio.speech.create(
-                input=VtColor.strip_colors(text),
+            log.debug(f'Audio file "%s" not found in cache. Generating from %s.', self.nickname(), speech_file_path)
+            response = self.client.audio.speech.create(
+                input=text,
                 model=self._configs.tts_model,
                 voice=self._configs.tts_voice,
                 response_format=self._configs.tts_format,
             )
             response.stream_to_file(speech_file_path)  # Save the audio file locally.
-        speak_thread = Thread(daemon=True, target=play_audio_file, args=(speech_file_path, speed))
+            log.debug(f"Audio file created: '%s' at %s", text, speech_file_path)
+        else:
+            log.debug(f"Audio file found in cache: '%s' at %s", text, speech_file_path)
+        speak_thread = Thread(
+            daemon=True,
+            target=AudioPlayer.INSTANCE.play_audio_file,
+            args=(speech_file_path, self._configs.tempo)
+        )
         speak_thread.start()
-        if cb_started:
-            pause.seconds(self.start_delay)
-            cb_started(text)
+        pause.seconds(AudioPlayer.INSTANCE.start_delay())
+        display_text(prefix, end="")
+        stream_text(text)
         speak_thread.join()  # Block until the speech has finished.
-        if cb_finished:
-            cb_finished()
 
-    def speech_to_text(self, fn_listening: partial, fn_processing: partial) -> str:
+    def speech_to_text(self) -> Optional[str]:
         """Transcribes audio input from the microphone into the text input language.
-        :param fn_listening: The function to display the listening message.
-        :param fn_processing: The function to display the processing message.
         """
-        text = input_mic(fn_listening, fn_processing, speech_rec.Recognizer.recognize_whisper)
+        _, text = Recorder.INSTANCE.listen(
+            Recorder.RecognitionApi.OPEN_AI, self._configs.language
+        )
         log.debug(f"Audio transcribed to: {text}")
-        return text
+        return text.strip()

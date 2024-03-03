@@ -3,7 +3,7 @@ from functools import lru_cache
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.modules.application.exit_status import ExitStatus
 
-from askai.core.askai_configs import AskAiConfigs
+from askai.core.askai_configs import configs
 from askai.language.argos_translator import ArgosTranslator
 from askai.language.language import Language
 
@@ -11,57 +11,85 @@ from askai.language.language import Language
 class AskAiMessages(metaclass=Singleton):
     """Provide access to static 'translated' messages."""
 
-    INSTANCE = None
+    INSTANCE: 'AskAiMessages' = None
 
     def __init__(self):
-        self._configs: AskAiConfigs = AskAiConfigs.INSTANCE or AskAiConfigs()
-        self._translator = ArgosTranslator.INSTANCE or ArgosTranslator(Language.EN_US, self._configs.language)
+        self._translator = ArgosTranslator(Language.EN_US, configs.language)
 
     @lru_cache
-    def welcome(self, username: str = "user") -> str:
-        return self.translate(f"Hello %VIOLET%{username.title()}%NC%, How can I assist you today?")
+    def translate(self, text: str) -> str:
+        """Translate text using the configured language."""
+        return self._translator.translate(text)
+
+    # Informational
+
+    @lru_cache
+    def welcome(self, username: str) -> str:
+        return self.translate(f"Hello {username.title()}, How can I assist you today?")
 
     @lru_cache
     def wait(self) -> str:
-        return self.translate("I'm thinking, please wait.")
+        return self.translate(f"I'm thinking, please wait…")
 
     @lru_cache
     def listening(self) -> str:
-        return self.translate("%BLUE%I'm listening.%NC%")
+        return self.translate(f"I'm listening…")
+
+    @lru_cache
+    def noise_levels(self) -> str:
+        return self.translate(f"Adjusting noise levels…")
 
     @lru_cache
     def transcribing(self) -> str:
-        return self.translate("Transcribing %GREEN%your voice%NC%, please wait.")
+        return self.translate(f"I'm processing your voice, please wait…")
 
     @lru_cache
     def goodbye(self) -> str:
-        return self.translate("Goodbye, have a nice day ! ")
+        return self.translate(f"Goodbye, have a nice day ! ")
 
     @lru_cache
-    def executing(self, cmd_line: str) -> str:
-        return self.translate(f"Executing command %GREEN%`{cmd_line}'%NC%, please wait.")
+    def executing(self) -> str:
+        return self.translate(f"Executing command, please wait…")
 
     @lru_cache
     def cmd_success(self, exit_code: ExitStatus) -> str:
-        return self.translate(f"OK, the command returned with code: %GREEN%{exit_code}%NC%")
+        return self.translate(f"OK, the command returned with code: {exit_code}")
+
+    # Warnings and alerts
 
     @lru_cache
     def cmd_no_output(self) -> str:
         return self.translate(f"The command didn't return an output !")
 
     @lru_cache
+    def access_grant(self) -> str:
+        return self.translate(f"AskAI requires access to your files, folders and apps. Continue (yes/[no])?")
+
+    @lru_cache
+    def not_a_command(self, shell: str, content: str) -> str:
+        return self.translate(f"Returned context '{content}' is not a '{shell}' command!")
+
+    @lru_cache
+    def invalid_cmd_format(self, output: str) -> str:
+        return self.translate(f"Returned command output '{output}' does not match the correct format!")
+
+    # Failures
+
+    @lru_cache
     def cmd_no_exist(self, command: str) -> str:
-        return self.translate(f"Sorry! Command %RED%`{command}'%NC% does not exist !")
+        return self.translate(f"Sorry! Command `{command}' does not exist !")
 
     @lru_cache
     def cmd_failed(self, cmd_line: str) -> str:
-        return self.translate(f"Sorry! Command %RED%`{cmd_line}'%NC% failed to execute !")
+        return self.translate(f"Sorry! Command `{cmd_line}' failed to execute !")
 
     @lru_cache
-    def security_warning(self) -> str:
-        return self.translate("%YELLOW%Warning, your confidential data may be compromised. Continue (yes/[no])?%NC%")
+    def intelligible(self) -> str:
+        return self.translate(f"Your question is not clear, please rephrase!")
 
     @lru_cache
-    def translate(self, text: str) -> str:
-        """Translate text using the configured language."""
-        return self._translator.translate(text)
+    def llm_error(self, error: str) -> str:
+        return self.translate(f"LLM returned an error: {error}")
+
+
+assert (msg := AskAiMessages().INSTANCE) is not None

@@ -3,9 +3,9 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.engine.protocols
-      @file: ai_model.py
-   @created: Fri, 5 May 2024
+   @package: askai.core.model
+      @file: ai_reply.py
+   @created: Thu, 18 May 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
       @site: https://github.com/yorevs/hspylib
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
@@ -15,9 +15,13 @@
 from typing import Protocol
 
 
-class AIModel(Protocol):
-    """Provide an interface for AI models."""
+class AIReply(Protocol):
+    """Provide an interface for AI replies."""
 
-    def model_name(self) -> str:
-        """Get the official model's name."""
+    def reply_text(self) -> str:
+        """Get the retrieved reply message."""
+        ...
+
+    def is_success(self) -> bool:
+        """Whether this is a success reply."""
         ...

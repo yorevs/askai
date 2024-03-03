@@ -1,0 +1,30 @@
+RESPONSE FORMAT:
+```json
+{
+  "query_type": "%query_type%",
+  "question": "%user_question%",
+  "commands": [{
+      "cmd_line": "<command_line>",
+      "os": "<linux|macos|windows>",
+      "shell": "<bash|zsh|fish>"
+  }],
+  "summarization": [{
+    "base_path": "<path_to_file_or_folder>",
+    "files": [
+      "file1", "file2", "fileN"
+    ]
+  }],
+  "require_internet": %require_internet%,
+  "intelligible": %intelligible%
+}
+```
+
+Example: Question "what is the size of the moon"
+```json
+{
+  "query_type": "Type-4",
+  "question": "what is the size of the moon",
+  "require_internet": false,
+  "intelligible": true
+}
+```

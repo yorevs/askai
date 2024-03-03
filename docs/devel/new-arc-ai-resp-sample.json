@@ -1,16 +1,17 @@
 {
-  "prompt_type": 1,
+  "query_type": "Type-1",
   "question": "<user_question>",
   "commands": [{
       "cmd_line": "<command_line>",
       "os": "<linux|macos|windows>",
       "shell": "<bash|zsh|fish>"
   }],
-  "summarization": [{
+  "summarizations": [{
     "base_path": "<path_to_file_or_folder>",
     "files": [
       "file1", "file2", "fileN"
     ]
   }],
-  "require_internet": true
+  "require_internet": true,
+  "intelligible": true
 }

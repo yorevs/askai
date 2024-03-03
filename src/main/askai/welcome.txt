@@ -6,4 +6,4 @@
 /_/   \_\___/_|\_\   /_/   \_\___|
 
 
-HsPyLib Ask-AI Terminal Tools v{} - AI on the palm of your shell.
+HomeSetup Ask-AI v{} - Unleash the Power of AI in Your Terminal.
