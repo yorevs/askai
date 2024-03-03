@@ -7,7 +7,7 @@ Step  2 - Start your response with the following: "Here is a summarized version 
 Step  3 - Please specify whether each item is a file, link, folder or application.
 Step  4 - Please specify the file, app or folder size and last modified datetime.
 Step  5 - If the item is a file, kindly indicate the corresponding application used for its access, if applicable.
-Step  6 - Limit the list to a maximum of 5 items, please.
+Step  6 - Restrict the list to a maximum of 5 items.
 Step  7 - Please conclude your listing with a summary in this exact format: "&br;Summary: Total items: X, Omitted items: Y &br;", where X is the total number of items shown and Y is the number of items omitted.
 Step  8 - Wrap up your response by dropping hints and tips about the omitted items. Avoid listing them again explicitly. Maintain the following structure for your conclusion: "&lamp; Hint: '<your_conclusion>'&br;".
 

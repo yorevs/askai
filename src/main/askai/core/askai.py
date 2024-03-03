@@ -154,6 +154,7 @@ class AskAi:
         """Reply API or system errors.
         :param message: The error message to be displayed.
         """
+        log.error(message)
         display_text(f"%RED%{self.nickname}: &error; {message} &nbsp; %NC%")
 
     def _cb_reply_event(self, ev: Event) -> None:
@@ -232,7 +233,9 @@ class AskAi:
         if not (reply := CacheService.read_reply(question)):
             log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
             self.is_processing = True
-            context = self.context.set("SETUP", prompt.setup(question), 'system')
+            self.context.set("SETUP", prompt.setup(), 'system')
+            self.context.set("QUESTION", question)
+            context: List[dict] = self.context.get_many("SETUP", "OUTPUT", "QUESTION")
             if (response := self.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
                 self.is_processing = False
                 query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)

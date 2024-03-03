@@ -57,8 +57,8 @@ class AskAiPrompt(metaclass=Singleton):
     def user(self) -> str:
         return self._user
 
-    def setup(self, question: str) -> str:
-        return self._setup.format(query_types=self._query_types, question=question)
+    def setup(self) -> str:
+        return self._setup.format(query_types=self._query_types)
 
     @lru_cache
     def read_template(self, filename: str) -> str:

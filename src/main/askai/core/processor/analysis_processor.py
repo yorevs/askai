@@ -1,5 +1,5 @@
 import logging as log
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 
 from langchain_core.prompts import PromptTemplate
 
@@ -8,7 +8,6 @@ from askai.core.askai_prompt import AskAiPrompt
 from askai.core.component.cache_service import CacheService
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
-from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 
 
@@ -38,20 +37,25 @@ class AnalysisProcessor(AIProcessor):
         return AskAiPrompt.INSTANCE.read_template('analysis-prompt')
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
-        llm = lc_llm.create_langchain_model(temperature=1, top_p=1)
-        template = PromptTemplate(input_variables=['context', 'question'], template=self.template())
-        context = str(shared.context.get_many("COMMAND", "OUTPUT", "ANALYSIS"))
-        final_prompt: str = template.format(context=context, question=query_response.question)
-        log.info("%s::[QUESTION] '%s'", self.name, final_prompt)
+        status = False
+        output = None
+        shared.context.set("SETUP", self.template(), 'system')
+        shared.context.set("QUESTION", query_response.question)
+        context: List[dict] = shared.context.get_many("SETUP", "OUTPUT", "ANALYSIS", "QUESTION")
+        log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
-            output = llm(final_prompt).strip().replace('RESPONSE: ', '')
-            CacheService.save_query_history()
-            shared.context.push("ANALYSIS", query_response.question)
-            shared.context.push("ANALYSIS", output, 'assistant')
-            return True, output
+            if (response := shared.engine.ask(context, temperature=0.8, top_p=0.0)) and response.is_success():
+                output = response.reply_text()
+                CacheService.save_query_history()
+                shared.context.push("ANALYSIS", query_response.question)
+                shared.context.push("ANALYSIS", output, 'assistant')
+                status = True
+            else:
+                output = AskAiMessages.INSTANCE.llm_error(response.reply_text())
         except Exception as err:
-            log.error(err)
-            return False, AskAiMessages.INSTANCE.llm_error(str(err))
+            output = AskAiMessages.INSTANCE.llm_error(str(err))
+        finally:
+            return status, output
 
     def next_in_chain(self) -> Optional['AIProcessor']:
         return None

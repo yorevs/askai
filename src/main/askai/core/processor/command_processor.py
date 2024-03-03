@@ -87,7 +87,7 @@ class CommandProcessor(AIProcessor):
             else:
                 output = AskAiMessages.INSTANCE.invalid_cmd_format(output)
         except Exception as err:
-            output = f"LLM returned an error: {str(err)}"
+            output = AskAiMessages.INSTANCE.llm_error(str(err))
         finally:
             return status, output
 
@@ -120,7 +120,7 @@ class CommandProcessor(AIProcessor):
                     if not cmd_out:
                         cmd_out = AskAiMessages.INSTANCE.cmd_no_output()
                     else:
-                        shared.context.set("OUTPUT", cmd_out, 'assistant')
+                        shared.context.set("OUTPUT", cmd_out)
                         cmd_out = self._wrap_output(query_response, cmd_line, cmd_out)
                 else:
                     cmd_out = AskAiMessages.INSTANCE.cmd_failed(command)
