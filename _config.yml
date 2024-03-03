@@ -1,0 +1,19 @@
+# HomeSetup github-pages configuration
+remote_theme: pages-themes/leap-day@v0.2.0
+
+plugins:
+- jekyll-remote-theme
+
+title: HomeSetup Python Library
+description: Because your Python code is not JUST a script
+
+show_downloads: "true"
+
+author: Hugo Saporetti Junior
+
+blank_issues_enabled: false
+
+contact_links:
+  - name: HSPyLib Support
+    url: https://gitter.im/yorevs-homesetup/community/
+    about: Please ask and answer questions here.
