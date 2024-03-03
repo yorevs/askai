@@ -41,9 +41,14 @@ def beautify(text: Any) -> str:
     icons: List[str] = [
         '\n', ' ', '', '', '', '', ''
     ]
-    text: str = re.sub(r'\n+', '\n', str(text))
+    text: str = str(text)
     for code, icon in zip(codes, icons):
         text = text.replace(code, icon)
+    text: str = text.replace('\n', '␊')
+    text: str = re.sub(r'␊{3,}', '␊␊', text)
+    text: str = re.sub(r'[^:]␊␊([0-9]\. |[-*] )', r'␊\1', text)
+    text: str = re.sub(r':␊([0-9]\. |[-*] )', r':␊␊\1', text)
+    text: str = text.replace('␊', '\n')
     return text
 
 
@@ -132,5 +137,23 @@ def stream_text(
 
 
 if __name__ == '__main__':
-    s = """%RED%&error; The AI failed to respond to the question: &br;JSON = {str(query_response)}%NC%"""
+    s = """
+  ChatGPT: Here is a summarized version of the command output:
+
+- File: Finance alias, Size: 920B, Modified: Sep 1 2022
+
+- Folder: Apps, Size: 480B, Modified: Nov 5 2021
+
+- Folder: Fotos-Aniversario-Gabriel, Size: 9.8K, Modified: Sep 17 2022
+
+- Folder: Fotos-Consagracao-Gabriel, Size: 1.2K, Modified: Nov 8 2021
+
+- Folder: Images, Size: 512B, Modified: Jun 8 2022
+
+
+Summary: Total items: 5, Omitted items: 2
+
+ Hint: 'There are 2 more items in this directory. Try using the "ls -lh" command to see the full list.'
+
+"""
     display_text(s)

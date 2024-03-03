@@ -77,7 +77,7 @@ class CommandProcessor(AIProcessor):
         context: List[dict] = shared.context.get_many("SETUP", "OUTPUT", "ANALYSIS", "QUESTION")
         log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
-            if (response := shared.engine.ask(context, temperature=0.5, top_p=0.8)) and response.is_success():
+            if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
                 output = response.reply_text().replace("\n", " ").strip()
                 if mat := re.match(self.RE_CMD, output, re.I | re.M):
                     CacheService.save_query_history()
