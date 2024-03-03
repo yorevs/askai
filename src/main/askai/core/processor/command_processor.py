@@ -104,10 +104,10 @@ class CommandProcessor(AIProcessor):
         :param cmd_line: The command line to execute.
         """
         status = False
-        command = cmd_line.split(" ")[0]
+        command = cmd_line.split(" ")[0].strip()
         try:
             if command and which(command):
-                cmd_line = cmd_line.replace("~", os.getenv("HOME"))
+                cmd_line = cmd_line.replace("~", os.getenv("HOME")).strip()
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=AskAiMessages.INSTANCE.executing())
                 log.info("Executing command `%s'", cmd_line)
                 cmd_out, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)

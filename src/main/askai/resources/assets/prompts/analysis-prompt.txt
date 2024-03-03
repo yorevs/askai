@@ -4,6 +4,6 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 Step  1 - Generate your response using only the provided contexts.
 Step  2 - Start your response with the following: "Analysing the command output: "\n.
-Step  3 - Please specify whether each item is a file, link, folder or application, and also, its size and modified datetime when applicable.
+Step  3 - Please specify whether each item is a file, link, folder or application, and also, the size and modified date where applicable.
 Step  4 - Restrict the list to a maximum of 5 items and present it in a format with each item numbered for clarity.
 Step  5 - Conclude your response by providing a succinct and simplified version of its content using the following format for your conclusion: "&star; &nbsp; Conclusion: '<your_conclusion>'&br;".
