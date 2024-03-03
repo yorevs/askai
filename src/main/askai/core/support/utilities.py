@@ -15,12 +15,13 @@
 import hashlib
 import os
 import re
-from typing import Any, List
+from pathlib import Path
+from typing import Any, List, Optional
 
 import pause
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import sysout
+from hspylib.core.tools.commons import sysout, dirname
 from hspylib.modules.cli.vt100.vt_color import VtColor
 
 from askai.core.support.presets import Presets
@@ -32,6 +33,23 @@ def hash_text(text: str) -> str:
     :param: text the text to be hashed.
     """
     return hashlib.md5(text.encode(Charset.UTF_8.val)).hexdigest()
+
+
+def extract_path(cmd_line: str) -> Optional[str]:
+    """TODO"""
+    # Match a file or folder path within a command line.
+    re_path = r'(?:\w)\s(?:-[\w\d]+\s)*(?:([\/\w\d\s"\\.-]+)|(".*?"))'
+    if cmd_path := re.search(re_path, cmd_line):
+        if not (extracted := cmd_path.group(1).strip().replace('\\ ', ' ')):
+            return None
+        elif not (extracted := Path(extracted)).exists():
+            return None
+        else:
+            if extracted.is_dir():
+                return str(extracted)
+            extracted = Path(dirname(str(extracted)))
+            return extracted if extracted.is_dir() else None
+    return None
 
 
 def beautify(text: Any) -> str:

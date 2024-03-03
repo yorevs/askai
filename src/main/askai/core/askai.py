@@ -189,7 +189,6 @@ class AskAi:
             )
         askai_bus = AskAiEvents.get_bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
-        shared.context.set("LAST_DIR", f"Last used directory: '{os.getcwd()}'", 'assistant')
         self._ready = True
         log.info("AskAI is ready !")
         splash_thread.join()

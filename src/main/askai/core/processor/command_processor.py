@@ -17,6 +17,7 @@ from askai.core.model.terminal_command import TerminalCommand, SupportedShells, 
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.processor.output_processor import OutputProcessor
 from askai.core.support.shared_instances import shared
+from askai.core.support.utilities import extract_path
 
 
 class CommandProcessor(AIProcessor):
@@ -27,9 +28,6 @@ class CommandProcessor(AIProcessor):
 
     # Match a terminal command formatted in a markdown code block.
     RE_CMD = r'.*`{3}(' + RE_SHELLS + ')(.+)`{3}.*'
-
-    # Match a file or folder path.
-    RE_PATH = r'.* ((\w:|[~.])?(/.+)+(.*)?) ?.*'
 
     def __str__(self):
         return f"\"{self.query_type()}\": {self.query_desc()}"
@@ -67,11 +65,9 @@ class CommandProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
-        last_dir = str(shared.context["LAST_DIR"][0].content)
         template = PromptTemplate(
-            input_variables=['os_type', 'shell', 'last_dir'], template=self.template())
-        final_prompt: str = template.format(
-            os_type=self.os_type, shell=self.shell, last_dir=last_dir)
+            input_variables=['os_type', 'shell'], template=self.template())
+        final_prompt: str = template.format(os_type=self.os_type, shell=self.shell)
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
         context: List[dict] = shared.context.get_many("SETUP", "OUTPUT", "ANALYSIS", "QUESTION")
@@ -112,13 +108,14 @@ class CommandProcessor(AIProcessor):
                 log.info("Executing command `%s'", cmd_line)
                 cmd_out, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
                 if exit_code == ExitStatus.SUCCESS:
-                    cmd_path = re.search(self.RE_PATH, cmd_line)
-                    if cmd_path:
-                        cmd_path = cmd_path.group(1)
-                        shared.context.set("LAST_DIR", f"Last used directory: '{cmd_path}'", 'assistant')
+                    if _path_ := extract_path(cmd_line):
+                        if _path_:
+                            os.chdir(_path_)
+                            log.info("Current directory changed to '%s'", _path_)
+                        else:
+                            log.warning("Directory '%s' does not exist. Curdir unchanged!", _path_)
                     AskAiEvents.ASKAI_BUS.events.reply.emit(
-                        message=AskAiMessages.INSTANCE.cmd_success(exit_code), erase_last=True
-                    )
+                        message=AskAiMessages.INSTANCE.cmd_success(exit_code), erase_last=True)
                     status = True
                     shared.context.set("COMMAND", query_response.question)
                     if not cmd_out:
