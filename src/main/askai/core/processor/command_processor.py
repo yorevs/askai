@@ -2,7 +2,7 @@ import logging as log
 import os
 import re
 from shutil import which
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 
 from clitt.core.term.terminal import Terminal
 from hspylib.modules.application.exit_status import ExitStatus
@@ -16,7 +16,6 @@ from askai.core.model.query_response import QueryResponse
 from askai.core.model.terminal_command import TerminalCommand, SupportedShells, SupportedPlatforms
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.processor.output_processor import OutputProcessor
-from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 
 
@@ -68,24 +67,29 @@ class CommandProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
-        llm = lc_llm.create_langchain_model(temperature=0.5, top_p=0.8)
-        template = PromptTemplate(
-            input_variables=['os_type', 'shell', 'last_dir', 'question'], template=self.template())
         last_dir = str(shared.context["LAST_DIR"][0].content)
+        template = PromptTemplate(
+            input_variables=['os_type', 'shell', 'last_dir'], template=self.template())
         final_prompt: str = template.format(
-            os_type=self.os_type, shell=self.shell, last_dir=last_dir, question=query_response.question)
-        log.info("%s::[QUESTION] '%s'", self.name, final_prompt)
+            os_type=self.os_type, shell=self.shell, last_dir=last_dir)
+        shared.context.set("SETUP", final_prompt, 'system')
+        shared.context.set("QUESTION", query_response.question)
+        context: List[dict] = shared.context.get_many("SETUP", "OUTPUT", "ANALYSIS", "QUESTION")
+        log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
-            output = llm(final_prompt).replace("\n", " ").strip()
-            if mat := re.match(self.RE_CMD, output, re.I | re.M):
-                CacheService.save_query_history()
-                shell = mat.group(1).strip()
-                if mat.groups() != 3 and shell != self.shell:
-                    output = AskAiMessages.INSTANCE.not_a_command(shell, str(self.shell))
+            if (response := shared.engine.ask(context, temperature=0.5, top_p=0.8)) and response.is_success():
+                output = response.reply_text().replace("\n", " ").strip()
+                if mat := re.match(self.RE_CMD, output, re.I | re.M):
+                    CacheService.save_query_history()
+                    shell = mat.group(1).strip()
+                    if mat.groups() != 3 and shell != self.shell:
+                        output = AskAiMessages.INSTANCE.not_a_command(shell, str(self.shell))
+                    else:
+                        status, output = self._process_command(query_response, mat.group(3).strip())
                 else:
-                    status, output = self._process_command(query_response, mat.group(3).strip())
+                    output = AskAiMessages.INSTANCE.invalid_cmd_format(output)
             else:
-                output = AskAiMessages.INSTANCE.invalid_cmd_format(output)
+                output = AskAiMessages.INSTANCE.llm_error(response.reply_text())
         except Exception as err:
             output = AskAiMessages.INSTANCE.llm_error(str(err))
         finally:
@@ -127,8 +131,9 @@ class CommandProcessor(AIProcessor):
             else:
                 cmd_out = AskAiMessages.INSTANCE.cmd_no_exist(command)
         except Exception as err:
+            status = False
             log.error(err)
-            cmd_out = AskAiMessages.INSTANCE.cmd_failed(command) + f" -> {str(err)}"
+            cmd_out = AskAiMessages.INSTANCE.cmd_failed(command) + f"&br;&br;&error; -> {str(err)}&br;"
 
         return status, cmd_out
 

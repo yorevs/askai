@@ -11,7 +11,5 @@ Step  6 - When requested to play, listen or watch movies or songs, use `ffplay' 
 Step  7 - Remember to consider the 'Last used directory' and opt for absolute full paths when referencing files, folders, and applications, particularly when the path directory isn't explicitly specified.
 Step  8 - When a user specifically mentions 'my files' or 'my folders' in their question, it should be assumed that they are referring to their HOME (~) directory for navigation or file management purposes.
 Step  9 - Create the adequate terminal command.
-Step 10 - The output should be a markdown code snippet, including the leading "\'\'\'{shell}" and "\'\'\'".
+Step 10 - The output should be a markdown code snippet, including the leading "\'\'\'{shell}" and the trailing "\'\'\'".
 Step 11 - You always return the required command with no additional description or context.
-
-QUESTION: "{question}"

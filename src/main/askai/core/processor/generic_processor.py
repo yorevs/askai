@@ -41,6 +41,8 @@ class GenericProcessor(AIProcessor):
         return AskAiPrompt.INSTANCE.read_template('generic-prompt')
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
+        status = False
+        output = None
         template = PromptTemplate(input_variables=['history', 'question', 'user'], template=self.template())
         context = str(shared.context.get_many("GENERIC"))
         final_prompt: str = template.format(
@@ -53,10 +55,12 @@ class GenericProcessor(AIProcessor):
             CacheService.save_query_history()
             shared.context.push("GENERIC", query_response.question)
             shared.context.push("GENERIC", output, 'assistant')
-            return True, output
+            status = True
         except Exception as err:
-            log.error(err)
-            return False, AskAiMessages.INSTANCE.llm_error(str(err))
+            status = False
+            output = AskAiMessages.INSTANCE.llm_error(str(err))
+        finally:
+            return status, output
 
     def next_in_chain(self) -> Optional['AIProcessor']:
         return None

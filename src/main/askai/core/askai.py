@@ -235,7 +235,7 @@ class AskAi:
             self.is_processing = True
             self.context.set("SETUP", prompt.setup(), 'system')
             self.context.set("QUESTION", question)
-            context: List[dict] = self.context.get_many("SETUP", "OUTPUT", "QUESTION")
+            context: List[dict] = self.context.get_many("SETUP", "OUTPUT", "ANALYSIS", "QUESTION")
             if (response := self.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
                 self.is_processing = False
                 query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)

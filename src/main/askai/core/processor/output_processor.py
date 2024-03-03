@@ -38,7 +38,7 @@ class OutputProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
-        llm = lc_llm.create_langchain_model(temperature=0.5, top_p=0.0)
+        llm = lc_llm.create_langchain_model(temperature=0.0, top_p=0.0)
         template = PromptTemplate(
             input_variables=['command_line', 'shell', 'command_output'],
             template=self.template()
@@ -53,6 +53,7 @@ class OutputProcessor(AIProcessor):
             output = llm(final_prompt).lstrip()
             status = True
         except Exception as err:
+            status = False
             output = AskAiMessages.INSTANCE.llm_error(str(err))
         finally:
             return status, output

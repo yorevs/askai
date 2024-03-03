@@ -44,15 +44,15 @@ class AnalysisProcessor(AIProcessor):
         context: List[dict] = shared.context.get_many("SETUP", "OUTPUT", "ANALYSIS", "QUESTION")
         log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
-            if (response := shared.engine.ask(context, temperature=0.8, top_p=0.0)) and response.is_success():
+            if (response := shared.engine.ask(context, temperature=0.5, top_p=0.8)) and response.is_success():
                 output = response.reply_text()
                 CacheService.save_query_history()
-                shared.context.push("ANALYSIS", query_response.question)
-                shared.context.push("ANALYSIS", output, 'assistant')
+                shared.context.set("ANALYSIS", output)
                 status = True
             else:
                 output = AskAiMessages.INSTANCE.llm_error(response.reply_text())
         except Exception as err:
+            status = False
             output = AskAiMessages.INSTANCE.llm_error(str(err))
         finally:
             return status, output

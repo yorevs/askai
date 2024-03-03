@@ -36,11 +36,11 @@ def hash_text(text: str) -> str:
 def replace_icons(text: str) -> str:
     codes: List[str] = [
         '&br;', '&nbsp;', '&error;',
-        '&lamp;', '&poop;', '&smile;'
+        '&lamp;', '&poop;', '&smile;', '&star;'
     ]
     icons: List[str] = [
         '\n', ' ', '',
-        '', '', ''
+        '', '', '', ''
     ]
     for code, icon in zip(codes, icons):
         text = text.replace(code, icon)
