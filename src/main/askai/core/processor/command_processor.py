@@ -68,7 +68,7 @@ class CommandProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
-        llm = lc_llm.create_langchain_model(temperature=1, top_p=1)
+        llm = lc_llm.create_langchain_model(temperature=0.5, top_p=0.8)
         template = PromptTemplate(
             input_variables=['os_type', 'shell', 'last_dir', 'question'], template=self.template())
         last_dir = str(shared.context["LAST_DIR"][0].content)
@@ -79,8 +79,9 @@ class CommandProcessor(AIProcessor):
             output = llm(final_prompt).replace("\n", " ").strip()
             if mat := re.match(self.RE_CMD, output, re.I | re.M):
                 CacheService.save_query_history()
-                if mat.groups() != 3 and mat.group(1) != self.shell:
-                    output = AskAiMessages.INSTANCE.not_a_command(mat.group(1), str(self.shell))
+                shell = mat.group(1).strip()
+                if mat.groups() != 3 and shell != self.shell:
+                    output = AskAiMessages.INSTANCE.not_a_command(shell, str(self.shell))
                 else:
                     status, output = self._process_command(query_response, mat.group(3).strip())
             else:

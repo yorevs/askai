@@ -12,4 +12,6 @@ Step  5 - Determine if you need access to my device, files, folder, or applicati
 Step  6 - Determine if you need to summarize documents or any content.
 Step  7 - I will provide all the necessary context in a JSON-formatted block.
 Step  8 - You always return a formatted JSON with no additional description or context.
-Step  9 - Response JSON should contain the boolean fields: "intelligible", "terminating", "require_internet", "require_summarization", "require_command", and the string fields: "query_type", "question" and "response".
+Step  9 - Response JSON should contain the boolean fields: "intelligible", "terminating", "require_internet", "require_summarization", "require_command", and the string fields: "query_type", "question".
+
+QUESTION: "{question}"

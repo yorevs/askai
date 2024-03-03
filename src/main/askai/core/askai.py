@@ -232,10 +232,8 @@ class AskAi:
         if not (reply := CacheService.read_reply(question)):
             log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
             self.is_processing = True
-            self.context.set("SETUP", prompt.setup(), 'system')
-            context = self.context.get_many("SETUP", "COMMAND", "OUTPUT", "ANALYSIS")
-            context.append({"role": "user", "content": f"%QUESTION:\n\n{question}\n"})
-            if (response := self.engine.ask(context, temperature=0.5, top_p=0.5)) and response.is_success():
+            context = self.context.set("SETUP", prompt.setup(question), 'system')
+            if (response := self.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
                 self.is_processing = False
                 query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)
                 log.debug("Received a query_response for '%s' -> %s", question, query_response)
