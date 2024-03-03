@@ -1,8 +1,6 @@
 import logging as log
 from typing import Tuple, Optional, List
 
-from langchain_core.prompts import PromptTemplate
-
 from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_prompt import AskAiPrompt
 from askai.core.component.cache_service import CacheService

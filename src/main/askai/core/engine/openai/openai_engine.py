@@ -32,7 +32,7 @@ from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.engine.openai.openai_reply import OpenAIReply
 from askai.core.model.ai_model import AIModel
 from askai.core.model.ai_reply import AIReply
-from askai.core.support.utilities import stream_text, replace_icons, display_text
+from askai.core.support.utilities import stream_text, beautify, display_text
 
 
 class OpenAIEngine(AIEngine):
@@ -101,7 +101,7 @@ class OpenAIEngine(AIEngine):
         :param text: The text to speech.
         :param prefix: The prefix of the streamed text.
         """
-        text = replace_icons(VtColor.strip_colors(text))
+        text = beautify(VtColor.strip_colors(text))
         speech_file_path, file_exists = CacheService.get_audio_file(text, self._configs.tts_format)
         if not file_exists:
             log.debug(f'Audio file "%s" not found in cache. Generating from %s.', self.nickname(), speech_file_path)

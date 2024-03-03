@@ -14,6 +14,7 @@
 """
 import hashlib
 import os
+import re
 from typing import Any, List
 
 import pause
@@ -33,15 +34,14 @@ def hash_text(text: str) -> str:
     return hashlib.md5(text.encode(Charset.UTF_8.val)).hexdigest()
 
 
-def replace_icons(text: str) -> str:
+def beautify(text: Any) -> str:
     codes: List[str] = [
-        '&br;', '&nbsp;', '&error;',
-        '&lamp;', '&poop;', '&smile;', '&star;'
+        '&br;', '&nbsp;', '&error;', '&lamp;', '&poop;', '&smile;', '&star;'
     ]
     icons: List[str] = [
-        '\n', ' ', '',
-        '', '', '', ''
+        '\n', ' ', '', '', '', '', ''
     ]
+    text: str = re.sub(r'\n+', '\n', str(text))
     for code, icon in zip(codes, icons):
         text = text.replace(code, icon)
     return text
@@ -55,11 +55,12 @@ def display_text(text: Any, end: str = os.linesep, erase_last=False) -> None:
     """
     if erase_last:
         Cursor.INSTANCE.erase_line()
-    sysout(f"%EL0%{replace_icons(str(text))}", end=end)
+    text: str = beautify(text)
+    sysout(f"%EL0%{text}", end=end)
 
 
 def stream_text(
-    text: str,
+    text: Any,
     tempo: int = 1,
     language: Language = Language.EN_US
 ) -> None:
@@ -69,7 +70,7 @@ def stream_text(
     :param tempo: the speed multiplier of the typewriter effect. Defaults to 1.
     :param language: the language used to stream the text. Defaults to en_US.
     """
-    text: str = replace_icons(VtColor.strip_colors(text))
+    text: str = beautify(VtColor.strip_colors(text))
     presets: Presets = Presets.get(language.language, tempo=tempo)
     word_count: int = 0
     ln: str = os.linesep

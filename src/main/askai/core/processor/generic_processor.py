@@ -1,5 +1,5 @@
 import logging as log
-from typing import Tuple, Optional, Any
+from typing import Tuple, Optional, List
 
 from langchain_core.prompts import PromptTemplate
 
@@ -8,7 +8,6 @@ from askai.core.askai_prompt import AskAiPrompt
 from askai.core.component.cache_service import CacheService
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
-from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 
 
@@ -43,19 +42,22 @@ class GenericProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
-        template = PromptTemplate(input_variables=['history', 'question', 'user'], template=self.template())
-        context = str(shared.context.get_many("GENERIC"))
-        final_prompt: str = template.format(
-            history=context, question=query_response.question, user=AskAiPrompt.INSTANCE.user)
-        llm: Any = lc_llm.create_langchain_model(temperature=1, top_p=1)
-        log.info("%s::[QUESTION] '%s'", self.name, final_prompt)
+        template = PromptTemplate(input_variables=['user'], template=self.template())
+        final_prompt: str = template.format(user=AskAiPrompt.INSTANCE.user)
+        shared.context.set("SETUP", final_prompt, 'system')
+        shared.context.set("QUESTION", query_response.question)
+        context: List[dict] = shared.context.get_many("SETUP", "GENERAL", "QUESTION")
+        log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
-            output = llm(final_prompt).strip().replace('RESPONSE: ', '')
-            CacheService.save_reply(query_response.question, query_response.question)
-            CacheService.save_query_history()
-            shared.context.push("GENERIC", query_response.question)
-            shared.context.push("GENERIC", output, 'assistant')
-            status = True
+            if (response := shared.engine.ask(context, temperature=0.5, top_p=0.8)) and response.is_success():
+                output = response.reply_text()
+                CacheService.save_reply(query_response.question, query_response.question)
+                CacheService.save_query_history()
+                shared.context.push("GENERIC", query_response.question)
+                shared.context.push("GENERIC", output, 'assistant')
+                status = True
+            else:
+                output = AskAiMessages.INSTANCE.llm_error(response.reply_text())
         except Exception as err:
             status = False
             output = AskAiMessages.INSTANCE.llm_error(str(err))
