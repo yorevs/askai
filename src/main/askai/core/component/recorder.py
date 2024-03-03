@@ -51,7 +51,7 @@ class Recorder(metaclass=Singleton):
     def __init__(self):
         self._rec: Recognizer = Recognizer()
         self._devices = self.get_device_list() or []
-        self._device_index = 1
+        self._device_index = 2
 
     @property
     def devices(self) -> List[Tuple[int, str]]:
@@ -91,8 +91,6 @@ class Recorder(metaclass=Singleton):
                 raise IntelligibleAudioError(str(err)) from err
             except RequestError as err:
                 raise InvalidRecognitionApiError(str(err)) from err
-            finally:
-                Terminal.INSTANCE.cursor.erase_line()
 
         return audio_path, stt_text
 

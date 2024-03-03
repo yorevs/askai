@@ -23,6 +23,8 @@ Furthermore, AskAI embraces diversity by breaking language barriers, ensuring th
 
 > The world speaks many languages. AskAI understands them all.
 
+!! **HOT** !! Checkout the [YouTube](https://www.youtube.com/watch?v=ewG9lpjj3To&t=68s) video with our Demo!
+
 ## Key Features
 
 - Seamlessly Integrate AI Models (Currently Supporting OpenAI).
