@@ -15,13 +15,14 @@
 import hashlib
 import os
 import re
+from os.path import dirname
 from pathlib import Path
 from typing import Any, List, Optional
 
 import pause
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import sysout, dirname
+from hspylib.core.tools.commons import sysout
 from hspylib.modules.cli.vt100.vt_color import VtColor
 
 from askai.core.support.presets import Presets
@@ -40,15 +41,12 @@ def extract_path(cmd_line: str) -> Optional[str]:
     # Match a file or folder path within a command line.
     re_path = r'(?:\w)\s(?:-[\w\d]+\s)*(?:([\/\w\d\s"\\.-]+)|(".*?"))'
     if cmd_path := re.search(re_path, cmd_line):
-        if not (extracted := cmd_path.group(1).strip().replace('\\ ', ' ')):
-            return None
-        elif not (extracted := Path(extracted)).exists():
-            return None
-        else:
-            if extracted.is_dir():
-                return str(extracted)
-            extracted = Path(dirname(str(extracted)))
-            return extracted if extracted.is_dir() else None
+        if (
+            (extracted := cmd_path.group(1).strip().replace('\\ ', ' ')) and
+            (_path_ := Path(extracted)).exists()
+        ):
+            if _path_.is_dir() or (extracted := dirname(extracted)):
+                return extracted if extracted and Path(extracted).is_dir() else None
     return None
 
 
