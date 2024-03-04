@@ -31,7 +31,7 @@ on:
     branches:
       - '**'
     paths:
-      - 'modules/**'
+      - 'src/**'
       - 'gradle/*.gradle'
       - 'build.gradle'
 
@@ -83,6 +83,8 @@ jobs:
       PYRCC_VERSION: 5
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
       - uses: actions/setup-java@v3
         with:
           distribution: temurin
