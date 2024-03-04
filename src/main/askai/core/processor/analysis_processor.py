@@ -48,9 +48,9 @@ class AnalysisProcessor(AIProcessor):
         log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
-                output = response.reply_text()
+                if output := response.reply_text():
+                    shared.context.set("ANALYSIS", output)
                 CacheService.save_query_history()
-                shared.context.set("ANALYSIS", output)
                 status = True
             else:
                 output = AskAiMessages.INSTANCE.llm_error(response.reply_text())

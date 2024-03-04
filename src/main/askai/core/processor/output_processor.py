@@ -1,5 +1,5 @@
 import logging as log
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 
 from langchain_core.prompts import PromptTemplate
 
@@ -7,7 +7,7 @@ from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_prompt import AskAiPrompt
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
-from askai.core.support.langchain_support import lc_llm
+from askai.core.support.shared_instances import shared
 
 
 class OutputProcessor(AIProcessor):
@@ -37,21 +37,26 @@ class OutputProcessor(AIProcessor):
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        output = None
-        llm = lc_llm.create_langchain_model(temperature=0.0, top_p=0.0)
+        output = '\n'.join([c.cmd_out for c in query_response.commands])
         template = PromptTemplate(
-            input_variables=['command_line', 'shell', 'command_output'],
+            input_variables=['command_line', 'shell'],
             template=self.template()
         )
         final_prompt: str = AskAiMessages.INSTANCE.translate(template.format(
             command_line='; '.join([c.cmd_line for c in query_response.commands]),
-            shell=AskAiPrompt.INSTANCE.shell,
-            command_output='\n'.join([c.cmd_out for c in query_response.commands])
+            shell=AskAiPrompt.INSTANCE.shell
         ))
-        log.info("%s::[QUESTION] '%s'", self.name, final_prompt)
+        shared.context.set("SETUP", final_prompt, 'system')
+        shared.context.set("OUTPUT", output)
+        context: List[dict] = shared.context.get_many("SETUP", "OUTPUT")
+        log.info("%s::[OUTPUT] '%s'", self.name, final_prompt)
         try:
-            output = llm(final_prompt).lstrip()
-            status = True
+            if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
+                if output := response.reply_text():
+                    shared.context.set("ANALYSIS", output)
+                status = True
+            else:
+                output = AskAiMessages.INSTANCE.llm_error(response.reply_text())
         except Exception as err:
             status = False
             output = AskAiMessages.INSTANCE.llm_error(str(err))
