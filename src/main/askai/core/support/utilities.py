@@ -65,7 +65,7 @@ def beautify(text: Any) -> str:
     text: str = re.sub(r'[^:]␊␊([0-9]\. |[-*] )', r'␊\1', text)
     text: str = re.sub(r':␊([0-9]\. |[-*] )', r':␊␊\1', text)
     text: str = text.replace('␊', '\n')
-    return text
+    return text.strip()
 
 
 def display_text(text: Any, end: str = os.linesep, erase_last=False) -> None:
