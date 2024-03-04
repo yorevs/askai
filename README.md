@@ -23,7 +23,11 @@ Furthermore, AskAI embraces diversity by breaking language barriers, ensuring th
 
 > The world speaks many languages. AskAI understands them all.
 
-!! **HOT** !! Checkout the [YouTube](https://www.youtube.com/watch?v=ewG9lpjj3To&t=68s) video with our Demo!
+The see a brief demo about AskAI feature check our asciinema video.
+
+[![asciicast](https://asciinema.org/a/645171.svg)](https://asciinema.org/a/645171)
+
+🔥 **HOT** 🔥 Checkout the [YouTube](https://www.youtube.com/watch?v=ewG9lpjj3To&t=68s) video with our Demo!
 
 ## Key Features
 
