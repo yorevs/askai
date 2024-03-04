@@ -53,7 +53,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def cmd_success(self, exit_code: ExitStatus) -> str:
-        return self.translate(f"OK, the command returned with code: {exit_code}")
+        return self.translate(f"OK, command executed with {str(exit_code).lower()}")
 
     # Warnings and alerts
 

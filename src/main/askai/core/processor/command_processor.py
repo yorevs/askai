@@ -109,12 +109,14 @@ class CommandProcessor(AIProcessor):
                 log.info("Executing command `%s'", cmd_line)
                 cmd_out, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
                 if exit_code == ExitStatus.SUCCESS:
+                    log.info(
+                        "Command succeeded.\nCODE=%s \nPATH: %s \nCMD: %s ", exit_code, os.getcwd(), cmd_line)
                     if _path_ := extract_path(cmd_line):
                         if _path_:
                             os.chdir(_path_)
                             log.info("Current directory changed to '%s'", _path_)
                         else:
-                            log.warning("Directory '%s' does not exist. Curdir unchanged!", _path_)
+                            log.error("Directory '%s' does not exist. Curdir unchanged!", _path_)
                     AskAiEvents.ASKAI_BUS.events.reply.emit(
                         message=AskAiMessages.INSTANCE.cmd_success(exit_code), erase_last=True)
                     status = True
@@ -125,6 +127,8 @@ class CommandProcessor(AIProcessor):
                         shared.context.set("OUTPUT", cmd_out)
                         cmd_out = self._wrap_output(query_response, cmd_line, cmd_out)
                 else:
+                    log.error(
+                        "Command failed.\nCODE=%s \nPATH: %s \nCMD: %s ", exit_code, os.getcwd(), cmd_line)
                     cmd_out = AskAiMessages.INSTANCE.cmd_failed(command)
             else:
                 cmd_out = AskAiMessages.INSTANCE.cmd_no_exist(command)
