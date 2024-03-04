@@ -6,6 +6,9 @@
 """Package initialization."""
 
 __all__ = [
-    'shared_instances'
+    'langchain_support', 
+    'presets', 
+    'shared_instances', 
+    'utilities'
 ]
 __version__ = '0.9.8'
