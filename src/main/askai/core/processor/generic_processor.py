@@ -31,10 +31,7 @@ class GenericProcessor(AIProcessor):
         return self.name
 
     def query_desc(self) -> str:
-        return (
-            'Prompts for general content retrieval from the database. '
-            'This type is selected when no other prompts are suitable for the query.'
-        )
+        return 'This type is selected when no other prompts are suitable for other queries.'
 
     def template(self) -> str:
         return AskAiPrompt.INSTANCE.read_template('generic-prompt')
