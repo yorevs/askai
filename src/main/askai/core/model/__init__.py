@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# 'askai' v0.9.8
+# 'askai' v1.0.1
 #
 # Package: main.askai.core.model
 """Package initialization."""
@@ -12,4 +12,4 @@ __all__ = [
     'query_response', 
     'terminal_command'
 ]
-__version__ = '0.9.8'
+__version__ = '1.0.1'

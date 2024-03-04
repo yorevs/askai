@@ -103,6 +103,8 @@ $ sudo dnf install portaudio-devel redhat-rpm-config ffmpeg
 
 #### AskAI installation
 
+AskAI is available at [PyPi](https://pypi.org/project/hspylib-askai/)
+
 ```bash
 $ python3 -m pip install hspylib-askai
 ```

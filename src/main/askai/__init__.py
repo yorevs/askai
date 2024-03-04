@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# 'askai' v0.9.8
+# 'askai' v1.0.1
 #
 # Package: main.askai
 """Package initialization."""
@@ -10,4 +10,4 @@ __all__ = [
     'exception', 
     'language'
 ]
-__version__ = '0.9.8'
+__version__ = '1.0.1'
