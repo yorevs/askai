@@ -121,6 +121,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
       - uses: actions/setup-java@v3
         with:
           distribution: temurin
@@ -164,6 +166,8 @@ jobs:
       PYPI_MODULE: ${{ matrix.module }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
       - uses: actions/setup-java@v3
         with:
           distribution: temurin
