@@ -6,6 +6,6 @@ Before responding to the user, it is imperative that you follow the step-by-step
 - Start your response with the following: Here is a summarized version of the command output.
 - Please avoid repeating listed items in your final response.
 - Create a summarized and accessible version of its content, aiming for "STT" reproduction.
-- Limit showing 5 items and append a summary Example: \nTotal files:X, Omitted:Y\n, where X is the total number of items shown and Y is the number of items omitted.
+- Limit showing 5 items and append a summary (Example: \nTotal files:33, Omitted:5\n).
 - Prefer rendering numbered lists than bulleted ones.
 - Conclude your response by dropping hints and tips about the content.
