@@ -17,7 +17,7 @@ import os
 import re
 from os.path import dirname
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Tuple
 
 import pause
 from clitt.core.term.cursor import Cursor
@@ -36,11 +36,11 @@ def hash_text(text: str) -> str:
     return hashlib.md5(text.encode(Charset.UTF_8.val)).hexdigest()
 
 
-def extract_path(cmd_line: str) -> Optional[str]:
+def extract_path(command_line: str, flags: int = re.IGNORECASE | re.MULTILINE) -> Optional[str]:
     """TODO"""
     # Match a file or folder path within a command line.
     re_path = r'(?:\w)\s(?:-[\w\d]+\s)*(?:([\/\w\d\s"\\.-]+)|(".*?"))'
-    if cmd_path := re.search(re_path, cmd_line):
+    if command_line and (cmd_path := re.search(re_path, command_line, flags)):
         if (
             (extracted := cmd_path.group(1).strip().replace('\\ ', ' ')) and
             (_path_ := Path(extracted)).exists()
@@ -50,12 +50,27 @@ def extract_path(cmd_line: str) -> Optional[str]:
     return None
 
 
+def extract_command(response_text: str, flags: int = re.IGNORECASE | re.MULTILINE) -> Optional[Tuple[str, str]]:
+    """TODO"""
+    # Match a terminal command formatted in a markdown code block.
+    re_command = r'^`{3}((\w+)\s*)?(.+)\s*?`{3}$'
+    if response_text and (mat := re.search(re_command, response_text.replace('\n', ' ').strip(), flags)):
+        if mat and len(mat.groups()) == 3:
+            shell, cmd = mat.group(1) or '', mat.group(3) or ''
+            return shell.strip(), cmd.strip()
+
+    return None
+
+
 def beautify(text: Any) -> str:
     codes: List[str] = [
-        '&br;', '&nbsp;', '&error;', '&lamp;', '&poop;', '&smile;', '&star;'
+        '&br;', '&nbsp;', '&error;', '&lamp;', '&poop;', '&smile;', '&star;',
+        '&analysis;', '&summary;'
     ]
     icons: List[str] = [
-        '\n', ' ', '', '', '', '', ''
+        '\n', ' ', '', '', '', '', '',
+        'Analysing the command output:\n\n',
+        'Here is a summarized version of the command output\n\n'
     ]
     text: str = str(text)
     for code, icon in zip(codes, icons):
@@ -150,26 +165,3 @@ def stream_text(
             word_count = 0
         pause.seconds(presets.base_speed)
     sysout("")
-
-
-if __name__ == '__main__':
-    s = """
-  ChatGPT: Here is a summarized version of the command output:
-
-- File: Finance alias, Size: 920B, Modified: Sep 1 2022
-
-- Folder: Apps, Size: 480B, Modified: Nov 5 2021
-
-- Folder: Fotos-Aniversario-Gabriel, Size: 9.8K, Modified: Sep 17 2022
-
-- Folder: Fotos-Consagracao-Gabriel, Size: 1.2K, Modified: Nov 8 2021
-
-- Folder: Images, Size: 512B, Modified: Jun 8 2022
-
-
-Summary: Total items: 5, Omitted items: 2
-
- Hint: 'There are 2 more items in this directory. Try using the "ls -lh" command to see the full list.'
-
-"""
-    display_text(s)

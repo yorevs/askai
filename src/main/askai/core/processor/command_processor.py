@@ -1,6 +1,5 @@
 import logging as log
 import os
-import re
 from shutil import which
 from typing import Tuple, Optional, List
 
@@ -17,17 +16,11 @@ from askai.core.model.terminal_command import TerminalCommand, SupportedShells, 
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.processor.output_processor import OutputProcessor
 from askai.core.support.shared_instances import shared
-from askai.core.support.utilities import extract_path
+from askai.core.support.utilities import extract_path, extract_command
 
 
 class CommandProcessor(AIProcessor):
     """Process a command based question process."""
-
-    # Match most commonly used shells.
-    RE_SHELLS = '(ba|c|da|k|tc|z)?sh'
-
-    # Match a terminal command formatted in a markdown code block.
-    RE_CMD = r'.*`{3}(' + RE_SHELLS + ')(.+)`{3}.*'
 
     def __str__(self):
         return f"\"{self.query_type()}\": {self.query_desc()}"
@@ -75,16 +68,15 @@ class CommandProcessor(AIProcessor):
         log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
-                output = response.reply_text().replace("\n", " ").strip()
-                if mat := re.match(self.RE_CMD, output, re.I | re.M):
-                    CacheService.save_query_history()
-                    shell = mat.group(1).strip()
-                    if mat.groups() != 3 and shell != self.shell:
-                        output = AskAiMessages.INSTANCE.not_a_command(shell, str(self.shell))
+                shell, command = extract_command(response.reply_text())
+                if command:
+                    if shell and shell != self.shell:
+                        output = AskAiMessages.INSTANCE.not_a_command(str(self.shell), command)
                     else:
-                        status, output = self._process_command(query_response, mat.group(3).strip())
+                        CacheService.save_query_history()
+                        status, output = self._process_command(query_response, command)
                 else:
-                    output = AskAiMessages.INSTANCE.invalid_cmd_format(output)
+                    output = AskAiMessages.INSTANCE.invalid_cmd_format(response.reply_text())
             else:
                 output = AskAiMessages.INSTANCE.llm_error(response.reply_text())
         except Exception as err:

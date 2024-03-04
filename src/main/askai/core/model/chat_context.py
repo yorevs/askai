@@ -26,7 +26,7 @@ class ChatContext:
 
     def __init__(self, token_limit: int):
         self._context = defaultdict(list)
-        self._token_limit: int = token_limit
+        self._token_limit: int = token_limit * 1024  # The limit is given in KB
 
     def __str__(self):
         return os.linesep.join(f"'{k}': '{v}'" for k, v in self._context.items())

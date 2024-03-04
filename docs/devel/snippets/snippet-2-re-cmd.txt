@@ -1,0 +1,25 @@
+if __name__ == '__main__':
+    s1 = """
+```
+ls -la ~/Downloads
+```
+    """
+    s2 = """
+```bash
+ls -la ~/Downloads
+```
+    """
+    s3 = """
+```json
+ls -la ~/Downloads
+```
+    """
+    print(s1)
+    print(s2)
+    print(s3)
+
+    assert (cmd1 := extract_command(s1)) == ('', 'ls -la ~/Downloads')
+    assert (cmd2 := extract_command(s2)) == ('bash', 'ls -la ~/Downloads')
+    assert (cmd3 := extract_command(s3)) == ('json', 'ls -la ~/Downloads')
+
+    print(cmd1, cmd2, cmd3)

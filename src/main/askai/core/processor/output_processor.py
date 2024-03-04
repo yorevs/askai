@@ -37,18 +37,20 @@ class OutputProcessor(AIProcessor):
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
+        shell = AskAiPrompt.INSTANCE.shell
         output = '\n'.join([c.cmd_out for c in query_response.commands])
+        output = f"```{shell}\n{output}\n```"
         template = PromptTemplate(
             input_variables=['command_line', 'shell'],
             template=self.template()
         )
         final_prompt: str = AskAiMessages.INSTANCE.translate(template.format(
             command_line='; '.join([c.cmd_line for c in query_response.commands]),
-            shell=AskAiPrompt.INSTANCE.shell
+            shell=shell
         ))
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("OUTPUT", output)
-        context: List[dict] = shared.context.get_many("SETUP", "OUTPUT", "ANALYSIS")
+        context: List[dict] = shared.context.get_many("SETUP", "ANALYSIS", "OUTPUT")
         log.info("%s::[OUTPUT] '%s'", self.name, final_prompt)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
