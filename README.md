@@ -55,14 +55,7 @@ Furthermore, AskAI embraces diversity by breaking language barriers, ensuring th
 You may want to install HsPyLib on other OS's and it will probably work, but there are no guarantees that it
 **WILL ACTUALLY WORK**.
 
-#### Required software
-
-The following software are required:
-
-- FFMPEG (To allow playing audio and video files from your terminal).
-- PORTAUDIO (To allow microphone recordings).
-
-#### Required python packages
+#### Python packages
 
 There are some python dependencies, but they will be automatically downloaded when the build runs. The following python packages are required:
 
@@ -78,6 +71,41 @@ There are some python dependencies, but they will be automatically downloaded wh
 - openai-whisper
 - urllib3
 - openai
+
+#### Applications / Libraries
+
+The following software are required:
+
+- FFMPEG (To allow playing audio and video files from your terminal).
+- PORTAUDIO (To allow microphone recordings).
+
+##### macOS installation
+
+Use Homebrew to install the prerequisite portaudio:
+
+```bash
+$ brew install portaudio ffmpeg
+```
+
+##### GNU/Linux installation
+
+Debian-based systems:
+
+```bash
+$ sudo apt install python3-pyaudio ffmpeg
+```
+
+RedHat-based systems:
+
+```bash
+$ sudo dnf install portaudio-devel redhat-rpm-config ffmpeg
+```
+
+#### AskAI installation
+
+```bash
+$ python3 -m pip install hspylib-askai
+```
 
 ## Support
 

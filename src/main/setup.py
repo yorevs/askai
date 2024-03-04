@@ -32,7 +32,7 @@ REQUIREMENTS = list(filter(None, (HERE / "requirements.txt").read_text().splitli
 setuptools.setup(
     name="hspylib-askai",
     version=VERSION,
-    description="HsPyLib - Ask AI",
+    description="HomeSetup - AskAI",
     author="Hugo Saporetti Junior",
     author_email="yorevs@hotmail.com",
     long_description=README,
@@ -57,6 +57,6 @@ setuptools.setup(
     ],
     python_requires=">=3.10",
     install_requires=REQUIREMENTS,
-    keywords="pivotal,pcf,cloudfoundry,manager,application",
+    keywords="ai,openai,application,generative,ask",
     platforms="Darwin,Linux",
 )
