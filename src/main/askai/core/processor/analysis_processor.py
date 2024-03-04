@@ -1,6 +1,8 @@
 import logging as log
 from typing import Tuple, Optional, List
 
+from langchain_core.prompts import PromptTemplate
+
 from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_prompt import AskAiPrompt
 from askai.core.component.cache_service import CacheService
@@ -37,7 +39,10 @@ class AnalysisProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
-        shared.context.set("SETUP", self.template(), 'system')
+        template = PromptTemplate(
+            input_variables=[], template=self.template())
+        final_prompt: str = AskAiMessages.INSTANCE.translate(template.format())
+        shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
         context: List[dict] = shared.context.get_many("SETUP", "OUTPUT", "ANALYSIS", "QUESTION")
         log.info("%s::[QUESTION] '%s'", self.name, context)

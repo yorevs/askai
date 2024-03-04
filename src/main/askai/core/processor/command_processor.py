@@ -67,7 +67,8 @@ class CommandProcessor(AIProcessor):
         output = None
         template = PromptTemplate(
             input_variables=['os_type', 'shell'], template=self.template())
-        final_prompt: str = template.format(os_type=self.os_type, shell=self.shell)
+        final_prompt: str = template.format(
+            os_type=self.os_type, shell=self.shell)
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
         context: List[dict] = shared.context.get_many("SETUP", "OUTPUT", "ANALYSIS", "QUESTION")

@@ -43,11 +43,11 @@ class OutputProcessor(AIProcessor):
             input_variables=['command_line', 'shell', 'command_output'],
             template=self.template()
         )
-        final_prompt: str = template.format(
+        final_prompt: str = AskAiMessages.INSTANCE.translate(template.format(
             command_line='; '.join([c.cmd_line for c in query_response.commands]),
             shell=AskAiPrompt.INSTANCE.shell,
             command_output='\n'.join([c.cmd_out for c in query_response.commands])
-        )
+        ))
         log.info("%s::[QUESTION] '%s'", self.name, final_prompt)
         try:
             output = llm(final_prompt).lstrip()

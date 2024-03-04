@@ -42,8 +42,10 @@ class GenericProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
-        template = PromptTemplate(input_variables=['user'], template=self.template())
-        final_prompt: str = template.format(user=AskAiPrompt.INSTANCE.user)
+        template = PromptTemplate(
+            input_variables=['user'], template=self.template())
+        final_prompt: str = AskAiMessages.INSTANCE.translate(
+            template.format(user=AskAiPrompt.INSTANCE.user))
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
         context: List[dict] = shared.context.get_many("SETUP", "GENERIC", "QUESTION")

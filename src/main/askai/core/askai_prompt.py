@@ -23,6 +23,7 @@ from hspylib.core.tools.text_tools import ensure_endswith
 from langchain_core.prompts import PromptTemplate
 
 from askai.__classpath__ import _Classpath
+from askai.core.askai_configs import configs
 from askai.core.model.terminal_command import SupportedPlatforms, get_shell, SupportedShells, get_os, get_user
 from askai.core.processor.ai_processor import AIProcessor
 
@@ -56,6 +57,10 @@ class AskAiPrompt(metaclass=Singleton):
     @property
     def user(self) -> str:
         return self._user
+
+    @property
+    def idiom(self) -> str:
+        return f"{configs.language.name} ({configs.language.country})"
 
     def setup(self) -> str:
         return self._setup.format(query_types=self._query_types)
