@@ -123,7 +123,7 @@ class OpenAIEngine(AIEngine):
         speak_thread.start()
         pause.seconds(AudioPlayer.INSTANCE.start_delay())
         display_text(prefix, end="")
-        stream_text(text)
+        stream_text(text.strip())
         speak_thread.join()  # Block until the speech has finished.
 
     def speech_to_text(self) -> Optional[str]:

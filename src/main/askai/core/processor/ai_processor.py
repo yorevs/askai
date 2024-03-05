@@ -32,7 +32,7 @@ class AIProcessor(metaclass=ABCMeta):
 
     @classmethod
     @lru_cache
-    def query_types(cls) -> str:
+    def find_query_types(cls) -> str:
         """Search and retrieve all possible query types."""
         q_types = []
         for root, _, files in os.walk(dirname(__file__)):

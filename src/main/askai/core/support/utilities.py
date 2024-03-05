@@ -23,7 +23,6 @@ import pause
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import sysout
-from hspylib.modules.cli.vt100.vt_color import VtColor
 
 from askai.core.support.presets import Presets
 from askai.language.language import Language
@@ -73,14 +72,15 @@ def beautify(text: Any) -> str:
     for code, icon in zip(codes, icons):
         text = text.replace(code, icon)
     # fmt: off
-    text = re.sub(r"^\*+(.*)\*+", "\1", text)
+    text = re.sub(r"\*+(.*)\*+", "\1", text)
     text = re.sub("Hints and [Tt]ips:", "  Hints and tips:", text, re.IGNORECASE)
     text = re.sub("Analysis:", "  Analysis:", text, re.IGNORECASE)
     text = re.sub("Summary:", "  Summary:", text, re.IGNORECASE)
     text = re.sub("(Joke( [Tt]ime)?):", "  Joke:", text, re.IGNORECASE)
     text = re.sub("Fun [Ff]act:", "  Fun Fact:", text, re.IGNORECASE)
     # fmt: on
-    return text.rstrip()
+
+    return text
 
 
 def display_text(text: Any, end: str = os.linesep, erase_last=False) -> None:
@@ -106,7 +106,7 @@ def stream_text(
     :param tempo: the speed multiplier of the typewriter effect. Defaults to 1.
     :param language: the language used to stream the text. Defaults to en_US.
     """
-    text: str = beautify(VtColor.strip_colors(text))
+    text: str = beautify(text)
     presets: Presets = Presets.get(language.language, tempo=tempo)
     word_count: int = 0
     ln: str = os.linesep

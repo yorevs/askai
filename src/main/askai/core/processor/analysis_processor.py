@@ -16,14 +16,14 @@ class AnalysisProcessor(AIProcessor):
     """Process an analysis question process."""
 
     def __str__(self):
-        return f"\"{self.query_type()}\": {self.query_desc()}"
+        return f"'{self.query_type()}': {self.query_desc()}"
 
     @property
     def name(self) -> str:
         return type(self).__name__
 
     def supports(self, q_type: str) -> bool:
-        return q_type == self.query_type()
+        return q_type in [self.query_type()]
 
     def processor_id(self) -> str:
         return str(abs(hash(self.__class__.__name__)))
@@ -32,7 +32,12 @@ class AnalysisProcessor(AIProcessor):
         return self.name
 
     def query_desc(self) -> str:
-        return "Prompts where the user asks questions about command outputs, previously provided by him."
+        return (
+            "Prompts that leverage prior command outputs in the chat history. These prompts may involve "
+            "file management, data, file or folder inquiries, yes/no questions, and more, all answerable by "
+            "referencing earlier command outputs in conversation history. Please prioritize this "
+            "query type to be selected when you see command outputs in chat history."
+        )
 
     def template(self) -> str:
         return AskAiPrompt.INSTANCE.read_template('analysis-prompt')

@@ -15,14 +15,14 @@ class OutputProcessor(AIProcessor):
     """Process a command output process."""
 
     def __str__(self):
-        return f"\"{self.query_type()}\": {self.query_desc()}"
+        return f"'{self.query_type()}': {self.query_desc()}"
 
     @property
     def name(self) -> str:
         return type(self).__name__
 
     def supports(self, q_type: str) -> bool:
-        return q_type == self.query_type()
+        return q_type in [self.query_type()]
 
     def processor_id(self) -> str:
         return str(abs(hash(self.__class__.__name__)))
@@ -40,7 +40,6 @@ class OutputProcessor(AIProcessor):
         status = False
         shell = AskAiPrompt.INSTANCE.shell
         output = '\n'.join([c.cmd_out for c in query_response.commands])
-        output = f"```{shell}\n{output}\n```"
         template = PromptTemplate(
             input_variables=['command_line', 'shell'],
             template=self.template()
@@ -50,13 +49,11 @@ class OutputProcessor(AIProcessor):
             shell=shell
         ))
         shared.context.set("SETUP", final_prompt, 'system')
-        shared.context.set("OUTPUT", output)
         context: List[dict] = shared.context.get_many("SETUP", "CONTEXT")
         log.info("%s::[OUTPUT] '%s'", self.name, final_prompt)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
                 if output := response.reply_text():
-                    shared.context.push("CONTEXT", output)
                     output = ensure_startswith(output, AskAiMessages.INSTANCE.summarized_output())
                 status = True
             else:

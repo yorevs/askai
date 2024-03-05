@@ -40,11 +40,9 @@ class AskAiPrompt(metaclass=Singleton):
         self._shell: SupportedShells = get_shell()
         self._os_type: SupportedPlatforms = get_os()
         self._user: str = get_user()
-        self._query_types: str = AIProcessor.query_types()
+        self._query_types: str = AIProcessor.find_query_types()
         self._setup: PromptTemplate = PromptTemplate(
-            input_variables=["query_types", "question"],
-            template=self.read_template("setup.txt")
-        )
+            input_variables=['query_types'], template=self.read_template("setup.txt"))
 
     @property
     def os_type(self) -> SupportedPlatforms:

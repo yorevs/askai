@@ -24,7 +24,6 @@ from clitt.core.term.screen import Screen
 from clitt.core.term.terminal import Terminal
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.enums.charset import Charset
-from hspylib.core.preconditions import check_not_none
 from hspylib.core.tools.commons import sysout
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.cli.keyboard import Keyboard
@@ -234,13 +233,13 @@ class AskAi:
             self.is_processing = True
             self.context.set("SETUP", prompt.setup(), 'system')
             self.context.set("QUESTION", question)
-            context: List[dict] = self.context.get_many("SETUP", "QUESTION")
+            context: List[dict] = self.context.get_many("SETUP", "CONTEXT", "QUESTION")
             log.info("Setup::[QUESTION] '%s'", context)
             if (response := self.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
                 self.is_processing = False
                 query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)
                 if not isinstance(query_response, QueryResponse):
-                    log.warning(msg.invalid_query_response(query_response))
+                    log.warning(msg.invalid_response(query_response))
                     query_response = QueryResponse.of_string(question, query_response)
                 log.debug("Received a query_response for '%s' -> %s", question, query_response)
                 return self._process_response(query_response)
@@ -255,15 +254,17 @@ class AskAi:
 
     def _process_response(self, query_response: QueryResponse) -> bool:
         """Process a query response using a processor that supports the query type."""
+        status = False
         if not query_response.intelligible:
             self.reply_error(msg.intelligible())
-            return True
         elif query_response.terminating:
             log.info("User wants to terminate the conversation.")
-        elif query_response.query_type:
-            processor: AIProcessor = AIProcessor.get_by_query_type(query_response.query_type)
-            check_not_none(processor, f"Unable to find a proper processor for query type: {query_response.query_type}")
-            while processor:
+        elif q_type := query_response.query_type:
+            processor: AIProcessor = AIProcessor.get_by_query_type(q_type)
+            if not processor:
+                log.error(f"Unable to find a proper processor for query type: {q_type}")
+                self.reply_error(str(query_response))
+            else:
                 log.info("%s::Processing response for '%s'", processor, query_response.question)
                 status, output = processor.process(query_response)
                 if status and processor.next_in_chain():
@@ -276,12 +277,11 @@ class AskAi:
                     self.reply(str(output))
                 else:
                     self.reply_error(str(output))
-                return status
         elif query_response.response:
             self.reply(query_response.response)
             CacheService.save_reply(query_response.question, query_response.question)
             CacheService.save_query_history()
         else:
-            self.reply_error(f"Unknown query type: %EOL%{query_response}")
+            self.reply_error(msg.invalid_response(query_response))
 
-        return False
+        return status
