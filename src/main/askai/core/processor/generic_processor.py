@@ -45,15 +45,15 @@ class GenericProcessor(AIProcessor):
             template.format(user=AskAiPrompt.INSTANCE.user))
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
-        context: List[dict] = shared.context.get_many("SETUP", "CONTEXT", "QUESTION")
+        context: List[dict] = shared.context.get_many("SETUP", "CONTEXT", "GENERAL", "QUESTION")
         log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
             if (response := shared.engine.ask(context, temperature=0.8, top_p=0.8)) and response.is_success():
                 output = response.reply_text()
                 CacheService.save_reply(query_response.question, query_response.question)
                 CacheService.save_query_history()
-                shared.context.push("CONTEXT", query_response.question)
-                shared.context.push("CONTEXT", output, 'assistant')
+                shared.context.push("GENERAL", query_response.question)
+                shared.context.push("GENERAL", output, 'assistant')
                 status = True
             else:
                 output = AskAiMessages.INSTANCE.llm_error(response.reply_text())

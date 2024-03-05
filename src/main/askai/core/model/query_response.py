@@ -23,12 +23,20 @@ class QueryResponse:
     query_type: str = ''
     question: str = ''
     response: str = ''
-    terminating: bool = True
-    intelligible: bool = False
+    terminating: bool = False
+    intelligible: bool = True
     require_command: bool = False
     require_internet: bool = False
     require_summarization: bool = False
     commands: List[TerminalCommand] = field(default_factory=list)
+
+    @staticmethod
+    def of_string(question: str, plain_response: str) -> '':
+        """Sometimes AI gets cray and don't return a JSON string, so we have to fix it."""
+        return QueryResponse(
+            'GenericProcessor', question, plain_response,
+            False, True, False, False, False
+        )
 
     def __str__(self):
         return json.dumps(self.__dict__, default=lambda obj: obj.__dict__)

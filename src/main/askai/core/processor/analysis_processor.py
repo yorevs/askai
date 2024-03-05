@@ -1,6 +1,7 @@
 import logging as log
 from typing import Tuple, Optional, List
 
+from hspylib.core.tools.text_tools import ensure_startswith
 from langchain_core.prompts import PromptTemplate
 
 from askai.core.askai_messages import AskAiMessages
@@ -50,6 +51,7 @@ class AnalysisProcessor(AIProcessor):
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
                 if output := response.reply_text():
                     shared.context.push("CONTEXT", output)
+                    output = ensure_startswith(output, AskAiMessages.INSTANCE.analysis_output())
                 CacheService.save_query_history()
                 status = True
             else:

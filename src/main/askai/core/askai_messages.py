@@ -55,6 +55,14 @@ class AskAiMessages(metaclass=Singleton):
     def cmd_success(self, exit_code: ExitStatus) -> str:
         return self.translate(f"OK, command executed with {str(exit_code).lower()}")
 
+    @lru_cache
+    def summarized_output(self) -> str:
+        return self.translate("Here is a summarized version of the command output: \n\n")
+
+    @lru_cache
+    def analysis_output(self) -> str:
+        return self.translate("Analysing the provided command output: \n\n")
+
     # Warnings and alerts
 
     @lru_cache

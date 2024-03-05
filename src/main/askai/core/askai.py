@@ -33,7 +33,7 @@ from hspylib.modules.eventbus.event import Event
 from askai.__classpath__ import _Classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents, ASKAI_BUS_NAME, REPLY_EVENT
-from askai.core.askai_messages import msg, AskAiMessages
+from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.cache_service import CacheService
@@ -43,6 +43,7 @@ from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
+from askai.core.processor.generic_processor import GenericProcessor
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 
@@ -81,7 +82,7 @@ class AskAi:
             f"%GREEN%"
             f"{'-=' * 40} %EOL%"
             f"     Engine: {self.engine.ai_name()} %EOL%"
-            f"      Model: {self.engine.ai_model_name()} - {self.engine.ai_token_limit()} tokens %EOL%"
+            f"      Model: {self.engine.ai_model_name()} - {self.engine.ai_token_limit()}k tokens %EOL%"
             f"   Nickname: {self.engine.nickname()} %EOL%"
             f"{'--' * 40} %EOL%"
             f"   Language: {configs.language} %EOL%"
@@ -240,7 +241,8 @@ class AskAi:
                 self.is_processing = False
                 query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)
                 if not isinstance(query_response, QueryResponse):
-                    self.reply_error(msg.invalid_query_response(query_response))
+                    log.warning(msg.invalid_query_response(query_response))
+                    query_response = QueryResponse.of_string(question, query_response)
                 log.debug("Received a query_response for '%s' -> %s", question, query_response)
                 return self._process_response(query_response)
             else:

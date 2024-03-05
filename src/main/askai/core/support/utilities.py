@@ -64,23 +64,22 @@ def extract_command(response_text: str, flags: int = re.IGNORECASE | re.MULTILIN
 
 def beautify(text: Any) -> str:
     codes: List[str] = [
-        '&br;', '&nbsp;', '&error;', '&lamp;', '&poop;', '&smile;', '&star;',
-        '&analysis;', '&summary;'
+        '&br;', '&nbsp;', '&error;', '&lamp;', '&poop;', '&smile;', '&star;'
     ]
     icons: List[str] = [
-        '\n', ' ', '', '', '', '', '',
-        'Analysing the command output:\n\n',
-        'Here is a summarized version of the command output\n\n'
+        '\n', ' ', '', '', '', '', ''
     ]
     text: str = str(text)
     for code, icon in zip(codes, icons):
         text = text.replace(code, icon)
-    text: str = text.replace('\n', '␊')
-    text: str = re.sub(r'␊{3,}', '␊␊', text)
-    text: str = re.sub(r'[^:]␊␊([0-9]\. |[-*] )', r'␊\1', text)
-    text: str = re.sub(r':␊([0-9]\. |[-*] )', r':␊␊\1', text)
-    text: str = text.replace('␊', '\n')
-    return text.strip()
+    # fmt: off
+    text = re.sub("Hints and [Tt]ips:", "  Hints and tips:", text, re.IGNORECASE)
+    text = re.sub("Analysis:", "  Analysis:", text, re.IGNORECASE)
+    text = re.sub("Summary:", "  Summary:", text, re.IGNORECASE)
+    text = re.sub("(Joke( [Tt]ime)?):", "  Joke:", text, re.IGNORECASE)
+    text = re.sub("Fun [Ff]act:", "  Fun Fact:", text, re.IGNORECASE)
+    # fmt: on
+    return text.rstrip()
 
 
 def display_text(text: Any, end: str = os.linesep, erase_last=False) -> None:

@@ -21,7 +21,9 @@ from askai.core.model.ai_model import AIModel
 
 
 class OpenAIModel(Enumeration):
-    """Enumeration for the supported OpenAi models. Implements the AIModel protocol."""
+    """Enumeration for the supported OpenAi models. Implements the AIModel protocol.
+    Details at: https://www.pluralsight.com/resources/blog/data/ai-gpt-models-differences
+    """
 
     # ID of the model to use. Currently, only the values below are supported:
 
