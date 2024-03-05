@@ -10,5 +10,5 @@ Before responding to the user, it is imperative that you follow the step-by-step
 4. Decide if internet access or real-time updates are necessary.
 5. Determine if accessing files or folders via terminal commands is necessary.
 6. Decide if summarization of documents is required.
-7. The response JSON should contain boolean fields: 'intelligible', 'terminating', 'require_internet', 'require_summarization', 'require_command', and string fields: 'query_type', 'question' and 'ambiguities'.
+7. The response JSON should contain boolean fields: 'intelligible', 'terminating', 'require_internet', 'require_summarization', 'require_command', and string fields: 'query_type' and 'question'.
 8. Present the final response is only the formatted JSON with no additional description or context.

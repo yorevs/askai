@@ -17,7 +17,7 @@ import os
 import re
 from os.path import dirname
 from pathlib import Path
-from typing import Any, List, Optional, Tuple
+from typing import Any, Optional, Tuple
 
 import pause
 from clitt.core.term.cursor import Cursor
@@ -62,17 +62,10 @@ def extract_command(response_text: str, flags: int = re.IGNORECASE | re.MULTILIN
 
 
 def beautify(text: Any) -> str:
-    codes: List[str] = [
-        '&br;', '&nbsp;', '&error;', '&lamp;', '&poop;', '&smile;', '&star;'
-    ]
-    icons: List[str] = [
-        '\n', ' ', '', '', '', '', ''
-    ]
-    text: str = str(text)
-    for code, icon in zip(codes, icons):
-        text = text.replace(code, icon)
     # fmt: off
-    text = re.sub(r"\*+(.*)\*+", "\1", text)
+    text = str(text)
+    text = re.sub(r"[*_]{2}(.*)[*_]{2}", "\1", text)
+    text = re.sub(r"Based on the provided output, (.+)", " \1", text)
     text = re.sub("Hints and [Tt]ips:", "  Hints and tips:", text, re.IGNORECASE)
     text = re.sub("Analysis:", "  Analysis:", text, re.IGNORECASE)
     text = re.sub("Summary:", "  Summary:", text, re.IGNORECASE)

@@ -55,7 +55,6 @@ class GenericProcessor(AIProcessor):
                 output = response.reply_text()
                 CacheService.save_reply(query_response.question, query_response.question)
                 CacheService.save_query_history()
-                shared.context.push("GENERAL", query_response.question)
                 shared.context.push("GENERAL", output, 'assistant')
                 status = True
             else:

@@ -50,12 +50,12 @@ class AnalysisProcessor(AIProcessor):
         final_prompt: str = AskAiMessages.INSTANCE.translate(template.format())
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
-        context: List[dict] = shared.context.get_many("SETUP", "CONTEXT", "QUESTION")
+        context: List[dict] = shared.context.get_many("SETUP", "OUTPUT", "ANALYSIS", "QUESTION")
         log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
                 if output := response.reply_text():
-                    shared.context.push("CONTEXT", output)
+                    shared.context.set("ANALYSIS", output, 'assistant')
                     output = ensure_startswith(output, AskAiMessages.INSTANCE.analysis_output())
                 CacheService.save_query_history()
                 status = True

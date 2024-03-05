@@ -64,7 +64,7 @@ class CommandProcessor(AIProcessor):
             os_type=self.os_type, shell=self.shell)
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
-        context: List[dict] = shared.context.get_many("SETUP", "CONTEXT", "QUESTION")
+        context: List[dict] = shared.context.get_many("SETUP", "OUTPUT", "ANALYSIS", "QUESTION")
         log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
@@ -112,11 +112,11 @@ class CommandProcessor(AIProcessor):
                     AskAiEvents.ASKAI_BUS.events.reply.emit(
                         message=AskAiMessages.INSTANCE.cmd_success(exit_code), erase_last=True)
                     status = True
-                    shared.context.push("CONTEXT", query_response.question)
                     if not cmd_out:
                         cmd_out = AskAiMessages.INSTANCE.cmd_no_output()
                     else:
-                        shared.context.push("CONTEXT", f"Command `{cmd_line}' output:\n\n```\n{cmd_out}\n```")
+                        shared.context.clear("ANALYSIS")
+                        shared.context.push("OUTPUT", f"Command `{cmd_line}' output:\n\n```\n{cmd_out}\n```")
                         cmd_out = self._wrap_output(query_response, cmd_line, cmd_out)
                 else:
                     log.error(
