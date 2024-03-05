@@ -43,7 +43,6 @@ from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
-from askai.core.processor.generic_processor import GenericProcessor
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 
@@ -235,7 +234,7 @@ class AskAi:
             self.is_processing = True
             self.context.set("SETUP", prompt.setup(), 'system')
             self.context.set("QUESTION", question)
-            context: List[dict] = self.context.get_many("SETUP", "CONTEXT", "QUESTION")
+            context: List[dict] = self.context.get_many("SETUP", "QUESTION")
             log.info("Setup::[QUESTION] '%s'", context)
             if (response := self.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
                 self.is_processing = False

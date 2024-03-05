@@ -73,6 +73,7 @@ def beautify(text: Any) -> str:
     for code, icon in zip(codes, icons):
         text = text.replace(code, icon)
     # fmt: off
+    text = re.sub(r"^\*+(.*)\*+", "\1", text)
     text = re.sub("Hints and [Tt]ips:", "  Hints and tips:", text, re.IGNORECASE)
     text = re.sub("Analysis:", "  Analysis:", text, re.IGNORECASE)
     text = re.sub("Summary:", "  Summary:", text, re.IGNORECASE)

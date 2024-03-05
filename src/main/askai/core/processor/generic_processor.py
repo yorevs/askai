@@ -45,7 +45,7 @@ class GenericProcessor(AIProcessor):
             template.format(user=AskAiPrompt.INSTANCE.user))
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
-        context: List[dict] = shared.context.get_many("SETUP", "CONTEXT", "GENERAL", "QUESTION")
+        context: List[dict] = shared.context.get_many("SETUP", "GENERAL", "QUESTION")
         log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
             if (response := shared.engine.ask(context, temperature=0.8, top_p=0.8)) and response.is_success():
