@@ -6,11 +6,9 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 - Determine if the query is intelligible.
 - Determine if the user want to terminate the conversation.
-- Retrieve the complete chat history from the very first prompt for an accuracy check.
 - Determine which type of query it is.
 - Determine if you need to browse the internet or provide real-time updates.
 - Determine if you need access to my device, files, folder, or applications.
 - Determine if you need to summarize documents or any content.
-- Additional context is provided in a JSON markdown block.
+- Response JSON should only contain the boolean fields: 'intelligible', 'terminating', 'require_internet', 'require_summarization', 'require_command', and the string fields: 'query_type', 'question'.
 - Return a formatted JSON with no additional description or context.
-- Response JSON should contain the boolean fields: 'intelligible', 'terminating', 'require_internet', 'require_summarization', 'require_command', and the string fields: 'query_type', 'question'.

@@ -50,12 +50,12 @@ class OutputProcessor(AIProcessor):
         ))
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("OUTPUT", output)
-        context: List[dict] = shared.context.get_many("SETUP", "ANALYSIS", "OUTPUT")
+        context: List[dict] = shared.context.get_many("SETUP", "CONTEXT")
         log.info("%s::[OUTPUT] '%s'", self.name, final_prompt)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
                 if output := response.reply_text():
-                    shared.context.set("ANALYSIS", output)
+                    shared.context.push("CONTEXT", output)
                 status = True
             else:
                 output = AskAiMessages.INSTANCE.llm_error(response.reply_text())

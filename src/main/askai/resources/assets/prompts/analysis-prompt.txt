@@ -4,6 +4,5 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 - Generate your response using only the provided contexts.
 - Start your response with the following: Analysing the command output.
-- Limit showing 5 items and append a summary (Example: \nTotal files:X, Omitted:Y\n, where X is the total number of items shown and Y is the number of items omitted).
-- Prefer rendering numbered lists than bulleted ones.
-- Conclude your response by dropping an analysis about the content.
+- Conclude your response by dropping a summarized analysis about the content.
+- Please ensure to incorporate all pertinent details in your response.

@@ -33,7 +33,7 @@ from hspylib.modules.eventbus.event import Event
 from askai.__classpath__ import _Classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents, ASKAI_BUS_NAME, REPLY_EVENT
-from askai.core.askai_messages import msg
+from askai.core.askai_messages import msg, AskAiMessages
 from askai.core.askai_prompt import prompt
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.cache_service import CacheService
@@ -234,10 +234,13 @@ class AskAi:
             self.is_processing = True
             self.context.set("SETUP", prompt.setup(), 'system')
             self.context.set("QUESTION", question)
-            context: List[dict] = self.context.get_many("SETUP", "OUTPUT", "ANALYSIS", "QUESTION")
+            context: List[dict] = self.context.get_many("SETUP", "CONTEXT", "QUESTION")
+            log.info("Setup::[QUESTION] '%s'", context)
             if (response := self.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
                 self.is_processing = False
                 query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)
+                if not isinstance(query_response, QueryResponse):
+                    self.reply_error(msg.invalid_query_response(query_response))
                 log.debug("Received a query_response for '%s' -> %s", question, query_response)
                 return self._process_response(query_response)
             else:
