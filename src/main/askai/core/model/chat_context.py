@@ -63,7 +63,7 @@ class ChatContext:
     def get(self, key: str) -> List[dict]:
         """Retrieve a context from the specified by key."""
         return [
-            {'role': c.role, 'content': f"Created at: {c.created_at}  Context: {c.content}"} for c in self._context[key]
+            {'role': c.role, 'content': c.content} for c in self._context[key]
         ] or []
 
     def get_many(self, *keys: str) -> List[dict]:
