@@ -51,7 +51,7 @@ class Recorder(metaclass=Singleton):
     def __init__(self):
         self._rec: Recognizer = Recognizer()
         self._devices = self.get_device_list() or []
-        self._device_index = 2
+        self._device_index = 0
 
     @property
     def devices(self) -> List[Tuple[int, str]]:

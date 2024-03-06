@@ -64,14 +64,12 @@ def extract_command(response_text: str, flags: int = re.IGNORECASE | re.MULTILIN
 def beautify(text: Any) -> str:
     # fmt: off
     text = str(text)
-    text = re.sub(r"[*_]{2}(.*)[*_]{2}", "%ORANGE%\1%NC%", text)
-    text = re.sub(r"Based on the provided output, (.+)", " \1", text, re.IGNORECASE)
-    text = re.sub("Hints( and [Tt]ips)?:", "  Hints and tips:", text, re.IGNORECASE)
-    text = re.sub("Analysis:", "  Analysis:", text, re.IGNORECASE)
-    text = re.sub("Summary:", "  Summary:", text, re.IGNORECASE)
-    text = re.sub("(Joke( [Tt]ime)?):", "  Joke:", text, re.IGNORECASE)
-    text = re.sub("Fun [Ff]act:", "  Fun Fact:", text, re.IGNORECASE)
-    text = re.sub("Advice:", "  Advice:", text, re.IGNORECASE)
+    text = text.replace("&hint;", "  Hints: ")
+    text = text.replace("&analy;", "  Analysis: ")
+    text = text.replace("&summary;", "  Summary: ")
+    text = text.replace("&joke;", "  Joke: ")
+    text = text.replace("&fact;", "  Fun-Fact: ")
+    text = text.replace("&advice;", "  Advice: ")
     # fmt: on
 
     return text
@@ -106,6 +104,7 @@ def stream_text(
     ln: str = os.linesep
 
     # The following algorithm was created based on the whisper voice.
+    sysout("%GREEN%", end="")
     for i, char in enumerate(text):
         sysout(char, end="")
         if char.isalpha():
@@ -158,4 +157,4 @@ def stream_text(
             pause.seconds(presets.punct_interval)
             word_count = 0
         pause.seconds(presets.base_speed)
-    sysout("")
+    sysout("%NC%")

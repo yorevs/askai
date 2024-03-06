@@ -54,7 +54,6 @@ class OutputProcessor(AIProcessor):
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
                 if output := response.message:
-                    output = ensure_startswith(output, AskAiMessages.INSTANCE.summarized_output())
                     shared.context.set("ANALYSIS", output, 'assistant')
                 status = True
             else:

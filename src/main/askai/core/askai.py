@@ -147,7 +147,7 @@ class AskAi:
         if self.is_speak:
             self.engine.text_to_speech(f"{self.nickname}: ", message)
         else:
-            display_text(f"%GREEN%{self.nickname}: {message}%NC%")
+            display_text(f"{self.nickname}: %GREEN%{message}%NC%")
 
     def reply_error(self, message: str) -> None:
         """Reply API or system errors.
