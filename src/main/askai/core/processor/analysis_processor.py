@@ -50,18 +50,18 @@ class AnalysisProcessor(AIProcessor):
         final_prompt: str = AskAiMessages.INSTANCE.translate(template.format())
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
-        context: List[dict] = shared.context.get_many("ANALYSIS", "OUTPUT", "SETUP", "QUESTION")
+        context: List[dict] = shared.context.get_many("CONTEXT", "SETUP", "QUESTION")
         log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
                 if output := response.message:
-                    shared.context.set("ANALYSIS", output, 'assistant')
+                    shared.context.push("CONTEXT", query_response.question)
+                    shared.context.push("CONTEXT", output, 'assistant')
                 CacheService.save_query_history()
                 status = True
             else:
+                log.error(f"Analysis processing failed. CONTEXT=%s  RESPONSE=%s", context, response)
                 output = AskAiMessages.INSTANCE.llm_error(response.message)
-        # except Exception as err:
-        #     output = AskAiMessages.INSTANCE.llm_error(str(err))
         finally:
             return status, output
 

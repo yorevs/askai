@@ -6,5 +6,6 @@ Before responding to the user, it is imperative that you follow the step-by-step
 2. Create a summarized and accessible version of its content.
 3. Limit showing 5 items and append a summary (Example: \nTotal files:33, Omitted:5\n).
 4. Prefer rendering numbered lists than bulleted ones.
-5. Please start your response with the phrase: Analysing the provided command output\n
-6. Conclude your response by dropping small analysis about the content.
+5.
+6. Please start your response with the phrase: Analysing the provided command output\n
+7. Conclude your response by dropping small analysis about the content.

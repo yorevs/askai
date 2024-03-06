@@ -49,7 +49,7 @@ class GenericProcessor(AIProcessor):
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
         context: List[dict] = shared.context.get_many("GENERAL", "SETUP", "QUESTION")
-        log.info("%s::[QUESTION] '%s'", self.name, context)
+        log.info("Setup::[GENERIC] '%s'  context=%s", query_response.question, context)
         try:
             if (response := shared.engine.ask(context, temperature=1, top_p=1)) and response.is_success:
                 output = response.message
@@ -59,8 +59,6 @@ class GenericProcessor(AIProcessor):
                 status = True
             else:
                 output = AskAiMessages.INSTANCE.llm_error(response.message)
-        # except Exception as err:
-        #     output = AskAiMessages.INSTANCE.llm_error(str(err))
         finally:
             return status, output
 

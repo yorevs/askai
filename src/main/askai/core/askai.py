@@ -233,18 +233,16 @@ class AskAi:
             self.is_processing = True
             self.context.set("SETUP", prompt.setup(), 'system')
             self.context.set("QUESTION", question)
-            context: List[dict] = self.context.get_many("OUTPUT", "ANALYSIS", "SETUP", "QUESTION")
-            log.info("Setup::[QUESTION] '%s'", context)
+            context: List[dict] = self.context.get_many("CONTEXT", "SETUP", "QUESTION")
+            log.info("Setup::[SETUP] '%s'  context=%s", question, context)
             if (response := self.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
                 self.is_processing = False
                 output = ObjectMapper.INSTANCE.of_json(response.message, QueryResponse)
                 if not isinstance(output, QueryResponse):
-                    log.warning(msg.invalid_response(output))
-                    shared.context.set("ANALYSIS", output, 'assistant')
-                    self.reply(str(output))
-                    status = True
-                else:
-                    return self._process_response(output)
+                    log.error(msg.invalid_response(output))
+                    self.reply_error(str(output))
+                    return False
+                return self._process_response(output)
             else:
                 self.is_processing = False
                 self.reply_error(response.message)
