@@ -52,13 +52,13 @@ class OutputProcessor(AIProcessor):
         context: List[dict] = shared.context.get_many("SETUP", "OUTPUT")
         log.info("%s::[OUTPUT] '%s'", self.name, final_prompt)
         try:
-            if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
-                if output := response.reply_text():
+            if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
+                if output := response.message:
                     output = ensure_startswith(output, AskAiMessages.INSTANCE.summarized_output())
                     shared.context.set("ANALYSIS", output, 'assistant')
                 status = True
             else:
-                output = AskAiMessages.INSTANCE.llm_error(response.reply_text())
+                output = AskAiMessages.INSTANCE.llm_error(response.message)
         except Exception as err:
             status = False
             output = AskAiMessages.INSTANCE.llm_error(str(err))

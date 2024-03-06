@@ -235,18 +235,19 @@ class AskAi:
             self.context.set("QUESTION", question)
             context: List[dict] = self.context.get_many("SETUP", "OUTPUT", "ANALYSIS", "QUESTION")
             log.info("Setup::[QUESTION] '%s'", context)
-            if (response := self.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success():
+            if (response := self.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
                 self.is_processing = False
-                query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)
-                if not isinstance(query_response, QueryResponse):
-                    log.error(msg.invalid_response(query_response))
-                    self.reply(str(query_response))
+                output = ObjectMapper.INSTANCE.of_json(response.message, QueryResponse)
+                if not isinstance(output, QueryResponse):
+                    log.warning(msg.invalid_response(output))
+                    shared.context.set("ANALYSIS", output, 'assistant')
+                    self.reply(str(output))
                     status = True
                 else:
-                    return self._process_response(query_response)
+                    return self._process_response(output)
             else:
                 self.is_processing = False
-                self.reply_error(response.reply_text())
+                self.reply_error(response.message)
         else:
             log.debug('Reply found for "%s" in cache.', question)
             self.reply(reply)

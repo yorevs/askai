@@ -51,14 +51,14 @@ class GenericProcessor(AIProcessor):
         context: List[dict] = shared.context.get_many("SETUP", "GENERAL", "QUESTION")
         log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
-            if (response := shared.engine.ask(context, temperature=0.8, top_p=0.8)) and response.is_success():
-                output = response.reply_text()
+            if (response := shared.engine.ask(context, temperature=0.8, top_p=0.8)) and response.is_success:
+                output = response.message
                 CacheService.save_reply(query_response.question, query_response.question)
                 CacheService.save_query_history()
                 shared.context.push("GENERAL", output, 'assistant')
                 status = True
             else:
-                output = AskAiMessages.INSTANCE.llm_error(response.reply_text())
+                output = AskAiMessages.INSTANCE.llm_error(response.message)
         except Exception as err:
             status = False
             output = AskAiMessages.INSTANCE.llm_error(str(err))

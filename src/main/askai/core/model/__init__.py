@@ -7,7 +7,6 @@
 
 __all__ = [
     'ai_model', 
-    'ai_reply', 
     'chat_context', 
     'query_response', 
     'terminal_command'

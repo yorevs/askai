@@ -6,9 +6,9 @@
 """Package initialization."""
 
 __all__ = [
+    'ai_reply', 
     'openai_configs', 
     'openai_engine', 
-    'openai_model', 
-    'openai_reply'
+    'openai_model'
 ]
 __version__ = '1.0.1'

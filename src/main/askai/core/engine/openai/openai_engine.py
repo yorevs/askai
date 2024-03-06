@@ -29,7 +29,6 @@ from askai.core.component.recorder import Recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.openai.openai_configs import OpenAiConfigs
 from askai.core.engine.openai.openai_model import OpenAIModel
-from askai.core.engine.openai.openai_reply import OpenAIReply
 from askai.core.model.ai_model import AIModel
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.utilities import stream_text, beautify, display_text
@@ -89,10 +88,11 @@ class OpenAIEngine(AIEngine):
                 model=self.ai_model_name(), messages=chat_context,
                 **kwargs
             )
-            reply = OpenAIReply(response.choices[0].message.content, True)
+            reply = AIReply(response.choices[0].message.content, True)
+            log.debug("Response received from LLM: %s", str(reply))
         except APIError as error:
             body: dict = error.body or {"message": "Message not provided"}
-            reply = OpenAIReply(f"%RED%{error.__class__.__name__} => {body['message']}%NC%", False)
+            reply = AIReply(f"%RED%{error.__class__.__name__} => {body['message']}%NC%", False)
 
         return reply
 

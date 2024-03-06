@@ -12,7 +12,7 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from typing import List, Protocol, Any, Type, Optional
+from typing import List, Protocol, Any, Optional
 
 from askai.core.model.ai_model import AIModel
 from askai.core.model.ai_reply import AIReply

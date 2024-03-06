@@ -3,25 +3,25 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.model
+   @package: askai.core.engine.model
       @file: ai_reply.py
-   @created: Thu, 18 May 2024
+   @created: Fri, 12 Jan 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
       @site: https://github.com/yorevs/hspylib
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright·(c)·2024,·HSPyLib
 """
-from typing import Protocol
+from dataclasses import dataclass
 
 
-class AIReply(Protocol):
-    """Provide an interface for AI replies."""
+@dataclass
+class AIReply:
+    """Data class that represent AI replies."""
 
-    def reply_text(self) -> str:
-        """Get the retrieved reply message."""
-        ...
+    message: str = None
+    is_success: bool = None
 
-    def is_success(self) -> bool:
-        """Whether this is a success reply."""
-        ...
+    def __str__(self):
+        return f"Success = {self.is_success}  Message = {self.message}"
+
