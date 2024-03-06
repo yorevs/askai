@@ -1,7 +1,6 @@
 import logging as log
 from typing import Tuple, Optional, List
 
-from hspylib.core.tools.text_tools import ensure_startswith
 from langchain_core.prompts import PromptTemplate
 
 from askai.core.askai_messages import AskAiMessages
@@ -51,9 +50,10 @@ class AnalysisProcessor(AIProcessor):
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
         context: List[dict] = shared.context.get_many("CONTEXT", "SETUP", "QUESTION")
-        log.info("%s::[QUESTION] '%s'", self.name, context)
+        log.info("Analysis::[QUESTION] '%s'  context=%s", query_response.question, context)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
+                log.debug('Analysis::[RESPONSE] Received from AI: %s.', response)
                 if output := response.message:
                     shared.context.push("CONTEXT", query_response.question)
                     shared.context.push("CONTEXT", output, 'assistant')

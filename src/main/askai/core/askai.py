@@ -234,8 +234,9 @@ class AskAi:
             self.context.set("SETUP", prompt.setup(), 'system')
             self.context.set("QUESTION", question)
             context: List[dict] = self.context.get_many("CONTEXT", "SETUP", "QUESTION")
-            log.info("Setup::[SETUP] '%s'  context=%s", question, context)
+            log.info("Ask::[QUESTION] '%s'  context=%s", question, context)
             if (response := self.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
+                log.info('Ask::[RESPONSE] Received from AI: %s.', str(response))
                 self.is_processing = False
                 output = ObjectMapper.INSTANCE.of_json(response.message, QueryResponse)
                 if not isinstance(output, QueryResponse):

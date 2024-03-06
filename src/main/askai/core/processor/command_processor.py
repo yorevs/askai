@@ -65,9 +65,10 @@ class CommandProcessor(AIProcessor):
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
         context: List[dict] = shared.context.get_many("CONTEXT", "SETUP", "QUESTION")
-        log.info("Setup::[COMMAND] '%s'  context=%s", query_response.question, context)
+        log.info("Command::[QUESTION] '%s'  context=%s", query_response.question, context)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
+                log.debug('Command::[RESPONSE] Received from AI: %s.', response)
                 shell, command = extract_command(response.message)
                 if command:
                     if shell and shell != self.shell:
