@@ -59,9 +59,8 @@ class OutputProcessor(AIProcessor):
                 status = True
             else:
                 output = AskAiMessages.INSTANCE.llm_error(response.message)
-        except Exception as err:
-            status = False
-            output = AskAiMessages.INSTANCE.llm_error(str(err))
+        # except Exception as err:
+        #     output = AskAiMessages.INSTANCE.llm_error(str(err))
         finally:
             return status, output
 

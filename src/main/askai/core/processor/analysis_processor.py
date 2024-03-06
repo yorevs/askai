@@ -50,7 +50,7 @@ class AnalysisProcessor(AIProcessor):
         final_prompt: str = AskAiMessages.INSTANCE.translate(template.format())
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
-        context: List[dict] = shared.context.get_many("SETUP", "ANALYSIS", "OUTPUT", "QUESTION")
+        context: List[dict] = shared.context.get_many("ANALYSIS", "OUTPUT", "SETUP", "QUESTION")
         log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
@@ -61,9 +61,8 @@ class AnalysisProcessor(AIProcessor):
                 status = True
             else:
                 output = AskAiMessages.INSTANCE.llm_error(response.message)
-        except Exception as err:
-            status = False
-            output = AskAiMessages.INSTANCE.llm_error(str(err))
+        # except Exception as err:
+        #     output = AskAiMessages.INSTANCE.llm_error(str(err))
         finally:
             return status, output
 

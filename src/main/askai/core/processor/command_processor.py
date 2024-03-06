@@ -64,7 +64,7 @@ class CommandProcessor(AIProcessor):
             os_type=self.os_type, shell=self.shell)
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
-        context: List[dict] = shared.context.get_many("SETUP", "OUTPUT", "ANALYSIS", "QUESTION")
+        context: List[dict] = shared.context.get_many("OUTPUT", "ANALYSIS", "SETUP", "QUESTION")
         log.info("%s::[QUESTION] '%s'", self.name, context)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
@@ -79,8 +79,8 @@ class CommandProcessor(AIProcessor):
                     output = AskAiMessages.INSTANCE.invalid_cmd_format(response.message)
             else:
                 output = AskAiMessages.INSTANCE.llm_error(response.message)
-        except Exception as err:
-            output = AskAiMessages.INSTANCE.llm_error(str(err))
+        # except Exception as err:
+        #     output = AskAiMessages.INSTANCE.llm_error(str(err))
         finally:
             return status, output
 
@@ -94,6 +94,7 @@ class CommandProcessor(AIProcessor):
         """
         status = False
         command = cmd_line.split(" ")[0].strip()
+        cmd_out = None
         try:
             if command and which(command):
                 cmd_line = cmd_line.replace("~", os.getenv("HOME")).strip()
@@ -121,15 +122,11 @@ class CommandProcessor(AIProcessor):
                 else:
                     log.error(
                         "Command failed.\nCODE=%s \nPATH: %s \nCMD: %s ", exit_code, os.getcwd(), cmd_line)
-                    cmd_out = AskAiMessages.INSTANCE.cmd_failed(command)
+                    cmd_out = AskAiMessages.INSTANCE.cmd_failed(cmd_line)
             else:
                 cmd_out = AskAiMessages.INSTANCE.cmd_no_exist(command)
-        except Exception as err:
-            status = False
-            log.error(err)
-            cmd_out = AskAiMessages.INSTANCE.cmd_failed(command) + f"&br;&br;&error; -> {str(err)}&br;"
-
-        return status, cmd_out
+        finally:
+            return status, cmd_out
 
     def _wrap_output(self, query_response: QueryResponse, cmd_line: str, cmd_out: str) -> str:
         """TODO"""
