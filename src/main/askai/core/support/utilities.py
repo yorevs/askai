@@ -64,12 +64,12 @@ def extract_command(response_text: str, flags: int = re.IGNORECASE | re.MULTILIN
 def beautify(text: Any) -> str:
     # fmt: off
     text = str(text)
-    text = text.replace("&hint;", "  Hints: ")
-    text = text.replace("&analy;", "  Analysis: ")
-    text = text.replace("&summary;", "  Summary: ")
-    text = text.replace("&joke;", "  Joke: ")
-    text = text.replace("&fact;", "  Fun-Fact: ")
-    text = text.replace("&advice;", "  Advice: ")
+    text = re.sub("Hints and [Tt]ips:[ \n]*", "  Tips:", text, re.IGNORECASE)
+    text = re.sub("Analysis:[ \n]*", "  Analysis:", text, re.IGNORECASE)
+    text = re.sub("Summary:[ \n]*", "  Summary:", text, re.IGNORECASE)
+    text = re.sub("(Joke( [Tt]ime)?):[ \n]*", "  Joke:", text, re.IGNORECASE)
+    text = re.sub("Fun [Ff]act:[ \n]*", "  Fun Fact:", text, re.IGNORECASE)
+    text = re.sub("Advice:[ \n]*", "  Advice: ", text, re.IGNORECASE)
     # fmt: on
 
     return text

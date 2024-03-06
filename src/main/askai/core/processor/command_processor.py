@@ -110,16 +110,16 @@ class CommandProcessor(AIProcessor):
                             log.warning("Directory '%s' does not exist. Curdir unchanged!", _path_)
                     AskAiEvents.ASKAI_BUS.events.reply.emit(
                         message=AskAiMessages.INSTANCE.cmd_success(exit_code), erase_last=True)
-                    status = True
                     if not cmd_out:
                         cmd_out = AskAiMessages.INSTANCE.cmd_no_output()
                     else:
-                        shared.context.set("CONTEXT", f"Command `{cmd_line}' output:\n\n```\n{cmd_out}\n```")
+                        shared.context.push("CONTEXT", f"Command `{cmd_line}' output:\n\n```\n{cmd_out}\n```")
                         cmd_out = self._wrap_output(query_response, cmd_line, cmd_out)
                 else:
                     log.error(
                         "Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), cmd_line)
                     cmd_out = AskAiMessages.INSTANCE.cmd_failed(cmd_line)
+                status = True
             else:
                 cmd_out = AskAiMessages.INSTANCE.cmd_no_exist(command)
         finally:

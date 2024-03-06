@@ -14,6 +14,8 @@ from collections import defaultdict, namedtuple
 from functools import reduce
 from typing import Any, Literal, Optional, List, TypeAlias
 
+from hspylib.core.zoned_datetime import now
+
 from askai.exception.exceptions import TokenLengthExceeded
 
 ChatRoles: TypeAlias = Literal['system', 'user', 'assistant']
@@ -22,7 +24,7 @@ ChatRoles: TypeAlias = Literal['system', 'user', 'assistant']
 class ChatContext:
     """Provide a chat context helper for AI engines."""
 
-    ContextEntry = namedtuple('ContextEntry', ['role', 'content'], rename=False)
+    ContextEntry = namedtuple('ContextEntry', ['created_at', 'role', 'content'], rename=False)
 
     def __init__(self, token_limit: int):
         self._context = defaultdict(list)
@@ -36,7 +38,7 @@ class ChatContext:
 
     def push(self, key: str, content: Any, role: ChatRoles = 'user') -> List[dict]:
         """Push a context message to the chat with the provided role."""
-        entry = ChatContext.ContextEntry(role, str(content))
+        entry = ChatContext.ContextEntry(now(), role, str(content))
         ctx = self._context[key]
         token_length = reduce(lambda total, e: total + len(e.content), ctx, 0) if len(ctx) > 0 else 0
         if (token_length := token_length + len(content)) > self._token_limit:
@@ -60,7 +62,9 @@ class ChatContext:
 
     def get(self, key: str) -> List[dict]:
         """Retrieve a context from the specified by key."""
-        return [{'role': c.role, 'content': c.content} for c in self._context[key]] or []
+        return [
+            {'role': c.role, 'content': f"Created at: {c.created_at}  Context: {c.content}"} for c in self._context[key]
+        ] or []
 
     def get_many(self, *keys: str) -> List[dict]:
         """Retrieve many contexts from the specified by key."""
