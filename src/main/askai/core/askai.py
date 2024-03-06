@@ -154,7 +154,7 @@ class AskAi:
         :param message: The error message to be displayed.
         """
         log.error(message)
-        display_text(f"%RED%{self.nickname}: &error; {message} &nbsp; %NC%")
+        display_text(f"%RED%{self.nickname}:  {message} %NC%")
 
     def _cb_reply_event(self, ev: Event) -> None:
         """Callback to handle reply events."""
@@ -239,10 +239,11 @@ class AskAi:
                 self.is_processing = False
                 query_response = ObjectMapper.INSTANCE.of_json(response.reply_text(), QueryResponse)
                 if not isinstance(query_response, QueryResponse):
-                    log.warning(msg.invalid_response(query_response))
-                    query_response = QueryResponse.of_string(question, query_response)
-                log.debug("Received a query_response for '%s' -> %s", question, query_response)
-                return self._process_response(query_response)
+                    log.error(msg.invalid_response(query_response))
+                    self.reply(str(query_response))
+                    status = True
+                else:
+                    return self._process_response(query_response)
             else:
                 self.is_processing = False
                 self.reply_error(response.reply_text())
