@@ -97,7 +97,7 @@ class CommandProcessor(AIProcessor):
         try:
             if command and which(command):
                 cmd_line = cmd_line.replace("~", os.getenv("HOME")).strip()
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=AskAiMessages.INSTANCE.executing())
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=AskAiMessages.INSTANCE.executing(cmd_line))
                 log.info("Executing command `%s'", cmd_line)
                 cmd_out, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
                 if exit_code == ExitStatus.SUCCESS:

@@ -48,8 +48,8 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"Goodbye, have a nice day ! ")
 
     @lru_cache
-    def executing(self) -> str:
-        return self.translate(f"Executing command, please wait…")
+    def executing(self, cmd_line: str) -> str:
+        return self.translate(f"Executing command `{cmd_line}', please wait…")
 
     @lru_cache
     def cmd_success(self, exit_code: ExitStatus) -> str:
