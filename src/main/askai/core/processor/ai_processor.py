@@ -23,7 +23,7 @@ from typing import Optional, Tuple, Dict
 from hspylib.core.tools.commons import dirname
 from hspylib.core.tools.text_tools import camelcase
 
-from askai.core.askai_prompt import AskAiPrompt
+from askai.core.askai_prompt import prompt
 from askai.core.model.query_response import QueryResponse
 
 
@@ -64,8 +64,9 @@ class AIProcessor(metaclass=ABCMeta):
         """
         return next((p for p in cls._PROCESSORS.values() if type(p).__name__ == name), None)
 
-    def __init__(self, template_file: str | Path):
+    def __init__(self, template_file: str | Path, persona_file: str | Path):
         self._template_file = str(template_file)
+        self._persona_file = str(persona_file)
 
     def __str__(self):
         return f"'{self.query_type()}': {self.query_desc()}"
@@ -93,7 +94,7 @@ class AIProcessor(metaclass=ABCMeta):
         ...
 
     def template(self) -> str:
-        return AskAiPrompt.INSTANCE.read_template(basename(self._template_file))
+        return prompt.read_prompt(self._template_file, self._persona_file)
 
     def next_in_chain(self) -> Optional['AIProcessor']:
         """Return the next processor in the chain to call. Defaults to None."""

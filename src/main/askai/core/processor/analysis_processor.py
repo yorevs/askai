@@ -27,7 +27,7 @@ class AnalysisProcessor(AIProcessor):
     """Process analysis prompts."""
 
     def __init__(self):
-        super().__init__('analysis-prompt')
+        super().__init__('analysis-prompt', 'analysis-persona')
 
     def query_desc(self) -> str:
         return (

@@ -36,7 +36,7 @@ class CommandProcessor(AIProcessor):
     """Process command request prompts."""
 
     def __init__(self):
-        super().__init__('command-prompt')
+        super().__init__('command-prompt', 'command-persona')
 
     def query_desc(self) -> str:
         return (

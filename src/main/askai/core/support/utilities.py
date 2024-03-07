@@ -15,14 +15,16 @@
 import hashlib
 import os
 import re
-from os.path import dirname
+from os.path import dirname, basename
 from pathlib import Path
 from typing import Any, Optional, Tuple
 
 import pause
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import sysout
+from hspylib.core.preconditions import check_argument
+from hspylib.core.tools.commons import sysout, file_is_not_empty
+from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.cli.vt100.vt_color import VtColor
 
 from askai.core.support.presets import Presets
@@ -32,6 +34,17 @@ ASKAI_CHAT_ICONS = {
     '': '%BLUE%', '': '%BLUE%', '': '%BLUE%',
     '': '%YELLOW%', '': '%YELLOW%', '': '%ORANGE%'
 }
+
+
+def read_resource(base_dir: str, filename: str, file_ext: str = '.txt') -> str:
+    """Read the prompt template specified by the filename.
+    :param base_dir: The base directory, relative to the resources folder.
+    :param filename: The filename of the prompt.
+    :param file_ext: The file extension of.
+    """
+    filename = f"{base_dir}/{ensure_endswith(basename(filename), file_ext)}"
+    check_argument(file_is_not_empty(filename), f"Resource file is empty does not exist: {filename}")
+    return Path(filename).read_text(encoding=Charset.UTF_8.val)
 
 
 def hash_text(text: str) -> str:

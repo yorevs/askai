@@ -29,7 +29,7 @@ class GenericProcessor(AIProcessor):
     """Process generic prompts."""
 
     def __init__(self):
-        super().__init__('generic-prompt')
+        super().__init__('generic-prompt', 'generic-persona')
 
     def query_desc(self) -> str:
         return (

@@ -28,7 +28,7 @@ class OutputProcessor(AIProcessor):
     """Process command output prompts."""
 
     def __init__(self):
-        super().__init__('output-prompt')
+        super().__init__('output-prompt', 'output-persona')
 
     def query_desc(self) -> str:
         return "Prompts where I will provide you a terminal command output."
