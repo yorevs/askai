@@ -17,8 +17,8 @@ from typing import Tuple, Optional, List
 
 from langchain_core.prompts import PromptTemplate
 
-from askai.core.askai_messages import AskAiMessages
-from askai.core.askai_prompt import AskAiPrompt
+from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import CacheService
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
@@ -42,8 +42,8 @@ class GenericProcessor(AIProcessor):
         output = None
         template = PromptTemplate(
             input_variables=['user'], template=self.template())
-        final_prompt: str = AskAiMessages.INSTANCE.translate(
-            template.format(user=AskAiPrompt.INSTANCE.user))
+        final_prompt: str = msg.translate(
+            template.format(user=prompt.user))
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
         context: List[dict] = shared.context.get_many("GENERAL", "SETUP", "QUESTION")
@@ -56,6 +56,6 @@ class GenericProcessor(AIProcessor):
                 shared.context.push("GENERAL", output, 'assistant')
                 status = True
             else:
-                output = AskAiMessages.INSTANCE.llm_error(response.message)
+                output = msg.llm_error(response.message)
         finally:
             return status, output

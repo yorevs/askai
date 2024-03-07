@@ -22,8 +22,8 @@ from hspylib.modules.application.exit_status import ExitStatus
 from langchain_core.prompts import PromptTemplate
 
 from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import AskAiMessages
-from askai.core.askai_prompt import AskAiPrompt
+from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import CacheService
 from askai.core.model.query_response import QueryResponse
 from askai.core.model.terminal_command import TerminalCommand, SupportedShells, SupportedPlatforms
@@ -41,11 +41,11 @@ class CommandProcessor(AIProcessor):
 
     @property
     def shell(self) -> SupportedShells:
-        return AskAiPrompt.INSTANCE.shell
+        return prompt.shell
 
     @property
     def os_type(self) -> SupportedPlatforms:
-        return AskAiPrompt.INSTANCE.os_type
+        return prompt.os_type
 
     def query_desc(self) -> str:
         return (
@@ -73,14 +73,14 @@ class CommandProcessor(AIProcessor):
                 shell, command = extract_command(response.message)
                 if command:
                     if shell and shell != self.shell:
-                        output = AskAiMessages.INSTANCE.not_a_command(str(self.shell), command)
+                        output = msg.not_a_command(str(self.shell), command)
                     else:
                         CacheService.save_query_history()
                         status, output = self._process_command(query_response, command)
                 else:
-                    output = AskAiMessages.INSTANCE.invalid_cmd_format(response.message)
+                    output = msg.invalid_cmd_format(response.message)
             else:
-                output = AskAiMessages.INSTANCE.llm_error(response.message)
+                output = msg.llm_error(response.message)
         finally:
             return status, output
 
@@ -95,7 +95,7 @@ class CommandProcessor(AIProcessor):
         try:
             if command and which(command):
                 cmd_line = cmd_line.replace("~", os.getenv("HOME")).strip()
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=AskAiMessages.INSTANCE.executing(cmd_line))
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.executing(cmd_line))
                 log.info("Executing command `%s'", cmd_line)
                 cmd_out, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
                 if exit_code == ExitStatus.SUCCESS:
@@ -107,19 +107,19 @@ class CommandProcessor(AIProcessor):
                         else:
                             log.warning("Directory '%s' does not exist. Curdir unchanged!", _path_)
                     AskAiEvents.ASKAI_BUS.events.reply.emit(
-                        message=AskAiMessages.INSTANCE.cmd_success(exit_code), erase_last=True)
+                        message=msg.cmd_success(exit_code), erase_last=True)
                     if not cmd_out:
-                        cmd_out = AskAiMessages.INSTANCE.cmd_no_output()
+                        cmd_out = msg.cmd_no_output()
                     else:
                         shared.context.push("CONTEXT", f"Command `{cmd_line}' output:\n\n```\n{cmd_out}\n```")
                         cmd_out = self._wrap_output(query_response, cmd_line, cmd_out)
                 else:
                     log.error(
                         "Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), cmd_line)
-                    cmd_out = AskAiMessages.INSTANCE.cmd_failed(cmd_line)
+                    cmd_out = msg.cmd_failed(cmd_line)
                 status = True
             else:
-                cmd_out = AskAiMessages.INSTANCE.cmd_no_exist(command)
+                cmd_out = msg.cmd_no_exist(command)
         finally:
             return status, cmd_out
 

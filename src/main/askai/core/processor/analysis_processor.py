@@ -17,7 +17,7 @@ from typing import Tuple, Optional, List
 
 from langchain_core.prompts import PromptTemplate
 
-from askai.core.askai_messages import AskAiMessages
+from askai.core.askai_messages import msg
 from askai.core.component.cache_service import CacheService
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
@@ -43,7 +43,7 @@ class AnalysisProcessor(AIProcessor):
         output = None
         template = PromptTemplate(
             input_variables=[], template=self.template())
-        final_prompt: str = AskAiMessages.INSTANCE.translate(template.format())
+        final_prompt: str = msg.translate(template.format())
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
         context: List[dict] = shared.context.get_many("CONTEXT", "SETUP", "QUESTION")
@@ -58,6 +58,6 @@ class AnalysisProcessor(AIProcessor):
                 status = True
             else:
                 log.error(f"Analysis processing failed. CONTEXT=%s  RESPONSE=%s", context, response)
-                output = AskAiMessages.INSTANCE.llm_error(response.message)
+                output = msg.llm_error(response.message)
         finally:
             return status, output

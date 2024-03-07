@@ -5,7 +5,7 @@ Before responding to the user, it is imperative that you follow the step-by-step
 1. Craft your reply solely based on the information given in the provided contexts.
 2. Create a summarized and accessible version of its content.
 3. Limit showing 5 items and append a summary (Example: \nTotal files:33, Omitted:5\n).
-4. When the provided output contains files and folders listing, specify whether each item is a file or folder, and also, size and modification date.
+4. When the provided output contains files and folders listing, specify whether each item is a file or folder, and its size.
 5. Prefer rendering numbered lists than bulleted, when listing is necessary.
 6. Start your response with the phrase: Here is a summarized version of the command output\n\n
 7. Wrap up your reply by offering a succinct hint or tip related to the topic; prefix with: 'Hints:'.
