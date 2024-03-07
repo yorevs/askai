@@ -18,7 +18,6 @@ from typing import Tuple, Optional, List
 from langchain_core.prompts import PromptTemplate
 
 from askai.core.askai_messages import msg
-from askai.core.component.cache_service import CacheService
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.support.shared_instances import shared
@@ -54,7 +53,6 @@ class AnalysisProcessor(AIProcessor):
                 if output := response.message:
                     shared.context.push("CONTEXT", query_response.question)
                     shared.context.push("CONTEXT", output, 'assistant')
-                CacheService.save_query_history()
                 status = True
             else:
                 log.error(f"Analysis processing failed. CONTEXT=%s  RESPONSE=%s", context, response)

@@ -23,9 +23,15 @@ import pause
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import sysout
+from hspylib.modules.cli.vt100.vt_color import VtColor
 
 from askai.core.support.presets import Presets
 from askai.language.language import Language
+
+ASKAI_CHAT_ICONS = {
+    '': '%BLUE%', '': '%BLUE%', '': '%BLUE%',
+    '': '%YELLOW%', '': '%YELLOW%', '': '%ORANGE%'
+}
 
 
 def hash_text(text: str) -> str:
@@ -36,7 +42,10 @@ def hash_text(text: str) -> str:
 
 
 def extract_path(command_line: str, flags: int = re.IGNORECASE | re.MULTILINE) -> Optional[str]:
-    """TODO"""
+    """Extract the first identifiable path of the executed command line.
+    :param command_line: The command line text.
+    :param flags: Regex match flags.
+    """
     # Match a file or folder path within a command line.
     re_path = r'(?:\w)\s(?:-[\w\d]+\s)*(?:([\/\w\d\s"\\.-]+)|(".*?"))'
     if command_line and (cmd_path := re.search(re_path, command_line, flags)):
@@ -49,27 +58,32 @@ def extract_path(command_line: str, flags: int = re.IGNORECASE | re.MULTILINE) -
     return None
 
 
-def extract_command(response_text: str, flags: int = re.IGNORECASE | re.MULTILINE) -> Optional[Tuple[str, str]]:
-    """TODO"""
+def extract_command(markdown_text: str, flags: int = re.IGNORECASE | re.MULTILINE) -> Optional[Tuple[str, str]]:
+    """Extract command from the markdown code block formatted text.
+    :param markdown_text: The markdown formatted command line text.
+    :param flags: Regex match flags.
+    """
     # Match a terminal command formatted in a markdown code block.
     re_command = r'^`{3}((\w+)\s*)?(.+)\s*?`{3}$'
-    if response_text and (mat := re.search(re_command, response_text.replace('\n', ' ').strip(), flags)):
+    if markdown_text and (mat := re.search(re_command, markdown_text.replace('\n', ' ').strip(), flags)):
         if mat and len(mat.groups()) == 3:
             shell, cmd = mat.group(1) or '', mat.group(3) or ''
             return shell.strip(), cmd.strip()
-
     return None
 
 
 def beautify(text: Any) -> str:
+    """Beautify the provided text with icons and other formatting improvements.
+    :param text: The text to be beautified.
+    """
     # fmt: off
     text = str(text)
-    text = re.sub("Hints?( and [Tt]ips)?:[ \n]*", "  Tips: ", text, re.IGNORECASE)
-    text = re.sub("Analysis:[ \n]*", "  Analysis: ", text, re.IGNORECASE)
-    text = re.sub("Summary:[ \n]*", "  Summary:", text, re.IGNORECASE)
-    text = re.sub("(Joke( [Tt]ime)?):[ \n]*", "  Joke: ", text, re.IGNORECASE)
-    text = re.sub("Fun [Ff]acts?:[ \n]*", "  Fun Fact: ", text, re.IGNORECASE)
-    text = re.sub("Advice:[ \n]*", "  Advice: ", text, re.IGNORECASE)
+    text = re.sub("Hints?( and [Tt]ips)?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Tips: ", text, re.IGNORECASE)
+    text = re.sub("Analysis:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Analysis: ", text, re.IGNORECASE)
+    text = re.sub("Summary:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Summary:", text, re.IGNORECASE)
+    text = re.sub("(Joke( [Tt]ime)?):[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Joke: ", text, re.IGNORECASE)
+    text = re.sub("Fun [Ff]acts?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Fun Fact: ", text, re.IGNORECASE)
+    text = re.sub("Advice:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Advice: ", text, re.IGNORECASE)
     # fmt: on
 
     return text
@@ -102,10 +116,22 @@ def stream_text(
     presets: Presets = Presets.get(language.language, tempo=tempo)
     word_count: int = 0
     ln: str = os.linesep
+    hide: bool = False
+    idx: int = 0
 
     # The following algorithm was created based on the whisper voice.
     sysout("%GREEN%", end="")
     for i, char in enumerate(text):
+        if char == '%' and (i + 1) < len(text):
+            try:
+                if (color := text[i + 1:text.index("%", i + 1)]) in VtColor.names():
+                    hide, idx = True, text.index("%", i + 1)
+                    sysout(f"%{color}%", end="")
+                    continue
+            except ValueError:
+                pass  # this means that this '%' is not a VtColor specification
+        if hide and idx is not None and i <= idx:
+            continue
         sysout(char, end="")
         if char.isalpha():
             pause.seconds(presets.base_speed)

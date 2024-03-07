@@ -24,9 +24,8 @@ from langchain_core.prompts import PromptTemplate
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.component.cache_service import CacheService
 from askai.core.model.query_response import QueryResponse
-from askai.core.model.terminal_command import TerminalCommand, SupportedShells, SupportedPlatforms
+from askai.core.model.terminal_command import TerminalCommand
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.processor.output_processor import OutputProcessor
 from askai.core.support.shared_instances import shared
@@ -38,14 +37,6 @@ class CommandProcessor(AIProcessor):
 
     def __init__(self):
         super().__init__('command-prompt')
-
-    @property
-    def shell(self) -> SupportedShells:
-        return prompt.shell
-
-    @property
-    def os_type(self) -> SupportedPlatforms:
-        return prompt.os_type
 
     def query_desc(self) -> str:
         return (
@@ -62,7 +53,7 @@ class CommandProcessor(AIProcessor):
         template = PromptTemplate(
             input_variables=['os_type', 'shell'], template=self.template())
         final_prompt: str = template.format(
-            os_type=self.os_type, shell=self.shell)
+            os_type=prompt.os_type, shell=prompt.shell)
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
         context: List[dict] = shared.context.get_many("CONTEXT", "SETUP", "QUESTION")
@@ -72,10 +63,9 @@ class CommandProcessor(AIProcessor):
                 log.debug('Command::[RESPONSE] Received from AI: %s.', response)
                 shell, command = extract_command(response.message)
                 if command:
-                    if shell and shell != self.shell:
-                        output = msg.not_a_command(str(self.shell), command)
+                    if shell and shell != prompt.shell:
+                        output = msg.not_a_command(str(prompt.shell), command)
                     else:
-                        CacheService.save_query_history()
                         status, output = self._process_command(query_response, command)
                 else:
                     output = msg.invalid_cmd_format(response.message)
@@ -130,5 +120,5 @@ class CommandProcessor(AIProcessor):
         """
         query_response.query_type = self.next_in_chain().query_type()
         query_response.require_command = False
-        query_response.commands.append(TerminalCommand(cmd_line, cmd_out, self.os_type, self.shell))
+        query_response.commands.append(TerminalCommand(cmd_line, cmd_out, prompt.os_type, prompt.shell))
         return str(query_response)

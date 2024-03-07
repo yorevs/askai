@@ -52,7 +52,6 @@ class GenericProcessor(AIProcessor):
             if (response := shared.engine.ask(context, temperature=1, top_p=1)) and response.is_success:
                 output = response.message
                 CacheService.save_reply(query_response.question, query_response.question)
-                CacheService.save_query_history()
                 shared.context.push("GENERAL", output, 'assistant')
                 status = True
             else:
