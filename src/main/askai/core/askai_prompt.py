@@ -25,7 +25,6 @@ from langchain_core.prompts import PromptTemplate
 from askai.__classpath__ import _Classpath
 from askai.core.askai_configs import configs
 from askai.core.model.terminal_command import SupportedPlatforms, get_shell, SupportedShells, get_os, get_user
-from askai.core.processor.ai_processor import AIProcessor
 
 
 class AskAiPrompt(metaclass=Singleton):
@@ -40,7 +39,6 @@ class AskAiPrompt(metaclass=Singleton):
         self._shell: SupportedShells = get_shell()
         self._os_type: SupportedPlatforms = get_os()
         self._user: str = get_user()
-        self._query_types: str = AIProcessor.find_query_types()
         self._setup: PromptTemplate = PromptTemplate(
             input_variables=['query_types'], template=self.read_template("setup.txt"))
 
@@ -60,8 +58,11 @@ class AskAiPrompt(metaclass=Singleton):
     def idiom(self) -> str:
         return f"{configs.language.name} ({configs.language.country})"
 
-    def setup(self) -> str:
-        return self._setup.format(query_types=self._query_types)
+    def setup(self, query_types: str) -> str:
+        """Return the setup prompt.
+        :param query_types: A string containing al query types descriptions.
+        """
+        return self._setup.format(query_types=query_types)
 
     @lru_cache
     def read_template(self, filename: str) -> str:

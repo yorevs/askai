@@ -1,3 +1,17 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.processor
+      @file: command_processor.py
+   @created: Fri, 23 Feb 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+      @site: https://github.com/yorevs/hspylib
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright·(c)·2024,·HSPyLib
+"""
 import logging as log
 import os
 from shutil import which
@@ -20,14 +34,10 @@ from askai.core.support.utilities import extract_path, extract_command
 
 
 class CommandProcessor(AIProcessor):
-    """Process a command based question process."""
+    """Process command request prompts."""
 
-    def __str__(self):
-        return f"'{self.query_type()}': {self.query_desc()}"
-
-    @property
-    def name(self) -> str:
-        return type(self).__name__
+    def __init__(self):
+        super().__init__('command-prompt')
 
     @property
     def shell(self) -> SupportedShells:
@@ -37,23 +47,14 @@ class CommandProcessor(AIProcessor):
     def os_type(self) -> SupportedPlatforms:
         return AskAiPrompt.INSTANCE.os_type
 
-    def supports(self, q_type: str) -> bool:
-        return q_type in [self.query_type()]
-
-    def processor_id(self) -> str:
-        return str(abs(hash(self.__class__.__name__)))
-
-    def query_type(self) -> str:
-        return self.name
-
     def query_desc(self) -> str:
         return (
             "Prompts that will require you to execute commands at the user's terminal. These prompts may involve "
             "file, folder and application management, listing, device assessment or inquiries."
         )
 
-    def template(self) -> str:
-        return AskAiPrompt.INSTANCE.read_template('command-prompt')
+    def next_in_chain(self) -> AIProcessor:
+        return AIProcessor.get_by_name(OutputProcessor.__name__)
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
@@ -82,9 +83,6 @@ class CommandProcessor(AIProcessor):
                 output = AskAiMessages.INSTANCE.llm_error(response.message)
         finally:
             return status, output
-
-    def next_in_chain(self) -> AIProcessor:
-        return AIProcessor.get_by_name(OutputProcessor.__name__)
 
     def _process_command(self, query_response: QueryResponse, cmd_line: str) -> Tuple[bool, Optional[str]]:
         """Process a terminal command.
@@ -126,7 +124,10 @@ class CommandProcessor(AIProcessor):
             return status, cmd_out
 
     def _wrap_output(self, query_response: QueryResponse, cmd_line: str, cmd_out: str) -> str:
-        """TODO"""
+        """Wrap the output into a new string to be forwarded to the next processor.
+        :param query_response: The query response provided by the AI.
+        :param cmd_line: The command line that was executed by this processor.
+        """
         query_response.query_type = self.next_in_chain().query_type()
         query_response.require_command = False
         query_response.commands.append(TerminalCommand(cmd_line, cmd_out, self.os_type, self.shell))

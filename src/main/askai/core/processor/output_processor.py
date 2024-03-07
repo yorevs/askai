@@ -1,3 +1,17 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.processor
+      @file: output_processor.py
+   @created: Fri, 23 Feb 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+      @site: https://github.com/yorevs/hspylib
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright·(c)·2024,·HSPyLib
+"""
 import logging as log
 from typing import Tuple, Optional, List
 
@@ -11,29 +25,13 @@ from askai.core.support.shared_instances import shared
 
 
 class OutputProcessor(AIProcessor):
-    """Process a command output process."""
+    """Process command output prompts."""
 
-    def __str__(self):
-        return f"'{self.query_type()}': {self.query_desc()}"
-
-    @property
-    def name(self) -> str:
-        return type(self).__name__
-
-    def supports(self, q_type: str) -> bool:
-        return q_type in [self.query_type()]
-
-    def processor_id(self) -> str:
-        return str(abs(hash(self.__class__.__name__)))
-
-    def query_type(self) -> str:
-        return self.name
+    def __init__(self):
+        super().__init__('output-prompt')
 
     def query_desc(self) -> str:
         return "Prompts where I will provide you a terminal command output."
-
-    def template(self) -> str:
-        return AskAiPrompt.INSTANCE.read_template('output-prompt')
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
@@ -62,6 +60,3 @@ class OutputProcessor(AIProcessor):
                 output = AskAiMessages.INSTANCE.llm_error(response.message)
         finally:
             return status, output
-
-    def next_in_chain(self) -> Optional['AIProcessor']:
-        return None

@@ -231,7 +231,7 @@ class AskAi:
         if not (reply := CacheService.read_reply(question)):
             log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
             self.is_processing = True
-            self.context.set("SETUP", prompt.setup(), 'system')
+            self.context.set("SETUP", prompt.setup(AIProcessor.find_query_types()), 'system')
             self.context.set("QUESTION", question)
             context: List[dict] = self.context.get_many("CONTEXT", "SETUP", "QUESTION")
             log.info("Ask::[QUESTION] '%s'  context=%s", question, context)

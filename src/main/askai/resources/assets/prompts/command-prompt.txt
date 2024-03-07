@@ -4,7 +4,7 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 1. When prompted to read or show the contents of files use `cat' (Example: 'cat file.txt').
 2. When prompted to create, write or save files, use `echo'; Example: "'echo 'text in the file' > file.txt'".
-3. When prompted to list files and folders, use `ls -lht'; Example: "ls -lht ~/Downloads".
+3. When prompted to list files and folders, use `ls'; Example: "ls -lht ~/Downloads 2>/dev/null".
 4. When prompted to find files and folders, use `find'; Example: "find . -maxdepth 0 -type d".
 5. When prompted to open or play movies and songs, use `ffplay'; Example: "ffplay -v 0 -autoexit 'music.mp3' &>/dev/null".
 6. When prompted to open or show pictures or images, use `open'; Example: "open 'picture.png' &>/dev/null".

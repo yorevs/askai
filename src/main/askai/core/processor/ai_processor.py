@@ -17,11 +17,13 @@ from abc import ABCMeta
 from functools import lru_cache
 from importlib import import_module
 from os.path import basename
+from pathlib import Path
 from typing import Optional, Tuple, Dict
 
 from hspylib.core.tools.commons import dirname
 from hspylib.core.tools.text_tools import camelcase
 
+from askai.core.askai_prompt import AskAiPrompt
 from askai.core.model.query_response import QueryResponse
 
 
@@ -62,30 +64,41 @@ class AIProcessor(metaclass=ABCMeta):
         """
         return next((p for p in cls._PROCESSORS.values() if type(p).__name__ == name), None)
 
+    def __init__(self, template_file: str | Path):
+        self._template_file = str(template_file)
+
+    def __str__(self):
+        return f"'{self.query_type()}': {self.query_desc()}"
+
+    @property
+    def name(self) -> str:
+        return type(self).__name__
+
     def supports(self, q_type: str) -> bool:
-        """TODO"""
-        ...
+        """Determine if the processor is able to handle a query type.
+        :param q_type: The query type.
+        """
+        return q_type in [self.query_type()]
 
     def processor_id(self) -> str:
-        """TODO"""
-        ...
+        """Get the processor ID. the resulting ID is a string, composed by the processor name hash."""
+        return str(abs(hash(self.__class__.__name__)))
 
     def query_type(self) -> str:
-        """TODO"""
-        ...
+        """Get the query type this processor can handle. By default, it's the name of the processor itself."""
+        return self.name
 
     def query_desc(self) -> str:
         """TODO"""
         ...
 
     def template(self) -> str:
-        """TODO"""
-        ...
-
-    def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
-        """TODO"""
-        ...
+        return AskAiPrompt.INSTANCE.read_template(basename(self._template_file))
 
     def next_in_chain(self) -> Optional['AIProcessor']:
+        """Return the next processor in the chain to call. Defaults to None."""
+        return None
+
+    def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         """TODO"""
         ...
