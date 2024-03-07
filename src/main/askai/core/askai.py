@@ -42,6 +42,7 @@ from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
+from askai.core.processor.processor_proxy import proxy
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 
@@ -227,47 +228,34 @@ class AskAi:
         """Ask the question and provide the reply.
         :param question: The question to ask to the AI engine.
         """
-        status = False
         if not (reply := CacheService.read_reply(question)):
             log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
-            self.is_processing = True
-            self.context.set("SETUP", prompt.setup(AIProcessor.find_query_types()), 'system')
-            self.context.set("QUESTION", question)
-            context: List[dict] = self.context.get_many("CONTEXT", "SETUP", "QUESTION")
-            log.info("Ask::[QUESTION] '%s'  context=%s", question, context)
-            if (response := self.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
-                log.info('Ask::[RESPONSE] Received from AI: %s.', str(response))
-                self.is_processing = False
-                output = ObjectMapper.INSTANCE.of_json(response.message, QueryResponse)
-                if not isinstance(output, QueryResponse):
-                    log.error(msg.invalid_response(output))
-                    self.reply_error(str(output))
-                    return False
-                return self._process_response(output)
+            status, response = proxy.process(question)
+            if status:
+                status = self._process_response(response)
             else:
-                self.is_processing = False
-                self.reply_error(response.message)
+                self.reply_error(response)
         else:
             log.debug('Reply found for "%s" in cache.', question)
             self.reply(reply)
             status = True
         return status
 
-    def _process_response(self, query_response: QueryResponse) -> bool:
+    def _process_response(self, proxy_response: QueryResponse) -> bool:
         """Process a query response using a processor that supports the query type."""
         status = False
-        if not query_response.intelligible:
+        if not proxy_response.intelligible:
             self.reply_error(msg.intelligible())
-        elif query_response.terminating:
+        elif proxy_response.terminating:
             log.info("User wants to terminate the conversation.")
-        elif q_type := query_response.query_type:
+        elif q_type := proxy_response.query_type:
             processor: AIProcessor = AIProcessor.get_by_query_type(q_type)
             if not processor:
                 log.error(f"Unable to find a proper processor for query type: {q_type}")
-                self.reply_error(str(query_response))
+                self.reply_error(str(proxy_response))
             else:
-                log.info("%s::Processing response for '%s'", processor, query_response.question)
-                status, output = processor.process(query_response)
+                log.info("%s::Processing response for '%s'", processor, proxy_response.question)
+                status, output = processor.process(proxy_response)
                 if status and processor.next_in_chain():
                     mapped_response = ObjectMapper.INSTANCE.of_json(output, QueryResponse)
                     if isinstance(mapped_response, QueryResponse):
@@ -278,11 +266,11 @@ class AskAi:
                     self.reply(str(output))
                 else:
                     self.reply_error(str(output))
-        elif query_response.response:
-            self.reply(query_response.response)
-            CacheService.save_reply(query_response.question, query_response.question)
-            CacheService.save_query_history()
         else:
-            self.reply_error(msg.invalid_response(query_response))
+            self.reply_error(msg.invalid_response(proxy_response))
+
+        if status:
+            CacheService.save_reply(proxy_response.question, proxy_response.question)
+            CacheService.save_query_history()
 
         return status

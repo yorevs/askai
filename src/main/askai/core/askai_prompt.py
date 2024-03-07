@@ -16,7 +16,6 @@ from functools import lru_cache
 from string import Template
 
 from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import PromptTemplate
 
 from askai.__classpath__ import _Classpath
 from askai.core.askai_configs import configs
@@ -39,9 +38,6 @@ class AskAiPrompt(metaclass=Singleton):
         self._shell: SupportedShells = get_shell()
         self._os_type: SupportedPlatforms = get_os()
         self._user: str = get_user()
-        self._setup: PromptTemplate = PromptTemplate(
-            input_variables=['query_types'],
-            template=read_resource(self.PROMPT_DIR, "setup.txt"))
 
     @property
     def os_type(self) -> SupportedPlatforms:
@@ -58,12 +54,6 @@ class AskAiPrompt(metaclass=Singleton):
     @property
     def idiom(self) -> str:
         return f"{configs.language.name} ({configs.language.country})"
-
-    def setup(self, query_types: str) -> str:
-        """Return the setup prompt.
-        :param query_types: A string containing al query types descriptions.
-        """
-        return self._setup.format(query_types=query_types)
 
     @lru_cache
     def read_prompt(self, template_file: str, persona_file: str) -> str:

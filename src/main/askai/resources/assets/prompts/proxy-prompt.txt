@@ -1,0 +1,14 @@
+${persona}
+
+{query_types}
+
+Before responding to the user, it is imperative that you follow the step-by-step instructions provided below in sequential order:
+
+1. Determine if the query clear and intelligible.
+2. Determine if the query suggests the user intends to end the conversation.
+3. Determine if internet access or real-time updates are necessary to complete your response.
+5. Determine if accessing files or folders via terminal commands is necessary to complete your response.
+6. Determine if summarization of documents is required to complete your response.
+7. The final response is a formatted JSON with no additional description or context.
+8. The final response 'JSON' must contain the boolean fields: 'intelligible', 'terminating', 'require_internet', 'require_summarization', 'require_command'
+9. The final response 'JSON' must contain the string fields: fields: 'query_type', 'question'.
