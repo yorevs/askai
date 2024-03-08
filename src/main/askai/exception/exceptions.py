@@ -46,3 +46,7 @@ class InvalidMapping(HSBaseException):
 
 class InvalidJsonMapping(HSBaseException):
     """Raised when an invalid json-string to object is provided."""
+
+
+class InvalidInputDevice(HSBaseException):
+    """Raised when an invalid recording input device is used."""

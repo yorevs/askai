@@ -13,19 +13,25 @@
    Copyright·(c)·2024,·HSPyLib
 """
 import logging as log
+import os
 from pathlib import Path
-from typing import Callable, List, Tuple
+from typing import Callable, List, Tuple, Optional
 
+import pause
 from clitt.core.term.terminal import Terminal
+from clitt.core.tui.mselect.mselect import mselect
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.zoned_datetime import now_ms
-from speech_recognition import AudioData, Recognizer, Microphone, UnknownValueError, RequestError
+from speech_recognition import AudioData, Recognizer, Microphone, UnknownValueError, RequestError, WaitTimeoutError
 
 from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import AskAiMessages
+from askai.core.askai_messages import msg
 from askai.core.component.cache_service import REC_DIR
-from askai.exception.exceptions import IntelligibleAudioError, InvalidRecognitionApiError
+from askai.core.support.settings import Settings
+from askai.core.support.utilities import display_text
+from askai.exception.exceptions import IntelligibleAudioError, InvalidRecognitionApiError, InvalidInputDevice
 from askai.language.language import Language
 
 
@@ -34,10 +40,14 @@ class Recorder(metaclass=Singleton):
 
     INSTANCE: 'Recorder' = None
 
+    ASKAI_SETTINGS_DIR: str = f'{os.getenv("HHS_DIR", os.getenv("TEMP", "/tmp"))}'
+
+    ASKAI_SETTINGS_FILE: str = '.askai.properties'
+
     class RecognitionApi(Enumeration):
         # fmt: off
         OPEN_AI = 'recognize_whisper'
-        GOOGLE  = 'recognize_google'
+        GOOGLE = 'recognize_google'
         # fmt: on
 
     @classmethod
@@ -50,16 +60,30 @@ class Recorder(metaclass=Singleton):
 
     def __init__(self):
         self._rec: Recognizer = Recognizer()
-        self._devices = self.get_device_list() or []
-        self._device_index = 0
+        self._settings: Settings = Settings(self.ASKAI_SETTINGS_FILE, load_dir=self.ASKAI_SETTINGS_DIR)
+        self._devices = []
+        self._device_index = None
+        self._input_device = None
+        self._rec_phrase_limit_s = 10
+        self._rec_wait_timeout_s = 0.5
+
+    def setup(self) -> None:
+        """Setup the recorder."""
+        self._devices = self.get_device_list()
+        log.debug(
+            "Available audio devices:\n%s",
+            "\n".join([f"{d[0]} - {d[1]}" for d in self._devices])
+        )
+        self._device_index = self._select_device()
+        self._input_device = self._devices[self._device_index] if self._device_index is not None else None
 
     @property
     def devices(self) -> List[Tuple[int, str]]:
-        return self._devices
+        return self._devices if self._devices else []
 
-    def select_device(self, index: int = 1) -> None:
-        """Select an available device for recording."""
-        self._device_index = index if len(self._devices) >= index else 0
+    @property
+    def input_device(self) -> Optional[Tuple[int, str]]:
+        return self._input_device if self._input_device else None
 
     def listen(
         self,
@@ -74,10 +98,10 @@ class Recorder(metaclass=Singleton):
         with Microphone(device_index=self._device_index) as source:
             try:
                 self._detect_noise()
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=AskAiMessages.INSTANCE.listening())
-                audio: AudioData = self._rec.listen(source, phrase_time_limit=5)
-                Terminal.INSTANCE.cursor.erase_line()
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=AskAiMessages.INSTANCE.transcribing(), erase_last=True)
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.listening())
+                audio: AudioData = self._rec.listen(
+                    source, phrase_time_limit=self._rec_phrase_limit_s, timeout=self._rec_wait_timeout_s)
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.transcribing(), erase_last=True)
                 with open(audio_path, "wb") as f_rec:
                     f_rec.write(audio.get_wav_data())
                     log.debug("Voice recorded and saved as %s", audio_path)
@@ -87,6 +111,11 @@ class Recorder(metaclass=Singleton):
                     stt_text = api(audio, language=language.language)
                 else:
                     raise InvalidRecognitionApiError(str(recognition_api or "<none>"))
+            except WaitTimeoutError:
+                log.warning("Timed out while waiting for a speech!")
+                stt_text = ''
+            except AttributeError as err:
+                raise InvalidInputDevice(str(err)) from err
             except UnknownValueError as err:
                 raise IntelligibleAudioError(str(err)) from err
             except RequestError as err:
@@ -100,10 +129,59 @@ class Recorder(metaclass=Singleton):
         """
         with Microphone() as source:
             try:
-                log.debug(AskAiMessages.INSTANCE.noise_levels())
+                log.debug(msg.noise_levels())
                 self._rec.adjust_for_ambient_noise(source, duration=interval)
             except UnknownValueError as err:
                 raise IntelligibleAudioError(f"Unable to detect noise => {str(err)}") from err
 
+    def _select_device(self) -> Optional[int]:
+        """Select device for recording."""
+        done = False
+        filepath: str = f"{self.ASKAI_SETTINGS_DIR}/{self.ASKAI_SETTINGS_FILE}"
+        if not file_is_not_empty(filepath):
+            self._settings.set('askai.recorder.devices', None)
+            self._settings.set('askai.recorder.silence-timeout_ms', 1500)
+            self._settings.set('askai.recorder.phrase.limit_ms', 0)
+        available: List[str] = list(
+            filter(lambda d: d, map(
+                str.strip, eval(self._settings.get('askai.recorder.devices') or '[]')))
+        )
+        while not done:
+            if available:
+                for idx, device in self._devices:
+                    if device in available and self._test_device(idx):
+                        self._settings.save()
+                        return idx
+            # Choose device from list
+            idx_device = mselect(self._devices, f"{'-=' * 40}%EOL%AskAI::Select the Input device%EOL%{'=-' * 40}%EOL%")
+            if not idx_device:
+                break
+            elif self._test_device(idx_device[0]):
+                available.append(idx_device[1])
+                self._settings.set('askai.recorder.devices', available)
+                self._settings.save()
+                return idx_device[0]
 
-assert Recorder().INSTANCE is not None
+            display_text(f"%HOM%%ED2%Error:{idx_device[1]} does not support INPUTS !%NC%")
+            self._devices.remove(idx_device)
+            pause.seconds(2)
+
+        return None
+
+    def _test_device(self, idx: int) -> bool:
+        """TODO"""
+        log.debug(f"Testing input device at index: %d", idx)
+        try:
+            with Microphone(device_index=idx) as source:
+                self._rec.listen(source, timeout=0.5, phrase_time_limit=0.5)
+                return True
+        except WaitTimeoutError:
+            log.info(f"Device: at index %d is functional!", idx)
+            return True
+        except (AssertionError, AttributeError):
+            log.error(f"Device: at index %d is non functional!", idx)
+
+        return False
+
+
+assert (recorder := Recorder().INSTANCE) is not None

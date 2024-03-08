@@ -37,7 +37,7 @@ from askai.core.askai_prompt import prompt
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.cache_service import CacheService
 from askai.core.component.object_mapper import ObjectMapper
-from askai.core.component.recorder import Recorder
+from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
 from askai.core.model.query_response import QueryResponse
@@ -77,16 +77,17 @@ class AskAi:
         configs.tempo = tempo
 
     def __str__(self) -> str:
+        device_info = (' using ' + recorder.input_device[1]) if recorder.input_device else ''
         return (
             f"%GREEN%"
             f"{'-=' * 40} %EOL%"
             f"     Engine: {self.engine.ai_name()} %EOL%"
             f"      Model: {self.engine.ai_model_name()} - {self.engine.ai_token_limit()}k tokens %EOL%"
             f"   Nickname: {self.engine.nickname()} %EOL%"
-            f"{'--' * 40} %EOL%"
             f"   Language: {configs.language} %EOL%"
+            f"{'--' * 40} %EOL%"
             f"Interactive: ON %EOL%"
-            f"   Speaking: {'ON' if self.is_speak else 'OFF'} %EOL%"
+            f"   Speaking: {'ON' if self.is_speak else 'OFF'}{device_info} %EOL%"
             f"    Caching: {'ON' if CacheService.is_cache_enabled() else 'OFF'} %EOL%"
             f"      Tempo: {configs.tempo} %EOL%"
             f"{'--' * 40} %EOL%%NC%"
@@ -165,10 +166,11 @@ class AskAi:
 
     def _splash(self) -> None:
         """Display the AskAI splash screen."""
-        splash_interval = 500
-        Screen.INSTANCE.clear()
-        sysout(f"%GREEN%{self.SPLASH}%NC%")
+        splash_interval = 1000
         while not self._ready:
+            if not self._processing:
+                Screen.INSTANCE.clear()
+                sysout(f"%GREEN%{self.SPLASH}%NC%")
             pause.milliseconds(splash_interval)
         pause.milliseconds(splash_interval * 2)
         Screen.INSTANCE.clear()
@@ -178,15 +180,14 @@ class AskAi:
         splash_thread: Thread = Thread(
             daemon=True, target=self._splash
         )
+        if configs.is_speak:
+            recorder.setup()
+            configs.is_speak = recorder.input_device is not None
         splash_thread.start()
+        if configs.is_speak:
+            AudioPlayer.INSTANCE.start_delay()
         CacheService.set_cache_enable(self.cache_enabled)
         CacheService.read_query_history()
-        if self.is_speak:
-            AudioPlayer.INSTANCE.start_delay()
-            log.debug(
-                "Available audio devices:\n%s",
-                "\n".join([f"{d[0]} - {d[1]}" for d in Recorder.INSTANCE.devices])
-            )
         askai_bus = AskAiEvents.get_bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
         self._ready = True
