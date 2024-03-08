@@ -156,7 +156,7 @@ class AskAi:
         :param message: The error message to be displayed.
         """
         log.error(message)
-        display_text(f"{self.nickname}: Error: {message} %NC%")
+        display_text(f"{self.nickname}: Error: {message or 'Aborted!'} %NC%")
 
     def _cb_reply_event(self, ev: Event) -> None:
         """Callback to handle reply events."""

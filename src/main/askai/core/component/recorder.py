@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Callable, List, Tuple, Optional
 
 import pause
-from clitt.core.term.terminal import Terminal
+from clitt.core.term.cursor import Cursor
 from clitt.core.tui.mselect.mselect import mselect
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.singleton import Singleton
@@ -109,6 +109,7 @@ class Recorder(metaclass=Singleton):
                     log.debug("Recognizing voice using %s", recognition_api)
                     assert isinstance(api, Callable)
                     stt_text = api(audio, language=language.language)
+                    Cursor.INSTANCE.erase_line()
                 else:
                     raise InvalidRecognitionApiError(str(recognition_api or "<none>"))
             except WaitTimeoutError:
@@ -123,7 +124,7 @@ class Recorder(metaclass=Singleton):
 
         return audio_path, stt_text
 
-    def _detect_noise(self, interval: float = 1) -> None:
+    def _detect_noise(self, interval: float = 0.8) -> None:
         """Detect and adjust the background noise level.
         :param interval: the interval in seconds of the noise detection.
         """
@@ -148,12 +149,12 @@ class Recorder(metaclass=Singleton):
         )
         while not done:
             if available:
-                for idx, device in self._devices:
+                for idx, device in self.devices:
                     if device in available and self._test_device(idx):
                         self._settings.save()
                         return idx
             # Choose device from list
-            idx_device = mselect(self._devices, f"{'-=' * 40}%EOL%AskAI::Select the Input device%EOL%{'=-' * 40}%EOL%")
+            idx_device = mselect(self.devices, f"{'-=' * 40}%EOL%AskAI::Select the Input device%EOL%{'=-' * 40}%EOL%")
             if not idx_device:
                 break
             elif self._test_device(idx_device[0]):

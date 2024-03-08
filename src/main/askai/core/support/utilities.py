@@ -36,6 +36,25 @@ ASKAI_CHAT_ICONS = {
 }
 
 
+def beautify(text: Any) -> str:
+    """Beautify the provided text with icons and other formatting improvements.
+    :param text: The text to be beautified.
+    """
+    # fmt: off
+    text = str(text)
+    text = re.sub("[Hh]ints?( and tips)?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Tips: ", text)
+    text = re.sub("[Aa]nalysis:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Analysis: ", text)
+    text = re.sub("[Ss]ummary:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Summary:", text)
+    text = re.sub("([Jj]oke( [Tt]ime)?):[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Joke: ", text)
+    text = re.sub("[Ff]un [Ff]acts?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Fun Fact: ", text)
+    text = re.sub("[Aa]dvice:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Advice: ", text)
+    text = re.sub("[Ee]rrors?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Error: ", text)
+    text = re.sub("((https?:/{2})(.+) ?)", r'%CYAN% \1%GREEN%', text)
+    # fmt: on
+
+    return text
+
+
 def read_resource(base_dir: str, filename: str, file_ext: str = '.txt') -> str:
     """Read the prompt template specified by the filename.
     :param base_dir: The base directory, relative to the resources folder.
@@ -83,24 +102,6 @@ def extract_command(markdown_text: str, flags: int = re.IGNORECASE | re.MULTILIN
             shell, cmd = mat.group(1) or '', mat.group(3) or ''
             return shell.strip(), cmd.strip()
     return None
-
-
-def beautify(text: Any) -> str:
-    """Beautify the provided text with icons and other formatting improvements.
-    :param text: The text to be beautified.
-    """
-    # fmt: off
-    text = str(text)
-    text = re.sub("[Hh]ints?( and tips)?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Tips: ", text)
-    text = re.sub("[Aa]nalysis:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Analysis: ", text)
-    text = re.sub("[Ss]ummary:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Summary:", text)
-    text = re.sub("([Jj]oke( [Tt]ime)?):[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Joke: ", text)
-    text = re.sub("[Ff]un [Ff]acts?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Fun Fact: ", text)
-    text = re.sub("[Aa]dvice:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Advice: ", text)
-    text = re.sub("[Ee]rrors?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Error: ", text)
-    # fmt: on
-
-    return text
 
 
 def display_text(text: Any, end: str = os.linesep, erase_last=False) -> None:
