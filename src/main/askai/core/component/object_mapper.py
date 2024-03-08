@@ -11,15 +11,16 @@
 """
 import inspect
 import json
-import logging as log
 from inspect import isclass
+from json import JSONDecodeError
 from types import SimpleNamespace
 from typing import Type, Callable, Dict, Optional, Any, TypeAlias
 
+from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.singleton import Singleton
 
 from askai.core.model.query_response import QueryResponse
-from askai.exception.exceptions import InvalidMapping
+from askai.exception.exceptions import InvalidJsonMapping, InvalidMapping
 
 FnConverter: TypeAlias = Callable[[Any, Type], Any]
 
@@ -38,9 +39,18 @@ class ObjectMapper(metaclass=Singleton):
             return str(hash(type_from.__class__.__name__) + hash(type_to.__name__))
 
     @classmethod
-    def _default_converter(cls, type1: Any, type2: Type) -> Any:
+    def _strict_converter(cls, type1: Any, type2: Type) -> Any:
         """Default conversion function using the object variables. Attribute names must be equal in both classes."""
         return type2(**vars(type1))
+
+    @classmethod
+    def _standard_converter(cls, type1: Any, type2: Type) -> Any:
+        """Default conversion function using the object variables. Attribute names must be equal in both classes."""
+        attrs: Dict[str, Any] = {}
+        for field in vars(type1):
+            if hasattr(type2, field):
+                attrs[field] = getattr(type1, field)
+        return type2(**attrs)
 
     @classmethod
     def get_class_attributes(cls, clazz: Type):
@@ -49,27 +59,42 @@ class ObjectMapper(metaclass=Singleton):
             if not callable(getattr(clazz, item[0])) and not item[0].startswith('__')
         ]
 
+    class ConversionMode(Enumeration):
+        """TODO"""
+
+        # fmt: off
+        STANDARD    = '_standard_converter'
+        STRICT      = '_strict_converter'
+        # fmt: onn
+
     def __init__(self):
         self._converters: Dict[str, FnConverter] = {}
 
-    def of_json(self, json_string: str, to_class: Type) -> Any:
+    @property
+    def strict(self) -> ConversionMode:
+        return self.ConversionMode.STRICT
+
+    @property
+    def standard(self) -> ConversionMode:
+        return self.ConversionMode.STANDARD
+
+    def of_json(self, json_string: str, to_class: Type, mode: ConversionMode = ConversionMode.STANDARD) -> Any:
         """"Convert a JSON string to an object on the provided type."""
         if not json_string:
             return ''
-        ret_val = json_string
         try:
             json_obj = json.loads(json_string, object_hook=lambda d: SimpleNamespace(**d))
-            ret_val = self.convert(json_obj, to_class)
-        except ValueError as err:
-            log.warning(f"Could not decode JSON string '%s' => %s", json_string, str(err))
-        finally:
-            return ret_val
+            ret_val = self.convert(json_obj, to_class, mode)
+        except (TypeError, InvalidMapping, JSONDecodeError) as err:
+            raise InvalidJsonMapping(f"Could not decode JSON string '{json_string}' => {str(err)}") from err
 
-    def convert(self, from_obj: Any, to_class: Type) -> Any:
+        return ret_val
+
+    def convert(self, from_obj: Any, to_class: Type, mode: ConversionMode = ConversionMode.STANDARD) -> Any:
         """Convert one object into another of the provided class type."""
         mapping_hash = self._hash(from_obj, to_class)
         try:
-            fn_converter = self._get_converter(mapping_hash)
+            fn_converter = self._get_converter(mapping_hash, mode)
             obj = fn_converter(from_obj, to_class)
         except Exception as err:
             raise InvalidMapping(f"Can't convert {type(from_obj)} into {to_class}") from err
@@ -79,23 +104,10 @@ class ObjectMapper(metaclass=Singleton):
         """Register a new converter for the given types."""
         self._converters[self._hash(type1, type2)] = fn_converter
 
-    def _get_converter(self, mapping_hash: str) -> Optional[FnConverter]:
+    def _get_converter(self, mapping_hash: str, mode: ConversionMode) -> Optional[FnConverter]:
         """Retrieve the converter for the provided the mapping hash."""
-        return next((c for h, c in self._converters.items() if h == mapping_hash), self._default_converter)
+        default_fb = getattr(self, mode.value)
+        return next((c for h, c in self._converters.items() if h == mapping_hash), default_fb)
 
 
-assert ObjectMapper().INSTANCE is not None
-
-if __name__ == '__main__':
-    o = ObjectMapper.INSTANCE
-    s = """
-    {
-        "query_type": "Type 1",
-        "question": "list my downloads",
-        "require_internet": false,
-        "require_summarization": false,
-        "require_command": true
-    }
-    """
-    r = o.of_json(s, QueryResponse)
-    print(r)
+assert (object_mapper := ObjectMapper().INSTANCE) is not None

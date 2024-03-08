@@ -54,7 +54,7 @@ def hash_text(text: str) -> str:
     return hashlib.md5(text.encode(Charset.UTF_8.val)).hexdigest()
 
 
-def extract_path(command_line: str, flags: int = re.IGNORECASE | re.MULTILINE) -> Optional[str]:
+def extract_path(command_line: str, flags: int = re.I | re.MULTILINE) -> Optional[str]:
     """Extract the first identifiable path of the executed command line.
     :param command_line: The command line text.
     :param flags: Regex match flags.
@@ -71,7 +71,7 @@ def extract_path(command_line: str, flags: int = re.IGNORECASE | re.MULTILINE) -
     return None
 
 
-def extract_command(markdown_text: str, flags: int = re.IGNORECASE | re.MULTILINE) -> Optional[Tuple[str, str]]:
+def extract_command(markdown_text: str, flags: int = re.I | re.MULTILINE) -> Optional[Tuple[str, str]]:
     """Extract command from the markdown code block formatted text.
     :param markdown_text: The markdown formatted command line text.
     :param flags: Regex match flags.
@@ -91,12 +91,13 @@ def beautify(text: Any) -> str:
     """
     # fmt: off
     text = str(text)
-    text = re.sub("Hints?( and [Tt]ips)?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Tips: ", text, re.IGNORECASE)
-    text = re.sub("Analysis:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Analysis: ", text, re.IGNORECASE)
-    text = re.sub("Summary:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Summary:", text, re.IGNORECASE)
-    text = re.sub("(Joke( [Tt]ime)?):[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Joke: ", text, re.IGNORECASE)
-    text = re.sub("Fun [Ff]acts?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Fun Fact: ", text, re.IGNORECASE)
-    text = re.sub("Advice:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Advice: ", text, re.IGNORECASE)
+    text = re.sub("Hints?( and tips)?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Tips: ", text, re.I)
+    text = re.sub("Analysis:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Analysis: ", text, re.I)
+    text = re.sub("Summary:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Summary:", text, re.I)
+    text = re.sub("(Joke( time)?):[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Joke: ", text, re.I)
+    text = re.sub("Fun facts?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Fun Fact: ", text, re.I)
+    text = re.sub("Advice:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Advice: ", text, re.I)
+    text = re.sub("Errors?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Error: ", text, re.I)
     # fmt: on
 
     return text

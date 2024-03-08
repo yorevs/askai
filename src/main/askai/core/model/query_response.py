@@ -35,7 +35,7 @@ class QueryResponse:
     def of_string(question: str, plain_response: str) -> '':
         """Sometimes AI gets cray and don't return a JSON string, so we have to fix it."""
         return QueryResponse(
-            'GenericProcessor', question, plain_response,
+            'GenericProcessor', question, plain_response, '',
             False, True, False, False, False
         )
 

@@ -43,3 +43,6 @@ class TokenLengthExceeded(HSBaseException):
 class InvalidMapping(HSBaseException):
     """Raised when an invalid mapping is provided."""
 
+
+class InvalidJsonMapping(HSBaseException):
+    """Raised when an invalid json-string to object is provided."""
