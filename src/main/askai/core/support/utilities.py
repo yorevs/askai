@@ -31,7 +31,7 @@ from askai.core.support.presets import Presets
 from askai.language.language import Language
 
 ASKAI_CHAT_ICONS = {
-    '': '%BLUE%', '': '%BLUE%', '': '%BLUE%',
+    '': '%RED%' , '': '%BLUE%', '': '%BLUE%', '': '%BLUE%',
     '': '%YELLOW%', '': '%YELLOW%', '': '%ORANGE%'
 }
 

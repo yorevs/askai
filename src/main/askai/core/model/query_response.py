@@ -23,6 +23,7 @@ class QueryResponse:
     query_type: str = ''
     question: str = ''
     response: str = ''
+    x_reference: str = ''
     terminating: bool = False
     intelligible: bool = True
     require_command: bool = False
