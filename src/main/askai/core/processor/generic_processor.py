@@ -53,6 +53,8 @@ class GenericProcessor(AIProcessor):
                 output = response.message
                 CacheService.save_reply(query_response.question, query_response.question)
                 shared.context.push("GENERAL", output, 'assistant')
+                CacheService.save_reply(query_response.question, output)
+                CacheService.save_query_history()
                 status = True
             else:
                 output = msg.llm_error(response.message)

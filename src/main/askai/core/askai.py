@@ -244,7 +244,7 @@ class AskAi:
 
     def _process_response(self, proxy_response: QueryResponse) -> bool:
         """Process a query response using a processor that supports the query type."""
-        status = False
+        status, output = False, None
         if not proxy_response.intelligible:
             self.reply_error(msg.intelligible())
         elif proxy_response.terminating:
@@ -269,9 +269,5 @@ class AskAi:
                     self.reply_error(str(output))
         else:
             self.reply_error(msg.invalid_response(proxy_response))
-
-        if status:
-            CacheService.save_reply(proxy_response.question, proxy_response.question)
-            CacheService.save_query_history()
 
         return status
