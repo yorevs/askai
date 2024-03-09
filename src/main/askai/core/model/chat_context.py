@@ -69,8 +69,11 @@ class ChatContext:
     def get_many(self, *keys: str) -> List[dict]:
         """Retrieve many contexts from the specified by key."""
         context = []
+        token_length = 0
         for key in keys:
-            context += self.get(key)
+            if (content := self.get(key)) and (token_length + len(content)) > self._token_limit:
+                raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
+            context += content
         return context
 
     def clear(self, key: str) -> int:
