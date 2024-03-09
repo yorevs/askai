@@ -21,7 +21,7 @@ from langchain_core.prompts import PromptTemplate
 
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.component.object_mapper import ObjectMapper
+from askai.core.support.object_mapper import ObjectMapper
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.support.shared_instances import shared

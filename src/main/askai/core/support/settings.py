@@ -8,6 +8,8 @@ from hspylib.core.tools.text_tools import ensure_endswith
 
 
 class Settings(Properties):
+    """The Settings class represents a persistent set of mutable settings. Each key and its corresponding value in the
+    settings dictionary.Format and rules follows the properties approach."""
 
     def __init__(self, filename: str = None, profile: str | None = None, load_dir: str | None = None) -> None:
         _, ext = os.path.splitext(filename)
@@ -22,19 +24,19 @@ class Settings(Properties):
         return ensure_endswith(f"{self._load_dir}/{self._filename}", '.properties')
 
     def set(self, key: str, value: Any) -> None:
-        """TODO"""
+        """Add or set the setting and it's associated value."""
         self._properties[key] = value
 
     def remove(self, key: str) -> str:
-        """TODO"""
+        """Remove a setting specified by key."""
         return self._properties.pop(key, None)
 
     def clear(self) -> None:
-        """TODO"""
+        """Remove all settings."""
         self._properties.clear()
 
     def save(self) -> None:
-        """TODO"""
+        """Save current settings to the associated file."""
         with open(self.filepath, 'w') as f_settings:
             f_settings.writelines([f"{key} = {value} \n" for (key, value) in self._properties.items()])
             f_settings.flush()

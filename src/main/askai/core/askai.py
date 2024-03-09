@@ -36,7 +36,7 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.cache_service import CacheService
-from askai.core.component.object_mapper import ObjectMapper
+from askai.core.support.object_mapper import ObjectMapper
 from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext

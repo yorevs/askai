@@ -154,7 +154,10 @@ class Recorder(metaclass=Singleton):
                         self._settings.save()
                         return idx
             # Choose device from list
-            idx_device = mselect(self.devices, f"{'-=' * 40}%EOL%AskAI::Select the Input device%EOL%{'=-' * 40}%EOL%")
+            idx_device: Tuple[int, str] = mselect(
+                self.devices,
+                f"{'-=' * 40}%EOL%AskAI::Select the Input device%EOL%{'=-' * 40}%EOL%"
+            )
             if not idx_device:
                 break
             elif self._test_device(idx_device[0]):
