@@ -24,5 +24,6 @@ package: langchain-openai
 package: PyAudio
 package: SpeechRecognition
 package: openai-whisper
+package: google-api-python-client
 package: urllib3, version: 2.0.0, mode: lt
 package: openai, version: 1.7.2, mode: ge

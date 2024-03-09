@@ -247,9 +247,15 @@ class AskAi:
         status, output = False, None
         if not proxy_response.intelligible:
             self.reply_error(msg.intelligible())
+            return False
         elif proxy_response.terminating:
             log.info("User wants to terminate the conversation.")
-        elif q_type := proxy_response.query_type:
+            return False
+        elif proxy_response.require_internet:
+            log.info("Internet is required to fulfill the request.")
+            pass
+
+        if q_type := proxy_response.query_type:
             processor: AIProcessor = AIProcessor.get_by_query_type(q_type)
             if not processor:
                 log.error(f"Unable to find a proper processor for query type: {q_type}")
