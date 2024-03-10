@@ -44,6 +44,9 @@ class CommandProcessor(AIProcessor):
             "file, folder and application management, listing, device assessment or inquiries."
         )
 
+    def bind(self, next_in_chain: 'AIProcessor'):
+        pass  # Avoid re-binding the next in chain processor.
+
     def next_in_chain(self) -> AIProcessor:
         return AIProcessor.get_by_name(OutputProcessor.__name__)
 

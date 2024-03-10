@@ -2,8 +2,8 @@ ${persona}
 
 Before responding to the user, you must follow the step-by-step instructions provided below in sequential order:
 
-1. Determine the required keywords for a good search for the answer.
+1. Craft a well-structured query string to effectively search for the desired answer.
 2. Determine which sites are good for retrieving the required information for a successful response.
 3. Generate a JSON response containing the designated fields.
-4. The final response 'JSON' must contain the fields: 'keywords', 'urls'.
+4. The final response 'JSON' must contain the fields: 'query' and 'urls'.
 5. The final response is a formatted JSON with no additional description or context.

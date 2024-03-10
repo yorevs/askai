@@ -19,9 +19,10 @@ from langchain_core.prompts import PromptTemplate
 
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.component.cache_service import CacheService
+from askai.core.component.cache_service import cache
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
+from askai.core.processor.internet_processor import InternetProcessor
 from askai.core.support.shared_instances import shared
 
 
@@ -40,23 +41,28 @@ class GenericProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
-        template = PromptTemplate(
-            input_variables=['user'], template=self.template())
-        final_prompt: str = msg.translate(
-            template.format(user=prompt.user))
+        template = PromptTemplate(input_variables=['user'], template=self.template())
+        final_prompt: str = msg.translate(template.format(user=prompt.user))
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
         context: List[dict] = shared.context.get_many("GENERAL", "SETUP", "QUESTION")
         log.info("Setup::[GENERIC] '%s'  context=%s", query_response.question, context)
         try:
+            if query_response.require_internet:
+                log.info("Internet is required to fulfill the request.")
+                i_processor = AIProcessor.get_by_name(InternetProcessor.__name__)
+                status, output = i_processor.process(query_response)
+                i_ctx = shared.context.get("INTERNET")
+                list(map(lambda c: context.insert(len(context) - 2, c), i_ctx))
             if (response := shared.engine.ask(context, temperature=1, top_p=1)) and response.is_success:
                 output = response.message
-                CacheService.save_reply(query_response.question, query_response.question)
                 shared.context.push("GENERAL", output, 'assistant')
-                CacheService.save_reply(query_response.question, output)
-                CacheService.save_query_history()
+                cache.save_reply(query_response.question, output)
+                cache.save_query_history()
                 status = True
             else:
                 output = msg.llm_error(response.message)
+        except Exception as err:
+            output = msg.llm_error(str(err))
         finally:
             return status, output

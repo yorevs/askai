@@ -104,4 +104,4 @@ class CacheService(metaclass=Singleton):
         return audio_file_path, file_is_not_empty(audio_file_path)
 
 
-assert CacheService().INSTANCE is not None
+assert (cache := CacheService().INSTANCE) is not None

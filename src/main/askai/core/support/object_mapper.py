@@ -19,7 +19,6 @@ from typing import Type, Callable, Dict, Optional, Any, TypeAlias
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.singleton import Singleton
 
-from askai.core.model.query_response import QueryResponse
 from askai.exception.exceptions import InvalidJsonMapping, InvalidMapping
 
 FnConverter: TypeAlias = Callable[[Any, Type], Any]

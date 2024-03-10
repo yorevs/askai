@@ -43,9 +43,10 @@ class AIProcessor(metaclass=ABCMeta):
                 proc_name = os.path.splitext(proc)[0]
                 proc_pkg = import_module(f"{__package__}.{proc_name}")
                 proc_class = getattr(proc_pkg, camelcase(proc_name, capitalized=True))
-                proc_inst = proc_class()
+                proc_inst: 'AIProcessor' = proc_class()
                 cls._PROCESSORS[proc_inst.processor_id()] = proc_inst
-                q_types.append(str(proc_inst))
+                if proc_inst.query_desc():
+                    q_types.append(str(proc_inst))
         return os.linesep.join(q_types)
 
     @classmethod
@@ -67,6 +68,7 @@ class AIProcessor(metaclass=ABCMeta):
     def __init__(self, template_file: str | Path, persona_file: str | Path):
         self._template_file = str(template_file)
         self._persona_file = str(persona_file)
+        self._next_in_chain = None
 
     def __str__(self):
         return f"'{self.query_type()}': {self.query_desc()}"
@@ -87,18 +89,22 @@ class AIProcessor(metaclass=ABCMeta):
 
     def query_type(self) -> str:
         """Get the query type this processor can handle. By default, it's the name of the processor itself."""
-        return self.name
+        return self.processor_id()
 
     def query_desc(self) -> str:
         """TODO"""
-        ...
+        return ''
 
     def template(self) -> str:
         return prompt.read_prompt(self._template_file, self._persona_file)
 
     def next_in_chain(self) -> Optional['AIProcessor']:
         """Return the next processor in the chain to call. Defaults to None."""
-        return None
+        return self._next_in_chain
+
+    def bind(self, next_in_chain: 'AIProcessor'):
+        """Bind a processor to be the next in chain."""
+        self._next_in_chain = next_in_chain
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         """TODO"""

@@ -35,14 +35,14 @@ from askai.core.askai_events import AskAiEvents, ASKAI_BUS_NAME, REPLY_EVENT
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.audio_player import AudioPlayer
-from askai.core.component.cache_service import CacheService
-from askai.core.support.object_mapper import ObjectMapper
+from askai.core.component.cache_service import cache
 from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.processor.processor_proxy import proxy
+from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 
@@ -88,7 +88,7 @@ class AskAi:
             f"{'--' * 40} %EOL%"
             f"Interactive: ON %EOL%"
             f"   Speaking: {'ON' if self.is_speak else 'OFF'}{device_info} %EOL%"
-            f"    Caching: {'ON' if CacheService.is_cache_enabled() else 'OFF'} %EOL%"
+            f"    Caching: {'ON' if cache.is_cache_enabled() else 'OFF'} %EOL%"
             f"      Tempo: {configs.tempo} %EOL%"
             f"{'--' * 40} %EOL%%NC%"
         )
@@ -186,8 +186,8 @@ class AskAi:
         splash_thread.start()
         if configs.is_speak:
             AudioPlayer.INSTANCE.start_delay()
-        CacheService.set_cache_enable(self.cache_enabled)
-        CacheService.read_query_history()
+        cache.set_cache_enable(self.cache_enabled)
+        cache.read_query_history()
         askai_bus = AskAiEvents.get_bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
         self._ready = True
@@ -229,7 +229,7 @@ class AskAi:
         """Ask the question and provide the reply.
         :param question: The question to ask to the AI engine.
         """
-        if not (reply := CacheService.read_reply(question)):
+        if not (reply := cache.read_reply(question)):
             log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
             status, response = proxy.process(question)
             if status:
@@ -251,28 +251,24 @@ class AskAi:
         elif proxy_response.terminating:
             log.info("User wants to terminate the conversation.")
             return False
-        elif proxy_response.require_internet:
-            log.info("Internet is required to fulfill the request.")
-            pass
 
         if q_type := proxy_response.query_type:
-            processor: AIProcessor = AIProcessor.get_by_query_type(q_type)
-            if not processor:
+            if not (processor := AIProcessor.get_by_query_type(q_type)):
                 log.error(f"Unable to find a proper processor for query type: {q_type}")
                 self.reply_error(str(proxy_response))
-            else:
-                log.info("%s::Processing response for '%s'", processor, proxy_response.question)
-                status, output = processor.process(proxy_response)
-                if status and processor.next_in_chain():
-                    mapped_response = ObjectMapper.INSTANCE.of_json(output, QueryResponse)
-                    if isinstance(mapped_response, QueryResponse):
-                        self._process_response(mapped_response)
-                    else:
-                        self.reply(str(mapped_response))
-                elif status:
-                    self.reply(str(output))
+                return False
+            log.info("%s::Processing response for '%s'", processor, proxy_response.question)
+            status, output = processor.process(proxy_response)
+            if status and processor.next_in_chain():
+                mapped_response = object_mapper.of_json(output, QueryResponse)
+                if isinstance(mapped_response, QueryResponse):
+                    self._process_response(mapped_response)
                 else:
-                    self.reply_error(str(output))
+                    self.reply(str(mapped_response))
+            elif status:
+                self.reply(str(output))
+            else:
+                self.reply_error(str(output))
         else:
             self.reply_error(msg.invalid_response(proxy_response))
 
