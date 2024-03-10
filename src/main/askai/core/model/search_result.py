@@ -7,7 +7,7 @@ from typing import List
 class SearchResult:
     """Keep track of the internet search responses."""
 
-    query: str = None
+    keywords: List[str] = None
     urls: str | List[str] = None
     results: str = None
 

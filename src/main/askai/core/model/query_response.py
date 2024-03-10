@@ -23,10 +23,8 @@ class QueryResponse:
     query_type: str = ''
     question: str = ''
     response: str = ''
-    x_reference: str = ''
     terminating: bool = False
     intelligible: bool = True
-    require_command: bool = False
     require_internet: bool = False
     require_summarization: bool = False
     commands: List[TerminalCommand] = field(default_factory=list)

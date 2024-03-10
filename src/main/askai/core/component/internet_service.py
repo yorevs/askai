@@ -17,6 +17,7 @@ import os
 from typing import Optional
 
 from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.zoned_datetime import now
 from langchain_community.utilities import GoogleSearchAPIWrapper
 from langchain_core.tools import Tool
 
@@ -47,16 +48,12 @@ class InternetService(metaclass=Singleton):
 
     def search(self, query: str) -> Optional[str]:
         """TODO"""
-        log.info("Searching GOOGLE for '%s'", query)
+        after = f"after: {now('%Y-%m-%d')}"
+        log.info("Searching GOOGLE for '%s' '%s'", query, after)
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
-        search_results = self._tool.run(query)
+        search_results = self._tool.run(f"{query} + {after}")
         log.debug(f"Internet search returned: %s", search_results)
         return os.linesep.join(search_results) if isinstance(search_results, list) else search_results
 
 
 assert (internet := InternetService().INSTANCE) is not None
-
-
-if __name__ == '__main__':
-    res = internet.search('Qual o proximo jogo do flamengo em 2024')
-    print(res)

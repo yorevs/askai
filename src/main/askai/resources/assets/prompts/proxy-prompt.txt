@@ -4,10 +4,10 @@ ${persona}
 
 Before responding to the user, it is imperative that you follow the step-by-step instructions provided below in sequential order:
 
-1. Determine if the query clear and intelligible.
-2. Determine if the query suggests the user intends to end the conversation.
-3. Consider whether real-time updates or internet access are essential to provide the most accurate and relevant response.
-4. Assess whether summarizing documents is necessary to provide an accurate and comprehensive response.
+1. Determine whether the query clear and intelligible.
+2. Determine whether the query suggests the user intends to end the conversation.
+3. Determine whether real-time updates or internet access are essential to provide the most accurate and relevant response. This is 90% of the cases.
+4. Determine whether summarizing documents is necessary to provide an accurate and comprehensive response.
 5. The final response is a formatted JSON with no additional description or context.
 6. The final response 'JSON' must contain the boolean fields: 'intelligible', 'terminating', 'require_internet' and 'require_summarization'.
 7. The final response 'JSON' must contain the string fields: fields: 'query_type' and 'question'.

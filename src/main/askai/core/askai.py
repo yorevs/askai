@@ -41,6 +41,8 @@ from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
+from askai.core.processor.generic_processor import GenericProcessor
+from askai.core.processor.internet_processor import InternetProcessor
 from askai.core.processor.processor_proxy import proxy
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
@@ -244,15 +246,20 @@ class AskAi:
 
     def _process_response(self, proxy_response: QueryResponse) -> bool:
         """Process a query response using a processor that supports the query type."""
-        status, output = False, None
+        status, output, q_type, processor = False, None, None, None
+        # Intrinsic features
         if not proxy_response.intelligible:
             self.reply_error(msg.intelligible())
             return False
         elif proxy_response.terminating:
             log.info("User wants to terminate the conversation.")
             return False
-        if q_type := proxy_response.query_type:
-            if not (processor := AIProcessor.get_by_query_type(q_type)):
+        elif proxy_response.require_internet:
+            log.info("Internet is required to fulfill the request.")
+            processor = AIProcessor.get_by_name(InternetProcessor.__name__)
+        # Query processors
+        if processor or (q_type := proxy_response.query_type):
+            if not processor and not (processor := AIProcessor.get_by_query_type(q_type)):
                 log.error(f"Unable to find a proper processor for query type: {q_type}")
                 self.reply_error(str(proxy_response))
                 return False
