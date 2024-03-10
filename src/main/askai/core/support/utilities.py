@@ -43,13 +43,13 @@ def beautify(text: Any) -> str:
     # fmt: off
     re_url = r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})'
     text = str(text)
-    text = re.sub(r"[Hh]ints?( and tips)?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Tips: ", text)
-    text = re.sub(r"[Aa]nalysis:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Analysis: ", text)
-    text = re.sub(r"[Ss]ummary:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Summary:", text)
-    text = re.sub(r"([Jj]oke( [Tt]ime)?):[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Joke: ", text)
-    text = re.sub(r"[Ff]un [Ff]acts?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Fun Fact: ", text)
-    text = re.sub(r"[Aa]dvice:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Advice: ", text)
-    text = re.sub(r"[Ee]rrors?:[ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Error: ", text)
+    text = re.sub(r"[Hh]ints?( and tips)?[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Tips: ", text)
+    text = re.sub(r"[Aa]nalysis[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Analysis: ", text)
+    text = re.sub(r"[Ss]ummary[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Summary:", text)
+    text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Joke: ", text)
+    text = re.sub(r"[Ff]un [Ff]acts?[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Fun Fact: ", text)
+    text = re.sub(r"[Aa]dvice[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Advice: ", text)
+    text = re.sub(r"[Ee]rrors?[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Error: ", text)
     text = re.sub(re_url, r'%CYAN% \1%GREEN%', text)
     # fmt: on
 

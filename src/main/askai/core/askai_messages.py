@@ -63,6 +63,10 @@ class AskAiMessages(metaclass=Singleton):
     def analysis_output(self) -> str:
         return self.translate("Analysing the provided command output: \n\n")
 
+    @lru_cache
+    def searching(self) -> str:
+        return self.translate(f"Researching on Google…")
+
     # Warnings and alerts
 
     @lru_cache

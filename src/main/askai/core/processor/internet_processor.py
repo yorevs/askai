@@ -15,10 +15,10 @@
 import logging as log
 from typing import Tuple, Optional, List
 
+from hspylib.core.zoned_datetime import now
 from langchain_core.prompts import PromptTemplate
 
 from askai.core.askai_messages import msg
-from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
 from askai.core.component.internet_service import internet
 from askai.core.model.query_response import QueryResponse
@@ -37,8 +37,8 @@ class InternetProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
-        template = PromptTemplate(input_variables=['user'], template=self.template())
-        final_prompt: str = msg.translate(template.format(user=prompt.user))
+        template = PromptTemplate(input_variables=['cur_date'], template=self.template())
+        final_prompt: str = msg.translate(template.format(cur_date=now('%a %d %b %Y')))
         shared.context.set("SETUP", final_prompt, 'system')
         shared.context.set("QUESTION", query_response.question)
         context: List[dict] = shared.context.get_many("SETUP", "QUESTION")
@@ -58,6 +58,9 @@ class InternetProcessor(AIProcessor):
             else:
                 log.debug('Reply found for "%s" in cache.', query_response.question)
                 output = response
+                shared.context.set("INTERNET", output, 'assistant')
                 status = True
+        except Exception as err:
+            output = msg.llm_error(str(err))
         finally:
             return status, output

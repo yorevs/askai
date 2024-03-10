@@ -14,11 +14,14 @@
 """
 import logging as log
 import os
-from typing import List, Optional
+from typing import Optional
 
 from hspylib.core.metaclass.singleton import Singleton
 from langchain_community.utilities import GoogleSearchAPIWrapper
 from langchain_core.tools import Tool
+
+from askai.core.askai_events import AskAiEvents
+from askai.core.askai_messages import msg
 
 
 class InternetService(metaclass=Singleton):
@@ -31,18 +34,28 @@ class InternetService(metaclass=Singleton):
     def __init__(self):
         self._search = GoogleSearchAPIWrapper()
         self._tool = Tool(
-            name="google_search", description="Search Google for recent results.", func=self._search.run,
+            name="google_search",
+            description="Search Google for recent results.",
+            func=self._top_results,
     )
 
-    def _top_results(self, query: str, max_results: int = 5) -> List[str]:
+    def _top_results(self, query: str, max_results: int = 5) -> str:
         """TODO"""
-        return self._search.results(query, max_results)
+        ln = os.linesep
+        results = self._search.results(query, max_results)
+        return ln.join([f"{i}- {r['snippet']}" for i, r in enumerate(results)])
 
     def search(self, query: str) -> Optional[str]:
         """TODO"""
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
         search_results = self._tool.run(query)
         log.debug(f"Internet search returned: %s", search_results)
         return os.linesep.join(search_results) if isinstance(search_results, list) else search_results
 
 
 assert (internet := InternetService().INSTANCE) is not None
+
+
+if __name__ == '__main__':
+    res = internet.search('Qual o proximo jogo do flamengo em 2024')
+    print(res)

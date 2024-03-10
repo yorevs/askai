@@ -57,5 +57,7 @@ class AnalysisProcessor(AIProcessor):
             else:
                 log.error(f"Analysis processing failed. CONTEXT=%s  RESPONSE=%s", context, response)
                 output = msg.llm_error(response.message)
+        except Exception as err:
+            output = msg.llm_error(str(err))
         finally:
             return status, output

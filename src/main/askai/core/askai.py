@@ -41,6 +41,7 @@ from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
+from askai.core.processor.internet_processor import InternetProcessor
 from askai.core.processor.processor_proxy import proxy
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
@@ -251,7 +252,12 @@ class AskAi:
         elif proxy_response.terminating:
             log.info("User wants to terminate the conversation.")
             return False
-
+        elif proxy_response.require_internet:
+            log.info("Internet is required to fulfill the request.")
+            i_processor = AIProcessor.get_by_name(InternetProcessor.__name__)
+            status, output = i_processor.process(proxy_response)
+            # i_ctx = shared.context.get("INTERNET")
+            # list(map(lambda c: context.insert(len(context) - 2, c), i_ctx))
         if q_type := proxy_response.query_type:
             if not (processor := AIProcessor.get_by_query_type(q_type)):
                 log.error(f"Unable to find a proper processor for query type: {q_type}")

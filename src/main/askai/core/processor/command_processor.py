@@ -74,6 +74,8 @@ class CommandProcessor(AIProcessor):
                     output = msg.invalid_cmd_format(response.message)
             else:
                 output = msg.llm_error(response.message)
+        except Exception as err:
+            output = msg.llm_error(str(err))
         finally:
             return status, output
 
