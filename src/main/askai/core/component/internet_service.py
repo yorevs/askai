@@ -47,6 +47,7 @@ class InternetService(metaclass=Singleton):
 
     def search(self, query: str) -> Optional[str]:
         """TODO"""
+        log.info("Searching GOOGLE for '%s'", query)
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
         search_results = self._tool.run(query)
         log.debug(f"Internet search returned: %s", search_results)

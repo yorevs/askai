@@ -86,7 +86,6 @@ class ObjectMapper(metaclass=Singleton):
             ret_val = self.convert(json_obj, to_class, mode)
         except (TypeError, InvalidMapping, JSONDecodeError) as err:
             raise InvalidJsonMapping(f"Could not decode JSON string '{json_string}' => {str(err)}") from err
-
         return ret_val
 
     def convert(self, from_obj: Any, to_class: Type, mode: ConversionMode = ConversionMode.STANDARD) -> Any:
