@@ -14,6 +14,7 @@
 """
 import logging as log
 import os
+from functools import lru_cache
 from typing import Optional
 
 from hspylib.core.metaclass.singleton import Singleton
@@ -41,13 +42,14 @@ class InternetService(metaclass=Singleton):
     )
 
     def _top_results(self, query: str, max_results: int = 5) -> str:
-        """TODO"""
+        """Get the top result from google, ordering by date."""
         ln = os.linesep
-        results = self._search.results(query, max_results)
+        results = self._search.results(query, max_results, search_params={'sort': 'date'})
         return ln.join([f"{i}- {r['snippet']}" for i, r in enumerate(results)])
 
+    @lru_cache
     def search(self, query: str) -> Optional[str]:
-        """TODO"""
+        """Search the web using google search API."""
         after = f"after: {now('%Y-%m-%d')}"
         log.info("Searching GOOGLE for '%s' '%s'", query, after)
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())

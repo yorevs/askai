@@ -23,7 +23,6 @@ from askai.core.component.internet_service import internet
 from askai.core.model.query_response import QueryResponse
 from askai.core.model.search_result import SearchResult
 from askai.core.processor.ai_processor import AIProcessor
-from askai.core.processor.generic_processor import GenericProcessor
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 
@@ -33,12 +32,6 @@ class InternetProcessor(AIProcessor):
 
     def __init__(self):
         super().__init__('internet-prompt', 'internet-persona')
-
-    def bind(self, next_in_chain: 'AIProcessor'):
-        pass  # Avoid re-binding the next in chain processor.
-
-    def next_in_chain(self) -> AIProcessor:
-        return AIProcessor.get_by_name(GenericProcessor.__name__)
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
@@ -56,7 +49,7 @@ class InternetProcessor(AIProcessor):
                     if results := internet.search(' + '.join(search_result.keywords)):
                         search_result.results = results
                         output = self._wrap_output(query_response, search_result)
-                        shared.context.set("INTERNET", output, 'assistant')
+                        shared.context.set("CONTEXT", output, 'assistant')
                         cache.save_reply(query_response.question, output)
                         status = True
                 else:
@@ -64,7 +57,7 @@ class InternetProcessor(AIProcessor):
             else:
                 log.debug('Reply found for "%s" in cache.', query_response.question)
                 output = response
-                shared.context.set("INTERNET", output, 'assistant')
+                shared.context.set("CONTEXT", output, 'assistant')
                 status = True
         except Exception as err:
             output = msg.llm_error(str(err))

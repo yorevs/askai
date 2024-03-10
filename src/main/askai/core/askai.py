@@ -257,6 +257,7 @@ class AskAi:
         elif proxy_response.require_internet:
             log.info("Internet is required to fulfill the request.")
             processor = AIProcessor.get_by_name(InternetProcessor.__name__)
+            processor.bind(AIProcessor.get_by_query_type(proxy_response.query_type))
         # Query processors
         if processor or (q_type := proxy_response.query_type):
             if not processor and not (processor := AIProcessor.get_by_query_type(q_type)):
