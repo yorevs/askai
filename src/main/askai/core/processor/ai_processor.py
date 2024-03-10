@@ -92,7 +92,7 @@ class AIProcessor(metaclass=ABCMeta):
         return self.processor_id()
 
     def query_desc(self) -> str:
-        """TODO"""
+        """Get a description about this processor. When empty, they will not be eligible for auto-select."""
         return ''
 
     def template(self) -> str:
