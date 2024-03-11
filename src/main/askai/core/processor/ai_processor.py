@@ -12,25 +12,24 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import os
 from abc import ABCMeta
+from askai.core.askai_prompt import prompt
+from askai.core.model.query_response import QueryResponse
 from functools import lru_cache
+from hspylib.core.tools.commons import dirname
+from hspylib.core.tools.text_tools import camelcase
 from importlib import import_module
 from os.path import basename
 from pathlib import Path
-from typing import Optional, Tuple, Dict
+from typing import Dict, Optional, Tuple
 
-from hspylib.core.tools.commons import dirname
-from hspylib.core.tools.text_tools import camelcase
-
-from askai.core.askai_prompt import prompt
-from askai.core.model.query_response import QueryResponse
+import os
 
 
 class AIProcessor(metaclass=ABCMeta):
     """Abstract class that helps implementing AskAI processors."""
 
-    _PROCESSORS: Dict[str, 'AIProcessor'] = {}
+    _PROCESSORS: Dict[str, "AIProcessor"] = {}
 
     @classmethod
     @lru_cache
@@ -43,7 +42,7 @@ class AIProcessor(metaclass=ABCMeta):
                 proc_name = os.path.splitext(proc)[0]
                 proc_pkg = import_module(f"{__package__}.{proc_name}")
                 proc_class = getattr(proc_pkg, camelcase(proc_name, capitalized=True))
-                proc_inst: 'AIProcessor' = proc_class()
+                proc_inst: "AIProcessor" = proc_class()
                 cls._PROCESSORS[proc_inst.processor_id()] = proc_inst
                 if proc_inst.query_desc():
                     q_types.append(str(proc_inst))
@@ -51,7 +50,7 @@ class AIProcessor(metaclass=ABCMeta):
 
     @classmethod
     @lru_cache
-    def get_by_query_type(cls, query_type: str) -> Optional['AIProcessor']:
+    def get_by_query_type(cls, query_type: str) -> Optional["AIProcessor"]:
         """Retrieve an AIProcessor by query type.
         :param query_type: The type of the query.
         """
@@ -59,7 +58,7 @@ class AIProcessor(metaclass=ABCMeta):
 
     @classmethod
     @lru_cache
-    def get_by_name(cls, name: str) -> Optional['AIProcessor']:
+    def get_by_name(cls, name: str) -> Optional["AIProcessor"]:
         """Retrieve an AIProcessor by its name.
         :param name: The name of the processor.
         """
@@ -93,16 +92,16 @@ class AIProcessor(metaclass=ABCMeta):
 
     def query_desc(self) -> str:
         """Get a description about this processor. When empty, they will not be eligible for auto-select."""
-        return ''
+        return ""
 
     def template(self) -> str:
         return prompt.read_prompt(self._template_file, self._persona_file)
 
-    def next_in_chain(self) -> Optional['AIProcessor']:
+    def next_in_chain(self) -> Optional["AIProcessor"]:
         """Return the next processor in the chain to call. Defaults to None."""
         return self._next_in_chain
 
-    def bind(self, next_in_chain: 'AIProcessor'):
+    def bind(self, next_in_chain: "AIProcessor"):
         """Bind a processor to be the next in chain."""
         self._next_in_chain = next_in_chain
 

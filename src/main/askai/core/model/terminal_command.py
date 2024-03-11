@@ -9,12 +9,13 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import json
-import os
 from dataclasses import dataclass
-import platform
 from os.path import basename
 from typing import Literal, TypeAlias
+
+import json
+import os
+import platform
 
 SupportedPlatforms: TypeAlias = Literal["linux", "windows", "darwin"] | None
 

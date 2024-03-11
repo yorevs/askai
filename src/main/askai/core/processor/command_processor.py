@@ -12,15 +12,6 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import os
-from shutil import which
-from typing import Tuple, Optional, List
-
-from clitt.core.term.terminal import Terminal
-from hspylib.modules.application.exit_status import ExitStatus
-from langchain_core.prompts import PromptTemplate
-
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -29,14 +20,22 @@ from askai.core.model.terminal_command import TerminalCommand
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.processor.output_processor import OutputProcessor
 from askai.core.support.shared_instances import shared
-from askai.core.support.utilities import extract_path, extract_command
+from askai.core.support.utilities import extract_command, extract_path
+from clitt.core.term.terminal import Terminal
+from hspylib.modules.application.exit_status import ExitStatus
+from langchain_core.prompts import PromptTemplate
+from shutil import which
+from typing import List, Optional, Tuple
+
+import logging as log
+import os
 
 
 class CommandProcessor(AIProcessor):
     """Process command request prompts."""
 
     def __init__(self):
-        super().__init__('command-prompt', 'command-persona')
+        super().__init__("command-prompt", "command-persona")
 
     def query_desc(self) -> str:
         return (
@@ -44,7 +43,7 @@ class CommandProcessor(AIProcessor):
             "file, folder and application management, listing, device assessment or inquiries."
         )
 
-    def bind(self, next_in_chain: 'AIProcessor'):
+    def bind(self, next_in_chain: "AIProcessor"):
         pass  # Avoid re-binding the next in chain processor.
 
     def next_in_chain(self) -> AIProcessor:
@@ -53,17 +52,15 @@ class CommandProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
-        template = PromptTemplate(
-            input_variables=['os_type', 'shell'], template=self.template())
-        final_prompt: str = template.format(
-            os_type=prompt.os_type, shell=prompt.shell)
-        shared.context.set("SETUP", final_prompt, 'system')
+        template = PromptTemplate(input_variables=["os_type", "shell"], template=self.template())
+        final_prompt: str = template.format(os_type=prompt.os_type, shell=prompt.shell)
+        shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", query_response.question)
         context: List[dict] = shared.context.get_many("CONTEXT", "SETUP", "QUESTION")
         log.info("Command::[QUESTION] '%s'  context=%s", query_response.question, context)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
-                log.debug('Command::[RESPONSE] Received from AI: %s.', response)
+                log.debug("Command::[RESPONSE] Received from AI: %s.", response)
                 shell, command = extract_command(response.message)
                 if command:
                     if shell and shell != prompt.shell:
@@ -101,16 +98,14 @@ class CommandProcessor(AIProcessor):
                             log.info("Current directory changed to '%s'", _path_)
                         else:
                             log.warning("Directory '%s' does not exist. Curdir unchanged!", _path_)
-                    AskAiEvents.ASKAI_BUS.events.reply.emit(
-                        message=msg.cmd_success(exit_code), erase_last=True)
+                    AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.cmd_success(exit_code), erase_last=True)
                     if not cmd_out:
                         cmd_out = msg.cmd_no_output()
                     else:
                         shared.context.push("CONTEXT", f"Command `{cmd_line}' output:\n\n```\n{cmd_out}\n```")
                         cmd_out = self._wrap_output(query_response, cmd_line, cmd_out)
                 else:
-                    log.error(
-                        "Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), cmd_line)
+                    log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), cmd_line)
                     cmd_out = msg.cmd_failed(cmd_line)
                 status = True
             else:

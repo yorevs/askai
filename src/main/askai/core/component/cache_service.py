@@ -12,16 +12,15 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import os
-from pathlib import Path
-from typing import Optional, Tuple, List
-
+from askai.core.support.utilities import hash_text
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.modules.cache.ttl_cache import TTLCache
+from pathlib import Path
+from typing import List, Optional, Tuple
 
-from askai.core.support.utilities import hash_text
+import os
 
 CACHE_DIR: Path = Path(f'{os.getenv("HHS_DIR", os.getenv("TEMP", "/tmp"))}/askai/cache')
 
@@ -39,7 +38,7 @@ if not REC_DIR.exists():
 class CacheService(metaclass=Singleton):
     """Provide a cache service for previously used queries, audio generation, etc..."""
 
-    INSTANCE: 'CacheService' = None
+    INSTANCE: "CacheService" = None
 
     _ttl_cache: TTLCache[str] = TTLCache(ttl_minutes=30)
 

@@ -9,22 +9,21 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import os
+from askai.exception.exceptions import TokenLengthExceeded
 from collections import defaultdict, namedtuple
 from functools import reduce
-from typing import Any, Literal, Optional, List, TypeAlias
-
 from hspylib.core.zoned_datetime import now
+from typing import Any, List, Literal, Optional, TypeAlias
 
-from askai.exception.exceptions import TokenLengthExceeded
+import os
 
-ChatRoles: TypeAlias = Literal['system', 'user', 'assistant']
+ChatRoles: TypeAlias = Literal["system", "user", "assistant"]
 
 
 class ChatContext:
     """Provide a chat context helper for AI engines."""
 
-    ContextEntry = namedtuple('ContextEntry', ['created_at', 'role', 'content'], rename=False)
+    ContextEntry = namedtuple("ContextEntry", ["created_at", "role", "content"], rename=False)
 
     def __init__(self, token_limit: int):
         self._context = defaultdict(list)
@@ -36,7 +35,7 @@ class ChatContext:
     def __getitem__(self, key) -> List[ContextEntry]:
         return self._context[key]
 
-    def push(self, key: str, content: Any, role: ChatRoles = 'user') -> List[dict]:
+    def push(self, key: str, content: Any, role: ChatRoles = "user") -> List[dict]:
         """Push a context message to the chat with the provided role."""
         entry = ChatContext.ContextEntry(now(), role, str(content))
         ctx = self._context[key]
@@ -46,7 +45,7 @@ class ChatContext:
         ctx.append(entry)
         return self.get(key)
 
-    def set(self, key: str, content: Any, role: ChatRoles = 'user') -> List[dict]:
+    def set(self, key: str, content: Any, role: ChatRoles = "user") -> List[dict]:
         """Set the context to the chat with the provided role."""
         self.clear(key)
         return self.push(key, content, role)
@@ -62,9 +61,7 @@ class ChatContext:
 
     def get(self, key: str) -> List[dict]:
         """Retrieve a context from the specified by key."""
-        return [
-            {'role': c.role, 'content': c.content} for c in self._context[key]
-        ] or []
+        return [{"role": c.role, "content": c.content} for c in self._context[key]] or []
 
     def get_many(self, *keys: str) -> List[dict]:
         """Retrieve many contexts from the specified by key."""
@@ -73,7 +70,7 @@ class ChatContext:
         for key in keys:
             if (content := self.get(key)) and (token_length + len(content)) > self._token_limit:
                 raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
-            context += content or ''
+            context += content or ""
         return context
 
     def clear(self, key: str) -> int:

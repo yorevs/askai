@@ -12,37 +12,36 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import os
-from pathlib import Path
-from typing import Callable, List, Tuple, Optional
-
-import pause
+from askai.core.askai_events import AskAiEvents
+from askai.core.askai_messages import msg
+from askai.core.component.cache_service import REC_DIR
+from askai.core.support.settings import Settings
+from askai.core.support.utilities import display_text
+from askai.exception.exceptions import IntelligibleAudioError, InvalidInputDevice, InvalidRecognitionApiError
+from askai.language.language import Language
 from clitt.core.term.cursor import Cursor
 from clitt.core.tui.mselect.mselect import mselect
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.zoned_datetime import now_ms
-from speech_recognition import AudioData, Recognizer, Microphone, UnknownValueError, RequestError, WaitTimeoutError
+from pathlib import Path
+from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
+from typing import Callable, List, Optional, Tuple
 
-from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import msg
-from askai.core.component.cache_service import REC_DIR
-from askai.core.support.settings import Settings
-from askai.core.support.utilities import display_text
-from askai.exception.exceptions import IntelligibleAudioError, InvalidRecognitionApiError, InvalidInputDevice
-from askai.language.language import Language
+import logging as log
+import os
+import pause
 
 
 class Recorder(metaclass=Singleton):
     """Provide an interface to record voice using the microphone device."""
 
-    INSTANCE: 'Recorder' = None
+    INSTANCE: "Recorder" = None
 
     ASKAI_SETTINGS_DIR: str = f'{os.getenv("HHS_DIR", os.getenv("TEMP", "/tmp"))}'
 
-    ASKAI_SETTINGS_FILE: str = '.askai.properties'
+    ASKAI_SETTINGS_FILE: str = ".askai.properties"
 
     class RecognitionApi(Enumeration):
         # fmt: off
@@ -70,10 +69,7 @@ class Recorder(metaclass=Singleton):
     def setup(self) -> None:
         """Setup the recorder."""
         self._devices = self.get_device_list()
-        log.debug(
-            "Available audio devices:\n%s",
-            "\n".join([f"{d[0]} - {d[1]}" for d in self._devices])
-        )
+        log.debug("Available audio devices:\n%s", "\n".join([f"{d[0]} - {d[1]}" for d in self._devices]))
         self._device_index = self._select_device()
         self._input_device = self._devices[self._device_index] if self._device_index is not None else None
 
@@ -86,9 +82,7 @@ class Recorder(metaclass=Singleton):
         return self._input_device if self._input_device else None
 
     def listen(
-        self,
-        recognition_api: RecognitionApi = RecognitionApi.OPEN_AI,
-        language: Language = Language.EN_US
+        self, recognition_api: RecognitionApi = RecognitionApi.OPEN_AI, language: Language = Language.EN_US
     ) -> Tuple[Path, str]:
         """Listen to the microphone, save the AudioData as a wav file and then, transcribe the speech.
         :param recognition_api: the API to be used to recognize the speech.
@@ -100,7 +94,8 @@ class Recorder(metaclass=Singleton):
                 self._detect_noise()
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.listening())
                 audio: AudioData = self._rec.listen(
-                    source, phrase_time_limit=self._rec_phrase_limit_s, timeout=self._rec_wait_timeout_s)
+                    source, phrase_time_limit=self._rec_phrase_limit_s, timeout=self._rec_wait_timeout_s
+                )
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.transcribing(), erase_last=True)
                 with open(audio_path, "wb") as f_rec:
                     f_rec.write(audio.get_wav_data())
@@ -114,7 +109,7 @@ class Recorder(metaclass=Singleton):
                     raise InvalidRecognitionApiError(str(recognition_api or "<none>"))
             except WaitTimeoutError:
                 log.warning("Timed out while waiting for a speech!")
-                stt_text = ''
+                stt_text = ""
             except AttributeError as err:
                 raise InvalidInputDevice(str(err)) from err
             except UnknownValueError as err:
@@ -140,12 +135,11 @@ class Recorder(metaclass=Singleton):
         done = False
         filepath: str = f"{self.ASKAI_SETTINGS_DIR}/{self.ASKAI_SETTINGS_FILE}"
         if not file_is_not_empty(filepath):
-            self._settings.set('askai.recorder.devices', None)
-            self._settings.set('askai.recorder.silence-timeout_ms', 1500)
-            self._settings.set('askai.recorder.phrase.limit_ms', 0)
+            self._settings.set("askai.recorder.devices", None)
+            self._settings.set("askai.recorder.silence-timeout_ms", 1500)
+            self._settings.set("askai.recorder.phrase.limit_ms", 0)
         available: List[str] = list(
-            filter(lambda d: d, map(
-                str.strip, eval(self._settings.get('askai.recorder.devices') or '[]')))
+            filter(lambda d: d, map(str.strip, eval(self._settings.get("askai.recorder.devices") or "[]")))
         )
         while not done:
             if available:
@@ -155,14 +149,13 @@ class Recorder(metaclass=Singleton):
                         return idx
             # Choose device from list
             idx_device: Tuple[int, str] = mselect(
-                self.devices,
-                f"{'-=' * 40}%EOL%AskAI::Select the Input device%EOL%{'=-' * 40}%EOL%"
+                self.devices, f"{'-=' * 40}%EOL%AskAI::Select the Input device%EOL%{'=-' * 40}%EOL%"
             )
             if not idx_device:
                 break
             elif self._test_device(idx_device[0]):
                 available.append(idx_device[1])
-                self._settings.set('askai.recorder.devices', available)
+                self._settings.set("askai.recorder.devices", available)
                 self._settings.save()
                 return idx_device[0]
 

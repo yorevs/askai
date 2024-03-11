@@ -1,10 +1,10 @@
-import os
-from typing import Any
-
 from hspylib.core.config.properties import Properties
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import touch_file
 from hspylib.core.tools.text_tools import ensure_endswith
+from typing import Any
+
+import os
 
 
 class Settings(Properties):
@@ -21,7 +21,7 @@ class Settings(Properties):
 
     @property
     def filepath(self) -> str:
-        return ensure_endswith(f"{self._load_dir}/{self._filename}", '.properties')
+        return ensure_endswith(f"{self._load_dir}/{self._filename}", ".properties")
 
     def set(self, key: str, value: Any) -> None:
         """Add or set the setting and it's associated value."""
@@ -37,6 +37,6 @@ class Settings(Properties):
 
     def save(self) -> None:
         """Save current settings to the associated file."""
-        with open(self.filepath, 'w') as f_settings:
+        with open(self.filepath, "w") as f_settings:
             f_settings.writelines([f"{key} = {value} \n" for (key, value) in self._properties.items()])
             f_settings.flush()

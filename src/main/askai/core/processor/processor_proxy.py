@@ -12,32 +12,31 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-from functools import cached_property
-from typing import Tuple, List
-
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import PromptTemplate
-
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
+from functools import cached_property
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.prompts import PromptTemplate
+from typing import List, Tuple
+
+import logging as log
 
 
 class ProcessorProxy(metaclass=Singleton):
     """TODO"""
 
-    INSTANCE: 'ProcessorProxy' = None
+    INSTANCE: "ProcessorProxy" = None
 
     def __init__(self):
         self._query_types: str = AIProcessor.find_query_types()
 
     @cached_property
     def template(self) -> str:
-        return prompt.read_prompt('proxy-prompt', 'proxy-persona')
+        return prompt.read_prompt("proxy-prompt", "proxy-persona")
 
     @property
     def query_types(self) -> str:
@@ -48,16 +47,14 @@ class ProcessorProxy(metaclass=Singleton):
         :param question: The question to the AI engine.
         """
         status = False
-        template = PromptTemplate(
-            input_variables=[], template=self.template
-        )
-        final_prompt =  msg.translate(template.format(query_types=self.query_types))
-        shared.context.set("SETUP", final_prompt, 'system')
+        template = PromptTemplate(input_variables=[], template=self.template)
+        final_prompt = msg.translate(template.format(query_types=self.query_types))
+        shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", question)
         context: List[dict] = shared.context.get_many("CONTEXT", "SETUP", "QUESTION")
         log.info("Ask::[QUESTION] '%s'  context=%s", question, context)
         if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
-            log.info('Ask::[PROXY] Received from AI: %s.', str(response))
+            log.info("Ask::[PROXY] Received from AI: %s.", str(response))
             output = object_mapper.of_json(response.message, QueryResponse)
             if not isinstance(output, QueryResponse):
                 log.error(msg.invalid_response(output))

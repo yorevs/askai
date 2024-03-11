@@ -12,16 +12,6 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import os
-from threading import Thread
-from typing import List, Any, Optional
-
-import langchain_openai
-import pause
-from hspylib.core.preconditions import check_not_none
-from openai import APIError, OpenAI
-
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.cache_service import CacheService
 from askai.core.component.recorder import Recorder
@@ -30,7 +20,16 @@ from askai.core.engine.openai.openai_configs import OpenAiConfigs
 from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.model.ai_model import AIModel
 from askai.core.model.ai_reply import AIReply
-from askai.core.support.utilities import stream_text, display_text
+from askai.core.support.utilities import display_text, stream_text
+from hspylib.core.preconditions import check_not_none
+from openai import APIError, OpenAI
+from threading import Thread
+from typing import Any, List, Optional
+
+import langchain_openai
+import logging as log
+import os
+import pause
 
 
 class OpenAIEngine(AIEngine):
@@ -52,8 +51,7 @@ class OpenAIEngine(AIEngine):
         return self._client
 
     def lc_model(self, **kwargs: Any) -> Any:
-        """Create a LangChain OpenAI llm model instance.
-        """
+        """Create a LangChain OpenAI llm model instance."""
         return langchain_openai.OpenAI(openai_api_key=self._api_key, **kwargs)
 
     def ai_name(self) -> str:
@@ -83,10 +81,7 @@ class OpenAIEngine(AIEngine):
         try:
             check_not_none(chat_context)
             log.debug(f"Generating AI answer")
-            response = self.client.chat.completions.create(
-                model=self.ai_model_name(), messages=chat_context,
-                **kwargs
-            )
+            response = self.client.chat.completions.create(model=self.ai_model_name(), messages=chat_context, **kwargs)
             reply = AIReply(response.choices[0].message.content, True)
             log.debug("Response received from LLM: %s", str(reply))
         except APIError as error:
@@ -114,9 +109,7 @@ class OpenAIEngine(AIEngine):
         else:
             log.debug(f"Audio file found in cache: '%s' at %s", text, speech_file_path)
         speak_thread = Thread(
-            daemon=True,
-            target=AudioPlayer.INSTANCE.play_audio_file,
-            args=(speech_file_path, self._configs.tempo)
+            daemon=True, target=AudioPlayer.INSTANCE.play_audio_file, args=(speech_file_path, self._configs.tempo)
         )
         speak_thread.start()
         pause.seconds(AudioPlayer.INSTANCE.start_delay())
@@ -125,10 +118,7 @@ class OpenAIEngine(AIEngine):
         speak_thread.join()  # Block until the speech has finished.
 
     def speech_to_text(self) -> Optional[str]:
-        """Transcribes audio input from the microphone into the text input language.
-        """
-        _, text = Recorder.INSTANCE.listen(
-            Recorder.RecognitionApi.OPEN_AI, self._configs.language
-        )
+        """Transcribes audio input from the microphone into the text input language."""
+        _, text = Recorder.INSTANCE.listen(Recorder.RecognitionApi.OPEN_AI, self._configs.language)
         log.debug(f"Audio transcribed to: {text}")
         return text.strip()

@@ -12,10 +12,9 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from typing import List, Protocol, Any, Optional
-
 from askai.core.model.ai_model import AIModel
 from askai.core.model.ai_reply import AIReply
+from typing import Any, List, Optional, Protocol
 
 
 class AIEngine(Protocol):
@@ -58,6 +57,5 @@ class AIEngine(Protocol):
         ...
 
     def speech_to_text(self) -> Optional[str]:
-        """Transcribes audio input from the microphone into the text input language.
-        """
+        """Transcribes audio input from the microphone into the text input language."""
         ...

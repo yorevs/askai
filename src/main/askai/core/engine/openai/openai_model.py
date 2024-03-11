@@ -12,12 +12,10 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from hspylib.core.preconditions import check_not_none
-
-from hspylib.core.enums.enumeration import Enumeration
-from typing import List
-
 from askai.core.model.ai_model import AIModel
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.preconditions import check_not_none
+from typing import List
 
 
 class OpenAIModel(Enumeration):
@@ -65,4 +63,3 @@ class OpenAIModel(Enumeration):
     def token_limit(self) -> int:
         """Get the official model tokens limit."""
         return self._token_limit
-

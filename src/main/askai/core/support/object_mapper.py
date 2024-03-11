@@ -9,17 +9,16 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import inspect
-import json
+from askai.exception.exceptions import InvalidJsonMapping, InvalidMapping
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.singleton import Singleton
 from inspect import isclass
 from json import JSONDecodeError
 from types import SimpleNamespace
-from typing import Type, Callable, Dict, Optional, Any, TypeAlias
+from typing import Any, Callable, Dict, Optional, Type, TypeAlias
 
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.singleton import Singleton
-
-from askai.exception.exceptions import InvalidJsonMapping, InvalidMapping
+import inspect
+import json
 
 FnConverter: TypeAlias = Callable[[Any, Type], Any]
 
@@ -27,7 +26,7 @@ FnConverter: TypeAlias = Callable[[Any, Type], Any]
 class ObjectMapper(metaclass=Singleton):
     """Provide a utility class to convert one object into the other, and vice-versa."""
 
-    INSTANCE: 'ObjectMapper' = None
+    INSTANCE: "ObjectMapper" = None
 
     @staticmethod
     def _hash(type_from: Any, type_to: Type) -> str:
@@ -54,8 +53,9 @@ class ObjectMapper(metaclass=Singleton):
     @classmethod
     def get_class_attributes(cls, clazz: Type):
         return [
-            item[0] for item in inspect.getmembers(clazz)
-            if not callable(getattr(clazz, item[0])) and not item[0].startswith('__')
+            item[0]
+            for item in inspect.getmembers(clazz)
+            if not callable(getattr(clazz, item[0])) and not item[0].startswith("__")
         ]
 
     class ConversionMode(Enumeration):
@@ -78,9 +78,9 @@ class ObjectMapper(metaclass=Singleton):
         return self.ConversionMode.STANDARD
 
     def of_json(self, json_string: str, to_class: Type, mode: ConversionMode = ConversionMode.STANDARD) -> Any:
-        """"Convert a JSON string to an object on the provided type."""
+        """ "Convert a JSON string to an object on the provided type."""
         if not json_string:
-            return ''
+            return ""
         try:
             json_obj = json.loads(json_string, object_hook=lambda d: SimpleNamespace(**d))
             ret_val = self.convert(json_obj, to_class, mode)

@@ -12,39 +12,34 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import os
+from askai.core.askai_events import AskAiEvents
+from askai.core.askai_messages import msg
 from functools import lru_cache
-from typing import Optional
-
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.zoned_datetime import now
 from langchain_community.utilities import GoogleSearchAPIWrapper
 from langchain_core.tools import Tool
+from typing import Optional
 
-from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import msg
+import logging as log
+import os
 
 
 class InternetService(metaclass=Singleton):
     """Provide a internet search service used to complete queries that require realtime data.ß"""
 
-    INSTANCE: 'InternetService' = None
+    INSTANCE: "InternetService" = None
 
     ASKAI_INTERNET_DATA_KEY = "askai-internet-data"
 
     def __init__(self):
         self._search = GoogleSearchAPIWrapper()
-        self._tool = Tool(
-            name="google_search",
-            description="Search Google for recent results.",
-            func=self._top_results,
-    )
+        self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._top_results)
 
     def _top_results(self, query: str, max_results: int = 5) -> str:
         """Get the top result from google, ordering by date."""
         ln = os.linesep
-        results = self._search.results(query, max_results, search_params={'sort': 'date'})
+        results = self._search.results(query, max_results, search_params={"sort": "date"})
         return ln.join([f"{i}- {r['snippet']}" for i, r in enumerate(results)])
 
     @lru_cache

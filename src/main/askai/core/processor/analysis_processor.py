@@ -12,22 +12,21 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-from typing import Tuple, Optional, List
-
-from langchain_core.prompts import PromptTemplate
-
 from askai.core.askai_messages import msg
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.support.shared_instances import shared
+from langchain_core.prompts import PromptTemplate
+from typing import List, Optional, Tuple
+
+import logging as log
 
 
 class AnalysisProcessor(AIProcessor):
     """Process analysis prompts."""
 
     def __init__(self):
-        super().__init__('analysis-prompt', 'analysis-persona')
+        super().__init__("analysis-prompt", "analysis-persona")
 
     def query_desc(self) -> str:
         return (
@@ -40,19 +39,18 @@ class AnalysisProcessor(AIProcessor):
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         output = None
-        template = PromptTemplate(
-            input_variables=[], template=self.template())
+        template = PromptTemplate(input_variables=[], template=self.template())
         final_prompt: str = msg.translate(template.format())
-        shared.context.set("SETUP", final_prompt, 'system')
+        shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", query_response.question)
         context: List[dict] = shared.context.get_many("CONTEXT", "SETUP", "QUESTION")
         log.info("Analysis::[QUESTION] '%s'  context=%s", query_response.question, context)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
-                log.debug('Analysis::[RESPONSE] Received from AI: %s.', response)
+                log.debug("Analysis::[RESPONSE] Received from AI: %s.", response)
                 if output := response.message:
                     shared.context.push("CONTEXT", query_response.question)
-                    shared.context.push("CONTEXT", output, 'assistant')
+                    shared.context.push("CONTEXT", output, "assistant")
                 status = True
             else:
                 log.error(f"Analysis processing failed. CONTEXT=%s  RESPONSE=%s", context, response)

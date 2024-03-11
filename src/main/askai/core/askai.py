@@ -12,26 +12,9 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import os
-import sys
-from threading import Thread
-from typing import List, Optional
-
-import pause
-from clitt.core.term.cursor import Cursor
-from clitt.core.term.screen import Screen
-from clitt.core.term.terminal import Terminal
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import sysout
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.cli.keyboard import Keyboard
-from hspylib.modules.eventbus.event import Event
-
 from askai.__classpath__ import _Classpath
 from askai.core.askai_configs import configs
-from askai.core.askai_events import AskAiEvents, ASKAI_BUS_NAME, REPLY_EVENT
+from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_EVENT
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.audio_player import AudioPlayer
@@ -41,12 +24,27 @@ from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
-from askai.core.processor.generic_processor import GenericProcessor
 from askai.core.processor.internet_processor import InternetProcessor
 from askai.core.processor.processor_proxy import proxy
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
+from clitt.core.term.cursor import Cursor
+from clitt.core.term.screen import Screen
+from clitt.core.term.terminal import Terminal
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import sysout
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.cli.keyboard import Keyboard
+from hspylib.modules.eventbus.event import Event
+from threading import Thread
+from typing import List, Optional
+
+import logging as log
+import os
+import pause
+import sys
 
 
 class AskAi:
@@ -60,13 +58,7 @@ class AskAi:
         sys.exit(ExitStatus.FAILED.val)
 
     def __init__(
-        self,
-        interactive: bool,
-        is_speak: bool,
-        tempo: int,
-        engine_name: str,
-        model_name: str,
-        query: str | List[str],
+        self, interactive: bool, is_speak: bool, tempo: int, engine_name: str, model_name: str, query: str | List[str]
     ):
         self._interactive: bool = interactive
         self._ready: bool = False
@@ -79,7 +71,7 @@ class AskAi:
         configs.tempo = tempo
 
     def __str__(self) -> str:
-        device_info = (' using ' + recorder.input_device[1]) if recorder.input_device else ''
+        device_info = (" using " + recorder.input_device[1]) if recorder.input_device else ""
         return (
             f"%GREEN%"
             f"{'-=' * 40} %EOL%"
@@ -179,9 +171,7 @@ class AskAi:
 
     def _startup(self) -> None:
         """Initialize the application."""
-        splash_thread: Thread = Thread(
-            daemon=True, target=self._splash
-        )
+        splash_thread: Thread = Thread(daemon=True, target=self._splash)
         if configs.is_speak:
             recorder.setup()
             configs.is_speak = recorder.input_device is not None
@@ -196,7 +186,7 @@ class AskAi:
         log.info("AskAI is ready !")
         splash_thread.join()
         display_text(self)
-        self.reply(msg.welcome(os.getenv('USER', 'you')))
+        self.reply(msg.welcome(os.getenv("USER", "you")))
 
     def _prompt(self) -> None:
         """Prompt for user interaction."""
@@ -215,13 +205,13 @@ class AskAi:
         ret = None
         while ret is None:
             ret = line_input(__prompt)
-            if self.is_speak and ret == Keyboard.VK_CTRL_L:  # Use speech as input method.
+            if ret == Keyboard.VK_CTRL_L:  # Use speech as input method.
                 Terminal.INSTANCE.cursor.erase_line()
                 spoken_text = self.engine.speech_to_text()
                 if spoken_text:
                     display_text(f"{self.username}: {spoken_text}")
                     ret = spoken_text
-            elif not self.is_speak and not isinstance(ret, str):
+            elif not isinstance(ret, str):
                 display_text(f"{self.username}: %YELLOW%Speech-To-Text is disabled!%NC%", erase_last=True)
                 ret = None
 

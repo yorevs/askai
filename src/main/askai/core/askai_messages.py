@@ -1,17 +1,15 @@
-from functools import lru_cache
-
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.modules.application.exit_status import ExitStatus
-
 from askai.core.askai_configs import configs
 from askai.language.argos_translator import ArgosTranslator
 from askai.language.language import Language
+from functools import lru_cache
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.modules.application.exit_status import ExitStatus
 
 
 class AskAiMessages(metaclass=Singleton):
     """Provide access to static 'translated' messages."""
 
-    INSTANCE: 'AskAiMessages' = None
+    INSTANCE: "AskAiMessages" = None
 
     def __init__(self):
         self._translator = ArgosTranslator(Language.EN_US, configs.language)

@@ -13,10 +13,8 @@
    Copyright·(c)·2024,·HSPyLib
 """
 
-import logging as log
-import sys
-from textwrap import dedent
-
+from askai.__classpath__ import _Classpath
+from askai.core.askai import AskAi
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.dict_tools import get_or_default
@@ -24,9 +22,10 @@ from hspylib.core.zoned_datetime import now
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
+from textwrap import dedent
 
-from askai.__classpath__ import _Classpath
-from askai.core.askai import AskAi
+import logging as log
+import sys
 
 
 class Main(TUIApplication):

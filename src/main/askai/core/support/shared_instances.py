@@ -1,17 +1,15 @@
-from typing import Optional
-
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_state
-
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
 from askai.core.model.chat_context import ChatContext
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_state
+from typing import Optional
 
 
 class SharedInstances(metaclass=Singleton):
     """TODO"""
 
-    INSTANCE: 'SharedInstances' = None
+    INSTANCE: "SharedInstances" = None
 
     def __init__(self) -> None:
         self._engine: Optional[AIEngine] = None

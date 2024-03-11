@@ -1,9 +1,9 @@
-import re
-
 from hspylib.core.enums.charset import Charset
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.tools.dict_tools import get_or_default
 from typing import Tuple
+
+import re
 
 
 class Language(Enumeration):
@@ -148,19 +148,19 @@ class Language(Enumeration):
         :param locale: The locale to parse.
         """
         # Replace possible 'loc:charset' values
-        loc_enc: tuple = locale if isinstance(locale, tuple) else tuple(re.split(r'[:.]', locale))
+        loc_enc: tuple = locale if isinstance(locale, tuple) else tuple(re.split(r"[:.]", locale))
         lang = get_or_default(loc_enc, 0, Language.EN_US.language)
         encoding = get_or_default(loc_enc, 1, Charset.UTF_8.val).lower()
         locale = f"{lang}.{encoding}"
         return next((Language.of_value(ln) for ln in Language.values() if ln[0] == locale), None)
 
     def __init__(self, locale: str, name: str, country: str):
-        self._locale: tuple = tuple(re.split(r'[:.]', locale))
+        self._locale: tuple = tuple(re.split(r"[:.]", locale))
         self._name: str = name
         self._country: str = country
         self._encoding: Charset = Charset.of_value(self._locale[1])
         self._idiom = self._locale[0]
-        lang = locale.split('_')
+        lang = locale.split("_")
         self._language, self._territory = lang[0], lang[1]
 
     def __str__(self):

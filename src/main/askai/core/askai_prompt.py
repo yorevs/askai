@@ -12,21 +12,19 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from functools import lru_cache
-from string import Template
-
-from hspylib.core.metaclass.singleton import Singleton
-
 from askai.__classpath__ import _Classpath
 from askai.core.askai_configs import configs
-from askai.core.model.terminal_command import SupportedPlatforms, get_shell, SupportedShells, get_os, get_user
+from askai.core.model.terminal_command import get_os, get_shell, get_user, SupportedPlatforms, SupportedShells
 from askai.core.support.utilities import read_resource
+from functools import lru_cache
+from hspylib.core.metaclass.singleton import Singleton
+from string import Template
 
 
 class AskAiPrompt(metaclass=Singleton):
     """Provide the prompts used by the AskAi."""
 
-    INSTANCE: 'AskAiPrompt' = None
+    INSTANCE: "AskAiPrompt" = None
 
     # AI Prompts directory.
     PROMPT_DIR = str(_Classpath.resource_path()) + "/assets/prompts"

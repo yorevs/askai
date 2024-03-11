@@ -1,10 +1,10 @@
-import os
 from functools import partial
-from typing import Optional
-
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.namespace import Namespace
-from hspylib.modules.eventbus.eventbus import EventBus, emit
+from hspylib.modules.eventbus.eventbus import emit, EventBus
+from typing import Optional
+
+import os
 
 ASKAI_BUS_NAME: str = "askai-reply-bus"
 
@@ -39,7 +39,7 @@ class AskAiEvents(Enumeration):
             self.name = bus_name
             self.bus = EventBus.get(bus_name)
             for key, evt in kwargs.items():
-                setattr(evt, 'emit', partial(emit, bus_name, evt.name, **vars(evt)))
+                setattr(evt, "emit", partial(emit, bus_name, evt.name, **vars(evt)))
             self.events = Namespace(f"AskAi-EventBus::{bus_name}", True, **kwargs)
 
         def __str__(self):

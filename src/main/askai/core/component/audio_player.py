@@ -12,26 +12,25 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import time
-from functools import lru_cache
-from shutil import which
-from typing import Literal
-
+from askai.__classpath__ import _Classpath
 from clitt.core.term.terminal import Terminal
+from functools import lru_cache
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.application.exit_status import ExitStatus
+from shutil import which
+from typing import Literal
 
-from askai.__classpath__ import _Classpath
+import logging as log
+import time
 
 
 class AudioPlayer(metaclass=Singleton):
     """Provide an interface to play audio using the default speaker device."""
 
-    INSTANCE: 'AudioPlayer' = None
+    INSTANCE: "AudioPlayer" = None
 
     # Sound effects directory.
     SFX_DIR = str(_Classpath.resource_path()) + "/assets/sound-fx"
@@ -54,7 +53,7 @@ class AudioPlayer(metaclass=Singleton):
         return False
 
     def __init__(self):
-        check_argument(which("ffplay") is not None, 'ffmpeg::ffplay is required to play audio')
+        check_argument(which("ffplay") is not None, "ffmpeg::ffplay is required to play audio")
 
     @lru_cache
     def start_delay(self) -> float:
@@ -84,7 +83,7 @@ class AudioPlayer(metaclass=Singleton):
 
         return ret
 
-    def play_sfx(self, filename: str, file_ext: Literal['.mp3', '.wav', '.m4a'] = '.mp3') -> bool:
+    def play_sfx(self, filename: str, file_ext: Literal[".mp3", ".wav", ".m4a"] = ".mp3") -> bool:
         """Play a sound effect audio file.
         :param filename: The filename of the sound effect.
         :param file_ext: the file extension.
