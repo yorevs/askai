@@ -4,8 +4,8 @@
 """
    @project: HsPyLib-AskAI
    @package: askai.core.processor
-      @file: generic_processor.py
-   @created: Fri, 23 Feb 2024
+      @file: internet_processor.py
+   @created: Sun, 10 Mar 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
       @site: https://github.com/yorevs/hspylib
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
@@ -60,8 +60,8 @@ class InternetProcessor(AIProcessor):
                 status = True
         except Exception as err:
             output = msg.llm_error(str(err))
-        finally:
-            return status, output
+
+        return status, output
 
     def _wrap_output(self, query_response: QueryResponse, search_result: SearchResult) -> str:
         """Wrap the output into a new string to be forwarded to the next processor.

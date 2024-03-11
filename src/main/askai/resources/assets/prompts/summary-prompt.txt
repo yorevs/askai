@@ -1,0 +1,9 @@
+${persona}
+
+Before responding to the user, you must follow the step-by-step instructions provided below in sequential order:
+
+1. Fix any syntax or semantic error on the question before analysing it.
+2. Determine the folders, files or documents you need to summarize.
+3. Generate a JSON response containing the designated fields.
+4. The final response 'JSON' must contain the fields: 'paths' and 'question'.
+5. The final response is a formatted JSON with no additional description or context.

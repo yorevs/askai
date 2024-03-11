@@ -3,9 +3,9 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.utils
-      @file: cache_service.py
-   @created: Tue, 16 Jan 2024
+   @package: askai.core.component
+      @file: internet_service.py
+   @created: Sun, 10 Mar 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
       @site: https://github.com/yorevs/hspylib
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
@@ -26,7 +26,7 @@ import os
 
 
 class InternetService(metaclass=Singleton):
-    """Provide a internet search service used to complete queries that require realtime data.ß"""
+    """Provide a internet search service to complete queries that require realtime data."""
 
     INSTANCE: "InternetService" = None
 

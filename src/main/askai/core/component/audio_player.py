@@ -3,7 +3,7 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.components
+   @package: askai.core.component
       @file: audio_player.py
    @created: Wed, 22 Feb 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"

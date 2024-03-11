@@ -51,7 +51,6 @@ class CommandProcessor(AIProcessor):
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        output = None
         template = PromptTemplate(input_variables=["os_type", "shell"], template=self.template())
         final_prompt: str = template.format(os_type=prompt.os_type, shell=prompt.shell)
         shared.context.set("SETUP", final_prompt, "system")
@@ -73,8 +72,8 @@ class CommandProcessor(AIProcessor):
                 output = msg.llm_error(response.message)
         except Exception as err:
             output = msg.llm_error(str(err))
-        finally:
-            return status, output
+
+        return status, output
 
     def _process_command(self, query_response: QueryResponse, cmd_line: str) -> Tuple[bool, Optional[str]]:
         """Process a terminal command.

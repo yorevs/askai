@@ -3,7 +3,7 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.utils
+   @package: askai.core.component
       @file: cache_service.py
    @created: Tue, 16 Jan 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"

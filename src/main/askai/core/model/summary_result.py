@@ -4,8 +4,8 @@
 """
    @project: HsPyLib-AskAI
    @package: askai.core.model
-      @file: search_result.py
-   @created: Sun, 12 Mar 2024
+      @file: summary_result.py
+   @created: Sun, 10 Mar 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
       @site: https://github.com/yorevs/hspylib
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
@@ -19,12 +19,12 @@ import json
 
 
 @dataclass
-class SearchResult:
-    """Keep track of the internet search responses."""
+class SummaryResult:
+    """Keep track of the summarization responses."""
 
-    keywords: List[str] = None
-    urls: str | List[str] = None
-    results: str = None
+    paths: List[str] = None
+    question: str = None
+    summary: str = None
 
     def __str__(self):
-        return f"Internet search results: {json.dumps(self.__dict__, default=lambda obj: obj.__dict__)}"
+        return f"Summarization: {json.dumps(self.__dict__, default=lambda obj: obj.__dict__)}"

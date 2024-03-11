@@ -56,5 +56,5 @@ class GenericProcessor(AIProcessor):
                 output = msg.llm_error(response.message)
         except Exception as err:
             output = msg.llm_error(str(err))
-        finally:
-            return status, output
+
+        return status, output

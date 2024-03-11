@@ -38,7 +38,6 @@ class AnalysisProcessor(AIProcessor):
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        output = None
         template = PromptTemplate(input_variables=[], template=self.template())
         final_prompt: str = msg.translate(template.format())
         shared.context.set("SETUP", final_prompt, "system")
@@ -57,5 +56,5 @@ class AnalysisProcessor(AIProcessor):
                 output = msg.llm_error(response.message)
         except Exception as err:
             output = msg.llm_error(str(err))
-        finally:
-            return status, output
+
+        return status, output
