@@ -12,17 +12,17 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import msg
-from functools import lru_cache
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.zoned_datetime import now
-from langchain_community.utilities import GoogleSearchAPIWrapper
-from langchain_core.tools import Tool
-from typing import Optional
-
 import logging as log
 import os
+from functools import lru_cache
+from typing import Optional
+
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_community.utilities import GoogleSearchAPIWrapper
+from langchain_core.tools import Tool
+
+from askai.core.askai_events import AskAiEvents
+from askai.core.askai_messages import msg
 
 
 class InternetService(metaclass=Singleton):
@@ -43,12 +43,30 @@ class InternetService(metaclass=Singleton):
         return ln.join([f"{i}- {r['snippet']}" for i, r in enumerate(results)])
 
     @lru_cache
-    def search(self, query: str) -> Optional[str]:
+    def search(self, query: str, after: str) -> Optional[str]:
         """Search the web using google search API."""
-        after = f"after: {now('%Y-%m-%d')}"
+        after = f"after: {after}"
         log.info("Searching GOOGLE for '%s' '%s'", query, after)
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
         search_results = self._tool.run(f"{query} + {after}")
+        log.debug(f"Internet search returned: %s", search_results)
+        return os.linesep.join(search_results) if isinstance(search_results, list) else search_results
+
+    @lru_cache
+    def search_sites(self, query: str, after: str, *urls: str) -> Optional[str]:
+        """Search the web using google search API.
+        :param query: TODO
+        :param after: TODO
+        :param urls: TODO
+        """
+        search_results = ''
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
+        after = f"after: {after}"
+        for url in urls:
+            site = f"site: {url}"
+            log.info("Searching GOOGLE for '%s'  '%s'  '%s'", query, after, site)
+            results = self._tool.run(f"{query} + {site} + {after}")
+            search_results += str(results)
         log.debug(f"Internet search returned: %s", search_results)
         return os.linesep.join(search_results) if isinstance(search_results, list) else search_results
 

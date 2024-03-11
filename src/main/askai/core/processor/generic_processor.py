@@ -44,7 +44,7 @@ class GenericProcessor(AIProcessor):
         final_prompt: str = msg.translate(template.format(user=prompt.user))
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", query_response.question)
-        context: ContextRaw = shared.context.join("GENERAL", "SETUP", "QUESTION")
+        context: ContextRaw = shared.context.join("GENERAL", "INTERNET", "SETUP", "QUESTION")
         log.info("Setup::[GENERIC] '%s'  context=%s", query_response.question, context)
         try:
             if (response := shared.engine.ask(context, temperature=1, top_p=1)) and response.is_success:

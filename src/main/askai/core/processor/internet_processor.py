@@ -15,6 +15,7 @@
 import logging as log
 from typing import Optional, Tuple
 
+from hspylib.core.zoned_datetime import now
 from langchain_core.prompts import PromptTemplate
 
 from askai.core.askai_messages import msg
@@ -46,11 +47,11 @@ class InternetProcessor(AIProcessor):
         try:
             if not (response := cache.read_reply(query_response.question)):
                 if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
-                    search_result: SearchResult = object_mapper.of_json(response.message, SearchResult)
-                    if results := internet.search(" + ".join(search_result.keywords)):
-                        search_result.results = results
-                        output = self._wrap_output(query_response, search_result)
-                        shared.context.set("CONTEXT", output, "assistant")
+                    search: SearchResult = object_mapper.of_json(response.message, SearchResult)
+                    if results := internet.search_sites(" + ".join(search.keywords), now('%Y-%d-%m'), *search.urls):
+                        search.results = results
+                        output = self._wrap_output(query_response, search)
+                        shared.context.set("INTERNET", output, "assistant")
                         cache.save_reply(query_response.question, output)
                         status = True
                 else:
@@ -58,7 +59,7 @@ class InternetProcessor(AIProcessor):
             else:
                 log.debug('Reply found for "%s" in cache.', query_response.question)
                 output = response
-                shared.context.set("CONTEXT", output, "assistant")
+                shared.context.set("INTERNET", output, "assistant")
                 status = True
         except Exception as err:
             output = msg.llm_error(str(err))
