@@ -34,38 +34,25 @@ class InternetService(metaclass=Singleton):
 
     def __init__(self):
         self._search = GoogleSearchAPIWrapper()
-        self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._top_results)
-
-    def _top_results(self, query: str, max_results: int = 5) -> str:
-        """Get the top result from google, ordering by date."""
-        ln = os.linesep
-        results = self._search.results(query, max_results, search_params={"sort": "date"})
-        return ln.join([f"{i}- {r['snippet']}" for i, r in enumerate(results)])
-
-    @lru_cache
-    def search(self, query: str, after: str) -> Optional[str]:
-        """Search the web using google search API."""
-        after = f"after: {after}"
-        log.info("Searching GOOGLE for '%s' '%s'", query, after)
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
-        search_results = self._tool.run(f"{query} + {after}")
-        log.debug(f"Internet search returned: %s", search_results)
-        return os.linesep.join(search_results) if isinstance(search_results, list) else search_results
+        self._tool = Tool(
+            name="google_search",
+            description="Search Google for recent results.",
+            func=self._search.run)
 
     @lru_cache
     def search_sites(self, query: str, after: str, *urls: str) -> Optional[str]:
         """Search the web using google search API.
+        :param after:
         :param query: TODO
-        :param after: TODO
         :param urls: TODO
         """
         search_results = ''
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
-        after = f"after: {after}"
+        date = f"after: {after}"
         for url in urls:
             site = f"site: {url}"
-            log.info("Searching GOOGLE for '%s'  '%s'  '%s'", query, after, site)
-            results = self._tool.run(f"{query} + {site} + {after}")
+            log.info("Searching GOOGLE for '%s'  '%s'  '%s'", query, site, date)
+            results = self._tool.run(f"{query} + {site} + {date}")
             search_results += str(results)
         log.debug(f"Internet search returned: %s", search_results)
         return os.linesep.join(search_results) if isinstance(search_results, list) else search_results
