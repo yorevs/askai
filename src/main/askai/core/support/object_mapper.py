@@ -28,13 +28,19 @@ class ObjectMapper(metaclass=Singleton):
 
     INSTANCE: "ObjectMapper" = None
 
+    class ConversionMode(Enumeration):
+        """TODO"""
+
+        # fmt: off
+        STANDARD    = '_standard_converter'
+        STRICT      = '_strict_converter'
+        # fmt: on
+
     @staticmethod
     def _hash(type_from: Any, type_to: Type) -> str:
         """Create a hash value for both classes in a way that"""
-        if isclass(type_from):
-            return str(hash(type_from.__name__) + hash(type_to.__name__))
-        else:
-            return str(hash(type_from.__class__.__name__) + hash(type_to.__name__))
+        return str(hash(type_from.__name__) + hash(type_to.__name__)) if isclass(type_from) \
+        else str(hash(type_from.__class__.__name__) + hash(type_to.__name__))
 
     @classmethod
     def _strict_converter(cls, type1: Any, type2: Type) -> Any:
@@ -58,14 +64,6 @@ class ObjectMapper(metaclass=Singleton):
             if not callable(getattr(clazz, item[0])) and not item[0].startswith("__")
         ]
 
-    class ConversionMode(Enumeration):
-        """TODO"""
-
-        # fmt: off
-        STANDARD    = '_standard_converter'
-        STRICT      = '_strict_converter'
-        # fmt: onn
-
     def __init__(self):
         self._converters: Dict[str, FnConverter] = {}
 
@@ -85,7 +83,9 @@ class ObjectMapper(metaclass=Singleton):
             json_obj = json.loads(json_string, object_hook=lambda d: SimpleNamespace(**d))
             ret_val = self.convert(json_obj, to_class, mode)
         except (TypeError, InvalidMapping, JSONDecodeError) as err:
-            raise InvalidJsonMapping(f"Could not decode JSON string '{json_string}' => {str(err)}") from err
+            if mode == self.ConversionMode.STRICT:
+                raise InvalidJsonMapping(f"Could not decode JSON string '{json_string}' => {str(err)}") from err
+            ret_val = json_string
         return ret_val
 
     def convert(self, from_obj: Any, to_class: Type, mode: ConversionMode = ConversionMode.STANDARD) -> Any:

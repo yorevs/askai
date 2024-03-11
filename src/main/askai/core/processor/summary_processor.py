@@ -13,13 +13,14 @@
    Copyright·(c)·2024,·HSPyLib
 """
 import logging as log
-from typing import Tuple, Optional, List
+from typing import Tuple, Optional
 
 from langchain_core.prompts import PromptTemplate
 
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import cache
 from askai.core.component.summarizer import summarizer
+from askai.core.model.chat_context import ContextRaw
 from askai.core.model.query_response import QueryResponse
 from askai.core.model.summary_result import SummaryResult
 from askai.core.processor.ai_processor import AIProcessor
@@ -40,7 +41,7 @@ class SummaryProcessor(AIProcessor):
         final_prompt: str = msg.translate(template.format())
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", query_response.question)
-        context: List[dict] = shared.context.get_many("SETUP", "QUESTION")
+        context: ContextRaw = shared.context.join("SETUP", "QUESTION")
         log.info("Setup::[SUMMARY] '%s'  context=%s", query_response.question, context)
         try:
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:

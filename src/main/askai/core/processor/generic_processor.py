@@ -12,16 +12,18 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import logging as log
+from typing import Optional, Tuple
+
+from langchain_core.prompts import PromptTemplate
+
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
+from askai.core.model.chat_context import ContextRaw
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.support.shared_instances import shared
-from langchain_core.prompts import PromptTemplate
-from typing import List, Optional, Tuple
-
-import logging as log
 
 
 class GenericProcessor(AIProcessor):
@@ -38,12 +40,11 @@ class GenericProcessor(AIProcessor):
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        output = None
         template = PromptTemplate(input_variables=["user"], template=self.template())
         final_prompt: str = msg.translate(template.format(user=prompt.user))
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", query_response.question)
-        context: List[dict] = shared.context.get_many("GENERAL", "SETUP", "QUESTION")
+        context: ContextRaw = shared.context.join("GENERAL", "SETUP", "QUESTION")
         log.info("Setup::[GENERIC] '%s'  context=%s", query_response.question, context)
         try:
             if (response := shared.engine.ask(context, temperature=1, top_p=1)) and response.is_success:

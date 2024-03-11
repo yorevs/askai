@@ -239,7 +239,7 @@ class AskAi:
         status, output, q_type, processor = False, None, None, None
         # Intrinsic features
         if not proxy_response.intelligible:
-            self.reply_error(msg.intelligible())
+            self.reply_error(msg.intelligible(proxy_response.question))
             return False
         elif proxy_response.terminating:
             log.info("User wants to terminate the conversation.")

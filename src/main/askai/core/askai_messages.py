@@ -73,7 +73,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def access_grant(self) -> str:
-        return self.translate(f"AskAI requires access to your files, folders and apps. Continue (yes/[no])?")
+        return self.translate(f"'AskAI' requires access to your files, folders and apps. Continue (yes/[no])?")
 
     @lru_cache
     def not_a_command(self, shell: str, content: str) -> str:
@@ -98,12 +98,12 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"Sorry! Command `{cmd_line}' failed to execute !")
 
     @lru_cache
-    def intelligible(self) -> str:
-        return self.translate(f"Your question is not clear, please rephrase!")
+    def intelligible(self, question: str) -> str:
+        return self.translate(f"Your question '{question}' is not clear, please rephrase !")
 
     @lru_cache
     def llm_error(self, error: str) -> str:
-        return self.translate(f"LLM returned an error: {error}")
+        return self.translate(f"'LLM' returned an error: {error}")
 
 
 assert (msg := AskAiMessages().INSTANCE) is not None

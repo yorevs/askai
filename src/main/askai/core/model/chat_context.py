@@ -9,15 +9,18 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from askai.exception.exceptions import TokenLengthExceeded
-from collections import defaultdict, namedtuple
-from functools import reduce
-from hspylib.core.zoned_datetime import now
-from typing import Any, List, Literal, Optional, TypeAlias
-
 import os
+from collections import namedtuple, defaultdict
+from functools import reduce
+from typing import Any, List, Literal, Optional, TypeAlias, Dict
+
+from hspylib.core.zoned_datetime import now
+
+from askai.exception.exceptions import TokenLengthExceeded
 
 ChatRoles: TypeAlias = Literal["system", "user", "assistant"]
+
+ContextRaw : TypeAlias = List[Dict[str, str]]
 
 
 class ChatContext:
@@ -35,7 +38,7 @@ class ChatContext:
     def __getitem__(self, key) -> List[ContextEntry]:
         return self._context[key]
 
-    def push(self, key: str, content: Any, role: ChatRoles = "user") -> List[dict]:
+    def push(self, key: str, content: Any, role: ChatRoles = "user") -> ContextRaw:
         """Push a context message to the chat with the provided role."""
         entry = ChatContext.ContextEntry(now(), role, str(content))
         ctx = self._context[key]
@@ -45,7 +48,7 @@ class ChatContext:
         ctx.append(entry)
         return self.get(key)
 
-    def set(self, key: str, content: Any, role: ChatRoles = "user") -> List[dict]:
+    def set(self, key: str, content: Any, role: ChatRoles = "user") -> ContextRaw:
         """Set the context to the chat with the provided role."""
         self.clear(key)
         return self.push(key, content, role)
@@ -59,12 +62,12 @@ class ChatContext:
                 del ctx[index]
         return val
 
-    def get(self, key: str) -> List[dict]:
+    def get(self, key: str) -> ContextRaw:
         """Retrieve a context from the specified by key."""
         return [{"role": c.role, "content": c.content} for c in self._context[key]] or []
 
-    def get_many(self, *keys: str) -> List[dict]:
-        """Retrieve many contexts from the specified by key."""
+    def join(self, *keys: str) -> ContextRaw:
+        """Join contexts specified by keys."""
         context = []
         token_length = 0
         for key in keys:
