@@ -2,9 +2,9 @@ ${persona}
 
 Before responding to the user, you must follow the step-by-step instructions provided below in sequential order:
 
-1. Fix any syntax or semantic error on the question before analysing it.
-2. Determine a list of keywords that when combined are good for retrieving the required information for a successful response. Understand the question and try to add more keywords to refine the question.
-3. Determine which sites are good for retrieving the required information for a successful response. Please include a minimum of three URLs, with a maximum limit of five.
+1. Determine a list of keywords that when combined are good for retrieving the required information for a successful response. Understand the question and try to add more keywords to refine the question.
+2. Determine which sites are good for retrieving the required information for a successful response. Please include a minimum of one URL, and a maximum of five.
+3. When the current date is important to retrieve accurate responses. If that's the case, provide the specific field: 'after', containing '{cur_date}'.
 4. Generate a JSON response containing the designated fields.
-5. The final response 'JSON' must contain the fields: 'keywords' and 'urls'.
+5. The final response 'JSON' must contain the fields: 'keywords' and 'sites'.
 6. The final response is a formatted JSON with no additional description or context.

@@ -40,19 +40,16 @@ class InternetService(metaclass=Singleton):
             func=self._search.run)
 
     @lru_cache
-    def search_sites(self, query: str, after: str, *urls: str) -> Optional[str]:
+    def search(self, query: str, *sites: str) -> Optional[str]:
         """Search the web using google search API.
-        :param after:
         :param query: TODO
-        :param urls: TODO
+        :param sites: TODO
         """
         search_results = ''
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
-        date = f"after: {after}"
-        for url in urls:
-            site = f"site: {url}"
-            log.info("Searching GOOGLE for '%s'  '%s'  '%s'", query, site, date)
-            results = self._tool.run(f"{query} + {site} + {date}")
+        for url in sites:
+            log.info("Searching GOOGLE for '%s'  url: '%s'", query, url)
+            results = self._tool.run(f"{query} site: {url}")
             search_results += str(results)
         log.debug(f"Internet search returned: %s", search_results)
         return os.linesep.join(search_results) if isinstance(search_results, list) else search_results

@@ -23,7 +23,8 @@ class SearchResult:
     """Keep track of the internet search responses."""
 
     keywords: List[str] = None
-    urls: str | List[str] = None
+    sites: str | List[str] = None
+    after: str = None
     results: str = None
 
     def __str__(self):
