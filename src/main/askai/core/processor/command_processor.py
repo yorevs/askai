@@ -59,21 +59,19 @@ class CommandProcessor(AIProcessor):
         shared.context.set("QUESTION", query_response.question)
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
         log.info("Command::[QUESTION] '%s'  context=%s", query_response.question, context)
-        try:
-            if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
-                log.debug("Command::[RESPONSE] Received from AI: %s.", response)
-                shell, command = extract_command(response.message)
-                if command:
-                    if shell and shell != prompt.shell:
-                        output = msg.not_a_command(str(prompt.shell), command)
-                    else:
-                        status, output = self._process_command(query_response, command)
+
+        if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
+            log.debug("Command::[RESPONSE] Received from AI: %s.", response)
+            shell, command = extract_command(response.message)
+            if command:
+                if shell and shell != prompt.shell:
+                    output = msg.not_a_command(str(prompt.shell), command)
                 else:
-                    output = msg.invalid_cmd_format(response.message)
+                    status, output = self._process_command(query_response, command)
             else:
-                output = msg.llm_error(response.message)
-        except Exception as err:
-            output = msg.llm_error(str(err))
+                output = msg.invalid_cmd_format(response.message)
+        else:
+            output = msg.llm_error(response.message)
 
         return status, output
 

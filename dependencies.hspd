@@ -21,6 +21,10 @@ package: argostranslate
 package: soundfile
 package: langchain
 package: langchain-openai
+package: langchain-community
+package: unstructured
+package: python-magic-bin
+package: chromadb
 package: PyAudio
 package: SpeechRecognition
 package: openai-whisper

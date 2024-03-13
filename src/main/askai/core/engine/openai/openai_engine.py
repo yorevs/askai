@@ -12,6 +12,17 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+
+import logging as log
+import os
+from threading import Thread
+from typing import Any, List, Optional
+
+import langchain_openai
+import pause
+from hspylib.core.preconditions import check_not_none
+from openai import APIError, OpenAI
+
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.cache_service import CacheService
 from askai.core.component.recorder import Recorder
@@ -21,15 +32,6 @@ from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.model.ai_model import AIModel
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.utilities import display_text, stream_text
-from hspylib.core.preconditions import check_not_none
-from openai import APIError, OpenAI
-from threading import Thread
-from typing import Any, List, Optional
-
-import langchain_openai
-import logging as log
-import os
-import pause
 
 
 class OpenAIEngine(AIEngine):
@@ -50,9 +52,14 @@ class OpenAIEngine(AIEngine):
     def client(self) -> OpenAI:
         return self._client
 
-    def lc_model(self, **kwargs: Any) -> Any:
+    def lc_model(self, temperature: float = 0.8, top_p: float = 0.0) -> Any:
         """Create a LangChain OpenAI llm model instance."""
-        return langchain_openai.OpenAI(openai_api_key=self._api_key, **kwargs)
+        return langchain_openai.OpenAI(
+            openai_api_key=self._api_key, temperature=temperature, top_p=top_p)
+
+    def lc_embeddings(self) -> Any:
+        """Create a LangChain AI embeddings instance."""
+        return langchain_openai.OpenAIEmbeddings()
 
     def ai_name(self) -> str:
         """Get the AI model name."""
@@ -74,14 +81,18 @@ class OpenAIEngine(AIEngine):
         """Get the list of available models for the engine."""
         return OpenAIModel.models()
 
-    def ask(self, chat_context: List[dict], **kwargs: Any) -> AIReply:
+    def ask(self, chat_context: List[dict], temperature: float = 0.8, top_p: float = 0.0) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
         :param chat_context: The chat history or context.
+        :param temperature: TODO
+        :param top_p: TODO
         """
         try:
             check_not_none(chat_context)
             log.debug(f"Generating AI answer")
-            response = self.client.chat.completions.create(model=self.ai_model_name(), messages=chat_context, **kwargs)
+            response = self.client.chat.completions.create(
+                model=self.ai_model_name(), messages=chat_context,
+                temperature=temperature, top_p=top_p)
             reply = AIReply(response.choices[0].message.content, True)
             log.debug("Response received from LLM: %s", str(reply))
         except APIError as error:

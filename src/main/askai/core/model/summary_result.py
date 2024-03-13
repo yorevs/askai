@@ -12,19 +12,17 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from dataclasses import dataclass
-from typing import List
-
 import json
+from dataclasses import dataclass
 
 
 @dataclass
 class SummaryResult:
     """Keep track of the summarization responses."""
 
-    paths: List[str] = None
+    path: str = None
     question: str = None
-    summary: str = None
+    answer: str = None
 
     def __str__(self):
         return f"Summarization: {json.dumps(self.__dict__, default=lambda obj: obj.__dict__)}"

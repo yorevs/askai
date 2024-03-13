@@ -42,16 +42,14 @@ class OutputProcessor(AIProcessor):
         shared.context.set("SETUP", final_prompt, "system")
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP")
         log.info("Output::[COMMAND] '%s'  context=%s", commands, context)
-        try:
-            if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
-                log.debug("Output::[RESPONSE] Received from AI: %s.", response)
-                if output := response.message:
-                    shared.context.push("CONTEXT", output, "assistant")
-                status = True
-            else:
-                log.error(f"Output processing failed. CONTEXT=%s  RESPONSE=%s", context, response)
-                output = msg.llm_error(response.message)
-        except Exception as err:
-            output = msg.llm_error(str(err))
+
+        if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
+            log.debug("Output::[RESPONSE] Received from AI: %s.", response)
+            if output := response.message:
+                shared.context.push("CONTEXT", output, "assistant")
+            status = True
+        else:
+            log.error(f"Output processing failed. CONTEXT=%s  RESPONSE=%s", context, response)
+            output = msg.llm_error(response.message)
 
         return status, output

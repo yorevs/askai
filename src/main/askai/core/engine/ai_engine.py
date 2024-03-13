@@ -20,8 +20,12 @@ from typing import Any, List, Optional, Protocol
 class AIEngine(Protocol):
     """Provide an interface for AI engines."""
 
-    def lc_model(self, **kwargs: Any) -> Any:
+    def lc_model(self, temperature: float, top_p: float) -> Any:
         """Create a LangChain AI model instance."""
+
+    def lc_embeddings(self) -> Any:
+        """Create a LangChain AI embeddings instance."""
+        ...
 
     def ai_name(self) -> str:
         """Get the AI engine name."""
@@ -43,9 +47,11 @@ class AIEngine(Protocol):
         """Get the list of available models for the engine."""
         ...
 
-    def ask(self, chat_context: List, **kwargs: Any) -> AIReply:
+    def ask(self, chat_context: List[dict], temperature: float = 0.8, top_p: float = 0.0) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
         :param chat_context: The chat history or context.
+        :param temperature: TODO
+        :param top_p: TODO
         """
         ...
 

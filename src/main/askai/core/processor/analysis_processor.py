@@ -46,17 +46,15 @@ class AnalysisProcessor(AIProcessor):
         shared.context.set("QUESTION", query_response.question)
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
         log.info("Analysis::[QUESTION] '%s'  context=%s", query_response.question, context)
-        try:
-            if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
-                log.debug("Analysis::[RESPONSE] Received from AI: %s.", response)
-                if output := response.message:
-                    shared.context.push("CONTEXT", query_response.question)
-                    shared.context.push("CONTEXT", output, "assistant")
-                status = True
-            else:
-                log.error(f"Analysis processing failed. CONTEXT=%s  RESPONSE=%s", context, response)
-                output = msg.llm_error(response.message)
-        except Exception as err:
-            output = msg.llm_error(str(err))
+
+        if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
+            log.debug("Analysis::[RESPONSE] Received from AI: %s.", response)
+            if output := response.message:
+                shared.context.push("CONTEXT", query_response.question)
+                shared.context.push("CONTEXT", output, "assistant")
+            status = True
+        else:
+            log.error(f"Analysis processing failed. CONTEXT=%s  RESPONSE=%s", context, response)
+            output = msg.llm_error(response.message)
 
         return status, output

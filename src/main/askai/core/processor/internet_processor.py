@@ -44,26 +44,24 @@ class InternetProcessor(AIProcessor):
         shared.context.set("QUESTION", query_response.question)
         context: ContextRaw = shared.context.join("SETUP", "QUESTION")
         log.info("Setup::[INTERNET] '%s'  context=%s", query_response.question, context)
-        try:
-            if not (response := cache.read_reply(query_response.question)):
-                if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
-                    search: SearchResult = object_mapper.of_json(response.message, SearchResult)
-                    query = " + ".join(search.keywords)
-                    if results := internet.search(query, *search.sites):
-                        search.results = results
-                        output = self._wrap_output(query_response, search)
-                        shared.context.push("INTERNET", output, "assistant")
-                        cache.save_reply(query_response.question, output)
-                        status = True
-                else:
-                    output = msg.llm_error(response.message)
+
+        if not (response := cache.read_reply(query_response.question)):
+            if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
+                search: SearchResult = object_mapper.of_json(response.message, SearchResult)
+                query = " + ".join(search.keywords)
+                if results := internet.search_google(query, *search.sites):
+                    search.results = results
+                    output = self._wrap_output(query_response, search)
+                    shared.context.set("INTERNET", output, "assistant")
+                    cache.save_reply(query_response.question, output)
+                    status = True
             else:
-                log.debug('Reply found for "%s" in cache.', query_response.question)
-                output = response
-                shared.context.push("INTERNET", output, "assistant")
-                status = True
-        except Exception as err:
-            output = msg.llm_error(str(err))
+                output = msg.llm_error(response.message)
+        else:
+            log.debug('Reply found for "%s" in cache.', query_response.question)
+            output = response
+            shared.context.set("INTERNET", output, "assistant")
+            status = True
 
         return status, output
 

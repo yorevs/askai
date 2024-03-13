@@ -55,19 +55,17 @@ class ProcessorProxy(metaclass=Singleton):
         shared.context.set("QUESTION", question)
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
         log.info("Ask::[QUESTION] '%s'  context=%s", question, context)
-        try:
-            if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
-                log.info("Ask::[PROXY] Received from AI: %s.", str(response))
-                output = object_mapper.of_json(response.message, QueryResponse)
-                if not isinstance(output, QueryResponse):
-                    log.error(msg.invalid_response(output))
-                    output = QueryResponse(question=question, terminating=True, response=response.message)
-                else:
-                    status = True
-            else:
+
+        if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
+            log.info("Ask::[PROXY] Received from AI: %s.", str(response))
+            output = object_mapper.of_json(response.message, QueryResponse)
+            if not isinstance(output, QueryResponse):
+                log.error(msg.invalid_response(output))
                 output = QueryResponse(question=question, terminating=True, response=response.message)
-        except Exception as err:
-            output = msg.llm_error(str(err))
+            else:
+                status = True
+        else:
+            output = QueryResponse(question=question, terminating=True, response=response.message)
 
         return status, output
 

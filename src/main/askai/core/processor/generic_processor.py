@@ -46,16 +46,14 @@ class GenericProcessor(AIProcessor):
         shared.context.set("QUESTION", query_response.question)
         context: ContextRaw = shared.context.join("GENERAL", "INTERNET", "SETUP", "QUESTION")
         log.info("Setup::[GENERIC] '%s'  context=%s", query_response.question, context)
-        try:
-            if (response := shared.engine.ask(context, temperature=1, top_p=1)) and response.is_success:
-                output = response.message
-                shared.context.push("GENERAL", output, "assistant")
-                cache.save_reply(query_response.question, output)
-                cache.save_query_history()
-                status = True
-            else:
-                output = msg.llm_error(response.message)
-        except Exception as err:
-            output = msg.llm_error(str(err))
+
+        if (response := shared.engine.ask(context, temperature=1, top_p=1)) and response.is_success:
+            output = response.message
+            shared.context.push("GENERAL", output, "assistant")
+            cache.save_reply(query_response.question, output)
+            cache.save_query_history()
+            status = True
+        else:
+            output = msg.llm_error(response.message)
 
         return status, output

@@ -26,6 +26,7 @@ from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.processor.internet_processor import InternetProcessor
 from askai.core.processor.processor_proxy import proxy
+from askai.core.processor.summary_processor import SummaryProcessor
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
@@ -247,6 +248,10 @@ class AskAi:
         elif proxy_response.require_internet:
             log.info("Internet is required to fulfill the request.")
             processor = AIProcessor.get_by_name(InternetProcessor.__name__)
+            processor.bind(AIProcessor.get_by_query_type(proxy_response.query_type))
+        elif proxy_response.require_summarization:
+            log.info("Summarization is required to fulfill the request.")
+            processor = AIProcessor.get_by_name(SummaryProcessor.__name__)
             processor.bind(AIProcessor.get_by_query_type(proxy_response.query_type))
         # Query processors
         if processor or (q_type := proxy_response.query_type):
