@@ -30,7 +30,7 @@ class ChatContext:
 
     def __init__(self, token_limit: int):
         self._context = defaultdict(list)
-        self._token_limit: int = token_limit * 1024  # The limit is given in KB
+        self._token_limit: int = token_limit #* 1024  # The limit is given in KB
 
     def __str__(self):
         return os.linesep.join(f"'{k}': '{v}'" for k, v in self._context.items())
@@ -68,12 +68,15 @@ class ChatContext:
 
     def join(self, *keys: str) -> ContextRaw:
         """Join contexts specified by keys."""
-        context = []
+        context: ContextRaw = []
         token_length = 0
-        for key in keys:
-            if (content := self.get(key)) and (token_length + len(content)) > self._token_limit:
+        for key in set(keys):
+            content = ' '.join([t['content'] for t in self.get(key)])
+            token_length += len(content or '')
+            if token_length > self._token_limit:
                 raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
-            context += content or ""
+            if content:
+                context.extend(self.get(key))
         return context
 
     def clear(self, key: str) -> int:

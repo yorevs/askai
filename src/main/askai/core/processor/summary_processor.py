@@ -13,7 +13,6 @@
    Copyright·(c)·2024,·HSPyLib
 """
 import logging as log
-from os.path import dirname, basename
 from typing import Tuple, Optional
 
 from langchain_core.prompts import PromptTemplate
@@ -48,12 +47,11 @@ class SummaryProcessor(AIProcessor):
 
         if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
             summary_result: SummaryResult = object_mapper.of_json(response.message, SummaryResult)
-            folder, glob = dirname(summary_result.path), basename(summary_result.path)
-            summarizer.generate(folder, glob)
-            if results := summarizer.query('Summarize the contents'):
+            summarizer.generate(summary_result.folder, summary_result.glob)
+            if results := summarizer.query('Give me a summarized version of the contents'):
                 summary_result.results = results
                 output = self._wrap_output(query_response, summary_result)
-                shared.context.set("CONTEXT", output, "assistant")
+                shared.context.push("CONTEXT", output, "assistant")
                 cache.save_reply(query_response.question, output)
                 status = True
         else:

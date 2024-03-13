@@ -20,7 +20,8 @@ from dataclasses import dataclass
 class SummaryResult:
     """Keep track of the summarization responses."""
 
-    path: str = None
+    folder: str = None
+    glob: str = None
     question: str = None
     answer: str = None
 

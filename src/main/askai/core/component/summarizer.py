@@ -44,23 +44,36 @@ class Summarizer(metaclass=Singleton):
     def __init__(self):
         nltk.download('averaged_perceptron_tagger')
         self._retriever = None
-        self._path = None
+        self._folder = None
+        self._glob = None
         self._text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000, chunk_overlap=0, separators=[" ", ", ", "\n"])
 
-    def generate(self, path: str | Path, glob: str = None) -> None:
+    @property
+    def folder(self) -> str:
+        return self._folder
+
+    @property
+    def glob(self) -> str:
+        return self._glob
+
+    @property
+    def path(self) -> str:
+        return f"{self._folder}/{self._glob}"
+
+    @lru_cache
+    def generate(self, folder: str | Path, glob: str = None) -> None:
         """TODO"""
-        self._path = f"{path}/{glob}"
-        path = path.replace("~", os.getenv("HOME")).strip()
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.summarizing(self._path))
-        log.info("Summarizing documents: '%s'/'%s'", path, glob)
-        loader = DirectoryLoader(str(path), glob=glob)
-        documents: List[Document] = loader.load()
-        texts: List[Document] = self._text_splitter.split_documents(documents)
+        self._folder: str = str(folder).replace("~", os.getenv("HOME")).strip()
+        self._glob: str = glob.strip()
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.summarizing(self.path))
+        log.info("Summarizing documents from '%s'", self.path)
         embeddings = lc_llm.create_embeddings()
-        doc_store = Chroma.from_documents(texts, embeddings)
+        documents: List[Document] = DirectoryLoader(self.folder, glob=self.glob).load()
+        texts: List[Document] = self._text_splitter.split_documents(documents)
+        v_store = Chroma.from_documents(texts, embeddings)
         self._retriever = RetrievalQA.from_chain_type(
-            llm=lc_llm.create_model(), chain_type="stuff", retriever=doc_store.as_retriever())
+            llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever())
 
     def query(self, *queries: str) -> Optional[List[SummaryResult]]:
         """TODO"""
@@ -78,16 +91,17 @@ class Summarizer(metaclass=Singleton):
         """TODO"""
         check_argument(len(query_string) > 0)
         if result := self._retriever.invoke({"query": query_string}):
-            return SummaryResult(self._path, result['query'].strip(), result['result'].strip())
+            return SummaryResult(
+                self._folder, self._glob, result['query'].strip(), result['result'].strip()
+            )
         return None
 
 
 assert (summarizer := Summarizer().INSTANCE) is not None
 
-
 if __name__ == '__main__':
     shared.create_engine('openai', 'gpt-3.5-turbo')
-    summarizer.generate("/Users/hjunior/HomeSetup/docs", "**/*.md")
+    summarizer.generate('/Users/hjunior/HomeSetup/docs', '**/*.*')
     print(summarizer.query(
         "What is HomeSetup?",
         "How can I install HomeSetup?",
