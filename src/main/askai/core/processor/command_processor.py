@@ -118,5 +118,7 @@ class CommandProcessor(AIProcessor):
         :param cmd_line: The command line that was executed by this processor.
         """
         query_response.query_type = self.next_in_chain().query_type()
+        query_response.require_summarization = False
+        query_response.require_internet = False
         query_response.commands.append(TerminalCommand(cmd_line, cmd_out, prompt.os_type, prompt.shell))
         return str(query_response)

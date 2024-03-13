@@ -21,6 +21,7 @@ from typing import List, Optional
 import nltk
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument
+from hspylib.core.tools.text_tools import ensure_endswith
 from langchain.chains import RetrievalQA
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores.chroma import Chroma
@@ -51,7 +52,7 @@ class Summarizer(metaclass=Singleton):
 
     @property
     def folder(self) -> str:
-        return self._folder
+        return ensure_endswith(self._folder, '/')
 
     @property
     def glob(self) -> str:
@@ -59,7 +60,7 @@ class Summarizer(metaclass=Singleton):
 
     @property
     def path(self) -> str:
-        return f"{self._folder}/{self._glob}"
+        return f"{self.folder}{self.glob}"
 
     @lru_cache
     def generate(self, folder: str | Path, glob: str = None) -> None:

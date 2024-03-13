@@ -53,7 +53,7 @@ def beautify(text: Any) -> str:
     text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Joke: ", text)
     text = re.sub(r"[Ff]un [Ff]acts?[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Fun Fact: ", text)
     text = re.sub(r"[Aa]dvice[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Advice: ", text)
-    text = re.sub(r"[Ee]rrors?[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Error: ", text)
+    text = re.sub(r"Errors?[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Error: ", text)
     text = re.sub(re_url, r'%CYAN% \1%GREEN%', text)
     # fmt: on
 
@@ -185,3 +185,7 @@ def stream_text(text: Any, tempo: int = 1, language: Language = Language.EN_US) 
             word_count = 0
         pause.seconds(presets.base_speed)
     sysout("%NC%")
+
+
+if __name__ == '__main__':
+    display_text(" Error: 'LLM' returned an error: Directory not found: 'HomeSetup/docs/'")

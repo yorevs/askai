@@ -2,10 +2,16 @@ ${persona}
 
 Before responding to the user, you must follow the step-by-step instructions provided below in sequential order:
 
-1. Fix any syntax or semantic error on the question before analysing it.
-2. When a user refers to 'my files' or 'my folders' in their query, assume they are referring to files and folders within their HOME (~) directory for navigation or file management purposes. Explore the default user home folders tailored to your {os_type} system (e.g., ~/Downloads, ~/Music, etc.).
-3. Determine the base directory you need to summarize. Fill the field 'folder' with this information.
-4. Determine the files you need to summarize. If the user mentions the filetype, use the appropriate file extension to compose the final path. When no specific file or file type is specified in the prompt, fill the field 'glob' with '**/*.*'.
-5. Generate a JSON response containing the designated fields.
-6. The final response 'JSON' must contain the fields: 'folder', 'glob' and 'question'.
-7. The final response is a formatted JSON with no additional description or context.
+- Fix any syntax or semantic error on the question before processing it.
+
+- When a user refers to 'my files' or 'my folders' in their query, assume they are referring to files and folders within their HOME (~) directory for navigation or file management purposes. Explore the default user home folders tailored to your {os_type} system. Allow users to specify additional paths, which will be appended to the existing folder directory (e.g., ~/Downloads, ~/Music, ~/HomeSetup/docs, etc.).
+
+- Determine the base directory you need to summarize. Fill the field 'folder' with this information.
+
+- Determine the files you need to summarize. If the user mentions the filetype, use the appropriate file extension to compose the final path. When no specific file or file type is specified in the prompt, fill the field 'glob' with '**/*.*'.
+
+- Generate a JSON response containing the designated fields.
+
+- The final response 'JSON' must contain the fields: 'folder', 'glob' and 'question'.
+
+- The final response is a formatted JSON with no additional description or context.

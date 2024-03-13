@@ -45,17 +45,20 @@ class SummaryProcessor(AIProcessor):
         context: ContextRaw = shared.context.join("SETUP", "QUESTION")
         log.info("Setup::[SUMMARY] '%s'  context=%s", query_response.question, context)
 
-        if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
-            summary_result: SummaryResult = object_mapper.of_json(response.message, SummaryResult)
-            summarizer.generate(summary_result.folder, summary_result.glob)
-            if results := summarizer.query('Give me a summarized version of the contents'):
-                summary_result.results = results
-                output = self._wrap_output(query_response, summary_result)
-                shared.context.push("CONTEXT", output, "assistant")
-                cache.save_reply(query_response.question, output)
-                status = True
-        else:
-            output = msg.llm_error(response.message)
+        try:
+            if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
+                summary_result: SummaryResult = object_mapper.of_json(response.message, SummaryResult)
+                summarizer.generate(summary_result.folder, summary_result.glob)
+                if results := summarizer.query('Give me an overview of all the summarized content'):
+                    summary_result.results = results
+                    output = self._wrap_output(query_response, summary_result)
+                    shared.context.set("SUMMARY", output, "assistant")
+                    cache.save_reply(query_response.question, output)
+                    status = True
+            else:
+                output = msg.llm_error(response.message)
+        except (FileNotFoundError, ValueError) as err:
+            output = msg.llm_error(err)
 
         return status, output
 
@@ -66,5 +69,6 @@ class SummaryProcessor(AIProcessor):
         """
         query_response.query_type = self.next_in_chain().query_type()
         query_response.require_summarization = False
+        query_response.require_internet = False
         query_response.response = str(summary_result)
         return str(query_response)

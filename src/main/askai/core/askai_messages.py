@@ -67,7 +67,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def summarizing(self, path: str) -> str:
-        return self.translate(f"Summarizing documents from '{path}'…")
+        return self.translate(f"Summarizing documents from '{path}'. This can take a moment, please wait…")
 
     # Warnings and alerts
 
@@ -107,7 +107,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def llm_error(self, error: str) -> str:
-        return self.translate(f"'LLM' returned an error: {error}")
+        return self.translate(f"'LLM' returned a failure: {error}")
 
 
 assert (msg := AskAiMessages().INSTANCE) is not None
