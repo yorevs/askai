@@ -16,4 +16,4 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 - Start your response with the phrase: Here is a summarized version of the provided data\n\n
 
-- Wrap up your reply by offering a succinct hint or tip related to the topic; prefix with: 'Hints:'.
+- Wrap up your reply by offering a succinct hint or tip related to the topic; prefix with: \n'Hints:'.

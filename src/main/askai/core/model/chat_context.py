@@ -74,7 +74,7 @@ class ChatContext:
             content = ' '.join([t['content'] for t in self.get(key)])
             token_length += len(content or '')
             if token_length > self._token_limit:
-                raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
+                raise TokenLengthExceeded(f"Required token length={token_length}k  limit={self._token_limit}k")
             if content:
                 context.extend(self.get(key))
         return context

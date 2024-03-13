@@ -64,7 +64,10 @@ class Summarizer(metaclass=Singleton):
 
     @lru_cache
     def generate(self, folder: str | Path, glob: str = None) -> None:
-        """TODO"""
+        """Generate a summarization of the folder contents.
+        :param folder: The base folder of the summarization.
+        :param glob: The glob pattern or file of the summarization.
+        """
         self._folder: str = str(folder).replace("~", os.getenv("HOME")).strip()
         self._glob: str = glob.strip()
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.summarizing(self.path))
@@ -77,7 +80,7 @@ class Summarizer(metaclass=Singleton):
             llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever())
 
     def query(self, *queries: str) -> Optional[List[SummaryResult]]:
-        """TODO"""
+        """Answer questions about the summarized content."""
         check_argument(len(queries) > 0)
         if self._retriever is not None:
             results: List[SummaryResult] = []
@@ -89,7 +92,7 @@ class Summarizer(metaclass=Singleton):
 
     @lru_cache
     def query_one(self, query_string: str) -> Optional[SummaryResult]:
-        """TODO"""
+        """Query the AI about a given query based on the summarized content."""
         check_argument(len(query_string) > 0)
         if result := self._retriever.invoke({"query": query_string}):
             return SummaryResult(
@@ -107,4 +110,5 @@ if __name__ == '__main__':
         "What is HomeSetup?",
         "How can I install HomeSetup?",
         "How can I configure my Starship prompt?",
-        "How can change the starship preset?"))
+        "How can change the starship preset?",
+        "How can I use the punch application?"))

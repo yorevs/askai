@@ -23,6 +23,7 @@ from langchain_core.tools import Tool
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
+from askai.core.support.langchain_support import lc_llm
 
 
 class InternetService(metaclass=Singleton):
@@ -53,8 +54,16 @@ class InternetService(metaclass=Singleton):
                 search_results += str(self._tool.run(f"{query} site: {url}"))
         else:
             search_results += str(self._tool.run(f"{query}"))
-        log.debug(f"Internet search returned: %s", search_results)
-        return os.linesep.join(search_results) if isinstance(search_results, list) else search_results
+        log.debug(f"Internet search output: %s", search_results)
+
+        return search_results
 
 
 assert (internet := InternetService().INSTANCE) is not None
+
+
+if __name__ == '__main__':
+    q = 'What is the whether like in Belo Horizonte now'
+    embeddings = lc_llm.create_embeddings()
+    c = internet.search_google(q)
+    eq = embeddings.embed_query(q)
