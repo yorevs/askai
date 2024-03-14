@@ -24,7 +24,7 @@ from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.tools import Tool
-from langchain_text_splitters import CharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -56,10 +56,9 @@ class InternetService(metaclass=Singleton):
 
     def __init__(self):
         self._google = GoogleSearchAPIWrapper()
-        self._tool = Tool(
-            name="google_search",
-            description="Search Google for recent results.",
-            func=self._google.run)
+        self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
+        self._text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=800, chunk_overlap=10, separators=[" ", ", ", "\n"])
 
     def search_google(self, query: str, *sites: str) -> Optional[str]:
         """Search the web using google search API.
@@ -72,12 +71,9 @@ class InternetService(metaclass=Singleton):
             search_results: str = ''
             for url in sites:
                 search_results += str(self._tool.run(f"{query} site: {url}"))
-            text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=100)
-            docs: List[Document] = [Document(page_content=x) for x in text_splitter.split_text(search_results)]
             prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
             chain = create_stuff_documents_chain(lc_llm.create_chat_model(), prompt)
-            search_results = chain.invoke({"query": query, "context": docs})
-            return search_results
+            return chain.invoke({"query": query, "context": search_results})
 
         return None
 
