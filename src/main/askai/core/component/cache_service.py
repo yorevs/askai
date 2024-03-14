@@ -34,6 +34,11 @@ REC_DIR: Path = Path(str(CACHE_DIR) + "/recordings")
 if not REC_DIR.exists():
     REC_DIR.mkdir(parents=True, exist_ok=True)
 
+# Transcribed audio directory.
+PERSIST_DIR: Path = Path(str(CACHE_DIR) + "/chroma")
+if not PERSIST_DIR.exists():
+    PERSIST_DIR.mkdir(parents=True, exist_ok=True)
+
 
 class CacheService(metaclass=Singleton):
     """Provide a cache service for previously used queries, audio generation, etc..."""

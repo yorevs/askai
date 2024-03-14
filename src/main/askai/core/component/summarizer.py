@@ -30,9 +30,11 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
+from askai.core.component.cache_service import PERSIST_DIR
 from askai.core.model.summary_result import SummaryResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from askai.exception.exceptions import DocumentsNotFound
 
 
 class Summarizer(metaclass=Singleton):
@@ -74,10 +76,13 @@ class Summarizer(metaclass=Singleton):
         log.info("Summarizing documents from '%s'", self.path)
         embeddings = lc_llm.create_embeddings()
         documents: List[Document] = DirectoryLoader(self.folder, glob=self.glob).load()
-        texts: List[Document] = self._text_splitter.split_documents(documents)
-        v_store = Chroma.from_documents(texts, embeddings)
-        self._retriever = RetrievalQA.from_chain_type(
-            llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever())
+        if len(documents) > 0:
+            texts: List[Document] = self._text_splitter.split_documents(documents)
+            v_store = Chroma.from_documents(texts, embeddings, persist_directory=str(PERSIST_DIR))
+            self._retriever = RetrievalQA.from_chain_type(
+                llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever())
+        else:
+            raise DocumentsNotFound(f"Unable to find any document to summarize at: '{self.path}'")
 
     def query(self, *queries: str) -> Optional[List[SummaryResult]]:
         """Answer questions about the summarized content."""
@@ -103,9 +108,10 @@ class Summarizer(metaclass=Singleton):
 
 assert (summarizer := Summarizer().INSTANCE) is not None
 
+
 if __name__ == '__main__':
     shared.create_engine('openai', 'gpt-3.5-turbo')
-    summarizer.generate('/Users/hjunior/HomeSetup/docs', '**/*.*')
+    summarizer.generate('/Users/hugo/.config/hhs/log', '**/*.*')
     print(summarizer.query(
         "What is HomeSetup?",
         "How can I install HomeSetup?",

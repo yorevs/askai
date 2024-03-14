@@ -50,3 +50,7 @@ class InvalidJsonMapping(HSBaseException):
 
 class InvalidInputDevice(HSBaseException):
     """Raised when an invalid recording input device is used."""
+
+
+class DocumentsNotFound(HSBaseException):
+    """Raised when no documents are found for summarization."""

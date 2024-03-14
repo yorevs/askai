@@ -61,7 +61,7 @@ class ProcessorProxy(metaclass=Singleton):
             output = object_mapper.of_json(response.message, QueryResponse)
             if not isinstance(output, QueryResponse):
                 log.error(msg.invalid_response(output))
-                output = QueryResponse(question=question, terminating=True, response=response.message)
+                output = response.message
             else:
                 status = True
         else:

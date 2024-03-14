@@ -31,13 +31,13 @@ from askai.core.support.presets import Presets
 from askai.language.language import Language
 
 ASKAI_CHAT_ICONS = {
-    "": "%RED%",
-    "": "%BLUE%",
-    "": "%BLUE%",
-    "": "%BLUE%",
-    "": "%YELLOW%",
-    "": "%YELLOW%",
-    "": "%ORANGE%",
+    "": "%RED%\n\n",
+    "": "%BLUE%\n\n",
+    "": "%BLUE%\n\n",
+    "": "%BLUE%\n\n",
+    "": "%YELLOW%\n\n",
+    "": "%YELLOW%\n\n",
+    "": "%ORANGE%\n\n",
 }
 
 
@@ -51,18 +51,19 @@ def beautify(text: Any) -> str:
         r'www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))'
         r'[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})')
     text = str(text)
-    text = re.sub(r"\n{2,}", '\n\n', text)
     text = re.sub(r"[Hh]ints?( and tips)?[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Tips: ", text)
     text = re.sub(r"[Aa]nalysis[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Analysis: ", text)
     text = re.sub(r"[Ss]ummary[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Summary:", text)
     text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Joke: ", text)
     text = re.sub(r"[Ff]un [Ff]acts?[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Fun Fact: ", text)
     text = re.sub(r"[Aa]dvice[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Advice: ", text)
-    text = re.sub(r"Errors?[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Error: ", text)
+    text = re.sub(r"Errors?[-:\s][ \n\t]*", f"%EL0%{ASKAI_CHAT_ICONS['']}{''}  Error: ", text)
+    text = re.sub(r"^\n+", '', text, re.MULTILINE)
+    text = re.sub(r"\n{2,}", '\n', text, re.MULTILINE)
     text = re.sub(re_url, r'%CYAN% \1%GREEN%', text)
     # fmt: on
 
-    return text
+    return text.rstrip()
 
 
 def read_resource(base_dir: str, filename: str, file_ext: str = ".txt") -> str:
@@ -194,16 +195,20 @@ def stream_text(text: Any, tempo: int = 1, language: Language = Language.EN_US) 
 
 if __name__ == '__main__':
     display_text("""
-    Este text tem ln
 
 
 
 
-     aqui
 
 
 
-     este
+
+
+According to the summarized content, the log files at ~/.config/hhs/log contain various information that can be helpful for tracking activities or troubleshooting issues. I recommend reviewing them regularly to stay on top of what's happening in that directory.
+
+
+
+Fun Fact: Log files are like diaries for your system, documenting everything that happens behind the scenes!
 
      """
-         )
+                 )

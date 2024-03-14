@@ -27,6 +27,7 @@ from askai.core.model.summary_result import SummaryResult
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
+from askai.exception.exceptions import DocumentsNotFound
 
 
 class SummaryProcessor(AIProcessor):
@@ -57,8 +58,9 @@ class SummaryProcessor(AIProcessor):
                     status = True
             else:
                 output = msg.llm_error(response.message)
-        except (FileNotFoundError, ValueError) as err:
+        except (FileNotFoundError, ValueError, DocumentsNotFound) as err:
             output = msg.llm_error(err)
+            status = True
 
         return status, output
 
