@@ -26,7 +26,7 @@ from langchain.chains import RetrievalQA
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter, TextSplitter
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -64,6 +64,10 @@ class Summarizer(metaclass=Singleton):
     def path(self) -> str:
         return f"{self.folder}{self.glob}"
 
+    @property
+    def text_splitter(self) -> TextSplitter:
+        return self._text_splitter
+
     @lru_cache
     def generate(self, folder: str | Path, glob: str = None) -> None:
         """Generate a summarization of the folder contents.
@@ -74,11 +78,10 @@ class Summarizer(metaclass=Singleton):
         self._glob: str = glob.strip()
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.summarizing(self.path))
         log.info("Summarizing documents from '%s'", self.path)
-        embeddings = lc_llm.create_embeddings()
         documents: List[Document] = DirectoryLoader(self.folder, glob=self.glob).load()
         if len(documents) > 0:
             texts: List[Document] = self._text_splitter.split_documents(documents)
-            v_store = Chroma.from_documents(texts, embeddings, persist_directory=str(PERSIST_DIR))
+            v_store = Chroma.from_documents(texts, lc_llm.create_embeddings(), persist_directory=str(PERSIST_DIR))
             self._retriever = RetrievalQA.from_chain_type(
                 llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever())
         else:
@@ -89,17 +92,17 @@ class Summarizer(metaclass=Singleton):
         check_argument(len(queries) > 0)
         if self._retriever is not None:
             results: List[SummaryResult] = []
-            for query_string in queries:
-                if result := self.query_one(query_string):
+            for query in queries:
+                if result := self.query_one(query):
                     results.append(result)
             return results
         return None
 
     @lru_cache
-    def query_one(self, query_string: str) -> Optional[SummaryResult]:
+    def query_one(self, query: str) -> Optional[SummaryResult]:
         """Query the AI about a given query based on the summarized content."""
-        check_argument(len(query_string) > 0)
-        if result := self._retriever.invoke({"query": query_string}):
+        check_argument(len(query) > 0)
+        if result := self._retriever.invoke({"query": query}):
             return SummaryResult(
                 self._folder, self._glob, result['query'].strip(), result['result'].strip()
             )

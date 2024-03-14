@@ -13,6 +13,7 @@
    Copyright·(c)·2024,·HSPyLib
 """
 import logging as log
+from functools import partial
 from typing import Optional, Tuple
 
 from hspylib.core.zoned_datetime import now
@@ -37,7 +38,6 @@ class InternetProcessor(AIProcessor):
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        output = None
         template = PromptTemplate(input_variables=['cur_date'], template=self.template())
         final_prompt: str = msg.translate(template.format(cur_date=now('%Y-%d-%m')))
         shared.context.set("SETUP", final_prompt, "system")
@@ -49,7 +49,10 @@ class InternetProcessor(AIProcessor):
             if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
                 search: SearchResult = object_mapper.of_json(response.message, SearchResult)
                 query = " + ".join(search.keywords)
-                if results := internet.search_google(query, *search.sites):
+                fc_call = partial(internet.scrap_sites, query) \
+                    if query_response.require_summarization \
+                    else partial(internet.search_google, query)
+                if results := fc_call(*search.sites):
                     search.results = results
                     output = self._wrap_output(query_response, search)
                     shared.context.set("INTERNET", output, "assistant")

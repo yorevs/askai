@@ -16,10 +16,11 @@ import logging as log
 from typing import Optional, List
 
 from hspylib.core.metaclass.singleton import Singleton
-from langchain.chains import load_summarize_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains.retrieval_qa.base import RetrievalQA
 from langchain_community.document_loaders.async_html import AsyncHtmlLoader
 from langchain_community.utilities import GoogleSearchAPIWrapper
+from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.tools import Tool
@@ -27,6 +28,8 @@ from langchain_text_splitters import CharacterTextSplitter
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
+from askai.core.component.cache_service import PERSIST_DIR
+from askai.core.component.summarizer import summarizer
 from askai.core.support.langchain_support import lc_llm, load_document
 
 
@@ -38,13 +41,18 @@ class InternetService(metaclass=Singleton):
     ASKAI_INTERNET_DATA_KEY = "askai-internet-data"
 
     @staticmethod
-    def scrap_sites(*sites: str) -> Optional[str]:
-        """TODO"""
+    def scrap_sites(query: str, *sites: str) -> Optional[str]:
+        """Scrap a web page and summarize it's contents."""
         log.info("Scrapping sites: '%s'", str(sites))
-        docs: List[Document] = load_document(AsyncHtmlLoader, *sites)
-        chain = load_summarize_chain(lc_llm.create_chat_model(), chain_type="stuff")
-        search_results = chain.invoke(docs)
-        return search_results['output_text']
+        documents: List[Document] = load_document(AsyncHtmlLoader, list(sites))
+        if len(documents) > 0:
+            texts: List[Document] = summarizer.text_splitter.split_documents(documents)
+            v_store = Chroma.from_documents(texts, lc_llm.create_embeddings(), persist_directory=str(PERSIST_DIR))
+            retriever = RetrievalQA.from_chain_type(
+                llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever())
+            search_results = retriever.invoke({"query": query})
+            return search_results['result']
+        return None
 
     def __init__(self):
         self._google = GoogleSearchAPIWrapper()

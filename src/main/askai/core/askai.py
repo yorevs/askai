@@ -258,8 +258,8 @@ class AskAi:
         # Query processors
         if processor or (q_type := proxy_response.query_type):
             if not processor and not (processor := AIProcessor.get_by_query_type(q_type)):
-                log.error(f"Unable to find a proper processor for query type: {q_type}")
-                self.reply_error(str(proxy_response))
+                log.error(f"Unable to find a proper processor: {str(proxy_response)}")
+                self.reply_error(msg.no_processor(q_type))
                 return False
             log.info("%s::Processing response for '%s'", processor, proxy_response.question)
             status, output = processor.process(proxy_response)

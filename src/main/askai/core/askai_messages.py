@@ -94,6 +94,10 @@ class AskAiMessages(metaclass=Singleton):
     # Failures
 
     @lru_cache
+    def no_processor(self, query_type: str) -> str:
+        return self.translate(f"No suitable processor found for query type '{query_type}' !")
+
+    @lru_cache
     def invalid_response(self, response_text: str) -> str:
         return self.translate(f"Received an invalid query response/type '{response_text}' !")
 

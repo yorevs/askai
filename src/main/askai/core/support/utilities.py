@@ -57,7 +57,7 @@ def beautify(text: Any) -> str:
     text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Joke: ", text)
     text = re.sub(r"[Ff]un [Ff]acts?[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Fun Fact: ", text)
     text = re.sub(r"[Aa]dvice[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Advice: ", text)
-    text = re.sub(r"Errors?[-:\s][ \n\t]*", f"%EL0%{ASKAI_CHAT_ICONS['']}{''}  Error: ", text)
+    text = re.sub(r"Errors?[-:\s][ \n\t]*", f"%EL1%{ASKAI_CHAT_ICONS['']}{''}  Error: ", text)
     text = re.sub(r"^\n+", '', text, re.MULTILINE)
     text = re.sub(r"\n{2,}", '\n', text, re.MULTILINE)
     text = re.sub(re_url, r'%CYAN% \1%GREEN%', text)

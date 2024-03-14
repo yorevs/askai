@@ -8,16 +8,14 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 - Determine whether the query suggests the user intends to end the conversation.
 
-- Determine whether the query suggests the user intends to change the subject of the conversation.
-
 - Determine whether real-time data are required for ensuring the utmost accuracy and relevance in responses. This pertains specifically to situations where the required information may be outdated or cannot be retrieved from the chat history or your existing database.
 
-- Determine whether summarizing documents is necessary to provide an accurate and comprehensive response.
+- Determine whether summarizing documents or web sites is necessary to provide an accurate and comprehensive response.
+
+- Prior to making any decisions, it's crucial to review the entire chat history. The context provided previously may influence the outcome, so it's important to ensure that the answer isn't already within that context before proceeding.
 
 - The final response is a formatted JSON with no additional description or context.
 
 - The final response 'JSON' must contain the boolean fields: 'intelligible', 'terminating', 'require_internet' and 'require_summarization'.
 
 - The final response 'JSON' must contain the string fields: fields: 'query_type' and 'question'.
-
-- Prior to making any decisions, it's crucial to review the entire chat history. The context provided previously may influence the outcome, so it's important to ensure that the answer isn't already within that context before proceeding.
