@@ -20,6 +20,8 @@ class Temperatures(Enumeration):
 
     # fmt: off
 
+    ZERO                        = 0.0, 0.0
+
     # Generates code that adheres to established patterns and conventions. Output is more deterministic and focused.
     # Useful for generating syntactically correct code.
     CODE_GENERATION             = 0.2, 0.1
@@ -41,5 +43,7 @@ class Temperatures(Enumeration):
     # Generates code that explores alternative solutions and creative approaches. Output is less constrained by
     # established patterns.
     EXPLORATORY_CODE_WRITING    = 0.6, 0.7
+
+    HOTTEST                     = 1.0, 1.0
 
     # fmt: on

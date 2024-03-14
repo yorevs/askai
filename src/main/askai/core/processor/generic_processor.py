@@ -45,7 +45,7 @@ class GenericProcessor(AIProcessor):
         final_prompt: str = msg.translate(template.format(user=prompt.user))
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", query_response.question)
-        context: ContextRaw = shared.context.join("GENERAL", "INTERNET", "SUMMARY", "SETUP", "QUESTION")
+        context: ContextRaw = shared.context.join("GENERAL", "CONTEXT", "SETUP", "QUESTION")
         log.info("Setup::[GENERIC] '%s'  context=%s", query_response.question, context)
 
         if (response := shared.engine.ask(context, *Temperatures.CREATIVE_WRITING.value)) and response.is_success:
@@ -54,7 +54,6 @@ class GenericProcessor(AIProcessor):
             cache.save_reply(query_response.question, output)
             cache.save_query_history()
             status = True
-            shared.context.clear("INTERNET", "SUMMARY")
         else:
             output = msg.llm_error(response.message)
 

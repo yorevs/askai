@@ -13,7 +13,6 @@
    Copyright·(c)·2024,·HSPyLib
 """
 import logging as log
-from functools import partial
 from typing import Optional, Tuple
 
 from hspylib.core.zoned_datetime import now
@@ -49,34 +48,23 @@ class InternetProcessor(AIProcessor):
         if not (response := cache.read_reply(query_response.question)):
             if (response := shared.engine.ask(context, *Temperatures.CHATBOT_RESPONSES.value)) and response.is_success:
                 search: SearchResult = object_mapper.of_json(response.message, SearchResult)
-                query = " + ".join(search.keywords)
-                fc_call = partial(internet.scrap_sites, query) \
-                    if query_response.require_summarization \
-                    else partial(internet.search_google, query)
-                if results := fc_call(*search.sites):
-                    search.results = results
-                    output = self._wrap_output(query_response, search)
-                    shared.context.set("INTERNET", output, "assistant")
-                    cache.save_reply(query_response.question, output)
-                    status = True
+                if not isinstance(search, SearchResult):
+                    log.error(msg.invalid_response(search))
+                    output = response.message
                 else:
-                    output = msg.search_empty()
+                    query = " + ".join(search.keywords)
+                    if output := internet.search_google(query, *search.sites):
+                        shared.context.set("CONTEXT", output, "assistant")
+                        cache.save_reply(query_response.question, output)
+                    else:
+                        output = msg.search_empty()
+                status = True
             else:
                 output = msg.llm_error(response.message)
         else:
             log.debug('Reply found for "%s" in cache.', query_response.question)
             output = response
-            shared.context.set("INTERNET", output, "assistant")
+            shared.context.set("CONTEXT", output, "assistant")
             status = True
 
         return status, output
-
-    def _wrap_output(self, query_response: QueryResponse, search_result: SearchResult) -> str:
-        """Wrap the output into a new string to be forwarded to the next processor.
-        :param query_response: The query response provided by the AI.
-        :param search_result: The internet search results.
-        """
-        query_response.query_type = self.next_in_chain().query_type()
-        query_response.require_internet = False
-        query_response.response = str(search_result)
-        return str(query_response)

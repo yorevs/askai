@@ -102,7 +102,7 @@ class CommandProcessor(AIProcessor):
                     if not cmd_out:
                         cmd_out = msg.cmd_no_output()
                     else:
-                        shared.context.push("CONTEXT", f"Command `{cmd_line}' output:\n\n```\n{cmd_out}\n```")
+                        shared.context.set("CONTEXT", f"Command `{cmd_line}' output:\n\n```\n{cmd_out}\n```")
                         cmd_out = self._wrap_output(query_response, cmd_line, cmd_out)
                 else:
                     log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), cmd_line)

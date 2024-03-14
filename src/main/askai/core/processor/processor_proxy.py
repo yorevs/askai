@@ -54,7 +54,7 @@ class ProcessorProxy(metaclass=Singleton):
         final_prompt = msg.translate(template.format(query_types=self.query_types))
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", question)
-        context: ContextRaw = shared.context.join("INTERNET", "SUMMARY", "CONTEXT", "SETUP", "QUESTION")
+        context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
         log.info("Ask::[QUESTION] '%s'  context=%s", question, context)
 
         if (response := shared.engine.ask(context, *Temperatures.CODE_GENERATION.value)) and response.is_success:

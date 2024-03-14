@@ -31,13 +31,13 @@ from askai.core.support.presets import Presets
 from askai.language.language import Language
 
 ASKAI_CHAT_ICONS = {
-    "": "%RED%\n\n",
-    "": "%BLUE%\n\n",
-    "": "%BLUE%\n\n",
-    "": "%BLUE%\n\n",
-    "": "%YELLOW%\n\n",
-    "": "%YELLOW%\n\n",
-    "": "%ORANGE%\n\n",
+    "": "%RED%",
+    "": "%BLUE%",
+    "": "%BLUE%",
+    "": "%BLUE%",
+    "": "%YELLOW%",
+    "": "%YELLOW%",
+    "": "%ORANGE%",
 }
 
 
@@ -59,7 +59,7 @@ def beautify(text: Any) -> str:
     text = re.sub(r"[Aa]dvice[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Advice: ", text)
     text = re.sub(r"Errors?[-:\s][ \n\t]*", f"%EL1%{ASKAI_CHAT_ICONS['']}{''}  Error: ", text)
     text = re.sub(r"^\n+", '', text, re.MULTILINE)
-    text = re.sub(r"\n{2,}", '\n', text, re.MULTILINE)
+    text = re.sub(r"\n{2,}", '\n\n', text, re.MULTILINE)
     text = re.sub(re_url, r'%CYAN% \1%GREEN%', text)
     # fmt: on
 

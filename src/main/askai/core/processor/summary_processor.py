@@ -49,14 +49,18 @@ class SummaryProcessor(AIProcessor):
 
         try:
             if (response := shared.engine.ask(context, *Temperatures.CHATBOT_RESPONSES.value)) and response.is_success:
-                summary_result: SummaryResult = object_mapper.of_json(response.message, SummaryResult)
-                summarizer.generate(summary_result.folder, summary_result.glob)
-                if results := summarizer.query('Give me an overview of all the summarized content'):
-                    summary_result.results = results
-                    output = self._wrap_output(query_response, summary_result)
-                    shared.context.set("SUMMARY", output, "assistant")
-                    cache.save_reply(query_response.question, output)
-                    status = True
+                summary: SummaryResult = object_mapper.of_json(response.message, SummaryResult)
+                if not isinstance(summary, SummaryResult):
+                    log.error(msg.invalid_response(SummaryResult))
+                    output = response.message
+                else:
+                    summarizer.generate(summary.folder, summary.glob)
+                    if results := summarizer.query('Give me an overview of all the summarized content'):
+                        summary.results = results
+                        output = self._wrap_output(query_response, summary)
+                        shared.context.set("CONTEXT", output, "assistant")
+                        cache.save_reply(query_response.question, output)
+                status = True
             else:
                 output = msg.llm_error(response.message)
         except (FileNotFoundError, ValueError, DocumentsNotFound) as err:

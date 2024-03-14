@@ -44,7 +44,7 @@ class OutputProcessor(AIProcessor):
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP")
         log.info("Output::[COMMAND] '%s'  context=%s", commands, context)
 
-        if (response := shared.engine.ask(context, *Temperatures.DATA_ANALYSIS.value)) and response.is_success:
+        if (response := shared.engine.ask(context, *Temperatures.CODE_GENERATION.value)) and response.is_success:
             log.debug("Output::[RESPONSE] Received from AI: %s.", response)
             if output := response.message:
                 shared.context.push("CONTEXT", output, "assistant")

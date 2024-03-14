@@ -70,13 +70,14 @@ class ChatContext:
         """Join contexts specified by keys."""
         context: ContextRaw = []
         token_length = 0
-        for key in set(keys):
-            content = ' '.join([t['content'] for t in self.get(key)])
+        for key in keys:
+            ctx = self.get(key)
+            content = ' '.join([t['content'] for t in ctx])
             token_length += len(content or '')
             if token_length > self._token_limit:
                 raise TokenLengthExceeded(f"Required token length={token_length}k  limit={self._token_limit}k")
-            if content:
-                context.extend(self.get(key))
+            if content and ctx not in context:
+                context.extend(ctx)
         return context
 
     def clear(self, *keys: str) -> int:
