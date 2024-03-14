@@ -16,11 +16,10 @@ import logging as log
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import nltk
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.text_tools import ensure_endswith
 from langchain.chains import RetrievalQA
 from langchain_community.document_loaders import DirectoryLoader
@@ -33,7 +32,7 @@ from askai.core.askai_messages import msg
 from askai.core.component.cache_service import PERSIST_DIR
 from askai.core.model.summary_result import SummaryResult
 from askai.core.support.langchain_support import lc_llm
-from askai.core.support.shared_instances import shared
+from askai.core.support.utilities import hash_text
 from askai.exception.exceptions import DocumentsNotFound
 
 
@@ -44,13 +43,26 @@ class Summarizer(metaclass=Singleton):
 
     ASKAI_SUMMARY_DATA_KEY = "askai-summary-data"
 
+    @staticmethod
+    def _extract_result(result: dict) -> Tuple[str, str]:
+        """TODO"""
+        query = result['query'] if 'query' in result else result['question']
+        result = result['result'] if 'result' in result else result['answer']
+        return query, result
+
     def __init__(self):
         nltk.download('averaged_perceptron_tagger')
         self._retriever = None
         self._folder = None
         self._glob = None
+        self._chat_history = None
         self._text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000, chunk_overlap=0, separators=[" ", ", ", "\n"])
+            chunk_size=800, chunk_overlap=10, separators=[" ", ", ", "\n"])
+
+    @property
+    def persist_dir(self) -> Path:
+        summary_hash = hash_text(self.sum_path)
+        return Path(f"{PERSIST_DIR}/{summary_hash}")
 
     @property
     def folder(self) -> str:
@@ -61,7 +73,7 @@ class Summarizer(metaclass=Singleton):
         return self._glob
 
     @property
-    def path(self) -> str:
+    def sum_path(self) -> str:
         return f"{self.folder}{self.glob}"
 
     @property
@@ -76,48 +88,45 @@ class Summarizer(metaclass=Singleton):
         """
         self._folder: str = str(folder).replace("~", os.getenv("HOME")).strip()
         self._glob: str = glob.strip()
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.summarizing(self.path))
-        log.info("Summarizing documents from '%s'", self.path)
-        documents: List[Document] = DirectoryLoader(self.folder, glob=self.glob).load()
-        if len(documents) > 0:
-            texts: List[Document] = self._text_splitter.split_documents(documents)
-            v_store = Chroma.from_documents(texts, lc_llm.create_embeddings(), persist_directory=str(PERSIST_DIR))
-            self._retriever = RetrievalQA.from_chain_type(
-                llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever())
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.summarizing(self.sum_path))
+        embeddings = lc_llm.create_embeddings()
+
+        if self.persist_dir.exists():
+            log.info("Recovering vector store from: '%s'", self.persist_dir)
+            v_store = Chroma(persist_directory=str(self.persist_dir), embedding_function=embeddings)
         else:
-            raise DocumentsNotFound(f"Unable to find any document to summarize at: '{self.path}'")
+            log.info("Summarizing documents from '%s'", self.sum_path)
+            documents: List[Document] = DirectoryLoader(self.folder, glob=self.glob).load()
+            if len(documents) <= 0:
+                raise DocumentsNotFound(f"Unable to find any document to summarize at: '{self.sum_path}'")
+            texts: List[Document] = self._text_splitter.split_documents(documents)
+            v_store = Chroma.from_documents(texts, embeddings, persist_directory=str(self.persist_dir))
+
+        self._retriever = RetrievalQA.from_chain_type(
+            llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever())
 
     def query(self, *queries: str) -> Optional[List[SummaryResult]]:
-        """Answer questions about the summarized content."""
-        check_argument(len(queries) > 0)
-        if self._retriever is not None:
+        """Answer questions about the summarized content.
+        :param queries: The queries to ask the AI engine.
+        """
+        if queries and self._retriever is not None:
             results: List[SummaryResult] = []
             for query in queries:
-                if result := self.query_one(query):
+                if result := self._query_one(query):
                     results.append(result)
             return results
         return None
 
     @lru_cache
-    def query_one(self, query: str) -> Optional[SummaryResult]:
-        """Query the AI about a given query based on the summarized content."""
-        check_argument(len(query) > 0)
-        if result := self._retriever.invoke({"query": query}):
+    def _query_one(self, query: str) -> Optional[SummaryResult]:
+        """Query the AI about a given query based on the summarized content.
+        :param query: The query to ask the AI engine.
+        """
+        if query and (result := self._retriever.invoke({"query": query})):
             return SummaryResult(
-                self._folder, self._glob, result['query'].strip(), result['result'].strip()
+                self._folder, self._glob, *self._extract_result(result)
             )
         return None
 
 
 assert (summarizer := Summarizer().INSTANCE) is not None
-
-
-if __name__ == '__main__':
-    shared.create_engine('openai', 'gpt-3.5-turbo')
-    summarizer.generate('/Users/hugo/.config/hhs/log', '**/*.*')
-    print(summarizer.query(
-        "What is HomeSetup?",
-        "How can I install HomeSetup?",
-        "How can I configure my Starship prompt?",
-        "How can change the starship preset?",
-        "How can I use the punch application?"))

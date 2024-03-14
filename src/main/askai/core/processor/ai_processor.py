@@ -25,6 +25,8 @@ from typing import Dict, Optional, Tuple
 
 import os
 
+from askai.core.support.utilities import hash_text
+
 
 class AIProcessor(metaclass=ABCMeta):
     """Abstract class that helps implementing AskAI processors."""
@@ -84,7 +86,7 @@ class AIProcessor(metaclass=ABCMeta):
 
     def processor_id(self) -> str:
         """Get the processor ID. the resulting ID is a string, composed by the processor name hash."""
-        return str(abs(hash(self.__class__.__name__)))
+        return hash_text(self.__class__.__name__)
 
     def query_type(self) -> str:
         """Get the query type this processor can handle. By default, it's the name of the processor itself."""
