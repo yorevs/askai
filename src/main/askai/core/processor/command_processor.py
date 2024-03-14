@@ -24,6 +24,7 @@ from langchain_core.prompts import PromptTemplate
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
+from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
 from askai.core.model.query_response import QueryResponse
 from askai.core.model.terminal_command import TerminalCommand
@@ -60,7 +61,7 @@ class CommandProcessor(AIProcessor):
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
         log.info("Command::[QUESTION] '%s'  context=%s", query_response.question, context)
 
-        if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
+        if (response := shared.engine.ask(context, *Temperatures.DATA_ANALYSIS.value)) and response.is_success:
             log.debug("Command::[RESPONSE] Received from AI: %s.", response)
             shell, command = extract_command(response.message)
             if command:

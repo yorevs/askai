@@ -20,6 +20,7 @@ from langchain_core.prompts import PromptTemplate
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
+from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
 from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
@@ -47,7 +48,7 @@ class GenericProcessor(AIProcessor):
         context: ContextRaw = shared.context.join("GENERAL", "INTERNET", "SUMMARY", "SETUP", "QUESTION")
         log.info("Setup::[GENERIC] '%s'  context=%s", query_response.question, context)
 
-        if (response := shared.engine.ask(context, temperature=1, top_p=1)) and response.is_success:
+        if (response := shared.engine.ask(context, *Temperatures.CREATIVE_WRITING.value)) and response.is_success:
             output = response.message
             shared.context.push("GENERAL", output, "assistant")
             cache.save_reply(query_response.question, output)

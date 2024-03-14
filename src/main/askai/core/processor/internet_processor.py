@@ -22,6 +22,7 @@ from langchain_core.prompts import PromptTemplate
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import cache
 from askai.core.component.internet_service import internet
+from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
 from askai.core.model.query_response import QueryResponse
 from askai.core.model.search_result import SearchResult
@@ -46,7 +47,7 @@ class InternetProcessor(AIProcessor):
         log.info("Setup::[INTERNET] '%s'  context=%s", query_response.question, context)
 
         if not (response := cache.read_reply(query_response.question)):
-            if (response := shared.engine.ask(context, temperature=0.0, top_p=0.0)) and response.is_success:
+            if (response := shared.engine.ask(context, *Temperatures.CHATBOT_RESPONSES.value)) and response.is_success:
                 search: SearchResult = object_mapper.of_json(response.message, SearchResult)
                 query = " + ".join(search.keywords)
                 fc_call = partial(internet.scrap_sites, query) \
