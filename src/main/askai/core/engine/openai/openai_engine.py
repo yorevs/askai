@@ -16,11 +16,13 @@
 import logging as log
 import os
 from threading import Thread
-from typing import Any, List, Optional
+from typing import List, Optional
 
 import langchain_openai
 import pause
 from hspylib.core.preconditions import check_not_none
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models import BaseLLM, BaseChatModel
 from openai import APIError, OpenAI
 
 from askai.core.component.audio_player import AudioPlayer
@@ -52,12 +54,17 @@ class OpenAIEngine(AIEngine):
     def client(self) -> OpenAI:
         return self._client
 
-    def lc_model(self, temperature: float = 0.8, top_p: float = 0.0) -> Any:
+    def lc_model(self, temperature: float = 0.0, top_p: float = 0.0) -> BaseLLM:
         """Create a LangChain OpenAI llm model instance."""
         return langchain_openai.OpenAI(
             openai_api_key=self._api_key, temperature=temperature, top_p=top_p)
 
-    def lc_embeddings(self) -> Any:
+    def lc_chat_model(self, temperature: float = 0.0) -> BaseChatModel:
+        """Create a LangChain OpenAI llm chat model instance."""
+        return langchain_openai.ChatOpenAI(
+            openai_api_key=self._api_key, temperature=temperature)
+
+    def lc_embeddings(self) -> Embeddings:
         """Create a LangChain AI embeddings instance."""
         return langchain_openai.OpenAIEmbeddings()
 

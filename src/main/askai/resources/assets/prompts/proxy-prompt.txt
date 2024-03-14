@@ -12,7 +12,7 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 - Determine whether the query suggests the user intends to change the subject of the conversation.
 
-- Determine whether real-time updates are required for ensuring the utmost accuracy and relevance in responses. This pertains specifically to situations where the required information cannot be retrieved from the chat history or your existing database.
+- Determine whether real-time data are required for ensuring the utmost accuracy and relevance in responses. This pertains specifically to situations where the required information may be outdated or cannot be retrieved from the chat history or your existing database.
 
 - Determine whether summarizing documents is necessary to provide an accurate and comprehensive response.
 

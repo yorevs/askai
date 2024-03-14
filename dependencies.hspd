@@ -25,6 +25,9 @@ package: langchain-community
 package: unstructured
 package: python-magic-bin
 package: chromadb
+package: tiktoken
+package: aiohttp
+package: html2text
 package: PyAudio
 package: SpeechRecognition
 package: openai-whisper

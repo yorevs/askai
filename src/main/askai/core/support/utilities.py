@@ -12,22 +12,23 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from askai.core.support.presets import Presets
-from askai.language.language import Language
+import hashlib
+import os
+import re
+from os.path import basename, dirname
+from pathlib import Path
+from typing import Any, Optional, Tuple
+
+import pause
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.cli.vt100.vt_color import VtColor
-from os.path import basename, dirname
-from pathlib import Path
-from typing import Any, Optional, Tuple
 
-import hashlib
-import os
-import pause
-import re
+from askai.core.support.presets import Presets
+from askai.language.language import Language
 
 ASKAI_CHAT_ICONS = {
     "": "%RED%",
@@ -45,8 +46,12 @@ def beautify(text: Any) -> str:
     :param text: The text to be beautified.
     """
     # fmt: off
-    re_url = r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})'
+    re_url = (
+        r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|'
+        r'www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))'
+        r'[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})')
     text = str(text)
+    text = re.sub(r"\n{2,}", '\n\n', text)
     text = re.sub(r"[Hh]ints?( and tips)?[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Tips: ", text)
     text = re.sub(r"[Aa]nalysis[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Analysis: ", text)
     text = re.sub(r"[Ss]ummary[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Summary:", text)
@@ -137,7 +142,7 @@ def stream_text(text: Any, tempo: int = 1, language: Language = Language.EN_US) 
     for i, char in enumerate(text):
         if char == "%" and (i + 1) < len(text):
             try:
-                if (color := text[i + 1 : text.index("%", i + 1)]) in VtColor.names():
+                if (color := text[i + 1: text.index("%", i + 1)]) in VtColor.names():
                     hide, idx = True, text.index("%", i + 1)
                     sysout(f"%{color}%", end="")
                     continue
@@ -188,4 +193,17 @@ def stream_text(text: Any, tempo: int = 1, language: Language = Language.EN_US) 
 
 
 if __name__ == '__main__':
-    display_text(" Error: 'LLM' returned an error: Directory not found: 'HomeSetup/docs/'")
+    display_text("""
+    Este text tem ln
+
+
+
+
+     aqui
+
+
+
+     este
+
+     """
+         )

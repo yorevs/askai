@@ -53,6 +53,7 @@ class GenericProcessor(AIProcessor):
             cache.save_reply(query_response.question, output)
             cache.save_query_history()
             status = True
+            shared.context.clear("INTERNET", "SUMMARY")
         else:
             output = msg.llm_error(response.message)
 

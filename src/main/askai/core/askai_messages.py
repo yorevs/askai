@@ -76,6 +76,10 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"The command didn't return an output !")
 
     @lru_cache
+    def search_empty(self) -> str:
+        return self.translate(f"The google research didn't return an output !")
+
+    @lru_cache
     def access_grant(self) -> str:
         return self.translate(f"'AskAI' requires access to your files, folders and apps. Continue (yes/[no])?")
 
@@ -103,7 +107,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def intelligible(self, question: str) -> str:
-        return self.translate(f"Your question '{question}' is not clear, please rephrase !")
+        return self.translate(f"Your question '{question}' is not clear, please reformulate !")
 
     @lru_cache
     def llm_error(self, error: str) -> str:

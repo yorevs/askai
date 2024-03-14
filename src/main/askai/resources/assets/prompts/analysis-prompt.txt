@@ -14,4 +14,4 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 - Start your response with the phrase: Analysing the provided data\n
 
-- Wrap up your reply by offering a summarized analysis about the content; prefix with: \n'Analysis:'.
+- Wrap up your reply by offering a summarized analysis about the content; prefix with: 'Analysis:'.

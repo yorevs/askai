@@ -43,7 +43,6 @@ from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.processor.generic_processor import GenericProcessor
 from askai.core.processor.internet_processor import InternetProcessor
-from askai.core.processor.output_processor import OutputProcessor
 from askai.core.processor.processor_proxy import proxy
 from askai.core.processor.summary_processor import SummaryProcessor
 from askai.core.support.object_mapper import object_mapper
@@ -244,14 +243,14 @@ class AskAi:
         # Intrinsic features
         if not proxy_response.intelligible:
             self.reply_error(msg.intelligible(proxy_response.question))
-            return False
+            return True
         elif proxy_response.terminating:
             log.info("User wants to terminate the conversation.")
             return False
         elif proxy_response.require_internet:
             log.info("Internet is required to fulfill the request.")
             processor = AIProcessor.get_by_name(InternetProcessor.__name__)
-            processor.bind(AIProcessor.get_by_query_type(proxy_response.query_type))
+            processor.bind(AIProcessor.get_by_name(GenericProcessor.__name__))
         elif proxy_response.require_summarization:
             log.info("Summarization is required to fulfill the request.")
             processor = AIProcessor.get_by_name(SummaryProcessor.__name__)

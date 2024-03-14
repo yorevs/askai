@@ -26,4 +26,4 @@ class SummaryResult:
     answer: str = None
 
     def __str__(self):
-        return f"Summarization: {json.dumps(self.__dict__, default=lambda obj: obj.__dict__)}"
+        return f"Summarization results: {json.dumps(self.__dict__, default=lambda obj: obj.__dict__)}"

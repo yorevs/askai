@@ -30,7 +30,7 @@ class ChatContext:
 
     def __init__(self, token_limit: int):
         self._context = defaultdict(list)
-        self._token_limit: int = token_limit #* 1024  # The limit is given in KB
+        self._token_limit: int = token_limit * 1024  # The limit is given in KB
 
     def __str__(self):
         return os.linesep.join(f"'{k}': '{v}'" for k, v in self._context.items())
@@ -79,8 +79,9 @@ class ChatContext:
                 context.extend(self.get(key))
         return context
 
-    def clear(self, key: str) -> int:
+    def clear(self, *keys: str) -> int:
         """Clear the all the chat context specified by key."""
-        if self._context[key]:
-            del self._context[key]
+        for key in keys:
+            if self._context[key]:
+                del self._context[key]
         return len(self._context)

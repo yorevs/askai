@@ -55,6 +55,8 @@ class InternetProcessor(AIProcessor):
                     shared.context.set("INTERNET", output, "assistant")
                     cache.save_reply(query_response.question, output)
                     status = True
+                else:
+                    output = msg.search_empty()
             else:
                 output = msg.llm_error(response.message)
         else:

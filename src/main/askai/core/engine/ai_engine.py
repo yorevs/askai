@@ -12,6 +12,8 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+from langchain_core.language_models import BaseLLM, BaseChatModel
+
 from askai.core.model.ai_model import AIModel
 from askai.core.model.ai_reply import AIReply
 from typing import Any, List, Optional, Protocol
@@ -20,8 +22,18 @@ from typing import Any, List, Optional, Protocol
 class AIEngine(Protocol):
     """Provide an interface for AI engines."""
 
-    def lc_model(self, temperature: float, top_p: float) -> Any:
-        """Create a LangChain AI model instance."""
+    def lc_model(self, temperature: float, top_p: float) -> BaseLLM:
+        """Create a LangChain AI model instance.
+        :param temperature: The model engine temperature.
+        :param top_p: The model engine top_p.
+        """
+        ...
+
+    def lc_chat_model(self, temperature: float = 0.0) -> BaseChatModel:
+        """Create a LangChain OpenAI llm chat model instance.
+        :param temperature: The model engine temperature.
+        """
+        ...
 
     def lc_embeddings(self) -> Any:
         """Create a LangChain AI embeddings instance."""
@@ -50,8 +62,8 @@ class AIEngine(Protocol):
     def ask(self, chat_context: List[dict], temperature: float = 0.8, top_p: float = 0.0) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
         :param chat_context: The chat history or context.
-        :param temperature: TODO
-        :param top_p: TODO
+        :param temperature: The model engine temperature.
+        :param top_p: The model engine top_p.
         """
         ...
 
