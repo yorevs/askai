@@ -12,12 +12,6 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-from typing import Optional, Tuple
-
-from hspylib.core.zoned_datetime import now
-from langchain_core.prompts import PromptTemplate
-
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import cache
 from askai.core.component.internet_service import internet
@@ -28,6 +22,11 @@ from askai.core.model.search_result import SearchResult
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
+from hspylib.core.zoned_datetime import now
+from langchain_core.prompts import PromptTemplate
+from typing import Optional, Tuple
+
+import logging as log
 
 
 class InternetProcessor(AIProcessor):
@@ -38,8 +37,8 @@ class InternetProcessor(AIProcessor):
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        template = PromptTemplate(input_variables=['cur_date'], template=self.template())
-        final_prompt: str = msg.translate(template.format(cur_date=now('%Y-%d-%m')))
+        template = PromptTemplate(input_variables=["cur_date"], template=self.template())
+        final_prompt: str = msg.translate(template.format(cur_date=now("%Y-%d-%m")))
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", query_response.question)
         context: ContextRaw = shared.context.join("SETUP", "QUESTION")

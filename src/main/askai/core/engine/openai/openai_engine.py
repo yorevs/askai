@@ -13,18 +13,6 @@
    Copyright·(c)·2024,·HSPyLib
 """
 
-import logging as log
-import os
-from threading import Thread
-from typing import List, Optional
-
-import langchain_openai
-import pause
-from hspylib.core.preconditions import check_not_none
-from langchain_core.embeddings import Embeddings
-from langchain_core.language_models import BaseLLM, BaseChatModel
-from openai import APIError, OpenAI
-
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.cache_service import CacheService
 from askai.core.component.recorder import Recorder
@@ -34,6 +22,17 @@ from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.model.ai_model import AIModel
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.utilities import display_text, stream_text
+from hspylib.core.preconditions import check_not_none
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models import BaseChatModel, BaseLLM
+from openai import APIError, OpenAI
+from threading import Thread
+from typing import List, Optional
+
+import langchain_openai
+import logging as log
+import os
+import pause
 
 
 class OpenAIEngine(AIEngine):
@@ -56,13 +55,11 @@ class OpenAIEngine(AIEngine):
 
     def lc_model(self, temperature: float = 0.0, top_p: float = 0.0) -> BaseLLM:
         """Create a LangChain OpenAI llm model instance."""
-        return langchain_openai.OpenAI(
-            openai_api_key=self._api_key, temperature=temperature, top_p=top_p)
+        return langchain_openai.OpenAI(openai_api_key=self._api_key, temperature=temperature, top_p=top_p)
 
     def lc_chat_model(self, temperature: float = 0.0) -> BaseChatModel:
         """Create a LangChain OpenAI llm chat model instance."""
-        return langchain_openai.ChatOpenAI(
-            openai_api_key=self._api_key, temperature=temperature)
+        return langchain_openai.ChatOpenAI(openai_api_key=self._api_key, temperature=temperature)
 
     def lc_embeddings(self) -> Embeddings:
         """Create a LangChain AI embeddings instance."""
@@ -98,8 +95,8 @@ class OpenAIEngine(AIEngine):
             check_not_none(chat_context)
             log.debug(f"Generating AI answer")
             response = self.client.chat.completions.create(
-                model=self.ai_model_name(), messages=chat_context,
-                temperature=temperature, top_p=top_p)
+                model=self.ai_model_name(), messages=chat_context, temperature=temperature, top_p=top_p
+            )
             reply = AIReply(response.choices[0].message.content, True)
             log.debug("Response received from LLM: %s", str(reply))
         except APIError as error:

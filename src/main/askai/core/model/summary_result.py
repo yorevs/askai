@@ -12,8 +12,9 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import json
 from dataclasses import dataclass
+
+import json
 
 
 @dataclass

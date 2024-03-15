@@ -5,5 +5,12 @@
 # Package: main.askai.core.support
 """Package initialization."""
 
-__all__ = ["langchain_support", "presets", "shared_instances", "utilities"]
-__version__ = "1.0.1"
+__all__ = [
+    'langchain_support', 
+    'object_mapper', 
+    'presets', 
+    'settings', 
+    'shared_instances', 
+    'utilities'
+]
+__version__ = '1.0.1'

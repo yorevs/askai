@@ -12,23 +12,22 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import hashlib
-import os
-import re
-from os.path import basename, dirname
-from pathlib import Path
-from typing import Any, Optional, Tuple
-
-import pause
+from askai.core.support.presets import Presets
+from askai.language.language import Language
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.cli.vt100.vt_color import VtColor
+from os.path import basename, dirname
+from pathlib import Path
+from typing import Any, Optional, Tuple
 
-from askai.core.support.presets import Presets
-from askai.language.language import Language
+import hashlib
+import os
+import pause
+import re
 
 ASKAI_CHAT_ICONS = {
     "": "%RED%",
@@ -143,7 +142,7 @@ def stream_text(text: Any, tempo: int = 1, language: Language = Language.EN_US) 
     for i, char in enumerate(text):
         if char == "%" and (i + 1) < len(text):
             try:
-                if (color := text[i + 1: text.index("%", i + 1)]) in VtColor.names():
+                if (color := text[i + 1 : text.index("%", i + 1)]) in VtColor.names():
                     hide, idx = True, text.index("%", i + 1)
                     sysout(f"%{color}%", end="")
                     continue
@@ -193,8 +192,9 @@ def stream_text(text: Any, tempo: int = 1, language: Language = Language.EN_US) 
     sysout("%NC%")
 
 
-if __name__ == '__main__':
-    display_text("""
+if __name__ == "__main__":
+    display_text(
+        """
 
 
 
@@ -211,4 +211,4 @@ According to the summarized content, the log files at ~/.config/hhs/log contain 
 Fun Fact: Log files are like diaries for your system, documenting everything that happens behind the scenes!
 
      """
-                 )
+    )

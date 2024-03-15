@@ -9,18 +9,18 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import os
-from collections import namedtuple, defaultdict
-from functools import reduce
-from typing import Any, List, Literal, Optional, TypeAlias, Dict
-
-from hspylib.core.zoned_datetime import now
 
 from askai.exception.exceptions import TokenLengthExceeded
+from collections import defaultdict, namedtuple
+from functools import reduce
+from hspylib.core.zoned_datetime import now
+from typing import Any, Dict, List, Literal, Optional, TypeAlias
+
+import os
 
 ChatRoles: TypeAlias = Literal["system", "user", "assistant"]
 
-ContextRaw : TypeAlias = List[Dict[str, str]]
+ContextRaw: TypeAlias = List[Dict[str, str]]
 
 
 class ChatContext:
@@ -72,8 +72,8 @@ class ChatContext:
         token_length = 0
         for key in keys:
             ctx = self.get(key)
-            content = ' '.join([t['content'] for t in ctx])
-            token_length += len(content or '')
+            content = " ".join([t["content"] for t in ctx])
+            token_length += len(content or "")
             if token_length > self._token_limit:
                 raise TokenLengthExceeded(f"Required token length={token_length}k  limit={self._token_limit}k")
             if content and ctx not in context:

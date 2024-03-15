@@ -9,6 +9,7 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+
 from askai.core.model.terminal_command import TerminalCommand
 from dataclasses import dataclass, field
 from typing import List

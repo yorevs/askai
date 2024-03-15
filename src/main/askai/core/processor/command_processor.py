@@ -12,15 +12,6 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import os
-from shutil import which
-from typing import Optional, Tuple
-
-from clitt.core.term.terminal import Terminal
-from hspylib.modules.application.exit_status import ExitStatus
-from langchain_core.prompts import PromptTemplate
-
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -32,6 +23,14 @@ from askai.core.processor.ai_processor import AIProcessor
 from askai.core.processor.output_processor import OutputProcessor
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_command, extract_path
+from clitt.core.term.terminal import Terminal
+from hspylib.modules.application.exit_status import ExitStatus
+from langchain_core.prompts import PromptTemplate
+from shutil import which
+from typing import Optional, Tuple
+
+import logging as log
+import os
 
 
 class CommandProcessor(AIProcessor):

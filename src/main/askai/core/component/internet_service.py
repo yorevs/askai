@@ -12,9 +12,11 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-from typing import Optional, List
-
+from askai.core.askai_events import AskAiEvents
+from askai.core.askai_messages import msg
+from askai.core.component.cache_service import PERSIST_DIR
+from askai.core.component.summarizer import summarizer
+from askai.core.support.langchain_support import lc_llm, load_document
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval_qa.base import RetrievalQA
@@ -25,12 +27,9 @@ from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.tools import Tool
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from typing import List, Optional
 
-from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import msg
-from askai.core.component.cache_service import PERSIST_DIR
-from askai.core.component.summarizer import summarizer
-from askai.core.support.langchain_support import lc_llm, load_document
+import logging as log
 
 
 class InternetService(metaclass=Singleton):
@@ -49,16 +48,18 @@ class InternetService(metaclass=Singleton):
             texts: List[Document] = summarizer.text_splitter.split_documents(documents)
             v_store = Chroma.from_documents(texts, lc_llm.create_embeddings(), persist_directory=str(PERSIST_DIR))
             retriever = RetrievalQA.from_chain_type(
-                llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever())
+                llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever()
+            )
             search_results = retriever.invoke({"query": query})
-            return search_results['result']
+            return search_results["result"]
         return None
 
     def __init__(self):
         self._google = GoogleSearchAPIWrapper()
         self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
         self._text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=800, chunk_overlap=10, separators=[" ", ", ", "\n"])
+            chunk_size=800, chunk_overlap=10, separators=[" ", ", ", "\n"]
+        )
 
     def search_google(self, query: str, *sites: str) -> Optional[str]:
         """Search the web using google search API.

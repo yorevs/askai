@@ -12,23 +12,6 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import os
-import sys
-from threading import Thread
-from typing import List, Optional
-
-import pause
-from clitt.core.term.cursor import Cursor
-from clitt.core.term.screen import Screen
-from clitt.core.term.terminal import Terminal
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import sysout
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.cli.keyboard import Keyboard
-from hspylib.modules.eventbus.event import Event
-
 from askai.__classpath__ import _Classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_EVENT
@@ -48,6 +31,22 @@ from askai.core.processor.summary_processor import SummaryProcessor
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
+from clitt.core.term.cursor import Cursor
+from clitt.core.term.screen import Screen
+from clitt.core.term.terminal import Terminal
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import sysout
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.cli.keyboard import Keyboard
+from hspylib.modules.eventbus.event import Event
+from threading import Thread
+from typing import List, Optional
+
+import logging as log
+import os
+import pause
+import sys
 
 
 class AskAi:

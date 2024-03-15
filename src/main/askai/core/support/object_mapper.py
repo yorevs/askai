@@ -9,17 +9,17 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import inspect
-import json
+
+from askai.exception.exceptions import InvalidJsonMapping, InvalidMapping
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.singleton import Singleton
 from inspect import isclass
 from json import JSONDecodeError
 from types import SimpleNamespace
 from typing import Any, Callable, Dict, Optional, Type, TypeAlias
 
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.singleton import Singleton
-
-from askai.exception.exceptions import InvalidJsonMapping, InvalidMapping
+import inspect
+import json
 
 FnConverter: TypeAlias = Callable[[Any, Type], Any]
 
@@ -40,8 +40,11 @@ class ObjectMapper(metaclass=Singleton):
     @staticmethod
     def _hash(type_from: Any, type_to: Type) -> str:
         """Create a hash value for both classes in a way that"""
-        return str(hash(type_from.__name__) + hash(type_to.__name__)) if isclass(type_from) \
-        else str(hash(type_from.__class__.__name__) + hash(type_to.__name__))
+        return (
+            str(hash(type_from.__name__) + hash(type_to.__name__))
+            if isclass(type_from)
+            else str(hash(type_from.__class__.__name__) + hash(type_to.__name__))
+        )
 
     @classmethod
     def _strict_converter(cls, type1: Any, type2: Type) -> Any:

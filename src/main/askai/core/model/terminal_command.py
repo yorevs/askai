@@ -9,6 +9,7 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+
 from dataclasses import dataclass
 from os.path import basename
 from typing import Literal, TypeAlias
