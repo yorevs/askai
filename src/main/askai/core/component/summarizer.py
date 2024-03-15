@@ -45,10 +45,16 @@ class Summarizer(metaclass=Singleton):
 
     @staticmethod
     def _extract_result(result: dict) -> Tuple[str, str]:
-        """TODO"""
-        query = result['query'] if 'query' in result else result['question']
-        result = result['result'] if 'result' in result else result['answer']
-        return query, result
+        """Extract the question and answer from the summarization result."""
+        question = result['query'] if 'query' in result else result['question']
+        answer = result['result'] if 'result' in result else result['answer']
+        return question, answer
+
+    @staticmethod
+    def exists(folder: str | Path, glob: str) -> bool:
+        """Return whether or not the summary already exists."""
+        summary_hash = hash_text(f"{ensure_endswith(folder, '/')}{glob}")
+        return Path(f"{PERSIST_DIR}/{summary_hash}").exists()
 
     def __init__(self):
         nltk.download('averaged_perceptron_tagger')
@@ -81,7 +87,7 @@ class Summarizer(metaclass=Singleton):
         return self._text_splitter
 
     @lru_cache
-    def generate(self, folder: str | Path, glob: str = None) -> None:
+    def generate(self, folder: str | Path, glob: str) -> None:
         """Generate a summarization of the folder contents.
         :param folder: The base folder of the summarization.
         :param glob: The glob pattern or file of the summarization.

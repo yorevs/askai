@@ -50,7 +50,7 @@ class InternetProcessor(AIProcessor):
                 search: SearchResult = object_mapper.of_json(response.message, SearchResult)
                 if not isinstance(search, SearchResult):
                     log.error(msg.invalid_response(search))
-                    output = response.message
+                    output = response.message.strip()
                 else:
                     query = " + ".join(search.keywords)
                     if output := internet.search_google(query, *search.sites):

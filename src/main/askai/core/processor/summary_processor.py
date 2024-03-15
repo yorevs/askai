@@ -13,6 +13,7 @@
    Copyright·(c)·2024,·HSPyLib
 """
 import logging as log
+import os
 from typing import Tuple, Optional
 
 from langchain_core.prompts import PromptTemplate
@@ -54,12 +55,14 @@ class SummaryProcessor(AIProcessor):
                     log.error(msg.invalid_response(SummaryResult))
                     output = response.message
                 else:
-                    summarizer.generate(summary.folder, summary.glob)
-                    if results := summarizer.query('Give me an overview of all the summarized content'):
-                        summary.results = results
-                        output = self._wrap_output(query_response, summary)
-                        shared.context.set("CONTEXT", output, "assistant")
-                        cache.save_reply(query_response.question, output)
+                    if not summarizer.exists(summary.folder, summary.glob):
+                        summarizer.generate(summary.folder, summary.glob)
+                        if results := summarizer.query('Give me an overview of all the summarized content'):
+                            output = os.linesep.join([r.answer for r in results]).strip()
+                            shared.context.set("CONTEXT", output, "assistant")
+                            cache.save_reply(query_response.question, output)
+                        else:
+                            log.info("Reusing existing summary: '%s'/'%s'", summary.folder, summary.glob)
                 status = True
             else:
                 output = msg.llm_error(response.message)
@@ -68,14 +71,3 @@ class SummaryProcessor(AIProcessor):
             status = True
 
         return status, output
-
-    def _wrap_output(self, query_response: QueryResponse, summary_result: SummaryResult) -> str:
-        """Wrap the output into a new string to be forwarded to the next processor.
-        :param query_response: The query response provided by the AI.
-        :param summary_result: The summary results.
-        """
-        query_response.query_type = self.next_in_chain().query_type()
-        query_response.require_summarization = False
-        query_response.require_internet = False
-        query_response.response = str(summary_result)
-        return str(query_response)
