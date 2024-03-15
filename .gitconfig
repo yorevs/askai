@@ -14,6 +14,13 @@
     precomposeunicode = false
     untrackedCache = true
 
+[sendemail]
+    smtpencryption = tls
+    smtpserver = smtp.gmail.com
+    smtpuser = yorevs@gmail.com
+    smtppass = password
+    smtpserverport = 587
+
 [web]
     browser = google-chrome
 

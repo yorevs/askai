@@ -1,0 +1,24 @@
+###### Requirements file for AskAi ######
+
+hspylib
+hspylib-clitt>=0.9.116
+retry
+pause
+requests
+argostranslate
+soundfile
+langchain
+langchain-openai
+langchain-community
+unstructured
+python-magic-bin
+chromadb
+tiktoken
+aiohttp
+html2text
+PyAudio
+SpeechRecognition
+openai-whisper
+google-api-python-client
+urllib3<2.0.0
+openai>=1.7.2

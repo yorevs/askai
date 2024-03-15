@@ -10,3 +10,4 @@ isort
 black
 mypy
 pylint
+pdoc
