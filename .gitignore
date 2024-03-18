@@ -86,3 +86,4 @@ Icon[]
 ehthumbs.db
 Thumbs.db
 Desktop.ini
+*egg-info/

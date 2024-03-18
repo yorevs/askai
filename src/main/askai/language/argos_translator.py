@@ -54,10 +54,7 @@ class ArgosTranslator(metaclass=Singleton):
         """Translate text using Argos translator.
         :param text: Text to translate.
         """
-        # FIXME: Translation has been disabled because of the SIGSEGV
-        # FIXME: https://github.com/argosopentech/argos-translate/issues/402
-        # return text if self._from_idiom == self._to_idiom else self._argos_model.translate(text)
-        return text
+        return text if self._from_idiom == self._to_idiom else self._argos_model.translate(text)
 
     def _install_translator(self) -> bool:
         """Install the Argos translator if it's not yet installed on the system."""
@@ -75,8 +72,3 @@ class ArgosTranslator(metaclass=Singleton):
             package.install_from_path(required_package.download())
             sys.stdout = old_stdout
         return required_package is not None
-
-
-if __name__ == '__main__':
-    t = ArgosTranslator(Language.EN_US, Language.PT_BR)
-    print(t.translate("Hello World"))
