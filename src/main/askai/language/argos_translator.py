@@ -12,7 +12,9 @@ import sys
 
 
 class ArgosTranslator(metaclass=Singleton):
-    """Provides a multilingual offline translation engine."""
+    """Provides a multilingual offline translation engine.
+    Language packages are downloaded at: ~/.local/share/argos-translate/packages
+    """
 
     INSTANCE: "ArgosTranslator" = None
 
