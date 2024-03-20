@@ -18,6 +18,7 @@ import sys
 from threading import Thread
 from typing import List, Optional
 
+import nltk
 import pause
 from clitt.core.term.cursor import Cursor
 from clitt.core.term.screen import Screen
@@ -175,12 +176,13 @@ class AskAi:
     def _startup(self) -> None:
         """Initialize the application."""
         splash_thread: Thread = Thread(daemon=True, target=self._splash)
+        splash_thread.start()
         if configs.is_speak:
             recorder.setup()
             configs.is_speak = recorder.input_device is not None
-        splash_thread.start()
         if configs.is_speak:
             AudioPlayer.INSTANCE.start_delay()
+        nltk.download("averaged_perceptron_tagger", quiet=True)
         cache.set_cache_enable(self.cache_enabled)
         cache.read_query_history()
         askai_bus = AskAiEvents.get_bus(ASKAI_BUS_NAME)

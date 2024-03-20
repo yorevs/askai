@@ -30,13 +30,13 @@ import pause
 import re
 
 CHAT_ICONS = {
-    "": "%RED%",
-    "": "%BLUE%",
-    "": "%BLUE%",
-    "": "%BLUE%",
-    "": "%YELLOW%",
-    "": "%YELLOW%",
-    "": "%ORANGE%",
+    '': '\n\n%RED%  Error: ',
+    '': '\n\n%BLUE%  Hints & Tips: ',
+    '': '\n\n%BLUE%  Analysis: ',
+    '': '\n\n%BLUE%  Summary: ',
+    '': '\n\n%YELLOW%  Joke: ',
+    '': '\n\n%YELLOW%  Fun-Fact: ',
+    '': '\n\n%ORANGE%  Advice: ',
 }
 
 
@@ -50,19 +50,19 @@ def beautify(text: Any) -> str:
         r'www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))'
         r'[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})')
     text = str(text)
-    text = re.sub(r"[Hh]ints?( and tips)?[-:\s]([ \n\t]*)", fr"{CHAT_ICONS['']}\1  Tips: ", text)
-    text = re.sub(r"[Aa]nalysis[-:\s]([ \n\t]*)", fr"{CHAT_ICONS['']}\1  Analysis: ", text)
-    text = re.sub(r"[Ss]ummary[-:\s]([ \n\t]*)", fr"{CHAT_ICONS['']}\1  Summary:", text)
-    text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s]([ \n\t]*)", fr"{CHAT_ICONS['']}\1  Joke: ", text)
-    text = re.sub(r"[Ff]un [Ff]acts?[-:\s]([ \n\t]*)", fr"{CHAT_ICONS['']}\1  Fun Fact: ", text)
-    text = re.sub(r"[Aa]dvice[-:\s]([ \n\t]*)", fr"{CHAT_ICONS['']}\1  Advice: ", text)
-    text = re.sub(r"Errors?[-:\s]([ \n\t]*)", fr"%EL1%{CHAT_ICONS['']}\1  Error: ", text)
+    text = re.sub(r"Errors?[-:\s][ \n\t]+", CHAT_ICONS[''], text)
+    text = re.sub(r"[Hh]ints?( and tips)?[-:\s][ \n\t]+", CHAT_ICONS[''], text)
+    text = re.sub(r"[Aa]nalysis[-:\s][ \n\t]+", CHAT_ICONS[''], text)
+    text = re.sub(r"[Ss]ummary[-:\s][ \n\t]+", CHAT_ICONS[''], text)
+    text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s][ \n\t]+", CHAT_ICONS[''], text)
+    text = re.sub(r"[Ff]un [Ff]acts?[-:\s][ \n\t]+", CHAT_ICONS[''], text)
+    text = re.sub(r"[Aa]dvice[-:\s][ \n\t]+", CHAT_ICONS[''], text)
     text = re.sub(re_url, r'%CYAN% \1%GREEN%', text)
     text = re.sub(r"^\n+", '', text, re.MULTILINE)
     text = re.sub(r"\n{2,}", '\n\n', text, re.MULTILINE)
     # fmt: on
 
-    return text.rstrip()
+    return text
 
 
 def read_resource(base_dir: str, filename: str, file_ext: str = ".txt") -> str:
