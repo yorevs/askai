@@ -20,23 +20,20 @@ from typing import List, Optional
 
 import nltk
 import pause
-from clitt.core.term.cursor import Cursor
-from clitt.core.term.screen import Screen
-from clitt.core.term.terminal import Terminal
-from clitt.core.tui.line_input.line_input import line_input
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.term.terminal import terminal
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import sysout
 from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.cli.keyboard import Keyboard
 from hspylib.modules.eventbus.event import Event
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_EVENT
 from askai.core.askai_messages import msg
-from askai.core.askai_prompt import prompt
-from askai.core.component.audio_player import AudioPlayer
-from askai.core.component.cache_service import cache
+from askai.core.component.audio_player import player
+from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
@@ -100,14 +97,6 @@ class AskAi:
         return self._context
 
     @property
-    def nickname(self) -> str:
-        return f"  {self.engine.nickname()}"
-
-    @property
-    def username(self) -> str:
-        return f"  {prompt.user.title()}"
-
-    @property
     def cache_enabled(self) -> bool:
         return configs.is_cache
 
@@ -128,7 +117,7 @@ class AskAi:
         if processing:
             self.reply(msg.wait())
         elif not processing and self._processing is not None and processing != self._processing:
-            Terminal.INSTANCE.cursor.erase_line()
+            terminal.cursor.erase_line()
         self._processing = processing
 
     def run(self) -> None:
@@ -137,7 +126,7 @@ class AskAi:
             self._startup()
             self._prompt()
         elif self.query_string:
-            display_text(f"{self.username}: {self.query_string}%EOL%")
+            display_text(f"{shared.username}: {self.query_string}%EOL%")
             self._ask_and_reply(self.query_string)
 
     def reply(self, message: str) -> None:
@@ -145,21 +134,24 @@ class AskAi:
         :param message: The message to reply to the user.
         """
         if self.is_speak:
-            self.engine.text_to_speech(f"{self.nickname}: ", message)
+            self.engine.text_to_speech(f"{shared.nickname}: ", message)
         else:
-            display_text(f"{self.nickname}: %GREEN%{message}%NC%")
+            display_text(f"{shared.nickname}: %GREEN%{message}%NC%")
 
     def reply_error(self, message: str) -> None:
         """Reply API or system errors.
         :param message: The error message to be displayed.
         """
         log.error(message)
-        display_text(f"{self.nickname}: Error: {message or 'Aborted!'} %NC%")
+        if self.is_speak:
+            self.engine.text_to_speech(f"{shared.nickname}: ", message)
+        else:
+            display_text(f"{shared.nickname}: Error: {message or 'Aborted!'} %NC%")
 
     def _cb_reply_event(self, ev: Event) -> None:
         """Callback to handle reply events."""
         if ev.args.erase_last:
-            Cursor.INSTANCE.erase_line()
+            cursor.erase_line()
         self.reply(ev.args.message)
 
     def _splash(self) -> None:
@@ -167,11 +159,11 @@ class AskAi:
         splash_interval = 1000
         while not self._ready:
             if not self._processing:
-                Screen.INSTANCE.clear()
+                screen.clear()
                 sysout(f"%GREEN%{self.SPLASH}%NC%")
             pause.milliseconds(splash_interval)
         pause.milliseconds(splash_interval * 2)
-        Screen.INSTANCE.clear()
+        screen.clear()
 
     def _startup(self) -> None:
         """Initialize the application."""
@@ -180,47 +172,28 @@ class AskAi:
         if configs.is_speak:
             recorder.setup()
             configs.is_speak = recorder.input_device is not None
-        if configs.is_speak:
-            AudioPlayer.INSTANCE.start_delay()
-        nltk.download("averaged_perceptron_tagger", quiet=True)
+        nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
         cache.set_cache_enable(self.cache_enabled)
         cache.read_query_history()
         askai_bus = AskAiEvents.get_bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
+        if configs.is_speak:
+            player.start_delay()
         self._ready = True
-        log.info("AskAI is ready !")
         splash_thread.join()
         display_text(self)
+        log.info("AskAI is ready to use!")
         self.reply(msg.welcome(os.getenv("USER", "you")))
 
     def _prompt(self) -> None:
         """Prompt for user interaction."""
-        while query := self._input(f"{self.username}: "):
+        while query := shared.input_text(f"{shared.username}: "):
             if not self._ask_and_reply(query):
                 query = None
                 break
         if not query:
             self.reply(msg.goodbye())
         display_text("")
-
-    def _input(self, __prompt: str) -> Optional[str]:
-        """Prompt for user input.
-        :param __prompt: The prompt to display to the user.
-        """
-        ret = None
-        while ret is None:
-            ret = line_input(__prompt)
-            if ret == Keyboard.VK_CTRL_L:  # Use speech as input method.
-                Terminal.INSTANCE.cursor.erase_line()
-                spoken_text = self.engine.speech_to_text()
-                if spoken_text:
-                    display_text(f"{self.username}: {spoken_text}")
-                    ret = spoken_text
-            elif not isinstance(ret, str):
-                display_text(f"{self.username}: %YELLOW%Speech-To-Text is disabled!%NC%", erase_last=True)
-                ret = None
-
-        return ret if not ret or isinstance(ret, str) else ret.val
 
     def _ask_and_reply(self, question: str) -> bool:
         """Ask the question and provide the reply.
@@ -229,19 +202,20 @@ class AskAi:
         if not (reply := cache.read_reply(question)):
             log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
             status, response = proxy.process(question)
-            if status:
-                status = self._process_response(response)
-            else:
-                self.reply_error(response)
+            if status and response:
+                return self._process_response(response)
+            self.reply_error(response)
         else:
-            log.debug('Reply found for "%s" in cache.', question)
+            log.debug("Reply found for '%s' in cache.", question)
             self.reply(reply)
             status = True
         return status
 
     def _process_response(self, proxy_response: QueryResponse) -> bool:
-        """Process a query response using a processor that supports the query type."""
-        status, output, q_type, processor = False, None, None, None
+        """Process a query response using a processor that supports the query type.
+        :param proxy_response: The processor proxy response.
+        """
+        status, output, query_type, processor = False, None, None, None
         # Intrinsic features
         if not proxy_response.intelligible:
             self.reply_error(msg.intelligible(proxy_response.question))
@@ -258,23 +232,24 @@ class AskAi:
             processor = AIProcessor.get_by_name(SummaryProcessor.__name__)
             processor.bind(AIProcessor.get_by_name(GenericProcessor.__name__))
         # Query processors
-        if processor or (q_type := proxy_response.query_type):
-            if not processor and not (processor := AIProcessor.get_by_query_type(q_type)):
+        if processor or (query_type := proxy_response.query_type):
+            if not processor and not (processor := AIProcessor.get_by_query_type(query_type)):
                 log.error(f"Unable to find a proper processor: {str(proxy_response)}")
-                self.reply_error(msg.no_processor(q_type))
+                self.reply_error(msg.no_processor(query_type))
                 return False
             log.info("%s::Processing response for '%s'", processor, proxy_response.question)
             status, output = processor.process(proxy_response)
-            if status and processor.next_in_chain():
+            if status and output and processor.next_in_chain():
                 mapped_response = object_mapper.of_json(output, QueryResponse)
                 if isinstance(mapped_response, QueryResponse):
                     self._process_response(mapped_response)
                 else:
                     self.reply(str(mapped_response))
             elif status:
-                self.reply(str(output))
+                if output:
+                    self.reply(output)
             else:
-                self.reply_error(str(output))
+                self.reply_error(output)
         else:
             self.reply_error(msg.invalid_response(proxy_response))
 

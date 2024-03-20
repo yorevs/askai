@@ -27,23 +27,23 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def wait(self) -> str:
-        return self.translate(f"I'm thinking, please wait…")
+        return self.translate("I'm thinking, please wait…")
+
+    @lru_cache
+    def welcome_back(self) -> str:
+        return self.translate("Is there anything else I can help you with?")
 
     @lru_cache
     def listening(self) -> str:
-        return self.translate(f"I'm listening…")
-
-    @lru_cache
-    def noise_levels(self) -> str:
-        return self.translate(f"Adjusting noise levels…")
+        return self.translate("I'm listening…")
 
     @lru_cache
     def transcribing(self) -> str:
-        return self.translate(f"I'm processing your voice, please wait…")
+        return self.translate("I'm processing your voice, please wait…")
 
     @lru_cache
     def goodbye(self) -> str:
-        return self.translate(f"Goodbye, have a nice day ! ")
+        return self.translate("Goodbye, have a nice day ! ")
 
     @lru_cache
     def executing(self, cmd_line: str) -> str:
@@ -63,25 +63,37 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def searching(self) -> str:
-        return self.translate(f"Researching on Google…")
+        return self.translate("Researching on Google…")
 
     @lru_cache
     def summarizing(self, path: str) -> str:
         return self.translate(f"Summarizing documents from '{path}'. This can take a moment, please wait…")
 
+    @lru_cache
+    def enter_qna(self) -> str:
+        return self.translate("You entered the Summarization Questions and Answers")
+
+    @lru_cache
+    def leave_qna(self) -> str:
+        return self.translate("You left the Summarization Questions and Answers")
+
+    @lru_cache
+    def qna_welcome(self) -> str:
+        return self.translate("Question me about the summarized content")
+
     # Warnings and alerts
 
     @lru_cache
     def cmd_no_output(self) -> str:
-        return self.translate(f"The command didn't return an output !")
+        return self.translate("The command didn't return an output !")
 
     @lru_cache
     def search_empty(self) -> str:
-        return self.translate(f"The google research didn't return an output !")
+        return self.translate("The google research didn't return an output !")
 
     @lru_cache
     def access_grant(self) -> str:
-        return self.translate(f"'AskAI' requires access to your files, folders and apps. Continue (yes/[no])?")
+        return self.translate("'AskAI' requires access to your files, folders and apps. Continue (yes/[no])?")
 
     @lru_cache
     def not_a_command(self, shell: str, content: str) -> str:

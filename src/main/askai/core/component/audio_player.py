@@ -94,4 +94,4 @@ class AudioPlayer(metaclass=Singleton):
         return self.play_audio_file(filename)
 
 
-assert AudioPlayer().INSTANCE is not None
+assert (player := AudioPlayer().INSTANCE) is not None

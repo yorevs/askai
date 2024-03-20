@@ -1,14 +1,16 @@
-from argostranslate import package, translate
-from argostranslate.translate import ITranslation
-from askai.exception.exceptions import TranslationPackageError
-from askai.language.language import Language
-from functools import lru_cache
-from hspylib.core.metaclass.singleton import Singleton
-from typing import Optional
-
 import logging as log
 import os
 import sys
+from functools import lru_cache
+from typing import Optional
+
+from argostranslate import package, translate
+from argostranslate.translate import ITranslation
+from hspylib.core.metaclass.singleton import Singleton
+
+from askai.core.component.cache_service import CACHE_DIR
+from askai.exception.exceptions import TranslationPackageError
+from askai.language.language import Language
 
 
 class ArgosTranslator(metaclass=Singleton):
@@ -51,7 +53,7 @@ class ArgosTranslator(metaclass=Singleton):
             argos_model = self._get_argos_model(from_idiom, to_idiom)
         self._argos_model = argos_model
 
-    @lru_cache(maxsize=500)
+    @lru_cache
     def translate(self, text: str) -> str:
         """Translate text using Argos translator.
         :param text: Text to translate.

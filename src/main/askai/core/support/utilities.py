@@ -12,22 +12,24 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from askai.core.support.presets import Presets
-from askai.language.language import Language
+
+import hashlib
+import os
+import re
+from os.path import basename, dirname
+from pathlib import Path
+from typing import Any, Optional, Tuple
+
+import pause
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.cli.vt100.vt_color import VtColor
-from os.path import basename, dirname
-from pathlib import Path
-from typing import Any, Optional, Tuple
 
-import hashlib
-import os
-import pause
-import re
+from askai.core.support.presets import Presets
+from askai.language.language import Language
 
 CHAT_ICONS = {
     '': '\n\n%RED%  Error: ',

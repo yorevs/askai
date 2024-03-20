@@ -82,8 +82,10 @@ class Recorder(metaclass=Singleton):
         return self._input_device if self._input_device else None
 
     def listen(
-        self, recognition_api: RecognitionApi = RecognitionApi.OPEN_AI, language: Language = Language.EN_US
-    ) -> Tuple[Path, str]:
+        self,
+        recognition_api: RecognitionApi = RecognitionApi.OPEN_AI,
+        language: Language = Language.EN_US
+    ) -> Tuple[Path, Optional[str]]:
         """Listen to the microphone, save the AudioData as a wav file and then, transcribe the speech.
         :param recognition_api: the API to be used to recognize the speech.
         :param language: the spoken language.
@@ -125,7 +127,7 @@ class Recorder(metaclass=Singleton):
         """
         with Microphone() as source:
             try:
-                log.debug(msg.noise_levels())
+                log.debug('Adjusting noise levels…')
                 self._rec.adjust_for_ambient_noise(source, duration=interval)
             except UnknownValueError as err:
                 raise IntelligibleAudioError(f"Unable to detect noise => {str(err)}") from err
@@ -166,7 +168,9 @@ class Recorder(metaclass=Singleton):
         return None
 
     def _test_device(self, idx: int) -> bool:
-        """TODO"""
+        """Test whether the input device specified by index can be used as an STT input.
+        :param idx: The index of the device to be tested.
+        """
         log.debug(f"Testing input device at index: %d", idx)
         try:
             with Microphone(device_index=idx) as source:
