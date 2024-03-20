@@ -1,7 +1,7 @@
 ###### Requirements file for AskAi ######
 
-hspylib>=1.12.34
-hspylib-clitt>=0.9.116
+hspylib>=1.12.35
+hspylib-clitt>=0.9.117
 retry==0.9.2
 pause==0.3
 requests==2.31.0

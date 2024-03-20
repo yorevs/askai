@@ -1,10 +1,9 @@
 from functools import partial
+from typing import Optional
+
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.namespace import Namespace
 from hspylib.modules.eventbus.eventbus import emit, EventBus
-from typing import Optional
-
-import os
 
 ASKAI_BUS_NAME: str = "askai-reply-bus"
 
@@ -14,7 +13,7 @@ REPLY_ERROR_EVENT: str = "askai-reply-error-event"
 
 
 class AskAiEvents(Enumeration):
-    """TODO"""
+    """Facility class to provide easy access to AskAI events."""
 
     @staticmethod
     class _Event:
@@ -56,7 +55,7 @@ class AskAiEvents(Enumeration):
 
     @staticmethod
     def get_bus(bus_name: str) -> Optional[EventBus]:
-        """TODO"""
+        """Return an eventbus instance for the given name."""
         return next((b.bus for b in AskAiEvents.values() if b.name == bus_name), None)
 
     def __init__(self, bus: _EventBus):

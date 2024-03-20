@@ -25,4 +25,4 @@ class _Classpath(Classpath):
 
 
 # Instantiate the classpath singleton
-assert _Classpath().INSTANCE is not None, "Failed to create Classpath instance"
+assert (classpath := _Classpath().INSTANCE) is not None, "Failed to create Classpath instance"

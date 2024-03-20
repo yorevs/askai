@@ -13,8 +13,10 @@
    Copyright·(c)·2024,·HSPyLib
 """
 
-from askai.__classpath__ import _Classpath
-from askai.core.askai import AskAi
+import logging as log
+import sys
+from textwrap import dedent
+
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.dict_tools import get_or_default
@@ -22,27 +24,25 @@ from hspylib.core.zoned_datetime import now
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
-from textwrap import dedent
 
-import logging as log
-import sys
+from askai.__classpath__ import classpath
+from askai.core.askai import AskAi
 
 
 class Main(TUIApplication):
     """HomeSetup Ask-AI - Unleash the Power of AI in Your Terminal."""
 
     # The welcome message
-    DESCRIPTION = _Classpath.get_source_path("welcome.txt").read_text(encoding=Charset.UTF_8.val)
+    DESCRIPTION = classpath.get_source("welcome.txt").read_text(encoding=Charset.UTF_8.val)
 
     # Location of the .version file
-    VERSION_DIR = _Classpath.source_path()
+    VERSION = Version.load(load_dir=classpath.source_path())
 
     # The resources folder
-    RESOURCE_DIR = str(_Classpath.resource_path())
+    RESOURCE_DIR = str(classpath.resource_path())
 
     def __init__(self, app_name: str):
-        version = Version.load(load_dir=self.VERSION_DIR)
-        super().__init__(app_name, version, self.DESCRIPTION.format(version), resource_dir=self.RESOURCE_DIR)
+        super().__init__(app_name, self.VERSION, self.DESCRIPTION.format(self.VERSION), resource_dir=self.RESOURCE_DIR)
         self._askai = None
 
     def _setup_arguments(self) -> None:

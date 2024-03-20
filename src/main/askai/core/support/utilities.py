@@ -29,14 +29,14 @@ import os
 import pause
 import re
 
-ASKAI_CHAT_ICONS = {
-    "": "%RED%",
-    "": "%BLUE%",
-    "": "%BLUE%",
-    "": "%BLUE%",
-    "": "%YELLOW%",
-    "": "%YELLOW%",
-    "": "%ORANGE%",
+CHAT_ICONS = {
+    "": "%RED%",
+    "": "%BLUE%",
+    "": "%BLUE%",
+    "": "%BLUE%",
+    "": "%YELLOW%",
+    "": "%YELLOW%",
+    "": "%ORANGE%",
 }
 
 
@@ -50,16 +50,16 @@ def beautify(text: Any) -> str:
         r'www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))'
         r'[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})')
     text = str(text)
-    text = re.sub(r"[Hh]ints?( and tips)?[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Tips: ", text)
-    text = re.sub(r"[Aa]nalysis[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Analysis: ", text)
-    text = re.sub(r"[Ss]ummary[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Summary:", text)
-    text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Joke: ", text)
-    text = re.sub(r"[Ff]un [Ff]acts?[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Fun Fact: ", text)
-    text = re.sub(r"[Aa]dvice[-:\s][ \n\t]*", f"{ASKAI_CHAT_ICONS['']}{''}  Advice: ", text)
-    text = re.sub(r"Errors?[-:\s][ \n\t]*", f"%EL1%{ASKAI_CHAT_ICONS['']}{''}  Error: ", text)
+    text = re.sub(r"[Hh]ints?( and tips)?[-:\s]([ \n\t]*)", fr"{CHAT_ICONS['']}\1  Tips: ", text)
+    text = re.sub(r"[Aa]nalysis[-:\s]([ \n\t]*)", fr"{CHAT_ICONS['']}\1  Analysis: ", text)
+    text = re.sub(r"[Ss]ummary[-:\s]([ \n\t]*)", fr"{CHAT_ICONS['']}\1  Summary:", text)
+    text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s]([ \n\t]*)", fr"{CHAT_ICONS['']}\1  Joke: ", text)
+    text = re.sub(r"[Ff]un [Ff]acts?[-:\s]([ \n\t]*)", fr"{CHAT_ICONS['']}\1  Fun Fact: ", text)
+    text = re.sub(r"[Aa]dvice[-:\s]([ \n\t]*)", fr"{CHAT_ICONS['']}\1  Advice: ", text)
+    text = re.sub(r"Errors?[-:\s]([ \n\t]*)", fr"%EL1%{CHAT_ICONS['']}\1  Error: ", text)
+    text = re.sub(re_url, r'%CYAN% \1%GREEN%', text)
     text = re.sub(r"^\n+", '', text, re.MULTILINE)
     text = re.sub(r"\n{2,}", '\n\n', text, re.MULTILINE)
-    text = re.sub(re_url, r'%CYAN% \1%GREEN%', text)
     # fmt: on
 
     return text.rstrip()
@@ -190,25 +190,3 @@ def stream_text(text: Any, tempo: int = 1, language: Language = Language.EN_US) 
             word_count = 0
         pause.seconds(presets.base_speed)
     sysout("%NC%")
-
-
-if __name__ == "__main__":
-    display_text(
-        """
-
-
-
-
-
-
-
-
-
-According to the summarized content, the log files at ~/.config/hhs/log contain various information that can be helpful for tracking activities or troubleshooting issues. I recommend reviewing them regularly to stay on top of what's happening in that directory.
-
-
-
-Fun Fact: Log files are like diaries for your system, documenting everything that happens behind the scenes!
-
-     """
-    )

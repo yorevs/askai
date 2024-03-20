@@ -45,11 +45,11 @@ class CacheService(metaclass=Singleton):
 
     INSTANCE: "CacheService" = None
 
-    _ttl_cache: TTLCache[str] = TTLCache(ttl_minutes=30)
-
     ASKAI_INPUT_CACHE_KEY = "askai-input-history"
 
     DISABLE_CACHE = True
+
+    _TTL_CACHE: TTLCache[str] = TTLCache(ttl_minutes=30)
 
     @classmethod
     def set_cache_enable(cls, enable: bool) -> bool:
@@ -70,7 +70,7 @@ class CacheService(metaclass=Singleton):
         if cls.DISABLE_CACHE:
             return None
         key = text.strip().lower()
-        return cls._ttl_cache.read(key)
+        return cls._TTL_CACHE.read(key)
 
     @classmethod
     def save_reply(cls, text: str, reply: str) -> None:
@@ -81,21 +81,22 @@ class CacheService(metaclass=Singleton):
         if cls.DISABLE_CACHE:
             return
         key = text.strip().lower()
-        cls._ttl_cache.save(key, reply)
+        cls._TTL_CACHE.save(key, reply)
 
     @classmethod
     def read_query_history(cls) -> None:
         """Read the input queries from TTL cache."""
-        hist_str: str = cls._ttl_cache.read(cls.ASKAI_INPUT_CACHE_KEY)
+        hist_str: str = cls._TTL_CACHE.read(cls.ASKAI_INPUT_CACHE_KEY)
         if hist_str:
             hist: List[str] = hist_str.split(",")
+            hist.reverse()
             KeyboardInput.preload_history(hist)
 
     @classmethod
     def save_query_history(cls) -> None:
         """Save the line input queries into the TTL cache."""
         hist = KeyboardInput.history()
-        cls._ttl_cache.save(cls.ASKAI_INPUT_CACHE_KEY, ",".join(hist))
+        cls._TTL_CACHE.save(cls.ASKAI_INPUT_CACHE_KEY, ",".join(hist))
 
     @classmethod
     def get_audio_file(cls, text: str, audio_format: str = "mp3") -> Tuple[str, bool]:
