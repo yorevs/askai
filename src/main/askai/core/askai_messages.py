@@ -23,7 +23,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def welcome(self, username: str) -> str:
-        return self.translate(f"Hello {username.title()}, How can I assist you today?")
+        return self.translate(f"Hello {username.title()}, How can I assist you today ?")
 
     @lru_cache
     def wait(self) -> str:
@@ -31,7 +31,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def welcome_back(self) -> str:
-        return self.translate("Is there anything else I can help you with?")
+        return self.translate("How can I assist you ?")
 
     @lru_cache
     def listening(self) -> str:
@@ -39,11 +39,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def transcribing(self) -> str:
-        return self.translate("I'm processing your voice, please wait…")
+        return self.translate("I'm processing your voice…")
 
     @lru_cache
     def goodbye(self) -> str:
-        return self.translate("Goodbye, have a nice day ! ")
+        return self.translate("Goodbye, have a nice day !")
 
     @lru_cache
     def executing(self, cmd_line: str) -> str:
@@ -54,32 +54,24 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"OK, command executed with {str(exit_code).lower()}")
 
     @lru_cache
-    def summarized_output(self) -> str:
-        return self.translate("Here is a summarized version of the command output: \n\n")
-
-    @lru_cache
-    def analysis_output(self) -> str:
-        return self.translate("Analysing the provided command output: \n\n")
-
-    @lru_cache
     def searching(self) -> str:
-        return self.translate("Researching on Google…")
+        return self.translate("Searching on Google…")
 
     @lru_cache
     def summarizing(self, path: str) -> str:
-        return self.translate(f"Summarizing documents from '{path}'. This can take a moment, please wait…")
+        return self.translate(f"Summarizing documents from :'{path}', this can take a moment…")
 
     @lru_cache
     def enter_qna(self) -> str:
-        return self.translate("You entered the Summarization Questions and Answers")
+        return self.translate("You have entered the Summarization Q & A")
 
     @lru_cache
     def leave_qna(self) -> str:
-        return self.translate("You left the Summarization Questions and Answers")
+        return self.translate("You have left the Summarization Q & A")
 
     @lru_cache
     def qna_welcome(self) -> str:
-        return self.translate("Question me about the summarized content")
+        return self.translate("What do you wnat to know about the content ?")
 
     # Warnings and alerts
 
@@ -89,45 +81,45 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def search_empty(self) -> str:
-        return self.translate("The google research didn't return an output !")
+        return self.translate("The Google search didn't return an output !")
 
     @lru_cache
     def access_grant(self) -> str:
-        return self.translate("'AskAI' requires access to your files, folders and apps. Continue (yes/[no])?")
+        return self.translate("I require access to your files, folders and apps (grant/[deny])?")
 
     @lru_cache
     def not_a_command(self, shell: str, content: str) -> str:
-        return self.translate(f"Returned context '{content}' is not a '{shell}' command!")
+        return self.translate(f"Returned reply '{content}' is not a '{shell}' command !")
 
     @lru_cache
     def invalid_cmd_format(self, output: str) -> str:
-        return self.translate(f"Returned command output '{output}' does not match the correct format!")
+        return self.translate(f"Returned reply '{output}' does not match the correct command format !")
 
     # Failures
 
     @lru_cache
     def no_processor(self, query_type: str) -> str:
-        return self.translate(f"No suitable processor found for query type '{query_type}' !")
+        return self.translate(f"Error: No suitable processor found for query type: '{query_type}' !")
 
     @lru_cache
     def invalid_response(self, response_text: str) -> str:
-        return self.translate(f"Received an invalid query response/type '{response_text}' !")
+        return self.translate(f"Error: Received an invalid query response/type => '{response_text}' !")
 
     @lru_cache
     def cmd_no_exist(self, command: str) -> str:
-        return self.translate(f"Sorry! Command `{command}' does not exist !")
+        return self.translate(f"Error: Sorry! Command `{command}' does not exist !")
 
     @lru_cache
     def cmd_failed(self, cmd_line: str) -> str:
-        return self.translate(f"Sorry! Command `{cmd_line}' failed to execute !")
+        return self.translate(f"Error: Sorry! Command `{cmd_line}' failed to execute !")
 
     @lru_cache
     def intelligible(self, question: str) -> str:
-        return self.translate(f"Your question '{question}' is not clear, please reformulate !")
+        return self.translate(f"Error: Your question '{question}' is not clear, please reformulate !")
 
     @lru_cache
     def llm_error(self, error: str) -> str:
-        return self.translate(f"'LLM' returned a failure: {error}")
+        return self.translate(f"Error: 'LLM' failed to reply: {error}")
 
 
 assert (msg := AskAiMessages().INSTANCE) is not None

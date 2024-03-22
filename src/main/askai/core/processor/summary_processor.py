@@ -36,12 +36,21 @@ from askai.exception.exceptions import DocumentsNotFound
 class SummaryProcessor(AIProcessor):
     """Process generic prompts."""
 
+    @staticmethod
+    def _ask_and_reply(question: str) -> Optional[str]:
+        """Query the summarized for questions related to the summarized content.
+        :param question: the question to be asked to the AI.
+        """
+        output = None
+        if results := summarizer.query(question):
+            output = os.linesep.join([r.answer for r in results]).strip()
+        return output
+
     def __init__(self):
         super().__init__("summary-prompt", "summary-persona")
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        output = None
         template = PromptTemplate(input_variables=["os_type"], template=self.template())
         final_prompt: str = msg.translate(template.format(os_type=prompt.os_type))
         shared.context.set("SETUP", final_prompt, "system")
@@ -60,8 +69,10 @@ class SummaryProcessor(AIProcessor):
                     if not summarizer.exists(summary.folder, summary.glob):
                         summarizer.generate(summary.folder, summary.glob)
                     else:
+                        summarizer.folder = summary.folder
+                        summarizer.glob = summary.glob
                         log.info("Reusing persisted summarized content: '%s'/'%s'", summary.folder, summary.glob)
-                    output = self.qna()
+                    output = self._qna()
                 status = True
             else:
                 output = msg.llm_error(response.message)
@@ -71,21 +82,13 @@ class SummaryProcessor(AIProcessor):
 
         return status, output
 
-    @staticmethod
-    def _ask_and_reply(question: str) -> Optional[str]:
-        """TODO"""
-        output = None
-        if results := summarizer.query(question):
-            output = os.linesep.join([r.answer for r in results]).strip()
-            shared.context.push("SUMMARY", question)
-            shared.context.push("SUMMARY", output, "assistant")
-        return output
-
-    def qna(self) -> str:
-        """TODO"""
+    def _qna(self) -> str:
+        """Questions and Answers about the summarized content."""
         display_text(
-            f"%ORANGE%{'-=' * 40}%EOL%"
+            f"%CYAN%{'-=' * 40}%EOL%"
             f"{msg.enter_qna()}%EOL%"
+            f"Content: {summarizer.sum_path}%EOL%"
+            "Press [Esc or Enter] to leave QnA.%EOL%"
             f"{'-=' * 40}%NC%"
         )
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.qna_welcome())
@@ -94,7 +97,7 @@ class SummaryProcessor(AIProcessor):
                 break
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"%CYAN%{output}%NC%")
         display_text(
-            f"%ORANGE%{'-=' * 40}%EOL%"
+            f"%CYAN%{'-=' * 40}%EOL%"
             f"{msg.leave_qna()}%EOL%"
             f"{'-=' * 40}%NC%"
         )

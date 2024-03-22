@@ -73,9 +73,17 @@ class Summarizer(metaclass=Singleton):
     def folder(self) -> str:
         return ensure_endswith(self._folder, "/")
 
+    @folder.setter
+    def folder(self, value: str) -> None:
+        self._folder = ensure_endswith(value, "/")
+
     @property
     def glob(self) -> str:
         return self._glob
+
+    @glob.setter
+    def glob(self, value: str) -> None:
+        self._glob = value
 
     @property
     def sum_path(self) -> str:

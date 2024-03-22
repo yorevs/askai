@@ -146,7 +146,7 @@ class AskAi:
         if self.is_speak:
             self.engine.text_to_speech(f"{shared.nickname}: ", message)
         else:
-            display_text(f"{shared.nickname}: Error: {message or 'Aborted!'} %NC%")
+            display_text(f"{shared.nickname}: %RED%{message}%NC%")
 
     def _cb_reply_event(self, ev: Event) -> None:
         """Callback to handle reply events."""
