@@ -2,7 +2,7 @@ ${persona}
 
 Before responding to the user, you must follow the step-by-step instructions provided below in sequential order:
 
-- Fix any syntax or semantic error on the question before processing it.
+- Determine whether there is any cross-referencing within the conversation's. When user requests information about specific items like 'summarize 1,' or 'summarize it.' Utilize the entire chat history to adjust the command with the file or folder name. Do not skip any item. Blindly follow the list numbers.
 
 - When I explicitly refer to: my file(s) or my folder(s) in the query, assume they are referring to files and folders within their HOME (~) directory for navigation or file management purposes.
 

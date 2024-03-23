@@ -35,7 +35,8 @@ class GenericProcessor(AIProcessor):
     def query_desc(self) -> str:
         return (
             "This prompt type is ideal for engaging in casual conversations between you and me, covering a wide range "
-            "of everyday topics and general discussions."
+            "of everyday topics and general discussions. This prompt is not adequate for dealing with opening, "
+            "playing, summarizing or executing any action on my files and folders."
         )
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
@@ -44,7 +45,7 @@ class GenericProcessor(AIProcessor):
         final_prompt: str = msg.translate(template.format(user=prompt.user))
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", query_response.question)
-        context: ContextRaw = shared.context.join("GENERAL", "CONTEXT", "SETUP", "QUESTION")
+        context: ContextRaw = shared.context.join("GENERAL", "SETUP", "QUESTION")
         log.info("Setup::[GENERIC] '%s'  context=%s", query_response.question, context)
 
         if (response := shared.engine.ask(context, *Temperatures.CREATIVE_WRITING.value)) and response.is_success:

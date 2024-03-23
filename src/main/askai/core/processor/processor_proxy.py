@@ -60,7 +60,7 @@ class ProcessorProxy(metaclass=Singleton):
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
         log.info("Ask::[QUESTION] '%s'  context=%s", question, context)
 
-        if (response := shared.engine.ask(context, *Temperatures.CODE_GENERATION.value)) and response.is_success:
+        if (response := shared.engine.ask(context, *Temperatures.ZERO.value)) and response.is_success:
             log.info("Ask::[PROXY] Received from AI: %s.", str(response))
             output = object_mapper.of_json(response.message, QueryResponse)
             if not isinstance(output, QueryResponse):

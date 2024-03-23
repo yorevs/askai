@@ -90,8 +90,8 @@ def extract_path(command_line: str, flags: int = re.IGNORECASE | re.MULTILINE) -
     :param command_line: The command line text.
     :param flags: Regex match flags.
     """
-    # Match a file or folder path within a command line.
-    re_path = r'(?:\w)\s(?:-[\w\d]+\s)*(?:([\/\w\d\s"\\.-]+)|(".*?"))'
+    command_line = re.sub('([12&]>|2>&1|1>&2).+', '', command_line.split('|')[0])
+    re_path = r'(?:\w)\s+(?:-[\w\d]+\s)*(?:([\/\w\d\s"-]+)|(".*?"))'
     if command_line and (cmd_path := re.search(re_path, command_line, flags)):
         if (extracted := cmd_path.group(1).strip().replace("\\ ", " ")) and (_path_ := Path(extracted)).exists():
             if _path_.is_dir() or (extracted := dirname(extracted)):
@@ -192,3 +192,18 @@ def stream_text(text: Any, tempo: int = 1, language: Language = Language.EN_US) 
             word_count = 0
         pause.seconds(presets.base_speed)
     sysout("%NC%")
+
+
+if __name__ == '__main__':
+    c = 'ls -lht /Users/hugo/Downloads/Images 2>/dev/null'
+    print(extract_path(c))
+    c = 'ls -lht ~/Downloads/Application/drive'
+    print(extract_path(c))
+    c = 'ls -lht /Home/User/Hugo 2>/dev/null'
+    print(extract_path(c))
+    c = 'ls -lht ../Home/User/Hugo 2>/dev/null'
+    print(extract_path(c))
+    c = 'ls -lht /Arquivos\ de\ Programas/text.txt'
+    print(extract_path(c))
+    c = 'ls -lht -ahah ~/hugo/junior/work 2>&1 > file. txt'
+    print(extract_path(c))

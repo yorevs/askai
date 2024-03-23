@@ -12,6 +12,8 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import os
+
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import PERSIST_DIR
@@ -58,7 +60,7 @@ class InternetService(metaclass=Singleton):
         self._google = GoogleSearchAPIWrapper()
         self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
         self._text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=800, chunk_overlap=10, separators=[" ", ", ", "\n"]
+            chunk_size=800, chunk_overlap=8, separators=[" ", ", ", os.linesep]
         )
 
     def search_google(self, query: str, *sites: str) -> Optional[str]:

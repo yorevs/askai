@@ -20,4 +20,4 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 - The final response 'JSON' must contain the boolean fields: 'intelligible', 'terminating', 'require_internet' and 'require_summarization'.
 
-- The final response 'JSON' must contain the string fields: fields: 'query_type' and 'question'.
+- The final response 'JSON' must contain the string fields: fields: 'query_type', 'question' and 'x-reference'.

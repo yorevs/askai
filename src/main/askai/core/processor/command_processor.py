@@ -12,6 +12,16 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import logging as log
+import os
+from os.path import expandvars
+from shutil import which
+from typing import Optional, Tuple
+
+from clitt.core.term.terminal import Terminal
+from hspylib.modules.application.exit_status import ExitStatus
+from langchain_core.prompts import PromptTemplate
+
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -23,14 +33,6 @@ from askai.core.processor.ai_processor import AIProcessor
 from askai.core.processor.output_processor import OutputProcessor
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_command, extract_path
-from clitt.core.term.terminal import Terminal
-from hspylib.modules.application.exit_status import ExitStatus
-from langchain_core.prompts import PromptTemplate
-from shutil import which
-from typing import Optional, Tuple
-
-import logging as log
-import os
 
 
 class CommandProcessor(AIProcessor):
@@ -41,10 +43,7 @@ class CommandProcessor(AIProcessor):
 
     def query_desc(self) -> str:
         return (
-            "Prompts that will require you to execute commands at the user's terminal. These prompts will always "
-            "involve file, folder or application management, opening files or folders, playing songs or movies, "
-            "device assessment or inquiries, or just something that you may need to execute a command prior to"
-            "be able to respond back to the user precisely."
+            "Prompts that will require you to execute commands at the user's terminal.
         )
 
     def bind(self, next_in_chain: "AIProcessor"):
@@ -87,7 +86,7 @@ class CommandProcessor(AIProcessor):
         cmd_out = None
         try:
             if command and which(command):
-                cmd_line = cmd_line.replace("~", os.getenv("HOME")).strip()
+                cmd_line = expandvars(cmd_line.replace("~/", f"{os.getenv('HOME')}/").strip())
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.executing(cmd_line))
                 log.info("Executing command `%s'", cmd_line)
                 cmd_out, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
