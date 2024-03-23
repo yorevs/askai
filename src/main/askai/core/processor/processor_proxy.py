@@ -12,6 +12,8 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+from hspylib.core.zoned_datetime import now
+
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperatures import Temperatures
@@ -33,6 +35,8 @@ class ProcessorProxy(metaclass=Singleton):
 
     INSTANCE: "ProcessorProxy" = None
 
+    DATE_FMT: str = "%a %d %b %-H:%M %Y"  # E.g:. Fri 22 Mar 19:47 2024
+
     def __init__(self):
         self._query_types: str = AIProcessor.find_query_types()
 
@@ -49,8 +53,8 @@ class ProcessorProxy(metaclass=Singleton):
         :param question: The question to the AI engine.
         """
         status = False
-        template = PromptTemplate(input_variables=["query_types"], template=self.template)
-        final_prompt = msg.translate(template.format(query_types=self.query_types))
+        template = PromptTemplate(input_variables=["query_types", "cur_date"], template=self.template)
+        final_prompt = msg.translate(template.format(query_types=self.query_types, cur_date=now(self.DATE_FMT)))
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", question)
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")

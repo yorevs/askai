@@ -41,8 +41,10 @@ class CommandProcessor(AIProcessor):
 
     def query_desc(self) -> str:
         return (
-            "Prompts that will require you to execute commands at the user's terminal. These prompts may involve "
-            "file, folder and application management, listing, device assessment or inquiries."
+            "Prompts that will require you to execute commands at the user's terminal. These prompts will always "
+            "involve file, folder or application management, opening files or folders, playing songs or movies, "
+            "device assessment or inquiries, or just something that you may need to execute a command prior to"
+            "be able to respond back to the user precisely."
         )
 
     def bind(self, next_in_chain: "AIProcessor"):

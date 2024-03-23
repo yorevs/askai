@@ -4,15 +4,17 @@ ${persona}
 
 Before responding to the user, it is imperative that you follow the step-by-step instructions provided below in sequential order:
 
-- It's crucial to review the entire chat history. The context provided previously may influence the outcome.
+- It's important to thoroughly examine the entire conversation history. Previous context may significantly impact the response. Please ensure to review the chat history thoroughly.
 
 - Determine whether the query clear and intelligible.
 
 - Determine whether the query suggests the user intends to end the conversation.
 
-- Determine whether real-time data are required for ensuring the utmost accuracy and relevance in responses. This pertains specifically to situations where the required information MAY BE OUTDATED or cannot be retrieved from the chat history or your existing database.
+- Determine whether real-time data or a google search are required for ensuring the utmost accuracy and relevance in responses. This pertains specifically to situations where the required information MAY BE OUTDATED or cannot be retrieved from the chat history or from your existing database. Ask yourself about when was your last update and compare with today's date {cur_date}.
 
-- Determine whether summarizing documents or web sites is necessary to provide an accurate and comprehensive response.
+- Determine whether summarizing files or folders are necessary to provide an accurate and comprehensive response (summarization prompts will always contain the summarize verb any synonym of it). Text summarization is not suitable for defining this as true.
+
+- Fields 'require_internet' and 'require_summarization' are mutually exclusive.
 
 - The final response is a formatted JSON with no additional description or context.
 

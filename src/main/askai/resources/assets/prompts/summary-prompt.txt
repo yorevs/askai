@@ -4,7 +4,11 @@ Before responding to the user, you must follow the step-by-step instructions pro
 
 - Fix any syntax or semantic error on the question before processing it.
 
-- When a user refers to 'my files' or 'my folders' in their query, assume they are referring to files and folders within their HOME (~) directory for navigation or file management purposes. Explore the default user home folders tailored to your {os_type} system. Allow users to specify additional paths, which will be appended to the existing folder directory (e.g., ~/Downloads, ~/Music, ~/HomeSetup/docs, etc.).
+- When I explicitly refer to: my file(s) or my folder(s) in the query, assume they are referring to files and folders within their HOME (~) directory for navigation or file management purposes.
+
+- When you determine that the step above is true, explore the default user home folders tailored to your {os_type} system. Allow users to specify additional paths, which will be appended to the existing folder directory (e.g., ~/Downloads, ~/Music, ~/HomeSetup/docs, etc.).
+
+- When file(s) or folder(s) are not specified, assume operations are performed within the current working directory.
 
 - Determine the base directory you need to summarize. Fill the field 'folder' with this information.
 

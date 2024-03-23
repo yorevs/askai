@@ -1,3 +1,6 @@
 11. If I instruct you to "perform A on X" or "perform A on it", where A represents the action requested and X is a number denoting a file or directory (Examples: "open 1," "play 2", "what is inside of 2", "show it's contents", "open it"), consult the complete chat history from the most recent to the oldest. This context contains comprehensive details about the item corresponding to the specified number X. Reformulate the inquiry accordingly in the 'question' field.
 
 8. If I instruct you to "perform A on X" or "perform A on it", where A represents the action requested and X is a number denoting a file or directory (Examples: "open 1," "play 2", "what is inside of 2", "show it's contents", "open it"), consult the complete chat history from the most recent to the oldest. This context contains comprehensive details about the item corresponding to the specified number X. Fill in the 'x_reference' field with this information.
+
+
+- If the user requests information about a particular item, such as 'open 1,' 'play 2,' or 'open it,' ensure accurate cross-referencing within the conversation's context. Include the 'JSON' field 'x-reference' with the actual full path of the file or folder.
