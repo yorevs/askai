@@ -53,7 +53,7 @@ class CommandProcessor:
     def __init__(self):
         self._template_file: str = "command-prompt"
         self._next_in_chain: str = OutputProcessor.__name__
-        self._supports: List[str] = ['Command execution', 'File/Folder management/assessment']
+        self._supports: List[str] = ["Command execution"]
 
     def supports(self, query_type: str) -> bool:
         return query_type in self._supports

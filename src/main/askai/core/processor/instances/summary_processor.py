@@ -50,7 +50,7 @@ class SummaryProcessor:
     def __init__(self):
         self._template_file: str = "summary-prompt"
         self._next_in_chain: AIProcessor | None = None
-        self._supports: List[str] = ['File/Folder summarization']
+        self._supports: List[str] = ['Summarization']
 
     def supports(self, query_type: str) -> bool:
         return query_type in self._supports

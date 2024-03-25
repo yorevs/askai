@@ -6,13 +6,9 @@
 """Package initialization."""
 
 __all__ = [
-    'processor_base.py',
-    'analysis_processor',
-    'command_processor',
-    'generic_processor',
-    'internet_processor',
-    'output_processor',
-    'processor_proxy',
-    'summary_processor'
+    'instances', 
+    'processor_base', 
+    'processor_factory', 
+    'processor_proxy'
 ]
 __version__ = '1.0.1'

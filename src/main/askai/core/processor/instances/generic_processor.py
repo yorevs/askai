@@ -34,7 +34,7 @@ class GenericProcessor:
     def __init__(self):
         self._template_file: str = "generic-prompt"
         self._next_in_chain: AIProcessor | None = None
-        self._supports: List[str] = ['Current AI Database research', 'General']
+        self._supports: List[str] = ['AI Database', 'General']
 
     def supports(self, query_type: str) -> bool:
         return query_type in self._supports

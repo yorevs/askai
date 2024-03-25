@@ -33,7 +33,7 @@ class AnalysisProcessor:
     def __init__(self):
         self._template_file: str = "analysis-prompt"
         self._next_in_chain: AIProcessor | None = None
-        self._supports: List[str] = ["Text summarization", "Data analysis", "Informational"]
+        self._supports: List[str] = ["Data analysis", "Informational"]
 
     def supports(self, query_type: str) -> bool:
         return query_type in self._supports

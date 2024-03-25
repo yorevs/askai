@@ -34,6 +34,9 @@ class ProcessorProxy(metaclass=Singleton):
 
     INSTANCE: "ProcessorProxy" = None
 
+    def __init__(self):
+        pass
+
     @lru_cache
     def template(self) -> str:
         return prompt.read_prompt("proxy-prompt")
@@ -45,9 +48,9 @@ class ProcessorProxy(metaclass=Singleton):
         status = False
         template = PromptTemplate(input_variables=[], template=self.template())
         final_prompt = msg.translate(template.format())
-        shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", question)
-        context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
+        shared.context.set("SETUP", final_prompt)
+        shared.context.set("QUESTION", f"\n\nQuestion: {question}\n\nHelpful Answer:")
+        context: ContextRaw = shared.context.join("SETUP", "CONTEXT", "QUESTION")
         log.info("Ask::[QUESTION] '%s'  context=%s", question, context)
 
         if (response := shared.engine.ask(context, *Temperatures.ZERO.value)) and response.is_success:

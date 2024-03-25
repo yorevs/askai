@@ -38,7 +38,7 @@ class InternetProcessor:
     DATE_FMT: str = "%a %d %b %-H:%M %Y"  # E.g:. Fri 22 Mar 19:47 2024
 
     def __init__(self):
-        self._template_file: str = "generic-prompt"
+        self._template_file: str = "internet-prompt"
         self._next_in_chain: AIProcessor | None = None
         self._supports: List[str] = ['Internet research']
 

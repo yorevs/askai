@@ -1,13 +1,6 @@
 Questions:
 
 1. summarize my markdown files at my HomeSetup docs folder.
-2. 
-
-Queries should fall into one of the following categories:
-
-- File/Folder management/accessment
-- Internet research
-- File/Folder summarization
-- Text summarization
-- Data analysis
-- Command execution
+2. what is the weather like today in belo horizonte?
+3. when is the next Flamengo game?
+4. Who is the current Brazil president?
