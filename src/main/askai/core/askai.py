@@ -232,7 +232,7 @@ class AskAi:
             processor = AIProcessor.get_by_name(SummaryProcessor.__name__)
             processor.bind(AIProcessor.get_by_name(GenericProcessor.__name__))
         # Query processors
-        if processor or (query_type := proxy_response.query_type):
+        if processor or (query_type := proxy_response.query_type or 'GenericQuery'):
             if not processor and not (processor := AIProcessor.get_by_query_type(query_type)):
                 log.error(f"Unable to find a proper processor: {str(proxy_response)}")
                 self.reply_error(msg.no_processor(query_type))
@@ -251,6 +251,6 @@ class AskAi:
             else:
                 self.reply_error(output)
         else:
-            self.reply_error(msg.invalid_response(proxy_response))
+            self.reply_error(msg.invalid_response(str(proxy_response)))
 
         return status

@@ -70,17 +70,20 @@ class AIProcessor(metaclass=ABCMeta):
         self._next_in_chain = None
 
     def __str__(self):
-        return f"'{self.name}': {self.description() or ''}"
+        return f"'{self.query_type() or ''}': {self.description() or ''}"
 
     @property
     def name(self) -> str:
         return type(self).__name__
 
+    def query_type(self) -> str:
+        ...
+
     def supports(self, query_type: str) -> bool:
         """Determine if the processor is able to handle a query type.
         :param query_type: The query type.
         """
-        return query_type in [self.name]
+        return query_type in [self.query_type()]
 
     def description(self) -> str:
         """Get a description about this processor. When empty, they will not be eligible for auto-select."""

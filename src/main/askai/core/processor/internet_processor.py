@@ -35,6 +35,9 @@ class InternetProcessor(AIProcessor):
     def __init__(self):
         super().__init__("internet-prompt")
 
+    def query_type(self) -> str:
+        return 'InternetQuery'
+
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         template = PromptTemplate(input_variables=["cur_date"], template=self.template())

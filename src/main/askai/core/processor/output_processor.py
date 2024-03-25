@@ -31,8 +31,8 @@ class OutputProcessor(AIProcessor):
     def __init__(self):
         super().__init__("output-prompt")
 
-    def description(self) -> str:
-        return "Prompts where I will provide you a terminal command output."
+    def query_type(self) -> str:
+        return 'OutputQuery'
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False

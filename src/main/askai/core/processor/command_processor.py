@@ -41,6 +41,9 @@ class CommandProcessor(AIProcessor):
     def __init__(self):
         super().__init__("command-prompt")
 
+    def query_type(self) -> str:
+        return 'CommandQuery'
+
     def description(self) -> str:
         return (
             "Prompts that will require you to execute commands at the user's terminal. These prompts may involve "
@@ -120,7 +123,7 @@ class CommandProcessor(AIProcessor):
         :param query_response: The query response provided by the AI.
         :param cmd_line: The command line that was executed by this processor.
         """
-        query_response.query_type = self.next_in_chain().name
+        query_response.query_type = self.next_in_chain().query_type()
         query_response.require_summarization = False
         query_response.require_internet = False
         query_response.commands.append(TerminalCommand(cmd_line, cmd_out, prompt.os_type, prompt.shell))

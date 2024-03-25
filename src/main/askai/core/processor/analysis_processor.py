@@ -30,6 +30,9 @@ class AnalysisProcessor(AIProcessor):
     def __init__(self):
         super().__init__("analysis-prompt")
 
+    def query_type(self) -> str:
+        return 'AnalysisQuery'
+
     def description(self) -> str:
         return (
             "Prompts that leverage prior command outputs in the chat history. These prompts may involve "

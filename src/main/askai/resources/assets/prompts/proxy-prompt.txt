@@ -12,8 +12,10 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 4. Determine if summarization of files or folders are required to complete your response.
 
-5. The final response is a formatted JSON with no additional description or context.
+5. If you don't know the answer, just leave the field 'query_type' blank. Don't try to make up an answer.
 
-6. The final response 'JSON' must contain the boolean fields: 'intelligible', 'terminating', 'require_internet', 'require_summarization', 'require_command'.
+6. The final response is a formatted JSON with no additional description or context.
 
-7. The final response 'JSON' must contain the string fields: fields: 'query_type', 'question'.
+7. The final response 'JSON' must contain the boolean fields: 'intelligible', 'terminating', 'require_internet', 'require_summarization', 'require_command'.
+
+8. The final response 'JSON' must contain the string fields: fields: 'query_type', 'question'.

@@ -32,6 +32,9 @@ class GenericProcessor(AIProcessor):
     def __init__(self):
         super().__init__("generic-prompt")
 
+    def query_type(self) -> str:
+        return 'GenericQuery'
+
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         template = PromptTemplate(input_variables=["user"], template=self.template())

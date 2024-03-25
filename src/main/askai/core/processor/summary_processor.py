@@ -49,6 +49,9 @@ class SummaryProcessor(AIProcessor):
     def __init__(self):
         super().__init__("summary-prompt")
 
+    def query_type(self) -> str:
+        return 'SummaryQuery'
+
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         template = PromptTemplate(input_variables=["os_type"], template=self.template())
