@@ -12,18 +12,19 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import os
 from abc import ABCMeta
-from askai.core.askai_prompt import prompt
-from askai.core.model.query_response import QueryResponse
 from functools import lru_cache
-from hspylib.core.tools.commons import dirname
-from hspylib.core.tools.text_tools import camelcase
 from importlib import import_module
 from os.path import basename
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
-import os
+from hspylib.core.tools.commons import dirname
+from hspylib.core.tools.text_tools import camelcase
+
+from askai.core.askai_prompt import prompt
+from askai.core.model.query_response import QueryResponse
 
 
 class AIProcessor(metaclass=ABCMeta):
@@ -43,8 +44,8 @@ class AIProcessor(metaclass=ABCMeta):
                 proc_pkg = import_module(f"{__package__}.{proc_name}")
                 proc_class = getattr(proc_pkg, camelcase(proc_name, capitalized=True))
                 proc_inst: "AIProcessor" = proc_class()
-                cls._PROCESSORS[proc_inst.processor_id()] = proc_inst
-                if proc_inst.query_desc():
+                cls._PROCESSORS[proc_inst.name] = proc_inst
+                if proc_inst.description():
                     q_types.append(str(proc_inst))
         return os.linesep.join(q_types)
 
@@ -64,38 +65,29 @@ class AIProcessor(metaclass=ABCMeta):
         """
         return next((p for p in cls._PROCESSORS.values() if type(p).__name__ == name), None)
 
-    def __init__(self, template_file: str | Path, persona_file: str | Path):
+    def __init__(self, template_file: str | Path):
         self._template_file = str(template_file)
-        self._persona_file = str(persona_file)
         self._next_in_chain = None
 
     def __str__(self):
-        return f"'{self.query_type()}': {self.query_desc()}"
+        return f"'{self.name}': {self.description() or ''}"
 
     @property
     def name(self) -> str:
         return type(self).__name__
 
-    def supports(self, q_type: str) -> bool:
+    def supports(self, query_type: str) -> bool:
         """Determine if the processor is able to handle a query type.
-        :param q_type: The query type.
+        :param query_type: The query type.
         """
-        return q_type in [self.query_type()]
+        return query_type in [self.name]
 
-    def processor_id(self) -> str:
-        """Get the processor ID. the resulting ID is a string, composed by the processor name hash."""
-        return str(abs(hash(self.__class__.__name__)))
-
-    def query_type(self) -> str:
-        """Get the query type this processor can handle. By default, it's the name of the processor itself."""
-        return self.processor_id()
-
-    def query_desc(self) -> str:
+    def description(self) -> str:
         """Get a description about this processor. When empty, they will not be eligible for auto-select."""
-        return ""
+        ...
 
     def template(self) -> str:
-        return prompt.read_prompt(self._template_file, self._persona_file)
+        return prompt.read_prompt(self._template_file)
 
     def next_in_chain(self) -> Optional["AIProcessor"]:
         """Return the next processor in the chain to call. Defaults to None."""

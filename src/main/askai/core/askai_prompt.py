@@ -12,13 +12,14 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+from functools import lru_cache
+
+from hspylib.core.metaclass.singleton import Singleton
+
 from askai.__classpath__ import _Classpath
 from askai.core.askai_configs import configs
 from askai.core.model.terminal_command import get_os, get_shell, get_user, SupportedPlatforms, SupportedShells
 from askai.core.support.utilities import read_resource
-from functools import lru_cache
-from hspylib.core.metaclass.singleton import Singleton
-from string import Template
 
 
 class AskAiPrompt(metaclass=Singleton):
@@ -28,9 +29,6 @@ class AskAiPrompt(metaclass=Singleton):
 
     # AI Prompts directory.
     PROMPT_DIR = str(_Classpath.resource_path()) + "/assets/prompts"
-
-    # AI Personas directory.
-    PERSONA_DIR = str(_Classpath.resource_path()) + "/assets/personas"
 
     def __init__(self):
         self._shell: SupportedShells = get_shell()
@@ -54,11 +52,9 @@ class AskAiPrompt(metaclass=Singleton):
         return f"{configs.language.name} ({configs.language.country})"
 
     @lru_cache
-    def read_prompt(self, template_file: str, persona_file: str) -> str:
+    def read_prompt(self, template_file: str) -> str:
         """Read a processor prompt template and set its persona."""
-        template = Template(read_resource(self.PROMPT_DIR, template_file))
-        persona = read_resource(self.PERSONA_DIR, persona_file)
-        return template.substitute(persona=persona)
+        return read_resource(self.PROMPT_DIR, template_file)
 
 
 assert (prompt := AskAiPrompt().INSTANCE) is not None

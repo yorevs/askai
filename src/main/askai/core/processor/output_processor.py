@@ -29,9 +29,9 @@ class OutputProcessor(AIProcessor):
     """Process command output prompts."""
 
     def __init__(self):
-        super().__init__("output-prompt", "output-persona")
+        super().__init__("output-prompt")
 
-    def query_desc(self) -> str:
+    def description(self) -> str:
         return "Prompts where I will provide you a terminal command output."
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:

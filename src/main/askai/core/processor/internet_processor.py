@@ -33,7 +33,7 @@ class InternetProcessor(AIProcessor):
     """Process generic prompts."""
 
     def __init__(self):
-        super().__init__("internet-prompt", "internet-persona")
+        super().__init__("internet-prompt")
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False

@@ -28,9 +28,9 @@ class AnalysisProcessor(AIProcessor):
     """Process analysis prompts."""
 
     def __init__(self):
-        super().__init__("analysis-prompt", "analysis-persona")
+        super().__init__("analysis-prompt")
 
-    def query_desc(self) -> str:
+    def description(self) -> str:
         return (
             "Prompts that leverage prior command outputs in the chat history. These prompts may involve "
             "file management, data, file or folder inquiries, yes/no questions, and more, all answerable by "

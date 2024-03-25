@@ -23,4 +23,4 @@ class AIReply:
     is_success: bool = None
 
     def __str__(self):
-        return f"Success = {self.is_success}  Message = {self.message}"
+        return f"Success = {self.is_success}  \nMessage = {self.message}"

@@ -42,7 +42,7 @@ class ProcessorProxy(metaclass=Singleton):
 
     @cached_property
     def template(self) -> str:
-        return prompt.read_prompt("proxy-prompt", "proxy-persona")
+        return prompt.read_prompt("proxy-prompt")
 
     @property
     def query_types(self) -> str:
@@ -53,8 +53,8 @@ class ProcessorProxy(metaclass=Singleton):
         :param question: The question to the AI engine.
         """
         status = False
-        template = PromptTemplate(input_variables=["query_types", "cur_date"], template=self.template)
-        final_prompt = msg.translate(template.format(query_types=self.query_types, cur_date=now(self.DATE_FMT)))
+        template = PromptTemplate(input_variables=["query_types"], template=self.template)
+        final_prompt = msg.translate(template.format(query_types=self.query_types))
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", question)
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")

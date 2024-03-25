@@ -30,13 +30,12 @@ class GenericProcessor(AIProcessor):
     """Process generic prompts."""
 
     def __init__(self):
-        super().__init__("generic-prompt", "generic-persona")
+        super().__init__("generic-prompt")
 
-    def query_desc(self) -> str:
+    def description(self) -> str:
         return (
             "This prompt type is ideal for engaging in casual conversations between you and me, covering a wide range "
-            "of everyday topics and general discussions. This prompt is not adequate for dealing with opening, "
-            "playing, summarizing or executing any action on my files and folders."
+            "of everyday topics and general discussions."
         )
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:

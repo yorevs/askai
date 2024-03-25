@@ -47,7 +47,7 @@ class SummaryProcessor(AIProcessor):
         return output
 
     def __init__(self):
-        super().__init__("summary-prompt", "summary-persona")
+        super().__init__("summary-prompt")
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
