@@ -14,7 +14,8 @@
 """
 import logging as log
 import os
-from typing import Optional, Tuple
+from functools import lru_cache
+from typing import Optional, Tuple, List
 
 from langchain_core.prompts import PromptTemplate
 
@@ -26,14 +27,14 @@ from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
 from askai.core.model.query_response import QueryResponse
 from askai.core.model.summary_result import SummaryResult
-from askai.core.processor.ai_processor import AIProcessor
+from askai.core.processor.processor_base import AIProcessor
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 from askai.exception.exceptions import DocumentsNotFound
 
 
-class SummaryProcessor(AIProcessor):
+class SummaryProcessor:
     """Process generic prompts."""
 
     @staticmethod
@@ -47,10 +48,19 @@ class SummaryProcessor(AIProcessor):
         return output
 
     def __init__(self):
-        super().__init__("summary-prompt")
+        self._template_file: str = "summary-prompt"
+        self._next_in_chain: AIProcessor | None = None
+        self._supports: List[str] = ['File/Folder summarization']
 
-    def query_type(self) -> str:
-        return 'SummaryQuery'
+    def supports(self, query_type: str) -> bool:
+        return query_type in self._supports
+
+    def next_in_chain(self) -> Optional[str]:
+        return self._next_in_chain
+
+    @lru_cache
+    def template(self) -> str:
+        return prompt.read_prompt(self._template_file)
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False

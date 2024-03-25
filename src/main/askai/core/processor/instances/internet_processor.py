@@ -12,36 +12,50 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import logging as log
+from functools import lru_cache
+from typing import Optional, Tuple, List
+
+from hspylib.core.zoned_datetime import now
+from langchain_core.prompts import PromptTemplate
+
 from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
 from askai.core.component.internet_service import internet
 from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
 from askai.core.model.query_response import QueryResponse
 from askai.core.model.search_result import SearchResult
-from askai.core.processor.ai_processor import AIProcessor
+from askai.core.processor.processor_base import AIProcessor
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
-from hspylib.core.zoned_datetime import now
-from langchain_core.prompts import PromptTemplate
-from typing import Optional, Tuple
-
-import logging as log
 
 
-class InternetProcessor(AIProcessor):
+class InternetProcessor:
     """Process generic prompts."""
 
-    def __init__(self):
-        super().__init__("internet-prompt")
+    DATE_FMT: str = "%a %d %b %-H:%M %Y"  # E.g:. Fri 22 Mar 19:47 2024
 
-    def query_type(self) -> str:
-        return 'InternetQuery'
+    def __init__(self):
+        self._template_file: str = "generic-prompt"
+        self._next_in_chain: AIProcessor | None = None
+        self._supports: List[str] = ['Internet research']
+
+    def supports(self, query_type: str) -> bool:
+        return query_type in self._supports
+
+    def next_in_chain(self) -> Optional[str]:
+        return self._next_in_chain
+
+    @lru_cache
+    def template(self) -> str:
+        return prompt.read_prompt(self._template_file)
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         template = PromptTemplate(input_variables=["cur_date"], template=self.template())
-        final_prompt: str = msg.translate(template.format(cur_date=now("%Y-%d-%m")))
+        final_prompt: str = msg.translate(template.format(cur_date=now(self.DATE_FMT)))
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", query_response.question)
         context: ContextRaw = shared.context.join("SETUP", "QUESTION")

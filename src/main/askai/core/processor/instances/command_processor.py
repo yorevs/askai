@@ -14,9 +14,10 @@
 """
 import logging as log
 import os
+from functools import lru_cache
 from os.path import expandvars
 from shutil import which
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 from clitt.core.term.terminal import Terminal
 from hspylib.modules.application.exit_status import ExitStatus
@@ -29,33 +30,40 @@ from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
 from askai.core.model.query_response import QueryResponse
 from askai.core.model.terminal_command import TerminalCommand
-from askai.core.processor.ai_processor import AIProcessor
-from askai.core.processor.output_processor import OutputProcessor
+from askai.core.processor.instances.output_processor import OutputProcessor
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_command, extract_path
 
 
-class CommandProcessor(AIProcessor):
+class CommandProcessor:
     """Process command request prompts."""
 
+    @staticmethod
+    def _wrap_output(query_response: QueryResponse, cmd_line: str, cmd_out: str) -> str:
+        """Wrap the output into a new string to be forwarded to the next processor.
+        :param query_response: The query response provided by the AI.
+        :param cmd_line: The command line that was executed by this processor.
+        """
+        query_response.query_type = 'Command Output'
+        query_response.require_summarization = False
+        query_response.require_internet = False
+        query_response.commands.append(TerminalCommand(cmd_line, cmd_out, prompt.os_type, prompt.shell))
+        return str(query_response)
+
     def __init__(self):
-        super().__init__("command-prompt")
+        self._template_file: str = "command-prompt"
+        self._next_in_chain: str = OutputProcessor.__name__
+        self._supports: List[str] = ['Command execution', 'File/Folder management/assessment']
 
-    def query_type(self) -> str:
-        return 'CommandQuery'
+    def supports(self, query_type: str) -> bool:
+        return query_type in self._supports
 
-    def description(self) -> str:
-        return (
-            "Prompts that will require you to execute commands at the user's terminal. These prompts may involve "
-            "file, folder and application management, listing, device assessment or inquiries. This is not adequate "
-            "for summarizing files and folders."
-        )
+    def next_in_chain(self) -> Optional[str]:
+        return self._next_in_chain
 
-    def bind(self, next_in_chain: "AIProcessor"):
-        pass  # Avoid re-binding the next in chain processor.
-
-    def next_in_chain(self) -> AIProcessor:
-        return AIProcessor.get_by_name(OutputProcessor.__name__)
+    @lru_cache
+    def template(self) -> str:
+        return prompt.read_prompt(self._template_file)
 
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
@@ -117,14 +125,3 @@ class CommandProcessor(AIProcessor):
                 cmd_out = msg.cmd_no_exist(command)
         finally:
             return status, cmd_out
-
-    def _wrap_output(self, query_response: QueryResponse, cmd_line: str, cmd_out: str) -> str:
-        """Wrap the output into a new string to be forwarded to the next processor.
-        :param query_response: The query response provided by the AI.
-        :param cmd_line: The command line that was executed by this processor.
-        """
-        query_response.query_type = self.next_in_chain().query_type()
-        query_response.require_summarization = False
-        query_response.require_internet = False
-        query_response.commands.append(TerminalCommand(cmd_line, cmd_out, prompt.os_type, prompt.shell))
-        return str(query_response)

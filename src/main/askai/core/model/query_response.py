@@ -26,9 +26,6 @@ class QueryResponse:
     response: str = ""
     terminating: bool = False
     intelligible: bool = False
-    require_internet: bool = False
-    require_command: bool = False
-    require_summarization: bool = False
     commands: List[TerminalCommand] = field(default_factory=list)
 
     def __str__(self):

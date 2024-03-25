@@ -38,11 +38,8 @@ from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
 from askai.core.model.query_response import QueryResponse
-from askai.core.processor.ai_processor import AIProcessor
-from askai.core.processor.generic_processor import GenericProcessor
-from askai.core.processor.internet_processor import InternetProcessor
+from askai.core.processor.processor_factory import ProcessorFactory
 from askai.core.processor.processor_proxy import proxy
-from askai.core.processor.summary_processor import SummaryProcessor
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
@@ -223,17 +220,9 @@ class AskAi:
         elif proxy_response.terminating:
             log.info("User wants to terminate the conversation.")
             return False
-        elif proxy_response.require_internet:
-            log.info("Internet is required to fulfill the request.")
-            processor = AIProcessor.get_by_name(InternetProcessor.__name__)
-            processor.bind(AIProcessor.get_by_name(GenericProcessor.__name__))
-        elif proxy_response.require_summarization:
-            log.info("Summarization is required to fulfill the request.")
-            processor = AIProcessor.get_by_name(SummaryProcessor.__name__)
-            processor.bind(AIProcessor.get_by_name(GenericProcessor.__name__))
         # Query processors
-        if processor or (query_type := proxy_response.query_type or 'GenericQuery'):
-            if not processor and not (processor := AIProcessor.get_by_query_type(query_type)):
+        if processor or (query_type := proxy_response.query_type or 'General'):
+            if not processor and not (processor := ProcessorFactory.find_processor(query_type)):
                 log.error(f"Unable to find a proper processor: {str(proxy_response)}")
                 self.reply_error(msg.no_processor(query_type))
                 return False

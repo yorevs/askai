@@ -14,7 +14,7 @@
 """
 
 import logging as log
-from functools import cached_property
+from functools import lru_cache
 from typing import Tuple
 
 from hspylib.core.metaclass.singleton import Singleton
@@ -25,7 +25,6 @@ from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
 from askai.core.model.query_response import QueryResponse
-from askai.core.processor.ai_processor import AIProcessor
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 
@@ -35,26 +34,17 @@ class ProcessorProxy(metaclass=Singleton):
 
     INSTANCE: "ProcessorProxy" = None
 
-    DATE_FMT: str = "%a %d %b %-H:%M %Y"  # E.g:. Fri 22 Mar 19:47 2024
-
-    def __init__(self):
-        self._query_types: str = AIProcessor.find_query_types()
-
-    @cached_property
+    @lru_cache
     def template(self) -> str:
         return prompt.read_prompt("proxy-prompt")
-
-    @property
-    def query_types(self) -> str:
-        return self._query_types
 
     def process(self, question: str) -> Tuple[bool, QueryResponse]:
         """Return the setup prompt.
         :param question: The question to the AI engine.
         """
         status = False
-        template = PromptTemplate(input_variables=["query_types"], template=self.template)
-        final_prompt = msg.translate(template.format(query_types=self.query_types))
+        template = PromptTemplate(input_variables=[], template=self.template())
+        final_prompt = msg.translate(template.format())
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", question)
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
