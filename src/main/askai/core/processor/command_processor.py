@@ -44,7 +44,8 @@ class CommandProcessor(AIProcessor):
     def description(self) -> str:
         return (
             "Prompts that will require you to execute commands at the user's terminal. These prompts may involve "
-            "file, folder and application management, listing, device assessment or inquiries."
+            "file, folder and application management, listing, device assessment or inquiries. This is not adequate "
+            "for summarizing files and folders."
         )
 
     def bind(self, next_in_chain: "AIProcessor"):

@@ -32,12 +32,6 @@ class GenericProcessor(AIProcessor):
     def __init__(self):
         super().__init__("generic-prompt")
 
-    def description(self) -> str:
-        return (
-            "This prompt type is ideal for engaging in casual conversations between you and me, covering a wide range "
-            "of everyday topics and general discussions."
-        )
-
     def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
         status = False
         template = PromptTemplate(input_variables=["user"], template=self.template())

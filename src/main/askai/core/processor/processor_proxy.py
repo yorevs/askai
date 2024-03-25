@@ -12,7 +12,13 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from hspylib.core.zoned_datetime import now
+
+import logging as log
+from functools import cached_property
+from typing import Tuple
+
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.prompts import PromptTemplate
 
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -22,12 +28,6 @@ from askai.core.model.query_response import QueryResponse
 from askai.core.processor.ai_processor import AIProcessor
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
-from functools import cached_property
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import PromptTemplate
-from typing import Tuple
-
-import logging as log
 
 
 class ProcessorProxy(metaclass=Singleton):
