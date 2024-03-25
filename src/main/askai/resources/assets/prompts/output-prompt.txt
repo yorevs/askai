@@ -4,16 +4,16 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 1. You will be given the '{shell}' '{command_line}' output.
 
-2. Craft your reply solely based on the information given in the provided contexts.
+2. Craft your reply solely based on the information given in the provided data.
 
 3. Create a summarized and accessible version of its content.
 
-4. Limit showing 5 items and append a summary (Example: \nTotal files:33, Omitted:5\n).
+4. When the output includes a list, limit showing 5 items and append a summary (Example: \nTotal files:33, Omitted:5\n). Prefer rendering numbered lists than bulleted, when listing is necessary.
 
-5. When the provided output contains files and folders listing, specify whether each item is a file or folder, and its size.
+5. When the provided output contains files or folders listing, specify whether each item is a file or folder, and its size.
 
-6. Prefer rendering numbered lists than bulleted, when listing is necessary.
+6. When the provided output does not contain files or folders listing, create a small analysis of the provided data.
 
-7. Start your response with the phrase: Here is a summarized version of the provided data\n\n
+6. Start your response with the phrase: Here is a summarized version\n\n
 
-8. Wrap up your reply by offering a succinct hint or tip related to the topic; prefix with: 'Hints:'.
+7. Wrap up your reply by offering a succinct hint or tip related to the answer; prefix with: 'Hints:'.
