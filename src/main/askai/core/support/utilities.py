@@ -59,9 +59,11 @@ def beautify(text: Any) -> str:
     text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s][ \n\t]+", CHAT_ICONS[''], text)
     text = re.sub(r"[Ff]un [Ff]acts?[-:\s][ \n\t]+", CHAT_ICONS[''], text)
     text = re.sub(r"[Aa]dvice[-:\s][ \n\t]+", CHAT_ICONS[''], text)
-    text = re.sub(re_url, r' \1', text)
     text = re.sub(r"^\n+", '', text, re.MULTILINE)
     text = re.sub(r"\n{2,}", '\n\n', text, re.MULTILINE)
+    mat = re.search(r"%\w+%", text)
+    fg = mat.group() if mat else ''
+    text = re.sub(re_url, r'%CYAN% \1' + fg, text)
     # fmt: on
 
     return text
@@ -192,18 +194,3 @@ def stream_text(text: Any, tempo: int = 1, language: Language = Language.EN_US) 
             word_count = 0
         pause.seconds(presets.base_speed)
     sysout("%NC%")
-
-
-if __name__ == '__main__':
-    c = 'ls -lht /Users/hugo/Downloads/Images 2>/dev/null'
-    print(extract_path(c))
-    c = 'ls -lht ~/Downloads/Application/drive'
-    print(extract_path(c))
-    c = 'ls -lht /Home/User/Hugo 2>/dev/null'
-    print(extract_path(c))
-    c = 'ls -lht ../Home/User/Hugo 2>/dev/null'
-    print(extract_path(c))
-    c = 'ls -lht /Arquivos\ de\ Programas/text.txt'
-    print(extract_path(c))
-    c = 'ls -lht -ahah ~/hugo/junior/work 2>&1 > file. txt'
-    print(extract_path(c))
