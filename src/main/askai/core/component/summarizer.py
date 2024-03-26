@@ -94,7 +94,7 @@ class Summarizer(metaclass=Singleton):
         return self._text_splitter
 
     @lru_cache
-    def generate(self, folder: str | Path, glob: str) -> None:
+    def generate(self, folder: str | Path, glob: str) -> bool:
         """Generate a summarization of the folder contents.
         :param folder: The base folder of the summarization.
         :param glob: The glob pattern or file of the summarization.
@@ -104,20 +104,27 @@ class Summarizer(metaclass=Singleton):
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.summarizing(self.sum_path))
         embeddings = lc_llm.create_embeddings()
 
-        if self.persist_dir.exists():
-            log.info("Recovering vector store from: '%s'", self.persist_dir)
-            v_store = Chroma(persist_directory=str(self.persist_dir), embedding_function=embeddings)
-        else:
-            log.info("Summarizing documents from '%s'", self.sum_path)
-            documents: List[Document] = DirectoryLoader(self.folder, glob=self.glob).load()
-            if len(documents) <= 0:
-                raise DocumentsNotFound(f"Unable to find any document to summarize at: '{self.sum_path}'")
-            texts: List[Document] = self._text_splitter.split_documents(documents)
-            v_store = Chroma.from_documents(texts, embeddings, persist_directory=str(self.persist_dir))
+        try:
+            if self.persist_dir.exists():
+                log.info("Recovering vector store from: '%s'", self.persist_dir)
+                v_store = Chroma(persist_directory=str(self.persist_dir), embedding_function=embeddings)
+            else:
+                log.info("Summarizing documents from '%s'", self.sum_path)
+                documents: List[Document] = DirectoryLoader(self.folder, glob=self.glob).load()
+                if len(documents) <= 0:
+                    raise DocumentsNotFound(f"Unable to find any document to summarize at: '{self.sum_path}'")
+                texts: List[Document] = self._text_splitter.split_documents(documents)
+                v_store = Chroma.from_documents(texts, embeddings, persist_directory=str(self.persist_dir))
 
-        self._retriever = RetrievalQA.from_chain_type(
-            llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever()
-        )
+            self._retriever = RetrievalQA.from_chain_type(
+                llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever()
+            )
+            return True
+        except ImportError as err:
+            log.error("Unable to summarize '%s' => %s", self.sum_path, err)
+            AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.missing_package(err))
+
+        return False
 
     def query(self, *queries: str) -> Optional[List[SummaryResult]]:
         """Answer questions about the summarized content.

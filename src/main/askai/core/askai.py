@@ -15,6 +15,7 @@
 import logging as log
 import os
 import sys
+from functools import partial
 from threading import Thread
 from typing import List, Optional
 
@@ -30,7 +31,7 @@ from hspylib.modules.eventbus.event import Event
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
-from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_EVENT
+from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_EVENT, REPLY_ERROR_EVENT
 from askai.core.askai_messages import msg
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
@@ -145,11 +146,14 @@ class AskAi:
         else:
             display_text(f"{shared.nickname}: %RED%{message}%NC%")
 
-    def _cb_reply_event(self, ev: Event) -> None:
+    def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events."""
-        if ev.args.erase_last:
-            cursor.erase_line()
-        self.reply(ev.args.message)
+        if error:
+            self.reply_error(ev.args.message)
+        else:
+            if ev.args.erase_last:
+                cursor.erase_line()
+            self.reply(ev.args.message)
 
     def _splash(self) -> None:
         """Display the AskAI splash screen."""
@@ -174,6 +178,7 @@ class AskAi:
         cache.read_query_history()
         askai_bus = AskAiEvents.get_bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
+        askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
         if configs.is_speak:
             player.start_delay()
         self._ready = True

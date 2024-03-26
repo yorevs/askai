@@ -114,6 +114,10 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"Error: Sorry! Command `{cmd_line}' failed to execute !")
 
     @lru_cache
+    def missing_package(self, err: ImportError) -> str:
+        return self.translate(f"Error: Unable to summarize => {str(err)}' !")
+
+    @lru_cache
     def intelligible(self, question: str) -> str:
         return self.translate(f"Error: Your question '{question}' is not clear, please reformulate !")
 

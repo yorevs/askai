@@ -88,7 +88,8 @@ class SummaryProcessor:
                 else:
                     shared.context.clear("SUMMARY")
                     if not summarizer.exists(summary.folder, summary.glob):
-                        summarizer.generate(summary.folder, summary.glob)
+                        if not summarizer.generate(summary.folder, summary.glob):
+                            return True, "%ORANGE%Sorry, summarization was not possible !%NC%"
                     else:
                         summarizer.folder = summary.folder
                         summarizer.glob = summary.glob

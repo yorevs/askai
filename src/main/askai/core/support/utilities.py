@@ -32,7 +32,7 @@ from askai.core.support.presets import Presets
 from askai.language.language import Language
 
 CHAT_ICONS = {
-    '': '\n\n%RED%  Error: ',
+    '': '\n%RED%  Error: ',
     '': '\n\n%BLUE%  Hints & Tips: ',
     '': '\n\n%BLUE%  Analysis: ',
     '': '\n\n%BLUE%  Summary: ',

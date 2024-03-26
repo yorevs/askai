@@ -4,7 +4,7 @@
   Created: 05th Jan, 2024
 
   !! Syntax for dependencies !!
-  package: <pkg_name>, version: <latest|versionNum>, mode: <gt|ge|eq|ne|compat|none>
+  package: <pkg_name>, version: <latest|versionNum>, mode: <gt|ge|compat|ne|compat|none>
 */
 
 /* Module dependencies */
@@ -14,26 +14,27 @@ package: hspylib-clitt, version: 0.9.117, mode: ge
 
 /* Application dependencies */
 
-package: retry, version: 0.9.2, mode: eq
-package: pause, version: 0.3, mode: eq
-package: requests, version: 2.31.0, mode: eq
-package: argostranslate, version: 1.9.1, mode: eq
-package: protobuf, version: 4.22.1, mode: eq
-package: torch, version: 2.1.2, mode: eq
-package: stanza, version: 1.1.1, mode: eq
-package: soundfile, version: 0.12.1, mode: eq
-package: urllib3, version: 1.26.18, mode: eq
+package: retry, version: 0.9.2, mode: compat
+package: pause, version: 0.3, mode: compat
+package: requests, version: 2.31.0, mode: compat
+package: argostranslate, version: 1.9.1, mode: compat
+package: protobuf, version: 4.22.1, mode: compat
+package: torch, version: 2.1.2, mode: compat
+package: stanza, version: 1.1.1, mode: compat
+package: soundfile, version: 0.12.1, mode: compat
+package: urllib3, version: 1.26.18, mode: compat
 package: langchain, version: 0.1.12, mode: ge
-package: langchain-openai, version: 0.0.8, mode: eq
-package: langchain-community, version: 0.0.28, mode: eq
-package: unstructured, version: 0.12.6, mode: eq
-package: chromadb, version: 0.4.24, mode: eq
-package: python-magic-bin, version: 0.4.14, mode: eq
-package: tiktoken, version: 0.6.0, mode: eq
-package: aiohttp, version: 3.9.3, mode: eq
-package: html2text, version: 2024.2.26, mode: eq
-package: PyAudio, version: 0.2.14, mode: eq
-package: SpeechRecognition, version: 3.10.1, mode: eq
-package: openai-whisper, version: 20231117, mode: eq
-package: google-api-python-client, version: 2.122.0, mode: eq
-package: openai, version: 1.14.1, mode: eq
+package: langchain-openai, version: 0.0.8, mode: compat
+package: langchain-community, version: 0.0.28, mode: compat
+package: unstructured, version: 0.12.6, mode: compat
+package: unstructured[md], version: 0.12.6, mode: compat
+package: chromadb, version: 0.4.24, mode: ge
+package: python-magic-bin, version: 0.4.14, mode: compat
+package: tiktoken, version: 0.6.0, mode: compat
+package: aiohttp, version: 3.9.3, mode: compat
+package: html2text, version: 2024.2.26, mode: compat
+package: PyAudio, version: 0.2.14, mode: compat
+package: SpeechRecognition, version: 3.10.1, mode: compat
+package: openai-whisper, version: 20231117, mode: compat
+package: google-api-python-client, version: 2.122.0, mode: compat
+package: openai, version: 1.14.1, mode: compat
