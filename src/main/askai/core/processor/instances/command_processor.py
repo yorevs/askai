@@ -79,7 +79,7 @@ class CommandProcessor:
         template = PromptTemplate(input_variables=["os_type", "shell"], template=self.template())
         final_prompt: str = template.format(os_type=prompt.os_type, shell=prompt.shell)
         shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", query_response.question)
+        shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
         log.info("Command::[QUESTION] '%s'  context=%s", query_response.question, context)
 
@@ -105,13 +105,13 @@ class CommandProcessor:
         """
         status = False
         command = cmd_line.split(" ")[0].strip()
-        cmd_out = None
+        output = None
         try:
             if command and which(command):
                 cmd_line = expandvars(cmd_line.replace("~/", f"{os.getenv('HOME')}/").strip())
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.executing(cmd_line))
                 log.info("Executing command `%s'", cmd_line)
-                cmd_out, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
+                output, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
                 if exit_code == ExitStatus.SUCCESS:
                     log.info("Command succeeded.\nCODE=%s \nPATH: %s \nCMD: %s ", exit_code, os.getcwd(), cmd_line)
                     if _path_ := extract_path(cmd_line):
@@ -121,16 +121,16 @@ class CommandProcessor:
                         else:
                             log.warning("Directory '%s' does not exist. Curdir unchanged!", _path_)
                     AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.cmd_success(exit_code), erase_last=True)
-                    if not cmd_out:
-                        cmd_out = msg.cmd_no_output()
+                    if not output:
+                        output = msg.cmd_no_output()
                     else:
-                        shared.context.set("CONTEXT", f"Command `{cmd_line}' output:\n\n```\n{cmd_out}\n```")
-                        cmd_out = self._wrap_output(query_response, cmd_line, cmd_out)
+                        shared.context.set("CONTEXT", f"Command `{cmd_line}' output:\n\n```\n{output}\n```")
+                        output = self._wrap_output(query_response, cmd_line, output)
                 else:
                     log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), cmd_line)
-                    cmd_out = msg.cmd_failed(cmd_line)
+                    output = msg.cmd_failed(cmd_line)
                 status = True
             else:
-                cmd_out = msg.cmd_no_exist(command)
+                output = msg.cmd_no_exist(command)
         finally:
-            return status, cmd_out
+            return status, output

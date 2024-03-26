@@ -75,7 +75,7 @@ class SummaryProcessor:
         template = PromptTemplate(input_variables=["os_type"], template=self.template())
         final_prompt: str = msg.translate(template.format(os_type=prompt.os_type))
         shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", query_response.question)
+        shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
         context: ContextRaw = shared.context.join("SETUP", "QUESTION")
         log.info("Setup::[SUMMARY] '%s'  context=%s", query_response.question, context)
 

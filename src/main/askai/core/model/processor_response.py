@@ -9,12 +9,11 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-
-from askai.core.model.terminal_command import TerminalCommand
+import json
 from dataclasses import dataclass, field
 from typing import List
 
-import json
+from askai.core.model.terminal_command import TerminalCommand
 
 
 @dataclass

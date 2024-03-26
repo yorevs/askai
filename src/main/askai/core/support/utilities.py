@@ -59,7 +59,7 @@ def beautify(text: Any) -> str:
     text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s][ \n\t]+", CHAT_ICONS[''], text)
     text = re.sub(r"[Ff]un [Ff]acts?[-:\s][ \n\t]+", CHAT_ICONS[''], text)
     text = re.sub(r"[Aa]dvice[-:\s][ \n\t]+", CHAT_ICONS[''], text)
-    text = re.sub(re_url, r'%CYAN% \1%GREEN%', text)
+    text = re.sub(re_url, r' \1', text)
     text = re.sub(r"^\n+", '', text, re.MULTILINE)
     text = re.sub(r"\n{2,}", '\n\n', text, re.MULTILINE)
     # fmt: on

@@ -65,7 +65,7 @@ class InternetProcessor:
         template = PromptTemplate(input_variables=["cur_date"], template=self.template())
         final_prompt: str = msg.translate(template.format(cur_date=now(self.DATE_FMT)))
         shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", query_response.question)
+        shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
         context: ContextRaw = shared.context.join("SETUP", "QUESTION")
         log.info("Setup::[INTERNET] '%s'  context=%s", query_response.question, context)
 

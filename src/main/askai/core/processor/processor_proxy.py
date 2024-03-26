@@ -48,7 +48,7 @@ class ProcessorProxy(metaclass=Singleton):
         status = False
         template = PromptTemplate(input_variables=[], template=self.template())
         final_prompt = msg.translate(template.format())
-        shared.context.set("SETUP", final_prompt)
+        shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion: {question}\n\nHelpful Answer:")
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
         log.info("Ask::[QUESTION] '%s'  context=%s", question, context)

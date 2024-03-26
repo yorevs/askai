@@ -59,7 +59,7 @@ class GenericProcessor:
         template = PromptTemplate(input_variables=["user"], template=self.template())
         final_prompt: str = msg.translate(template.format(user=prompt.user))
         shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", query_response.question)
+        shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
         context: ContextRaw = shared.context.join("GENERAL", "SETUP", "QUESTION")
         log.info("Setup::[GENERIC] '%s'  context=%s", query_response.question, context)
 

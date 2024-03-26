@@ -32,6 +32,17 @@ class AnalysisProcessor:
     """Process analysis prompts."""
 
     @staticmethod
+    def _wrap_output(query_response: ProcessorResponse) -> str:
+        """Wrap the output into a new string to be forwarded to the next processor.
+        :param query_response: The query response provided by the AI.
+        """
+        query_response.query_type = QueryType.GENERIC_QUERY.value
+        query_response.require_summarization = False
+        query_response.require_internet = False
+
+        return str(query_response)
+
+    @staticmethod
     def q_type() -> str:
         return QueryType.ANALYSIS_QUERY.value
 
@@ -58,17 +69,18 @@ class AnalysisProcessor:
         template = PromptTemplate(input_variables=[], template=self.template())
         final_prompt: str = msg.translate(template.format())
         shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", query_response.question)
-        context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
+        shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
+        context: ContextRaw = shared.context.join("SETUP", "CONTEXT", "QUESTION")
         log.info("Analysis::[QUESTION] '%s'  context=%s", query_response.question, context)
 
-        if (
-            response := shared.engine.ask(context, *Temperatures.CODE_GENERATION.value)
-        ) and response.is_success:
+        if (response := shared.engine.ask(context, *Temperatures.CODE_GENERATION.value)) and response.is_success:
             log.debug("Analysis::[RESPONSE] Received from AI: %s.", response)
-            if output := response.message:
+            if response.message and (output := response.message) != "I don't know.":
                 shared.context.push("CONTEXT", query_response.question)
                 shared.context.push("CONTEXT", output, "assistant")
+            else:
+                self._next_in_chain = QueryType.GENERIC_QUERY.proc_name
+                output = self._wrap_output(query_response)
             status = True
         else:
             log.error(
