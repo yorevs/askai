@@ -14,9 +14,8 @@ urllib3==1.26.18
 langchain>=0.1.12
 langchain-openai==0.0.8
 langchain-community==0.0.28
-unstructured==0.12.6
-unstructured[md]==0.12.6
-chromadb>=0.4.24
+unstructured==0.12.4
+unstructured[md]==0.12.4
 python-magic-bin==0.4.14
 tiktoken==0.6.0
 aiohttp==3.9.3
@@ -26,3 +25,7 @@ SpeechRecognition==3.10.1
 openai-whisper==20231117
 google-api-python-client==2.122.0
 openai==1.14.1
+chromadb==0.4.24
+opentelemetry-api==1.22.0
+opentelemetry-sdk==1.22.0
+opentelemetry-proto==1.22.0
