@@ -4,7 +4,7 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 1. Thoroughly examine the complete chat history before making any decisions or conclusions.
 
-2. Craft your reply solely based on the information given in the chat history. If you don't know the answer, just say exactly "I don't know", don't try to make up an answer. Provide your response immediately.
+2. Craft your response using solely the information available in the conversation history. If uncertain, immediately reply with: '%I don't know.%', and refrain from guessing. Skip all other instructions.
 
 3. Create a summarized and accessible version of its content.
 

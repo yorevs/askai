@@ -75,7 +75,7 @@ class AnalysisProcessor:
 
         if (response := shared.engine.ask(context, *Temperatures.CODE_GENERATION.value)) and response.is_success:
             log.debug("Analysis::[RESPONSE] Received from AI: %s.", response)
-            if response.message and (output := response.message) != "I don't know.":
+            if response.message and msg.translate("%I don't know.%") not in (output := response.message):
                 shared.context.push("CONTEXT", query_response.question)
                 shared.context.push("CONTEXT", output, "assistant")
             else:
