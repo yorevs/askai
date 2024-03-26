@@ -26,7 +26,7 @@ from askai.core.component.summarizer import summarizer
 from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
 from askai.core.model.processor_response import ProcessorResponse
-from askai.core.model.query_types import QueryTypes
+from askai.core.model.query_type import QueryType
 from askai.core.model.summary_result import SummaryResult
 from askai.core.processor.processor_base import AIProcessor
 from askai.core.support.object_mapper import object_mapper
@@ -50,7 +50,7 @@ class SummaryProcessor:
 
     @staticmethod
     def q_type() -> str:
-        return QueryTypes.SUMMARY_QUERY.value
+        return QueryType.SUMMARY_QUERY.value
 
     def __init__(self):
         self._template_file: str = "summary-prompt"

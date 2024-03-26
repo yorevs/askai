@@ -23,7 +23,7 @@ from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
 from askai.core.model.processor_response import ProcessorResponse
-from askai.core.model.query_types import QueryTypes
+from askai.core.model.query_type import QueryType
 from askai.core.processor.processor_base import AIProcessor
 from askai.core.support.shared_instances import shared
 
@@ -33,7 +33,7 @@ class OutputProcessor(AIProcessor):
 
     @staticmethod
     def q_type() -> str:
-        return QueryTypes.OUTPUT_QUERY.value
+        return QueryType.OUTPUT_QUERY.value
 
     def __init__(self):
         self._template_file: str = "output-prompt"

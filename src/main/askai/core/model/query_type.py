@@ -1,7 +1,7 @@
 from hspylib.core.enums.enumeration import Enumeration
 
 
-class QueryTypes(Enumeration):
+class QueryType(Enumeration):
     """TODO"""
 
     ANALYSIS_QUERY      = 'AnalysisQuery'
@@ -15,3 +15,10 @@ class QueryTypes(Enumeration):
     OUTPUT_QUERY        = 'OutputQuery'
 
     SUMMARY_QUERY       = 'SummaryQuery'
+
+    def __str__(self):
+        return self.value[0]
+
+    @property
+    def proc_name(self) -> str:
+        return self.value[0].replace('Query', 'Processor')

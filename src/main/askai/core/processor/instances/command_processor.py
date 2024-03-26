@@ -29,7 +29,7 @@ from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
 from askai.core.model.processor_response import ProcessorResponse
-from askai.core.model.query_types import QueryTypes
+from askai.core.model.query_type import QueryType
 from askai.core.model.terminal_command import TerminalCommand
 from askai.core.processor.processor_base import AIProcessor
 from askai.core.support.shared_instances import shared
@@ -45,7 +45,7 @@ class CommandProcessor:
         :param query_response: The query response provided by the AI.
         :param cmd_line: The command line that was executed by this processor.
         """
-        query_response.query_type = QueryTypes.OUTPUT_QUERY.value
+        query_response.query_type = QueryType.OUTPUT_QUERY.value
         query_response.require_summarization = False
         query_response.require_internet = False
         query_response.commands.append(TerminalCommand(cmd_line, cmd_out, prompt.os_type, prompt.shell))
@@ -54,11 +54,11 @@ class CommandProcessor:
 
     @staticmethod
     def q_type() -> str:
-        return QueryTypes.COMMAND_QUERY.value
+        return QueryType.COMMAND_QUERY.value
 
     def __init__(self):
         self._template_file: str = "command-prompt"
-        self._next_in_chain: AIProcessor | None = None
+        self._next_in_chain: str = QueryType.OUTPUT_QUERY.proc_name
         self._supports: List[str] = [self.q_type()]
 
     def supports(self, query_type: str) -> bool:

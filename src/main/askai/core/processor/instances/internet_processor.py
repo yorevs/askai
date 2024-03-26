@@ -26,7 +26,7 @@ from askai.core.component.internet_service import internet
 from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
 from askai.core.model.processor_response import ProcessorResponse
-from askai.core.model.query_types import QueryTypes
+from askai.core.model.query_type import QueryType
 from askai.core.model.search_result import SearchResult
 from askai.core.processor.processor_base import AIProcessor
 from askai.core.support.object_mapper import object_mapper
@@ -40,7 +40,7 @@ class InternetProcessor:
 
     @staticmethod
     def q_type() -> str:
-        return QueryTypes.INTERNET_QUERY.value
+        return QueryType.INTERNET_QUERY.value
 
     def __init__(self):
         self._template_file: str = "internet-prompt"

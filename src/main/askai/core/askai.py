@@ -222,12 +222,12 @@ class AskAi:
             return False
         elif proxy_response.require_internet:
             log.info("Internet is required to fulfill the request.")
-            processor = ProcessorFactory.get_by_name('InternetProcessor')
-            processor.bind(ProcessorFactory.get_by_name('GenericProcessor'))
+            processor = ProcessorFactory.internet()
+            processor.bind(ProcessorFactory.generic())
         elif proxy_response.require_summarization:
             log.info("Summarization is required to fulfill the request.")
-            processor = ProcessorFactory.get_by_name('SummaryProcessor')
-            processor.bind(ProcessorFactory.get_by_name('GenericProcessor'))
+            processor = ProcessorFactory.summary()
+            processor.bind(ProcessorFactory.generic())
         # Query processors
         if processor or (query_type := proxy_response.query_type or 'General'):
             if not processor and not (processor := ProcessorFactory.find_processor(query_type)):

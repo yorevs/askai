@@ -21,6 +21,7 @@ from typing import Dict, Optional
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import camelcase
 
+from askai.core.model.query_type import QueryType
 from askai.core.processor.processor_base import AIProcessor
 
 
@@ -41,12 +42,12 @@ class ProcessorFactory(metaclass=Singleton):
 
     @classmethod
     @lru_cache
-    def find_processor(cls, query_type: str) -> Optional[AIProcessor]:
+    def find_processor(cls, query_type: str | QueryType) -> Optional[AIProcessor]:
         """Retrieve an AIProcessor by query type.
         :param query_type: The type of the query.
         """
         return next(
-            (p for p in cls._PROCESSORS.values() if p.supports(query_type)), None
+            (p for p in cls._PROCESSORS.values() if p.supports(str(query_type))), None
         )
 
     @classmethod
@@ -55,9 +56,7 @@ class ProcessorFactory(metaclass=Singleton):
         """Retrieve an AIProcessor by its name.
         :param name: The name of the processor.
         """
-        return next(
-            (p for p in cls._PROCESSORS.values() if type(p).__name__ == name), None
-        )
+        return cls._PROCESSORS[name]
 
     @classmethod
     @lru_cache
