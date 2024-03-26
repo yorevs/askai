@@ -37,7 +37,7 @@ from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
-from askai.core.model.query_response import QueryResponse
+from askai.core.model.processor_response import ProcessorResponse
 from askai.core.processor.processor_factory import ProcessorFactory
 from askai.core.processor.processor_proxy import proxy
 from askai.core.support.object_mapper import object_mapper
@@ -208,7 +208,7 @@ class AskAi:
             status = True
         return status
 
-    def _process_response(self, proxy_response: QueryResponse) -> bool:
+    def _process_response(self, proxy_response: ProcessorResponse) -> bool:
         """Process a query response using a processor that supports the query type.
         :param proxy_response: The processor proxy response.
         """
@@ -220,6 +220,14 @@ class AskAi:
         elif proxy_response.terminating:
             log.info("User wants to terminate the conversation.")
             return False
+        elif proxy_response.require_internet:
+            log.info("Internet is required to fulfill the request.")
+            processor = ProcessorFactory.get_by_name('InternetProcessor')
+            processor.bind(ProcessorFactory.get_by_name('GenericProcessor'))
+        elif proxy_response.require_summarization:
+            log.info("Summarization is required to fulfill the request.")
+            processor = ProcessorFactory.get_by_name('SummaryProcessor')
+            processor.bind(ProcessorFactory.get_by_name('GenericProcessor'))
         # Query processors
         if processor or (query_type := proxy_response.query_type or 'General'):
             if not processor and not (processor := ProcessorFactory.find_processor(query_type)):
@@ -229,8 +237,8 @@ class AskAi:
             log.info("%s::Processing response for '%s'", processor, proxy_response.question)
             status, output = processor.process(proxy_response)
             if status and output and processor.next_in_chain():
-                mapped_response = object_mapper.of_json(output, QueryResponse)
-                if isinstance(mapped_response, QueryResponse):
+                mapped_response = object_mapper.of_json(output, ProcessorResponse)
+                if isinstance(mapped_response, ProcessorResponse):
                     self._process_response(mapped_response)
                 else:
                     self.reply(str(mapped_response))

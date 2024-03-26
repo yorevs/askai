@@ -25,7 +25,8 @@ from askai.core.component.cache_service import cache
 from askai.core.component.internet_service import internet
 from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
-from askai.core.model.query_response import QueryResponse
+from askai.core.model.processor_response import ProcessorResponse
+from askai.core.model.query_types import QueryTypes
 from askai.core.model.search_result import SearchResult
 from askai.core.processor.processor_base import AIProcessor
 from askai.core.support.object_mapper import object_mapper
@@ -37,10 +38,14 @@ class InternetProcessor:
 
     DATE_FMT: str = "%a %d %b %-H:%M %Y"  # E.g:. Fri 22 Mar 19:47 2024
 
+    @staticmethod
+    def q_type() -> str:
+        return QueryTypes.INTERNET_QUERY.value
+
     def __init__(self):
         self._template_file: str = "internet-prompt"
         self._next_in_chain: AIProcessor | None = None
-        self._supports: List[str] = ['Internet research']
+        self._supports: List[str] = [self.q_type()]
 
     def supports(self, query_type: str) -> bool:
         return query_type in self._supports
@@ -48,11 +53,14 @@ class InternetProcessor:
     def next_in_chain(self) -> Optional[str]:
         return self._next_in_chain
 
+    def bind(self, next_in_chain: AIProcessor):
+        self._next_in_chain = next_in_chain
+
     @lru_cache
     def template(self) -> str:
         return prompt.read_prompt(self._template_file)
 
-    def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
+    def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
         template = PromptTemplate(input_variables=["cur_date"], template=self.template())
         final_prompt: str = msg.translate(template.format(cur_date=now(self.DATE_FMT)))

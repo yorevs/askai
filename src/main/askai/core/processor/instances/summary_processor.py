@@ -25,7 +25,8 @@ from askai.core.askai_prompt import prompt
 from askai.core.component.summarizer import summarizer
 from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
-from askai.core.model.query_response import QueryResponse
+from askai.core.model.processor_response import ProcessorResponse
+from askai.core.model.query_types import QueryTypes
 from askai.core.model.summary_result import SummaryResult
 from askai.core.processor.processor_base import AIProcessor
 from askai.core.support.object_mapper import object_mapper
@@ -47,10 +48,14 @@ class SummaryProcessor:
             output = os.linesep.join([r.answer for r in results]).strip()
         return output
 
+    @staticmethod
+    def q_type() -> str:
+        return QueryTypes.SUMMARY_QUERY.value
+
     def __init__(self):
         self._template_file: str = "summary-prompt"
         self._next_in_chain: AIProcessor | None = None
-        self._supports: List[str] = ['Summarization']
+        self._supports: List[str] = [self.q_type()]
 
     def supports(self, query_type: str) -> bool:
         return query_type in self._supports
@@ -58,11 +63,14 @@ class SummaryProcessor:
     def next_in_chain(self) -> Optional[str]:
         return self._next_in_chain
 
+    def bind(self, next_in_chain: AIProcessor):
+        self._next_in_chain = next_in_chain
+
     @lru_cache
     def template(self) -> str:
         return prompt.read_prompt(self._template_file)
 
-    def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
+    def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
         template = PromptTemplate(input_variables=["os_type"], template=self.template())
         final_prompt: str = msg.translate(template.format(os_type=prompt.os_type))

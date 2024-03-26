@@ -14,7 +14,7 @@
 """
 from typing import Optional, Tuple, Protocol
 
-from askai.core.model.query_response import QueryResponse
+from askai.core.model.processor_response import ProcessorResponse
 
 
 class AIProcessor(Protocol):
@@ -34,7 +34,7 @@ class AIProcessor(Protocol):
         """Bind a processor to be the next in chain."""
         ...
 
-    def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
+    def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         """Process the query response."""
         ...
 

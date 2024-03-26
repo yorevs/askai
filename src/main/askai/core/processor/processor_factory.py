@@ -58,3 +58,34 @@ class ProcessorFactory(metaclass=Singleton):
         return next(
             (p for p in cls._PROCESSORS.values() if type(p).__name__ == name), None
         )
+
+    @classmethod
+    @lru_cache
+    def analysis(cls) -> AIProcessor:
+        return cls._PROCESSORS['AnalysisProcessor']
+
+    @classmethod
+    @lru_cache
+    def command(cls) -> AIProcessor:
+        return cls._PROCESSORS['CommandProcessor']
+
+    @classmethod
+    @lru_cache
+    def generic(cls) -> AIProcessor:
+        return cls._PROCESSORS['GenericProcessor']
+
+    @classmethod
+    @lru_cache
+    def internet(cls) -> AIProcessor:
+        return cls._PROCESSORS['InternetProcessor']
+
+    @classmethod
+    @lru_cache
+    def output(cls) -> AIProcessor:
+        return cls._PROCESSORS['OutputProcessor']
+
+    @classmethod
+    @lru_cache
+    def summary(cls) -> AIProcessor:
+        return cls._PROCESSORS['SummaryProcessor']
+

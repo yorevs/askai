@@ -22,7 +22,8 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
-from askai.core.model.query_response import QueryResponse
+from askai.core.model.processor_response import ProcessorResponse
+from askai.core.model.query_types import QueryTypes
 from askai.core.processor.processor_base import AIProcessor
 from askai.core.support.shared_instances import shared
 
@@ -30,10 +31,14 @@ from askai.core.support.shared_instances import shared
 class OutputProcessor(AIProcessor):
     """Process command output prompts."""
 
+    @staticmethod
+    def q_type() -> str:
+        return QueryTypes.OUTPUT_QUERY.value
+
     def __init__(self):
         self._template_file: str = "output-prompt"
         self._next_in_chain: AIProcessor | None = None
-        self._supports: List[str] = ['Command Output']
+        self._supports: List[str] = [self.q_type()]
 
     def supports(self, query_type: str) -> bool:
         return query_type in self._supports
@@ -41,11 +46,14 @@ class OutputProcessor(AIProcessor):
     def next_in_chain(self) -> Optional[str]:
         return self._next_in_chain
 
+    def bind(self, next_in_chain: AIProcessor):
+        self._next_in_chain = next_in_chain
+
     @lru_cache
     def template(self) -> str:
         return prompt.read_prompt(self._template_file)
 
-    def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
+    def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
         commands = "; ".join([c.cmd_line for c in query_response.commands])
         template = PromptTemplate(input_variables=["command_line", "shell"], template=self.template())

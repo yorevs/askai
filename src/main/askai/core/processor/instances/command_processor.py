@@ -28,9 +28,10 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
-from askai.core.model.query_response import QueryResponse
+from askai.core.model.processor_response import ProcessorResponse
+from askai.core.model.query_types import QueryTypes
 from askai.core.model.terminal_command import TerminalCommand
-from askai.core.processor.instances.output_processor import OutputProcessor
+from askai.core.processor.processor_base import AIProcessor
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_command, extract_path
 
@@ -39,21 +40,26 @@ class CommandProcessor:
     """Process command request prompts."""
 
     @staticmethod
-    def _wrap_output(query_response: QueryResponse, cmd_line: str, cmd_out: str) -> str:
+    def _wrap_output(query_response: ProcessorResponse, cmd_line: str, cmd_out: str) -> str:
         """Wrap the output into a new string to be forwarded to the next processor.
         :param query_response: The query response provided by the AI.
         :param cmd_line: The command line that was executed by this processor.
         """
-        query_response.query_type = 'Command Output'
+        query_response.query_type = QueryTypes.OUTPUT_QUERY.value
         query_response.require_summarization = False
         query_response.require_internet = False
         query_response.commands.append(TerminalCommand(cmd_line, cmd_out, prompt.os_type, prompt.shell))
+
         return str(query_response)
+
+    @staticmethod
+    def q_type() -> str:
+        return QueryTypes.COMMAND_QUERY.value
 
     def __init__(self):
         self._template_file: str = "command-prompt"
-        self._next_in_chain: str = OutputProcessor.__name__
-        self._supports: List[str] = ["Command execution"]
+        self._next_in_chain: AIProcessor | None = None
+        self._supports: List[str] = [self.q_type()]
 
     def supports(self, query_type: str) -> bool:
         return query_type in self._supports
@@ -61,11 +67,14 @@ class CommandProcessor:
     def next_in_chain(self) -> Optional[str]:
         return self._next_in_chain
 
+    def bind(self, next_in_chain: AIProcessor):
+        pass
+
     @lru_cache
     def template(self) -> str:
         return prompt.read_prompt(self._template_file)
 
-    def process(self, query_response: QueryResponse) -> Tuple[bool, Optional[str]]:
+    def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
         template = PromptTemplate(input_variables=["os_type", "shell"], template=self.template())
         final_prompt: str = template.format(os_type=prompt.os_type, shell=prompt.shell)
@@ -89,7 +98,7 @@ class CommandProcessor:
 
         return status, output
 
-    def _process_command(self, query_response: QueryResponse, cmd_line: str) -> Tuple[bool, Optional[str]]:
+    def _process_command(self, query_response: ProcessorResponse, cmd_line: str) -> Tuple[bool, Optional[str]]:
         """Process a terminal command.
         :param query_response: The response for the query asked by the user.
         :param cmd_line: The command line to execute.

@@ -6,12 +6,12 @@
 """Package initialization."""
 
 __all__ = [
-    'ai_model', 
-    'ai_reply', 
-    'chat_context', 
-    'query_response', 
-    'search_result', 
-    'summary_result', 
+    'ai_model',
+    'ai_reply',
+    'chat_context',
+    'processor_response.py',
+    'search_result',
+    'summary_result',
     'terminal_command'
 ]
 __version__ = '1.0.1'

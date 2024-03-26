@@ -24,7 +24,7 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
-from askai.core.model.query_response import QueryResponse
+from askai.core.model.processor_response import ProcessorResponse
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 
@@ -41,7 +41,7 @@ class ProcessorProxy(metaclass=Singleton):
     def template(self) -> str:
         return prompt.read_prompt("proxy-prompt")
 
-    def process(self, question: str) -> Tuple[bool, QueryResponse]:
+    def process(self, question: str) -> Tuple[bool, ProcessorResponse]:
         """Return the setup prompt.
         :param question: The question to the AI engine.
         """
@@ -50,19 +50,19 @@ class ProcessorProxy(metaclass=Singleton):
         final_prompt = msg.translate(template.format())
         shared.context.set("SETUP", final_prompt)
         shared.context.set("QUESTION", f"\n\nQuestion: {question}\n\nHelpful Answer:")
-        context: ContextRaw = shared.context.join("SETUP", "CONTEXT", "QUESTION")
+        context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
         log.info("Ask::[QUESTION] '%s'  context=%s", question, context)
 
         if (response := shared.engine.ask(context, *Temperatures.ZERO.value)) and response.is_success:
             log.info("Ask::[PROXY] Received from AI: %s.", str(response))
-            output = object_mapper.of_json(response.message, QueryResponse)
-            if not isinstance(output, QueryResponse):
+            output = object_mapper.of_json(response.message, ProcessorResponse)
+            if not isinstance(output, ProcessorResponse):
                 log.error(msg.invalid_response(output))
                 output = response.message
             else:
                 status = True
         else:
-            output = QueryResponse(question=question, terminating=True, response=response.message)
+            output = ProcessorResponse(question=question, terminating=True, response=response.message)
 
         return status, output
 
