@@ -164,7 +164,7 @@ class Language(Enumeration):
         self._language, self._territory = lang[0], lang[1]
 
     def __str__(self):
-        return f"'{self.name}' / '{self.country}'  Encoding: '{self.encoding}'"
+        return f"{self.name} - '{self.country}'  encoding: '{self.encoding}'"
 
     @property
     def locale(self) -> tuple:

@@ -18,7 +18,6 @@ import os
 import re
 from os.path import basename, dirname
 from pathlib import Path
-from textwrap import dedent
 from typing import Any, Optional, Tuple
 
 import pause
@@ -28,45 +27,10 @@ from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.cli.vt100.vt_color import VtColor
-from rich.console import Console
-from rich.markdown import Markdown
 
 from askai.core.support.presets import Presets
+from askai.core.support.text_formatter import text_formatter
 from askai.language.language import Language
-
-CHAT_ICONS = {
-    '': '\n  Error: ',
-    '': '\n\n  Hints & Tips: ',
-    '': '\n\n  Analysis: ',
-    '': '\n\n  Summary: ',
-    '': '\n\n  Joke: ',
-    '': '\n\n  Fun-Fact: ',
-    '': '\n\n  Advice: ',
-}
-
-
-def beautify(text: Any) -> str:
-    """Beautify the provided text with icons and other formatting improvements.
-    :param text: The text to be beautified.
-    """
-    # fmt: off
-    re_url = (
-        r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|'
-        r'www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))'
-        r'[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})')
-    text = dedent(str(text))
-    text = re.sub(r"Errors?[-:\s][ \n\t]+", CHAT_ICONS[''], text)
-    text = re.sub(r"[Hh]ints?( and tips)?[-:\s][ \n\t]+", CHAT_ICONS[''], text)
-    text = re.sub(r"[Aa]nalysis[-:\s][ \n\t]+", CHAT_ICONS[''], text)
-    text = re.sub(r"[Ss]ummary[-:\s][ \n\t]+", CHAT_ICONS[''], text)
-    text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s][ \n\t]+", CHAT_ICONS[''], text)
-    text = re.sub(r"[Ff]un [Ff]acts?[-:\s][ \n\t]+", CHAT_ICONS[''], text)
-    text = re.sub(r"[Aa]dvice[-:\s][ \n\t]+", CHAT_ICONS[''], text)
-    # Format links
-    text = re.sub(re_url, r' \1', text)
-    # fmt: on
-
-    return text.strip()
 
 
 def display_text(
@@ -83,12 +47,10 @@ def display_text(
     """
     if erase_last:
         Cursor.INSTANCE.erase_line()
-    sysout(f"{str(prefix)}", end="")
     if markdown:
-        console = Console(force_terminal=False, no_color=True)
-        console.print(Markdown(beautify(text)))
+        text_formatter.display_markdown(f"{str(prefix)}{text}")
     else:
-        sysout(beautify(text))
+        text_formatter.display_text(f"{str(prefix)}{text}")
 
 
 def stream_text(
@@ -104,7 +66,7 @@ def stream_text(
     :param tempo: the speed multiplier of the typewriter effect. Defaults to 1.
     :param language: the language used to stream the text. Defaults to en_US.
     """
-    text: str = beautify(text)
+    text: str = text_formatter.beautify(text)
     presets: Presets = Presets.get(language.language, tempo=tempo)
     word_count: int = 0
     ln: str = os.linesep
@@ -226,6 +188,10 @@ if __name__ == '__main__':
 
     Or json block
 
+    Error: This should be red
+    Advice: This should be orange
+    Hint: This should be blue
+
     ```json
     {
       "status": "success",
@@ -246,5 +212,7 @@ if __name__ == '__main__':
     ```
 
     ## you can find the code at https://github.com/yorevs
+
+    ### Emailto: yorevs@example.com
     """
     display_text(s)

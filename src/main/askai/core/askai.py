@@ -130,7 +130,7 @@ class AskAi:
         if self.is_speak:
             self.engine.text_to_speech(message, f"{shared.nickname}: ")
         else:
-            display_text(f"%GREEN%{message}%NC%", f"{shared.nickname}: ")
+            display_text(message, f"{shared.nickname}: ")
 
     def reply_error(self, message: str) -> None:
         """Reply API or system errors.

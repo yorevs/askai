@@ -10,8 +10,8 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 4. Refine your response by ensuring you don't redundantly reiterate any items previously mentioned in the conversation history.
 
-5. When the output includes a list, limit showing 5 items and append a summary (Example: \nTotal files:33, Omitted:5\n). Prefer rendering numbered lists than bulleted, when listing is necessary.
+5. Start your response with the phrase: "Analysing the provided data\n"
 
-6. Start your response with the phrase: Analysing the provided data\n
+6. When the output includes a list, limit showing 5 items and append to the end of it a summary (Example: \n`Total files: 33, Omitted: 5`\n). Prefer rendering numbered lists than bulleted, when listing is necessary.
 
 7. Wrap up your reply by offering a summarized analysis about the content; prefix with: 'Analysis:'.
