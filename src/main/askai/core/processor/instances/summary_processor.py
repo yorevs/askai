@@ -107,22 +107,15 @@ class SummaryProcessor:
     def _qna(self) -> str:
         """Questions and Answers about the summarized content."""
         display_text(
-            f"%CYAN%{'-=' * 40}%EOL%"
-            f" {msg.enter_qna()} %EOL%"
-            f" {summarizer.sum_path} %EOL%"
-            f"{msg.press_esc_enter()} %EOL%"
-            f"{'-=' * 40}%NC%",
-            markdown=False
+            f"# {msg.enter_qna()} %EOL%"
+            f"> Content:  {summarizer.sum_path} %EOL%%EOL%"
+            f"`{msg.press_esc_enter()}` %EOL%"
         )
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.qna_welcome())
-        while question := shared.input_text(f"{shared.username}: %CYAN%"):
+        while question := shared.input_text(f"{shared.username}: %GREEN%"):
             if not (output := self._ask_and_reply(question)):
                 break
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"%CYAN%{output}%NC%")
-        display_text(
-            f"%CYAN%{'-=' * 40}%EOL%"
-            f" {msg.leave_qna()}%EOL%"
-            f"{'-=' * 40}%NC%",
-            markdown=False
-        )
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"%GREEN%{output}%NC%")
+        display_text(f"# {msg.leave_qna()} %EOL%")
+
         return msg.welcome_back()

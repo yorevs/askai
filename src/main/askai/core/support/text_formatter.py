@@ -1,15 +1,14 @@
 import re
-from random import randint
 from textwrap import dedent
 from typing import Any
 
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.commons import sysout
+from hspylib.core.tools.dict_tools import get_or_default
 from hspylib.modules.cli.vt100.vt_code import VtCode
 from hspylib.modules.cli.vt100.vt_color import VtColor
 from rich.console import Console
-from rich.highlighter import RegexHighlighter, Highlighter
 from rich.markdown import Markdown
+from rich.text import Text
 
 
 class TextFormatter(metaclass=Singleton):
@@ -28,7 +27,7 @@ class TextFormatter(metaclass=Singleton):
     }
 
     def __init__(self):
-        self._console: Console = Console(soft_wrap=True)
+        self._console: Console = Console(emoji=True, soft_wrap=True, markup=True)
 
     @property
     def console(self) -> Console:
@@ -52,33 +51,23 @@ class TextFormatter(metaclass=Singleton):
         text = re.sub(r"[Ff]un [Ff]acts?[-:\s]\s+", self.CHAT_ICONS[''], text)
         text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s]\s+", self.CHAT_ICONS[''], text)
         text = re.sub(r"[Aa]dvice[-:\s]\s+", self.CHAT_ICONS[''], text)
-        mat = re.search(r"%\w+%", text)
-        fg = mat.group() if mat else ''
-        text = re.sub(re_url, r' \1', text)
+        fg = get_or_default(re.findall(r"%\w+%", text), 0, '%NC%')
+        text = re.sub(re_url, r'%CYAN% \1' + fg, text)
+        text = re.sub(r'(`{3}.+`{3})', r'\n\1\n', text)
         # fmt: on
 
         return text.strip()
 
     def display_markdown(self, text: str) -> None:
         colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text)))
-        self.console.print(Markdown(colorized), highlight=True)
+        self.console.print(Markdown(colorized))
 
     def display_text(self, text: str) -> None:
-        sysout(self.beautify(text))
+        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text)))
+        self.console.print(Text.from_ansi(colorized))
 
 
 assert (text_formatter := TextFormatter().INSTANCE) is not None
-
-
-class RainbowHighlighter(Highlighter):
-    def highlight(self, text):
-        for index in range(len(text)):
-            text.stylize(f"color({randint(16, 255)})", index, index + 1)
-
-
-class Highlighter(RegexHighlighter):
-    base_style = "help."
-    highlights = [r"(?P<cmd>!help\b)", r"(?P<cmd2>\'|\"[\w]+\"|\')"]
 
 
 if __name__ == '__main__':
@@ -89,8 +78,18 @@ if __name__ == '__main__':
     Joke: This should be magenta
     Analysis: This should be yellow
 
-    This is not OK because it has failed to be a success!
+    # H1
+    ## H2
+    ### H3
+    #### H4
+    ##### H5
 
-    For more details access: https://askai.github.io/askai Enjoy!
+    `This is not OK because it has failed to be a success!`
+
+    ```bash
+    $ ls -lht ~/Downloads
+    ```
+
+    For more details access: https://askai.github.io/askai. Enjoy!
     """)
     text_formatter.display_markdown(s)

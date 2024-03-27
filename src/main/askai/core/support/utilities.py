@@ -74,7 +74,7 @@ def stream_text(
     idx: int = 0
 
     # The following algorithm was created based on the whisper voice.
-    sysout(f"{str(prefix)}%GREEN%", end="")
+    sysout(f"{str(prefix)}", end="")
     for i, char in enumerate(text):
         if char == "%" and (i + 1) < len(text):
             try:
@@ -213,6 +213,8 @@ if __name__ == '__main__':
 
     ## you can find the code at https://github.com/yorevs
 
+    :poop: POOOP
+
     ### Emailto: yorevs@example.com
     """
-    display_text(s)
+    display_text(s, markdown=False)

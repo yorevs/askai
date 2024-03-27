@@ -23,7 +23,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def welcome(self, username: str) -> str:
-        return self.translate(f"Hello {username.title()}, How can I assist you today ?")
+        return self.translate(f"  Welcome back {username.title()}, How can I assist you today ?")
 
     @lru_cache
     def wait(self) -> str:
@@ -43,7 +43,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def goodbye(self) -> str:
-        return self.translate("Goodbye, have a nice day !")
+        return self.translate("  Goodbye, have a nice day !")
 
     @lru_cache
     def executing(self, cmd_line: str) -> str:
@@ -63,11 +63,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def enter_qna(self) -> str:
-        return self.translate("You have entered the Summarization Q & A")
+        return self.translate(" You have entered the Summarization Q & A")
 
     @lru_cache
     def leave_qna(self) -> str:
-        return self.translate("You have left the Summarization Q & A")
+        return self.translate(" You have left the Summarization Q & A")
 
     @lru_cache
     def qna_welcome(self) -> str:

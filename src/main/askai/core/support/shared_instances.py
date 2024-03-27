@@ -42,11 +42,11 @@ class SharedInstances(metaclass=Singleton):
 
     @property
     def nickname(self) -> str:
-        return f"  {self.engine.nickname()}"
+        return f"%GREEN%  {self.engine.nickname()}%NC%"
 
     @property
     def username(self) -> str:
-        return f"  {prompt.user.title()}"
+        return f"%WHITE%  {prompt.user.title()}%NC%"
 
     def create_engine(self, engine_name: str, model_name: str) -> AIEngine:
         """TODO"""
