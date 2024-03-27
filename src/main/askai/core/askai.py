@@ -186,7 +186,7 @@ class AskAi:
     def _prompt(self) -> None:
         """Prompt for user interaction."""
         while query := shared.input_text(f"{shared.username}: "):
-        
+
             if not self._ask_and_reply(query):
                 query = None
                 break
@@ -222,16 +222,12 @@ class AskAi:
         elif proxy_response.terminating:
             log.info("User wants to terminate the conversation.")
             return False
-        elif proxy_response.require_internet:
-            log.info("Internet is required to fulfill the request.")
-            processor = ProcessorFactory.internet()
-            processor.bind(ProcessorFactory.generic())
         elif proxy_response.require_summarization:
             log.info("Summarization is required to fulfill the request.")
             processor = ProcessorFactory.summary()
             processor.bind(ProcessorFactory.generic())
         # Query processors
-        if processor or (query_type := proxy_response.query_type or 'General'):
+        if processor or (query_type := proxy_response.query_type or 'AnalysisQuery'):
             if not processor and not (processor := ProcessorFactory.find_processor(query_type)):
                 log.error(f"Unable to find a proper processor: {str(proxy_response)}")
                 self.reply_error(msg.no_processor(query_type))

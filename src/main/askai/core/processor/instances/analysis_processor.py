@@ -38,7 +38,8 @@ class AnalysisProcessor:
         """
         query_response.query_type = QueryType.GENERIC_QUERY.value
         query_response.require_summarization = False
-        query_response.require_internet = False
+        query_response.forwarded = True
+        query_response.commands.clear()
 
         return str(query_response)
 
@@ -75,7 +76,7 @@ class AnalysisProcessor:
 
         if (response := shared.engine.ask(context, *Temperatures.CODE_GENERATION.value)) and response.is_success:
             log.debug("Analysis::[RESPONSE] Received from AI: %s.", response)
-            if response.message and msg.translate("%I don't know.%") not in (output := response.message):
+            if response.message and shared.UNCERTAIN_ID != (output := response.message):
                 shared.context.push("CONTEXT", query_response.question)
                 shared.context.push("CONTEXT", output, "assistant")
             else:
@@ -83,11 +84,7 @@ class AnalysisProcessor:
                 output = self._wrap_output(query_response)
             status = True
         else:
-            log.error(
-                f"Analysis processing failed. CONTEXT=%s  RESPONSE=%s",
-                context,
-                response,
-            )
+            log.error(f"Analysis processing failed. CONTEXT=%s  RESPONSE=%s", context, response)
             output = msg.llm_error(response.message)
 
         return status, output

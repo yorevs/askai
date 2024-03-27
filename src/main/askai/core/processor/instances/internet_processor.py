@@ -36,8 +36,6 @@ from askai.core.support.shared_instances import shared
 class InternetProcessor:
     """Process generic prompts."""
 
-    DATE_FMT: str = "%a %d %b %-H:%M %Y"  # E.g:. Fri 22 Mar 19:47 2024
-
     @staticmethod
     def q_type() -> str:
         return QueryType.INTERNET_QUERY.value

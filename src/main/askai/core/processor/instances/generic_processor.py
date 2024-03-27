@@ -16,6 +16,7 @@ import logging as log
 from functools import lru_cache
 from typing import Optional, Tuple, List
 
+from hspylib.core.zoned_datetime import now
 from langchain_core.prompts import PromptTemplate
 
 from askai.core.askai_messages import msg
@@ -31,6 +32,18 @@ from askai.core.support.shared_instances import shared
 
 class GenericProcessor:
     """Process generic prompts."""
+
+    @staticmethod
+    def _wrap_output(query_response: ProcessorResponse) -> str:
+        """Wrap the output into a new string to be forwarded to the next processor.
+        :param query_response: The query response provided by the AI.
+        """
+        query_response.query_type = QueryType.INTERNET_QUERY.value
+        query_response.require_summarization = False
+        query_response.forwarded = True
+        query_response.commands.clear()
+
+        return str(query_response)
 
     @staticmethod
     def q_type() -> str:
@@ -56,20 +69,26 @@ class GenericProcessor:
 
     def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        template = PromptTemplate(input_variables=["user"], template=self.template())
-        final_prompt: str = msg.translate(template.format(user=prompt.user))
+        template = PromptTemplate(input_variables=["user", "cur_date"], template=self.template())
+        final_prompt: str = msg.translate(template.format(user=prompt.user, cur_date=now(shared.DATE_FMT)))
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
         context: ContextRaw = shared.context.join("GENERAL", "SETUP", "QUESTION")
         log.info("Setup::[GENERIC] '%s'  context=%s", query_response.question, context)
 
         if (response := shared.engine.ask(context, *Temperatures.CREATIVE_WRITING.value)) and response.is_success:
-            output = response.message
-            shared.context.push("GENERAL", output, "assistant")
-            cache.save_reply(query_response.question, output)
-            cache.save_query_history()
+            log.debug("General::[RESPONSE] Received from AI: %s.", response)
+            if response.message and shared.INTERNET_ID != (output := response.message):
+                shared.context.push("GENERAL", query_response.question)
+                shared.context.push("GENERAL", output, "assistant")
+                cache.save_reply(query_response.question, output)
+                cache.save_query_history()
+            else:
+                self._next_in_chain = QueryType.GENERIC_QUERY.proc_name
+                output = self._wrap_output(query_response)
             status = True
         else:
+            log.error(f"General processing failed. CONTEXT=%s  RESPONSE=%s", context, response)
             output = msg.llm_error(response.message)
 
         return status, output

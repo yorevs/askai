@@ -47,7 +47,7 @@ class CommandProcessor:
         """
         query_response.query_type = QueryType.OUTPUT_QUERY.value
         query_response.require_summarization = False
-        query_response.require_internet = False
+        query_response.forwarded = True
         query_response.commands.append(TerminalCommand(cmd_line, cmd_out, prompt.os_type, prompt.shell))
 
         return str(query_response)

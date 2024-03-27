@@ -1,6 +1,6 @@
 Questions:
 
-1. summarize my markdown files at my HomeSetup docs folder.
-2. what is the weather like today in belo horizonte?
-3. when is the next Flamengo game?
-4. Who is the current Brazil president?
+1. Summarize my markdown files at my HomeSetup docs folder.
+2. What are the current weather conditions in Belo Horizonte, Brazil today?
+3. When is the upcoming Los Angeles Lakers match?
+4. Who currently holds the office of President of the United States?
