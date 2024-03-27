@@ -12,10 +12,12 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+from typing import Any, List, Optional, Protocol
+
+from langchain_core.language_models import BaseChatModel, BaseLLM
+
 from askai.core.model.ai_model import AIModel
 from askai.core.model.ai_reply import AIReply
-from langchain_core.language_models import BaseChatModel, BaseLLM
-from typing import Any, List, Optional, Protocol
 
 
 class AIEngine(Protocol):
@@ -66,7 +68,7 @@ class AIEngine(Protocol):
         """
         ...
 
-    def text_to_speech(self, prefix: str, text: str) -> None:
+    def text_to_speech(self, text: str, prefix: str = '') -> None:
         """Text-T0-Speech the provided text.
         :param text: The text to speech.
         :param prefix: The prefix of the streamed text.

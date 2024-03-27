@@ -41,3 +41,4 @@ package: chromadb, version: 0.4.24, mode: eq
 package: opentelemetry-api, version: 1.22.0, mode: eq
 package: opentelemetry-sdk, version: 1.22.0, mode: eq
 package: opentelemetry-proto, version: 1.22.0, mode: eq
+package: rich, version: 13.7.1, mode: eq

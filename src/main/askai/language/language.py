@@ -1,9 +1,9 @@
+import re
+from typing import Tuple
+
 from hspylib.core.enums.charset import Charset
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.tools.dict_tools import get_or_default
-from typing import Tuple
-
-import re
 
 
 class Language(Enumeration):
@@ -164,7 +164,7 @@ class Language(Enumeration):
         self._language, self._territory = lang[0], lang[1]
 
     def __str__(self):
-        return f"Language(Name='{self.name}'  Country='{self.country}'  Encoding='{self.encoding}')"
+        return f"'{self.name}' / '{self.country}'  Encoding: '{self.encoding}'"
 
     @property
     def locale(self) -> tuple:

@@ -108,10 +108,11 @@ class SummaryProcessor:
         """Questions and Answers about the summarized content."""
         display_text(
             f"%CYAN%{'-=' * 40}%EOL%"
-            f"{msg.enter_qna()}%EOL%"
-            f"Content: {summarizer.sum_path}%EOL%"
-            "Press [Esc or Enter] to leave QnA.%EOL%"
-            f"{'-=' * 40}%NC%"
+            f" {msg.enter_qna()} %EOL%"
+            f" {summarizer.sum_path} %EOL%"
+            f"{msg.press_esc_enter()} %EOL%"
+            f"{'-=' * 40}%NC%",
+            markdown=False
         )
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.qna_welcome())
         while question := shared.input_text(f"{shared.username}: %CYAN%"):
@@ -120,7 +121,8 @@ class SummaryProcessor:
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"%CYAN%{output}%NC%")
         display_text(
             f"%CYAN%{'-=' * 40}%EOL%"
-            f"{msg.leave_qna()}%EOL%"
-            f"{'-=' * 40}%NC%"
+            f" {msg.leave_qna()}%EOL%"
+            f"{'-=' * 40}%NC%",
+            markdown=False
         )
         return msg.welcome_back()

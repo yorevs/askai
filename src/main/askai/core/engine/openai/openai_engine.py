@@ -13,37 +13,40 @@
    Copyright·(c)·2024,·HSPyLib
 """
 
-from askai.core.component.audio_player import AudioPlayer
-from askai.core.component.cache_service import CacheService
-from askai.core.component.recorder import Recorder
-from askai.core.engine.ai_engine import AIEngine
-from askai.core.engine.openai.openai_configs import OpenAiConfigs
-from askai.core.engine.openai.openai_model import OpenAIModel
-from askai.core.model.ai_model import AIModel
-from askai.core.model.ai_reply import AIReply
-from askai.core.support.utilities import display_text, stream_text
-from hspylib.core.preconditions import check_not_none
-from langchain_core.embeddings import Embeddings
-from langchain_core.language_models import BaseChatModel, BaseLLM
-from openai import APIError, OpenAI
+import logging as log
+import os
 from threading import Thread
 from typing import List, Optional
 
 import langchain_openai
-import logging as log
-import os
 import pause
+from hspylib.core.preconditions import check_not_none
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models import BaseChatModel, BaseLLM
+from openai import APIError, OpenAI
+
+from askai.core.component.audio_player import AudioPlayer
+from askai.core.component.cache_service import CacheService
+from askai.core.component.recorder import Recorder
+from askai.core.engine.openai.openai_configs import OpenAiConfigs
+from askai.core.engine.openai.openai_model import OpenAIModel
+from askai.core.model.ai_model import AIModel
+from askai.core.model.ai_reply import AIReply
+from askai.core.support.utilities import stream_text
 
 
-class OpenAIEngine(AIEngine):
+class OpenAIEngine:
     """Provide a base class for OpenAI features. Implements the prototype AIEngine."""
 
     def __init__(self, model: AIModel = OpenAIModel.GPT_3_5_TURBO):
         super().__init__()
-        self._model = model
+        self._model: AIModel = model
         self._configs: OpenAiConfigs = OpenAiConfigs.INSTANCE
         self._api_key: str = os.environ.get("OPENAI_API_KEY")
         self._client = OpenAI(api_key=self._api_key)
+
+    def __str__(self):
+        return f"{self.ai_name()} - '{self.nickname()}'  model: '{self._model}'"
 
     @property
     def url(self) -> str:
@@ -63,7 +66,7 @@ class OpenAIEngine(AIEngine):
 
     def lc_embeddings(self) -> Embeddings:
         """Create a LangChain AI embeddings instance."""
-        return langchain_openai.OpenAIEmbeddings()
+        return langchain_openai.OpenAIEmbeddings(openai_api_key=self._api_key)
 
     def ai_name(self) -> str:
         """Get the AI model name."""
@@ -88,8 +91,8 @@ class OpenAIEngine(AIEngine):
     def ask(self, chat_context: List[dict], temperature: float = 0.8, top_p: float = 0.0) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
         :param chat_context: The chat history or context.
-        :param temperature: TODO
-        :param top_p: TODO
+        :param temperature: The model engine temperature.
+        :param top_p: The model engine top_p.
         """
         try:
             check_not_none(chat_context)
@@ -105,7 +108,7 @@ class OpenAIEngine(AIEngine):
 
         return reply
 
-    def text_to_speech(self, prefix: str, text: str) -> None:
+    def text_to_speech(self, text: str, prefix: str = '') -> None:
         """Text-T0-Speech the provided text.
         :param text: The text to speech.
         :param prefix: The prefix of the streamed text.
@@ -128,8 +131,7 @@ class OpenAIEngine(AIEngine):
         )
         speak_thread.start()
         pause.seconds(AudioPlayer.INSTANCE.start_delay())
-        display_text(prefix, end="")
-        stream_text(text.strip())
+        stream_text(text, prefix)
         speak_thread.join()  # Block until the speech has finished.
 
     def speech_to_text(self) -> Optional[str]:

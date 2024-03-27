@@ -71,7 +71,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def qna_welcome(self) -> str:
-        return self.translate("What do you wnat to know about the content ?")
+        return self.translate("What do you what to know about the content ?")
+
+    @lru_cache
+    def press_esc_enter(self) -> str:
+        return self.translate('Press [Esc or Enter] to leave.')
 
     # Warnings and alerts
 

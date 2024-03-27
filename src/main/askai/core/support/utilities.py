@@ -18,6 +18,7 @@ import os
 import re
 from os.path import basename, dirname
 from pathlib import Path
+from textwrap import dedent
 from typing import Any, Optional, Tuple
 
 import pause
@@ -27,18 +28,20 @@ from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.cli.vt100.vt_color import VtColor
+from rich.console import Console
+from rich.markdown import Markdown
 
 from askai.core.support.presets import Presets
 from askai.language.language import Language
 
 CHAT_ICONS = {
-    '': '\n%RED%  Error: ',
-    '': '\n\n%BLUE%  Hints & Tips: ',
-    '': '\n\n%BLUE%  Analysis: ',
-    '': '\n\n%BLUE%  Summary: ',
-    '': '\n\n%YELLOW%  Joke: ',
-    '': '\n\n%YELLOW%  Fun-Fact: ',
-    '': '\n\n%ORANGE%  Advice: ',
+    '': '\n  Error: ',
+    '': '\n\n  Hints & Tips: ',
+    '': '\n\n  Analysis: ',
+    '': '\n\n  Summary: ',
+    '': '\n\n  Joke: ',
+    '': '\n\n  Fun-Fact: ',
+    '': '\n\n  Advice: ',
 }
 
 
@@ -51,7 +54,7 @@ def beautify(text: Any) -> str:
         r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|'
         r'www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))'
         r'[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})')
-    text = str(text)
+    text = dedent(str(text))
     text = re.sub(r"Errors?[-:\s][ \n\t]+", CHAT_ICONS[''], text)
     text = re.sub(r"[Hh]ints?( and tips)?[-:\s][ \n\t]+", CHAT_ICONS[''], text)
     text = re.sub(r"[Aa]nalysis[-:\s][ \n\t]+", CHAT_ICONS[''], text)
@@ -59,14 +62,108 @@ def beautify(text: Any) -> str:
     text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s][ \n\t]+", CHAT_ICONS[''], text)
     text = re.sub(r"[Ff]un [Ff]acts?[-:\s][ \n\t]+", CHAT_ICONS[''], text)
     text = re.sub(r"[Aa]dvice[-:\s][ \n\t]+", CHAT_ICONS[''], text)
-    text = re.sub(r"^\n+", '', text, re.MULTILINE)
-    text = re.sub(r"\n{2,}", '\n\n', text, re.MULTILINE)
-    mat = re.search(r"%\w+%", text)
-    fg = mat.group() if mat else ''
-    text = re.sub(re_url, r'%CYAN% \1' + fg, text)
+    # Format links
+    text = re.sub(re_url, r' \1', text)
     # fmt: on
 
-    return text
+    return text.strip()
+
+
+def display_text(
+    text: Any,
+    prefix: Any = '',
+    markdown: bool = True,
+    erase_last=False
+) -> None:
+    """Display the provided text ina proper way.
+    :param text: The text to be displayed.
+    :param prefix: the text prefix.
+    :param markdown: Whether to enable markdown rendering.
+    :param erase_last: Whether to erase the last displayed line.
+    """
+    if erase_last:
+        Cursor.INSTANCE.erase_line()
+    sysout(f"{str(prefix)}", end="")
+    if markdown:
+        console = Console(force_terminal=False, no_color=True)
+        console.print(Markdown(beautify(text)))
+    else:
+        sysout(beautify(text))
+
+
+def stream_text(
+    text: Any,
+    prefix: Any = '',
+    tempo: int = 1,
+    language: Language = Language.EN_US
+) -> None:
+    """Stream the text on the screen. Simulates a typewriter effect. The following presets were
+    benchmarked according to the selected language.
+    :param text: the text to stream.
+    :param prefix: the streaming prefix.
+    :param tempo: the speed multiplier of the typewriter effect. Defaults to 1.
+    :param language: the language used to stream the text. Defaults to en_US.
+    """
+    text: str = beautify(text)
+    presets: Presets = Presets.get(language.language, tempo=tempo)
+    word_count: int = 0
+    ln: str = os.linesep
+    hide: bool = False
+    idx: int = 0
+
+    # The following algorithm was created based on the whisper voice.
+    sysout(f"{str(prefix)}%GREEN%", end="")
+    for i, char in enumerate(text):
+        if char == "%" and (i + 1) < len(text):
+            try:
+                if (color := text[i + 1: text.index("%", i + 1)]) in VtColor.names():
+                    hide, idx = True, text.index("%", i + 1)
+                    sysout(f"%{color}%", end="")
+                    continue
+            except ValueError:
+                pass  # this means that this '%' is not a VtColor specification
+        if hide and idx is not None and i <= idx:
+            continue
+        sysout(char, end="")
+        if char.isalpha():
+            pause.seconds(presets.base_speed)
+        elif char.isnumeric():
+            pause.seconds(
+                presets.breath_interval if i + 1 < len(text) and text[i + 1] == "." else presets.number_interval
+            )
+        elif char.isspace():
+            if i - 1 >= 0 and not text[i - 1].isspace():
+                word_count += 1
+                pause.seconds(
+                    presets.breath_interval if word_count % presets.words_per_breath == 0 else presets.words_interval
+                )
+            elif i - 1 >= 0 and not text[i - 1] in [".", "?", "!"]:
+                word_count += 1
+                pause.seconds(
+                    presets.period_interval if word_count % presets.words_per_breath == 0 else presets.punct_interval
+                )
+        elif char == "/":
+            pause.seconds(
+                presets.base_speed if i + 1 < len(text) and text[i + 1].isnumeric() else presets.punct_interval
+            )
+        elif char == ln:
+            pause.seconds(
+                presets.period_interval if i + 1 < len(text) and text[i + 1] == ln else presets.punct_interval
+            )
+            word_count = 0
+        elif char in [":", "-"]:
+            pause.seconds(
+                presets.enum_interval
+                if i + 1 < len(text) and (text[i + 1].isnumeric() or text[i + 1] in [" ", ln, "-"])
+                else presets.base_speed
+            )
+        elif char in [",", ";"]:
+            pause.seconds(presets.comma_interval if i + 1 < len(text) and text[i + 1].isspace() else presets.base_speed)
+        elif char in [".", "?", "!", ln]:
+            pause.seconds(presets.punct_interval)
+            word_count = 0
+        pause.seconds(presets.base_speed)
+    sysout("%NC%")
 
 
 def read_resource(base_dir: str, filename: str, file_ext: str = ".txt") -> str:
@@ -115,82 +212,39 @@ def extract_command(markdown_text: str, flags: int = re.IGNORECASE | re.MULTILIN
     return None
 
 
-def display_text(text: Any, end: str = os.linesep, erase_last=False) -> None:
-    """Display the provided text ina proper way.
-    :param text: The text to be displayed.
-    :param end: String appended after the last value, default a newline.
-    :param erase_last: Whether to erase the last displayed line.
+if __name__ == '__main__':
+    s = """
+    # Hello my friends
+
+    > This is to demonstrate the power of the **markdown**.
+
+    Check this *italic* how beautiful it is.
+
+    Also, we can find a code block:
+
+    `# ls -la`
+
+    Or json block
+
+    ```json
+    {
+      "status": "success",
+      "country": "United States",
+      "countryCode": "US",
+      "region": "CA",
+      "regionName": "California",
+      "city": "San Francisco",
+      "zip": "94105",
+      "lat": 37.7852,
+      "lon": -122.3874,
+      "timezone": "America/Los_Angeles",
+      "isp": "Gap, Inc. Direct",
+      "org": "Level 3",
+      "as": "AS40526 Gap, Inc. Direct",
+      "query": "8.21.68.15"
+    }
+    ```
+
+    ## you can find the code at https://github.com/yorevs
     """
-    if erase_last:
-        Cursor.INSTANCE.erase_line()
-    text: str = beautify(text)
-    sysout(f"%EL0%{text}", end=end)
-
-
-def stream_text(text: Any, tempo: int = 1, language: Language = Language.EN_US) -> None:
-    """Stream the text on the screen. Simulates a typewriter effect. The following presets were
-    benchmarked according to the selected language.
-    :param text: the text to stream.
-    :param tempo: the speed multiplier of the typewriter effect. Defaults to 1.
-    :param language: the language used to stream the text. Defaults to en_US.
-    """
-    text: str = beautify(text)
-    presets: Presets = Presets.get(language.language, tempo=tempo)
-    word_count: int = 0
-    ln: str = os.linesep
-    hide: bool = False
-    idx: int = 0
-
-    # The following algorithm was created based on the whisper voice.
-    sysout("%GREEN%", end="")
-    for i, char in enumerate(text):
-        if char == "%" and (i + 1) < len(text):
-            try:
-                if (color := text[i + 1 : text.index("%", i + 1)]) in VtColor.names():
-                    hide, idx = True, text.index("%", i + 1)
-                    sysout(f"%{color}%", end="")
-                    continue
-            except ValueError:
-                pass  # this means that this '%' is not a VtColor specification
-        if hide and idx is not None and i <= idx:
-            continue
-        sysout(char, end="")
-        if char.isalpha():
-            pause.seconds(presets.base_speed)
-        elif char.isnumeric():
-            pause.seconds(
-                presets.breath_interval if i + 1 < len(text) and text[i + 1] == "." else presets.number_interval
-            )
-        elif char.isspace():
-            if i - 1 >= 0 and not text[i - 1].isspace():
-                word_count += 1
-                pause.seconds(
-                    presets.breath_interval if word_count % presets.words_per_breath == 0 else presets.words_interval
-                )
-            elif i - 1 >= 0 and not text[i - 1] in [".", "?", "!"]:
-                word_count += 1
-                pause.seconds(
-                    presets.period_interval if word_count % presets.words_per_breath == 0 else presets.punct_interval
-                )
-        elif char == "/":
-            pause.seconds(
-                presets.base_speed if i + 1 < len(text) and text[i + 1].isnumeric() else presets.punct_interval
-            )
-        elif char == ln:
-            pause.seconds(
-                presets.period_interval if i + 1 < len(text) and text[i + 1] == ln else presets.punct_interval
-            )
-            word_count = 0
-        elif char in [":", "-"]:
-            pause.seconds(
-                presets.enum_interval
-                if i + 1 < len(text) and (text[i + 1].isnumeric() or text[i + 1] in [" ", ln, "-"])
-                else presets.base_speed
-            )
-        elif char in [",", ";"]:
-            pause.seconds(presets.comma_interval if i + 1 < len(text) and text[i + 1].isspace() else presets.base_speed)
-        elif char in [".", "?", "!", ln]:
-            pause.seconds(presets.punct_interval)
-            word_count = 0
-        pause.seconds(presets.base_speed)
-    sysout("%NC%")
+    display_text(s)

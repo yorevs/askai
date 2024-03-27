@@ -70,19 +70,15 @@ class AskAi:
         configs.tempo = tempo
 
     def __str__(self) -> str:
-        device_info = (" using " + recorder.input_device[1]) if recorder.input_device else ""
+        device_info = f' using {recorder.input_device[1]} on tempo: {configs.tempo}' if recorder.input_device else ""
         return (
             f"%GREEN%"
             f"{'-=' * 40} %EOL%"
-            f"     Engine: {self.engine.ai_name()} %EOL%"
-            f"      Model: {self.engine.ai_model_name()} - {self.engine.ai_token_limit()}k tokens %EOL%"
-            f"   Nickname: {self.engine.nickname()} %EOL%"
+            f"     Engine: {self.engine} %EOL%"
             f"   Language: {configs.language} %EOL%"
             f"{'--' * 40} %EOL%"
-            f"Interactive: ON %EOL%"
-            f"   Speaking: {'ON' if self.is_speak else 'OFF'}{device_info} %EOL%"
-            f"    Caching: {'ON' if cache.is_cache_enabled() else 'OFF'} %EOL%"
-            f"      Tempo: {configs.tempo} %EOL%"
+            f"   Speaking: {'%BLUE%ON' if self.is_speak else '%RED%Disabled'}%GREEN%{device_info} %EOL%"
+            f"    Caching: {'%BLUE%ON' if cache.is_cache_enabled() else '%RED%Disabled'}%GREEN% %EOL%"
             f"{'--' * 40} %EOL%%NC%"
         )
 
@@ -124,7 +120,7 @@ class AskAi:
             self._startup()
             self._prompt()
         elif self.query_string:
-            display_text(f"{shared.username}: {self.query_string}%EOL%")
+            display_text(self.query_string, f"{shared.nickname}: ")
             self._ask_and_reply(self.query_string)
 
     def reply(self, message: str) -> None:
@@ -132,9 +128,9 @@ class AskAi:
         :param message: The message to reply to the user.
         """
         if self.is_speak:
-            self.engine.text_to_speech(f"{shared.nickname}: ", message)
+            self.engine.text_to_speech(message, f"{shared.nickname}: ")
         else:
-            display_text(f"{shared.nickname}: %GREEN%{message}%NC%")
+            display_text(f"%GREEN%{message}%NC%", f"{shared.nickname}: ")
 
     def reply_error(self, message: str) -> None:
         """Reply API or system errors.
@@ -142,9 +138,9 @@ class AskAi:
         """
         log.error(message)
         if self.is_speak:
-            self.engine.text_to_speech(f"{shared.nickname}: ", message)
+            self.engine.text_to_speech(message, f"{shared.nickname}: ")
         else:
-            display_text(f"{shared.nickname}: %RED%{message}%NC%")
+            display_text(f"%RED%{message}%NC%", f"{shared.nickname}: ")
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events."""
@@ -183,7 +179,7 @@ class AskAi:
             player.start_delay()
         self._ready = True
         splash_thread.join()
-        display_text(self)
+        display_text(self, markdown=False)
         log.info("AskAI is ready to use!")
         self.reply(msg.welcome(os.getenv("USER", "you")))
 
@@ -195,7 +191,7 @@ class AskAi:
                 break
         if not query:
             self.reply(msg.goodbye())
-        display_text("")
+        sysout("", end="")
 
     def _ask_and_reply(self, question: str) -> bool:
         """Ask the question and provide the reply.

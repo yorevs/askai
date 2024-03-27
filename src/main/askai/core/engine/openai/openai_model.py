@@ -12,10 +12,12 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from askai.core.model.ai_model import AIModel
+from typing import List
+
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.preconditions import check_not_none
-from typing import List
+
+from askai.core.model.ai_model import AIModel
 
 
 class OpenAIModel(Enumeration):
@@ -55,6 +57,9 @@ class OpenAIModel(Enumeration):
     def __init__(self, model_name: str, token_limit: int):
         self._model_name = model_name
         self._token_limit = token_limit
+
+    def __str__(self):
+        return f"{self.model_name()}  {self.token_limit()}k tokens"
 
     def model_name(self) -> str:
         """Get the official model's name."""
