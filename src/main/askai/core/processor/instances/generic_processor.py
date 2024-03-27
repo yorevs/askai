@@ -16,7 +16,6 @@ import logging as log
 from functools import lru_cache
 from typing import Optional, Tuple, List
 
-from hspylib.core.zoned_datetime import now
 from langchain_core.prompts import PromptTemplate
 
 from askai.core.askai_messages import msg
@@ -69,8 +68,8 @@ class GenericProcessor:
 
     def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        template = PromptTemplate(input_variables=["user", "cur_date"], template=self.template())
-        final_prompt: str = msg.translate(template.format(user=prompt.user, cur_date=now(shared.DATE_FMT)))
+        template = PromptTemplate(input_variables=["user", "datetime"], template=self.template())
+        final_prompt: str = msg.translate(template.format(user=prompt.user, datetime=shared.now))
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
         context: ContextRaw = shared.context.join("GENERAL", "SETUP", "QUESTION")

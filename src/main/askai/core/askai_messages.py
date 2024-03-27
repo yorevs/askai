@@ -1,9 +1,11 @@
+from functools import lru_cache
+
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.modules.application.exit_status import ExitStatus
+
 from askai.core.askai_configs import configs
 from askai.language.argos_translator import ArgosTranslator
 from askai.language.language import Language
-from functools import lru_cache
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.modules.application.exit_status import ExitStatus
 
 
 class AskAiMessages(metaclass=Singleton):
@@ -46,8 +48,8 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate("  Goodbye, have a nice day !")
 
     @lru_cache
-    def executing(self, cmd_line: str) -> str:
-        return self.translate(f"Executing command `{cmd_line}', please wait…")
+    def executing(self) -> str:
+        return self.translate(f"Executing command, please wait…")
 
     @lru_cache
     def cmd_success(self, exit_code: ExitStatus) -> str:
@@ -55,7 +57,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def searching(self) -> str:
-        return self.translate("Searching on Google…")
+        return self.translate(f"Searching Google…")
 
     @lru_cache
     def summarizing(self, path: str) -> str:

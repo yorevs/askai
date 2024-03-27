@@ -33,4 +33,4 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 "WORKFLOW 2":
 
-1. Respond immediately to the user with the provided code: "bde6f44d-c1a0-4b0c-bd74-8278e468e50c". Do not include any additional information. This is the ultimate reply.
+1. Respond immediately to the user with the provided code: "bde6f44d-c1a0-4b0c-bd74-8278e468e50c". Do not include any additional information or  description, context. Do not try to make up an answer.

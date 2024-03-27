@@ -109,7 +109,7 @@ class CommandProcessor:
         try:
             if command and which(command):
                 cmd_line = expandvars(cmd_line.replace("~/", f"{os.getenv('HOME')}/").strip())
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.executing(cmd_line))
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.executing())
                 log.info("Executing command `%s'", cmd_line)
                 output, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
                 if exit_code == ExitStatus.SUCCESS:

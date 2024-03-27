@@ -1,6 +1,6 @@
 Questions:
 
 1. Summarize my markdown files at my HomeSetup docs folder.
-2. What are the current weather conditions in Belo Horizonte, Brazil today?
+2. What are the current weather conditions in San Francisco, U.S today?
 3. When is the upcoming Los Angeles Lakers match?
 4. Who currently holds the office of President of the United States?

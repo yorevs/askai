@@ -13,7 +13,7 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 2. Determine if you can craft your response using solely the information available in the conversation history.
 
-3. Determine if you can craft your response from your database. Remember that your training data includes information up to January 2022, and we are currently in {cur_date}.
+3. Determine if you can craft your response from your database. Remember that your training data includes information up to January 2022, and we are currently in: '{datetime}'.
 
 4. If you're certain of the accuracy of your response, proceed with all tasks outlined in "WORKFLOW 1".
 
@@ -39,4 +39,4 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 "WORKFLOW 2":
 
-1. Respond immediately to the user with the provided code: "e35057db-f690-4299-ad4d-147d6124184c". Do not include any additional information. This is the ultimate reply.
+1. Respond immediately to the user with the provided code: "e35057db-f690-4299-ad4d-147d6124184c". Do not include any additional information or  description, context. Do not try to make up an answer.

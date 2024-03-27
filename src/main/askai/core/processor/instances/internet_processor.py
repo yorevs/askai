@@ -16,7 +16,6 @@ import logging as log
 from functools import lru_cache
 from typing import Optional, Tuple, List
 
-from hspylib.core.zoned_datetime import now
 from langchain_core.prompts import PromptTemplate
 
 from askai.core.askai_messages import msg
@@ -60,8 +59,8 @@ class InternetProcessor:
 
     def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        template = PromptTemplate(input_variables=["cur_date"], template=self.template())
-        final_prompt: str = msg.translate(template.format(cur_date=now(self.DATE_FMT)))
+        template = PromptTemplate(input_variables=["locale", "datetime"], template=self.template())
+        final_prompt: str = msg.translate(template.format(locale=shared.idiom, datetime=shared.now))
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
         context: ContextRaw = shared.context.join("SETUP", "QUESTION")
@@ -74,10 +73,11 @@ class InternetProcessor:
                     log.error(msg.invalid_response(search))
                     output = response.message.strip()
                 else:
-                    query = " + ".join(search.keywords)
-                    if output := internet.search_google(query, *search.sites):
-                        shared.context.set("CONTEXT", output, "assistant")
+                    if output := internet.search_google(search):
+                        shared.context.push("GENERAL", query_response.question)
+                        shared.context.push("GENERAL", output, "assistant")
                         cache.save_reply(query_response.question, output)
+                        cache.save_query_history()
                     else:
                         output = msg.search_empty()
                 status = True

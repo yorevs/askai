@@ -4,8 +4,10 @@ from clitt.core.term.terminal import terminal
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_state
+from hspylib.core.zoned_datetime import now
 from hspylib.modules.cli.keyboard import Keyboard
 
+from askai.core.askai_configs import configs
 from askai.core.askai_prompt import prompt
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
@@ -30,6 +32,7 @@ class SharedInstances(metaclass=Singleton):
     def __init__(self) -> None:
         self._engine: Optional[AIEngine] = None
         self._context: Optional[ChatContext] = None
+        self._idiom: str = configs.language.idiom
 
     @property
     def engine(self) -> Optional[AIEngine]:
@@ -50,12 +53,20 @@ class SharedInstances(metaclass=Singleton):
         self._context = value
 
     @property
+    def idiom(self) -> str:
+        return self._idiom
+
+    @property
     def nickname(self) -> str:
         return f"%GREEN%  {self.engine.nickname()}%NC%"
 
     @property
     def username(self) -> str:
         return f"%WHITE%  {prompt.user.title()}%NC%"
+
+    @property
+    def now(self) -> str:
+        return now(self.DATE_FMT)
 
     def create_engine(self, engine_name: str, model_name: str) -> AIEngine:
         """TODO"""
