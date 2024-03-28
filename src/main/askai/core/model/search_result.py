@@ -25,6 +25,7 @@ class SearchResult:
     datetime: str = None
     keywords: List[str] = None
     sites: str | List[str] = None
+    filters: List[str] = None
     response: str = None
 
     def __str__(self):

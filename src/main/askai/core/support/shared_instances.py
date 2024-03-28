@@ -4,7 +4,6 @@ from clitt.core.term.terminal import terminal
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_state
-from hspylib.core.zoned_datetime import now
 from hspylib.modules.cli.keyboard import Keyboard
 
 from askai.core.askai_configs import configs
@@ -25,9 +24,6 @@ class SharedInstances(metaclass=Singleton):
 
     # This is the uuid used in prompts that require internet.
     INTERNET_ID: str = 'e35057db-f690-4299-ad4d-147d6124184c'
-
-    # Date format used in prompts, e.g: Fri 22 Mar 19:47 2024.
-    DATE_FMT: str = "%a %d %b %-H:%M %Y"
 
     def __init__(self) -> None:
         self._engine: Optional[AIEngine] = None
@@ -63,10 +59,6 @@ class SharedInstances(metaclass=Singleton):
     @property
     def username(self) -> str:
         return f"%WHITE%  {prompt.user.title()}%NC%"
-
-    @property
-    def now(self) -> str:
-        return now(self.DATE_FMT)
 
     def create_engine(self, engine_name: str, model_name: str) -> AIEngine:
         """TODO"""

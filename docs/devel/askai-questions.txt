@@ -1,6 +1,14 @@
 Questions:
 
+en_US
+
 1. Summarize my markdown files at my HomeSetup docs folder.
 2. What are the current weather conditions in San Francisco, U.S today?
 3. When is the upcoming Los Angeles Lakers match?
 4. Who currently holds the office of President of the United States?
+
+pt_BR
+
+1. Qual a previsao do tempo hoje para Belo Horizonte?
+2. Quem e o atual presidente do Brasil?
+3. Quem e Hugo Saporetti junior?

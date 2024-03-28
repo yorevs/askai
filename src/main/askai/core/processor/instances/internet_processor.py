@@ -21,6 +21,7 @@ from langchain_core.prompts import PromptTemplate
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
+from askai.core.component.geo_location import geo_location
 from askai.core.component.internet_service import internet
 from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ContextRaw
@@ -60,7 +61,7 @@ class InternetProcessor:
     def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
         template = PromptTemplate(input_variables=['idiom', 'datetime'], template=self.template())
-        final_prompt: str = template.format(idiom=shared.idiom, datetime=shared.now)
+        final_prompt: str = template.format(idiom=shared.idiom, datetime=geo_location.now)
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
         context: ContextRaw = shared.context.join("SETUP", "QUESTION")
@@ -74,6 +75,7 @@ class InternetProcessor:
                     output = response.message.strip()
                 else:
                     if output := internet.search_google(search):
+                        output = msg.translate(output)
                         shared.context.push("GENERAL", query_response.question)
                         shared.context.push("GENERAL", output, "assistant")
                         cache.save_reply(query_response.question, output)
