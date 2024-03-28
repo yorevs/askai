@@ -13,12 +13,10 @@ from askai.exception.exceptions import TranslationPackageError
 from askai.language.language import Language
 
 
-class ArgosTranslator(metaclass=Singleton):
+class ArgosTranslator:
     """Provides a multilingual offline translation engine.
     Language packages are downloaded at: ~/.local/share/argos-translate/packages
     """
-
-    INSTANCE: "ArgosTranslator" = None
 
     @staticmethod
     def _get_argos_model(source: Language, target: Language) -> Optional[ITranslation]:
@@ -76,3 +74,8 @@ class ArgosTranslator(metaclass=Singleton):
             package.install_from_path(required_package.download())
             sys.stdout = old_stdout
         return required_package is not None
+
+
+if __name__ == '__main__':
+    t = ArgosTranslator(Language.EN_US, Language.PT_BR)
+    print(t.translate('Hello "initialization" how ARE you doing \'what is up\''))

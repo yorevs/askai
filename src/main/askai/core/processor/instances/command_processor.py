@@ -76,8 +76,8 @@ class CommandProcessor:
 
     def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        template = PromptTemplate(input_variables=["os_type", "shell"], template=self.template())
-        final_prompt: str = template.format(os_type=prompt.os_type, shell=prompt.shell)
+        template = PromptTemplate(input_variables=["os_type", "shell", 'idiom'], template=self.template())
+        final_prompt: str = template.format(os_type=prompt.os_type, shell=prompt.shell, idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")

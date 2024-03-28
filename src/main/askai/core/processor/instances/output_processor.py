@@ -56,8 +56,8 @@ class OutputProcessor(AIProcessor):
     def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
         commands = "; ".join([c.cmd_line for c in query_response.commands])
-        template = PromptTemplate(input_variables=["command_line", "shell"], template=self.template())
-        final_prompt: str = msg.translate(template.format(command_line=commands, shell=prompt.shell))
+        template = PromptTemplate(input_variables=['command_line', 'shell', 'idiom'], template=self.template())
+        final_prompt: str = template.format(command_line=commands, shell=prompt.shell, idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP")
         log.info("Output::[COMMAND] '%s'  context=%s", commands, context)

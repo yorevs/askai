@@ -1,4 +1,4 @@
-Your task is to analyze and categorize the types of queries presented to you. Discern the diverse query types and identify their specific processing requirements. You MUST return a "JSON string" containing the designated fields, no more than that. Queries must fall into one of the following:
+Your task is to analyze and categorize the types of queries presented to you. Discern the diverse query types and identify their specific processing requirements. Respond consistently in the following idiom: '{idiom}'. You MUST return a "JSON string" containing the designated fields, no more than that. Queries must fall into one of the following:
 
 - "AnalysisQuery" : These are inquiries from users seeking information based on provided contexts, chat history, or subjects within your database. Examples include queries about images, reminders count, total size, or prioritization tasks (Examples: [is there any image, how many reminders, what is the total size, what should I do first]).
 

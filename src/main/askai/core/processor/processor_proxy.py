@@ -46,8 +46,8 @@ class ProcessorProxy(metaclass=Singleton):
         :param question: The question to the AI engine.
         """
         status = False
-        template = PromptTemplate(input_variables=[], template=self.template())
-        final_prompt = msg.translate(template.format())
+        template = PromptTemplate(input_variables=['idiom'], template=self.template())
+        final_prompt = template.format(idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion: {question}\n\nHelpful Answer:")
         context: ContextRaw = shared.context.join("SETUP", "QUESTION")

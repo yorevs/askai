@@ -59,8 +59,8 @@ class InternetProcessor:
 
     def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        template = PromptTemplate(input_variables=["locale", "datetime"], template=self.template())
-        final_prompt: str = msg.translate(template.format(locale=shared.idiom, datetime=shared.now))
+        template = PromptTemplate(input_variables=['idiom', 'datetime'], template=self.template())
+        final_prompt: str = template.format(idiom=shared.idiom, datetime=shared.now)
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
         context: ContextRaw = shared.context.join("SETUP", "QUESTION")
