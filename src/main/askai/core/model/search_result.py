@@ -24,7 +24,7 @@ class SearchResult:
     question: str = None
     datetime: str = None
     keywords: List[str] = None
-    sites: str | List[str] = None
+    sites: List[str] = None
     filters: List[str] = None
     response: str = None
 

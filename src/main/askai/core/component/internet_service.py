@@ -16,6 +16,7 @@ import logging as log
 import os
 from typing import List, Optional
 
+from googleapiclient.errors import HttpError
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval_qa.base import RetrievalQA
@@ -47,8 +48,9 @@ class InternetService(metaclass=Singleton):
         """Scrap a web page and summarize it's contents.
         :param search: The AI search parameters.
         """
-        query = '+'.join(search.keywords)
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
         if len(search.sites) > 0:
+            query = '+'.join(search.keywords)
             log.info("Scrapping sites: '%s'", str(', '.join(search.sites)))
             documents: List[Document] = load_document(AsyncHtmlLoader, list(search.sites))
             if len(documents) > 0:
@@ -60,6 +62,21 @@ class InternetService(metaclass=Singleton):
                 search_results = retriever.invoke({"query": query})
                 return search_results["result"]
         return None
+
+    @staticmethod
+    def build_query(keywords: List[str], filters: List[str], sites: List[str]) -> str:
+        """TODO"""
+        query = ''
+        # Weather is a filter that does not require any other search parameter.
+        if filters and any(f.find("weather:") >= 0 for f in filters):
+            return ' AND '.join(filters)
+        if sites:
+            query += ' OR '.join(['site:' + url for url in sites])
+        if filters and any(f.find("people:") >= 0 for f in filters):
+            query += f" intext:\"{' + '.join([f.split(':')[1] for f in filters])}\" "
+        if keywords:
+            query += ' + '.join(keywords)
+        return query
 
     def __init__(self):
         self._google = GoogleSearchAPIWrapper()
@@ -73,32 +90,21 @@ class InternetService(metaclass=Singleton):
         Google search operators: https://ahrefs.com/blog/google-advanced-search-operators/
         :param search: The AI search parameters.
         """
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
         if len(search.sites) > 0:
-            search_results: List[Document] = []
-            query = self._build_query(search.keywords, search.filters, search.sites)
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
-            log.info("Searching GOOGLE for '%s'  url: '%s'", query, str(', '.join(search.sites)))
-            content = str(self._tool.run(query))
-            search_results.append(Document(content))
-            prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
-            chain = create_stuff_documents_chain(lc_llm.create_chat_model(), prompt)
-            return chain.invoke({"query": query, "context": search_results})
+            try:
+                search_results: List[Document] = []
+                query = self.build_query(search.keywords, search.filters, search.sites)
+                log.info("Searching GOOGLE for '%s'  url: '%s'", query, str(', '.join(search.sites)))
+                content = str(self._tool.run(query))
+                search_results.append(Document(content))
+                prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
+                chain = create_stuff_documents_chain(lc_llm.create_chat_model(), prompt)
+                return chain.invoke({"query": query, "context": search_results})
+            except HttpError as err:
+                return msg.fail_to_search(str(err))
 
         return None
-
-    def _build_query(self, keywords: List[str], filters: List[str], sites: List[str]) -> str:
-        """TODO"""
-        query = ''
-        # Weather is a filter that does not require any other search parameter.
-        if filters and any(f.find("weather:") >= 0 for f in filters):
-            return ' AND '.join(filters)
-        if sites:
-            query += ' OR '.join(['site:' + url for url in sites])
-        if filters and any(f.find("people:") >= 0 for f in filters):
-            query += f" intext:\"{' + '.join([f.split(':')[1] for f in filters])}\" "
-        if keywords:
-            query += ' + '.join(keywords)
-        return query
 
 
 assert (internet := InternetService().INSTANCE) is not None

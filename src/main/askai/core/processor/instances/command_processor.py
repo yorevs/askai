@@ -79,7 +79,7 @@ class CommandProcessor:
         template = PromptTemplate(input_variables=["os_type", "shell", 'idiom'], template=self.template())
         final_prompt: str = template.format(os_type=prompt.os_type, shell=prompt.shell, idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
+        shared.context.set("QUESTION", query_response.question)
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
         log.info("Command::[QUESTION] '%s'  context=%s", query_response.question, context)
 

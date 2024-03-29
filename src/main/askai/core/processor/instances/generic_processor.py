@@ -72,8 +72,8 @@ class GenericProcessor:
         template = PromptTemplate(input_variables=['user', 'datetime', 'idiom'], template=self.template())
         final_prompt: str = template.format(user=prompt.user, datetime=geo_location.now, idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
-        context: ContextRaw = shared.context.join("SETUP", "GENERAL", "QUESTION")
+        shared.context.set("QUESTION", query_response.question)
+        context: ContextRaw = shared.context.join("GENERAL", "SETUP", "QUESTION")
         log.info("Setup::[GENERIC] '%s'  context=%s", query_response.question, context)
 
         if (response := shared.engine.ask(context, *Temperatures.CREATIVE_WRITING.value)) and response.is_success:

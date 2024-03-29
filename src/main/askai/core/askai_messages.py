@@ -131,5 +131,9 @@ class AskAiMessages(metaclass=Singleton):
     def llm_error(self, error: str) -> str:
         return self.translate(f"Error: 'LLM' failed to reply: {error}")
 
+    @lru_cache
+    def fail_to_search(self, error: str) -> str:
+        return self.translate(f"Error: 'GoogleSearch' failed: {error}")
+
 
 assert (msg := AskAiMessages().INSTANCE) is not None

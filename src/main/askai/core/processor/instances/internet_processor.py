@@ -63,7 +63,7 @@ class InternetProcessor:
         template = PromptTemplate(input_variables=['idiom', 'datetime'], template=self.template())
         final_prompt: str = template.format(idiom=shared.idiom, datetime=geo_location.now)
         shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
+        shared.context.set("QUESTION", query_response.question)
         context: ContextRaw = shared.context.join("SETUP", "QUESTION")
         log.info("Setup::[INTERNET] '%s'  context=%s", query_response.question, context)
 

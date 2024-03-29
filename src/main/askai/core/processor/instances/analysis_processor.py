@@ -70,8 +70,8 @@ class AnalysisProcessor:
         template = PromptTemplate(input_variables=['idiom'], template=self.template())
         final_prompt: str = template.format(idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", f"\n\nQuestion: {query_response.question}\n\nHelpful Answer:")
-        context: ContextRaw = shared.context.join("SETUP", "CONTEXT", "QUESTION")
+        shared.context.set("QUESTION", query_response.question)
+        context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
         log.info("Analysis::[QUESTION] '%s'  context=%s", query_response.question, context)
 
         if (response := shared.engine.ask(context, *Temperatures.CODE_GENERATION.value)) and response.is_success:
