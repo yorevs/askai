@@ -46,7 +46,7 @@ class OpenAIEngine:
         self._client = OpenAI(api_key=self._api_key)
 
     def __str__(self):
-        return f"{self.ai_name()} - '{self.nickname()}'  model: '{self._model}'"
+        return f"{self.ai_name()} '{self.nickname()}' '{self._model}'"
 
     @property
     def url(self) -> str:

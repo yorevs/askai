@@ -70,16 +70,17 @@ class AskAi:
         configs.tempo = tempo
 
     def __str__(self) -> str:
-        device_info = f' using {recorder.input_device[1]} on tempo: {configs.tempo}' if recorder.input_device else ""
+        device_info = f'{recorder.input_device[1].title()}' if recorder.input_device else ""
         return (
             f"%GREEN%"
             f"{'-=' * 40} %EOL%"
             f"     Engine: {self.engine} %EOL%"
             f"   Language: {configs.language} %EOL%"
-            f"{'--' * 40} %EOL%"
-            f"   Speaking: {'%BLUE%ON' if self.is_speak else '%RED%Disabled'}%GREEN%{device_info} %EOL%"
-            f"    Caching: {'%BLUE%ON' if cache.is_cache_enabled() else '%RED%Disabled'}%GREEN% %EOL%"
-            f"{'--' * 40} %EOL%%NC%"
+            f"{'-+' * 40} %EOL%"
+            f" Microphone: {device_info or '%RED%Undetected'} %GREEN%%EOL%"
+            f"   Speaking: {'ON, tempo: ' + str(configs.tempo) if self.is_speak else '%RED%OFF'} %GREEN%%EOL%"
+            f"    Caching: {'ON, TTL: ' + configs.ttl if cache.is_cache_enabled() else '%RED%OFF'} %GREEN%%EOL%"
+            f"{'-=' * 40} %EOL%%NC%"
         )
 
     @property
@@ -166,9 +167,7 @@ class AskAi:
         """Initialize the application."""
         splash_thread: Thread = Thread(daemon=True, target=self._splash)
         splash_thread.start()
-        if configs.is_speak:
-            recorder.setup()
-            configs.is_speak = recorder.input_device is not None
+        recorder.setup()
         nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
         cache.set_cache_enable(self.cache_enabled)
         cache.read_query_history()

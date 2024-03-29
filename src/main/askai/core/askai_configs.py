@@ -33,6 +33,7 @@ class AskAiConfigs(metaclass=Singleton):
     def __init__(self):
         self._configs = AppConfigs.INSTANCE or AppConfigs(self.RESOURCE_DIR)
         self._is_cache = self._configs.get_bool("askai.cache.enabled")
+        self._ttl = self._configs.get_int("askai.cache.ttl.minutes")
         self._tempo = self._configs.get_int("askai.speech.tempo")
         self._is_speak = self._configs.get_bool("askai.speak.response")
         self._language = Language.of_locale(
@@ -70,6 +71,10 @@ class AskAiConfigs(metaclass=Singleton):
     @property
     def encoding(self) -> Charset:
         return self.language.encoding
+
+    @property
+    def ttl(self) -> int:
+        return self.ttl
 
 
 assert (configs := AskAiConfigs().INSTANCE) is not None

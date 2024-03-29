@@ -59,7 +59,7 @@ class OpenAIModel(Enumeration):
         self._token_limit = token_limit
 
     def __str__(self):
-        return f"{self.model_name()}  {self.token_limit()}k tokens"
+        return f"{self.model_name()}, {self.token_limit()}k tokens"
 
     def model_name(self) -> str:
         """Get the official model's name."""
