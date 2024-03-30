@@ -34,6 +34,7 @@ from askai.core.component.cache_service import PERSIST_DIR
 from askai.core.component.summarizer import summarizer
 from askai.core.model.search_result import SearchResult
 from askai.core.support.langchain_support import lc_llm, load_document
+from askai.core.support.shared_instances import shared
 
 
 class InternetService(metaclass=Singleton):
@@ -98,7 +99,12 @@ class InternetService(metaclass=Singleton):
                 content = str(self._tool.run(query))
                 prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
                 chain = create_stuff_documents_chain(lc_llm.create_chat_model(), prompt)
-                return chain.invoke({"query": query, "context": [Document(content)]})
+                instructions = (
+                    'Compose your reply using the language, currency, and units of measurement of the '
+                    f'"{shared.idiom}" locale.'
+                )
+                question = f"Instructions:\n{instructions}\n\nQuestion:\n{search.question}"
+                return chain.invoke({"query": question, "context": [Document(content)]})
             except HttpError as err:
                 return msg.fail_to_search(str(err))
 

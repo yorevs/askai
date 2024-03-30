@@ -1,8 +1,12 @@
-Your task is to analyze and categorize the types of queries presented to you. Discern the diverse query types and identify their specific processing requirements. Respond consistently using the language, dialect, and units of measurement corresponding to the '{idiom}' locale. You MUST return a "JSON string" containing the designated fields, no more than that. Queries must fall into one of the following:
+Your task is to analyze and categorize the types of queries presented to you. Discern the diverse query types and identify their specific processing requirements. You MUST return a "JSON string" containing the designated fields, no more than that. Queries must fall into one of the following:
 
 - "AnalysisQuery" : These are inquiries from users seeking information based on provided contexts, chat history, or subjects within your database. Examples include queries about images, reminders count, total size, or prioritization tasks (Examples: [is there any image, how many reminders, what is the total size, what should I do first]).
 
-- "CommandQuery" : you'll be required to interact with the user's files, folders, and applications. Additionally, you'll need to execute terminal commands on the user's computer. Examples of queries include requesting to list images, open specific ones, play media files, or display them (Examples: [list my images, open 1, play it, show me it, create a note]).
+- "CommandQuery" : These are inquiries from users seeking to interact with the user's files, folders, and applications. Additionally, you'll need to execute terminal commands on the user's computer. Examples of queries include requesting to list images, open specific ones, play media files, or display them (Examples: [list my images, open 1, play it, show me it, create a note]).
+
+- "InternetQuery" : These are inquiries from users seeking information about people, weather conditions, stock information, sport matches and recent news.
+
+- "GenericQuery" : These are inquiries from users seeking engaging in conversation.
 
 Before responding to the user, you must follow the step-by-step instructions provided below in sequential order:
 
