@@ -29,11 +29,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def wait(self) -> str:
-        return self.translate("I'm thinking, please wait…")
+        return self.translate("I'm thinking…")
 
     @lru_cache
     def welcome_back(self) -> str:
-        return self.translate("How can I assist you ?")
+        return self.translate("How may I further assist you ?")
 
     @lru_cache
     def listening(self) -> str:
@@ -49,7 +49,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def executing(self) -> str:
-        return self.translate(f"Executing command, please wait…")
+        return self.translate(f"Executing command…")
 
     @lru_cache
     def cmd_success(self, exit_code: ExitStatus) -> str:
@@ -57,11 +57,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def searching(self) -> str:
-        return self.translate(f"Searching Google…")
+        return self.translate(f"Searching…")
 
     @lru_cache
     def summarizing(self, path: str) -> str:
-        return self.translate(f"Summarizing documents from :'{path}', this can take a moment…")
+        return self.translate(f"Summarizing docs at:'{path}' …")
 
     @lru_cache
     def enter_qna(self) -> str:
@@ -73,11 +73,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def qna_welcome(self) -> str:
-        return self.translate("What do you what to know about the content ?")
+        return self.translate("What specific information are you seeking about the content ?")
 
     @lru_cache
     def press_esc_enter(self) -> str:
-        return self.translate('Press [Esc or Enter] to leave.')
+        return self.translate('Press [Esc or Enter] to leave')
 
     # Warnings and alerts
 
@@ -87,7 +87,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def search_empty(self) -> str:
-        return self.translate("The Google search didn't return an output !")
+        return self.translate("The search didn't return an output !")
 
     @lru_cache
     def access_grant(self) -> str:
@@ -95,11 +95,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def not_a_command(self, shell: str, content: str) -> str:
-        return self.translate(f"Returned reply '{content}' is not a '{shell}' command !")
+        return self.translate(f"Reply '{content}' is not a '{shell}' command !")
 
     @lru_cache
     def invalid_cmd_format(self, output: str) -> str:
-        return self.translate(f"Returned reply '{output}' does not match the correct command format !")
+        return self.translate(f"Reply '{output}' does not match the correct command format !")
 
     # Failures
 
@@ -129,11 +129,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def llm_error(self, error: str) -> str:
-        return self.translate(f"Error: 'LLM' failed to reply: {error}")
+        return self.translate(f"Error: 'LLM' failed to reply: {error} !")
 
     @lru_cache
     def fail_to_search(self, error: str) -> str:
-        return self.translate(f"Error: 'GoogleSearch' failed: {error}")
+        return self.translate(f"Error: 'InternetSearch' failed: {error} !")
 
 
 assert (msg := AskAiMessages().INSTANCE) is not None

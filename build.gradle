@@ -1,1 +1,57 @@
-task myTask {     doLast {         println "Executing my task"     } }
+plugins {
+  id 'idea'
+  id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.7"
+}
+
+idea {
+  module {
+    settings {
+      rootModuleType = 'PYTHON_MODULE'
+    }
+    sourceDirs += file('src/main')
+    sourceDirs += file('src/demo')
+    testSourceDirs += file('src/test')
+    excludeDirs += file('.idea')
+    excludeDirs += file('.gradle')
+    excludeDirs += file('.vscode')
+    excludeDirs += file('src/main/build')
+    excludeDirs += file('src/main/dist')
+    excludeDirs += file('src/main/hspylib_' + project.name + '.egg-info')
+  }
+}
+
+configurations {
+    src
+}
+
+ext {
+  python = "python" + (System.getenv('PYTHON_VERSION') ?: '3.11')
+  pyrcc = "pyrcc" + (System.getenv('PYRCC_VERSION') ?: '5')
+  sourceRoot = "$rootDir/src"
+  application = "$sourceRoot/main/__main__.py"
+  pythonPath = "$sourceRoot/main:$sourceRoot/test:$sourceRoot/demo"
+  buildToolsFile = new File("${project.projectDir}/buildTools.txt")
+  buildTools = "${buildTools}".split(",")
+  startTime = System.currentTimeMillis()
+  verbose = findProperty('verbose') ?: false
+}
+
+apply from: "$rootDir/gradle/dependencies.gradle"
+apply from: "$rootDir/gradle/python.gradle"
+apply from: "$rootDir/gradle/versioning.gradle"
+apply from: "$rootDir/gradle/pypi-publish.gradle"
+apply from: "$rootDir/gradle/docker.gradle"
+apply from: "$rootDir/gradle/oracle.gradle"
+apply from: "$rootDir/gradle/docgen.gradle"
+apply from: "$rootDir/gradle/idea.gradle"
+
+task copyReadme(type: Copy) {
+  group = 'Publish'
+  description = "Copy README into main folder"
+  from(rootDir) {
+    include 'README.md'
+  }
+  into "$sourceRoot/main"
+}
+
+copyLicense.finalizedBy(copyReadme)

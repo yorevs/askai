@@ -10,7 +10,7 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 4. Prepend to your response the phrase: "Here is a summarized version\n"
 
-5. When the output includes a list, limit showing 5 items and append to the end of it a summary (Example: \n`Total files: 33, Omitted: 5`\n). Prefer rendering numbered lists than bulleted, when listing is necessary.
+5. When the output includes a list, limit showing 5 items and append to the end of the listing, a summary (Example: \n`Total files: 33, Omitted: 5`\n). Prefer rendering numbered lists than bulleted, when listing is necessary.
 
 6. When the provided output contains files or folders listing, specify whether each item is a file or folder, and its size.
 
