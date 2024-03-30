@@ -39,9 +39,9 @@ class TextFormatter(metaclass=Singleton):
         """
         # fmt: off
         re_url = (
-            r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|'
-            r'www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))'
-            r'[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})'
+            r"(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s']{2,}|"
+            r"www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s']{2,}|https?:\/\/(?:www\.|(?!www))"
+            r"[a-zA-Z0-9]+\.[^\s']{2,}|www\.[a-zA-Z0-9]+\.[^\s']{2,})"
         )
         text = dedent(str(text))
         text = re.sub(r"Errors?[-:\s]\s+", self.CHAT_ICONS[''], text)
@@ -52,7 +52,7 @@ class TextFormatter(metaclass=Singleton):
         text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s]\s+", self.CHAT_ICONS[''], text)
         text = re.sub(r"[Aa]dvice[-:\s]\s+", self.CHAT_ICONS[''], text)
         fg = get_or_default(re.findall(r"%\w+%", text), 0, '%NC%')
-        text = re.sub(re_url, r'%CYAN% \1' + fg, text)
+        text = re.sub(re_url, r' [\1](\1)', text)
         text = re.sub(r'(`{3}.+`{3})', r'\n\1\n', text)
         # fmt: on
 
@@ -68,28 +68,3 @@ class TextFormatter(metaclass=Singleton):
 
 
 assert (text_formatter := TextFormatter().INSTANCE) is not None
-
-
-if __name__ == '__main__':
-    s = dedent("""
-    Error: This should be red
-    Advice: This should be yellow
-    Hint: This should be blue
-    Joke: This should be magenta
-    Analysis: This should be yellow
-
-    # H1
-    ## H2
-    ### H3
-    #### H4
-    ##### H5
-
-    `This is not OK because it has failed to be a success!`
-
-    ```bash
-    $ ls -lht ~/Downloads
-    ```
-
-    For more details access: https://askai.github.io/askai. Enjoy!
-    """)
-    text_formatter.display_markdown(s)

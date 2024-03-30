@@ -124,6 +124,10 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"Error: Unable to summarize => {str(err)}' !")
 
     @lru_cache
+    def summary_not_possible(self) -> str:
+        return self.translate("Sorry, summarization was not possible !")
+
+    @lru_cache
     def intelligible(self, question: str) -> str:
         return self.translate(f"Error: Your question '{question}' is not clear, please reformulate !")
 

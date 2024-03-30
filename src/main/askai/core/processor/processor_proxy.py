@@ -15,7 +15,7 @@
 
 import logging as log
 from functools import lru_cache
-from typing import Tuple, List
+from typing import Tuple
 
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -52,12 +52,12 @@ class ProcessorProxy(metaclass=Singleton):
         final_prompt = template.format(idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion: {question}\n\nHelpful Answer:")
-        ctx: List[str] = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
+        ctx: str = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
         log.info("Proxy::[QUESTION] '%s'  context=%s", question, ctx)
 
         chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
         chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
-        context = Document(' '.join(ctx))
+        context = Document(ctx)
 
         if response := chain.invoke({"query": question, "context": [context]}):
             log.info("Proxy::[RESPONSE] Received from AI: %s.", str(response))

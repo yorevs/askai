@@ -84,12 +84,12 @@ class CommandProcessor:
         final_prompt: str = template.format(os_type=prompt.os_type, shell=prompt.shell, idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion:\n{query_response.question}")
-        ctx: List[str] = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
+        ctx: str = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
         log.info("Command::[QUESTION] '%s'  context=%s", query_response.question, ctx)
 
         chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
         chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
-        context = Document(' '.join(ctx))
+        context = Document(ctx)
 
         if response := chain.invoke({"query": query_response.question, "context": [context]}):
             log.debug("Command::[RESPONSE] Received from AI: %s.", response)

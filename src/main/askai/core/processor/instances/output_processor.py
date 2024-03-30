@@ -63,12 +63,12 @@ class OutputProcessor(AIProcessor):
         template = PromptTemplate(input_variables=['command_line', 'shell', 'idiom'], template=self.template())
         final_prompt: str = template.format(command_line=commands, shell=prompt.shell, idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
-        ctx: List[str] = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
+        ctx: str = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
         log.info("Output::[QUESTION] '%s'  context=%s", query_response.question, ctx)
 
         chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
         chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
-        context = Document(' '.join(ctx))
+        context = Document(ctx)
 
         if response := chain.invoke({"query": query_response.question, "context": [context]}):
             log.debug("Output::[RESPONSE] Received from AI: %s.", response)

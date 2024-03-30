@@ -68,12 +68,12 @@ class InternetProcessor:
         final_prompt: str = template.format(idiom=shared.idiom, datetime=geo_location.datetime)
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion:\n{query_response.question}")
-        ctx: List[str] = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
+        ctx: str = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
         log.info("Internet::[QUESTION] '%s'  context=%s", query_response.question, ctx)
 
         chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
         chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
-        context = Document(' '.join(ctx))
+        context = Document(ctx)
 
         if response := chain.invoke({"query": query_response.question, "context": [context]}):
             log.debug("Internet::[RESPONSE] Received from AI: %s.", response)

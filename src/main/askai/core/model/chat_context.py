@@ -81,10 +81,9 @@ class ChatContext:
                 context.extend(ctx)
         return context
 
-    def flat(self, *keys: str) -> List[str]:
+    def flat(self, *keys: str) -> str:
         """Flatten contexts specified by keys."""
-        ctx = self.join(*keys)
-        return [c['content'] for c in ctx]
+        return os.linesep.join([ctx['content'] for ctx in self.join(*keys)])
 
     def clear(self, *keys: str) -> int:
         """Clear the all the chat context specified by key."""
