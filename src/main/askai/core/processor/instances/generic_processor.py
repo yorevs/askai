@@ -83,17 +83,17 @@ class GenericProcessor:
 
         if response := chain.invoke({"query": query_response.question, "context": [context]}):
             log.debug("General::[RESPONSE] Received from AI: %s.", response)
-            if response and shared.UNCERTAIN_ID not in response:
+            if response and shared.UNCERTAIN_ID not in (output := response):
                 shared.context.push("CONTEXT", f"\n\nUser:\n{query_response.question}")
-                shared.context.push("CONTEXT", f"\n\nAI:\n{response}", "assistant")
-                cache.save_reply(query_response.question, response)
+                shared.context.push("CONTEXT", f"\n\nAI:\n{output}", "assistant")
+                cache.save_reply(query_response.question, output)
                 cache.save_query_history()
             else:
                 self._next_in_chain = QueryType.GENERIC_QUERY.proc_name
-                response = self._wrap_output(query_response)
+                output = self._wrap_output(query_response)
             status = True
         else:
             log.error(f"General processing failed. CONTEXT=%s  RESPONSE=%s", context, response)
-            response = msg.llm_error(response)
+            output = msg.llm_error(response)
 
-        return status, response
+        return status, output

@@ -16,15 +16,16 @@ import logging as log
 from functools import lru_cache
 from typing import Optional, Tuple, List
 
-from langchain_core.prompts import PromptTemplate
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.documents import Document
+from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.engine.openai.temperatures import Temperatures
-from askai.core.model.chat_context import ContextRaw
 from askai.core.model.processor_response import ProcessorResponse
 from askai.core.model.query_type import QueryType
 from askai.core.processor.processor_base import AIProcessor
+from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 
 
@@ -59,16 +60,20 @@ class OutputProcessor(AIProcessor):
         template = PromptTemplate(input_variables=['command_line', 'shell', 'idiom'], template=self.template())
         final_prompt: str = template.format(command_line=commands, shell=prompt.shell, idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
-        context: ContextRaw = shared.context.join("SETUP", "CONTEXT")
-        log.info("Output::[COMMAND] '%s'  context=%s", commands, context)
+        ctx: List[str] = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
+        log.info("Output::[QUESTION] '%s'  context=%s", query_response.question, ctx)
 
-        if (response := shared.engine.ask(context, *Temperatures.ZERO.value)) and response.is_success:
+        chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
+        chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
+        context = Document(' '.join(ctx))
+
+        if response := chain.invoke({"query": query_response.question, "context": [context]}):
             log.debug("Output::[RESPONSE] Received from AI: %s.", response)
-            if output := response.message:
+            if output := response:
                 shared.context.push("CONTEXT", f"\n\nAI:\n{output}", "assistant")
             status = True
         else:
             log.error(f"Output processing failed. CONTEXT=%s  RESPONSE=%s", context, response)
-            output = msg.llm_error(response.message)
+            output = msg.llm_error(response)
 
         return status, output

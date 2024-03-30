@@ -31,7 +31,8 @@ from askai.core.support.shared_instances import shared
 
 
 class ProcessorProxy(metaclass=Singleton):
-    """TODO"""
+    """TODO
+    """
 
     INSTANCE: "ProcessorProxy" = None
 

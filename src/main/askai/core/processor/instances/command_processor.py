@@ -21,17 +21,18 @@ from typing import Optional, Tuple, List
 
 from clitt.core.term.terminal import Terminal
 from hspylib.modules.application.exit_status import ExitStatus
-from langchain_core.prompts import PromptTemplate
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.documents import Document
+from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.engine.openai.temperatures import Temperatures
-from askai.core.model.chat_context import ContextRaw
 from askai.core.model.processor_response import ProcessorResponse
 from askai.core.model.query_type import QueryType
 from askai.core.model.terminal_command import TerminalCommand
 from askai.core.processor.processor_base import AIProcessor
+from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_command, extract_path
 
@@ -80,21 +81,25 @@ class CommandProcessor:
         final_prompt: str = template.format(os_type=prompt.os_type, shell=prompt.shell, idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion:\n{query_response.question}")
-        context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
-        log.info("Command::[QUESTION] '%s'  context=%s", query_response.question, context)
+        ctx: List[str] = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
+        log.info("Command::[QUESTION] '%s'  context=%s", query_response.question, ctx)
 
-        if (response := shared.engine.ask(context, *Temperatures.DATA_ANALYSIS.value)) and response.is_success:
+        chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
+        chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
+        context = Document(' '.join(ctx))
+
+        if response := chain.invoke({"query": query_response.question, "context": [context]}):
             log.debug("Command::[RESPONSE] Received from AI: %s.", response)
-            shell, command = extract_command(response.message)
+            shell, command = extract_command(response)
             if command:
                 if shell and shell != prompt.shell:
                     output = msg.not_a_command(str(prompt.shell), command)
                 else:
                     status, output = self._process_command(query_response, command)
             else:
-                output = msg.invalid_cmd_format(response.message)
+                output = msg.invalid_cmd_format(response)
         else:
-            output = msg.llm_error(response.message)
+            output = msg.llm_error(response)
 
         return status, output
 
