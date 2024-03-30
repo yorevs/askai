@@ -14,6 +14,6 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 6. When the provided output contains files or folders listing, specify whether each item is a file or folder, and its size.
 
-7. When the provided output does not contain files or folders listing, create a small analysis about the provided data.
+7. When the provided output does not contain files or folders listing, create a small analysis about the summarized version.
 
 8. Wrap up your reply by offering a succinct hint or tip related to the answer; prefix with: 'Hints:'.

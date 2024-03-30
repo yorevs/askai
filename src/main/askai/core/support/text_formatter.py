@@ -39,9 +39,9 @@ class TextFormatter(metaclass=Singleton):
         """
         # fmt: off
         re_url = (
-            r"(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s']{2,}|"
-            r"www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s']{2,}|https?:\/\/(?:www\.|(?!www))"
-            r"[a-zA-Z0-9]+\.[^\s']{2,}|www\.[a-zA-Z0-9]+\.[^\s']{2,})"
+            r"(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s')]{2,}|"
+            r"www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s')]{2,}|https?:\/\/(?:www\.|(?!www))"
+            r"[a-zA-Z0-9]+\.[^\s')]{2,}|www\.[a-zA-Z0-9]+\.[^\s')]{2,})"
         )
         text = dedent(str(text))
         text = re.sub(r"Errors?[-:\s]\s+", self.CHAT_ICONS[''], text)

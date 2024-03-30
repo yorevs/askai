@@ -12,14 +12,11 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import msg
-from askai.core.askai_prompt import prompt
-from askai.core.component.cache_service import PERSIST_DIR
-from askai.core.component.summarizer import summarizer
-from askai.core.model.search_result import SearchResult
-from askai.core.support.langchain_support import lc_llm, load_document
+import logging as log
+import re
 from functools import lru_cache
+from typing import List, Optional
+
 from googleapiclient.errors import HttpError
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -28,14 +25,19 @@ from langchain_community.document_loaders.async_html import AsyncHtmlLoader
 from langchain_community.utilities import GoogleSearchAPIWrapper
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.tools import Tool
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from typing import List, Optional
 
-import logging as log
-import os
-import re
+from askai.core.askai_events import AskAiEvents
+from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
+from askai.core.component.cache_service import PERSIST_DIR
+from askai.core.component.geo_location import geo_location
+from askai.core.component.summarizer import summarizer
+from askai.core.model.search_result import SearchResult
+from askai.core.support.langchain_support import lc_llm, load_document
+from askai.core.support.shared_instances import shared
 
 
 class InternetService(metaclass=Singleton):
@@ -92,24 +94,39 @@ class InternetService(metaclass=Singleton):
     def template(self) -> str:
         return prompt.read_prompt("search-prompt")
 
+    @lru_cache
+    def refine_template(self) -> str:
+        return prompt.read_prompt("refine-prompt")
+
     def search_google(self, search: SearchResult) -> Optional[str]:
         """Search the web using google search API.
         Google search operators: https://ahrefs.com/blog/google-advanced-search-operators/
         :param search: The AI search parameters.
         """
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
-        if len(search.sites) > 0:
-            try:
-                query = self._build_query(search).strip()
-                log.info("Searching Google for '%s'", query)
-                content = str(self._tool.run(query))
-                llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
-                chain = create_stuff_documents_chain(lc_llm.create_chat_model(), llm_prompt)
-                return chain.invoke({"query": search.question, "context": [Document(content)]})
-            except HttpError as err:
-                return msg.fail_to_search(str(err))
+        search.sites = search.sites if len(search.sites) > 0 else ['google.com', 'bing.com']
+        try:
+            query = self._build_query(search).strip()
+            log.info("Searching Google for '%s'", query)
+            content = str(self._tool.run(query))
+            llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
+            chain = create_stuff_documents_chain(lc_llm.create_chat_model(), llm_prompt)
+            output = chain.invoke({"query": search.question, "context": [Document(content)]})
+        except HttpError as err:
+            output = msg.fail_to_search(str(err))
 
-        return None
+        return self.refine_text(search.question, output) if output else None
+
+    def refine_text(self, question: str, text: str) -> str:
+        """Refines the text retrieved by the search engine."""
+        refine_prompt = PromptTemplate.from_template(self.refine_template()).format(
+            question=question, existing_answer=text, datetime=geo_location.datetime,
+            location=geo_location.location, idiom=shared.idiom
+        )
+        chain = create_stuff_documents_chain(
+            lc_llm.create_chat_model(), ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
+        )
+        return chain.invoke({"query": question, "context": [Document(refine_prompt)]})
 
 
 assert (internet := InternetService().INSTANCE) is not None
