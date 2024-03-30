@@ -14,6 +14,7 @@
 """
 import logging as log
 import os
+from functools import lru_cache
 from typing import List, Optional
 
 from googleapiclient.errors import HttpError
@@ -24,13 +25,15 @@ from langchain_community.document_loaders.async_html import AsyncHtmlLoader
 from langchain_community.utilities import GoogleSearchAPIWrapper
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.tools import Tool
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import PERSIST_DIR
+from askai.core.component.geo_location import geo_location
 from askai.core.component.summarizer import summarizer
 from askai.core.model.search_result import SearchResult
 from askai.core.support.langchain_support import lc_llm, load_document
@@ -86,6 +89,10 @@ class InternetService(metaclass=Singleton):
             chunk_size=800, chunk_overlap=8, separators=[" ", ", ", os.linesep]
         )
 
+    @lru_cache
+    def template(self) -> str:
+        return prompt.read_prompt("search-prompt")
+
     def search_google(self, search: SearchResult) -> Optional[str]:
         """Search the web using google search API.
         Google search operators: https://ahrefs.com/blog/google-advanced-search-operators/
@@ -97,14 +104,14 @@ class InternetService(metaclass=Singleton):
                 query = self.build_query(search.keywords, search.filters, search.sites)
                 log.info("Searching GOOGLE for '%s'  url: '%s'", query, str(', '.join(search.sites)))
                 content = str(self._tool.run(query))
-                prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
-                chain = create_stuff_documents_chain(lc_llm.create_chat_model(), prompt)
-                instructions = (
-                    'Compose your reply using the language, currency, and units of measurement of the '
-                    f'"{shared.idiom}" locale.'
-                )
-                question = f"Instructions:\n{instructions}\n\nQuestion:\n{search.question}"
-                return chain.invoke({"query": question, "context": [Document(content)]})
+                llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
+                chain = create_stuff_documents_chain(lc_llm.create_chat_model(), llm_prompt)
+                template = PromptTemplate(
+                    input_variables=['idiom', 'datetime', 'location', 'question'], template=self.template())
+                final_prompt = template.format(
+                    idiom=shared.idiom, datetime=geo_location.datetime,
+                    location=geo_location.location, question=search.question)
+                return chain.invoke({"query": final_prompt, "context": [Document(content)]})
             except HttpError as err:
                 return msg.fail_to_search(str(err))
 

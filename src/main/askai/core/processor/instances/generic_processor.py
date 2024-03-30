@@ -71,7 +71,7 @@ class GenericProcessor:
     def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
         template = PromptTemplate(input_variables=['user', 'datetime', 'idiom'], template=self.template())
-        final_prompt: str = template.format(user=prompt.user, datetime=geo_location.now, idiom=shared.idiom)
+        final_prompt: str = template.format(user=prompt.user, datetime=geo_location.datetime, idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion:\n{query_response.question}")
         ctx: List[str] = shared.context.flat("GENERAL", "SETUP", "QUESTION")

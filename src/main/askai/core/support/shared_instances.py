@@ -46,16 +46,16 @@ class SharedInstances(metaclass=Singleton):
         self._context = value
 
     @property
-    def idiom(self) -> str:
-        return self._idiom
-
-    @property
     def nickname(self) -> str:
         return f"%GREEN%  {self.engine.nickname()}%NC%"
 
     @property
     def username(self) -> str:
         return f"%WHITE%  {prompt.user.title()}%NC%"
+
+    @property
+    def idiom(self) -> str:
+        return self._idiom
 
     def create_engine(self, engine_name: str, model_name: str) -> AIEngine:
         """TODO"""

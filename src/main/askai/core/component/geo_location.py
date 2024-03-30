@@ -10,6 +10,8 @@ from hspylib.core.namespace import Namespace
 from hspylib.modules.fetch import fetch
 from requests.exceptions import ConnectionError
 
+from askai.core.askai_configs import configs
+
 
 class GeoLocation(metaclass=Singleton):
     """TODO"""
@@ -45,10 +47,11 @@ class GeoLocation(metaclass=Singleton):
 
     def __init__(self, ip: str = None):
         self._geo_location = self.get_location(ip)
+        self._idiom: str = configs.language.idiom
 
     def __str__(self):
         geo_loc = self._geo_location
-        geo_loc.setattr('zoned_datetime', self.now)
+        geo_loc.setattr('zoned_datetime', self.datetime)
         return str(self._geo_location)
 
     @property
@@ -65,7 +68,7 @@ class GeoLocation(metaclass=Singleton):
 
     @property
     def country_code(self) -> str:
-        return self._geo_location.country_code
+        return self._geo_location.countryCode
 
     @property
     def region(self) -> str:
@@ -73,7 +76,7 @@ class GeoLocation(metaclass=Singleton):
 
     @property
     def region_name(self) -> str:
-        return self._geo_location.region_name
+        return self._geo_location.regionName
 
     @property
     def city(self) -> float:
@@ -88,10 +91,14 @@ class GeoLocation(metaclass=Singleton):
         return self._geo_location.timezone
 
     @property
-    def now(self) -> str:
+    def location(self) -> str:
+        return f"{self.city}, {self.region_name} {self.country}"
+
+    @property
+    def datetime(self) -> str:
         utc_datetime = datetime.utcnow().replace(tzinfo=pytz.utc)
         zoned_datetime = utc_datetime.astimezone(pytz.timezone(self.timezone))
-        return zoned_datetime.strftime(GeoLocation.DATE_FMT)
+        return zoned_datetime.strftime(self.DATE_FMT)
 
 
 assert (geo_location := GeoLocation().INSTANCE) is not None
