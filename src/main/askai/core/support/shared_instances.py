@@ -22,9 +22,6 @@ class SharedInstances(metaclass=Singleton):
     # This is the uuid used in the prompts to indicate that the AI does not know the answer.
     UNCERTAIN_ID: str = 'bde6f44d-c1a0-4b0c-bd74-8278e468e50c'
 
-    # This is the uuid used in prompts that require internet.
-    INTERNET_ID: str = 'e35057db-f690-4299-ad4d-147d6124184c'
-
     def __init__(self) -> None:
         self._engine: Optional[AIEngine] = None
         self._context: Optional[ChatContext] = None

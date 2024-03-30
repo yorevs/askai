@@ -93,14 +93,12 @@ class InternetService(metaclass=Singleton):
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
         if len(search.sites) > 0:
             try:
-                search_results: List[Document] = []
                 query = self.build_query(search.keywords, search.filters, search.sites)
                 log.info("Searching GOOGLE for '%s'  url: '%s'", query, str(', '.join(search.sites)))
                 content = str(self._tool.run(query))
-                search_results.append(Document(content))
                 prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
                 chain = create_stuff_documents_chain(lc_llm.create_chat_model(), prompt)
-                return chain.invoke({"query": query, "context": search_results})
+                return chain.invoke({"query": query, "context": [Document(content)]})
             except HttpError as err:
                 return msg.fail_to_search(str(err))
 
