@@ -74,7 +74,7 @@ class GenericProcessor:
         final_prompt: str = template.format(user=prompt.user, datetime=geo_location.datetime, idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion:\n{query_response.question}")
-        ctx: List[str] = shared.context.flat("GENERAL", "SETUP", "QUESTION")
+        ctx: List[str] = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
         log.info("Generic::[QUESTION] '%s'  context=%s", query_response.question, ctx)
 
         chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
@@ -84,8 +84,8 @@ class GenericProcessor:
         if response := chain.invoke({"query": query_response.question, "context": [context]}):
             log.debug("General::[RESPONSE] Received from AI: %s.", response)
             if response and shared.UNCERTAIN_ID not in response:
-                shared.context.push("GENERAL", f"\n\nUser:\n{query_response.question}")
-                shared.context.push("GENERAL", f"\n\nAI:\n{response}", "assistant")
+                shared.context.push("CONTEXT", f"\n\nUser:\n{query_response.question}")
+                shared.context.push("CONTEXT", f"\n\nAI:\n{response}", "assistant")
                 cache.save_reply(query_response.question, response)
                 cache.save_query_history()
             else:

@@ -14,12 +14,14 @@ Before responding to the user, you must follow the step-by-step instructions pro
 
 6. If the inquiry pertains to general information about individuals who are not notable, extract the name of the person mentioned in the prompt and append this filter: 'people:name' to your list.  Where name represents the extracted person's name. In addition to that, append 'github.com', 'linkedin.com', 'facebook.com', and 'instagram.com' to your sites list.
 
-7. If the inquiry pertains to weather forecasts or related topics, extract the city location mentioned in the prompt and append this filter: 'weather:city' to your list.  Where city represents the extracted city name.
+7. If the inquiry pertains to general information about individuals who are notable, append 'wikipedia.com' to your sites list.
 
-8. The final response is a formatted JSON with no additional description or context.
+8. If the inquiry pertains to weather forecasts or related topics, determine the location mentioned in the question and append this filter: 'weather:<location>' to your filter list.
 
-9. Do not use markdown to format the response message. Use plain JSON.
+9. The final response is a formatted JSON with no additional description or context.
 
-10. The final response 'JSON' must contain the string fields: 'question', 'datetime'.
+10. Do not use markdown to format the response message. Use plain JSON.
 
-11. The final response 'JSON' must contain the array fields, 'keywords', 'filters', and 'sites'.
+11. The final response 'JSON' must contain the string fields: 'question', 'datetime'.
+
+12. The final response 'JSON' must contain the array fields, 'keywords', 'filters', and 'sites'.

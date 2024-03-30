@@ -24,8 +24,6 @@ from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.engine.openai.temperatures import Temperatures
-from askai.core.model.chat_context import ContextRaw
 from askai.core.model.processor_response import ProcessorResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
@@ -53,7 +51,7 @@ class ProcessorProxy(metaclass=Singleton):
         final_prompt = template.format(idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion: {question}\n\nHelpful Answer:")
-        ctx: List[str] = shared.context.flat("SETUP", "QUESTION")
+        ctx: List[str] = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
         log.info("Proxy::[QUESTION] '%s'  context=%s", question, ctx)
 
         chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])

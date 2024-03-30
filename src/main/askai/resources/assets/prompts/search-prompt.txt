@@ -3,11 +3,13 @@ You'll be presented with a Google search result. Your task is to discern the use
 Instructions:
 
 
-1. Compose your reply using the language, currency, and units of measurement of the "{idiom}" locale.
+1. Please analyze the provided information snippets separately. Each snippet will be delimited by a separator character. You need to identify and use it to distinguish each snippet.
 
 2. Today's date is '{datetime}'. Use it to identify and prioritize relevant information while disregarding irrelevant details.
 
 3. The user's current location is '{location}'. Utilize this information if it's pertinent to your task or inquiry.
+
+4. Craft your response employing the language, currency, and units of measurement native to the "{idiom}" region, ensuring appropriate conversions where needed.
 
 
 Question:

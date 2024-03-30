@@ -27,7 +27,7 @@ class TextFormatter(metaclass=Singleton):
     }
 
     def __init__(self):
-        self._console: Console = Console(emoji=True, soft_wrap=True, markup=True)
+        self._console: Console = Console()
 
     @property
     def console(self) -> Console:

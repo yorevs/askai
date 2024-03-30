@@ -14,6 +14,7 @@
 """
 import logging as log
 import os
+import re
 from functools import lru_cache
 from typing import List, Optional
 
@@ -25,7 +26,7 @@ from langchain_community.document_loaders.async_html import AsyncHtmlLoader
 from langchain_community.utilities import GoogleSearchAPIWrapper
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document
-from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.tools import Tool
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -33,11 +34,9 @@ from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import PERSIST_DIR
-from askai.core.component.geo_location import geo_location
 from askai.core.component.summarizer import summarizer
 from askai.core.model.search_result import SearchResult
 from askai.core.support.langchain_support import lc_llm, load_document
-from askai.core.support.shared_instances import shared
 
 
 class InternetService(metaclass=Singleton):
@@ -73,7 +72,7 @@ class InternetService(metaclass=Singleton):
         query = ''
         # Weather is a filter that does not require any other search parameter.
         if filters and any(f.find("weather:") >= 0 for f in filters):
-            return ' AND '.join(filters)
+            return re.sub(r'^weather:(.*)', r'weather:"\1"', ' AND '.join(filters))
         if sites:
             query += ' OR '.join(['site:' + url for url in sites])
         if filters and any(f.find("people:") >= 0 for f in filters):
@@ -106,12 +105,7 @@ class InternetService(metaclass=Singleton):
                 content = str(self._tool.run(query))
                 llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
                 chain = create_stuff_documents_chain(lc_llm.create_chat_model(), llm_prompt)
-                template = PromptTemplate(
-                    input_variables=['idiom', 'datetime', 'location', 'question'], template=self.template())
-                final_prompt = template.format(
-                    idiom=shared.idiom, datetime=geo_location.datetime,
-                    location=geo_location.location, question=search.question)
-                return chain.invoke({"query": final_prompt, "context": [Document(content)]})
+                return chain.invoke({"query": search.question, "context": [Document(content)]})
             except HttpError as err:
                 return msg.fail_to_search(str(err))
 
