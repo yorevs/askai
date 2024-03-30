@@ -63,7 +63,7 @@ class InternetProcessor:
         template = PromptTemplate(input_variables=['idiom', 'datetime'], template=self.template())
         final_prompt: str = template.format(idiom=shared.idiom, datetime=geo_location.now)
         shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", query_response.question)
+        shared.context.set("QUESTION", f"\n\nQuestion:\n{query_response.question}")
         context: ContextRaw = shared.context.join("SETUP", "QUESTION")
         log.info("Setup::[INTERNET] '%s'  context=%s", query_response.question, context)
 
@@ -76,8 +76,8 @@ class InternetProcessor:
                 else:
                     if output := internet.search_google(search):
                         output = msg.translate(output)
-                        shared.context.push("GENERAL", query_response.question)
-                        shared.context.push("GENERAL", output, "assistant")
+                        shared.context.push("GENERAL", f"\n\nUser:\n{query_response.question}")
+                        shared.context.push("GENERAL", f"\n\nAI:\n{output}", "assistant")
                         cache.save_reply(query_response.question, output)
                         cache.save_query_history()
                     else:
@@ -88,7 +88,7 @@ class InternetProcessor:
         else:
             log.debug('Reply found for "%s" in cache.', query_response.question)
             output = response
-            shared.context.set("CONTEXT", output, "assistant")
+            shared.context.push("CONTEXT", output, "assistant")
             status = True
 
         return status, output

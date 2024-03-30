@@ -18,7 +18,7 @@ class TextFormatter(metaclass=Singleton):
 
     CHAT_ICONS = {
         '': '\n%RED%  Error: ',
-        '': '\n>   *Hints & Tips:* ',
+        '': '\n>   *TIP:* ',
         '': '\n>   *Analysis:* ',
         '': '\n>   *Summary:* ',
         '': '\n>   *Joke:* ',

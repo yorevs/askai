@@ -70,15 +70,15 @@ class AnalysisProcessor:
         template = PromptTemplate(input_variables=['idiom'], template=self.template())
         final_prompt: str = template.format(idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", query_response.question)
+        shared.context.set("QUESTION", f"\n\nQuestion:\n{query_response.question}")
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
         log.info("Analysis::[QUESTION] '%s'  context=%s", query_response.question, context)
 
         if (response := shared.engine.ask(context, *Temperatures.CODE_GENERATION.value)) and response.is_success:
             log.debug("Analysis::[RESPONSE] Received from AI: %s.", response)
             if response.message and shared.UNCERTAIN_ID != (output := response.message):
-                shared.context.push("CONTEXT", query_response.question)
-                shared.context.push("CONTEXT", output, "assistant")
+                shared.context.push("CONTEXT", f"\n\nUser:\n{query_response.question}")
+                shared.context.push("CONTEXT", f"\n\nAI:\n{output}", "assistant")
             else:
                 self._next_in_chain = QueryType.GENERIC_QUERY.proc_name
                 output = self._wrap_output(query_response)

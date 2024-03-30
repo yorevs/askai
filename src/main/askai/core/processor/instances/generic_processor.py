@@ -72,15 +72,15 @@ class GenericProcessor:
         template = PromptTemplate(input_variables=['user', 'datetime', 'idiom'], template=self.template())
         final_prompt: str = template.format(user=prompt.user, datetime=geo_location.now, idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", query_response.question)
+        shared.context.set("QUESTION", f"\n\nQuestion:\n{query_response.question}")
         context: ContextRaw = shared.context.join("GENERAL", "SETUP", "QUESTION")
         log.info("Setup::[GENERIC] '%s'  context=%s", query_response.question, context)
 
         if (response := shared.engine.ask(context, *Temperatures.CREATIVE_WRITING.value)) and response.is_success:
             log.debug("General::[RESPONSE] Received from AI: %s.", response)
             if response.message and shared.INTERNET_ID != (output := response.message):
-                shared.context.push("GENERAL", query_response.question)
-                shared.context.push("GENERAL", output, "assistant")
+                shared.context.push("GENERAL", f"\n\nUser:\n{query_response.question}")
+                shared.context.push("GENERAL", f"\n\nAI:\n{output}", "assistant")
                 cache.save_reply(query_response.question, output)
                 cache.save_query_history()
             else:

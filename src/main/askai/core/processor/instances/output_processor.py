@@ -59,13 +59,13 @@ class OutputProcessor(AIProcessor):
         template = PromptTemplate(input_variables=['command_line', 'shell', 'idiom'], template=self.template())
         final_prompt: str = template.format(command_line=commands, shell=prompt.shell, idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
-        context: ContextRaw = shared.context.join("CONTEXT", "SETUP")
+        context: ContextRaw = shared.context.join("SETUP", "CONTEXT")
         log.info("Output::[COMMAND] '%s'  context=%s", commands, context)
 
         if (response := shared.engine.ask(context, *Temperatures.ZERO.value)) and response.is_success:
             log.debug("Output::[RESPONSE] Received from AI: %s.", response)
             if output := response.message:
-                shared.context.push("CONTEXT", output, "assistant")
+                shared.context.push("CONTEXT", f"\n\nAI:\n{output}", "assistant")
             status = True
         else:
             log.error(f"Output processing failed. CONTEXT=%s  RESPONSE=%s", context, response)

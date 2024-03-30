@@ -79,7 +79,7 @@ class CommandProcessor:
         template = PromptTemplate(input_variables=["os_type", "shell", 'idiom'], template=self.template())
         final_prompt: str = template.format(os_type=prompt.os_type, shell=prompt.shell, idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", query_response.question)
+        shared.context.set("QUESTION", f"\n\nQuestion:\n{query_response.question}")
         context: ContextRaw = shared.context.join("CONTEXT", "SETUP", "QUESTION")
         log.info("Command::[QUESTION] '%s'  context=%s", query_response.question, context)
 
@@ -124,7 +124,8 @@ class CommandProcessor:
                     if not output:
                         output = msg.cmd_no_output()
                     else:
-                        shared.context.set("CONTEXT", f"Command `{cmd_line}' output:\n\n```\n{output}\n```")
+                        shared.context.push("CONTEXT", f"\n\nUser:\n{query_response.question}")
+                        shared.context.push("CONTEXT", f"\n\nCommand `{cmd_line}' output:\n```\n{output}```")
                         output = self._wrap_output(query_response, cmd_line, output)
                 else:
                     log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), cmd_line)
