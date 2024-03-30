@@ -12,17 +12,16 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import re
-
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.tools.commons import log_init, sysout
-
 from askai.core.component.cache_service import cache
 from askai.core.component.geo_location import geo_location
 from askai.core.component.internet_service import internet
 from askai.core.model.search_result import SearchResult
 from askai.core.support.shared_instances import shared
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.tools.commons import log_init, sysout
+
+import logging as log
+import re
 
 if __name__ == "__main__":
 
@@ -36,8 +35,8 @@ if __name__ == "__main__":
     sysout("--" * 40)
 
     while (query := line_input("You: ")) not in ["exit", "q", "quit"]:
-        kw: list[str] = re.split('[ ,;]', query)
-        sites: list[str] = ['accuweather.com', 'weather.com']
+        kw: list[str] = re.split("[ ,;]", query)
+        sites: list[str] = ["accuweather.com", "weather.com"]
         q = SearchResult(query, geo_location.now, kw, sites)
         answer = internet.search_google(q)
         sysout(f"%GREEN%AI: {answer}")

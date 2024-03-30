@@ -1,7 +1,3 @@
-import re
-from textwrap import dedent
-from typing import Any
-
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.dict_tools import get_or_default
 from hspylib.modules.cli.vt100.vt_code import VtCode
@@ -9,21 +5,25 @@ from hspylib.modules.cli.vt100.vt_color import VtColor
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.text import Text
+from textwrap import dedent
+from typing import Any
+
+import re
 
 
 class TextFormatter(metaclass=Singleton):
     """TODO"""
 
-    INSTANCE: 'TextFormatter' = None
+    INSTANCE: "TextFormatter" = None
 
     CHAT_ICONS = {
-        '': '\n%RED%  Error: ',
-        '': '\n>   *TIP:* ',
-        '': '\n>   *Analysis:* ',
-        '': '\n>   *Summary:* ',
-        '': '\n>   *Joke:* ',
-        '': '\n>   *Fun-Fact:* ',
-        '': '\n>   *Advice:* ',
+        "": "\n%RED%  Error: ",
+        "": "\n>   *TIP:* ",
+        "": "\n>   *Analysis:* ",
+        "": "\n>   *Summary:* ",
+        "": "\n>   *Joke:* ",
+        "": "\n>   *Fun-Fact:* ",
+        "": "\n>   *Advice:* ",
     }
 
     def __init__(self):

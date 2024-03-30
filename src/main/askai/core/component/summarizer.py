@@ -12,20 +12,6 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import os
-from functools import lru_cache
-from pathlib import Path
-from typing import List, Optional, Tuple
-
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.text_tools import ensure_endswith
-from langchain.chains import RetrievalQA
-from langchain_community.document_loaders import DirectoryLoader
-from langchain_community.vectorstores.chroma import Chroma
-from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter, TextSplitter
-
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import PERSIST_DIR
@@ -33,6 +19,19 @@ from askai.core.model.summary_result import SummaryResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.utilities import hash_text
 from askai.exception.exceptions import DocumentsNotFound
+from functools import lru_cache
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.text_tools import ensure_endswith
+from langchain.chains import RetrievalQA
+from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.vectorstores.chroma import Chroma
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter, TextSplitter
+from pathlib import Path
+from typing import List, Optional, Tuple
+
+import logging as log
+import os
 
 
 class Summarizer(metaclass=Singleton):
@@ -60,9 +59,7 @@ class Summarizer(metaclass=Singleton):
         self._folder = None
         self._glob = None
         self._chat_history = None
-        self._text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000, chunk_overlap=25
-        )
+        self._text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=25)
 
     @property
     def persist_dir(self) -> Path:

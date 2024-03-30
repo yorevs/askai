@@ -1,32 +1,33 @@
-import json
-import logging as log
+from askai.core.askai_configs import configs
 from datetime import datetime
-from json import JSONDecodeError
-from textwrap import dedent
-
-import pytz
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.namespace import Namespace
 from hspylib.modules.fetch import fetch
+from json import JSONDecodeError
 from requests.exceptions import ConnectionError
+from textwrap import dedent
 
-from askai.core.askai_configs import configs
+import json
+import logging as log
+import pytz
 
 
 class GeoLocation(metaclass=Singleton):
     """TODO"""
 
-    INSTANCE: 'GeoLocation' = None
+    INSTANCE: "GeoLocation" = None
 
     GEO_LOC_URL: str = "http://ip-api.com/json"
 
-    EMPTY_JSON_RESP: str = dedent('''
+    EMPTY_JSON_RESP: str = dedent(
+        """
     {
         "status": "failure", "country": "", "countryCode": "", "region": "", "regionName": "",
         "city": "", "zip": "", "lat": 0.0, "lon": 0.0, "timezone": "",
         "isp": "", "org": "", "as": "", "query": ""
     }
-    ''')
+    """
+    )
 
     # Date format used in prompts, e.g: Fri 22 Mar 19:47 2024.
     DATE_FMT: str = "%a %d %b %-H:%M %Y"
@@ -36,10 +37,10 @@ class GeoLocation(metaclass=Singleton):
         """TODO"""
         try:
             url = f"{cls.GEO_LOC_URL}{'/' + ip if ip else ''}"
-            log.debug('Fetching the Geo Position from: %s', url)
+            log.debug("Fetching the Geo Position from: %s", url)
             geo_req = fetch.get(url)
         except (JSONDecodeError, ConnectionError) as err:
-            log.error('Failed to retrieve geo location => %s', str(err))
+            log.error("Failed to retrieve geo location => %s", str(err))
             geo_req = Namespace(body=cls.EMPTY_JSON_RESP)
         geo_json = json.loads(geo_req.body)
         geo_location: Namespace = Namespace(**geo_json)
@@ -51,7 +52,7 @@ class GeoLocation(metaclass=Singleton):
 
     def __str__(self):
         geo_loc = self._geo_location
-        geo_loc.setattr('zoned_datetime', self.datetime)
+        geo_loc.setattr("zoned_datetime", self.datetime)
         return str(self._geo_location)
 
     @property

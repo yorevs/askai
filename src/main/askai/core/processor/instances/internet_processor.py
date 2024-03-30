@@ -12,14 +12,6 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-from functools import lru_cache
-from typing import Optional, Tuple, List
-
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.documents import Document
-from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
-
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
@@ -32,6 +24,13 @@ from askai.core.processor.processor_base import AIProcessor
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
+from functools import lru_cache
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.documents import Document
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
+from typing import List, Optional, Tuple
+
+import logging as log
 
 
 class InternetProcessor:
@@ -64,7 +63,7 @@ class InternetProcessor:
 
     def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        template = PromptTemplate(input_variables=['idiom', 'datetime'], template=self.template())
+        template = PromptTemplate(input_variables=["idiom", "datetime"], template=self.template())
         final_prompt: str = template.format(idiom=shared.idiom, datetime=geo_location.datetime)
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion:\n{query_response.question}")

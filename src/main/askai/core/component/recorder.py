@@ -82,9 +82,7 @@ class Recorder(metaclass=Singleton):
         return self._input_device if self._input_device else None
 
     def listen(
-        self,
-        recognition_api: RecognitionApi = RecognitionApi.OPEN_AI,
-        language: Language = Language.EN_US
+        self, recognition_api: RecognitionApi = RecognitionApi.OPEN_AI, language: Language = Language.EN_US
     ) -> Tuple[Path, Optional[str]]:
         """Listen to the microphone, save the AudioData as a wav file and then, transcribe the speech.
         :param recognition_api: the API to be used to recognize the speech.
@@ -127,7 +125,7 @@ class Recorder(metaclass=Singleton):
         """
         with Microphone() as source:
             try:
-                log.debug('Adjusting noise levels…')
+                log.debug("Adjusting noise levels…")
                 self._rec.adjust_for_ambient_noise(source, duration=interval)
             except UnknownValueError as err:
                 raise IntelligibleAudioError(f"Unable to detect noise => {str(err)}") from err

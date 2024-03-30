@@ -13,32 +13,26 @@
    Copyright·(c)·2024,·HSPyLib
 """
 
-import hashlib
-import os
-import re
-from os.path import basename, dirname
-from pathlib import Path
-from typing import Any, Optional, Tuple
-
-import pause
+from askai.core.support.presets import Presets
+from askai.core.support.text_formatter import text_formatter
+from askai.language.language import Language
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.cli.vt100.vt_color import VtColor
+from os.path import basename, dirname
+from pathlib import Path
+from typing import Any, Optional, Tuple
 
-from askai.core.support.presets import Presets
-from askai.core.support.text_formatter import text_formatter
-from askai.language.language import Language
+import hashlib
+import os
+import pause
+import re
 
 
-def display_text(
-    text: Any,
-    prefix: Any = '',
-    markdown: bool = True,
-    erase_last=False
-) -> None:
+def display_text(text: Any, prefix: Any = "", markdown: bool = True, erase_last=False) -> None:
     """Display the provided text ina proper way.
     :param text: The text to be displayed.
     :param prefix: the text prefix.
@@ -53,12 +47,7 @@ def display_text(
         text_formatter.display_text(f"{str(prefix)}{text}")
 
 
-def stream_text(
-    text: Any,
-    prefix: Any = '',
-    tempo: int = 1,
-    language: Language = Language.EN_US
-) -> None:
+def stream_text(text: Any, prefix: Any = "", tempo: int = 1, language: Language = Language.EN_US) -> None:
     """Stream the text on the screen. Simulates a typewriter effect. The following presets were
     benchmarked according to the selected language.
     :param text: the text to stream.
@@ -78,7 +67,7 @@ def stream_text(
     for i, char in enumerate(text):
         if char == "%" and (i + 1) < len(text):
             try:
-                if (color := text[i + 1: text.index("%", i + 1)]) in VtColor.names():
+                if (color := text[i + 1 : text.index("%", i + 1)]) in VtColor.names():
                     hide, idx = True, text.index("%", i + 1)
                     sysout(f"%{color}%", end="")
                     continue
@@ -151,7 +140,7 @@ def extract_path(command_line: str, flags: int = re.IGNORECASE | re.MULTILINE) -
     :param command_line: The command line text.
     :param flags: Regex match flags.
     """
-    command_line = re.sub('([12&]>|2>&1|1>&2).+', '', command_line.split('|')[0])
+    command_line = re.sub("([12&]>|2>&1|1>&2).+", "", command_line.split("|")[0])
     re_path = r'(?:\w)\s+(?:-[\w\d]+\s)*(?:([\/\w\d\s"-]+)|(".*?"))'
     if command_line and (cmd_path := re.search(re_path, command_line, flags)):
         if (extracted := cmd_path.group(1).strip().replace("\\ ", " ")) and (_path_ := Path(extracted)).exists():
@@ -174,7 +163,7 @@ def extract_command(markdown_text: str, flags: int = re.IGNORECASE | re.MULTILIN
     return None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     s = """
     # Hello my friends
 

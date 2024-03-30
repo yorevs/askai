@@ -12,17 +12,16 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import os
+from askai.core.model.query_type import QueryType
+from askai.core.processor.processor_base import AIProcessor
 from functools import lru_cache
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.text_tools import camelcase
 from importlib import import_module
 from os.path import dirname
 from typing import Dict, Optional
 
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.text_tools import camelcase
-
-from askai.core.model.query_type import QueryType
-from askai.core.processor.processor_base import AIProcessor
+import os
 
 
 class ProcessorFactory(metaclass=Singleton):
@@ -46,9 +45,7 @@ class ProcessorFactory(metaclass=Singleton):
         """Retrieve an AIProcessor by query type.
         :param query_type: The type of the query.
         """
-        return next(
-            (p for p in cls._PROCESSORS.values() if p.supports(str(query_type))), None
-        )
+        return next((p for p in cls._PROCESSORS.values() if p.supports(str(query_type))), None)
 
     @classmethod
     @lru_cache
@@ -61,30 +58,29 @@ class ProcessorFactory(metaclass=Singleton):
     @classmethod
     @lru_cache
     def analysis(cls) -> AIProcessor:
-        return cls._PROCESSORS['AnalysisProcessor']
+        return cls._PROCESSORS["AnalysisProcessor"]
 
     @classmethod
     @lru_cache
     def command(cls) -> AIProcessor:
-        return cls._PROCESSORS['CommandProcessor']
+        return cls._PROCESSORS["CommandProcessor"]
 
     @classmethod
     @lru_cache
     def generic(cls) -> AIProcessor:
-        return cls._PROCESSORS['GenericProcessor']
+        return cls._PROCESSORS["GenericProcessor"]
 
     @classmethod
     @lru_cache
     def internet(cls) -> AIProcessor:
-        return cls._PROCESSORS['InternetProcessor']
+        return cls._PROCESSORS["InternetProcessor"]
 
     @classmethod
     @lru_cache
     def output(cls) -> AIProcessor:
-        return cls._PROCESSORS['OutputProcessor']
+        return cls._PROCESSORS["OutputProcessor"]
 
     @classmethod
     @lru_cache
     def summary(cls) -> AIProcessor:
-        return cls._PROCESSORS['SummaryProcessor']
-
+        return cls._PROCESSORS["SummaryProcessor"]

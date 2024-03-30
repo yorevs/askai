@@ -1,9 +1,8 @@
 from functools import partial
-from typing import Optional
-
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.namespace import Namespace
 from hspylib.modules.eventbus.eventbus import emit, EventBus
+from typing import Optional
 
 ASKAI_BUS_NAME: str = "askai-reply-bus"
 

@@ -12,12 +12,14 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import os
-import re
+from askai.core.askai_events import AskAiEvents
+from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
+from askai.core.component.cache_service import PERSIST_DIR
+from askai.core.component.summarizer import summarizer
+from askai.core.model.search_result import SearchResult
+from askai.core.support.langchain_support import lc_llm, load_document
 from functools import lru_cache
-from typing import List, Optional
-
 from googleapiclient.errors import HttpError
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -29,14 +31,11 @@ from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.tools import Tool
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from typing import List, Optional
 
-from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import msg
-from askai.core.askai_prompt import prompt
-from askai.core.component.cache_service import PERSIST_DIR
-from askai.core.component.summarizer import summarizer
-from askai.core.model.search_result import SearchResult
-from askai.core.support.langchain_support import lc_llm, load_document
+import logging as log
+import os
+import re
 
 
 class InternetService(metaclass=Singleton):
@@ -53,8 +52,8 @@ class InternetService(metaclass=Singleton):
         """
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
         if len(search.sites) > 0:
-            query = '+'.join(search.keywords)
-            log.info("Scrapping sites: '%s'", str(', '.join(search.sites)))
+            query = "+".join(search.keywords)
+            log.info("Scrapping sites: '%s'", str(", ".join(search.sites)))
             documents: List[Document] = load_document(AsyncHtmlLoader, list(search.sites))
             if len(documents) > 0:
                 texts: List[Document] = summarizer.text_splitter.split_documents(documents)
@@ -69,13 +68,13 @@ class InternetService(metaclass=Singleton):
     @staticmethod
     def _build_query(search: SearchResult) -> str:
         """TODO"""
-        query = ''
+        query = ""
         # Gather the sites to be used in te search.
         if search.sites:
             query += f" {' OR '.join(['site:' + url for url in search.sites])}"
         # Weather is a filter that does not require any other search parameter.
         if search.filters and any(f.find("weather:") >= 0 for f in search.filters):
-            return re.sub(r'^weather:(.*)', r'weather:"\1"', ' AND '.join(search.filters))
+            return re.sub(r"^weather:(.*)", r'weather:"\1"', " AND ".join(search.filters))
         # We want to find pages containing the exact name of the person.
         if search.filters and any(f.find("people:") >= 0 for f in search.filters):
             return f" ${query} intext:\"{' + '.join([f.split(':')[1] for f in search.filters])}\" "
@@ -87,9 +86,7 @@ class InternetService(metaclass=Singleton):
     def __init__(self):
         self._google = GoogleSearchAPIWrapper()
         self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
-        self._text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000, chunk_overlap=25
-        )
+        self._text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=25)
 
     @lru_cache
     def template(self) -> str:

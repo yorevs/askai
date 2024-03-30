@@ -12,9 +12,10 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import json
 from dataclasses import dataclass
 from typing import List
+
+import json
 
 
 @dataclass

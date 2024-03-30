@@ -6,11 +6,11 @@
 """Package initialization."""
 
 __all__ = [
-    'analysis_processor', 
-    'command_processor', 
-    'generic_processor', 
-    'internet_processor', 
-    'output_processor', 
-    'summary_processor'
+    "analysis_processor",
+    "command_processor",
+    "generic_processor",
+    "internet_processor",
+    "output_processor",
+    "summary_processor",
 ]
-__version__ = '1.0.1'
+__version__ = "1.0.1"

@@ -12,9 +12,8 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from typing import Optional, Tuple, Protocol
-
 from askai.core.model.processor_response import ProcessorResponse
+from typing import Optional, Protocol, Tuple
 
 
 class AIProcessor(Protocol):
@@ -26,11 +25,11 @@ class AIProcessor(Protocol):
         """
         ...
 
-    def next_in_chain(self) -> Optional['AIProcessor']:
+    def next_in_chain(self) -> Optional["AIProcessor"]:
         """Return the next processor in the chain to call. Defaults to None."""
         ...
 
-    def bind(self, next_in_chain: 'AIProcessor') -> None:
+    def bind(self, next_in_chain: "AIProcessor") -> None:
         """Bind a processor to be the next in chain."""
         ...
 

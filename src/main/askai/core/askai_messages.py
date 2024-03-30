@@ -1,11 +1,9 @@
-from functools import lru_cache
-
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.modules.application.exit_status import ExitStatus
-
 from askai.core.askai_configs import configs
 from askai.language.argos_translator import ArgosTranslator
 from askai.language.language import Language
+from functools import lru_cache
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.modules.application.exit_status import ExitStatus
 
 
 class AskAiMessages(metaclass=Singleton):
@@ -77,7 +75,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def press_esc_enter(self) -> str:
-        return self.translate('Press [Esc or Enter] to leave')
+        return self.translate("Press [Esc or Enter] to leave")
 
     # Warnings and alerts
 

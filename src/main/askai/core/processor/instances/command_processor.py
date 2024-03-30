@@ -12,19 +12,6 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import os
-from functools import lru_cache
-from os.path import expandvars
-from shutil import which
-from typing import Optional, Tuple, List
-
-from clitt.core.term.terminal import Terminal
-from hspylib.modules.application.exit_status import ExitStatus
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.documents import Document
-from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
-
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -35,6 +22,18 @@ from askai.core.processor.processor_base import AIProcessor
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_command, extract_path
+from clitt.core.term.terminal import Terminal
+from functools import lru_cache
+from hspylib.modules.application.exit_status import ExitStatus
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.documents import Document
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
+from os.path import expandvars
+from shutil import which
+from typing import List, Optional, Tuple
+
+import logging as log
+import os
 
 
 class CommandProcessor:
@@ -80,7 +79,7 @@ class CommandProcessor:
 
     def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        template = PromptTemplate(input_variables=["os_type", "shell", 'idiom'], template=self.template())
+        template = PromptTemplate(input_variables=["os_type", "shell", "idiom"], template=self.template())
         final_prompt: str = template.format(os_type=prompt.os_type, shell=prompt.shell, idiom=shared.idiom)
         shared.context.set("SETUP", final_prompt, "system")
         shared.context.set("QUESTION", f"\n\nQuestion:\n{query_response.question}")

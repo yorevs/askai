@@ -1,17 +1,15 @@
-from typing import Optional
-
-from clitt.core.term.terminal import terminal
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_state
-from hspylib.modules.cli.keyboard import Keyboard
-
 from askai.core.askai_configs import configs
 from askai.core.askai_prompt import prompt
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
 from askai.core.model.chat_context import ChatContext
 from askai.core.support.utilities import display_text
+from clitt.core.term.terminal import terminal
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_state
+from hspylib.modules.cli.keyboard import Keyboard
+from typing import Optional
 
 
 class SharedInstances(metaclass=Singleton):
@@ -20,7 +18,7 @@ class SharedInstances(metaclass=Singleton):
     INSTANCE: "SharedInstances" = None
 
     # This is the uuid used in the prompts to indicate that the AI does not know the answer.
-    UNCERTAIN_ID: str = 'bde6f44d-c1a0-4b0c-bd74-8278e468e50c'
+    UNCERTAIN_ID: str = "bde6f44d-c1a0-4b0c-bd74-8278e468e50c"
 
     def __init__(self) -> None:
         self._engine: Optional[AIEngine] = None

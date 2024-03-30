@@ -12,12 +12,10 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from typing import List
-
+from askai.core.model.ai_model import AIModel
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.preconditions import check_not_none
-
-from askai.core.model.ai_model import AIModel
+from typing import List
 
 
 class OpenAIModel(Enumeration):

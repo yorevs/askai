@@ -12,26 +12,9 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import os
-import sys
-from functools import partial
-from threading import Thread
-from typing import List, Optional
-
-import nltk
-import pause
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.term.terminal import terminal
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import sysout
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.eventbus.event import Event
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
-from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_EVENT, REPLY_ERROR_EVENT
+from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
 from askai.core.askai_messages import msg
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
@@ -44,6 +27,22 @@ from askai.core.processor.processor_proxy import proxy
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.term.terminal import terminal
+from functools import partial
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import sysout
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.eventbus.event import Event
+from threading import Thread
+from typing import List, Optional
+
+import logging as log
+import nltk
+import os
+import pause
+import sys
 
 
 class AskAi:
@@ -70,7 +69,7 @@ class AskAi:
         configs.tempo = tempo
 
     def __str__(self) -> str:
-        device_info = f'{recorder.input_device[1].title()}' if recorder.input_device else ""
+        device_info = f"{recorder.input_device[1].title()}" if recorder.input_device else ""
         return (
             f"%GREEN%"
             f"{'-=' * 40} %EOL%"
@@ -226,7 +225,7 @@ class AskAi:
             processor = ProcessorFactory.summary()
             processor.bind(ProcessorFactory.generic())
         # Query processors
-        if processor or (query_type := proxy_response.query_type or 'AnalysisQuery'):
+        if processor or (query_type := proxy_response.query_type or "AnalysisQuery"):
             if not processor and not (processor := ProcessorFactory.find_processor(query_type)):
                 log.error(f"Unable to find a proper processor: {str(proxy_response)}")
                 self.reply_error(msg.no_processor(query_type))

@@ -1,16 +1,15 @@
-import logging as log
-import os
-import sys
-from functools import lru_cache
-from typing import Optional
-
 from argostranslate import package, translate
 from argostranslate.translate import ITranslation
-from hspylib.core.metaclass.singleton import Singleton
-
 from askai.core.component.cache_service import CACHE_DIR
 from askai.exception.exceptions import TranslationPackageError
 from askai.language.language import Language
+from functools import lru_cache
+from hspylib.core.metaclass.singleton import Singleton
+from typing import Optional
+
+import logging as log
+import os
+import sys
 
 
 class ArgosTranslator:
@@ -76,6 +75,6 @@ class ArgosTranslator:
         return required_package is not None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     t = ArgosTranslator(Language.EN_US, Language.PT_BR)
-    print(t.translate('Hello "initialization" how ARE you doing \'what is up\''))
+    print(t.translate("Hello \"initialization\" how ARE you doing 'what is up'"))
