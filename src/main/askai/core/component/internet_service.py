@@ -67,25 +67,28 @@ class InternetService(metaclass=Singleton):
         return None
 
     @staticmethod
-    def build_query(keywords: List[str], filters: List[str], sites: List[str]) -> str:
+    def _build_query(search: SearchResult) -> str:
         """TODO"""
         query = ''
+        # Gather the sites to be used in te search.
+        if search.sites:
+            query += f" {' OR '.join(['site:' + url for url in search.sites])}"
         # Weather is a filter that does not require any other search parameter.
-        if filters and any(f.find("weather:") >= 0 for f in filters):
-            return re.sub(r'^weather:(.*)', r'weather:"\1"', ' AND '.join(filters))
-        if sites:
-            query += f"{' OR '.join(['site:' + url for url in sites])}"
-        if filters and any(f.find("people:") >= 0 for f in filters):
-            query += f" intext:\"{' + '.join([f.split(':')[1] for f in filters])}\" "
-        if keywords:
-            query += f"{' + '.join(keywords)}"
+        if search.filters and any(f.find("weather:") >= 0 for f in search.filters):
+            return re.sub(r'^weather:(.*)', r'weather:"\1"', ' AND '.join(search.filters))
+        # We want to find pages containing the exact name of the person.
+        if search.filters and any(f.find("people:") >= 0 for f in search.filters):
+            return f" ${query} intext:\"{' + '.join([f.split(':')[1] for f in search.filters])}\" "
+        # Make the search query using the provided keywords.
+        if search.keywords:
+            query += f" {' + '.join(search.keywords)} "
         return query
 
     def __init__(self):
         self._google = GoogleSearchAPIWrapper()
         self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
         self._text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=800, chunk_overlap=8, separators=[" ", ", ", os.linesep]
+            chunk_size=1000, chunk_overlap=25
         )
 
     @lru_cache
@@ -100,7 +103,7 @@ class InternetService(metaclass=Singleton):
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
         if len(search.sites) > 0:
             try:
-                query = self.build_query(search.keywords, search.filters, search.sites)
+                query = self._build_query(search).strip()
                 log.info("Searching Google for '%s'", query)
                 content = str(self._tool.run(query))
                 llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])

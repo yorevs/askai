@@ -61,7 +61,7 @@ class Summarizer(metaclass=Singleton):
         self._glob = None
         self._chat_history = None
         self._text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=800, chunk_overlap=10, separators=[" ", ", ", "\n"]
+            chunk_size=1000, chunk_overlap=25
         )
 
     @property

@@ -23,6 +23,7 @@ class SearchResult:
 
     question: str = None
     datetime: str = None
+    category: str = None
     keywords: List[str] = None
     sites: List[str] = None
     filters: List[str] = None
