@@ -55,6 +55,9 @@ class GenericProcessor:
         self._next_in_chain: AIProcessor | None = None
         self._supports: List[str] = [self.q_type()]
 
+    def name(self) -> str:
+        return type(self).__name__
+
     def supports(self, query_type: str) -> bool:
         return query_type in self._supports
 

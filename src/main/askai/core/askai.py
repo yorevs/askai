@@ -231,7 +231,7 @@ class AskAi:
                 log.error(f"Unable to find a proper processor: {str(proxy_response)}")
                 self.reply_error(msg.no_processor(query_type))
                 return False
-            log.info("%s::Processing response for '%s'", processor, proxy_response.question)
+            log.info("%s::Processing response for '%s'", processor.name(), proxy_response.question)
             status, output = processor.process(proxy_response)
             if status and output and processor.next_in_chain():
                 mapped_response = object_mapper.of_json(output, ProcessorResponse)

@@ -74,11 +74,11 @@ class InternetService(metaclass=Singleton):
         if filters and any(f.find("weather:") >= 0 for f in filters):
             return re.sub(r'^weather:(.*)', r'weather:"\1"', ' AND '.join(filters))
         if sites:
-            query += ' OR '.join(['site:' + url for url in sites])
+            query += f"{' OR '.join(['site:' + url for url in sites])}"
         if filters and any(f.find("people:") >= 0 for f in filters):
             query += f" intext:\"{' + '.join([f.split(':')[1] for f in filters])}\" "
         if keywords:
-            query += ' + '.join(keywords)
+            query += f"{' + '.join(keywords)}"
         return query
 
     def __init__(self):
@@ -101,7 +101,7 @@ class InternetService(metaclass=Singleton):
         if len(search.sites) > 0:
             try:
                 query = self.build_query(search.keywords, search.filters, search.sites)
-                log.info("Searching GOOGLE for '%s'  url: '%s'", query, str(', '.join(search.sites)))
+                log.info("Searching Google for '%s'", query)
                 content = str(self._tool.run(query))
                 llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
                 chain = create_stuff_documents_chain(lc_llm.create_chat_model(), llm_prompt)
