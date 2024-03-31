@@ -12,14 +12,15 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from askai.__classpath__ import _Classpath
-from askai.language.language import Language
+import os
+from shutil import which
+
 from hspylib.core.config.app_config import AppConfigs
 from hspylib.core.enums.charset import Charset
 from hspylib.core.metaclass.singleton import Singleton
-from shutil import which
 
-import os
+from askai.__classpath__ import classpath
+from askai.language.language import Language
 
 
 class AskAiConfigs(metaclass=Singleton):
@@ -28,7 +29,7 @@ class AskAiConfigs(metaclass=Singleton):
     INSTANCE: "AskAiConfigs" = None
 
     # The resources folder
-    RESOURCE_DIR = str(_Classpath.resource_path())
+    RESOURCE_DIR = str(classpath.resource_path())
 
     def __init__(self):
         self._configs = AppConfigs.INSTANCE or AppConfigs(self.RESOURCE_DIR)

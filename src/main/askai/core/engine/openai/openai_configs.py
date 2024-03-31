@@ -12,11 +12,13 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-from askai.__classpath__ import _Classpath
-from askai.core.askai_configs import AskAiConfigs
+from typing import Literal
+
 from hspylib.core.config.app_config import AppConfigs
 from hspylib.core.metaclass.singleton import Singleton
-from typing import Literal
+
+from askai.__classpath__ import classpath
+from askai.core.askai_configs import AskAiConfigs
 
 
 class OpenAiConfigs(AskAiConfigs, metaclass=Singleton):
@@ -25,7 +27,7 @@ class OpenAiConfigs(AskAiConfigs, metaclass=Singleton):
     INSTANCE: "OpenAiConfigs" = None
 
     # The resources folder
-    RESOURCE_DIR = str(_Classpath.resource_path())
+    RESOURCE_DIR = str(classpath.resource_path())
 
     def __init__(self):
         super().__init__()
