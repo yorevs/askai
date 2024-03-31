@@ -31,7 +31,7 @@ REQUIREMENTS = list(filter(None, (HERE / "requirements.txt").read_text().splitli
 # This call to setup() does all the work
 setuptools.setup(
     name="hspylib-askai",
-    version=VERSION,
+    version="1.0.4",
     description="HomeSetup - AskAI",
     author="Hugo Saporetti Junior",
     author_email="yorevs@hotmail.com",
@@ -57,6 +57,6 @@ setuptools.setup(
     ],
     python_requires=">=3.10",
     install_requires=REQUIREMENTS,
-    keywords="ai,openai,application,generative,ask",
+    keywords="ai,openai,application,generative,ask,terminal,ai-terminal-integration",
     platforms="Darwin,Linux",
 )
