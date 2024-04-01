@@ -12,6 +12,23 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import logging as log
+import os
+import sys
+from functools import partial
+from threading import Thread
+from typing import List, Optional
+
+import nltk
+import pause
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.term.terminal import terminal
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import sysout
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.eventbus.event import Event
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
@@ -21,28 +38,9 @@ from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
-from askai.core.model.processor_response import ProcessorResponse
-from askai.core.processor.processor_factory import ProcessorFactory
-from askai.core.processor.processor_proxy import proxy
-from askai.core.support.object_mapper import object_mapper
+from askai.core.processor.router import router
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.term.terminal import terminal
-from functools import partial
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import sysout
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.eventbus.event import Event
-from threading import Thread
-from typing import List, Optional
-
-import logging as log
-import nltk
-import os
-import pause
-import sys
 
 
 class AskAi:
@@ -198,52 +196,15 @@ class AskAi:
         """
         if not (reply := cache.read_reply(question)):
             log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
-            status, response = proxy.process(question)
-            if status and response:
-                return self._process_response(response)
-            self.reply_error(response)
+            status, output = router.process(question)
+            if status:
+                if output:
+                    self.reply(output.response)
+            else:
+                self.reply_error(output)
         else:
             log.debug("Reply found for '%s' in cache.", question)
             self.reply(reply)
             status = True
         return status
 
-    def _process_response(self, proxy_response: ProcessorResponse) -> bool:
-        """Process a query response using a processor that supports the query type.
-        :param proxy_response: The processor proxy response.
-        """
-        status, output, query_type, processor = False, None, None, None
-        # Intrinsic features
-        if not proxy_response.intelligible:
-            self.reply_error(msg.intelligible(proxy_response.question))
-            return True
-        elif proxy_response.terminating:
-            log.info("User wants to terminate the conversation.")
-            return False
-        elif proxy_response.require_summarization:
-            log.info("Summarization is required to fulfill the request.")
-            processor = ProcessorFactory.summary()
-            processor.bind(ProcessorFactory.generic())
-        # Query processors
-        if processor or (query_type := proxy_response.query_type or "AnalysisQuery"):
-            if not processor and not (processor := ProcessorFactory.find_processor(query_type)):
-                log.error(f"Unable to find a proper processor: {str(proxy_response)}")
-                self.reply_error(msg.no_processor(query_type))
-                return False
-            log.info("%s::Processing response for '%s'", processor.name(), proxy_response.question)
-            status, output = processor.process(proxy_response)
-            if status and output and processor.next_in_chain():
-                mapped_response = object_mapper.of_json(output, ProcessorResponse)
-                if isinstance(mapped_response, ProcessorResponse):
-                    self._process_response(mapped_response)
-                else:
-                    self.reply(str(mapped_response))
-            elif status:
-                if output:
-                    self.reply(output)
-            else:
-                self.reply_error(output)
-        else:
-            self.reply_error(msg.invalid_response(str(proxy_response)))
-
-        return status
