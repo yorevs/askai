@@ -3,7 +3,7 @@ import logging as log
 import os
 from functools import lru_cache
 from operator import itemgetter
-from typing import TypeAlias, Tuple
+from typing import TypeAlias, Tuple, Optional
 
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -18,7 +18,7 @@ from askai.__classpath__ import classpath
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.model.processor_response import ProcessorResponse
-from askai.core.processor.tools.output import analyze_output
+from askai.core.processor.tools.analysis import analyze_output
 from askai.core.processor.tools.summarizer import summarize
 from askai.core.processor.tools.terminal import terminal
 from askai.core.support.langchain_support import lc_llm
@@ -103,24 +103,11 @@ class Router(metaclass=Singleton):
             log.info("Router::[RESPONSE] Received from AI: %s.", str(response))
             if output := self._route(response):
                 shared.context.push("CONTEXT", f"\n\nUser:\n{question}")
-                status = True
-            else:
-                output = ProcessorResponse(question=question, terminating=True, response=response)
+            status = True
         else:
             output = ProcessorResponse(question=question, terminating=True, response=response)
 
         return status, output
-
-    def _wrap_response(self, result: list[RunnableTool]) -> ProcessorResponse:
-        """Wrap the response.
-        :param result: TODO
-        """
-        query_response = ProcessorResponse()
-        query_response.intelligible = self.IS_INTELLIGIBLE
-        query_response.terminating = self.IS_TERMINATING
-        query_response.response = ' '.join([r['output'] for r in result])
-
-        return query_response
 
     def _call_tool(self, tool_invocation: dict) -> Runnable:
         """Function for dynamically constructing the end of the chain based on the model-selected tool."""
@@ -128,17 +115,18 @@ class Router(metaclass=Singleton):
         tool = tool_map[tool_invocation["type"]]
         return RunnablePassthrough.assign(output=itemgetter("args") | tool)
 
-    def _route(self, query: str) -> None:
+    def _route(self, query: str) -> Optional[None]:
         """Route the actions to the proper processors."""
-        result: list[RunnableTool] = []
+        result = None
         actions: list[str] = query.split(os.linesep)
         for action in actions:
             call_tool_list = RunnableLambda(self._call_tool).map()
             # fmt: off
             chain = lc_llm.create_chat_model().bind_tools(self.tools) | JsonOutputToolsParser() | call_tool_list
-            result: list[RunnableTool] = chain.invoke(action)
+            response: Output = chain.invoke(action)
+            result = response[0]['output']
             # fmt: on
-        return self._wrap_response(result) if result else None
+        return result
 
 
 assert (router := Router().INSTANCE) is not None

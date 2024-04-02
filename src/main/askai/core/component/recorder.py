@@ -12,6 +12,20 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import logging as log
+import os
+from pathlib import Path
+from typing import Callable, List, Optional, Tuple
+
+import pause
+from clitt.core.term.cursor import cursor
+from clitt.core.tui.mselect.mselect import mselect
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.commons import file_is_not_empty
+from hspylib.core.zoned_datetime import now_ms
+from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
+
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import REC_DIR
@@ -19,19 +33,6 @@ from askai.core.support.settings import Settings
 from askai.core.support.utilities import display_text
 from askai.exception.exceptions import IntelligibleAudioError, InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
-from clitt.core.term.cursor import Cursor
-from clitt.core.tui.mselect.mselect import mselect
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.commons import file_is_not_empty
-from hspylib.core.zoned_datetime import now_ms
-from pathlib import Path
-from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
-from typing import Callable, List, Optional, Tuple
-
-import logging as log
-import os
-import pause
 
 
 class Recorder(metaclass=Singleton):
@@ -104,7 +105,7 @@ class Recorder(metaclass=Singleton):
                     log.debug("Recognizing voice using %s", recognition_api)
                     assert isinstance(api, Callable)
                     stt_text = api(audio, language=language.language)
-                    Cursor.INSTANCE.erase_line()
+                    cursor.erase_line()
                 else:
                     raise InvalidRecognitionApiError(str(recognition_api or "<none>"))
             except WaitTimeoutError:

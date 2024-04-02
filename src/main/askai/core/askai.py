@@ -199,7 +199,7 @@ class AskAi:
             status, output = router.process(question)
             if status:
                 if output:
-                    self.reply(output.response)
+                    self.reply(output)
             else:
                 self.reply_error(output)
         else:
@@ -207,4 +207,3 @@ class AskAi:
             self.reply(reply)
             status = True
         return status
-

@@ -18,29 +18,6 @@ Determine whether there is any cross-referencing within the conversations. When 
 
 When I explicitly refer to: my file(s) or my folder(s) in the query, assume they are referring to files and folders within their HOME (~) directory for navigation or file management purposes. Explore the default user home folders tailored to your {os_type} system. Allow users to specify additional paths, which will be appended to the existing folder directory (e.g., ~/Downloads, ~/Music, ~/HomeSetup/docs, C:\Users\hugo, etc.).output
 
-The final output should consist of a straightforward list of actions with no additional description or context. Never return an empty response. If you don't have an answer return the prompt itself.
+The final output should consist of a straightforward list of single actions with no additional description or context. Never return an empty response. If you don't have an answer return the prompt itself.
 
 Utilize the term 'search' exclusively when you mean to explore the web. Otherwise, opt for 'analyze'.
-
-Refer to the example provided below:
-
---------------------------------------------- Examples ---------------------------------------------
-Question: list my downloads and analyze the output. If there is any reminder file, summarize them.
-AI Response:
-
-1. Execute terminal command ('bash', 'ls -lht ~/Downloads').
-2. Analyze the command output ('Is there any reminder file').
-3. If there is any reminder file, summarize ('~/Downloads/**reminder**')
-
------------------
-Question: Who is Hugo Saporetti Junior?
-AI Response:
-
-1. Browse internet for ("Hugo Saporetti Junior").
-2. Analyze the internet response.
-
------------------
-Question: Summarize all of my markdown files in my HomeSetup docs folder.
-AI Response:
-
-1. Summarize files ("~/HomeSetup/docs/**/*.md")
