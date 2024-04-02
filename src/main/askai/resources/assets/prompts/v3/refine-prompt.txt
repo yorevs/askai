@@ -14,3 +14,8 @@ Given the new context, refine the original text by utilizing the vernacular, cur
 Enhance your response by utilizing Markdown formatting to make it visually appealing and easy to read.
 
 If the context isn't useful, return the original text.
+
+
+Question:
+
+{question}

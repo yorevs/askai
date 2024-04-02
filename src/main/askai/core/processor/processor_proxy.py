@@ -13,20 +13,21 @@
    Copyright·(c)·2024,·HSPyLib
 """
 
+import logging as log
+from functools import lru_cache
+from typing import Tuple
+
+from hspylib.core.metaclass.singleton import Singleton
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.documents import Document
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
+
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.model.processor_response import ProcessorResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
-from functools import lru_cache
-from hspylib.core.metaclass.singleton import Singleton
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.documents import Document
-from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
-from typing import Tuple
-
-import logging as log
 
 
 class ProcessorProxy(metaclass=Singleton):
@@ -46,18 +47,17 @@ class ProcessorProxy(metaclass=Singleton):
         :param question: The question to the AI engine.
         """
         status = False
-        template = PromptTemplate(input_variables=["idiom"], template=self.template())
-        final_prompt = template.format(idiom=shared.idiom)
-        shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", f"\n\nQuestion: {question}\n\nHelpful Answer:")
-        ctx: str = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
-        log.info("Proxy::[QUESTION] '%s'  context=%s", question, ctx)
+        template = PromptTemplate(
+            input_variables=['idiom', 'question'], template=self.template())
+        final_prompt = template.format(idiom=shared.idiom, question=question)
+        ctx: str = shared.context.flat("CONTEXT")
+        log.info("Proxy::[QUESTION] '%s'  context=%s", final_prompt, ctx)
 
         chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
         chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
-        context = Document(ctx)
+        context = [Document(ctx)]
 
-        if response := chain.invoke({"query": question, "context": [context]}):
+        if response := chain.invoke({"query": final_prompt, "context": context}):
             log.info("Proxy::[RESPONSE] Received from AI: %s.", str(response))
             output = object_mapper.of_json(response, ProcessorResponse)
             if not isinstance(output, ProcessorResponse):

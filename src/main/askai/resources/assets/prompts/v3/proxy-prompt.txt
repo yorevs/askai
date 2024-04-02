@@ -27,3 +27,8 @@ Before responding to the user, you must follow the step-by-step instructions pro
 9. The final response 'JSON' must contain the boolean fields: 'intelligible', 'terminating' and 'require_summarization'.
 
 10. The final response 'JSON' must contain the string fields: 'query_type' and 'question'.
+
+
+Question:
+
+{question}

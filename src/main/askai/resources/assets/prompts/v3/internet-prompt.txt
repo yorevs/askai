@@ -23,3 +23,8 @@ Before responding to the user, you must follow the step-by-step instructions pro
 10. The final response 'JSON' must contain the string fields: 'question', 'datetime', 'category'.
 
 11. The final response 'JSON' must contain the array fields, 'keywords', 'filters', and 'sites'.
+
+
+Question:
+
+{question}

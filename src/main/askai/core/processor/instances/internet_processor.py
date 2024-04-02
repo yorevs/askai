@@ -64,19 +64,19 @@ class InternetProcessor:
 
     def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        template = PromptTemplate(input_variables=["idiom", "datetime", 'location'], template=self.template())
+        template = PromptTemplate(
+            input_variables=["idiom", "datetime", 'location', 'question'], template=self.template())
         final_prompt: str = template.format(
-            idiom=shared.idiom, datetime=geo_location.datetime, location=geo_location.location)
-        shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", f"\n\nQuestion:\n{query_response.question}")
+            idiom=shared.idiom, datetime=geo_location.datetime,
+            location=geo_location.location, question=query_response.question)
         ctx: str = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
-        log.info("Internet::[QUESTION] '%s'  context=%s", query_response.question, ctx)
+        log.info("Internet::[QUESTION] '%s'  context=%s", final_prompt, ctx)
 
         chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
         chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
-        context = Document(ctx)
+        context =[Document(ctx)]
 
-        if response := chain.invoke({"query": query_response.question, "context": [context]}):
+        if response := chain.invoke({"query": final_prompt, "context": context}):
             log.debug("Internet::[RESPONSE] Received from AI: %s.", response)
             search: SearchResult = object_mapper.of_json(response, SearchResult)
             if not isinstance(search, SearchResult):

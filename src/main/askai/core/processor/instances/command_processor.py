@@ -12,6 +12,19 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import logging as log
+import os
+from functools import lru_cache
+from os.path import expandvars
+from shutil import which
+from typing import List, Optional, Tuple
+
+from clitt.core.term.terminal import Terminal
+from hspylib.modules.application.exit_status import ExitStatus
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.documents import Document
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
+
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -22,18 +35,6 @@ from askai.core.processor.processor_base import AIProcessor
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_command, extract_path
-from clitt.core.term.terminal import Terminal
-from functools import lru_cache
-from hspylib.modules.application.exit_status import ExitStatus
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.documents import Document
-from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
-from os.path import expandvars
-from shutil import which
-from typing import List, Optional, Tuple
-
-import logging as log
-import os
 
 
 class CommandProcessor:
@@ -79,18 +80,19 @@ class CommandProcessor:
 
     def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        template = PromptTemplate(input_variables=["os_type", "shell", "idiom"], template=self.template())
-        final_prompt: str = template.format(os_type=prompt.os_type, shell=prompt.shell, idiom=shared.idiom)
-        shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", f"\n\nQuestion:\n{query_response.question}")
-        ctx: str = shared.context.flat("CONTEXT", "SETUP", "QUESTION")
-        log.info("Command::[QUESTION] '%s'  context=%s", query_response.question, ctx)
+        template = PromptTemplate(
+            input_variables=['os_type', 'shell', 'idiom', 'question'], template=self.template())
+        final_prompt: str = template.format(
+            os_type=prompt.os_type, shell=prompt.shell,
+            idiom=shared.idiom, question=query_response.question)
+        ctx: str = shared.context.flat("CONTEXT")
+        log.info("Command::[QUESTION] '%s'  context=%s", final_prompt, ctx)
 
         chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
         chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
-        context = Document(ctx)
+        context = [Document(ctx)]
 
-        if response := chain.invoke({"query": query_response.question, "context": [context]}):
+        if response := chain.invoke({"query": final_prompt, "context": context}):
             log.debug("Command::[RESPONSE] Received from AI: %s.", response)
             shell, command = extract_command(response)
             if command:

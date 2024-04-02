@@ -17,3 +17,8 @@ Before responding to the user, it is imperative that you follow the step-by-step
 7. When the provided output does not contain files or folders listing, create a small analysis about the summarized version.
 
 8. Wrap up your reply by offering a succinct hint or tip related to the answer; prefix with: 'Hints:'.
+
+
+Question:
+
+{question}

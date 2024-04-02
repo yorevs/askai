@@ -12,6 +12,15 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import logging as log
+import os
+from functools import lru_cache
+from typing import List, Optional, Tuple
+
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.documents import Document
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
+
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -25,14 +34,6 @@ from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 from askai.exception.exceptions import DocumentsNotFound
-from functools import lru_cache
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.documents import Document
-from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
-from typing import List, Optional, Tuple
-
-import logging as log
-import os
 
 
 class SummaryProcessor:
@@ -75,19 +76,20 @@ class SummaryProcessor:
 
     def process(self, query_response: ProcessorResponse) -> Tuple[bool, Optional[str]]:
         status = False
-        template = PromptTemplate(input_variables=["os_type", "idiom"], template=self.template())
-        final_prompt: str = template.format(os_type=prompt.os_type, idiom=shared.idiom)
-        shared.context.set("SETUP", final_prompt, "system")
-        shared.context.set("QUESTION", f"\n\nQuestion:\n{query_response.question}")
-        ctx: str = shared.context.flat("SETUP", "QUESTION")
-        log.info("Summary::[QUESTION] '%s'  context=%s", query_response.question, ctx)
+        template = PromptTemplate(
+            input_variables=['os_type', 'idiom', 'question'], template=self.template())
+        final_prompt: str = template.format(
+            os_type=prompt.os_type, idiom=shared.idiomm,
+            question=query_response.question)
+        ctx: str = shared.context.flat("CONTEXT")
+        log.info("Summary::[QUESTION] '%s'  context=%s", final_prompt, ctx)
 
         chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
         chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
-        context = Document(ctx)
+        context = [Document(ctx)]
 
         try:
-            if response := chain.invoke({"query": query_response.question, "context": [context]}):
+            if response := chain.invoke({"query": query_response.question, "context": context}):
                 log.debug("Summary::[RESPONSE] Received from AI: %s.", response)
                 summary: SummaryResult = object_mapper.of_json(response, SummaryResult)
                 if not isinstance(summary, SummaryResult):

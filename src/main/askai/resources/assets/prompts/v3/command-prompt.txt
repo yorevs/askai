@@ -29,3 +29,8 @@ Before responding to the user, it is imperative that you follow the step-by-step
 13. The output must be a markdown code block, specifying '{shell}' as the language used (Example: ```bash\nls -la\n```).
 
 14. Always return the required command with no additional description or context.
+
+
+Question:
+
+{question}

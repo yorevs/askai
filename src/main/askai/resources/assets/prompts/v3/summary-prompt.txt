@@ -25,3 +25,8 @@ Before responding to the user, you must follow the step-by-step instructions pro
 11. The final response 'JSON' must contain the fields: 'folder', 'glob' and 'question'.
 
 12. The final response is a formatted JSON with no additional description or context.
+
+
+Question:
+
+{question}
