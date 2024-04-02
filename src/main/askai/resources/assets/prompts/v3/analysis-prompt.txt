@@ -18,8 +18,3 @@ Before responding to the user, it is imperative that you follow the step-by-step
 7 - Wrap up your reply by offering a concise analysis about the summarized version; prefix with: 'Analysis:'.
 
 8 - If you lack an answer, respond with: 'bde6f44d-c1a0-4b0c-bd74-8278e468e50c'. No further clarifications or details are necessary.
-
-
-Question:
-
-{question}

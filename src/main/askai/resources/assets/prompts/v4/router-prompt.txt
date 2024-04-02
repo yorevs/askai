@@ -18,6 +18,26 @@ Determine whether there is any cross-referencing within the conversations. When 
 
 When I explicitly refer to: my file(s) or my folder(s) in the query, assume they are referring to files and folders within their HOME (~) directory for navigation or file management purposes. Explore the default user home folders tailored to your {os_type} system. Allow users to specify additional paths, which will be appended to the existing folder directory (e.g., ~/Downloads, ~/Music, ~/HomeSetup/docs, C:\Users\hugo, etc.).output
 
-The final output should consist of a straightforward list of single actions with no additional description or context. Never return an empty response. If you don't have an answer return the prompt itself.
-
 Utilize the term 'search' exclusively when you mean to explore the web. Otherwise, opt for 'analyze'.
+
+The final output should consist of a straightforward list of single actions with no additional description or context.
+
+Refer to the example provided below:
+
+---------------
+Example 1:
+
+Question: list my downloads and tell me if there is any reminder
+AI Response:
+
+1. list my downloads
+2. is there any reminder
+
+---------------
+Example 2:
+
+Question: list my music and let me know if there is any ac/dc song
+AI Response:
+
+1. list my music
+2. is there any ac/dc song
