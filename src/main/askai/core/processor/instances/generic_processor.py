@@ -93,8 +93,7 @@ class GenericProcessor:
                 cache.save_reply(query_response.question, output)
                 cache.save_query_history()
             else:
-                self._next_in_chain = QueryType.GENERIC_QUERY.proc_name
-                output = self._wrap_output(query_response)
+                output = msg.translate("I don't know.")
             status = True
         else:
             log.error(f"General processing failed. CONTEXT=%s  RESPONSE=%s", context, response)

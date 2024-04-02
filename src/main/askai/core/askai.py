@@ -198,10 +198,10 @@ class AskAi:
             log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
             status, output = router.process(question)
             if status:
-                if output:
-                    self.reply(output)
+                if output and output.response:
+                    self.reply(output.response)
             else:
-                self.reply_error(output)
+                self.reply_error(output.response)
         else:
             log.debug("Reply found for '%s' in cache.", question)
             self.reply(reply)

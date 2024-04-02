@@ -117,7 +117,7 @@ class CommandProcessor:
 
         if command and which(command):
             cmd_line = expandvars(cmd_line.replace("~/", f"{os.getenv('HOME')}/").strip())
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.executing())
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.executing(cmd_line))
             log.info("Executing command `%s'", cmd_line)
             output, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
             if exit_code == ExitStatus.SUCCESS:
@@ -128,17 +128,17 @@ class CommandProcessor:
                         log.info("Current directory changed to '%s'", _path_)
                     else:
                         log.warning("Directory '%s' does not exist. Curdir unchanged!", _path_)
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.cmd_success(exit_code), erase_last=True)
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.cmd_success(cmd_line, exit_code), erase_last=True)
                 if not output:
                     output = msg.cmd_no_output()
                 else:
                     shared.context.push("CONTEXT", f"\n\nUser:\n{query_response.question}")
                     shared.context.push("CONTEXT", f"\n\nCommand `{cmd_line}' output:\n```\n{output}```")
                     output = self._wrap_output(query_response, cmd_line, output)
+                status = True
             else:
                 log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), cmd_line)
                 output = msg.cmd_failed(cmd_line)
-            status = True
         else:
             output = msg.cmd_no_exist(command)
 

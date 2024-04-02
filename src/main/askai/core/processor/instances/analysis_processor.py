@@ -33,18 +33,6 @@ class AnalysisProcessor:
     """Process analysis prompts."""
 
     @staticmethod
-    def _wrap_output(query_response: ProcessorResponse) -> str:
-        """Wrap the output into a new string to be forwarded to the next processor.
-        :param query_response: The query response provided by the AI.
-        """
-        query_response.query_type = QueryType.GENERIC_QUERY.value
-        query_response.require_summarization = False
-        query_response.forwarded = True
-        query_response.commands.clear()
-
-        return str(query_response)
-
-    @staticmethod
     def q_type() -> str:
         return QueryType.ANALYSIS_QUERY.value
 
@@ -87,8 +75,7 @@ class AnalysisProcessor:
                 shared.context.push("CONTEXT", f"\n\nUser:\n{query_response.question}")
                 shared.context.push("CONTEXT", f"\n\nAI:\n{response}", "assistant")
             else:
-                self._next_in_chain = QueryType.GENERIC_QUERY.proc_name
-                response = self._wrap_output(query_response)
+                response = msg.translate("I don't know.")
             status = True
         else:
             log.error(f"Analysis processing failed. CONTEXT=%s  RESPONSE=%s", context, response)
