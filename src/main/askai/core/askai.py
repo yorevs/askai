@@ -38,7 +38,7 @@ from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
-from askai.core.processor.router import router
+from askai.core.proxy.router import router
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 

@@ -15,7 +15,7 @@ from askai.core.askai_events import AskAiEvents
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.model.processor_response import ProcessorResponse
-from askai.core.processor.features import features
+from askai.core.proxy.features import features
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 
@@ -60,13 +60,14 @@ class Router(metaclass=Singleton):
         return status, ProcessorResponse(response=output)
 
     def _route(self, query: str) -> Optional[str]:
-        """Route the actions to the proper processors."""
+        """Route the actions to the proper function invocations."""
+        max_actions: int = 20
         result = shared.context.flat("CONTEXT", "GENERAL")
         actions: list[str] = re.sub(r'\d+[.:)-]\s+', '', query).split(os.linesep)
-        for action in actions:
+        for idx, action in enumerate(actions):
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"`{action}`")
             response: str = features.invoke(action, result)
-            if not (result := response):
+            if idx > max_actions or not (result := response):
                 break
         return result
 

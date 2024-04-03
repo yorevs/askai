@@ -12,11 +12,11 @@ from hspylib.core.tools.commons import sysout
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
-from askai.core.processor.tools.analysis import check_output
-from askai.core.processor.tools.browser import browse
-from askai.core.processor.tools.general import fetch, display
-from askai.core.processor.tools.summarization import summarize
-from askai.core.processor.tools.terminal import execute_command, list_contents
+from askai.core.proxy.tools.analysis import check_output
+from askai.core.proxy.tools.browser import browse
+from askai.core.proxy.tools.general import fetch, display, stt
+from askai.core.proxy.tools.summarization import summarize
+from askai.core.proxy.tools.terminal import execute_command, list_contents
 
 
 class Features(metaclass=Singleton):
@@ -37,7 +37,8 @@ class Features(metaclass=Singleton):
         """TODO"""
         re_fn = r'([a-zA-Z]\w+)\s*\((.*)\)'
         if act_fn := re.findall(re_fn, action):
-            fn = self._all[act_fn[0][0]]
+            fn_name = act_fn[0][0].lower()
+            fn = self._all[fn_name]
             args: list[str] = re.sub("['\"]", '', act_fn[0][1]).split(',')
             args.append(context)
             return fn(*list(map(str.strip, args)))
@@ -61,51 +62,55 @@ class Features(metaclass=Singleton):
         return self._approved
 
     def intelligible(self, *args: str) -> None:
-        """'Intelligible question' -> Command = intelligible(question)"""
+        """Feature: 'Intelligible question', Usage: 'intelligible(<question>)'"""
         AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.intelligible(args[0]))
 
     def terminate(self, *args: str) -> None:
-        """'Terminate intent' -> Command = terminate(reason)"""
+        """Feature: 'Terminate intent', Usage: 'terminate(<reason>)'"""
         log.info(f"Application exit: '%s'", args[0])
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.goodbye())
         sysout("")
         sys.exit(0)
 
     def impossible(self, *args: str) -> None:
-        """'Impossible plan' -> Command = impossible(reason)"""
+        """Feature: 'Impossible plan', Usage: 'impossible(<reason>)'"""
         AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.impossible(args[0]))
 
     def terminal(self, *args: str) -> str:
-        """'Terminal command execution' -> Command = terminal(shell, command)"""
+        """Feature: 'Terminal command execution', Usage: 'terminal(<shell>, <command>)'"""
         return execute_command(args[0], args[1])
 
     def list_contents(self, *args: str) -> str:
-        """'List folder contents' -> Command = list_contents(folder)"""
+        """Feature: 'List folder contents', Usage: 'list_contents(<folder>)'"""
         return list_contents(args[0])
 
     def check_output(self, *args: str) -> str:
-        """'Check output' -> Command = check_output(question)"""
+        """Feature: 'Check output', Usage: 'check_output(<question>)'"""
         return check_output(args[0], args[1])
 
     def summarize_files(self, *args: str) -> str:
-        """'Summarization of files and folders' -> Command = summarize_files(folder, glob)"""
+        """Feature: 'Summarization of files and folders', Usage: 'summarize_files(<folder>, <glob>)'"""
         return summarize(args[0], args[1])
 
     def browse(self, *args: str) -> str:
-        """'Internet browsing' -> Command = browse(query)"""
+        """Feature: 'Internet browsing', Usage: 'browse(<search_query>)'"""
         return browse(args[0])
 
     def describe_image(self, *args: str) -> str:
-        """'Image analysis' -> Command = describe_image(image_path)"""
+        """Feature: 'Image analysis', Usage: 'describe_image(<image_path>)'"""
         raise NotImplementedError('This feature is not yet implemented !')
 
     def fetch(self, *args: str) -> str:
-        """'Fetch from AI database' -> Command = fetch(query)"""
+        """Feature: 'AI database retrival', Usage: 'fetch(<query>)'"""
         return fetch(args[0])
 
     def display(self, *args: str) -> None:
-        """'Display text' -> Command = display(text)"""
+        """Feature: 'Display plain text', Usage: 'display(<text>)'"""
         display(' '.join(args))
+
+    def stt(self, *args: str) -> str:
+        """Feature: 'Display using STT techniques', Usage: 'stt(<question>, <text>)'"""
+        return stt(args[0], ' '.join(args[1:]))
 
 
 assert (features := Features().INSTANCE) is not None

@@ -10,6 +10,7 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
 from askai.core.component.geo_location import geo_location
+from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 
@@ -45,3 +46,18 @@ def display(text: str) -> None:
     """Display the given text formatting in markdown."""
     shared.context.push("GENERAL", f"\nAI:{text}\n", "assistant")
     AskAiEvents.ASKAI_BUS.events.reply.emit(message=text)
+
+
+def stt(question: str, existing_answer: str) -> str:
+    """Process the given text according to STT rules."""
+    template = PromptTemplate(input_variables=[
+        'user', 'idiom', 'question'
+    ], template=prompt.read_prompt('stt-prompt'))
+    final_prompt = template.format(
+        idiom=shared.idiom, answer=existing_answer, question=question
+    )
+
+    log.info("STT::[QUESTION] '%s'", existing_answer)
+    llm = lc_llm.create_chat_model(temperature=Temperatures.CREATIVE_WRITING.value[0])
+
+    return llm.predict(final_prompt)

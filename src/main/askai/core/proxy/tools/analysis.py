@@ -1,6 +1,7 @@
 import logging as log
 from typing import Optional
 
+from hspylib.core.tools.text_tools import ensure_endswith
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
@@ -22,4 +23,4 @@ def check_output(question: str, context: str) -> Optional[str]:
     if output := chain.invoke({"query": question, "context": context}):
         shared.context.push("CONTEXT", f"\n\nAI:\n{output}", "assistant")
 
-    return output
+    return ensure_endswith(output, '\n\n')
