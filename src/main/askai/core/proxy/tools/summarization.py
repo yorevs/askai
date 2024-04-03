@@ -14,7 +14,6 @@ from askai.exception.exceptions import DocumentsNotFound
 
 def summarize(folder: str, glob: str) -> Optional[str]:
     """Summarize files and folders."""
-    output = None
     try:
         glob = ensure_startswith(glob, '**/')
         if not summarizer.exists(folder, glob):

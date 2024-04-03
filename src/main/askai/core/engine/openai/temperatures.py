@@ -47,3 +47,12 @@ class Temperatures(Enumeration):
     HOTTEST                     = 1.0, 1.0
 
     # fmt: on
+
+    @property
+    def temp(self) -> float:
+        return self.value[0]
+
+    @property
+    def top_p(self) -> float:
+        return self.value[1]
+

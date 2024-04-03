@@ -143,5 +143,9 @@ class AskAiMessages(metaclass=Singleton):
     def fail_to_search(self, error: str) -> str:
         return self.translate(f"Error: 'InternetSearch' failed: {error} !")
 
+    @lru_cache
+    def too_many_actions(self) -> str:
+        return self.translate("Error: Failed to complete the request => 'Max chained actions reached' !")
+
 
 assert (msg := AskAiMessages().INSTANCE) is not None

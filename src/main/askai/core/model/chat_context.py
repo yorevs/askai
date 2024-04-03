@@ -10,13 +10,14 @@
    Copyright·(c)·2024,·HSPyLib
 """
 
-from askai.exception.exceptions import TokenLengthExceeded
+import os
 from collections import defaultdict, namedtuple
 from functools import reduce
-from hspylib.core.zoned_datetime import now
 from typing import Any, Dict, List, Literal, Optional, TypeAlias
 
-import os
+from hspylib.core.zoned_datetime import now
+
+from askai.exception.exceptions import TokenLengthExceeded
 
 ChatRoles: TypeAlias = Literal["system", "user", "assistant"]
 
@@ -91,3 +92,8 @@ class ChatContext:
             if self._context[key]:
                 del self._context[key]
         return len(self._context)
+
+    def forget(self) -> None:
+        """Forget all entries pushed to the chat context."""
+        del self._context
+        self._context = defaultdict(list)

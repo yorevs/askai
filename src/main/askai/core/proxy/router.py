@@ -12,6 +12,7 @@ from langchain_core.runnables import Runnable
 from langchain_core.runnables.utils import Input, Output
 
 from askai.core.askai_events import AskAiEvents
+from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.model.processor_response import ProcessorResponse
@@ -23,7 +24,8 @@ RunnableTool: TypeAlias = Runnable[list[Input], list[Output]]
 
 
 class Router(metaclass=Singleton):
-    """TODO"""
+    """Class to provide a divide and conquer set of actions to fulfill an objective. This is responsible for the
+    orchestration and execution of the actions."""
 
     INSTANCE: 'Router' = None
 
@@ -44,7 +46,7 @@ class Router(metaclass=Singleton):
             location=geo_location.location, datetime=geo_location.datetime,
             question=question, features=features.enlist()
         )
-        ctx: str = shared.context.flat("CONTEXT", "INTERNET")
+        ctx: str = shared.context.flat("GENERAL", "INTERNET", "OUTPUT", "ANALYSIS")
         log.info("Router::[QUESTION] '%s'  context: '%s'", question, ctx)
         chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
         chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
@@ -54,6 +56,7 @@ class Router(metaclass=Singleton):
             log.info("Router::[RESPONSE] Received from AI: %s.", str(response))
             output = self._route(response)
             status = True
+            shared.context.forget()
         else:
             output = response
 
@@ -61,15 +64,23 @@ class Router(metaclass=Singleton):
 
     def _route(self, query: str) -> Optional[str]:
         """Route the actions to the proper function invocations."""
-        max_actions: int = 20
-        result = shared.context.flat("CONTEXT", "GENERAL")
-        actions: list[str] = re.sub(r'\d+[.:)-]\s+', '', query).split(os.linesep)
-        for idx, action in enumerate(actions):
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"`{action}`")
-            response: str = features.invoke(action, result)
-            if idx > max_actions or not (result := response):
-                break
-        return result
+        plain_actions: str = re.sub(r'\d+[.:)-]\s+', '', query)
+        actions: list[str] = list(map(str.strip, plain_actions.split(os.linesep)))
+
+        def _execute_plan_() -> Optional[str]:
+            """Function responsible for executing the action plan."""
+            max_actions: int = 20
+            result: str = ''
+            for idx, action in enumerate(actions):
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"`[DEBUG] {action}`")
+                response: str = features.invoke(action, result)
+                if idx > max_actions or not (result := response):
+                    if idx > max_actions:
+                        AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
+                    break
+            return result
+
+        return _execute_plan_()
 
 
 assert (router := Router().INSTANCE) is not None

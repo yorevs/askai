@@ -31,6 +31,6 @@ Before responding to the user, it is imperative that you follow the step-by-step
 14. Always return the required command with no additional description or context.
 
 
-Question:
+----------------------------------------- User Question ------------------------------------------
 
 {question}

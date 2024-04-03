@@ -12,15 +12,15 @@ from hspylib.core.tools.commons import sysout
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
-from askai.core.proxy.tools.analysis import check_output
+from askai.core.proxy.tools.analysis import check_output, stt
 from askai.core.proxy.tools.browser import browse
-from askai.core.proxy.tools.general import fetch, display, stt
+from askai.core.proxy.tools.general import fetch, display
 from askai.core.proxy.tools.summarization import summarize
 from askai.core.proxy.tools.terminal import execute_command, list_contents
 
 
 class Features(metaclass=Singleton):
-    """TODO"""
+    """This class provides the AskAI available features."""
 
     INSTANCE: 'Features' = None
 
@@ -32,9 +32,8 @@ class Features(metaclass=Singleton):
                 n: fn for n, fn in inspect.getmembers(self, predicate=inspect.ismethod)
             }.items()))
 
-    @lru_cache
     def invoke(self, action: str, context: str = '') -> Optional[str]:
-        """TODO"""
+        """Invoke the action with its arguments and context."""
         re_fn = r'([a-zA-Z]\w+)\s*\((.*)\)'
         if act_fn := re.findall(re_fn, action):
             fn_name = act_fn[0][0].lower()
@@ -46,6 +45,7 @@ class Features(metaclass=Singleton):
 
     @lru_cache
     def enlist(self) -> str:
+        """Return an 'os.linesep' separated string list of feature descriptions."""
         doc_strings: str = ''
         for fn in self._all.values():
             doc_strings += f"{fn.__doc__}{os.linesep}" if fn and fn.__doc__ else ''

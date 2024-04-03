@@ -13,7 +13,6 @@
    Copyright·(c)·2024,·HSPyLib
 """
 import logging as log
-import os
 import re
 from functools import lru_cache
 from typing import List, Optional
@@ -36,6 +35,7 @@ from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import PERSIST_DIR
 from askai.core.component.geo_location import geo_location
 from askai.core.component.summarizer import summarizer
+from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.search_result import SearchResult
 from askai.core.support.langchain_support import lc_llm, load_document
 from askai.core.support.shared_instances import shared
@@ -109,10 +109,12 @@ class InternetService(metaclass=Singleton):
         try:
             query = self._build_query(search).strip()
             log.info("Searching Google for '%s'", query)
-            content = str(self._tool.run(query))
+            ctx = str(self._tool.run(query))
             llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
-            chain = create_stuff_documents_chain(lc_llm.create_chat_model(), llm_prompt)
-            output = chain.invoke({"query": search.question, "context": [Document(content)]})
+            context: List[Document] = [Document(ctx)]
+            chain = create_stuff_documents_chain(lc_llm.create_chat_model(
+                temperature=Temperatures.DATA_ANALYSIS.temp), llm_prompt)
+            output = chain.invoke({"query": search.question, "context": context})
         except HttpError as err:
             output = msg.fail_to_search(str(err))
 
@@ -125,9 +127,10 @@ class InternetService(metaclass=Singleton):
             location=geo_location.location, idiom=shared.idiom,
             sources=', '.join(sites)
         )
-        chain = create_stuff_documents_chain(
-            lc_llm.create_chat_model(), ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
-        )
+        chain = create_stuff_documents_chain(lc_llm.create_chat_model(
+            temperature=Temperatures.CREATIVE_WRITING.temp
+        ), ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")]))
+
         return chain.invoke({"query": question, "context": [Document(refine_prompt)]})
 
 
