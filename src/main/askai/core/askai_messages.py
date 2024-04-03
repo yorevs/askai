@@ -91,7 +91,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def access_grant(self) -> str:
-        return self.translate("I require access to your files, folders and apps (grant/[deny])?")
+        return self.translate("Do you approve executing command on you terminal (yes/[no])?")
 
     @lru_cache
     def not_a_command(self, shell: str, content: str) -> str:
@@ -124,12 +124,16 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"Error: Unable to summarize => {str(err)}' !")
 
     @lru_cache
-    def summary_not_possible(self) -> str:
-        return self.translate("Sorry, summarization was not possible !")
+    def summary_not_possible(self, err: BaseException = None) -> str:
+        return self.translate(f"Error: summarization was not possible {'=> ' + str(err) if err else ''}!")
 
     @lru_cache
     def intelligible(self, question: str) -> str:
         return self.translate(f"Error: Your question '{question}' is not clear, please reformulate !")
+
+    @lru_cache
+    def impossible(self, reason: str) -> str:
+        return self.translate(f"Error: Impossible to fulfill your request. Reason: {reason} !")
 
     @lru_cache
     def llm_error(self, error: str) -> str:

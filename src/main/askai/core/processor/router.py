@@ -1,4 +1,3 @@
-import json
 import logging as log
 import os
 import re
@@ -11,10 +10,8 @@ from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.utils import Input, Output
-from langchain_core.tools import tool
 
 from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.model.processor_response import ProcessorResponse
@@ -30,24 +27,6 @@ class Router(metaclass=Singleton):
 
     INSTANCE: 'Router' = None
 
-    IS_TERMINATING: bool = None
-
-    IS_INTELLIGIBLE: bool = None
-
-    @staticmethod
-    @tool
-    def intelligible(question: str) -> str:
-        """Indicate that the question is unclear or not understandable."""
-        Router.IS_INTELLIGIBLE = False
-        return msg.intelligible(question)
-
-    @staticmethod
-    @tool
-    def terminating(reason: str) -> str:
-        """Indicate that the user intends to end the conversation."""
-        Router.IS_TERMINATING = True
-        return msg.translate(reason)
-
     def __init__(self):
         self._approved = False
 
@@ -55,26 +34,10 @@ class Router(metaclass=Singleton):
     def template(self) -> str:
         return prompt.read_prompt("router-prompt.txt")
 
-    def human_approval(self, tool_invocations: list) -> list:
-        """TODO"""
-        tool_strs = "\n\n".join(
-            json.dumps(tool_call, indent=2) for tool_call in tool_invocations
-        )
-        confirm_msg = (
-            f"Do you approve of the following tool invocations\n\n{tool_strs}\n\n"
-            "Anything except 'Y'/'Yes' (case-insensitive) will be treated as a no."
-        )
-        if (resp := input(confirm_msg).lower()) not in ("yes", "y"):
-            raise ValueError(f"Tool invocations not approved:\n\n{tool_strs}")
-        self._approved = True
-        return tool_invocations
-
     def process(self, question: str) -> Tuple[bool, ProcessorResponse]:
         status = False
-        self.IS_TERMINATING: bool = False
-        self.IS_INTELLIGIBLE: bool = True
         template = PromptTemplate(input_variables=[
-            'features', 'os_type', 'shell', 'idiom', 'location', 'datetime'
+            'features', 'os_type', 'shell', 'idiom', 'location', 'datetime', 'question'
         ], template=self.template())
         final_prompt = template.format(
             os_type=prompt.os_type, shell=prompt.shell, idiom=shared.idiom,
@@ -94,13 +57,11 @@ class Router(metaclass=Singleton):
         else:
             output = response
 
-        return status, ProcessorResponse(
-            terminating=self.IS_TERMINATING, intelligible=self.IS_INTELLIGIBLE, response=output
-        )
+        return status, ProcessorResponse(response=output)
 
     def _route(self, query: str) -> Optional[str]:
         """Route the actions to the proper processors."""
-        result = shared.context.flat("CONTEXT")
+        result = shared.context.flat("CONTEXT", "GENERAL")
         actions: list[str] = re.sub(r'\d+[.:)-]\s+', '', query).split(os.linesep)
         for action in actions:
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"`{action}`")

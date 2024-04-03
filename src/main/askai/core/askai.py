@@ -182,13 +182,12 @@ class AskAi:
     def _prompt(self) -> None:
         """Prompt for user interaction."""
         while query := shared.input_text(f"{shared.username}: "):
-
             if not self._ask_and_reply(query):
                 query = None
                 break
         if not query:
             self.reply(msg.goodbye())
-        sysout("", end="")
+        sysout("")
 
     def _ask_and_reply(self, question: str) -> bool:
         """Ask the question and provide the reply.

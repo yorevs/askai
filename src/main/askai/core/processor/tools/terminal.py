@@ -22,7 +22,7 @@ def list_contents(folder: str) -> Optional[str]:
     if posix_path.exists() and posix_path.is_dir():
         status, output = _execute_shell(f'ls -lht {folder}')
         if status:
-            return f"This is the contents of your `{folder}` folder: \n{output}"
+            return f"Showing the contents of `{folder}`: \n{output}"
         else:
             f"Error: Failed to list from: '{folder}'"
 
@@ -70,7 +70,6 @@ def _execute_shell(command_line: str) -> Tuple[bool, Optional[str]]:
                 log.info("Current directory changed to '%s'", _path_)
             else:
                 log.warning("Directory '%s' does not exist. Current dir unchanged!", _path_)
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.cmd_success(command, exit_code), erase_last=True)
             if not output:
                 output = msg.cmd_no_output()
             else:
