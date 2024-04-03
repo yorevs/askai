@@ -105,7 +105,7 @@ class Features(metaclass=Singleton):
 
     def display(self, *args: str) -> None:
         """'Display text' -> Command = display(text)"""
-        display(args[0])
+        display(' '.join(args))
 
 
 assert (features := Features().INSTANCE) is not None

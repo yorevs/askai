@@ -72,10 +72,11 @@ AI Response:
 
 Example 5:
 
-Question: What is the current weather conditions in Belo Horizonte.
+Question: Search what is the current weather conditions in Belo Horizonte and then, tell a small story about it.
 AI Response:
 
 1. browse("What is the current weather conditions in Belo Horizonte")
+2. fetch("Create a small story about the weather in Belo Horizonte")
 
 
 ----------------------------------------- User Question ------------------------------------------

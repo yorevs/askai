@@ -23,7 +23,7 @@ def fetch(query: str) -> Optional[str]:
         user=shared.username, question=query,
         idiom=shared.idiom, datetime=geo_location.datetime
     )
-    ctx: str = shared.context.flat("GENERAL")
+    ctx: str = shared.context.flat("GENERAL", "INTERNET")
     log.info("FETCH::[QUESTION] '%s'  context: '%s'", query, ctx)
     chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
     chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)

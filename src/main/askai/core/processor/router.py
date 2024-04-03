@@ -44,7 +44,7 @@ class Router(metaclass=Singleton):
             location=geo_location.location, datetime=geo_location.datetime,
             question=question, features=features.enlist()
         )
-        ctx: str = shared.context.flat("CONTEXT")
+        ctx: str = shared.context.flat("CONTEXT", "INTERNET")
         log.info("Router::[QUESTION] '%s'  context: '%s'", question, ctx)
         chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
         chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)

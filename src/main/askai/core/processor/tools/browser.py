@@ -39,8 +39,7 @@ def browse(query: str) -> Optional[str]:
         else:
             if output := internet.search_google(search):
                 output = msg.translate(output)
-                shared.context.push("GENERAL", f"\n\nUser:\n{query}")
-                shared.context.push("GENERAL", f"\n\nAI:\n{output}", "assistant")
+                shared.context.push("INTERNET", f"\n\nAI:\n{output}", "assistant")
                 cache.save_reply(query, output)
                 cache.save_query_history()
             else:
