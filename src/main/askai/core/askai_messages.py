@@ -57,7 +57,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def searching(self) -> str:
-        return self.translate(f"Browsing the internet…")
+        return self.translate(f"Searching on the internet…")
 
     @lru_cache
     def summarizing(self, path: str) -> str:

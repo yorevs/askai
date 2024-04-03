@@ -13,6 +13,7 @@
    Copyright·(c)·2024,·HSPyLib
 """
 import logging as log
+import os
 import re
 from functools import lru_cache
 from typing import List, Optional
@@ -115,13 +116,14 @@ class InternetService(metaclass=Singleton):
         except HttpError as err:
             output = msg.fail_to_search(str(err))
 
-        return self.refine_text(search.question, output) if output else None
+        return self.refine_text(search.question, output, search.sites) if output else None
 
-    def refine_text(self, question: str, text: str) -> str:
+    def refine_text(self, question: str, text: str, sites: list[str]) -> str:
         """Refines the text retrieved by the search engine."""
         refine_prompt = PromptTemplate.from_template(self.refine_template()).format(
             question=question, existing_answer=text, datetime=geo_location.datetime,
-            location=geo_location.location, idiom=shared.idiom
+            location=geo_location.location, idiom=shared.idiom,
+            sources=', '.join(sites)
         )
         chain = create_stuff_documents_chain(
             lc_llm.create_chat_model(), ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])

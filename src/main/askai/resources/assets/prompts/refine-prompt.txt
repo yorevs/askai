@@ -7,14 +7,19 @@ We have the opportunity to refine the existing text (only if needed) with some m
 
 -------------------------------------- Additional Context ----------------------------------------
 
-Today's date is "{datetime}".
-The user is currently located at "{location}".
-The user locale is "{idiom}"
+> Today's date is '{datetime}'.
+> The user is currently located at '{location}'.
+> The user locale is '{idiom}'
+> Sources: '{sources}'
 
 
 ----------------------------------------- Instructions -------------------------------------------
 
 Given the new context, refine the original text by utilizing the vernacular, currency, and units of measurement typical to the locale, making necessary conversions or translations as needed.
+
+Correct any semantic or syntax errors, and enhance the writing to align with regional expressions and commonly used words.
+
+Assess the present date and time accurately. Modify temporal details in the sentence to align with the current date and time.
 
 Highlight with bold (use markdown), important words (not full sentences), and with italic, names or people, places, etc.. Use double quotes for citations, references and URLs.
 
