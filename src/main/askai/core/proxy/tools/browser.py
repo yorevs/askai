@@ -41,7 +41,6 @@ def browse(query: str) -> Optional[str]:
                 output = msg.translate(output)
                 shared.context.set("INTERNET", f"\nAI:\n{output}", "assistant")
                 cache.save_reply(query, output)
-                cache.save_query_history()
             else:
                 output = msg.search_empty()
     else:

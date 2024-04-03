@@ -69,13 +69,13 @@ class Router(metaclass=Singleton):
 
         def _execute_plan_() -> Optional[str]:
             """Function responsible for executing the action plan."""
-            max_actions: int = 20
+            max_iterations: int = 20
             result: str = ''
             for idx, action in enumerate(actions):
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"`[DEBUG] {action}`")
                 response: str = features.invoke(action, result)
-                if idx > max_actions or not (result := response):
-                    if idx > max_actions:
+                if idx > max_iterations or not (result := response):
+                    if idx > max_iterations:
                         AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
                     break
             return result

@@ -35,7 +35,6 @@ def fetch(query: str) -> Optional[str]:
         shared.context.push("GENERAL", f"\n\nUser:\n{query}")
         shared.context.push("GENERAL", f"\nAI:\n{output}", "assistant")
         cache.save_reply(query, output)
-        cache.save_query_history()
     else:
         output = msg.translate("Sorry, I don't know.")
 
@@ -44,5 +43,6 @@ def fetch(query: str) -> Optional[str]:
 
 def display(text: str) -> None:
     """Display the given text formatting in markdown."""
+    # TODO If it is not interactive just use display_text()
     shared.context.push("GENERAL", f"\nAI:{text}\n", "assistant")
     AskAiEvents.ASKAI_BUS.events.reply.emit(message=text)

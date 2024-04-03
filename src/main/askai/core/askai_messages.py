@@ -104,8 +104,8 @@ class AskAiMessages(metaclass=Singleton):
     # Failures
 
     @lru_cache
-    def no_processor(self, query_type: str) -> str:
-        return self.translate(f"Error: No suitable processor found for query type: '{query_type}' !")
+    def no_query_string(self) -> str:
+        return self.translate("Error: No query string was provided in non-interactive mode !")
 
     @lru_cache
     def invalid_response(self, response_text: str) -> str:

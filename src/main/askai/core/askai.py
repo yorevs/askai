@@ -54,16 +54,22 @@ class AskAi:
         sys.exit(ExitStatus.FAILED.val)
 
     def __init__(
-        self, interactive: bool, is_speak: bool, tempo: int, engine_name: str, model_name: str, query: str | List[str]
+        self, interactive: bool,
+        is_speak: bool,
+        tempo: int,
+        engine_name: str,
+        model_name: str,
+        query: str | List[str]
     ):
         self._interactive: bool = interactive
         self._ready: bool = False
         self._processing: Optional[bool] = None
-        self._query_string: Optional[str] = str(" ".join(query) if isinstance(query, list) else query)
+        self._query_string, self._question = None, None
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         # Setting configs from program args.
-        configs.is_speak = is_speak
+        self._get_query_string(interactive, query)
+        configs.is_speak = is_speak and interactive
         configs.tempo = tempo
 
     def __str__(self) -> str:
@@ -79,6 +85,16 @@ class AskAi:
             f"    Caching: {'ON, TTL: ' + configs.ttl if cache.is_cache_enabled() else '%RED%OFF'} %GREEN%%EOL%"
             f"{'-=' * 40} %EOL%%NC%"
         )
+
+    def _get_query_string(self, interactive: bool, query_arg: str | list[str]) -> None:
+        """TODO"""
+        query: str = str(" ".join(query_arg) if isinstance(query_arg, list) else query_arg)
+        if not interactive:
+            stdin_args = sys.stdin.read()
+            self._question = query
+            self._query_string = f"Given the context: '''{stdin_args}'''  Answer: {query}" if query else stdin_args
+        else:
+            self._query_string = query
 
     @property
     def engine(self) -> AIEngine:
@@ -97,12 +113,20 @@ class AskAi:
         return self._query_string
 
     @property
+    def question(self) -> str:
+        return self._question
+
+    @property
     def is_speak(self) -> bool:
         return configs.is_speak
 
     @property
     def is_processing(self) -> bool:
         return self._processing
+
+    @property
+    def is_interactive(self) -> bool:
+        return self._interactive
 
     @is_processing.setter
     def is_processing(self, processing: bool) -> None:
@@ -114,12 +138,15 @@ class AskAi:
 
     def run(self) -> None:
         """Run the program."""
-        if self._interactive:
+        if self.is_interactive:
             self._startup()
             self._prompt()
         elif self.query_string:
-            display_text(self.query_string, f"{shared.nickname}: ")
-            self._ask_and_reply(self.query_string)
+            display_text(self.question, f"{shared.username}: ")
+            if self._ask_and_reply(self.query_string):
+                cache.save_query_history()
+        else:
+            display_text(msg.no_query_string())
 
     def reply(self, message: str) -> None:
         """Reply to the user with the AI response.
@@ -185,6 +212,8 @@ class AskAi:
             if not self._ask_and_reply(query):
                 query = None
                 break
+            else:
+                cache.save_query_history()
         if not query:
             self.reply(msg.goodbye())
         sysout("")
@@ -205,4 +234,5 @@ class AskAi:
             log.debug("Reply found for '%s' in cache.", question)
             self.reply(reply)
             status = True
+
         return status

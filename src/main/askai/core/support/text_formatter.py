@@ -1,3 +1,7 @@
+import re
+from textwrap import dedent
+from typing import Any
+
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.dict_tools import get_or_default
 from hspylib.modules.cli.vt100.vt_code import VtCode
@@ -5,10 +9,6 @@ from hspylib.modules.cli.vt100.vt_color import VtColor
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.text import Text
-from textwrap import dedent
-from typing import Any
-
-import re
 
 
 class TextFormatter(metaclass=Singleton):
@@ -44,13 +44,13 @@ class TextFormatter(metaclass=Singleton):
             r"[a-zA-Z0-9]+\.[^\s')]{2,}|www\.[a-zA-Z0-9]+\.[^\s')]{2,})"
         )
         text = dedent(str(text))
-        text = re.sub(r"Errors?[-:\s]\s+", self.CHAT_ICONS[''], text)
-        text = re.sub(r"[Hh]ints?( (and|&) [Tt]ips)?[-:\s]\s+", self.CHAT_ICONS[''], text)
-        text = re.sub(r"[Aa]nalysis[-:\s]\s+", self.CHAT_ICONS[''], text)
-        text = re.sub(r"[Ss]ummary[-:\s]\s+", self.CHAT_ICONS[''], text)
-        text = re.sub(r"[Ff]un [Ff]acts?[-:\s]\s+", self.CHAT_ICONS[''], text)
-        text = re.sub(r"([Jj]oke( [Tt]ime)?)[-:\s]\s+", self.CHAT_ICONS[''], text)
-        text = re.sub(r"[Aa]dvice[-:\s]\s+", self.CHAT_ICONS[''], text)
+        text = re.sub(r"\**Errors?[-:\s][\s*]+", self.CHAT_ICONS[''], text)
+        text = re.sub(r"\**[Hh]ints?( (and|&) [Tt]ips)?[-:\s][\s*]+", self.CHAT_ICONS[''], text)
+        text = re.sub(r"\**[Aa]nalysis[-:\s][\s*]+", self.CHAT_ICONS[''], text)
+        text = re.sub(r"\**[Ss]ummary[-:\s][\s*]+", self.CHAT_ICONS[''], text)
+        text = re.sub(r"\**[Ff]un [Ff]acts?[-:\s][\s*]+", self.CHAT_ICONS[''], text)
+        text = re.sub(r"\**([Jj]oke( [Tt]ime)?)[-:\s][\s*]+", self.CHAT_ICONS[''], text)
+        text = re.sub(r"\**[Aa]dvice[-:\s][\s*]+", self.CHAT_ICONS[''], text)
         fg = get_or_default(re.findall(r"%\w+%", text), 0, '%NC%')
         text = re.sub(re_url, r' [\1](\1)', text)
         text = re.sub(r'(`{3}.+`{3})', r'\n\1\n', text)

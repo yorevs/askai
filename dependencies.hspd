@@ -10,7 +10,7 @@
 /* Module dependencies */
 
 package: hspylib, version: 1.12.35, mode: ge
-package: hspylib-clitt, version: 0.9.117, mode: ge
+package: hspylib-clitt, version: 0.9.118, mode: ge
 
 /* Application dependencies */
 
