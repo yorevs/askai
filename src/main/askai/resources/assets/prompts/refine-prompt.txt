@@ -7,9 +7,9 @@ We have the opportunity to refine the existing text (only if needed) with some m
 
 -------------------------------------- Additional Context ----------------------------------------
 
-> Today's date is '{datetime}'.
-> The user is currently located at '{location}'.
-> The user locale is '{idiom}'
+> Today is '{datetime}'.
+> User is located at '{location}'.
+> User locale is '{idiom}'
 > Sources: '{sources}'
 
 

@@ -53,7 +53,7 @@ class Router(metaclass=Singleton):
         context = [Document(ctx)]
 
         if response := chain.invoke({"query": final_prompt, "context": context}):
-            log.info("Router::[RESPONSE] Received from AI: %s.", str(response))
+            log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
             output = self._route(response)
             status = True
             shared.context.forget()

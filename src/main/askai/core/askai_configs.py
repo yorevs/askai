@@ -40,6 +40,7 @@ class AskAiConfigs(metaclass=Singleton):
         self._language = Language.of_locale(
             os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG", os.getenv("LANGUAGE", "en_US.UTF-8"))))
         )
+        self._is_interactive = self._configs.get_bool("askai.interactive.enabled")
 
     @property
     def is_cache(self) -> bool:
@@ -66,6 +67,14 @@ class AskAiConfigs(metaclass=Singleton):
         self._is_speak = which("ffplay") and value
 
     @property
+    def is_interactive(self) -> bool:
+        return self._is_interactive
+
+    @is_interactive.setter
+    def is_interactive(self, value: bool) -> None:
+        self._is_interactive = value
+
+    @property
     def language(self) -> Language:
         return self._language
 
@@ -75,7 +84,7 @@ class AskAiConfigs(metaclass=Singleton):
 
     @property
     def ttl(self) -> int:
-        return self.ttl
+        return self._ttl
 
 
 assert (configs := AskAiConfigs().INSTANCE) is not None

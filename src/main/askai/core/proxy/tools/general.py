@@ -6,6 +6,7 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 
+from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -13,6 +14,7 @@ from askai.core.component.cache_service import cache
 from askai.core.component.geo_location import geo_location
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from askai.core.support.utilities import display_text
 
 
 def fetch(query: str) -> Optional[str]:
@@ -43,6 +45,8 @@ def fetch(query: str) -> Optional[str]:
 
 def display(text: str) -> None:
     """Display the given text formatting in markdown."""
-    # TODO If it is not interactive just use display_text()
-    shared.context.push("GENERAL", f"\nAI:{text}\n", "assistant")
-    AskAiEvents.ASKAI_BUS.events.reply.emit(message=text)
+    if configs.is_interactive:
+        shared.context.push("GENERAL", f"\nAI:{text}\n", "assistant")
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=text)
+    else:
+        display_text(ensure_endswith(text, '\n\n'), f"{shared.nickname}: ")

@@ -28,19 +28,23 @@ from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import sysout
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.eventbus.event import Event
+from langchain_core.prompts import PromptTemplate
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
 from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
+from askai.core.component.geo_location import geo_location
 from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.model.chat_context import ChatContext
 from askai.core.proxy.router import router
+from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from askai.core.support.utilities import display_text
+from askai.core.support.utilities import display_text, read_stdin
 
 
 class AskAi:
@@ -71,6 +75,7 @@ class AskAi:
         self._get_query_string(interactive, query)
         configs.is_speak = is_speak and interactive
         configs.tempo = tempo
+        configs.is_interactive = interactive
 
     def __str__(self) -> str:
         device_info = f"{recorder.input_device[1].title()}" if recorder.input_device else ""
@@ -90,9 +95,17 @@ class AskAi:
         """TODO"""
         query: str = str(" ".join(query_arg) if isinstance(query_arg, list) else query_arg)
         if not interactive:
-            stdin_args = sys.stdin.read()
+            stdin_args = read_stdin()
+            template = PromptTemplate(input_variables=[
+                'os_type', 'shell', 'idiom', 'location', 'datetime', 'context', 'question'
+            ], template=prompt.read_prompt('qstring-prompt'))
             self._question = query
-            self._query_string = f"Given the context: '''{stdin_args}'''  Answer: {query}" if query else stdin_args
+            final_prompt = template.format(
+                os_type=prompt.os_type, shell=prompt.shell, idiom=shared.idiom,
+                location=geo_location.location, datetime=geo_location.datetime,
+                context=stdin_args, question=self._question
+            )
+            self._query_string = final_prompt if query else stdin_args
         else:
             self._query_string = query
 
@@ -142,8 +155,10 @@ class AskAi:
             self._startup()
             self._prompt()
         elif self.query_string:
+            llm = lc_llm.create_chat_model()
             display_text(self.question, f"{shared.username}: ")
-            if self._ask_and_reply(self.query_string):
+            if output := llm.predict(self.query_string):
+                display_text(output, f"{shared.nickname}: ")
                 cache.save_query_history()
         else:
             display_text(msg.no_query_string())

@@ -12,6 +12,7 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import sys
 
 from askai.core.support.presets import Presets
 from askai.core.support.text_formatter import text_formatter
@@ -30,6 +31,13 @@ import hashlib
 import os
 import pause
 import re
+
+
+def read_stdin() -> Optional[str]:
+    """TODO"""
+    if not sys.stdin.isatty():
+        return sys.stdin.read()
+    return None
 
 
 def display_text(text: Any, prefix: Any = "", markdown: bool = True, erase_last=False) -> None:

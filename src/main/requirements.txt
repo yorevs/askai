@@ -1,7 +1,7 @@
 ###### AUTO-GENERATED Requirements file for: AskAi ######
 
 hspylib>=1.12.35
-hspylib-clitt>=0.9.117
+hspylib-clitt>=0.9.118
 retry==0.9.2
 pause==0.3
 requests==2.31.0
