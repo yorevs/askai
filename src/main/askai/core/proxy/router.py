@@ -53,21 +53,19 @@ class Router(metaclass=Singleton):
 
         if response := chain.invoke({"query": final_prompt, "context": context}):
             log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
-            output = self._route(response)
+            output = self._route(question, re.sub(r'\d+[.:)-]\s+', '', response))
             status = True
-            shared.context.forget()
         else:
             output = response
 
         return status, ProcessorResponse(response=output)
 
-    def _route(self, query: str) -> Optional[str]:
+    def _route(self, question: str, action_plan: str) -> Optional[str]:
         """Route the actions to the proper function invocations."""
-        plain_actions: str = re.sub(r'\d+[.:)-]\s+', '', query)
-        actions: list[str] = list(map(str.strip, plain_actions.split(os.linesep)))
+        tasks: list[str] = list(map(str.strip, action_plan.split(os.linesep)))
         max_iterations: int = 20
         result: str = ''
-        for idx, action in enumerate(actions):
+        for idx, action in enumerate(tasks):
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"`{action}`", verbosity='debug')
             response: str = features.invoke(action, result)
             if idx > max_iterations or not (result := response):
@@ -75,7 +73,7 @@ class Router(metaclass=Singleton):
                     AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
                 break
 
-        return assert_accuracy(query, result)
+        return assert_accuracy(question, result)
 
 
 assert (router := Router().INSTANCE) is not None

@@ -35,7 +35,7 @@ from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import PERSIST_DIR
 from askai.core.component.geo_location import geo_location
 from askai.core.component.summarizer import summarizer
-from askai.core.engine.openai.temperatures import Temperatures
+from askai.core.engine.openai.temperature import Temperature
 from askai.core.model.search_result import SearchResult
 from askai.core.support.langchain_support import lc_llm, load_document
 from askai.core.support.shared_instances import shared
@@ -113,7 +113,7 @@ class InternetService(metaclass=Singleton):
             llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
             context: List[Document] = [Document(ctx)]
             chain = create_stuff_documents_chain(lc_llm.create_chat_model(
-                temperature=Temperatures.DATA_ANALYSIS.temp), llm_prompt)
+                temperature=Temperature.DATA_ANALYSIS.temp), llm_prompt)
             output = chain.invoke({"query": search.question, "context": context})
         except HttpError as err:
             output = msg.fail_to_search(str(err))
@@ -128,7 +128,7 @@ class InternetService(metaclass=Singleton):
             sources=', '.join(sites)
         )
         chain = create_stuff_documents_chain(lc_llm.create_chat_model(
-            temperature=Temperatures.CREATIVE_WRITING.temp
+            temperature=Temperature.CREATIVE_WRITING.temp
         ), ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")]))
 
         return chain.invoke({"query": question, "context": [Document(refine_prompt)]})

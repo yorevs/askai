@@ -39,7 +39,7 @@ from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
-from askai.core.engine.openai.temperatures import Temperatures
+from askai.core.engine.openai.temperature import Temperature
 from askai.core.model.chat_context import ChatContext
 from askai.core.proxy.router import router
 from askai.core.support.langchain_support import lc_llm
@@ -91,23 +91,6 @@ class AskAi:
             f"{'-=' * 40} %EOL%%NC%"
         )
 
-    def _get_query_string(self, interactive: bool, query_arg: str | list[str]) -> None:
-        """TODO"""
-        query: str = str(" ".join(query_arg) if isinstance(query_arg, list) else query_arg)
-        self._question = query
-        if not interactive:
-            stdin_args = read_stdin()
-            if stdin_args:
-                template = PromptTemplate(
-                    input_variables=['context', 'question'],
-                    template=prompt.read_prompt('qstring-prompt'))
-                final_prompt = template.format(context=stdin_args, question=self._question)
-                self._query_string = final_prompt if query else stdin_args
-            else:
-                self._query_string = query
-        else:
-            self._query_string = query
-
     @property
     def engine(self) -> AIEngine:
         return self._engine
@@ -154,7 +137,7 @@ class AskAi:
             self._startup()
             self._prompt()
         elif self.query_string:
-            llm = lc_llm.create_chat_model(Temperatures.CREATIVE_WRITING.temp)
+            llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
             display_text(self.question, f"{shared.username}: ")
             if output := llm.predict(self.query_string):
                 display_text(output, f"{shared.nickname}: ")
@@ -182,7 +165,10 @@ class AskAi:
             display_text(message, f"{shared.nickname}: ")
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
-        """Callback to handle reply events."""
+        """Callback to handle reply events.
+        :param ev: The reply event.
+        :param error: Whether the event is an error not not.
+        """
         if error:
             self.reply_error(ev.args.message)
         else:
@@ -253,3 +239,23 @@ class AskAi:
             status = True
 
         return status
+
+    def _get_query_string(self, interactive: bool, query_arg: str | list[str]) -> None:
+        """Retrieve the proper query string used in the non interactive mode.
+        :param interactive: The interactive mode.
+        :param query_arg: The query argument provided by the command line.
+        """
+        query: str = str(" ".join(query_arg) if isinstance(query_arg, list) else query_arg)
+        self._question = query
+        if not interactive:
+            stdin_args = read_stdin()
+            if stdin_args:
+                template = PromptTemplate(
+                    input_variables=['context', 'question'],
+                    template=prompt.read_prompt('qstring-prompt'))
+                final_prompt = template.format(context=stdin_args, question=self._question)
+                self._query_string = final_prompt if query else stdin_args
+            else:
+                self._query_string = query
+        else:
+            self._query_string = query

@@ -6,9 +6,9 @@
 """Package initialization."""
 
 __all__ = [
-    'openai_configs', 
-    'openai_engine', 
-    'openai_model', 
-    'temperatures'
+    'openai_configs',
+    'openai_engine',
+    'openai_model',
+    'temperature.py'
 ]
 __version__ = '1.0.4'

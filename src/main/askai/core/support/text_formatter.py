@@ -1,9 +1,11 @@
+import os
 import re
 from textwrap import dedent
 from typing import Any
 
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.dict_tools import get_or_default
+from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
 from hspylib.modules.cli.vt100.vt_code import VtCode
 from hspylib.modules.cli.vt100.vt_color import VtColor
 from rich.console import Console
@@ -25,6 +27,11 @@ class TextFormatter(metaclass=Singleton):
         "": "\n>   *Fun-Fact:* ",
         "": "\n>   *Advice:* ",
     }
+
+    @staticmethod
+    def ensure_ln(text: str) -> str:
+        """TODO"""
+        return ensure_endswith(ensure_startswith(text.strip(), os.linesep), os.linesep * 2)
 
     def __init__(self):
         self._console: Console = Console()
@@ -56,13 +63,15 @@ class TextFormatter(metaclass=Singleton):
         text = re.sub(r'(`{3}.+`{3})', r'\n\1\n', text)
         # fmt: on
 
-        return text.strip()
+        return self.ensure_ln(text)
 
     def display_markdown(self, text: str) -> None:
+        """TODO"""
         colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text)))
         self.console.print(Markdown(colorized))
 
     def display_text(self, text: str) -> None:
+        """TODO"""
         colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text)))
         self.console.print(Text.from_ansi(colorized))
 

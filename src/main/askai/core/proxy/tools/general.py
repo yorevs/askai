@@ -1,7 +1,6 @@
 import logging as log
 from typing import Optional
 
-from hspylib.core.tools.text_tools import ensure_endswith
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
@@ -12,9 +11,11 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
 from askai.core.component.geo_location import geo_location
-from askai.core.engine.openai.temperatures import Temperatures
+from askai.core.engine.openai.temperature import Temperature
+from askai.core.model.rag_response import RagResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
 from askai.exception.exceptions import InaccurateResponse
 
@@ -42,7 +43,7 @@ def fetch(query: str) -> Optional[str]:
     else:
         output = msg.translate("Sorry, I don't know.")
 
-    return ensure_endswith(output, '\n\n')
+    return text_formatter.ensure_ln(output)
 
 
 def display(text: str) -> None:
@@ -51,7 +52,7 @@ def display(text: str) -> None:
         shared.context.push("GENERAL", f"\nAI:{text}\n", "assistant")
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=text)
     else:
-        display_text(ensure_endswith(text, '\n\n'), f"{shared.nickname}: ")
+        display_text(text, f"{shared.nickname}: ")
 
 
 def assert_accuracy(question: str, ai_response: str) -> Optional[str]:
@@ -61,7 +62,13 @@ def assert_accuracy(question: str, ai_response: str) -> Optional[str]:
             input_variables=['question', 'response'],
             template=prompt.read_prompt('rag-prompt'))
         final_prompt = template.format(question=question, response=ai_response)
-        llm = lc_llm.create_chat_model(Temperatures.DATA_ANALYSIS.temp)
-        if (output := llm.predict(final_prompt)) == 'Red':
-            raise InaccurateResponse(f"The response was {output} for the question: '{question}'")
+        llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+        output = llm.predict(final_prompt)
+        log.info(
+            "Asserting accuracy of question '%s' using response '%s' resulted in: '%s'",
+            question, ai_response, output)
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(question, output), verbosity='debug')
+        if RagResponse.of_value(output).is_bad:
+            raise InaccurateResponse(f"The response was '{output}' for the question: '{question}'")
+
     return ai_response

@@ -82,8 +82,8 @@ class AskAiMessages(metaclass=Singleton):
     # Warnings and alerts
 
     @lru_cache
-    def cmd_no_output(self) -> str:
-        return self.translate("The command didn't return an output !")
+    def exec_result(self, exit_code: ExitStatus) -> str:
+        return self.translate(f"Execution result: `{exit_code}`")
 
     @lru_cache
     def search_empty(self) -> str:
@@ -94,12 +94,8 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate("Do you approve executing command on you terminal (yes/[no])?")
 
     @lru_cache
-    def not_a_command(self, shell: str, content: str) -> str:
-        return self.translate(f"Reply '{content}' is not a '{shell}' command !")
-
-    @lru_cache
-    def invalid_cmd_format(self, output: str) -> str:
-        return self.translate(f"Reply '{output}' does not match the correct command format !")
+    def assert_acc(self, question: str, result: str) -> str:
+        return self.translate(f"Asserting accuracy for the question: **{question}** => `{result}`")
 
     # Failures
 

@@ -1,7 +1,7 @@
 from hspylib.core.enums.enumeration import Enumeration
 
 
-class Temperatures(Enumeration):
+class Temperature(Enumeration):
     """Provide some recommended temperature x top_p combinations for ChatGPT prompts.
     Ref:. https://community.openai.com/t/cheat-sheet-mastering-temperature-and-top-p-in-chatgpt-api/172683
 

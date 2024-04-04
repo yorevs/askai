@@ -9,6 +9,7 @@ from typing import Optional
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import sysout
+from hspylib.modules.application.exit_status import ExitStatus
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -24,7 +25,7 @@ class Features(metaclass=Singleton):
 
     INSTANCE: 'Features' = None
 
-    RESERVED: list[str] = ['invoke', 'list_features']
+    RESERVED: list[str] = ['invoke', 'enlist']
 
     def __init__(self):
         self._all = dict(filter(
@@ -33,7 +34,10 @@ class Features(metaclass=Singleton):
             }.items()))
 
     def invoke(self, action: str, context: str = '') -> Optional[str]:
-        """Invoke the action with its arguments and context."""
+        """Invoke the action with its arguments and context.
+        :param action: The action to be performed.
+        :param context: the action context.
+        """
         re_fn = r'([a-zA-Z]\w+)\s*\((.*)\)'
         if act_fn := re.findall(re_fn, action):
             fn_name = act_fn[0][0].lower()
@@ -55,21 +59,21 @@ class Features(metaclass=Singleton):
         """Prompt for human approval. This is mostly used to execute terminal commands."""
         confirm_msg = (msg.access_grant())
         if (resp := line_input(confirm_msg).lower()) not in ("yes", "y"):
-            raise ValueError(f"Terminal command execution no approved '{resp}' !")
+            raise ValueError(f"Terminal command execution no appargs[0]roved '{resp}' !")
         self._approved = True
 
         return self._approved
 
     def intelligible(self, *args: str) -> None:
         """Feature: 'Intelligible question', Usage: 'intelligible(<question>, <reason>)'"""
-        AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.intelligible(args[0]))
+        AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.intelligible(args[0], args[1]))
 
     def terminate(self, *args: str) -> None:
         """Feature: 'Terminate intent', Usage: 'terminate(<reason>)'"""
         log.info(f"Application exit: '%s'", args[0])
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.goodbye())
         sysout("")
-        sys.exit(0)
+        sys.exit(ExitStatus.FAILED.val)
 
     def impossible(self, *args: str) -> None:
         """Feature: 'Impossible plan', Usage: 'impossible(<reason>)'"""
@@ -97,10 +101,10 @@ class Features(metaclass=Singleton):
 
     def describe_image(self, *args: str) -> str:
         """Feature: 'Image analysis', Usage: 'describe_image(<image_path>)'"""
-        raise NotImplementedError('This feature is not yet implemented !')
+        return str(NotImplementedError('This feature is not yet implemented !'))
 
     def fetch(self, *args: str) -> str:
-        """Feature: 'AI database retrival', Usage: 'fetch(<query>)'"""
+        """Feature: 'Time-independent database retrival', Usage: 'fetch(<query>)'"""
         return fetch(args[0])
 
     def display(self, *args: str) -> None:

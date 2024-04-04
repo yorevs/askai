@@ -1,15 +1,15 @@
 import logging as log
 from typing import Optional
 
-from hspylib.core.tools.text_tools import ensure_endswith
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 
 from askai.core.askai_prompt import prompt
-from askai.core.engine.openai.temperatures import Temperatures
+from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from askai.core.support.text_formatter import text_formatter
 
 
 def check_output(question: str, context: str) -> Optional[str]:
@@ -23,9 +23,10 @@ def check_output(question: str, context: str) -> Optional[str]:
     context = [Document(context)]
 
     if output := chain.invoke({"query": question, "context": context}):
-        shared.context.set("ANALYSIS", f"\nAI:\n{output}", "assistant")
+        shared.context.set("ANALYSIS", f"\n\nUser:\n{question}")
+        shared.context.push("ANALYSIS", f"\nAI:\n{output}", "assistant")
 
-    return ensure_endswith(output, '\n\n')
+    return text_formatter.ensure_ln(output)
 
 
 def stt(question: str, existing_answer: str) -> str:
@@ -38,9 +39,10 @@ def stt(question: str, existing_answer: str) -> str:
     )
 
     log.info("STT::[QUESTION] '%s'", existing_answer)
-    llm = lc_llm.create_chat_model(temperature=Temperatures.CREATIVE_WRITING.temp)
+    llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)
 
     if output := llm.predict(final_prompt):
-        shared.context.set("ANALYSIS", f"\nAI:{output}\n", "assistant")
+        shared.context.set("ANALYSIS", f"\n\nUser:\n{question}")
+        shared.context.push("ANALYSIS", f"\nAI:\n{output}", "assistant")
 
-    return ensure_endswith(output, '\n\n')
+    return text_formatter.ensure_ln(output)

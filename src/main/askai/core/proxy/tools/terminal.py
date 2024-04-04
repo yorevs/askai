@@ -72,10 +72,11 @@ def _execute_shell(command_line: str) -> Tuple[bool, Optional[str]]:
             else:
                 log.warning("Directory '%s' does not exist. Current dir unchanged!", _path_)
             if not output:
-                output = msg.cmd_no_output()
+                output = msg.exec_result(exit_code)
             else:
                 output = f"\n```bash\n{output}\n```"
-                shared.context.set("OUTPUT", f"\nAI:\n{output}\n", "assistant")
+                shared.context.set("OUTPUT", f"\n\nUser:\nCommand `{command_line}' output:")
+                shared.context.push("OUTPUT", f"\nAI:{output}", "assistant")
             status = True
         else:
             log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), command)
