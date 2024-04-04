@@ -37,9 +37,9 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
-from askai.core.component.geo_location import geo_location
 from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
+from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.model.chat_context import ChatContext
 from askai.core.proxy.router import router
 from askai.core.support.langchain_support import lc_llm
@@ -94,18 +94,17 @@ class AskAi:
     def _get_query_string(self, interactive: bool, query_arg: str | list[str]) -> None:
         """TODO"""
         query: str = str(" ".join(query_arg) if isinstance(query_arg, list) else query_arg)
+        self._question = query
         if not interactive:
             stdin_args = read_stdin()
-            template = PromptTemplate(input_variables=[
-                'os_type', 'shell', 'idiom', 'location', 'datetime', 'context', 'question'
-            ], template=prompt.read_prompt('qstring-prompt'))
-            self._question = query
-            final_prompt = template.format(
-                os_type=prompt.os_type, shell=prompt.shell, idiom=shared.idiom,
-                location=geo_location.location, datetime=geo_location.datetime,
-                context=stdin_args, question=self._question
-            )
-            self._query_string = final_prompt if query else stdin_args
+            if stdin_args:
+                template = PromptTemplate(
+                    input_variables=['context', 'question'],
+                    template=prompt.read_prompt('qstring-prompt'))
+                final_prompt = template.format(context=stdin_args, question=self._question)
+                self._query_string = final_prompt if query else stdin_args
+            else:
+                self._query_string = query
         else:
             self._query_string = query
 
@@ -155,7 +154,7 @@ class AskAi:
             self._startup()
             self._prompt()
         elif self.query_string:
-            llm = lc_llm.create_chat_model()
+            llm = lc_llm.create_chat_model(Temperatures.CREATIVE_WRITING.temp)
             display_text(self.question, f"{shared.username}: ")
             if output := llm.predict(self.query_string):
                 display_text(output, f"{shared.nickname}: ")
