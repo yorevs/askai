@@ -51,7 +51,6 @@ class Features(metaclass=Singleton):
             doc_strings += f"{fn.__doc__}{os.linesep}" if fn and fn.__doc__ else ''
         return doc_strings
 
-    @lru_cache
     def _human_approval(self) -> bool:
         """Prompt for human approval. This is mostly used to execute terminal commands."""
         confirm_msg = (msg.access_grant())
@@ -61,9 +60,8 @@ class Features(metaclass=Singleton):
 
         return self._approved
 
-    @lru_cache
     def intelligible(self, *args: str) -> None:
-        """Feature: 'Intelligible question', Usage: 'intelligible(<question>)'"""
+        """Feature: 'Intelligible question', Usage: 'intelligible(<question>, <reason>)'"""
         AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.intelligible(args[0]))
 
     def terminate(self, *args: str) -> None:
@@ -73,7 +71,6 @@ class Features(metaclass=Singleton):
         sysout("")
         sys.exit(0)
 
-    @lru_cache
     def impossible(self, *args: str) -> None:
         """Feature: 'Impossible plan', Usage: 'impossible(<reason>)'"""
         AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.impossible(args[0]))
@@ -86,12 +83,10 @@ class Features(metaclass=Singleton):
         """Feature: 'List folder contents', Usage: 'list_contents(<folder>)'"""
         return list_contents(args[0])
 
-    @lru_cache
     def check_output(self, *args: str) -> str:
         """Feature: 'Check output', Usage: 'check_output(<question>)'"""
         return check_output(args[0], args[1])
 
-    @lru_cache
     def summarize_files(self, *args: str) -> str:
         """Feature: 'Summarization of files and folders', Usage: 'summarize_files(<folder>, <glob>)'"""
         return summarize(args[0], args[1])
@@ -100,12 +95,10 @@ class Features(metaclass=Singleton):
         """Feature: 'Internet browsing', Usage: 'browse(<search_query>)'"""
         return browse(args[0])
 
-    @lru_cache
     def describe_image(self, *args: str) -> str:
         """Feature: 'Image analysis', Usage: 'describe_image(<image_path>)'"""
         raise NotImplementedError('This feature is not yet implemented !')
 
-    @lru_cache
     def fetch(self, *args: str) -> str:
         """Feature: 'AI database retrival', Usage: 'fetch(<query>)'"""
         return fetch(args[0])
@@ -114,7 +107,6 @@ class Features(metaclass=Singleton):
         """Feature: 'Display plain text', Usage: 'display(<text>)'"""
         display(' '.join(args))
 
-    @lru_cache
     def stt(self, *args: str) -> str:
         """Feature: 'Display using STT techniques', Usage: 'stt(<question>, <text>)'"""
         return stt(args[0], ' '.join(args[1:]))

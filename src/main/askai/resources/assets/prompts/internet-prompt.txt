@@ -8,7 +8,7 @@ Before responding to the user, you must follow the step-by-step instructions pro
 
 3. Identify a set of keywords that, when used together, effectively retrieve the necessary information to craft a comprehensive, successful, and accurate response.
 
-4. Locate credible sources relevant to '{idiom}' to collect essential information for creating a thoroughly researched response. Offer a curated list comprising a minimum of three and a maximum of six website URLs tailored to the user's locale. Include only the base URL of each website without specifying any particular paths.
+4. Locate credible sources relevant to '{idiom}' to collect essential information for creating a thoroughly researched response. Offer a curated list comprising a 'minimum of three' and a 'maximum of six' website URLs tailored to the user's locale. Include only the base URL of each website without specifying any particular paths.
 
 5. If the inquiry pertains to programming languages, operating systems, or any other IT-related topics, ensure to include the following websites in your sites list: ['stackoverflow.com', 'github.com'].
 
