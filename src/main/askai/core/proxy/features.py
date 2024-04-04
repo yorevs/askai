@@ -13,7 +13,7 @@ from hspylib.modules.application.exit_status import ExitStatus
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
-from askai.core.proxy.tools.analysis import check_output, stt
+from askai.core.proxy.tools.analysis import check_output, stt, cross_reference
 from askai.core.proxy.tools.browser import browse
 from askai.core.proxy.tools.general import fetch, display
 from askai.core.proxy.tools.summarization import summarize
@@ -104,8 +104,12 @@ class Features(metaclass=Singleton):
         return str(NotImplementedError('This feature is not yet implemented !'))
 
     def fetch(self, *args: str) -> str:
-        """Feature: 'Time-independent database retrival', Usage: 'fetch(<query>)'"""
+        """Feature: 'Time-independent database retrival', Usage: 'fetch(<question>)'"""
         return fetch(args[0])
+
+    def cross_reference(self, *args: str) -> str:
+        """Feature: 'Cross reference resolver', Usage: 'cross_reference(<question>)'"""
+        return cross_reference(args[0], args[1])
 
     def display(self, *args: str) -> None:
         """Feature: 'Display plain text', Usage: 'display(<text>)'"""

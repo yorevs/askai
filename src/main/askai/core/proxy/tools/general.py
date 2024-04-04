@@ -70,5 +70,3 @@ def assert_accuracy(question: str, ai_response: str) -> Optional[str]:
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(question, output), verbosity='debug')
         if RagResponse.of_value(output).is_bad:
             raise InaccurateResponse(f"The response was '{output}' for the question: '{question}'")
-
-    return ai_response

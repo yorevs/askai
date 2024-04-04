@@ -19,7 +19,6 @@ from askai.core.model.processor_response import ProcessorResponse
 from askai.core.proxy.features import features
 from askai.core.proxy.tools.general import assert_accuracy
 from askai.core.support.langchain_support import lc_llm
-from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
 
 RunnableTool: TypeAlias = Runnable[list[Input], list[Output]]
@@ -41,11 +40,9 @@ class Router(metaclass=Singleton):
     @retry(exceptions=InaccurateResponse, tries=2, delay=0, backoff=0)
     def process(self, question: str) -> Tuple[bool, ProcessorResponse]:
         status = False
-        template = PromptTemplate(input_variables=[
-            'features', 'os_type', 'shell', 'idiom', 'location', 'datetime', 'question'
-        ], template=self.template())
-        final_prompt = template.format(objective=question, features=features.enlist())
-        ctx: str = shared.context.flat("GENERAL", "INTERNET", "OUTPUT", "ANALYSIS")
+        template = PromptTemplate(input_variables=['features', 'objective'], template=self.template())
+        final_prompt = template.format(features=features.enlist(), objective=question)
+        ctx: str = ''
         log.info("Router::[QUESTION] '%s'  context: '%s'", question, ctx)
         chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
         chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
