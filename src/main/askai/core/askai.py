@@ -25,7 +25,7 @@ from clitt.core.term.cursor import cursor
 from clitt.core.term.screen import screen
 from clitt.core.term.terminal import terminal
 from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import sysout
+from hspylib.core.tools.commons import sysout, is_debugging
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.eventbus.event import Event
 from langchain_core.prompts import PromptTemplate
@@ -186,9 +186,11 @@ class AskAi:
         if error:
             self.reply_error(ev.args.message)
         else:
-            if ev.args.erase_last:
-                cursor.erase_line()
-            self.reply(ev.args.message)
+            verbose = ev.args.verbosity.lower()
+            if verbose == 'normal' or is_debugging():
+                if ev.args.erase_last:
+                    cursor.erase_line()
+                self.reply(ev.args.message)
 
     def _splash(self) -> None:
         """Display the AskAI splash screen."""
@@ -238,6 +240,7 @@ class AskAi:
         """
         if not (reply := cache.read_reply(question)):
             log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.wait())
             status, output = router.process(question)
             if status:
                 if output and output.response:

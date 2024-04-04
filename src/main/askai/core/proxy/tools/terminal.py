@@ -60,11 +60,12 @@ def _execute_shell(command_line: str) -> Tuple[bool, Optional[str]]:
     status = False
     if (command := command_line.split(" ")[0].strip()) and which(command):
         command = expandvars(command_line.replace("~/", f"{os.getenv('HOME')}/").strip())
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.executing(command_line))
         log.info("Executing command `%s'", command)
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.executing(command_line), verbosity='debug')
         output, exit_code = Terminal.INSTANCE.shell_exec(command, shell=True)
         if exit_code == ExitStatus.SUCCESS:
             log.info("Command succeeded.\nCODE=%s \nPATH: %s \nCMD: %s ", exit_code, os.getcwd(), command)
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.cmd_success(command_line, exit_code), verbosity='debug')
             if _path_ := extract_path(command):
                 os.chdir(_path_)
                 log.info("Current directory changed to '%s'", _path_)

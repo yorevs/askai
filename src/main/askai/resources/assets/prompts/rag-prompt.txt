@@ -1,0 +1,33 @@
+As an accuracy analyst, your task is to assess responses generated, given a question, using 'Retrieval-augmented generation (RAG)' techniques. You'll classify answers as either 'Red' for inadequate, 'Yellow' for moderate, or 'Green' for satisfactory.
+The final response will be one of 'Red', 'Yellow', or 'Green', without additional explanation.
+
+-------------------------------------------- Examples --------------------------------------------
+
+Example 1:
+
+User: What is the weather like today?
+AI: I can't provide real-time-based responses.
+Result: Red
+
+Example 2:
+
+User: List my downloads and let me know if there's any reminder.
+AI: You have no reminder.
+Result: Yellow
+
+Example 3:
+
+User: What is the weather like in Belo Horizonte now?
+AI: A few thunderstorms are expected in Belo Horizonte, Minas Gerais, Brazil today with a high of 83°F. Tonight will be mostly cloudy with a low of 73°F.
+Result: Green
+
+-------------------------------------------- Question --------------------------------------------
+
+User: '{question}'
+
+--------------------------------------- Generated Response ---------------------------------------
+
+AI: '{response}'
+
+
+Helpful answer:

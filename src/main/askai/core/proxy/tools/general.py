@@ -12,9 +12,11 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
 from askai.core.component.geo_location import geo_location
+from askai.core.engine.openai.temperatures import Temperatures
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
+from askai.exception.exceptions import InaccurateResponse
 
 
 def fetch(query: str) -> Optional[str]:
@@ -50,3 +52,16 @@ def display(text: str) -> None:
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=text)
     else:
         display_text(ensure_endswith(text, '\n\n'), f"{shared.nickname}: ")
+
+
+def assert_accuracy(question: str, ai_response: str) -> Optional[str]:
+    """Function responsible for asserting that the question was properly answered."""
+    if ai_response:
+        template = PromptTemplate(
+            input_variables=['question', 'response'],
+            template=prompt.read_prompt('rag-prompt'))
+        final_prompt = template.format(question=question, response=ai_response)
+        llm = lc_llm.create_chat_model(Temperatures.DATA_ANALYSIS.temp)
+        if (output := llm.predict(final_prompt)) == 'Red':
+            raise InaccurateResponse(f"The response was {output} for the question: '{question}'")
+    return ai_response

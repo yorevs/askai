@@ -54,3 +54,7 @@ class InvalidInputDevice(HSBaseException):
 
 class DocumentsNotFound(HSBaseException):
     """Raised when no documents are found for summarization."""
+
+
+class InaccurateResponse(HSBaseException):
+    """Raised when detected an inaccurate response form the AI."""

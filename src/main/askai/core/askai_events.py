@@ -46,7 +46,7 @@ class AskAiEvents(Enumeration):
     # fmt: off
     ASKAI_BUS = _EventBus(
         ASKAI_BUS_NAME,
-        reply=_Event(REPLY_EVENT, erase_last=False),
+        reply=_Event(REPLY_EVENT, verbosity='normal', erase_last=False),
         reply_error=_Event(REPLY_ERROR_EVENT)
     )
 
