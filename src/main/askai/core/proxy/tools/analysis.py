@@ -1,4 +1,5 @@
 import logging as log
+import re
 from typing import Optional
 
 from langchain_core.prompts import PromptTemplate
@@ -10,10 +11,11 @@ from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 
 
-def check_output(question: str, context: str) -> Optional[str]:
+def check_output(question: str, placeholder: str, context: str) -> Optional[str]:
     """Handle 'Text analysis', invoking: analyze(question: str). Analyze the context and answer the question.
     :param question: The question about the content to be analyzed.
     :param context: The context of the question.
+    :param placeholder: The placeholder to insert the check result.
     """
     log.info("Analysis::[QUESTION] '%s'  context=%s", question, context)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
@@ -25,6 +27,7 @@ def check_output(question: str, context: str) -> Optional[str]:
     if output := llm.predict(final_prompt):
         shared.context.set("ANALYSIS", f"\n\nUser:\n{question}")
         shared.context.push("ANALYSIS", f"\nAI:\n{output}", "assistant")
+        shared.placeholder_update(placeholder, output)
 
     return text_formatter.ensure_ln(output)
 
@@ -46,3 +49,23 @@ def stt(question: str, existing_answer: str) -> str:
         shared.context.push("ANALYSIS", f"\nAI:\n{output}", "assistant")
 
     return text_formatter.ensure_ln(output)
+
+
+def replaceholders(question: str, *args: str) -> list[str]:
+    """Function to replace the placeholders by their actual value."""
+    replaced_args: list[str] = []
+    for arg in list(map(str.strip, args)):
+        if (content := shared.placeholder_get(arg)) and (mat := re.match(r'^(%[a-zA-Z0-9_-]+%)$', arg)):
+            template = PromptTemplate(input_variables=[
+                'question', 'placeholder', 'content'
+            ], template=prompt.read_prompt('placeholder-prompt'))
+            final_prompt = template.format(
+                question=question, placeholder=mat.group(1), content=content
+            )
+            log.info("PLACEHOLDER::[QUESTION] '%s'  ARG: '%s'", question, arg)
+            response = lc_llm.create_chat_model().predict(final_prompt)
+            replaced_args.append(response)
+        else:
+            replaced_args.append(arg)
+
+    return replaced_args

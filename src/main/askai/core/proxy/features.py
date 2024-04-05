@@ -13,7 +13,7 @@ from hspylib.modules.application.exit_status import ExitStatus
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
-from askai.core.proxy.tools.analysis import check_output, stt
+from askai.core.proxy.tools.analysis import check_output, stt, replaceholders
 from askai.core.proxy.tools.browser import browse
 from askai.core.proxy.tools.general import fetch, display
 from askai.core.proxy.tools.summarization import summarize
@@ -34,8 +34,9 @@ class Features(metaclass=Singleton):
                 n: fn for n, fn in inspect.getmembers(self, predicate=inspect.ismethod)
             }.items()))
 
-    def invoke(self, action: str, context: str = '') -> Optional[str]:
+    def invoke(self, question: str, action: str, context: str = '') -> Optional[str]:
         """Invoke the action with its arguments and context.
+        :param question:
         :param action: The action to be performed.
         :param context: the action context.
         """
@@ -45,6 +46,7 @@ class Features(metaclass=Singleton):
             fn = self._all[fn_name]
             args: list[str] = re.sub("['\"]", '', act_fn[0][1]).split(',')
             args.append(context)
+            args = replaceholders(question, *args)
             return fn(*list(map(str.strip, args)))
         return None
 
@@ -77,12 +79,13 @@ class Features(metaclass=Singleton):
         sys.exit(ExitStatus.FAILED.val)
 
     def impossible(self, *args: str) -> None:
-        """Feature: 'Impossible plan', Usage: 'impossible(<reason>)'"""
+        """Feature: 'Impossible execution or  plan', Usage: 'impossible(<reason>)'"""
         AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.impossible(args[0]))
         raise MissionImpossible(' '.join(args))
 
     def terminal(self, *args: str) -> str:
-        """Feature: 'Terminal command execution', Usage: 'terminal(<shell>, <command>)'"""
+        """Feature: 'Terminal command execution', Usage: 'terminal(<language>, <command>)'"""
+        # TODO Check for permission before executing
         return execute_command(args[0], args[1])
 
     def list_contents(self, *args: str) -> str:
@@ -90,8 +93,8 @@ class Features(metaclass=Singleton):
         return list_contents(args[0])
 
     def check_output(self, *args: str) -> str:
-        """Feature: 'Check output', Usage: 'check_output(<question>)'"""
-        return check_output(args[0], args[1])
+        """Feature: 'Check output', Usage: 'check_output(<question>, <placeholder>)'"""
+        return check_output(args[0], args[1], args[2])
 
     def summarize_files(self, *args: str) -> str:
         """Feature: 'Summarization of files and folders', Usage: 'summarize_files(<folder>, <glob>)'"""
@@ -114,7 +117,7 @@ class Features(metaclass=Singleton):
         return display(*args[0:-1])
 
     def stt(self, *args: str) -> str:
-        """Feature: 'Display using STT techniques', Usage: 'stt(<question>, <text>)'"""
+        """Feature: 'Display using STT techniques', Usage: 'stt(<question>, <response>)'"""
         return stt(args[0], ' '.join(args[1:]))
 
 

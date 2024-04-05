@@ -6,9 +6,11 @@ Given the question at the end, Your task is to review it and provide a structure
 
 If you encounter any challenges understanding the query due to ambiguity, context dependency, or lack of clarity, please refer to the command output for clarification. Pay attention to file or folder names, mentions, and contents like 'file contents', 'folder listing', 'dates', and 'spoken names' to disambiguate effectively.
 
+All placeholders must match the regex: '^%[a-zA-Z0-9_-]+%$'
+
 The final output should consist of a straightforward list of commands adhering to the provided syntax with no additional description or context.list my music and let me know if there is any ac/dc song. If so, show me the file name.
 
-Refer to the example provided below:
+Refer to the examples provided below:
 
 Example 1:
 
@@ -16,8 +18,8 @@ Query: 'Open the first file you find at my downloads folder.'
 AI Response:
 
 1. list_contents('~/Downloads')
-2. check_output("Is there any reminder in the list")
-4. terminal('bash', 'open %reminder_file_found%')
+2. check_output("Is there any reminder in the list", "%first_reminder_file_found%")
+4. terminal('bash', 'open %first_reminder_file_found%')
 
 
 Example 2:
@@ -34,7 +36,7 @@ Query: 'What is the size of the moon? Use stt.'
 AI Response:
 
 1. fetch("what is the size of the moon")
-2. stt("what is the size of the moon", "%Information_about_the_moon%")
+3. stt("what is the size of the moon", "<Information_about_the_moon>")
 
 
 Example 4:
@@ -59,8 +61,8 @@ Query: 'List my music and let me know if there is any ac/dc song. If so, show me
 AI Response:
 
 1. list_contents('~/Music')
-2. check_output("Is there any AC/DC song in the list")
-3. display(%cross_referenced_file_name%)
+2. check_output("Is there any AC/DC song in the list", "%cross_referenced_file_names%")
+3. display(%cross_referenced_file_names%)
 
 
 User Question: '{objective}'

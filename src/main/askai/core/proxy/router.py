@@ -68,7 +68,7 @@ class Router(metaclass=Singleton):
             if idx > max_actions:
                 AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
                 raise MaxInteractionReached(f"Maximum number of action was reached")
-            if not (result := features.invoke(action, result)):
+            if not (result := features.invoke(question, action, result)):
                 break
 
         return assert_accuracy(question, result)

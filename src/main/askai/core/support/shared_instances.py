@@ -1,15 +1,18 @@
+from collections import defaultdict
+from typing import Optional, Any
+
+from clitt.core.term.terminal import terminal
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_state
+from hspylib.modules.cli.keyboard import Keyboard
+
 from askai.core.askai_configs import configs
 from askai.core.askai_prompt import prompt
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
 from askai.core.model.chat_context import ChatContext
 from askai.core.support.utilities import display_text
-from clitt.core.term.terminal import terminal
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_state
-from hspylib.modules.cli.keyboard import Keyboard
-from typing import Optional
 
 
 class SharedInstances(metaclass=Singleton):
@@ -24,6 +27,7 @@ class SharedInstances(metaclass=Singleton):
         self._engine: Optional[AIEngine] = None
         self._context: Optional[ChatContext] = None
         self._idiom: str = configs.language.idiom
+        self._placeholders: dict[str, Any] = defaultdict(str)
 
     @property
     def engine(self) -> Optional[AIEngine]:
@@ -54,6 +58,16 @@ class SharedInstances(metaclass=Singleton):
     @property
     def idiom(self) -> str:
         return self._idiom
+
+    def placeholder_update(self, name: str, value: Any) -> Any:
+        """TODO"""
+        entry = {str(hash(name)): value}
+        self._placeholders.update(entry)
+        return value
+
+    def placeholder_get(self, name: str) -> Any:
+        """TODO"""
+        return self._placeholders[str(hash(name))]
 
     def create_engine(self, engine_name: str, model_name: str) -> AIEngine:
         """TODO"""
