@@ -30,6 +30,13 @@ AI: %AC_DC_filename%
 Result: Red
 Explanation: Because it was not able to replace the placeholder %AC_DC_filename% by its cross-referenced file name.
 
+Example 5:
+
+User: List my music and let me know if there is any ac/dc song. If so, show me the file name.
+AI: thunderstruck.mp3
+Result: Green
+Explanation: Because it thunderstruck.mp3 is a valid ac/dc song file name.
+
 -------------------------------------------- Question --------------------------------------------
 
 User: '{question}'

@@ -1,4 +1,5 @@
 import logging as log
+import os
 import re
 from typing import Optional
 
@@ -47,16 +48,17 @@ def fetch(query: str) -> Optional[str]:
     return text_formatter.ensure_ln(output)
 
 
-def display(text: str) -> Optional[str]:
+def display(*texts: str) -> Optional[str]:
     """Display the given text formatting in markdown."""
+    messages: str = os.linesep.join(texts)
     if configs.is_interactive:
-        if not re.match(r'^%[a-zA-Z0-9_-]+%$', text):
-            shared.context.push("GENERAL", f"\nAI:{text}\n", "assistant")
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=text)
+        if not re.match(r'^%[a-zA-Z0-9_-]+%$', messages):
+            shared.context.push("GENERAL", f"\nAI:{messages}\n", "assistant")
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=messages)
     else:
-        display_text(text, f"{shared.nickname}: ")
+        display_text(messages, f"{shared.nickname}: ")
 
-    return text
+    return messages
 
 
 def assert_accuracy(question: str, ai_response: str) -> None:
@@ -67,14 +69,14 @@ def assert_accuracy(question: str, ai_response: str) -> None:
             template=prompt.read_prompt('rag-prompt'))
         final_prompt = template.format(question=question, response=ai_response or '')
         llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-        if (output := llm.predict(final_prompt)) and (mat := re.search(r"(red|yellow|green),(.+)", output.lower())):
+        if (output := llm.predict(final_prompt)) and (mat := RagResponse.matches(output)):
             status, reason = mat.group(1), mat.group(2)
             log.info(
                 "Asserting accuracy of question '%s' resulted in: '%s' -> '%s'",
                 question, status, reason)
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(question, output), verbosity='debug')
             if RagResponse.of_value(status.strip()).is_bad:
-                raise InaccurateResponse(f"The AI response was '{output}' for the question: '{question}' due to '{reason}'")
+                raise InaccurateResponse(f"The AI response for the question was: '{output}' ")
             return
 
-    raise InaccurateResponse(f"The AI response was empty")
+    raise InaccurateResponse(f"The AI response was not Green")

@@ -110,8 +110,8 @@ class Features(metaclass=Singleton):
         return fetch(args[0])
 
     def display(self, *args: str) -> str:
-        """Feature: 'Display plain text', Usage: 'display(<text>)'"""
-        return display(args[0])
+        """Feature: 'Display plain text', Usage: 'display(<text1>, <text2>, ...)'"""
+        return display(*args[0:-1])
 
     def stt(self, *args: str) -> str:
         """Feature: 'Display using STT techniques', Usage: 'stt(<question>, <text>)'"""
