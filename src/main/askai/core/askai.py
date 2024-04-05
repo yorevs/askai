@@ -238,6 +238,8 @@ class AskAi:
             self.reply(reply)
             status = True
 
+        shared.context.forget()
+
         return status
 
     def _get_query_string(self, interactive: bool, query_arg: str | list[str]) -> None:

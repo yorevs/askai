@@ -13,11 +13,12 @@ from hspylib.modules.application.exit_status import ExitStatus
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
-from askai.core.proxy.tools.analysis import check_output, stt, cross_reference
+from askai.core.proxy.tools.analysis import check_output, stt
 from askai.core.proxy.tools.browser import browse
 from askai.core.proxy.tools.general import fetch, display
 from askai.core.proxy.tools.summarization import summarize
 from askai.core.proxy.tools.terminal import execute_command, list_contents
+from askai.exception.exceptions import MissionImpossible
 
 
 class Features(metaclass=Singleton):
@@ -78,6 +79,7 @@ class Features(metaclass=Singleton):
     def impossible(self, *args: str) -> None:
         """Feature: 'Impossible plan', Usage: 'impossible(<reason>)'"""
         AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.impossible(args[0]))
+        raise MissionImpossible(' '.join(args))
 
     def terminal(self, *args: str) -> str:
         """Feature: 'Terminal command execution', Usage: 'terminal(<shell>, <command>)'"""
@@ -107,13 +109,9 @@ class Features(metaclass=Singleton):
         """Feature: 'Time-independent database retrival', Usage: 'fetch(<question>)'"""
         return fetch(args[0])
 
-    def cross_reference(self, *args: str) -> str:
-        """Feature: 'Cross reference resolver', Usage: 'cross_reference(<question>)'"""
-        return cross_reference(args[0], args[1])
-
-    def display(self, *args: str) -> None:
+    def display(self, *args: str) -> str:
         """Feature: 'Display plain text', Usage: 'display(<text>)'"""
-        display(' '.join(args))
+        return display(args[0])
 
     def stt(self, *args: str) -> str:
         """Feature: 'Display using STT techniques', Usage: 'stt(<question>, <text>)'"""

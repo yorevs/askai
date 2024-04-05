@@ -8,7 +8,6 @@ from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
-from askai.core.support.utilities import display_text
 
 
 def check_output(question: str, context: str) -> Optional[str]:
@@ -28,12 +27,6 @@ def check_output(question: str, context: str) -> Optional[str]:
         shared.context.push("ANALYSIS", f"\nAI:\n{output}", "assistant")
 
     return text_formatter.ensure_ln(output)
-
-
-def cross_reference(question: str, context: str) -> Optional[str]:
-    """Function responsible for cross referencing the question with the context."""
-    display_text(question + ' <-> ' + context, f"{shared.nickname}: X-REFERENCE")
-    return question
 
 
 def stt(question: str, existing_answer: str) -> str:

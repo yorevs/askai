@@ -1,4 +1,5 @@
 import logging as log
+import re
 from typing import Optional
 
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -46,27 +47,34 @@ def fetch(query: str) -> Optional[str]:
     return text_formatter.ensure_ln(output)
 
 
-def display(text: str) -> None:
+def display(text: str) -> Optional[str]:
     """Display the given text formatting in markdown."""
     if configs.is_interactive:
-        shared.context.push("GENERAL", f"\nAI:{text}\n", "assistant")
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=text)
+        if not re.match(r'^%[a-zA-Z0-9_-]+%$', text):
+            shared.context.push("GENERAL", f"\nAI:{text}\n", "assistant")
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=text)
     else:
         display_text(text, f"{shared.nickname}: ")
 
+    return text
 
-def assert_accuracy(question: str, ai_response: str) -> Optional[str]:
+
+def assert_accuracy(question: str, ai_response: str) -> None:
     """Function responsible for asserting that the question was properly answered."""
     if ai_response:
         template = PromptTemplate(
             input_variables=['question', 'response'],
             template=prompt.read_prompt('rag-prompt'))
-        final_prompt = template.format(question=question, response=ai_response)
+        final_prompt = template.format(question=question, response=ai_response or '')
         llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-        output = llm.predict(final_prompt)
-        log.info(
-            "Asserting accuracy of question '%s' using response '%s' resulted in: '%s'",
-            question, ai_response, output)
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(question, output), verbosity='debug')
-        if RagResponse.of_value(output).is_bad:
-            raise InaccurateResponse(f"The response was '{output}' for the question: '{question}'")
+        if (output := llm.predict(final_prompt)) and (mat := re.search(r"(red|yellow|green),(.+)", output.lower())):
+            status, reason = mat.group(1), mat.group(2)
+            log.info(
+                "Asserting accuracy of question '%s' resulted in: '%s' -> '%s'",
+                question, status, reason)
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(question, output), verbosity='debug')
+            if RagResponse.of_value(status.strip()).is_bad:
+                raise InaccurateResponse(f"The AI response was '{output}' for the question: '{question}' due to '{reason}'")
+            return
+
+    raise InaccurateResponse(f"The AI response was empty")

@@ -19,7 +19,8 @@ from askai.core.model.processor_response import ProcessorResponse
 from askai.core.proxy.features import features
 from askai.core.proxy.tools.general import assert_accuracy
 from askai.core.support.langchain_support import lc_llm
-from askai.exception.exceptions import InaccurateResponse
+from askai.core.support.shared_instances import shared
+from askai.exception.exceptions import InaccurateResponse, MaxInteractionReached
 
 RunnableTool: TypeAlias = Runnable[list[Input], list[Output]]
 
@@ -37,12 +38,12 @@ class Router(metaclass=Singleton):
     def template(self) -> str:
         return prompt.read_prompt("router-prompt.txt")
 
-    @retry(exceptions=InaccurateResponse, tries=2, delay=0, backoff=0)
+    @retry(exceptions=InaccurateResponse, tries=3, delay=0, backoff=0)
     def process(self, question: str) -> Tuple[bool, ProcessorResponse]:
         status = False
         template = PromptTemplate(input_variables=['features', 'objective'], template=self.template())
         final_prompt = template.format(features=features.enlist(), objective=question)
-        ctx: str = ''
+        ctx: str = shared.context.flat("OUTPUT", "ANALYSIS", "INTERNET", "GENERAL")
         log.info("Router::[QUESTION] '%s'  context: '%s'", question, ctx)
         chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
         chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
@@ -60,14 +61,14 @@ class Router(metaclass=Singleton):
     def _route(self, question: str, action_plan: str) -> Optional[str]:
         """Route the actions to the proper function invocations."""
         tasks: list[str] = list(map(str.strip, action_plan.split(os.linesep)))
-        max_iterations: int = 20
+        max_actions: int = 20
         result: str = ''
         for idx, action in enumerate(tasks):
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"`{action}`", verbosity='debug')
-            response: str = features.invoke(action, result)
-            if idx > max_iterations or not (result := response):
-                if idx > max_iterations:
-                    AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
+            if idx > max_actions:
+                AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
+                raise MaxInteractionReached(f"Maximum number of action was reached")
+            if not (result := features.invoke(action, result)):
                 break
 
         return assert_accuracy(question, result)

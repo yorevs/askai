@@ -58,3 +58,12 @@ class DocumentsNotFound(HSBaseException):
 
 class InaccurateResponse(HSBaseException):
     """Raised when detected an inaccurate response form the AI."""
+
+
+class MaxInteractionReached(HSBaseException):
+    """Raised when the number of executed actions exceeded the limit."""
+
+
+class MissionImpossible(HSBaseException):
+    """Raised when tracing or executing an action plan is/was not possible."""
+    
