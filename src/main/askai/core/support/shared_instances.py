@@ -1,5 +1,4 @@
-from collections import defaultdict
-from typing import Optional, Any
+from typing import Optional
 
 from clitt.core.term.terminal import terminal
 from clitt.core.tui.line_input.line_input import line_input
@@ -27,7 +26,6 @@ class SharedInstances(metaclass=Singleton):
         self._engine: Optional[AIEngine] = None
         self._context: Optional[ChatContext] = None
         self._idiom: str = configs.language.idiom
-        self._placeholders: dict[str, Any] = defaultdict(str)
 
     @property
     def engine(self) -> Optional[AIEngine]:
@@ -58,16 +56,6 @@ class SharedInstances(metaclass=Singleton):
     @property
     def idiom(self) -> str:
         return self._idiom
-
-    def placeholder_update(self, name: str, value: Any) -> Any:
-        """TODO"""
-        entry = {str(hash(name)): value}
-        self._placeholders.update(entry)
-        return value
-
-    def placeholder_get(self, name: str) -> Any:
-        """TODO"""
-        return self._placeholders[str(hash(name))]
 
     def create_engine(self, engine_name: str, model_name: str) -> AIEngine:
         """TODO"""

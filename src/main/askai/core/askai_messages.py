@@ -91,57 +91,57 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def access_grant(self) -> str:
-        return self.translate("Do you approve executing command on you terminal (yes/[no])?")
+        return self.translate("Do you approve executing this command on you terminal (yes/[no])?")
 
     @lru_cache
-    def assert_acc(self, question: str, result: str) -> str:
-        return self.translate(f"Asserting accuracy for the question: **{question}** => `{result}`")
+    def assert_acc(self, result: str) -> str:
+        return self.translate(f"Asserted accuracy: `{result}`")
 
     # Failures
 
     @lru_cache
     def no_query_string(self) -> str:
-        return self.translate("Error: No query string was provided in non-interactive mode !")
+        return self.translate("No query string was provided in non-interactive mode !")
 
     @lru_cache
     def invalid_response(self, response_text: str) -> str:
-        return self.translate(f"Error: Received an invalid query response/type => '{response_text}' !")
+        return self.translate(f"Invalid query response/type => '{response_text}' !")
 
     @lru_cache
     def cmd_no_exist(self, command: str) -> str:
-        return self.translate(f"Error: Sorry! Command `{command}' does not exist !")
+        return self.translate(f"Command `{command}' does not exist !")
 
     @lru_cache
     def cmd_failed(self, cmd_line: str) -> str:
-        return self.translate(f"Error: Sorry! Command `{cmd_line}' failed to execute !")
+        return self.translate(f"Command `{cmd_line}' failed to execute !")
 
     @lru_cache
     def missing_package(self, err: ImportError) -> str:
-        return self.translate(f"Error: Unable to summarize => {str(err)}' !")
+        return self.translate(f"Unable to summarize => {str(err)}' !")
 
     @lru_cache
     def summary_not_possible(self, err: BaseException = None) -> str:
-        return self.translate(f"Error: summarization was not possible {'=> ' + str(err) if err else ''}!")
+        return self.translate(f"summarization was not possible {'=> ' + str(err) if err else ''}!")
 
     @lru_cache
     def intelligible(self, question: str, reason: str) -> str:
-        return self.translate(f"Error: Your question '{question}' is unclear: '{reason}'")
+        return self.translate(f"Your question '{question}' is unclear: '{reason}'")
 
     @lru_cache
     def impossible(self, reason: str) -> str:
-        return self.translate(f"Error: Impossible to fulfill your request. Reason: {reason} !")
+        return self.translate(f"Impossible to fulfill your request. Reason: {reason} !")
 
     @lru_cache
     def llm_error(self, error: str) -> str:
-        return self.translate(f"Error: 'LLM' failed to reply: {error} !")
+        return self.translate(f"'LLM' failed to reply: {error} !")
 
     @lru_cache
     def fail_to_search(self, error: str) -> str:
-        return self.translate(f"Error: 'InternetSearch' failed: {error} !")
+        return self.translate(f"'InternetSearch' failed: {error} !")
 
     @lru_cache
     def too_many_actions(self) -> str:
-        return self.translate("Error: Failed to complete the request => 'Max chained actions reached' !")
+        return self.translate("Failed to complete the request => 'Max chained actions reached' !")
 
 
 assert (msg := AskAiMessages().INSTANCE) is not None

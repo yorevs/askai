@@ -45,6 +45,7 @@ from askai.core.proxy.router import router
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
+from askai.exception.exceptions import ImpossibleQuery, UnintelligibleQuery, TerminatingQuery, MaxInteractionsReached
 
 
 class AskAi:
@@ -160,9 +161,9 @@ class AskAi:
         """
         log.error(message)
         if self.is_speak:
-            self.engine.text_to_speech(message, f"{shared.nickname}: ")
+            self.engine.text_to_speech(f"Error: {message}", f"{shared.nickname}: ")
         else:
-            display_text(message, f"{shared.nickname}: ")
+            display_text(f"Error: {message}", f"{shared.nickname}: ")
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.
@@ -224,22 +225,26 @@ class AskAi:
         """Ask the question and provide the reply.
         :param question: The question to ask to the AI engine.
         """
-        if not (reply := cache.read_reply(question)):
-            log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.wait())
-            status, output = router.process(question)
-            if status:
-                if output and output.response:
+        status = False
+        try:
+            if not (reply := cache.read_reply(question)):
+                log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.wait())
+                if (output := router.process(question)) and output.response:
                     self.reply(output.response)
             else:
-                self.reply_error(output.response)
-        else:
-            log.debug("Reply found for '%s' in cache.", question)
-            self.reply(reply)
+                log.debug("Reply found for '%s' in cache.", question)
+                self.reply(reply)
+            shared.context.forget()
             status = True
-
-        shared.context.forget()
-
+        except (NotImplementedError, ImpossibleQuery, UnintelligibleQuery) as err:
+            self.reply_error(str(err))
+            status = True
+        except MaxInteractionsReached as err:
+            self.reply_error(str(err))
+        except TerminatingQuery:
+            pass
+            
         return status
 
     def _get_query_string(self, interactive: bool, query_arg: str | list[str]) -> None:

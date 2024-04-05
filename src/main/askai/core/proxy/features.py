@@ -1,24 +1,19 @@
 import inspect
-import logging as log
 import os
 import re
-import sys
 from functools import lru_cache
 from typing import Optional
 
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.commons import sysout
-from hspylib.modules.application.exit_status import ExitStatus
 
-from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
-from askai.core.proxy.tools.analysis import check_output, stt, replaceholders
+from askai.core.proxy.tools.analysis import check_output, stt
 from askai.core.proxy.tools.browser import browse
 from askai.core.proxy.tools.general import fetch, display
 from askai.core.proxy.tools.summarization import summarize
 from askai.core.proxy.tools.terminal import execute_command, list_contents
-from askai.exception.exceptions import MissionImpossible
+from askai.exception.exceptions import ImpossibleQuery, UnintelligibleQuery, TerminatingQuery
 
 
 class Features(metaclass=Singleton):
@@ -46,7 +41,6 @@ class Features(metaclass=Singleton):
             fn = self._all[fn_name]
             args: list[str] = re.sub("['\"]", '', act_fn[0][1]).split(',')
             args.append(context)
-            args = replaceholders(question, *args)
             return fn(*list(map(str.strip, args)))
         return None
 
@@ -67,21 +61,17 @@ class Features(metaclass=Singleton):
 
         return self._approved
 
-    def intelligible(self, *args: str) -> None:
-        """Feature: 'Intelligible question', Usage: 'intelligible(<question>, <reason>)'"""
-        AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.intelligible(args[0], args[1]))
+    def gibberish(self, *args: str) -> None:
+        """Feature: 'Gibberish question', Usage: 'gibberish(<question>, <reason>)'"""
+        raise UnintelligibleQuery(f"{args[1]}: '{args[0]}'")
 
     def terminate(self, *args: str) -> None:
-        """Feature: 'Terminate intent', Usage: 'terminate(<reason>)'"""
-        log.info(f"Application exit: '%s'", args[0])
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.goodbye())
-        sysout("")
-        sys.exit(ExitStatus.FAILED.val)
+        """Feature: 'Terminating intention, end conversation', Usage: 'terminate()'"""
+        raise TerminatingQuery('')
 
     def impossible(self, *args: str) -> None:
-        """Feature: 'Impossible execution or  plan', Usage: 'impossible(<reason>)'"""
-        AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.impossible(args[0]))
-        raise MissionImpossible(' '.join(args))
+        """Feature: 'Impossible action or plan', Usage: 'impossible(<reason>)'"""
+        raise ImpossibleQuery(' '.join(args))
 
     def terminal(self, *args: str) -> str:
         """Feature: 'Terminal command execution', Usage: 'terminal(<language>, <command>)'"""
@@ -93,8 +83,8 @@ class Features(metaclass=Singleton):
         return list_contents(args[0])
 
     def check_output(self, *args: str) -> str:
-        """Feature: 'Check output', Usage: 'check_output(<question>, <placeholder>)'"""
-        return check_output(args[0], args[1], args[2])
+        """Feature: 'Check output', Usage: 'check_output(<question>)'"""
+        return check_output(args[0], args[1])
 
     def summarize_files(self, *args: str) -> str:
         """Feature: 'Summarization of files and folders', Usage: 'summarize_files(<folder>, <glob>)'"""
@@ -114,11 +104,11 @@ class Features(metaclass=Singleton):
 
     def display(self, *args: str) -> str:
         """Feature: 'Display plain text', Usage: 'display(<text1>, <text2>, ...)'"""
-        return display(*args[0:-1])
+        return display(*args[:-1])
 
     def stt(self, *args: str) -> str:
         """Feature: 'Display using STT techniques', Usage: 'stt(<question>, <response>)'"""
-        return stt(args[0], ' '.join(args[1:]))
+        return stt(args[0], args[1])
 
 
 assert (features := Features().INSTANCE) is not None

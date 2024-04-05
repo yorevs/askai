@@ -13,13 +13,10 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
 from askai.core.component.geo_location import geo_location
-from askai.core.engine.openai.temperature import Temperature
-from askai.core.model.rag_response import RagResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
-from askai.exception.exceptions import InaccurateResponse
 
 
 def fetch(query: str) -> Optional[str]:
@@ -59,24 +56,3 @@ def display(*texts: str) -> Optional[str]:
         display_text(messages, f"{shared.nickname}: ")
 
     return messages
-
-
-def assert_accuracy(question: str, ai_response: str) -> None:
-    """Function responsible for asserting that the question was properly answered."""
-    if ai_response:
-        template = PromptTemplate(
-            input_variables=['question', 'response'],
-            template=prompt.read_prompt('rag-prompt'))
-        final_prompt = template.format(question=question, response=ai_response or '')
-        llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-        if (output := llm.predict(final_prompt)) and (mat := RagResponse.matches(output)):
-            status, reason = mat.group(1), mat.group(2)
-            log.info(
-                "Asserting accuracy of question '%s' resulted in: '%s' -> '%s'",
-                question, status, reason)
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(question, output), verbosity='debug')
-            if RagResponse.of_value(status.strip()).is_bad:
-                raise InaccurateResponse(f"The AI response for the question was: '{output}' ")
-            return
-
-    raise InaccurateResponse(f"The AI response was not Green")

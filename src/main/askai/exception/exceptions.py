@@ -60,10 +60,18 @@ class InaccurateResponse(HSBaseException):
     """Raised when detected an inaccurate response form the AI."""
 
 
-class MaxInteractionReached(HSBaseException):
+class MaxInteractionsReached(HSBaseException):
     """Raised when the number of executed actions exceeded the limit."""
 
 
-class MissionImpossible(HSBaseException):
+class ImpossibleQuery(HSBaseException):
     """Raised when tracing or executing an action plan is/was not possible."""
-    
+
+
+class UnintelligibleQuery(HSBaseException):
+    """Raised when received an intelligible question."""
+
+
+class TerminatingQuery(HSBaseException):
+    """Raised when received a terminating question."""
+

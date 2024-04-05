@@ -2,10 +2,12 @@ import logging as log
 import os
 import re
 from functools import lru_cache
-from typing import TypeAlias, Tuple, Optional
+from typing import TypeAlias, Optional
 
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.globals import set_llm_cache
+from langchain_community.cache import InMemoryCache
 from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 from langchain_core.runnables import Runnable
@@ -15,12 +17,12 @@ from retry import retry
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.model.processor_response import ProcessorResponse
+from askai.core.engine.openai.temperature import Temperature
+from askai.core.model.rag_response import RagResponse
 from askai.core.proxy.features import features
-from askai.core.proxy.tools.general import assert_accuracy
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from askai.exception.exceptions import InaccurateResponse, MaxInteractionReached
+from askai.exception.exceptions import InaccurateResponse, MaxInteractionsReached
 
 RunnableTool: TypeAlias = Runnable[list[Input], list[Output]]
 
@@ -38,40 +40,62 @@ class Router(metaclass=Singleton):
     def template(self) -> str:
         return prompt.read_prompt("router-prompt.txt")
 
-    @retry(exceptions=InaccurateResponse, tries=3, delay=0, backoff=0)
-    def process(self, question: str) -> Tuple[bool, ProcessorResponse]:
-        status = False
-        template = PromptTemplate(input_variables=['features', 'objective'], template=self.template())
-        final_prompt = template.format(features=features.enlist(), objective=question)
-        ctx: str = shared.context.flat("OUTPUT", "ANALYSIS", "INTERNET", "GENERAL")
-        log.info("Router::[QUESTION] '%s'  context: '%s'", question, ctx)
-        chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
-        chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
-        context = [Document(ctx)]
+    def process(self, query: str) -> Optional[str]:
+        """Process the user query and retrieve the final response."""
+        @retry(exceptions=InaccurateResponse, tries=2, delay=0, backoff=0)
+        def _process_wrapper(question: str) -> Optional[str]:
+            """Wrapper to allow RAG retries."""
+            template = PromptTemplate(input_variables=[], template=self.template())
+            final_prompt = template.format(features=features.enlist(), objective=question)
+            ctx: str = shared.context.flat("OUTPUT", "ANALYSIS", "INTERNET", "GENERAL")
+            log.info("Router::[QUESTION] '%s'  context: '%s'", question, ctx)
+            chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
+            chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
+            context = [Document(ctx)]
+            if response := chain.invoke({"query": final_prompt, "context": context}):
+                log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
+                output = self._route(question, re.sub(r'\d+[.:)-]\s+', '', response))
+            else:
+                output = response
+            return output
+        return _process_wrapper(query)
 
-        if response := chain.invoke({"query": final_prompt, "context": context}):
-            log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
-            output = self._route(question, re.sub(r'\d+[.:)-]\s+', '', response))
-            status = True
-        else:
-            output = response
-
-        return status, ProcessorResponse(response=output)
-
+    @lru_cache
     def _route(self, question: str, action_plan: str) -> Optional[str]:
         """Route the actions to the proper function invocations."""
+        set_llm_cache(InMemoryCache())
         tasks: list[str] = list(map(str.strip, action_plan.split(os.linesep)))
-        max_actions: int = 20
+        max_actions: int = 20  # TODO Move to configs
         result: str = ''
         for idx, action in enumerate(tasks):
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"`{action}`", verbosity='debug')
             if idx > max_actions:
                 AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
-                raise MaxInteractionReached(f"Maximum number of action was reached")
+                raise MaxInteractionsReached(f"Maximum number of action was reached")
             if not (result := features.invoke(question, action, result)):
+                log.warning("Last result brought an empty response for '%s'", action)
                 break
 
-        return assert_accuracy(question, result)
+        return self._assert_accuracy(question, result)
+
+    @lru_cache
+    def _assert_accuracy(self, question: str, ai_response: str) -> None:
+        """Function responsible for asserting that the question was properly answered."""
+        if ai_response:
+            template = PromptTemplate(
+                input_variables=['question', 'response'],
+                template=prompt.read_prompt('rag-prompt'))
+            final_prompt = template.format(question=question, response=ai_response or '')
+            llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+            if (output := llm.predict(final_prompt)) and (mat := RagResponse.matches(output)):
+                status, reason = mat.group(1), mat.group(2)
+                log.info("Accuracy  status: '%s'  reason: '%s'", status, reason)
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity='debug')
+                if RagResponse.of_value(status.strip()).is_bad:
+                    raise InaccurateResponse(f"The RAG response was not 'Green' => '{output}' ")
+                return
+
+        raise InaccurateResponse(f"The RAG response was not 'Green'")
 
 
 assert (router := Router().INSTANCE) is not None

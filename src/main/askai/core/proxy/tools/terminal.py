@@ -24,9 +24,9 @@ def list_contents(folder: str) -> Optional[str]:
         if status:
             return f"Showing the contents of `{folder}`: \n{output}"
         else:
-            f"Error: Failed to list from: '{folder}'"
+            f"Failed to list from: '{folder}'"
 
-    return f"Error: Directory {folder} {'is not a directory' if posix_path.exists() else 'does not exist!'}!"
+    return f"Directory {folder} {'is not a directory' if posix_path.exists() else 'does not exist!'}!"
 
 
 def open_command(file_path: str) -> Optional[str]:
@@ -38,7 +38,7 @@ def open_command(file_path: str) -> Optional[str]:
         _, output = _execute_shell(f'ls -lht {file_path}')
         return output
 
-    return f"Error: Path '{file_path}' does not exist!"
+    return f"Path '{file_path}' does not exist!"
 
 
 def execute_command(shell: str, command: str) -> Optional[str]:
