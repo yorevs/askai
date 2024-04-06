@@ -19,26 +19,26 @@ from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
 
 
-def fetch(query: str) -> Optional[str]:
+def fetch(question: str) -> Optional[str]:
     """Fetch the information from the AI Database."""
     template = PromptTemplate(input_variables=[
         'user', 'idiom', 'question'
     ], template=prompt.read_prompt('generic-prompt'))
     final_prompt = template.format(
-        user=shared.username, question=query,
+        user=shared.username, question=question,
         idiom=shared.idiom, datetime=geo_location.datetime
     )
     ctx: str = shared.context.flat("GENERAL", "INTERNET")
-    log.info("FETCH::[QUESTION] '%s'  context: '%s'", query, ctx)
+    log.info("FETCH::[QUESTION] '%s'  context: '%s'", question, ctx)
     chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
     chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
     context = [Document(ctx)]
     output = chain.invoke({"query": final_prompt, "context": context})
 
     if output and shared.UNCERTAIN_ID not in output:
-        shared.context.push("GENERAL", f"\n\nUser:\n{query}")
-        shared.context.push("GENERAL", f"\nAI:\n{output}", "assistant")
-        cache.save_reply(query, output)
+        shared.context.set("GENERAL", f'\nUser: "{question}"')
+        shared.context.push("GENERAL", f'\nAI: "{output}', 'assistant')
+        cache.save_reply(question, output)
     else:
         output = msg.translate("Sorry, I don't know.")
 
@@ -50,7 +50,7 @@ def display(*texts: str) -> Optional[str]:
     messages: str = os.linesep.join(texts)
     if configs.is_interactive:
         if not re.match(r'^%[a-zA-Z0-9_-]+%$', messages):
-            shared.context.push("GENERAL", f"\nAI:{messages}\n", "assistant")
+            shared.context.push("GENERAL", f'\nAI: "{messages}', 'assistant')
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=messages)
     else:
         display_text(messages, f"{shared.nickname}: ")

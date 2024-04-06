@@ -39,7 +39,7 @@ class Router(metaclass=Singleton):
         return prompt.read_prompt("router-prompt.txt")
 
     @staticmethod
-    def _assert_accuracy(question: str, ai_response: str) -> None:
+    def _assert_accuracy(question: str, ai_response: str) -> Optional[str]:
         """Function responsible for asserting that the question was properly answered."""
         if ai_response:
             template = PromptTemplate(input_variables=[
@@ -54,7 +54,7 @@ class Router(metaclass=Singleton):
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity='debug')
                 if RagResponse.of_value(status.strip()).is_bad:
                     raise InaccurateResponse(f"The RAG response was not 'Green' => '{output}' ")
-                return
+            return ai_response
 
         raise InaccurateResponse(f"The RAG response was not 'Green'")
 

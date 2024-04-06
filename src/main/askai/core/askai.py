@@ -232,7 +232,7 @@ class AskAi:
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.wait())
                 if output := router.process(question):
-                    self.reply(output.response)
+                    self.reply(output)
             else:
                 log.debug("Reply found for '%s' in cache.", question)
                 self.reply(reply)
