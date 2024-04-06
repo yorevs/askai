@@ -2,6 +2,7 @@ import logging as log
 from typing import Optional
 
 from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 
 from askai.core.askai_messages import msg
@@ -23,12 +24,11 @@ def browse(query: str) -> Optional[str]:
     final_prompt: str = template.format(
         idiom=shared.idiom, datetime=geo_location.datetime,
         location=geo_location.location, question=query)
-
+    ctx: str = shared.context.flat("GENERAL", "INTERNET")
     log.info("Browser::[QUESTION] '%s'  context=''", final_prompt)
-
     chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
     chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
-    context = []
+    context = [Document(ctx)]
 
     response = chain.invoke({"query": final_prompt, "context": context})
     if response and shared.UNCERTAIN_ID not in response:

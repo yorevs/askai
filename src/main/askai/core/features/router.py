@@ -5,7 +5,9 @@ from functools import lru_cache
 from typing import TypeAlias, Optional
 
 from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import PromptTemplate
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.documents import Document
+from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.utils import Input, Output
 from retry import retry
@@ -64,13 +66,16 @@ class Router(metaclass=Singleton):
             template = PromptTemplate(input_variables=[
                 'features', 'context', 'objective'
             ], template=self.template())
-            context: str = shared.context.flat("OUTPUT", "ANALYSIS", "INTERNET", "GENERAL")
+            ctx: str = shared.context.flat("CONTEXT")
             final_prompt = template.format(
-                features=features.enlist(), context=context or 'Nothing yet', objective=question)
-            log.info("Router::[QUESTION] '%s'  context: '%s'", question, context)
-            llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+                features=features.enlist(), objective=question)
+            log.info("Router::[QUESTION] '%s'  context: '%s'", question, ctx)
 
-            if response := llm.predict(final_prompt):
+            chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
+            chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
+            context = [Document(ctx)]
+
+            if response := chain.invoke({"query": final_prompt, "context": context}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
                 output = self._route(question, re.sub(r'\d+[.:)-]\s+', '', response))
             else:

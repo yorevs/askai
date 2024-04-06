@@ -37,12 +37,17 @@ class Actions(metaclass=Singleton):
         :param context: the action context.
         """
         re_fn = r'([a-zA-Z]\w+)\s*\((.*)\)'
-        if act_fn := re.findall(re_fn, action):
-            fn_name = act_fn[0][0].lower()
-            fn = self._all[fn_name]
-            args: list[str] = re.sub("['\"]", '', act_fn[0][1]).split(',')
-            args.append(context)
-            return fn(*list(map(str.strip, args)))
+        fn_name = None
+        try:
+            if act_fn := re.findall(re_fn, action):
+                fn_name = act_fn[0][0].lower()
+                fn = self._all[fn_name]
+                args: list[str] = re.sub("['\"]", '', act_fn[0][1]).split(',')
+                args.append(context)
+                return fn(*list(map(str.strip, args)))
+        except KeyError as err:
+            raise ImpossibleQuery(f"Command not found: {fn_name} => {str(err)}")
+
         return None
 
     @lru_cache
@@ -67,6 +72,8 @@ class Actions(metaclass=Singleton):
         Feature: 'Unintelligible question'
         Description: Useful when the question is unintelligible.
         Usage: 'unintelligible(<question>, <reason>)'
+        - param <question>: The user question.
+        - param <reason>: The reason why the question was not unintelligible.
         """
         raise UnintelligibleQuery(f"{args[1]}: '{args[0]}'")
 
@@ -83,6 +90,7 @@ class Actions(metaclass=Singleton):
         Feature: 'Impossible action or plan'
         Description: Useful when an action or plan is not possible to execute.
         Usage: 'impossible(<reason>)'
+        - param <reason>: The reason why the action or plan was not possible.
         """
         raise ImpossibleQuery(' '.join(args))
 
@@ -91,6 +99,8 @@ class Actions(metaclass=Singleton):
         Feature: 'Terminal command execution'
         Description: Useful when you need to execute terminal commands.
         Usage: 'terminal(<term_type>, <command>)'
+        - param <term_type>: The terminal type (bash,zsh, powershell, ...).
+        - param <command>: The command to execute.
         """
         # TODO Check for permission before executing
         return execute_command(args[0], args[1])
@@ -100,6 +110,7 @@ class Actions(metaclass=Singleton):
         Feature: 'List folder contents'
         Description: Useful when you need to list folder contents.
         Usage: 'list_contents(<folder>)'
+        - param <folder>: The folder name.
         """
         return list_contents(args[0])
 
@@ -108,14 +119,17 @@ class Actions(metaclass=Singleton):
         Feature: 'Check output'
         Description: Useful when you introduce a command necessitating its output for subsequent actions.
         Usage: 'check_output(<question>)'
+        - param <question>: The user question.
         """
         return check_output(args[0], args[1])
 
     def stt(self, *args: str) -> str:
         """
         Feature: 'Display using STT techniques'
-        Description: Useful when you need to display the response using STT techniques.
+        Description: Useful when you need to convert the response using STT techniques.
         Usage: 'stt(<question>, <response>)'
+        - param <question>: The user question.
+        - param <response>: The previous AI response to be converted.
         """
         return stt(args[0], args[1])
 
@@ -123,7 +137,9 @@ class Actions(metaclass=Singleton):
         """
         Feature: 'Time-independent database retrival'
         Description: Useful when you need to engage in casual conversations.
-        Usage: 'fetch(<question>)'"""
+        Usage: 'fetch(<question>)'
+        - param <question>: The user question.
+        """
         return fetch(args[0])
 
     def browse(self, *args: str) -> str:
@@ -131,6 +147,7 @@ class Actions(metaclass=Singleton):
         Feature: 'Internet browsing'
         Description: Useful when you need to answer questions about current events.
         Usage: 'browse(<search_query>)'
+        - param <search_query>: The web search query.
         """
         return browse(args[0])
 
@@ -138,7 +155,8 @@ class Actions(metaclass=Singleton):
         """
         Feature: 'Display plain text'
         Description: Useful when you need to display any text.
-        Usage: 'display(<text>, <text>, ...)'
+        Usage: 'display(<text>, ...)'
+        - param <text>: The text to be displayed.
         """
         return display(*args[:-1])
 
@@ -147,6 +165,8 @@ class Actions(metaclass=Singleton):
         Feature: 'Summarization of files and folders'
         Description: Useful when you need to summarize files and folders.
         Usage: 'summarize_files(<folder>, <glob>)'
+        - param <folder>: The folder name.
+        - param <glob>: The path wildcard characters.
         """
         return summarize(args[0], args[1])
 
@@ -154,7 +174,9 @@ class Actions(metaclass=Singleton):
         """
         Feature: 'Image analysis'
         Description: Useful when you need to describe an image.
-        Usage: 'describe_image(<image_path>)'"""
+        Usage: 'describe_image(<image_path>)'
+        - param <image_path>: The image file path.
+        """
         return str(NotImplementedError('This feature is not yet implemented !'))
 
 

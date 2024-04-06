@@ -74,7 +74,7 @@ def _execute_shell(command_line: str) -> Tuple[bool, Optional[str]]:
                 output = msg.cmd_success(command_line, exit_code)
             else:
                 output = f"\n```bash\n{output}\n```"
-                shared.context.set("OUTPUT", f"Command `{command_line}' output:\n{output}")
+                shared.context.push("CONTEXT", output)
             status = True
         else:
             log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), command)

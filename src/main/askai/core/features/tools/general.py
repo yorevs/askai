@@ -26,15 +26,14 @@ def fetch(question: str) -> Optional[str]:
     ], template=prompt.read_prompt('generic-prompt'))
     final_prompt = template.format(
         user=shared.username, question=question,
-        idiom=shared.idiom, datetime=geo_location.datetime
-    )
+        idiom=shared.idiom, datetime=geo_location.datetime)
     ctx: str = shared.context.flat("GENERAL", "INTERNET")
     log.info("FETCH::[QUESTION] '%s'  context: '%s'", question, ctx)
     chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
     chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
     context = [Document(ctx)]
-    output = chain.invoke({"query": final_prompt, "context": context})
 
+    output = chain.invoke({"query": final_prompt, "context": context})
     if output and shared.UNCERTAIN_ID not in output:
         shared.context.set("GENERAL", question)
         shared.context.push("GENERAL", output, 'assistant')
