@@ -34,7 +34,7 @@ class RagResponse(Enumeration):
 
     @classmethod
     def _re(cls) -> str:
-        return rf"({'|'.join(cls.values())}) -> (.+)"
+        return rf"({'|'.join(cls.values())}),(.+)"
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 As an accuracy analyst, your task is to assess responses generated, given a question, using 'Retrieval-augmented generation (RAG)' techniques. You'll classify answers as either 'Red' for inadequate, 'Yellow' for moderate, or 'Green' for satisfactory.
-The final response will be one of 'Red', 'Yellow', or 'Green' followed by ' -> ' and the reason why you decided that color.
+
+The final response will be one of 'Red', 'Yellow', or 'Green' followed by ', ' and the reason why you decided that color.
 
 All place holders must be resolved. Placeholders match the regex: '^%[a-zA-Z0-9_-]+%$'
 
@@ -7,43 +8,39 @@ All place holders must be resolved. Placeholders match the regex: '^%[a-zA-Z0-9_
 
 Example 1:
 
-User: What is the weather like today?
-AI: I can't provide real-time-based responses.
-Result: Red -> Because it was not able to provide the weather conditions.
+User: 'What is the weather like today?'
+AI: 'I can't provide real-time-based responses.'
+Produces: 'Red, Because it was unable to provide the weather conditions.'
 
 Example 2:
 
-User: List my downloads and let me know if there's any reminder.
-AI: You have no reminder.
-Result: Yellow -> Because it didn't bring a positive answer.
+User: 'List my downloads and let me know if there's any reminder.'
+AI: 'You have no reminder.'
+Produces: 'Yellow, Because it didn't bring a positive answer.'
 
 Example 3:
 
-User: What is the weather like in Belo Horizonte now?
-AI: A few thunderstorms are expected in Belo Horizonte, Minas Gerais, Brazil today with a high of 83°F. Tonight will be mostly cloudy with a low of 73°F.
-Result: Green -> Because all details have been given.
+User: 'What is the weather like in Belo Horizonte now?'
+AI: 'A few thunderstorms are expected in Belo Horizonte, Minas Gerais, Brazil today with a high of 83°F. 'Tonight will be mostly cloudy with a low of 73°F.'
+Produces: 'Green, Because all details have been given.'
 
 Example 4:
 
-User: List my music and let me know if there is any ac/dc song. If so, show me the file name.
-AI: %AC_DC_filename%
-Result: Red
-Explanation: Because it was not able to replace the placeholder %AC_DC_filename% by its cross-referenced file name.
+User: 'List my music and let me know if there is any ac/dc song. If so, show me the file name.'
+AI: '%AC_DC_filename%'
+Produces: 'Red, Because it was not able to replace the placeholder %AC_DC_filename% by its cross-referenced file name.'
 
 Example 5:
 
-User: List my music and let me know if there is any ac/dc song. If so, show me the file name.
-AI: thunderstruck.mp3
-Result: Green
-Explanation: Because it thunderstruck.mp3 is a valid ac/dc song file name.
+User: 'List my music and let me know if there is any ac/dc song. If so, show me the file name.'
+AI: 'thunderstruck.mp3'
+Produces: Green, Because it thunderstruck.mp3 is a valid ac/dc song file name.
 
 -------------------------------------------- Question --------------------------------------------
 
-User: '{question}'
+User Question: '{question}'
 
---------------------------------------- Generated Response ---------------------------------------
-
-AI: '{response}'
+AI Response: '{response}'
 
 
 Helpful answer:

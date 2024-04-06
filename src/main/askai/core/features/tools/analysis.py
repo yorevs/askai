@@ -27,7 +27,7 @@ def check_output(question: str, context: str) -> Optional[str]:
     if output := llm.predict(final_prompt):
         shared.context.set("ANALYSIS", question)
         shared.context.push("ANALYSIS", output, 'assistant')
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(output))
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(output), verbosity='debug')
 
     return text_formatter.ensure_ln(output)
 

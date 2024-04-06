@@ -5,8 +5,6 @@ from functools import lru_cache
 from typing import TypeAlias, Optional
 
 from hspylib.core.metaclass.singleton import Singleton
-from langchain.globals import set_llm_cache
-from langchain_community.cache import InMemoryCache
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.utils import Input, Output
@@ -16,8 +14,8 @@ from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.model.rag_response import RagResponse
 from askai.core.features.actions import features
+from askai.core.model.rag_response import RagResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse, MaxInteractionsReached
@@ -53,7 +51,7 @@ class Router(metaclass=Singleton):
                 log.info("Accuracy  status: '%s'  reason: '%s'", status, reason)
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity='debug')
                 if RagResponse.of_value(status.strip()).is_bad:
-                    raise InaccurateResponse(f"The RAG response was not 'Green' => '{output}' ")
+                    raise InaccurateResponse(output)
             return ai_response
 
         raise InaccurateResponse(f"The RAG response was not 'Green'")
@@ -83,7 +81,6 @@ class Router(metaclass=Singleton):
 
     def _route(self, question: str, action_plan: str) -> Optional[str]:
         """Route the actions to the proper function invocations."""
-        set_llm_cache(InMemoryCache())
         tasks: list[str] = list(map(str.strip, action_plan.split(os.linesep)))
         max_actions: int = 20  # TODO Move to configs
         result: str = ''
