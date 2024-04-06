@@ -3,6 +3,8 @@ from typing import Optional
 
 from langchain_core.prompts import PromptTemplate
 
+from askai.core.askai_events import AskAiEvents
+from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
@@ -23,8 +25,9 @@ def check_output(question: str, context: str) -> Optional[str]:
     final_prompt = template.format(context=context, question=question)
 
     if output := llm.predict(final_prompt):
-        shared.context.set("ANALYSIS", f'\nUser: "{question}"')
-        shared.context.push("ANALYSIS", f'\nAI: "{output}', 'assistant')
+        shared.context.set("ANALYSIS", question)
+        shared.context.push("ANALYSIS", output, 'assistant')
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(output))
 
     return text_formatter.ensure_ln(output)
 
@@ -37,12 +40,11 @@ def stt(question: str, existing_answer: str) -> str:
     final_prompt = template.format(
         idiom=shared.idiom, answer=existing_answer, question=question
     )
-
     log.info("STT::[QUESTION] '%s'", existing_answer)
     llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)
 
     if output := llm.predict(final_prompt):
-        shared.context.set("ANALYSIS", f'\nUser: "{question}"')
-        shared.context.push("ANALYSIS", f'\nAI: "{output}', 'assistant')
+        shared.context.set("ANALYSIS", question)
+        shared.context.push("ANALYSIS", output, 'assistant')
 
     return text_formatter.ensure_ln(output)

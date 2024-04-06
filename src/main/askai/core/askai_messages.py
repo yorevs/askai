@@ -79,6 +79,10 @@ class AskAiMessages(metaclass=Singleton):
     def press_esc_enter(self) -> str:
         return self.translate("Press [Esc or Enter] to leave")
 
+    @lru_cache
+    def analysis(self, output: str) -> str:
+        return self.translate(f"Output check: `{output}`")
+
     # Warnings and alerts
 
     @lru_cache

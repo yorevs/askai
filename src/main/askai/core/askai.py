@@ -41,7 +41,7 @@ from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.model.chat_context import ChatContext
-from askai.core.proxy.router import router
+from askai.core.features.router import router
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin

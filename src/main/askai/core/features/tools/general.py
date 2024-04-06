@@ -36,8 +36,8 @@ def fetch(question: str) -> Optional[str]:
     output = chain.invoke({"query": final_prompt, "context": context})
 
     if output and shared.UNCERTAIN_ID not in output:
-        shared.context.set("GENERAL", f'\nUser: "{question}"')
-        shared.context.push("GENERAL", f'\nAI: "{output}', 'assistant')
+        shared.context.set("GENERAL", question)
+        shared.context.push("GENERAL", output, 'assistant')
         cache.save_reply(question, output)
     else:
         output = msg.translate("Sorry, I don't know.")
@@ -46,13 +46,13 @@ def fetch(question: str) -> Optional[str]:
 
 
 def display(*texts: str) -> Optional[str]:
-    """Display the given text formatting in markdown."""
-    messages: str = os.linesep.join(texts)
+    """Display the given texts formatted with markdown."""
+    output: str = os.linesep.join(texts)
     if configs.is_interactive:
-        if not re.match(r'^%[a-zA-Z0-9_-]+%$', messages):
-            shared.context.push("GENERAL", f'\nAI: "{messages}', 'assistant')
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=messages)
+        if not re.match(r'^%[a-zA-Z0-9_-]+%$', output):
+            shared.context.push("GENERAL", output, 'assistant')
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=output)
     else:
-        display_text(messages, f"{shared.nickname}: ")
+        display_text(output, f"{shared.nickname}: ")
 
-    return messages
+    return output
