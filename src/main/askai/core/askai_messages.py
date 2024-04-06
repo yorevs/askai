@@ -82,10 +82,6 @@ class AskAiMessages(metaclass=Singleton):
     # Warnings and alerts
 
     @lru_cache
-    def exec_result(self, exit_code: ExitStatus) -> str:
-        return self.translate(f"Execution result: `{exit_code}`")
-
-    @lru_cache
     def search_empty(self) -> str:
         return self.translate("The search didn't return an output !")
 
@@ -142,6 +138,10 @@ class AskAiMessages(metaclass=Singleton):
     @lru_cache
     def too_many_actions(self) -> str:
         return self.translate("Failed to complete the request => 'Max chained actions reached' !")
+
+    @lru_cache
+    def unprocessable(self, reason: str) -> str:
+        return self.translate(f"Sorry, I was unable to process your request => {reason}")
 
 
 assert (msg := AskAiMessages().INSTANCE) is not None

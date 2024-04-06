@@ -5,11 +5,9 @@ from functools import lru_cache
 from typing import TypeAlias, Optional
 
 from hspylib.core.metaclass.singleton import Singleton
-from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.globals import set_llm_cache
 from langchain_community.cache import InMemoryCache
-from langchain_core.documents import Document
-from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
+from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.utils import Input, Output
 from retry import retry
@@ -40,27 +38,49 @@ class Router(metaclass=Singleton):
     def template(self) -> str:
         return prompt.read_prompt("router-prompt.txt")
 
+    @staticmethod
+    def _assert_accuracy(question: str, ai_response: str) -> None:
+        """Function responsible for asserting that the question was properly answered."""
+        if ai_response:
+            template = PromptTemplate(input_variables=[
+                'question', 'response'
+            ], template=prompt.read_prompt('rag-prompt'))
+            final_prompt = template.format(
+                question=question, response=ai_response or '')
+            llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+            if (output := llm.predict(final_prompt)) and (mat := RagResponse.matches(output)):
+                status, reason = mat.group(1), mat.group(2)
+                log.info("Accuracy  status: '%s'  reason: '%s'", status, reason)
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity='debug')
+                if RagResponse.of_value(status.strip()).is_bad:
+                    raise InaccurateResponse(f"The RAG response was not 'Green' => '{output}' ")
+                return
+
+        raise InaccurateResponse(f"The RAG response was not 'Green'")
+
     def process(self, query: str) -> Optional[str]:
         """Process the user query and retrieve the final response."""
         @retry(exceptions=InaccurateResponse, tries=2, delay=0, backoff=0)
         def _process_wrapper(question: str) -> Optional[str]:
             """Wrapper to allow RAG retries."""
-            template = PromptTemplate(input_variables=[], template=self.template())
-            final_prompt = template.format(features=features.enlist(), objective=question)
-            ctx: str = shared.context.flat("OUTPUT", "ANALYSIS", "INTERNET", "GENERAL")
-            log.info("Router::[QUESTION] '%s'  context: '%s'", question, ctx)
-            chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
-            chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
-            context = [Document(ctx)]
-            if response := chain.invoke({"query": final_prompt, "context": context}):
+            template = PromptTemplate(input_variables=[
+                'features', 'context', 'objective'
+            ], template=self.template())
+            context: str = shared.context.flat("OUTPUT", "ANALYSIS", "INTERNET", "GENERAL")
+            final_prompt = template.format(
+                features=features.enlist(), context=context or 'Nothing yet', objective=question)
+            log.info("Router::[QUESTION] '%s'  context: '%s'", question, context)
+            llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+
+            if response := llm.predict(final_prompt):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
                 output = self._route(question, re.sub(r'\d+[.:)-]\s+', '', response))
             else:
                 output = response
             return output
+
         return _process_wrapper(query)
 
-    @lru_cache
     def _route(self, question: str, action_plan: str) -> Optional[str]:
         """Route the actions to the proper function invocations."""
         set_llm_cache(InMemoryCache())
@@ -77,25 +97,6 @@ class Router(metaclass=Singleton):
                 break
 
         return self._assert_accuracy(question, result)
-
-    @lru_cache
-    def _assert_accuracy(self, question: str, ai_response: str) -> None:
-        """Function responsible for asserting that the question was properly answered."""
-        if ai_response:
-            template = PromptTemplate(
-                input_variables=['question', 'response'],
-                template=prompt.read_prompt('rag-prompt'))
-            final_prompt = template.format(question=question, response=ai_response or '')
-            llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-            if (output := llm.predict(final_prompt)) and (mat := RagResponse.matches(output)):
-                status, reason = mat.group(1), mat.group(2)
-                log.info("Accuracy  status: '%s'  reason: '%s'", status, reason)
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity='debug')
-                if RagResponse.of_value(status.strip()).is_bad:
-                    raise InaccurateResponse(f"The RAG response was not 'Green' => '{output}' ")
-                return
-
-        raise InaccurateResponse(f"The RAG response was not 'Green'")
 
 
 assert (router := Router().INSTANCE) is not None

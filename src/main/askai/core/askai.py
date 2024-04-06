@@ -45,7 +45,8 @@ from askai.core.proxy.router import router
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
-from askai.exception.exceptions import ImpossibleQuery, UnintelligibleQuery, TerminatingQuery, MaxInteractionsReached
+from askai.exception.exceptions import ImpossibleQuery, UnintelligibleQuery, TerminatingQuery, MaxInteractionsReached, \
+    InaccurateResponse
 
 
 class AskAi:
@@ -225,26 +226,23 @@ class AskAi:
         """Ask the question and provide the reply.
         :param question: The question to ask to the AI engine.
         """
-        status = False
+        status = True
         try:
             if not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.wait())
-                if (output := router.process(question)) and output.response:
+                if output := router.process(question):
                     self.reply(output.response)
             else:
                 log.debug("Reply found for '%s' in cache.", question)
                 self.reply(reply)
-            shared.context.forget()
-            status = True
         except (NotImplementedError, ImpossibleQuery, UnintelligibleQuery) as err:
             self.reply_error(str(err))
-            status = True
-        except MaxInteractionsReached as err:
-            self.reply_error(str(err))
+        except (MaxInteractionsReached, InaccurateResponse) as err:
+            self.reply_error(msg.unprocessable(str(err)))
         except TerminatingQuery:
-            pass
-            
+            status = False
+
         return status
 
     def _get_query_string(self, interactive: bool, query_arg: str | list[str]) -> None:

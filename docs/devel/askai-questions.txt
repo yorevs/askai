@@ -17,6 +17,6 @@ pt_BR
 
 Composite:
 
-1. list my music and let me know if there is any ac/dc song. If so, show me the file name.
+1. list my music and let me know if there is any ac/dc song. If so, show me the file name and open it.
 2. open the first reminder file you find at my downloads.
 
