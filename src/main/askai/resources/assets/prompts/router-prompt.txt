@@ -36,7 +36,7 @@ ASSISTANT:
 
 1. list_contents('~/Downloads')
 2. check_output("Is there any reminder in the list")
-4. terminal('bash', 'open %cross_referenced_file_names%')
+4. open_command('%cross_referenced_file_names%')
 
 ------------------
 Example 2:
@@ -91,7 +91,7 @@ ASSISTANT:
 1. list_contents('~/Music')
 2. check_output("Is there any AC/DC song in the list")
 3. display(%cross_referenced_file_names%)
-4. terminal('bash', 'open %cross_referenced_file_names%')
+4. terminal('%cross_referenced_file_names%')
 
 
 ######

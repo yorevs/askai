@@ -13,7 +13,7 @@ from askai.core.features.tools.analysis import check_output, stt
 from askai.core.features.tools.browser import browse
 from askai.core.features.tools.general import fetch, display
 from askai.core.features.tools.summarization import summarize
-from askai.core.features.tools.terminal import execute_command, list_contents
+from askai.core.features.tools.terminal import execute_command, list_contents, open_command
 from askai.exception.exceptions import ImpossibleQuery, UnintelligibleQuery, TerminatingQuery
 
 
@@ -113,6 +113,15 @@ class Actions(metaclass=Singleton):
         - param <folder>: The folder name.
         """
         return list_contents(args[0])
+
+    def open_command(self, *args: str) -> str:
+        """
+        Feature: 'Open files, folders and applications'
+        Description: Useful when you need to open anything.
+        Usage: 'open_command(<pathname>)'
+        - param <pathname>: The file, folder or application name.
+        """
+        return open_command(args[0])
 
     def check_output(self, *args: str) -> str:
         """

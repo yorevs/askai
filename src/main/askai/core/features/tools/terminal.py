@@ -20,7 +20,7 @@ def list_contents(folder: str) -> Optional[str]:
     """
     posix_path = Path(folder.replace('~', os.getenv('HOME')))
     if posix_path.exists() and posix_path.is_dir():
-        status, output = _execute_shell(f'ls -lht {folder}')
+        status, output = _execute_shell(f'ls -lht {folder} 2>/dev/null')
         if status:
             return f"Showing the contents of `{folder}`: \n{output}"
         else:
@@ -29,21 +29,21 @@ def list_contents(folder: str) -> Optional[str]:
     return f"Directory {folder} {'is not a directory' if posix_path.exists() else 'does not exist!'}!"
 
 
-def open_command(file_path: str) -> Optional[str]:
-    """List the contents of a folder.
-    :param file_path: The file path to open.
+def open_command(pathname: str) -> Optional[str]:
+    """Open the specified path, regardless if it's a file, folder or application.
+    :param pathname: The file path to open.
     """
-    posix_path = Path(file_path.replace('~', os.getenv('HOME')))
+    posix_path = Path(pathname.replace('~', os.getenv('HOME')))
     if posix_path.exists():
-        _, output = _execute_shell(f'ls -lht {file_path}')
+        _, output = _execute_shell(f'open {pathname} 2>/dev/null')
         return output
 
-    return f"Path '{file_path}' does not exist!"
+    return f"Path '{pathname}' does not exist!"
 
 
 def execute_command(shell: str, command: str) -> Optional[str]:
     """Execute a terminal command using the specified language.
-    :param shell: TODO
+    :param shell: The shell type to be used.
     :param command: The command line to be executed.
     """
     match shell:
