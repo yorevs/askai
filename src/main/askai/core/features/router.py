@@ -64,14 +64,14 @@ class Router(metaclass=Singleton):
         def _process_wrapper(question: str) -> Optional[str]:
             """Wrapper to allow RAG retries."""
             template = PromptTemplate(input_variables=[
-                'features', 'context', 'objective'
+                'features', 'objective', 'os_type'
             ], template=self.template())
             ctx: str = shared.context.flat("CONTEXT")
             final_prompt = template.format(
-                features=features.enlist(), objective=question)
+                features=features.enlist(), objective=question, os_type=prompt.os_type)
             log.info("Router::[QUESTION] '%s'  context: '%s'", question, ctx)
 
-            chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
+            chat_prompt = ChatPromptTemplate.from_messages([("system", "{context}\n\n{query}")])
             chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
             context = [Document(ctx)]
 

@@ -24,7 +24,7 @@ def browse(query: str) -> Optional[str]:
     final_prompt: str = template.format(
         idiom=shared.idiom, datetime=geo_location.datetime,
         location=geo_location.location, question=query)
-    ctx: str = shared.context.flat("GENERAL", "INTERNET")
+    ctx: str = shared.context.flat("CONTEXT")
     log.info("Browser::[QUESTION] '%s'  context=''", final_prompt)
     chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
     chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
@@ -39,7 +39,8 @@ def browse(query: str) -> Optional[str]:
         else:
             if output := internet.search_google(search):
                 output = msg.translate(output)
-                shared.context.set("INTERNET", f"\nAI:\n{output}", "assistant")
+                shared.context.push("CONTEXT", query)
+                shared.context.push("CONTEXT", output, "assistant")
                 cache.save_reply(query, output)
             else:
                 output = msg.search_empty()

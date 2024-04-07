@@ -55,14 +55,14 @@ class Actions(metaclass=Singleton):
         """Return an 'os.linesep' separated string list of feature descriptions."""
         doc_strings: str = ''
         for fn in self._all.values():
-            doc_strings += f"{dedent(fn.__doc__.strip())}{os.linesep}" if fn and fn.__doc__ else ''
+            doc_strings += f"{dedent(fn.__doc__)}{os.linesep}" if fn and fn.__doc__ else ''
         return doc_strings
 
     def _human_approval(self) -> bool:
         """Prompt for human approval. This is mostly used to execute terminal commands."""
         confirm_msg = (msg.access_grant())
         if (resp := line_input(confirm_msg).lower()) not in ("yes", "y"):
-            raise ValueError(f"Terminal command execution no appargs[0]roved '{resp}' !")
+            raise ValueError(f"Terminal command execution was not approved '{resp}' !")
         self._approved = True
 
         return self._approved
@@ -127,9 +127,8 @@ class Actions(metaclass=Singleton):
         """
         Feature: 'Display using STT techniques'
         Description: Useful when you need to convert the response using STT techniques.
-        Usage: 'stt(<question>, <response>)'
+        Usage: 'stt(<question>)'
         - param <question>: The user question.
-        - param <response>: The previous AI response to be converted.
         """
         return stt(args[0], args[1])
 

@@ -73,7 +73,8 @@ def _execute_shell(command_line: str) -> Tuple[bool, Optional[str]]:
             if not output:
                 output = msg.cmd_success(command_line, exit_code)
             else:
-                output = f"\n```bash\n{output}\n```"
+                output = f"```bash\n{output}```"
+                shared.context.push("CONTEXT", command_line, 'assistant')
                 shared.context.push("CONTEXT", output)
             status = True
         else:

@@ -13,15 +13,17 @@
 import os
 from collections import defaultdict, namedtuple
 from functools import reduce
-from typing import Any, Dict, List, Literal, Optional, TypeAlias
+from typing import Any, List, Literal, Optional, TypeAlias
 
 from hspylib.core.zoned_datetime import now
 
 from askai.exception.exceptions import TokenLengthExceeded
 
-ChatRoles: TypeAlias = Literal["system", "user", "assistant"]
+ChatRoles: TypeAlias = Literal["system", "human", "assistant"]
 
-ContextRaw: TypeAlias = List[Dict[str, str]]
+ContextRaw: TypeAlias = list[dict[str, str]]
+
+LangChainContext: TypeAlias = list[tuple[str, str]]
 
 
 class ChatContext:
@@ -39,7 +41,7 @@ class ChatContext:
     def __getitem__(self, key) -> List[ContextEntry]:
         return self._context[key]
 
-    def push(self, key: str, content: Any, role: ChatRoles = "user") -> ContextRaw:
+    def push(self, key: str, content: Any, role: ChatRoles = "human") -> ContextRaw:
         """Push a context message to the chat with the provided role."""
         entry = ChatContext.ContextEntry(now(), role, str(content))
         ctx = self._context[key]
@@ -50,7 +52,7 @@ class ChatContext:
             ctx.append(entry)
         return self.get(key)
 
-    def set(self, key: str, content: Any, role: ChatRoles = "user") -> ContextRaw:
+    def set(self, key: str, content: Any, role: ChatRoles = "human") -> ContextRaw:
         """Set the context to the chat with the provided role."""
         self.clear(key)
         return self.push(key, content, role)
@@ -66,25 +68,25 @@ class ChatContext:
 
     def get(self, key: str) -> ContextRaw:
         """Retrieve a context from the specified by key."""
-        return [{"role": c.role, "content": c.content} for c in self._context[key]] or []
+        return [{"role": ctx.role, "content": ctx.content} for ctx in self._context[key]] or []
 
-    def join(self, *keys: str) -> ContextRaw:
+    def join(self, *keys: str) -> LangChainContext:
         """Join contexts specified by keys."""
-        context: ContextRaw = []
+        context: LangChainContext = []
         token_length = 0
         for key in keys:
-            ctx = self.get(key)
-            content = " ".join([t["content"] for t in ctx])
+            ctx: ContextRaw = self.get(key)
+            content: str = os.linesep.join([tk['content'] for tk in ctx])
             token_length += len(content or "")
             if token_length > self._token_limit:
                 raise TokenLengthExceeded(f"Required token length={token_length}k  limit={self._token_limit}k")
             if content and ctx not in context:
-                context.extend(ctx)
+                list(map(context.append, [(t['role'], t['content']) for t in ctx]))
         return context
 
     def flat(self, *keys: str) -> str:
         """Flatten contexts specified by keys."""
-        return os.linesep.join([ctx["content"] for ctx in self.join(*keys)])
+        return os.linesep.join([f"\n{ctx[0].upper()}\n{ctx[1]}" for ctx in self.join(*keys)])
 
     def clear(self, *keys: str) -> int:
         """Clear the all the chat context specified by key."""
@@ -97,3 +99,12 @@ class ChatContext:
         """Forget all entries pushed to the chat context."""
         del self._context
         self._context = defaultdict(list)
+
+
+if __name__ == '__main__':
+    c = ChatContext(1000)
+    c.push("TESTE", 'What is the size of the moon?')
+    c.push("TESTE", 'What is the size of the moon?', 'assistant')
+    c.push("TESTE", 'Who are you?')
+    c.push("TESTE", "I'm Taius, you digital assistant", 'assistant')
+    print(c.join("TESTE"))

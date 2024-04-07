@@ -35,8 +35,6 @@ def fetch(question: str) -> Optional[str]:
 
     output = chain.invoke({"query": final_prompt, "context": context})
     if output and shared.UNCERTAIN_ID not in output:
-        shared.context.set("GENERAL", question)
-        shared.context.push("GENERAL", output, 'assistant')
         cache.save_reply(question, output)
     else:
         output = msg.translate("Sorry, I don't know.")
