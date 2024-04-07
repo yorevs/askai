@@ -18,7 +18,7 @@ def check_output(question: str, context: str) -> Optional[str]:
     :param context: The context of the question.
     """
     log.info("Analysis::[QUESTION] '%s'  context=%s", question, context)
-    llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+    llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
     template = PromptTemplate(
         input_variables=['context', 'question'],
         template=prompt.read_prompt('qstring-prompt'))

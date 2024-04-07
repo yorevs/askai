@@ -47,8 +47,15 @@ class Router(metaclass=Singleton):
             ], template=prompt.read_prompt('rag-prompt'))
             final_prompt = template.format(
                 question=question, response=ai_response or '')
-            llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-            if (output := llm.predict(final_prompt)) and (mat := RagResponse.matches(output)):
+            log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
+
+            llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
+            chat_prompt = ChatPromptTemplate.from_messages([("system", "{context}\n\n{query}")])
+            chain = create_stuff_documents_chain(llm, chat_prompt)
+            context = [Document(ai_response)]
+            output = chain.invoke({"query": final_prompt, "context": context})
+
+            if output and (mat := RagResponse.matches(output)):
                 status, reason = mat.group(1), mat.group(2)
                 log.info("Accuracy  status: '%s'  reason: '%s'", status, reason)
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity='debug')
@@ -72,7 +79,7 @@ class Router(metaclass=Singleton):
             log.info("Router::[QUESTION] '%s'  context: '%s'", question, ctx)
 
             chat_prompt = ChatPromptTemplate.from_messages([("system", "{context}\n\n{query}")])
-            chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
+            chain = create_stuff_documents_chain(lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp), chat_prompt)
             context = [Document(ctx)]
 
             if response := chain.invoke({"query": final_prompt, "context": context}):

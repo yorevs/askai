@@ -22,9 +22,10 @@ def list_contents(folder: str) -> Optional[str]:
     if posix_path.exists() and posix_path.is_dir():
         status, output = _execute_shell(f'ls -lht {folder} 2>/dev/null')
         if status:
+            if not output:
+                return f"Folder {folder} is empty."
             return f"Showing the contents of `{folder}`: \n{output}"
-        else:
-            f"Failed to list from: '{folder}'"
+        return f"Failed to list from: '{folder}'"
 
     return f"Directory {folder} {'is not a directory' if posix_path.exists() else 'does not exist!'}!"
 
@@ -34,10 +35,12 @@ def open_command(pathname: str) -> Optional[str]:
     :param pathname: The file path to open.
     """
     posix_path = Path(pathname.replace('~', os.getenv('HOME')))
-    if posix_path.exists():
-        _, output = _execute_shell(f'open {pathname} 2>/dev/null')
-        return output
 
+    if posix_path.exists():
+        status, output = _execute_shell(f'open {pathname} 2>/dev/null')
+        if status:
+            return f"`{pathname}` was successfully opened!"
+        return f"Failed to open: '{pathname}'"
     return f"Path '{pathname}' does not exist!"
 
 
@@ -48,9 +51,12 @@ def execute_command(shell: str, command: str) -> Optional[str]:
     """
     match shell:
         case 'bash':
-            _, output = _execute_shell(command)
+            status, output = _execute_shell(command)
+            if status:
+                if not output:
+                    output = f"'{shell.title()}' command `{command}` successfully executed"
         case _:
-            raise NotImplemented(f"'{shell}' is not supported")
+            raise NotImplementedError(f"'{shell}' is not supported!")
 
     return output
 
@@ -73,7 +79,7 @@ def _execute_shell(command_line: str) -> Tuple[bool, Optional[str]]:
             if not output:
                 output = msg.cmd_success(command_line, exit_code)
             else:
-                output = f"```bash\n{output}```"
+                output = f"\n`$ {command_line}`\n```bash\n{output}```"
                 shared.context.push("CONTEXT", command_line, 'assistant')
                 shared.context.push("CONTEXT", output)
             status = True
