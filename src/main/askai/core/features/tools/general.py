@@ -27,7 +27,7 @@ def fetch(question: str) -> Optional[str]:
     final_prompt = template.format(
         user=shared.username, question=question,
         idiom=shared.idiom, datetime=geo_location.datetime)
-    ctx: str = shared.context.flat("GENERAL", "INTERNET")
+    ctx: str = shared.context.flat("CONTEXT")
     log.info("FETCH::[QUESTION] '%s'  context: '%s'", question, ctx)
     chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
     chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
@@ -35,6 +35,8 @@ def fetch(question: str) -> Optional[str]:
 
     output = chain.invoke({"query": final_prompt, "context": context})
     if output and shared.UNCERTAIN_ID not in output:
+        shared.context.push("CONTEXT", question)
+        shared.context.push("CONTEXT", output, 'assistant')
         cache.save_reply(question, output)
     else:
         output = msg.translate("Sorry, I don't know.")
@@ -47,8 +49,7 @@ def display(*texts: str) -> Optional[str]:
     output: str = os.linesep.join(texts)
     if configs.is_interactive:
         if not re.match(r'^%[a-zA-Z0-9_-]+%$', output):
-            shared.context.push("GENERAL", output, 'assistant')
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=output)
+            shared.context.push("CONTEXT", output, 'assistant')
     else:
         display_text(output, f"{shared.nickname}: ")
 
