@@ -48,8 +48,7 @@ class ChatContext:
         token_length = reduce(lambda total, e: total + len(e.content), ctx, 0) if len(ctx) > 0 else 0
         if (token_length := token_length + len(content)) > self._token_limit:
             raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
-        if entry.content not in [c.content for c in ctx]:
-            ctx.append(entry)
+        ctx.append(entry)
         return self.get(key)
 
     def set(self, key: str, content: Any, role: ChatRoles = "human") -> ContextRaw:

@@ -65,11 +65,11 @@ class Router(metaclass=Singleton):
         def _process_wrapper(question: str) -> Optional[str]:
             """Wrapper to allow RAG retries."""
             template = PromptTemplate(input_variables=[
-                'features', 'objective', 'os_type'
+                'features', 'question', 'os_type'
             ], template=self.template())
             ctx: str = shared.context.flat("CONTEXT")
             final_prompt = template.format(
-                features=features.enlist(), objective=question, os_type=prompt.os_type)
+                features=features.enlist(), question=question, os_type=prompt.os_type)
             log.info("Router::[QUESTION] '%s'  context: '%s'", question, ctx)
 
             chat_prompt = ChatPromptTemplate.from_messages([("system", "{context}\n\n{query}")])
@@ -78,6 +78,7 @@ class Router(metaclass=Singleton):
 
             if response := chain.invoke({"query": final_prompt, "context": context}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
+                shared.context.push("CONTEXT", question)
                 output = self._route(question, re.sub(r'\d+[.:)-]\s+', '', response))
             else:
                 output = response
@@ -95,7 +96,7 @@ class Router(metaclass=Singleton):
             if idx > max_actions:
                 AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
                 raise MaxInteractionsReached(f"Maximum number of action was reached")
-            if not (result := features.invoke(question, action, result)):
+            if not (result := features.invoke(action, result)):
                 log.warning("Last result brought an empty response for '%s'", action)
                 break
 

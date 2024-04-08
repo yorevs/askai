@@ -30,9 +30,8 @@ class Actions(metaclass=Singleton):
                 n: fn for n, fn in inspect.getmembers(self, predicate=inspect.ismethod)
             }.items()))
 
-    def invoke(self, question: str, action: str, context: str = '') -> Optional[str]:
+    def invoke(self, action: str, context: str = '') -> Optional[str]:
         """Invoke the action with its arguments and context.
-        :param question:
         :param action: The action to be performed.
         :param context: the action context.
         """

@@ -29,5 +29,3 @@ Use the following context to improve the answer according to the question at the
 
 
 Question: "{question}"
-
-Helpful Answer:

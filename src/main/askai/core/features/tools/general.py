@@ -21,14 +21,15 @@ from askai.core.support.utilities import display_text
 def fetch(question: str) -> Optional[str]:
     """Fetch the information from the AI Database."""
     template = PromptTemplate(input_variables=[
-        'user', 'idiom', 'question'
+        'user', 'idiom', 'datetime', 'question'
     ], template=prompt.read_prompt('generic-prompt'))
     final_prompt = template.format(
-        user=prompt.user.title(), question=question,
-        idiom=shared.idiom, datetime=geo_location.datetime)
+        user=prompt.user.title(), idiom=shared.idiom,
+        datetime=geo_location.datetime, question=question)
     ctx: str = shared.context.flat("CONTEXT")
     log.info("FETCH::[QUESTION] '%s'  context: '%s'", question, ctx)
-    chat_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
+
+    chat_prompt = ChatPromptTemplate.from_messages([("system", "{context}\n\n{query}")])
     chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
     context = [Document(ctx)]
 

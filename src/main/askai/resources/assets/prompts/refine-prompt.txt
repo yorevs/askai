@@ -25,5 +25,3 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 
 Question: "{question}"
-
-Helpful Answer:
