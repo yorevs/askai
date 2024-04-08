@@ -23,7 +23,7 @@ def list_contents(folder: str) -> Optional[str]:
         status, output = _execute_shell(f'ls -lht {folder} 2>/dev/null')
         if status:
             if not output:
-                return f"Folder {folder} is empty."
+                return f"Folder {folder} is empty!"
             return f"Showing the contents of `{folder}`: \n{output}"
         return f"Failed to list from: '{folder}'"
 

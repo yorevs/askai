@@ -48,6 +48,7 @@ def display(*texts: str) -> Optional[str]:
     """Display the given texts formatted with markdown."""
     output: str = os.linesep.join(texts)
     if configs.is_interactive:
+        # If we display the cross-reference, we will confuse the AI.
         if not re.match(r'^%[a-zA-Z0-9_-]+%$', output):
             shared.context.push("CONTEXT", output, 'assistant')
     else:

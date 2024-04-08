@@ -60,10 +60,10 @@ class Router(metaclass=Singleton):
                 log.info("Accuracy  status: '%s'  reason: '%s'", status, reason)
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity='debug')
                 if RagResponse.of_value(status.strip()).is_bad:
-                    raise InaccurateResponse(output)
-            return ai_response
+                    raise InaccurateResponse(RagResponse.strip_code(output))
+                return ai_response
 
-        raise InaccurateResponse(f"The RAG response was not 'Green'")
+        raise InaccurateResponse(f"The AI Assistant fit not respond properly!")
 
     def process(self, query: str) -> Optional[str]:
         """Process the user query and retrieve the final response."""
