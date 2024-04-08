@@ -71,7 +71,11 @@ class Main(TUIApplication):
             .option(
                 "quiet", "q", "quiet",
                 "whether you want touse speaking (audio in/out).",
-                nargs="?", action=ParserAction.STORE_FALSE, default=True)\
+                nargs="?", action=ParserAction.STORE_TRUE, default=False)\
+            .option(
+                "debug", "d", "debug",
+                "whether you want enter debug mode.",
+                nargs="?", action=ParserAction.STORE_TRUE, default=False)\
             .option(
                 "tempo", "t", "tempo",
                 "specifies the playback and streaming speed.",
@@ -86,6 +90,7 @@ class Main(TUIApplication):
         self._askai = AskAi(
             self.get_arg("interactive"),
             self.get_arg("quiet"),
+            self.get_arg("debug"),
             int(get_or_default(self.get_arg("tempo") or [], 0, "1")),
             self.get_arg("engine"),
             self.get_arg("model"),

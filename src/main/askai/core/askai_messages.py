@@ -95,7 +95,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def assert_acc(self, result: str) -> str:
-        return self.translate(f"Asserted accuracy: `{result}`")
+        return self.translate(f"Accuracy check: `{result}`")
 
     # Failures
 

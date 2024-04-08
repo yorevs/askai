@@ -33,14 +33,15 @@ class AskAiConfigs(metaclass=Singleton):
 
     def __init__(self):
         self._configs = AppConfigs.INSTANCE or AppConfigs(self.RESOURCE_DIR)
+        self._is_interactive = self._configs.get_bool("askai.interactive.enabled")
+        self._is_speak = self._configs.get_bool("askai.speak.enabled")
+        self._is_debug = self._configs.get_bool("askai.debug.enabled")
         self._is_cache = self._configs.get_bool("askai.cache.enabled")
         self._ttl = self._configs.get_int("askai.cache.ttl.minutes")
         self._tempo = self._configs.get_int("askai.speech.tempo")
-        self._is_speak = self._configs.get_bool("askai.speak.response")
         self._language = Language.of_locale(
             os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG", os.getenv("LANGUAGE", "en_US.UTF-8"))))
         )
-        self._is_interactive = self._configs.get_bool("askai.interactive.enabled")
 
     @property
     def is_cache(self) -> bool:
@@ -65,6 +66,14 @@ class AskAiConfigs(metaclass=Singleton):
     @is_speak.setter
     def is_speak(self, value: bool) -> None:
         self._is_speak = which("ffplay") and value
+
+    @property
+    def is_debug(self) -> bool:
+        return self._is_debug
+
+    @is_debug.setter
+    def is_debug(self, value: bool) -> None:
+        self._is_debug = value
 
     @property
     def is_interactive(self) -> bool:

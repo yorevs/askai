@@ -40,8 +40,8 @@ from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.model.chat_context import ChatContext
 from askai.core.features.router import router
+from askai.core.model.chat_context import ChatContext
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
@@ -61,7 +61,8 @@ class AskAi:
 
     def __init__(
         self, interactive: bool,
-        is_speak: bool,
+        quiet: bool,
+        debug: bool,
         tempo: int,
         engine_name: str,
         model_name: str,
@@ -75,7 +76,8 @@ class AskAi:
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         # Setting configs from program args.
         self._get_query_string(interactive, query)
-        configs.is_speak = is_speak and interactive
+        configs.is_speak = (not quiet) and interactive
+        configs.is_debug = is_debugging() or debug
         configs.tempo = tempo
         configs.is_interactive = interactive
 
@@ -88,6 +90,7 @@ class AskAi:
             f"   Language: {configs.language} %EOL%"
             f"{'-+' * 40} %EOL%"
             f" Microphone: {device_info or '%RED%Undetected'} %GREEN%%EOL%"
+            f"  Debugging: {'ON' if self.is_debugging else '%RED%OFF'} %GREEN%%EOL%"
             f"   Speaking: {'ON, tempo: ' + str(configs.tempo) if self.is_speak else '%RED%OFF'} %GREEN%%EOL%"
             f"    Caching: {'ON, TTL: ' + configs.ttl if cache.is_cache_enabled() else '%RED%OFF'} %GREEN%%EOL%"
             f"{'-=' * 40} %EOL%%NC%"
@@ -114,16 +117,20 @@ class AskAi:
         return self._question
 
     @property
+    def is_interactive(self) -> bool:
+        return self._interactive
+
+    @property
+    def is_debugging(self) -> bool:
+        return configs.is_debug
+
+    @property
     def is_speak(self) -> bool:
         return configs.is_speak
 
     @property
     def is_processing(self) -> bool:
         return self._processing
-
-    @property
-    def is_interactive(self) -> bool:
-        return self._interactive
 
     @is_processing.setter
     def is_processing(self, processing: bool) -> None:
@@ -175,7 +182,7 @@ class AskAi:
             self.reply_error(ev.args.message)
         else:
             verbose = ev.args.verbosity.lower()
-            if verbose == 'normal' or is_debugging():
+            if verbose == 'normal' or self.is_debugging:
                 if ev.args.erase_last:
                     cursor.erase_line()
                 self.reply(ev.args.message)

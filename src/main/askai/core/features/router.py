@@ -51,7 +51,7 @@ class Router(metaclass=Singleton):
 
             if (output := llm.predict(final_prompt)) and (mat := RagResponse.matches(output)):
                 status, reason = mat.group(1), mat.group(2)
-                log.info("Accuracy  status: '%s'  reason: '%s'", status, reason)
+                log.info("Accuracy check  status: '%s'  reason: '%s'", status, reason)
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity='debug')
                 if RagResponse.of_value(status.strip()).is_bad:
                     raise InaccurateResponse(RagResponse.strip_code(output))
