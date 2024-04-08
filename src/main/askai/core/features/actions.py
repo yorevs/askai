@@ -116,7 +116,7 @@ class Actions(metaclass=Singleton):
     def open_command(self, *args: str) -> str:
         """
         Feature: 'Open files, folders and applications'
-        Description: Useful when you need to open anything.
+        Description: Useful when you need to open any file, folder or application.
         Usage: 'open_command(<pathname>)'
         - param <pathname>: The file, folder or application name.
         """
@@ -143,9 +143,9 @@ class Actions(metaclass=Singleton):
     def fetch(self, *args: str) -> str:
         """
         Feature: 'Time-independent database retrival'
-        Description: Useful when you need to engage in casual conversations.
+        Description: Useful when you need to engage in casual conversations or generative prompts.
         Usage: 'fetch(<question>)'
-        - param <question>: The user question.
+        - param <question>: The user question or prompt.
         """
         return fetch(args[0])
 
@@ -160,8 +160,8 @@ class Actions(metaclass=Singleton):
 
     def display(self, *args: str) -> str:
         """
-        Feature: 'Display plain text'
-        Description: Useful when you need to display any text.
+        Feature: 'Useful when you need to display plain text.'
+        Description: Useful when you need to display text.
         Usage: 'display(<text>, ...)'
         - param <text>: The text to be displayed.
         """

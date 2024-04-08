@@ -1,17 +1,16 @@
-
 Refer to the examples provided below:
 
 ------------------
 Example 1:
 
 USER
-Open the first file you find at my downloads folder.
+Open the first reminder file you find at my downloads folder.
 
 ASSISTANT:
 
 1. list_contents('~/Downloads')
 2. check_output("Is there any reminder in the list")
-4. open_command('%cross_referenced_filenames%')
+3. open_command('%cross_referenced_filenames%')
 
 ------------------
 Example 2:
