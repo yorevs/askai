@@ -8,7 +8,6 @@ from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 
 from askai.core.askai_configs import configs
-from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
@@ -25,7 +24,7 @@ def fetch(question: str) -> Optional[str]:
         'user', 'idiom', 'question'
     ], template=prompt.read_prompt('generic-prompt'))
     final_prompt = template.format(
-        user=shared.username, question=question,
+        user=prompt.user.title(), question=question,
         idiom=shared.idiom, datetime=geo_location.datetime)
     ctx: str = shared.context.flat("CONTEXT")
     log.info("FETCH::[QUESTION] '%s'  context: '%s'", question, ctx)

@@ -21,7 +21,7 @@ def check_output(question: str, context: str) -> Optional[str]:
     llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
     template = PromptTemplate(
         input_variables=['context', 'question'],
-        template=prompt.read_prompt('qstring-prompt'))
+        template=prompt.read_prompt('analysis-prompt'))
     final_prompt = template.format(context=context, question=question)
 
     if output := llm.predict(final_prompt):
@@ -32,15 +32,15 @@ def check_output(question: str, context: str) -> Optional[str]:
     return text_formatter.ensure_ln(output)
 
 
-def stt(question: str, existing_answer: str) -> str:
-    """Process the given text according to STT rules."""
+def stt(question: str, context: str) -> str:
+    """Process the given context according to STT rules."""
     template = PromptTemplate(input_variables=[
-        'user', 'idiom', 'question'
+        'idiom', 'context', 'question'
     ], template=prompt.read_prompt('stt-prompt'))
     final_prompt = template.format(
-        idiom=shared.idiom, answer=existing_answer, question=question
+        idiom=shared.idiom, context=context, question=question
     )
-    log.info("STT::[QUESTION] '%s'", existing_answer)
+    log.info("STT::[QUESTION] '%s'", context)
     llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)
 
     if output := llm.predict(final_prompt):

@@ -1,0 +1,69 @@
+
+Refer to the examples provided below:
+
+------------------
+Example 1:
+
+USER
+Open the first file you find at my downloads folder.
+
+ASSISTANT:
+
+1. list_contents('~/Downloads')
+2. check_output("Is there any reminder in the list")
+4. open_command('%cross_referenced_filenames%')
+
+------------------
+Example 2:
+
+USER
+Who is Hugo Saporetti Junior?
+
+ASSISTANT:
+
+1. browse("Hugo Saporetti Junior")
+
+------------------
+Example 3:
+
+USER
+What is the size of the moon? Use stt.
+
+ASSISTANT:
+
+1. fetch("what is the size of the moon")
+3. stt("Information about the moon using STT")
+
+------------------
+Example 4:
+
+USER
+Summarize all of my markdown files in my HomeSetup docs folder.
+
+ASSISTANT:
+
+1. summarize_files("~/HomeSetup/docs", "*.md")
+
+------------------
+Example 5:
+
+USER
+Search what is the current weather conditions in Belo Horizonte and then, tell a small story about it.
+
+ASSISTANT:
+
+1. browse("What is the current weather conditions in Belo Horizonte")
+2. fetch("Create a small story about the weather in Belo Horizonte")
+
+------------------
+Example 6:
+
+USER
+List my music and let me know if there is any ac/dc song. If so, show me the file name and open it.
+
+ASSISTANT:
+
+1. list_contents('~/Music')
+2. check_output("Is there any AC/DC song in the list")
+3. display(%cross_referenced_filenames%)
+4. open('%cross_referenced_filenames%')

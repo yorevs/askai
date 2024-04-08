@@ -102,5 +102,3 @@ Question:
 
 
 Helpful answer:
-
-"""insert text here"""

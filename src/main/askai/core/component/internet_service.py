@@ -120,18 +120,16 @@ class InternetService(metaclass=Singleton):
 
         return self.refine_text(search.question, output, search.sites) if output else None
 
-    def refine_text(self, question: str, text: str, sites: list[str]) -> str:
+    def refine_text(self, question: str, context: str, sites: list[str]) -> Optional[str]:
         """Refines the text retrieved by the search engine."""
         refine_prompt = PromptTemplate.from_template(self.refine_template()).format(
-            question=question, existing_answer=text, datetime=geo_location.datetime,
-            location=geo_location.location, idiom=shared.idiom,
-            sources=', '.join(sites)
-        )
-        chain = create_stuff_documents_chain(lc_llm.create_chat_model(
-            temperature=Temperature.CREATIVE_WRITING.temp
-        ), ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")]))
+            idiom=shared.idiom, sources=sites, location=geo_location.location,
+            context=context, question=question)
+        log.info("STT::[QUESTION] '%s'", context)
+        llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)
+        output = llm.predict(refine_prompt)
 
-        return chain.invoke({"query": question, "context": [Document(refine_prompt)]})
+        return output
 
 
 assert (internet := InternetService().INSTANCE) is not None

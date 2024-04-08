@@ -25,6 +25,6 @@ Before responding to the user, you must follow the step-by-step instructions pro
 11. The final response 'JSON' must contain the array fields, 'keywords', 'filters', and 'sites'.
 
 
------------------------------------------ User Question ------------------------------------------
+Question: "{question}"
 
-{question}
+Helpful Answer:

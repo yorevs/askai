@@ -42,20 +42,14 @@ class Router(metaclass=Singleton):
     def _assert_accuracy(question: str, ai_response: str) -> Optional[str]:
         """Function responsible for asserting that the question was properly answered."""
         if ai_response:
-            template = PromptTemplate(input_variables=[
-                'question', 'response'
-            ], template=prompt.read_prompt('rag-prompt'))
-            final_prompt = template.format(
-                question=question, response=ai_response or '')
+            template = PromptTemplate(
+                input_variables=['context', 'question'],
+                template=prompt.read_prompt('ryg-prompt'))
+            final_prompt = template.format(context=ai_response, question=question)
             log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
+            llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
 
-            llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
-            chat_prompt = ChatPromptTemplate.from_messages([("system", "{context}\n\n{query}")])
-            chain = create_stuff_documents_chain(llm, chat_prompt)
-            context = [Document(ai_response)]
-            output = chain.invoke({"query": final_prompt, "context": context})
-
-            if output and (mat := RagResponse.matches(output)):
+            if (output := llm.predict(final_prompt)) and (mat := RagResponse.matches(output)):
                 status, reason = mat.group(1), mat.group(2)
                 log.info("Accuracy  status: '%s'  reason: '%s'", status, reason)
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity='debug')
@@ -63,7 +57,7 @@ class Router(metaclass=Singleton):
                     raise InaccurateResponse(RagResponse.strip_code(output))
                 return ai_response
 
-        raise InaccurateResponse(f"The AI Assistant fit not respond properly!")
+        raise InaccurateResponse(f"The AI Assistant did not respond properly!")
 
     def process(self, query: str) -> Optional[str]:
         """Process the user query and retrieve the final response."""

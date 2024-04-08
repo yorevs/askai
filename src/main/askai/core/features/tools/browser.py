@@ -37,8 +37,8 @@ def browse(query: str) -> Optional[str]:
             log.error(msg.invalid_response(search))
             output = response.strip()
         else:
-            if output := internet.search_google(search):
-                output = msg.translate(output)
+            output = internet.search_google(search)
+            if output:
                 shared.context.push("CONTEXT", query)
                 shared.context.push("CONTEXT", output, "assistant")
                 cache.save_reply(query, output)
@@ -47,4 +47,4 @@ def browse(query: str) -> Optional[str]:
     else:
         output = msg.translate("Sorry, I don't know.")
 
-    return f"\n{output}\n"
+    return output
