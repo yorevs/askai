@@ -33,7 +33,10 @@ def check_output(question: str, context: str) -> Optional[str]:
 
 
 def stt(question: str, context: str) -> str:
-    """Process the given context according to STT rules."""
+    """Process the given context according to STT rules.
+    :param question: The question about the content to be summarized.
+    :param context: The context of the question.
+    """
     template = PromptTemplate(input_variables=[
         'idiom', 'context', 'question'
     ], template=prompt.read_prompt('stt-prompt'))

@@ -54,12 +54,11 @@ ASSISTANT:
 Example 3:
 
 USER
-What is the size of the moon? Use stt.
+What is the size of the moon.
 
 ASSISTANT:
 
 1. fetch("what is the size of the moon")
-3. stt("Information about the moon using STT")
 
 ------------------
 Example 4:
@@ -80,7 +79,7 @@ Search what is the current weather conditions in Belo Horizonte and then, create
 ASSISTANT:
 
 1. browse("What is the current weather conditions in Belo Horizonte")
-2. fetch("Create a small story about the weather in Belo Horizonte")
+2. fetch("Create a small story about %the_weather_in_Belo_Horizonte%")
 
 ------------------
 Example 6:
@@ -93,7 +92,7 @@ ASSISTANT:
 1. list_contents('~/Music')
 2. check_output("Is there any AC/DC song in the list")
 3. display(%cross_referenced_filenames%)
-4. open('%cross_referenced_filenames%')
+4. open_command('%cross_referenced_filenames%')
 
 ######
 

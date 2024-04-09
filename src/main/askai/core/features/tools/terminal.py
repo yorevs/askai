@@ -81,7 +81,7 @@ def _execute_shell(command_line: str) -> Tuple[bool, Optional[str]]:
             else:
                 output = f"```\nbash\n{output}```"
                 shared.context.push("CONTEXT", f"Please execute `{command_line}`", 'assistant')
-                shared.context.push("CONTEXT", f"Result:{output}")
+                shared.context.push("CONTEXT", output)
             status = True
         else:
             log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), command)

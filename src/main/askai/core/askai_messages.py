@@ -81,7 +81,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def analysis(self, output: str) -> str:
-        return self.translate(f"Output check: {output}")
+        return self.translate(f"Analysing the output: {output}")
 
     # Warnings and alerts
 

@@ -9,7 +9,7 @@ from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.metaclass.singleton import Singleton
 
 from askai.core.askai_messages import msg
-from askai.core.features.tools.analysis import check_output, stt
+from askai.core.features.tools.analysis import check_output
 from askai.core.features.tools.browser import browse
 from askai.core.features.tools.general import fetch, display
 from askai.core.features.tools.summarization import summarize
@@ -130,15 +130,6 @@ class Actions(metaclass=Singleton):
         - param <question>: The user question.
         """
         return check_output(args[0], args[1])
-
-    def stt(self, *args: str) -> str:
-        """
-        Feature: 'Display using STT techniques'
-        Description: Useful when you need to convert the response using STT techniques.
-        Usage: 'stt(<question>)'
-        - param <question>: The user question.
-        """
-        return stt(args[0], args[1])
 
     def fetch(self, *args: str) -> str:
         """
