@@ -68,7 +68,7 @@ class Actions(metaclass=Singleton):
     def unintelligible(self, *args: str) -> None:
         """
         Feature: 'Unintelligible question'
-        Description: Useful when the question is unintelligible.
+        Description: Use it when the question is unintelligible.
         Usage: 'unintelligible(<question>, <reason>)'
         - param <question>: The user question.
         - param <reason>: The reason why the question was not unintelligible.
@@ -78,7 +78,7 @@ class Actions(metaclass=Singleton):
     def terminate(self, *args: str) -> None:
         """
         Feature: 'Terminating intention'
-        Description: Useful when the user intends to end the conversation.
+        Description: Use it when the user intends to end the conversation.
         Usage: 'terminate()'
         """
         raise TerminatingQuery('')
@@ -86,7 +86,7 @@ class Actions(metaclass=Singleton):
     def impossible(self, *args: str) -> None:
         """
         Feature: 'Impossible action or plan'
-        Description: Useful when an action or plan is not possible to execute.
+        Description: Use it when an action or plan is not possible to execute.
         Usage: 'impossible(<reason>)'
         - param <reason>: The reason why the action or plan was not possible.
         """
@@ -95,7 +95,7 @@ class Actions(metaclass=Singleton):
     def terminal(self, *args: str) -> str:
         """
         Feature: 'Terminal command execution'
-        Description: Useful when you need to execute terminal commands.
+        Description: Use it when you need to execute terminal commands.
         Usage: 'terminal(<term_type>, <command>)'
         - param <term_type>: The terminal type (bash,zsh, powershell, ...).
         - param <command>: The command to execute.
@@ -106,7 +106,7 @@ class Actions(metaclass=Singleton):
     def list_contents(self, *args: str) -> str:
         """
         Feature: 'List folder contents'
-        Description: Useful when you need to list folder contents.
+        Description: Use it when you need to list folder contents.
         Usage: 'list_contents(<folder>)'
         - param <folder>: The folder name.
         """
@@ -115,7 +115,7 @@ class Actions(metaclass=Singleton):
     def open_command(self, *args: str) -> str:
         """
         Feature: 'Open files, folders and applications'
-        Description: Useful when you need to open any file, folder or application.
+        Description: Use it when you need to open any file, folder or application.
         Usage: 'open_command(<pathname>)'
         - param <pathname>: The file, folder or application name.
         """
@@ -124,7 +124,7 @@ class Actions(metaclass=Singleton):
     def check_output(self, *args: str) -> str:
         """
         Feature: 'Check output'
-        Description: Useful when you introduce a command necessitating its output for subsequent actions.
+        Description: Use it after executing a command that provides an output.
         Usage: 'check_output(<question>)'
         - param <question>: The user question.
         """
@@ -133,7 +133,7 @@ class Actions(metaclass=Singleton):
     def fetch(self, *args: str) -> str:
         """
         Feature: 'Time-independent database retrival'
-        Description: Useful when you need to engage in casual conversations or generative prompts.
+        Description: Use it when you need to engage in casual conversations or generative prompts.
         Usage: 'fetch(<question>)'
         - param <question>: The user question or prompt.
         """
@@ -142,7 +142,7 @@ class Actions(metaclass=Singleton):
     def browse(self, *args: str) -> str:
         """
         Feature: 'Internet browsing'
-        Description: Useful when you need to answer questions about current events.
+        Description: Use it when you need to answer questions about current events.
         Usage: 'browse(<search_query>)'
         - param <search_query>: The web search query.
         """
@@ -150,8 +150,8 @@ class Actions(metaclass=Singleton):
 
     def display(self, *args: str) -> str:
         """
-        Feature: 'Useful when you need to display plain text.'
-        Description: Useful when you need to display text.
+        Feature: 'Use it when you need to display plain text.'
+        Description: Use it when you need to display text.
         Usage: 'display(<text>, ...)'
         - param <text>: The text to be displayed.
         """
@@ -160,7 +160,7 @@ class Actions(metaclass=Singleton):
     def summarize_files(self, *args: str) -> str:
         """
         Feature: 'Summarization of files and folders'
-        Description: Useful when you need to summarize files and folders.
+        Description: Use it when you need to summarize files and folders.
         Usage: 'summarize_files(<folder>, <glob>)'
         - param <folder>: The folder name.
         - param <glob>: The path wildcard characters.
@@ -170,11 +170,11 @@ class Actions(metaclass=Singleton):
     def describe_image(self, *args: str) -> str:
         """
         Feature: 'Image analysis'
-        Description: Useful when you need to describe an image.
+        Description: Use it when you need to describe an image.
         Usage: 'describe_image(<image_path>)'
         - param <image_path>: The image file path.
         """
-        return str(NotImplementedError('This feature is not yet implemented !'))
+        return str(NotImplementedError("Feature 'describe_image' is not yet implemented !"))
 
 
 assert (features := Actions().INSTANCE) is not None

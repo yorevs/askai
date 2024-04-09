@@ -20,7 +20,7 @@ class Temperature(Enumeration):
 
     # fmt: off
 
-    ZERO                        = 0.0, 0.0
+    COLDEST                     = 0.0, 0.0
 
     # Generates code that adheres to established patterns and conventions. Output is more deterministic and focused.
     # Useful for generating syntactically correct code.

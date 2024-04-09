@@ -47,7 +47,7 @@ class Router(metaclass=Singleton):
                 template=prompt.read_prompt('ryg-prompt'))
             final_prompt = template.format(context=ai_response, question=question)
             log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
-            llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+            llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
 
             if (output := llm.predict(final_prompt)) and (mat := RagResponse.matches(output)):
                 status, reason = mat.group(1), mat.group(2)
@@ -74,26 +74,29 @@ class Router(metaclass=Singleton):
 
             chat_prompt = ChatPromptTemplate.from_messages([("system", "{context}\n\n{query}")])
             chain = create_stuff_documents_chain(
-                lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp), chat_prompt)
+                lc_llm.create_chat_model(Temperature.HOTTEST.temp), chat_prompt)
             context = [Document(ctx)]
 
             if response := chain.invoke({"query": final_prompt, "context": context}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
                 shared.context.push("CONTEXT", question)
-                output = self._route(question, re.sub(r'\d+[.:)-]\s+', '', response))
+                actions: list[str] = re.sub(r'\d+[.:)-]\s+', '', response).split(os.linesep)
+                actions = list(filter(len, map(str.strip, actions)))
+                AskAiEvents.ASKAI_BUS.events.reply.emit(
+                    message=msg.action_plan('` -> `'.join(actions)), verbosity='debug')
+                output = self._route(question, actions)
             else:
                 output = response
             return output
 
         return _process_wrapper(query)
 
-    def _route(self, question: str, action_plan: str) -> Optional[str]:
+    def _route(self, question: str, actions: list[str]) -> Optional[str]:
         """Route the actions to the proper function invocations."""
-        tasks: list[str] = list(filter(len, map(str.strip, action_plan.split(os.linesep))))
         max_actions: int = 20  # TODO Move to configs
         result: str = ''
-        for idx, action in enumerate(tasks):
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"`{action}`", verbosity='debug')
+        for idx, action in enumerate(actions):
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{action}`", verbosity='debug')
             if idx > max_actions:
                 AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
                 raise MaxInteractionsReached(f"Maximum number of action was reached")

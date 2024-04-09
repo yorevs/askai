@@ -41,7 +41,7 @@ def open_command(pathname: str) -> Optional[str]:
             case ('audio', _) | ('video', _):
                 fn_open = partial(_execute_bash, f'ffplay -v 0 -autoexit {pathname} &>/dev/null')
             case ('text', 'plain'):
-                fn_open = partial(_execute_bash, f'cat {pathname}')
+                fn_open = partial(_execute_bash, f'echo "File \\`{pathname}\\`: \n" && cat {pathname}')
             case _:
                 fn_open = partial(_execute_bash, f'open {pathname} 2>/dev/null')
         status, output = fn_open()
