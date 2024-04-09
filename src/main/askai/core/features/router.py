@@ -52,7 +52,7 @@ class Router(metaclass=Singleton):
             if (output := llm.predict(final_prompt)) and (mat := RagResponse.matches(output)):
                 status, reason = mat.group(1), mat.group(2)
                 log.info("Accuracy check  status: '%s'  reason: '%s'", status, reason)
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity='debug')
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(ai_response, output), verbosity='debug')
                 if RagResponse.of_value(status.strip()).is_bad:
                     raise InaccurateResponse(RagResponse.strip_code(output))
                 return ai_response
@@ -73,7 +73,8 @@ class Router(metaclass=Singleton):
             log.info("Router::[QUESTION] '%s'  context: '%s'", question, ctx)
 
             chat_prompt = ChatPromptTemplate.from_messages([("system", "{context}\n\n{query}")])
-            chain = create_stuff_documents_chain(lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp), chat_prompt)
+            chain = create_stuff_documents_chain(
+                lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp), chat_prompt)
             context = [Document(ctx)]
 
             if response := chain.invoke({"query": final_prompt, "context": context}):
@@ -88,7 +89,7 @@ class Router(metaclass=Singleton):
 
     def _route(self, question: str, action_plan: str) -> Optional[str]:
         """Route the actions to the proper function invocations."""
-        tasks: list[str] = list(map(str.strip, action_plan.split(os.linesep)))
+        tasks: list[str] = list(filter(len, map(str.strip, action_plan.split(os.linesep))))
         max_actions: int = 20  # TODO Move to configs
         result: str = ''
         for idx, action in enumerate(tasks):

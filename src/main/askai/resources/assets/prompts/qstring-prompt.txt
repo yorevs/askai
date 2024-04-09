@@ -5,9 +5,7 @@ Ensure important details are included, specially when mentioning files, folders,
 
 ######
 
-<context>
 '''{context}'''
-</context>
 
 
 Question: "{question}"

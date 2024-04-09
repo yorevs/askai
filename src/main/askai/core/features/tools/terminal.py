@@ -1,5 +1,6 @@
 import logging as log
 import os
+from functools import partial
 from os.path import expandvars
 from pathlib import Path
 from shutil import which
@@ -11,37 +12,44 @@ from hspylib.modules.application.exit_status import ExitStatus
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.support.shared_instances import shared
-from askai.core.support.utilities import extract_path
+from askai.core.support.utilities import extract_path, media_type_of
 
 
 def list_contents(folder: str) -> Optional[str]:
     """List the contents of a folder.
     :param folder: The folder to list contents from.
     """
-    posix_path = Path(folder.replace('~', os.getenv('HOME')))
+    posix_path = Path(f"{folder.replace('~', os.getenv('HOME'))}")
     if posix_path.exists() and posix_path.is_dir():
-        status, output = _execute_shell(f'ls -lht {folder} 2>/dev/null')
+        status, output = _execute_bash(f'ls -lht {folder} 2>/dev/null')
         if status:
             if not output:
                 return f"Folder {folder} is empty!"
             return f"Showing the contents of `{folder}`: \n{output}"
-        return f"Failed to list from: '{folder}'"
-
-    return f"Directory {folder} {'is not a directory' if posix_path.exists() else 'does not exist!'}!"
+    return None
 
 
 def open_command(pathname: str) -> Optional[str]:
     """Open the specified path, regardless if it's a file, folder or application.
     :param pathname: The file path to open.
     """
-    posix_path = Path(pathname.replace('~', os.getenv('HOME')))
+    posix_path = Path(f"{pathname.replace('~', os.getenv('HOME'))}")
 
     if posix_path.exists():
-        status, output = _execute_shell(f'open {pathname} 2>/dev/null')
+        # find the best app to open the file.
+        match media_type_of(pathname):
+            case ('audio', _) | ('video', _):
+                fn_open = partial(_execute_bash, f'ffplay -v 0 -autoexit {pathname} &>/dev/null')
+            case ('text', 'plain'):
+                fn_open = partial(_execute_bash, f'cat {pathname}')
+            case _:
+                fn_open = partial(_execute_bash, f'open {pathname} 2>/dev/null')
+        status, output = fn_open()
         if status:
-            return f"`{pathname}` was successfully opened!"
-        return f"Failed to open: '{pathname}'"
-    return f"Path '{pathname}' does not exist!"
+            if not output:
+                return f"`{pathname}` was successfully opened!"
+            return output
+    return None
 
 
 def execute_command(shell: str, command: str) -> Optional[str]:
@@ -51,7 +59,7 @@ def execute_command(shell: str, command: str) -> Optional[str]:
     """
     match shell:
         case 'bash':
-            status, output = _execute_shell(command)
+            status, output = _execute_bash(command)
             if status:
                 if not output:
                     output = f"'{shell.title()}' command `{command}` successfully executed"
@@ -61,8 +69,10 @@ def execute_command(shell: str, command: str) -> Optional[str]:
     return output
 
 
-def _execute_shell(command_line: str) -> Tuple[bool, Optional[str]]:
-    """TODO"""
+def _execute_bash(command_line: str) -> Tuple[bool, Optional[str]]:
+    """Execute the provided command line using bash.
+    :param command_line: The command line to be executed in bash.
+    """
     status = False
     if (command := command_line.split(" ")[0].strip()) and which(command):
         command = expandvars(command_line.replace("~/", f"{os.getenv('HOME')}/").strip())
@@ -79,7 +89,7 @@ def _execute_shell(command_line: str) -> Tuple[bool, Optional[str]]:
             if not output:
                 output = msg.cmd_success(command_line, exit_code)
             else:
-                output = f"```\nbash\n{output}```"
+                output = f"\n```bash\n{output}\n```"
                 shared.context.push("CONTEXT", f"Please execute `{command_line}`", 'assistant')
                 shared.context.push("CONTEXT", output)
             status = True

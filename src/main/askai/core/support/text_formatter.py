@@ -4,7 +4,6 @@ from textwrap import dedent
 from typing import Any
 
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.dict_tools import get_or_default
 from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
 from hspylib.modules.cli.vt100.vt_code import VtCode
 from hspylib.modules.cli.vt100.vt_color import VtColor
@@ -26,6 +25,7 @@ class TextFormatter(metaclass=Singleton):
         "": "\n>   *Joke:* ",
         "": "\n>   *Fun-Fact:* ",
         "": "\n>   *Advice:* ",
+        "﬽": "\n> ﬽  *Conclusion:* ",
     }
 
     @staticmethod
@@ -58,12 +58,12 @@ class TextFormatter(metaclass=Singleton):
         text = re.sub(r"\**[Ff]un [Ff]acts?[-:\s][\s*]+", self.CHAT_ICONS[''], text)
         text = re.sub(r"\**([Jj]oke( [Tt]ime)?)[-:\s][\s*]+", self.CHAT_ICONS[''], text)
         text = re.sub(r"\**[Aa]dvice[-:\s][\s*]+", self.CHAT_ICONS[''], text)
-        fg = get_or_default(re.findall(r"%\w+%", text), 0, '%NC%')
+        text = re.sub(r"\**[Cc]onclusion[-:\s][\s*]+", self.CHAT_ICONS['﬽'], text)
         text = re.sub(re_url, r' [\1](\1)', text)
         text = re.sub(r'(`{3}.+`{3})', r'\n\1\n', text)
         # fmt: on
 
-        return self.ensure_ln(text)
+        return text.strip()
 
     def display_markdown(self, text: str) -> None:
         """TODO"""

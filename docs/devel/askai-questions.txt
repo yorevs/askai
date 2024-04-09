@@ -21,3 +21,9 @@ Composite:
 1. list my music and let me know if there is any ac/dc song. If so, show me the file name and open it.
 2. open the first reminder file you find at my downloads.
 3. Create a small Python program to allow me to calculate the speed given the time and distance, save it as 'dist.py' and execute it.
+4. list my downloads and let me know if there is any reminder.
+5. list my downloads and let me know if there is any image.
+
+
+
+

@@ -1,5 +1,4 @@
 import inspect
-import os
 import re
 from functools import lru_cache
 from textwrap import dedent
@@ -54,7 +53,7 @@ class Actions(metaclass=Singleton):
         """Return an 'os.linesep' separated string list of feature descriptions."""
         doc_strings: str = ''
         for fn in self._all.values():
-            doc_strings += f"{dedent(fn.__doc__)}{os.linesep}" if fn and fn.__doc__ else ''
+            doc_strings += f"{dedent(fn.__doc__)}\n{'-' * 18}\n" if fn and fn.__doc__ else ''
         return doc_strings
 
     def _human_approval(self) -> bool:

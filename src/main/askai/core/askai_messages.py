@@ -79,10 +79,6 @@ class AskAiMessages(metaclass=Singleton):
     def press_esc_enter(self) -> str:
         return self.translate("Press [Esc or Enter] to leave")
 
-    @lru_cache
-    def analysis(self, output: str) -> str:
-        return self.translate(f"Analysing the output: {output}")
-
     # Warnings and alerts
 
     @lru_cache
@@ -94,8 +90,12 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate("Do you approve executing this command on you terminal (yes/[no])?")
 
     @lru_cache
-    def assert_acc(self, result: str) -> str:
-        return self.translate(f"Accuracy check: `{result}`")
+    def analysis(self) -> str:
+        return self.translate(f"Analysing the output…")
+
+    @lru_cache
+    def assert_acc(self, ai_response: str, result: str) -> str:
+        return self.translate(f"Accuracy check: `{ai_response.strip()}` -> **{result.strip()}**")
 
     # Failures
 

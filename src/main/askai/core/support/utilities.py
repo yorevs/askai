@@ -12,25 +12,26 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import hashlib
+import mimetypes
+import os
+import re
 import sys
+from os.path import basename, dirname
+from pathlib import Path
+from typing import Any, Optional, Tuple
 
-from askai.core.support.presets import Presets
-from askai.core.support.text_formatter import text_formatter
-from askai.language.language import Language
+import pause
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.cli.vt100.vt_color import VtColor
-from os.path import basename, dirname
-from pathlib import Path
-from typing import Any, Optional, Tuple
 
-import hashlib
-import os
-import pause
-import re
+from askai.core.support.presets import Presets
+from askai.core.support.text_formatter import text_formatter
+from askai.language.language import Language
 
 
 def read_stdin() -> Optional[str]:
@@ -168,4 +169,17 @@ def extract_command(markdown_text: str, flags: int = re.IGNORECASE | re.MULTILIN
         if mat and len(mat.groups()) == 3:
             shell, cmd = mat.group(1) or "", mat.group(3) or ""
             return shell.strip(), cmd.strip()
+    return None
+
+
+def media_type_of(pathname: str) -> Optional[tuple[str, ...]] | None:
+    """Return the file media type, or none is guessing was not possible.
+    :param pathname: The file path to check.
+    """
+    mimetypes.init()
+    mtype, _ = mimetypes.guess_type(basename(pathname))
+
+    if mtype is not None:
+        return tuple(mtype.split('/'))
+
     return None
