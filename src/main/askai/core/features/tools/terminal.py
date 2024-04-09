@@ -21,7 +21,7 @@ def list_contents(folder: str) -> Optional[str]:
     """
     posix_path = Path(f"{folder.replace('~', os.getenv('HOME'))}")
     if posix_path.exists() and posix_path.is_dir():
-        status, output = _execute_bash(f'ls -lht {folder} 2>/dev/null')
+        status, output = _execute_bash(f'ls -lht {folder} 2>/dev/null | sort -k9,9')
         if status:
             if not output:
                 return f"Folder {folder} is empty!"

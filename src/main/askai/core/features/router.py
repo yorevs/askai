@@ -47,7 +47,7 @@ class Router(metaclass=Singleton):
                 template=prompt.read_prompt('ryg-prompt'))
             final_prompt = template.format(context=ai_response, question=question)
             log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
-            llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
+            llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
 
             if (output := llm.predict(final_prompt)) and (mat := RagResponse.matches(output)):
                 status, reason = mat.group(1), mat.group(2)
