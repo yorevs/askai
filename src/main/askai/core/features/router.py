@@ -74,7 +74,7 @@ class Router(metaclass=Singleton):
 
             chat_prompt = ChatPromptTemplate.from_messages([("system", "{context}\n\n{query}")])
             chain = create_stuff_documents_chain(
-                lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp), chat_prompt)
+                lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp), chat_prompt)
             context = [Document(ctx)]
 
             if response := chain.invoke({"query": final_prompt, "context": context}):
