@@ -52,7 +52,7 @@ class AskAiPrompt(metaclass=Singleton):
         return f"{configs.language.name} ({configs.language.country})"
 
     @lru_cache
-    def read_prompt(self, template_file: str, prompt_dir: str) -> str:
+    def read_prompt(self, template_file: str, prompt_dir: str = None) -> str:
         """Read a processor prompt template and set its persona."""
         return read_resource(prompt_dir or self.PROMPT_DIR, template_file)
 

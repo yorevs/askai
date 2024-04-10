@@ -151,11 +151,11 @@ class AskAi:
         elif self.query_string:
             llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
             display_text(self.question, f"{shared.username}: ")
-            if output := llm.predict(self.query_string):
-                self.reply(output)
+            if output := llm.invoke(self.query_string):
+                self.reply(output.content)
                 cache.save_query_history()
         else:
-            display_text(msg.no_query_string())
+            display_text(f"%RED%Error: {msg.no_query_string()}%NC%")
 
     def reply(self, message: str) -> None:
         """Reply to the user with the AI response.
