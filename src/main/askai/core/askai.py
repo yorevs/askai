@@ -64,6 +64,7 @@ class AskAi:
         quiet: bool,
         debug: bool,
         tempo: int,
+        query_prompt: str,
         engine_name: str,
         model_name: str,
         query: str | List[str]
@@ -71,12 +72,14 @@ class AskAi:
         self._interactive: bool = interactive
         self._ready: bool = False
         self._processing: Optional[bool] = None
-        self._query_string, self._question = None, None
+        self._query_string: str | None = None
+        self._question: str | None = None
+        self._query_prompt: str | None = query_prompt
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         # Setting configs from program args.
         self._get_query_string(interactive, query)
-        configs.is_speak = (not quiet) and interactive
+        configs.is_speak = not quiet
         configs.is_debug = is_debugging() or debug
         configs.tempo = tempo
         configs.is_interactive = interactive
@@ -142,14 +145,14 @@ class AskAi:
 
     def run(self) -> None:
         """Run the program."""
+        self._startup()
         if self.is_interactive:
-            self._startup()
             self._prompt()
         elif self.query_string:
             llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
             display_text(self.question, f"{shared.username}: ")
             if output := llm.predict(self.query_string):
-                display_text(output, f"{shared.nickname}: ")
+                self.reply(output)
                 cache.save_query_history()
         else:
             display_text(msg.no_query_string())
@@ -195,27 +198,32 @@ class AskAi:
                 screen.clear()
                 sysout(f"%GREEN%{self.SPLASH}%NC%")
             pause.milliseconds(splash_interval)
-        pause.milliseconds(splash_interval * 2)
+        pause.milliseconds(splash_interval)
         screen.clear()
 
     def _startup(self) -> None:
         """Initialize the application."""
-        splash_thread: Thread = Thread(daemon=True, target=self._splash)
-        splash_thread.start()
-        recorder.setup()
-        nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
-        cache.set_cache_enable(self.cache_enabled)
-        cache.read_query_history()
         askai_bus = AskAiEvents.get_bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
         askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
-        if configs.is_speak:
-            player.start_delay()
-        self._ready = True
-        splash_thread.join()
-        display_text(self, markdown=False)
+        if self.is_interactive:
+            splash_thread: Thread = Thread(daemon=True, target=self._splash)
+            splash_thread.start()
+            recorder.setup()
+            nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
+            cache.set_cache_enable(self.cache_enabled)
+            cache.read_query_history()
+            if configs.is_speak:
+                player.start_delay()
+            self._ready = True
+            splash_thread.join()
+            display_text(self, markdown=False)
+            self.reply(msg.welcome(os.getenv("USER", "you")))
+        else:
+            recorder.setup()
+            if configs.is_speak:
+                player.start_delay()
         log.info("AskAI is ready to use!")
-        self.reply(msg.welcome(os.getenv("USER", "you")))
 
     def _prompt(self) -> None:
         """Prompt for user interaction."""
@@ -259,15 +267,14 @@ class AskAi:
         """
         query: str = str(" ".join(query_arg) if isinstance(query_arg, list) else query_arg)
         self._question = query
+        dir_name, file_name = os.path.split(self._query_prompt)
         if not interactive:
             stdin_args = read_stdin()
-            if stdin_args:
-                template = PromptTemplate(
-                    input_variables=['context', 'question'],
-                    template=prompt.read_prompt('qstring-prompt'))
-                final_prompt = template.format(context=stdin_args, question=self._question)
-                self._query_string = final_prompt if query else stdin_args
-            else:
-                self._query_string = query
+            template = PromptTemplate(
+                input_variables=['context', 'question'],
+                template=prompt.read_prompt(file_name, dir_name.replace('~', os.getenv('HOME'))))
+            final_prompt = template.format(context=stdin_args, question=self._question)
+            self._query_string = final_prompt if query else stdin_args
+            self._question = self._question or self._query_string
         else:
             self._query_string = query

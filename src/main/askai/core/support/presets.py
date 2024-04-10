@@ -25,13 +25,13 @@ class Presets:
     _ALL_RESETS = {
         "en": {
             "words.per.breath": 10,
-             "words.interval.sec": Template("12.2 * ${base_speed}"),
-            "breath.interval.sec": Template("43 * ${base_speed}"),
-            "number.interval.sec": Template("25 * ${base_speed}"),
-             "comma.interval.sec": Template("25 * ${base_speed}"),
-             "punct.interval.sec": Template("32 * ${base_speed}"),
-              "enum.interval.sec": Template("10 * ${base_speed}"),
-            "period.interval.sec": Template("165 * ${base_speed}"),
+             "words.interval.sec": Template("12.8 * ${base_speed}"),
+            "breath.interval.sec": Template("95 * ${base_speed}"),
+            "number.interval.sec": Template("17 * ${base_speed}"),
+             "comma.interval.sec": Template("28 * ${base_speed}"),
+             "punct.interval.sec": Template("35 * ${base_speed}"),
+              "enum.interval.sec": Template("12 * ${base_speed}"),
+            "period.interval.sec": Template("190 * ${base_speed}"),
         },
         "pt": {
             "words.per.breath": 10,

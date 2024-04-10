@@ -15,6 +15,7 @@
 
 import logging as log
 import sys
+from typing import Any, Optional
 
 from clitt.core.term.commons import is_a_tty
 
@@ -56,15 +57,6 @@ class Main(TUIApplication):
         # fmt: off
         self._with_options() \
             .option(
-                "engine", "e", "engine",
-                "specifies which AI engine to use. If not provided, the default engine wil be used.",
-                choices=['openai', 'palm'],
-                nargs=1, default='openai')\
-            .option(
-                "model", "m", "model",
-                "specifies which AI model to use (depends on the engine).",
-                nargs=1, default='gpt-3.5-turbo')\
-            .option(
                 "interactive", "i", "interactive",
                 "whether you would like to run the program in an interactive mode.",
                 nargs="?", action=ParserAction.STORE_TRUE, default=False)\
@@ -80,7 +72,20 @@ class Main(TUIApplication):
                 "tempo", "t", "tempo",
                 "specifies the playback and streaming speed.",
                 choices=['1', '2', '3'],
-                nargs=1, default='1')
+                nargs=1, default='1')\
+            .option(
+                "prompt", "p", "prompt",
+                "specifies the query prompt file (not useful with interactive mode).",
+                nargs=1, default='qstring-prompt')\
+            .option(
+                "engine", "e", "engine",
+                "specifies which AI engine to use. If not provided, the default engine wil be used.",
+                choices=['openai', 'palm'],
+                nargs=1, default='openai')\
+            .option(
+                "model", "m", "model",
+                "specifies which AI model to use (depends on the engine).",
+                nargs=1, default='gpt-3.5-turbo')
         self._with_arguments() \
             .argument("query_string", "what to ask to the AI engine", nargs="*")
         # fmt: on
@@ -91,7 +96,8 @@ class Main(TUIApplication):
             self.get_arg("interactive"),
             self.get_arg("quiet"),
             self.get_arg("debug"),
-            int(get_or_default(self.get_arg("tempo") or [], 0, "1")),
+            int(self._get_argument("tempo")),
+            str(self._get_argument("prompt")),
             self.get_arg("engine"),
             self.get_arg("model"),
             self.get_arg("query_string"),
@@ -115,6 +121,18 @@ class Main(TUIApplication):
         self._askai.run()
 
         return ExitStatus.SUCCESS
+
+    def _get_argument(self, arg_name: str) -> Optional[Any]:
+        """TODO"""
+        if arg := self.get_arg(arg_name):
+            if isinstance(arg, str):
+                return arg
+            elif isinstance(arg, list):
+                return get_or_default(arg, 0, '')
+            else:
+                raise TypeError("Argument '' has an invalid type: ''", arg, type(arg))
+        else:
+            return ''
 
 
 # Application entry point

@@ -7,7 +7,6 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 
-from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
@@ -15,7 +14,6 @@ from askai.core.component.geo_location import geo_location
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
-from askai.core.support.utilities import display_text
 
 
 def fetch(question: str) -> Optional[str]:
@@ -47,11 +45,8 @@ def fetch(question: str) -> Optional[str]:
 def display(*texts: str) -> Optional[str]:
     """Display the given texts formatted with markdown."""
     output: str = os.linesep.join(texts)
-    if configs.is_interactive:
-        # If we display the cross-reference, we will confuse the AI.
-        if not re.match(r'^%[a-zA-Z0-9_-]+%$', output):
-            shared.context.push("CONTEXT", output, 'assistant')
-    else:
-        display_text(output, f"{shared.nickname}: ")
+    # If we display the cross-reference, we will confuse the AI.
+    if not re.match(r'^%[a-zA-Z0-9_-]+%$', output):
+        shared.context.push("CONTEXT", output, 'assistant')
 
     return output
