@@ -47,7 +47,7 @@ class SharedInstances(metaclass=Singleton):
 
     @property
     def nickname(self) -> str:
-        return f"%GREEN%  {self.engine.nickname()}%NC%"
+        return f"%GREEN%  Taius%NC%"
 
     @property
     def username(self) -> str:
