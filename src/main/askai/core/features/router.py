@@ -54,6 +54,7 @@ class Router(metaclass=Singleton):
                 log.info("Accuracy check  status: '%s'  reason: '%s'", status, reason)
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(ai_response, output), verbosity='debug')
                 if RagResponse.of_value(status.strip()).is_bad:
+                    shared.context.push("CONTEXT", f"Inaccurate response: '{output}'", 'user')
                     raise InaccurateResponse(RagResponse.strip_code(output))
                 return ai_response
 
@@ -61,7 +62,7 @@ class Router(metaclass=Singleton):
 
     def process(self, query: str) -> Optional[str]:
         """Process the user query and retrieve the final response."""
-        @retry(exceptions=InaccurateResponse, tries=2, delay=0, backoff=0)
+        @retry(exceptions=InaccurateResponse, tries=3, delay=0, backoff=0)
         def _process_wrapper(question: str) -> Optional[str]:
             """Wrapper to allow RAG retries."""
             template = PromptTemplate(input_variables=[

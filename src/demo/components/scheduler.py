@@ -85,6 +85,6 @@ if __name__ == '__main__':
 
     while not done:
         if count > 0:
-            sysout(f'%HOM%%ED2%{count}', end='')
+            sysout(f'%GRAY%%HOM%%EL2%{count}%NC%', end='')
             count -= 1
         pause.seconds(1)
