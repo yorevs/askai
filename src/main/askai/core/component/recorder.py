@@ -65,7 +65,7 @@ class Recorder(metaclass=Singleton):
         self._device_index = None
         self._input_device = None
         self._rec_phrase_limit_s = 10
-        self._rec_wait_timeout_s = 0.5
+        self._rec_wait_timeout_s = 0.8
 
     def setup(self) -> None:
         """Setup the recorder."""
@@ -95,8 +95,7 @@ class Recorder(metaclass=Singleton):
                 self._detect_noise()
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.listening())
                 audio: AudioData = self._rec.listen(
-                    source, phrase_time_limit=self._rec_phrase_limit_s, timeout=self._rec_wait_timeout_s
-                )
+                    source, phrase_time_limit=self._rec_phrase_limit_s, timeout=self._rec_wait_timeout_s)
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.transcribing(), erase_last=True)
                 with open(audio_path, "wb") as f_rec:
                     f_rec.write(audio.get_wav_data())

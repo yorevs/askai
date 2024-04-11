@@ -213,16 +213,14 @@ class AskAi:
             nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
             cache.set_cache_enable(self.cache_enabled)
             cache.read_query_history()
-            if configs.is_speak:
-                player.start_delay()
+            player.start_delay()
             self._ready = True
             splash_thread.join()
             display_text(self, markdown=False)
             self.reply(msg.welcome(os.getenv("USER", "you")))
         else:
             recorder.setup()
-            if configs.is_speak:
-                player.start_delay()
+            player.start_delay()
         log.info("AskAI is ready to use!")
 
     def _prompt(self) -> None:

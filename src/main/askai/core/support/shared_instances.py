@@ -80,6 +80,16 @@ class SharedInstances(metaclass=Singleton):
                 if spoken_text := self.engine.speech_to_text():
                     display_text(f"{self.username}: {spoken_text}")
                     ret = spoken_text
+            elif ret == Keyboard.VK_CTRL_K:
+                shared.context.forget()
+                display_text(f"{self.nickname}: Context reset", erase_last=True)
+                ret = None
+                continue
+            elif ret == Keyboard.VK_CTRL_G:
+                configs.is_speak = not configs.is_speak
+                display_text(f"{self.nickname}: Speaking is {'ON' if configs.is_speak else 'OFF'}", erase_last=True)
+                ret = None
+                continue
 
         return ret if not ret or isinstance(ret, str) else ret.val
 
