@@ -1,14 +1,13 @@
 # _*_ coding: utf-8 _*_
 #
-# "askai" v1.0.4
+# "askai" v1.0.5
 #
-# Package: main.askai.core.processor
+# Package: main.askai.core.features
 """Package initialization."""
 
 __all__ = [
-    'instances', 
-    'processor_base', 
-    'processor_factory', 
-    'processor_proxy'
+    'actions', 
+    'router', 
+    'tools'
 ]
-__version__ = '1.0.4'
+__version__ = '1.0.5'

@@ -31,3 +31,4 @@ opentelemetry-sdk==1.22.0
 opentelemetry-proto==1.22.0
 rich==13.7.1
 pytz==2024.1
+schedule==1.2.1

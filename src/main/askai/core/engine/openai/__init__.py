@@ -1,14 +1,14 @@
 # _*_ coding: utf-8 _*_
 #
-# "askai" v1.0.4
+# "askai" v1.0.5
 #
 # Package: main.askai.core.engine.openai
 """Package initialization."""
 
 __all__ = [
-    'openai_configs',
-    'openai_engine',
-    'openai_model',
-    'temperature.py'
+    'openai_configs', 
+    'openai_engine', 
+    'openai_model', 
+    'temperature'
 ]
-__version__ = '1.0.4'
+__version__ = '1.0.5'
