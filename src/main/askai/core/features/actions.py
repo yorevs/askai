@@ -67,112 +67,133 @@ class Actions(metaclass=Singleton):
 
     def unintelligible(self, *args: str) -> None:
         """
-        Feature: 'Unintelligible question'
-        Description: Use it when the question is unintelligible.
-        Usage: 'unintelligible(<question>, <reason>)'
-        - param <question>: The user question.
-        - param <reason>: The reason why the question was not unintelligible.
+        Feature: 'Unintelligible Question Handler'
+        Description: Implement this feature when a user's question is unclear or difficult to comprehend.
+        Usage: 'unintelligible(question, reason)'
+          - `question` The question posed by the user that is considered unintelligible.
+          - `reason` Explanation of why the question is deemed unintelligible.
         """
         raise UnintelligibleQuery(f"{args[1]}: '{args[0]}'")
 
     def terminate(self, *args: str) -> None:
         """
-        Feature: 'Terminating intention'
-        Description: Use it when the user intends to end the conversation.
-        Usage: 'terminate()'
+        Feature: 'Terminating Intention Handler'
+        Description: Employ this feature when the user decides to conclude the interaction. This function ensures a
+        smooth and clear ending to the session, confirming user intent to terminate the dialogue.
+        Usage: 'terminate()'.
         """
         raise TerminatingQuery('')
 
     def impossible(self, *args: str) -> None:
         """
-        Feature: 'Impossible action or plan'
-        Description: Use it when an action or plan is not possible to execute.
-        Usage: 'impossible(<reason>)'
-        - param <reason>: The reason why the action or plan was not possible.
+        Feature: 'Impossible Action or Plan'
+        Description: This feature should be used when an action or plan is unfeasible or cannot be executed.
+        Usage: 'impossible(reason)'.
+          - `reason` A description of why the action or plan is impossible to implement.
         """
         raise ImpossibleQuery(' '.join(args))
 
     def terminal(self, *args: str) -> str:
         """
-        Feature: 'Terminal command execution'
-        Description: Use it when you need to execute terminal commands.
-        Usage: 'terminal(<term_type>, <command>)'
-        - param <term_type>: The terminal type (bash,zsh, powershell, ...).
-        - param <command>: The command to execute.
+        Feature: 'Execute Terminal Commands'
+        Description: Utilize this feature to run commands directly in various terminal environments. This feature is particularly useful when other specific tools or features do not meet your requirements. Use this feature also when you haven't found any other feature that matches the desired action from the user.
+        Usage: 'terminal(term_type, command)'
+          - `term_type` A string that specifies the type of terminal environment (e.g., bash, zsh, powershell, etc.).
+          - `command` The actual commands you wish to execute in the terminal.
+        Example: To find all mp3 files in a directory using bash, use: `terminal('bash', 'find . -maxdepth 1 -name "*.mp3")`
         """
         # TODO Check for permission before executing
         return execute_command(args[0], args[1])
 
     def list_contents(self, *args: str) -> str:
         """
-        Feature: 'List folder contents'
-        Description: Use it when you need to list folder contents.
-        Usage: 'list_contents(<folder>)'
-        - param <folder>: The folder name.
+        Feature: 'List Folder Contents'
+        Description: This feature is designed for retrieving and displaying the contents of a specified folder. It is useful for quickly assessing the files and subdirectories within any directory.
+        Usage: 'list_contents(folder)'
+          - `folder`: A string representing the name of the directory whose contents you wish to list.
+        Example: To list the contents of the HomeSetup docs folder, use: `list_contents('~/HomeSetup/docs')`.
         """
         return list_contents(args[0])
 
     def open_command(self, *args: str) -> str:
         """
-        Feature: 'Open files, folders and applications'
-        Description: Use it when you need to open any file, folder or application.
-        Usage: 'open_command(<pathname>)'
-        - param <pathname>: The file, folder or application name.
+        Feature: 'Open files, folders, and applications'
+        Description: This feature is used to open any file, folder, or application on your system.
+        Usage: 'open_command(pathname)'
+          - `pathname` The file, folder or application name.
+        Example: To open the song file 'the-trooper.mp3', use: `open_command('the-trooper.mp3')`
         """
         return open_command(args[0])
 
     def check_output(self, *args: str) -> str:
         """
-        Feature: 'Check output'
-        Description: Use it after executing a command that provides an output.
-        Usage: 'check_output(<question>)'
-        - param <question>: The user question.
+        Feature: 'Check Output'
+        Description: This function should be used after executing a command that generates an output. It is useful for
+        situations where the output of one function is needed as input in subsequent calls.
+        Usage: `check_output(question)`
+          - `question`: The query from the user.
+        Example:
+          - User: 'list my downloads and tell me if there is any image'.
+          - Assistant:
+            1. list_contents('~Downloads').
+            2. check_output('Is there any image on the list').
         """
         return check_output(args[0], args[1])
 
     def fetch(self, *args: str) -> str:
         """
-        Feature: 'Time-independent database retrival'
-        Description: Use it when you need to engage in casual conversations or generative prompts.
-        Usage: 'fetch(<question>)'
-        - param <question>: The user question or prompt.
+        Feature: 'Time-independent Database Retrieval'
+        Description: This feature facilitates the retrieval of database information independently of time constraints,
+        enhancing consistency and reliability in data analysis. It proves particularly beneficial in applications that
+        demand persistent data accuracy, such as report generation and historical data review. This functionality is
+        also invaluable for resolving ambiguities in data interpretation, ensuring clarity and precision in outputs.
+        Usage: `fetch(question)`
+          - `question`: Specify the query or prompt for data retrieval in a consistent and time-independent manner.
+        Example:
+          - To retrieve the size of the moon: `fetch("Retrieve the size of the moon")`
         """
         return fetch(args[0])
 
     def browse(self, *args: str) -> str:
         """
-        Feature: 'Internet browsing'
-        Description: Use it when you need to answer questions about current events.
-        Usage: 'browse(<search_query>)'
-        - param <search_query>: The web search query.
+        Feature: 'Internet Browsing'
+        Description: Utilize this feature to obtain information on current events or recent developments. It's
+        particularly useful for up-to-date news inquiries or when fresh data is needed quickly.
+        Usage: 'browse(search_query)'
+          - `search_query`: The web search query in string format.
+        Example:
+          - To find the latest news on climate change, you would use: browse("latest news on climate change")
         """
         return browse(args[0])
 
     def display(self, *args: str) -> str:
         """
-        Feature: 'Use it when you need to display plain text.'
-        Description: Use it when you need to display text.
-        Usage: 'display(<text>, ...)'
-        - param <text>: The text to be displayed.
+        Feature: 'display'
+        Description: Use this function to display plain text. It is designed solely for display purposes and not for fetching or processing data.
+        Usage: 'display(text, ...)'
+          - `text`: The comma separated list of texts to be displayed.
         """
         return display(*args[:-1])
 
     def summarize_files(self, *args: str) -> str:
         """
-        Feature: 'Summarization of files and folders'
-        Description: Use it when you need to summarize files and folders.
-        Usage: 'summarize_files(<folder>, <glob>)'
-        - param <folder>: The folder name.
-        - param <glob>: The path wildcard characters.
+        Feature: 'Summarization of Files and Folders'
+        Description: This feature is designed to efficiently summarize the contents of files and folders. It should be
+        activated specifically when requests for summarizations or analogous operations are explicitly made.
+        Usage: summarize_files(folder_name, path_wildcard)
+          - `folder_name`: Name of the directory containing the files.
+          - `path_wildcard`: Glob pattern to specify files within the folder for summarization.
         """
         return summarize(args[0], args[1])
 
     def describe_image(self, *args: str) -> str:
         """
-        Feature: 'Image analysis'
-        Description: Use it when you need to describe an image.
-        Usage: 'describe_image(<image_path>)'
-        - param <image_path>: The image file path.
+        Feature: 'Image Analysis'
+        Description: This feature is applicable when there is a need to describe or analyze an image.
+        Usage: describe_image(image_path)
+          - `image_path`: The file path of the image to be analyzed.
+        Example:
+          - To analyze an image located at 'path/to/image.jpg', use: describe_image('path/to/image.jpg').
         """
         return str(NotImplementedError("Feature 'describe_image' is not yet implemented !"))
 

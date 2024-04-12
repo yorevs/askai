@@ -19,7 +19,7 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 - Start your response with the correct answer for the question, NEVER with a joke, fun fact or advice.
 
-- Do not use markdown to format the response message. Use plain text.
+- Do not use markdown to format the response messages. Use plain text.
 
 - Sometimes, you can wrap up your response by dropping a fun fact about query or response; prefix with: 'Fun Fact:'.
 
