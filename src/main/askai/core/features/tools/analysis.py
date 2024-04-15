@@ -24,7 +24,7 @@ def check_output(question: str, context: str) -> Optional[str]:
         template=prompt.read_prompt('analysis-prompt'))
     final_prompt = template.format(context=context, question=question)
 
-    if output := llm.predict(final_prompt):
+    if output := llm.invoke(final_prompt):
         shared.context.push("CONTEXT", question)
         shared.context.push("CONTEXT", output, 'assistant')
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(), verbosity='debug')
@@ -46,7 +46,7 @@ def stt(question: str, context: str) -> str:
     log.info("STT::[QUESTION] '%s'", context)
     llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)
 
-    if output := llm.predict(final_prompt):
+    if output := llm.invoke(final_prompt):
         shared.context.push("CONTEXT", question)
         shared.context.push("CONTEXT", output, 'assistant')
 

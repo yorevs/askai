@@ -127,9 +127,8 @@ class InternetService(metaclass=Singleton):
             context=context, question=question)
         log.info("STT::[QUESTION] '%s'", context)
         llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)
-        output = llm.predict(refine_prompt)
 
-        return output
+        return llm.invoke(refine_prompt)
 
 
 assert (internet := InternetService().INSTANCE) is not None

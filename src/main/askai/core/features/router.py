@@ -49,7 +49,7 @@ class Router(metaclass=Singleton):
             log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
             llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
 
-            if (output := llm.predict(final_prompt)) and (mat := RagResponse.matches(output)):
+            if (output := llm.invoke(final_prompt)) and (mat := RagResponse.matches(output)):
                 status, reason = mat.group(1), mat.group(2)
                 log.info("Accuracy check  status: '%s'  reason: '%s'", status, reason)
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(ai_response, output), verbosity='debug')
