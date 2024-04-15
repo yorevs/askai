@@ -2,6 +2,7 @@ import logging as log
 from typing import Optional
 
 from langchain_core.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -18,21 +19,26 @@ def check_output(question: str, context: str) -> Optional[str]:
     :param context: The context of the question.
     """
     log.info("Analysis::[QUESTION] '%s'  context=%s", question, context)
-    llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
+    # llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
+    llm = ChatOpenAI(
+        temperature=Temperature.CREATIVE_WRITING.temp,
+        model_name='gpt-3.5-turbo'
+    )
     template = PromptTemplate(
         input_variables=['context', 'question'],
         template=prompt.read_prompt('analysis-prompt'))
     final_prompt = template.format(context=context, question=question)
 
     if output := llm.invoke(final_prompt):
-        shared.context.push("CONTEXT", question)
-        shared.context.push("CONTEXT", output, 'assistant')
+        # shared.context.push("CONTEXT", question)
+        # shared.context.push("CONTEXT", output, 'assistant')
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(), verbosity='debug')
+        return text_formatter.ensure_ln(output.content)
 
-    return text_formatter.ensure_ln(output)
+    return None
 
 
-def stt(question: str, context: str) -> str:
+def stt(question: str, context: str) -> Optional[str]:
     """Process the given context according to STT rules.
     :param question: The question about the content to be summarized.
     :param context: The context of the question.
@@ -49,5 +55,6 @@ def stt(question: str, context: str) -> str:
     if output := llm.invoke(final_prompt):
         shared.context.push("CONTEXT", question)
         shared.context.push("CONTEXT", output, 'assistant')
+        return text_formatter.ensure_ln(output)
 
-    return text_formatter.ensure_ln(output)
+    return None

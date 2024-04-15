@@ -11,7 +11,6 @@ from hspylib.modules.application.exit_status import ExitStatus
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
-from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_path, media_type_of
 
 
@@ -90,8 +89,8 @@ def _execute_bash(command_line: str) -> Tuple[bool, Optional[str]]:
                 output = msg.cmd_success(command_line, exit_code)
             else:
                 output = f"\n```bash\n{output}\n```"
-                shared.context.push("CONTEXT", f"Please execute `{command_line}`", 'assistant')
-                shared.context.push("CONTEXT", output)
+                # shared.context.push("CONTEXT", f"Please execute `{command_line}`", 'assistant')
+                # shared.context.push("CONTEXT", output)
             status = True
         else:
             log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), command)

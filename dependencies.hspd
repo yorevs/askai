@@ -26,6 +26,7 @@ package: urllib3, version: 1.26.18, mode: eq
 package: langchain, version: 0.1.12, mode: ge
 package: langchain-openai, version: 0.0.8, mode: eq
 package: langchain-community, version: 0.0.28, mode: eq
+package: langchainhub
 package: unstructured, version: 0.12.4, mode: eq
 package: unstructured[md], version: 0.12.4, mode: eq
 package: python-magic-bin, version: 0.4.14, mode: eq

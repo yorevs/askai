@@ -1,0 +1,13 @@
+######
+If the provided context is available, utilize it to address the subsequent question. If the context is unavailable, proceed to respond utilizing data from your own database.
+
+Ensure important details are included, specially when mentioning files, folders, line numbers, etc..
+
+Do not use markdown to format the response message. Use plain text.
+
+######
+
+'''{context}'''
+
+
+Question: "{question}"
