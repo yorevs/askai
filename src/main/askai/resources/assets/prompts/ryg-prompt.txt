@@ -5,9 +5,7 @@ As a data analyst, you are tasked with evaluating the quality of responses gener
 - **Yellow**: The response partially addresses the question but lacks full depth or detail, suggesting moderate understanding.
 - **Red**: The response fails to adequately address the question, indicating a misunderstanding or incorrect analysis.
 
-When considering your final response to the user's question, please disregard any syntax or semantic errors. Try to fully understand the user's goal.
-
-Classify any response containing errors as 'Red', ensuring no errors are overlooked or passed.
+Categorize any response with errors as 'Red' to ensure comprehensive error identification. Exclude typographical, syntax, and semantic issues from this classification, as they may have been addressed by the AI.
 
 Do not include any part of the question in your response. Indicate your classification choice ('Red', 'Yellow', or 'Green') followed by a brief explanation for your decision.
 

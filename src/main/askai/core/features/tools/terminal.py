@@ -100,7 +100,7 @@ def _execute_bash(command_line: str) -> Tuple[bool, str]:
             if not output:
                 output = msg.cmd_success(command_line, exit_code)
             else:
-                output = f"\n```bash\n{output}\n```"
+                output = f"Command '{command_line}' succeeded: \n```bash\n{output}\n```"
                 shared.context.push("CONTEXT", f"Please execute `{command_line}`", 'assistant')
                 shared.context.push("CONTEXT", output)
             status = True

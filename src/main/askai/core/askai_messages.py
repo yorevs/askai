@@ -1,4 +1,4 @@
-from functools import lru_cache
+from functools import lru_cache, cached_property
 
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.modules.application.exit_status import ExitStatus
@@ -15,6 +15,13 @@ class AskAiMessages(metaclass=Singleton):
 
     def __init__(self):
         self._translator = ArgosTranslator(Language.EN_US, configs.language)
+        self._accurate_responses: list[str] = [
+            self.welcome_back()
+        ]
+
+    @cached_property
+    def accurate_responses(self) -> list[str]:
+        return self._accurate_responses
 
     @lru_cache
     def translate(self, text: str) -> str:
@@ -88,16 +95,16 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"Here is what I found: '{ai_response}'")
 
     @lru_cache
-    def assert_acc(self, ai_response: str, result: str) -> str:
-        return self.translate(f"Accuracy check: `{ai_response.strip()}` -> **{result.strip()}**")
+    def assert_acc(self, result: str) -> str:
+        return self.translate(f"Accuracy check: **{result}**")
 
     @lru_cache
     def action_plan(self, plan_text: str) -> str:
-        return self.translate(f"Action plan: `{plan_text.strip()}`")
+        return self.translate(f"Action plan: `{plan_text}`")
 
     @lru_cache
-    def x_reference(self, context: str) -> str:
-        return self.translate(f"Replacing X-References: `{context.strip()}`")
+    def x_reference(self) -> str:
+        return self.translate(f"Looking for X-References…")
 
     # Warnings and alerts
 

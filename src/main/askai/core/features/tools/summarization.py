@@ -12,17 +12,20 @@ from askai.core.support.utilities import display_text
 from askai.exception.exceptions import DocumentsNotFound
 
 
-def summarize(folder: str, glob: str) -> Optional[str]:
-    """Summarize files and folders."""
+def summarize(base_folder: str, glob: str) -> Optional[str]:
+    """Summarize files and folders.
+    :param base_folder: The base folder to be summarized.
+    :param glob: The glob to match the files to be summarized.
+    """
     try:
         glob = ensure_startswith(glob, '**/')
-        if not summarizer.exists(folder, glob):
-            if not summarizer.generate(folder, glob):
+        if not summarizer.exists(base_folder, glob):
+            if not summarizer.generate(base_folder, glob):
                 return msg.summary_not_possible()
         else:
-            summarizer.folder = folder
+            summarizer.folder = base_folder
             summarizer.glob = glob
-            log.info("Reusing persisted summarized content: '%s/%s'", folder, glob)
+            log.info("Reusing persisted summarized content: '%s/%s'", base_folder, glob)
         output = _qna()
     except (FileNotFoundError, ValueError, DocumentsNotFound) as err:
         output = msg.summary_not_possible(err)

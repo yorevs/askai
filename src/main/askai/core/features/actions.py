@@ -56,7 +56,7 @@ class Actions(metaclass=Singleton):
         """Return an 'os.linesep' separated string list of feature descriptions."""
         doc_strings: str = ''
         for fn in self._all.values():
-            doc_strings += f"{dedent(fn.__doc__)}\n{'-' * 18}\n" if fn and fn.__doc__ else ''
+            doc_strings += f"```{dedent(fn.__doc__)}```\n\n" if fn and fn.__doc__ else ''
         return doc_strings
 
     def _human_approval(self) -> bool:
@@ -71,38 +71,38 @@ class Actions(metaclass=Singleton):
     def unintelligible(self, *args: str) -> None:
         """
         Tool: 'Unintelligible Question Handler'
-        Description: Implement this feature when a user's question is unclear or difficult to comprehend.
+        Description: Use this tool when a user's question is unclear or difficult to comprehend.
         Usage: 'unintelligible(question, reason)'
-          - `question` The question posed by the user that is considered unintelligible.
-          - `reason` Explanation of why the question is deemed unintelligible.
+          param `question`: The question posed by the user that is considered unintelligible.
+          param `reason`: Explanation of why the question is deemed unintelligible.
         """
         raise UnintelligibleQuery(f"{args[1]}: '{args[0]}'")
 
     def terminate(self, *args: str) -> None:
         """
         Tool: 'Terminating Intention Handler'
-        Description: Employ this feature when the user decides to conclude the interaction. This function ensures a
+        Description: Use this tool when the user decides to conclude the interaction. This function ensures a
         smooth and clear ending to the session, confirming user intent to terminate the dialogue.
-        Usage: 'terminate()'.
+        Usage: 'terminate()'
         """
         raise TerminatingQuery('')
 
     def impossible(self, *args: str) -> None:
         """
         Tool: 'Impossible Action or Plan'
-        Description: This feature should be used when an action or plan is unfeasible or cannot be executed.
-        Usage: 'impossible(reason)'.
-          - `reason` A description of why the action or plan is impossible to implement.
+        Description: This tool should be used when an action or plan is unfeasible or cannot be executed.
+        Usage: 'impossible(reason)'
+          param `reason`: A description of why the action or plan is impossible to implement.
         """
         raise ImpossibleQuery(' '.join(args))
 
     def terminal(self, *args: str) -> str:
         """
         Tool: 'Execute Terminal Commands'
-        Description: Utilize this feature to run commands directly in various terminal environments. This feature is particularly useful when other specific tools or features do not meet your requirements. Use this feature also when you haven't found any other feature that matches the desired action from the user.
-        Usage: 'terminal(term_type, command)'
-          - `term_type` A string that specifies the type of terminal environment (e.g., bash, zsh, powershell, etc.).
-          - `command` The actual commands you wish to execute in the terminal.
+        Description: Use this tool to execute commands directly in the user terminal or process user-provided commands efficiently. Pay special attention to properly handling and escaping single or double quotes passed in the command parameters. Fix any syntax errors if you find any.
+        Usage: 'terminal(shell_type, command)'
+          param `shell_type`: A string that specifies the type of terminal environment (e.g., bash, zsh, powershell, etc.).
+          param `command`: The actual commands you wish to execute in the terminal.
         """
         # TODO Check for permission before executing
         return execute_command(args[0], args[1])
@@ -110,80 +110,74 @@ class Actions(metaclass=Singleton):
     def list_contents(self, *args: str) -> str:
         """
         Tool: 'List Folder Contents'
-        Description: This feature is designed for retrieving and displaying the contents of a specified folder. It is useful for quickly assessing the files and subdirectories within any directory.
+        Description: This tool is designed for retrieving and displaying the contents of a specified folder. It is useful for quickly assessing the files and subdirectories within any directory.
         Usage: 'list_contents(folder)'
-          - `folder`: A string representing the name of the directory whose contents you wish to list.
-        Example: To list the contents of the HomeSetup docs folder, use: `list_contents('~/HomeSetup/docs')`.
+          param `folder`: A string representing the name of the directory whose contents you wish to list.
         """
         return list_contents(args[0])
 
     def open_command(self, *args: str) -> str:
         """
         Tool: 'Open files, folders, and applications'
-        Description: This feature is used to open any file, folder, or application on your system.
+        Description: This tool is used to open any file, folder, or application on your system.
         Usage: 'open_command(pathname)'
-          - `pathname` The file, folder or application name.
+          param `pathname`: The file, folder or application name.
         """
         return open_command(args[0])
 
     def check_output(self, *args: str) -> str:
         """
         Tool: 'Check Output'
-        Description: This function should be used after executing a command that generates an output. It is useful for
-        situations where the output of one function is needed as input in subsequent calls.
+        Description: This tool should be invoked after a command that produces an output to leverage that output as input for subsequent function calls, optimizing workflow continuity and efficiency.
         Usage: `check_output(question)`
-          - `question`: The query from the user.
+          param `question`: The query from the user.
         """
         return check_output(args[0], args[1])
 
     def final_answer(self, *args: str) -> str:
         """
         Tool: 'Final answer provider'
-        Description: Use this tool to provide the final answer to the user. This tool is also useful when you need to
-        engage in a casual conversation with the user. Well-known facts and queries that does not require any tools for
-        retrieval, should be addressed using the 'final_answer' tool,
+        Description: Use this tool to deliver the final response to user inquiries. It is ideal for casual interactions, responding to well-known facts, or when a definitive answer is ready for the user's question.
         Usage: `final_answer(question, answer)`
-          - `question`: The user question.
-          - `answer`: The final answer you have.
+          param `question`: The user question.
+          param `answer`: The final answer you have.
         """
         return final_answer(args[0], args[1])
 
     def browse(self, *args: str) -> str:
         """
         Tool: 'Internet Browsing'
-        Description: Utilize this feature to obtain information on current events or recent developments. It's
-        particularly useful for up-to-date news inquiries or when fresh data is needed quickly.
+        Description: Use this tool to stay updated on the latest news and current events, particularly when you need real-time information quickly. This tool is ideal for acquiring fresh data but should not be used for queries about common knowledge.
         Usage: 'browse(search_query)'
-          - `search_query`: The web search query in string format.
+          param `search_query`: The web search query in string format.
         """
         return browse(args[0])
 
     def display(self, *args: str) -> str:
         """
         Tool: 'display'
-        Description: Use this function to display plain text. It is designed solely for display purposes and not for fetching or processing data.
-        Usage: 'display(text, ...)'
-          - `text`: The comma separated list of texts to be displayed.
+        Description: Use this tool to display text. It is intended only for displaying purposes and is not equipped for data retrieval or processing tasks.
+        Usage: 'display(texts, ...)'
+          param `texts`: The comma separated list of texts to be displayed.
         """
         return display(*args[:-1])
 
     def summarize_files(self, *args: str) -> str:
         """
         Tool: 'Summarization of Files and Folders'
-        Description: This feature is designed to efficiently summarize the contents of files and folders. It should be
-        activated specifically when requests for summarizations or analogous operations are explicitly made.
+        Description: Use this tool to efficiently summarize the contents of files and folders, activating only upon explicit requests for summarization or related tasks.
         Usage: summarize_files(folder_name, path_wildcard)
-          - `folder_name`: Name of the directory containing the files.
-          - `path_wildcard`: Glob pattern to specify files within the folder for summarization.
+          param `folder_name`: Name of the directory containing the files.
+          param `path_wildcard`: Glob pattern to specify files within the folder for summarization.
         """
         return summarize(args[0], args[1])
 
     def describe_image(self, *args: str) -> str:
         """
         Tool: 'Image Analysis'
-        Description: This feature is applicable when there is a need to describe or analyze an image.
+        Description: This tool is specifically designed for tasks that require the description or analysis of visual content in images.
         Usage: describe_image(image_path)
-          - `image_path`: The file path of the image to be analyzed.
+          param `image_path`: The file path of the image to be analyzed.
         """
         return str(NotImplementedError("Feature 'describe_image' is not yet implemented !"))
 
