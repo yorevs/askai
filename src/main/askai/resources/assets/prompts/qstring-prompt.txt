@@ -7,7 +7,9 @@ Do not use markdown to format the response message. Use plain text.
 
 ######
 
-'''{context}'''
+Context:
+
+{context}
 
 
 Question: "{question}"

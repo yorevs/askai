@@ -84,12 +84,20 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"Analysing the output…")
 
     @lru_cache
+    def analysis_done(self, ai_response: str) -> str:
+        return self.translate(f"Here is what I found: '{ai_response}'")
+
+    @lru_cache
     def assert_acc(self, ai_response: str, result: str) -> str:
         return self.translate(f"Accuracy check: `{ai_response.strip()}` -> **{result.strip()}**")
 
     @lru_cache
     def action_plan(self, plan_text: str) -> str:
         return self.translate(f"Action plan: `{plan_text.strip()}`")
+
+    @lru_cache
+    def x_reference(self, context: str) -> str:
+        return self.translate(f"Replacing X-References: `{context.strip()}`")
 
     # Warnings and alerts
 

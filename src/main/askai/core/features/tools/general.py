@@ -1,6 +1,5 @@
 import logging as log
 import os
-import re
 from typing import Optional
 
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -16,7 +15,7 @@ from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 
 
-def fetch(question: str) -> Optional[str]:
+def final_answer(question: str, answer: str) -> Optional[str]:
     """Fetch the information from the AI Database."""
     template = PromptTemplate(input_variables=[
         'user', 'idiom', 'datetime', 'question'
@@ -29,7 +28,7 @@ def fetch(question: str) -> Optional[str]:
 
     chat_prompt = ChatPromptTemplate.from_messages([("system", "{context}\n\n{query}")])
     chain = create_stuff_documents_chain(lc_llm.create_chat_model(), chat_prompt)
-    context = [Document(ctx)]
+    context = [Document(str(ctx))]
 
     output = chain.invoke({"query": final_prompt, "context": context})
     if output and shared.UNCERTAIN_ID not in output:
@@ -42,11 +41,12 @@ def fetch(question: str) -> Optional[str]:
     return text_formatter.ensure_ln(output)
 
 
-def display(*texts: str) -> Optional[str]:
-    """Display the given texts formatted with markdown."""
-    output: str = os.linesep.join(texts)
-    # If we display the cross-reference, we will confuse the AI.
-    if not re.match(r'^%[a-zA-Z0-9_-]+%$', output):
+def display(*texts: str) -> str:
+    """Display the given texts formatted with markdown.
+    :param texts: The texts to be displayed.
+    """
+    if output := os.linesep.join(texts):
+        # If we display the cross-reference, we will confuse the AI.
         shared.context.push("CONTEXT", output, 'assistant')
 
-    return output
+    return output or 'Error: There is nothing to be displayed!'

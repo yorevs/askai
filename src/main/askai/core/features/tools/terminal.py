@@ -4,17 +4,19 @@ from functools import partial
 from os.path import expandvars
 from pathlib import Path
 from shutil import which
-from typing import Optional, Tuple
+from typing import Tuple
 
 from clitt.core.term.terminal import Terminal
 from hspylib.modules.application.exit_status import ExitStatus
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
+from askai.core.features.tools.analysis import replace_x_refs
+from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_path, media_type_of
 
 
-def list_contents(folder: str) -> Optional[str]:
+def list_contents(folder: str) -> str:
     """List the contents of a folder.
     :param folder: The folder to list contents from.
     """
@@ -25,17 +27,26 @@ def list_contents(folder: str) -> Optional[str]:
             if not output:
                 return f"Folder {folder} is empty!"
             return f"Showing the contents of `{folder}`: \n{output}"
-    return None
+
+    return f"Error: Could not list folder '{folder}'!"
 
 
-def open_command(pathname: str) -> Optional[str]:
+def open_command(pathname: str) -> str:
     """Open the specified path, regardless if it's a file, folder or application.
     :param pathname: The file path to open.
     """
     posix_path = Path(f"{pathname.replace('~', os.getenv('HOME'))}")
 
+    if not posix_path.exists():
+        # Attempt to resolve cross-references
+        if history := str(shared.context.flat('CONTEXT') or ''):
+            if x_referenced := replace_x_refs(pathname, history):
+                x_referenced = Path(f"{x_referenced.replace('~', os.getenv('HOME'))}")
+                posix_path = x_referenced if x_referenced.exists() else posix_path
+
     if posix_path.exists():
         # find the best app to open the file.
+        pathname: str = str(posix_path)
         match media_type_of(pathname):
             case ('audio', _) | ('video', _):
                 fn_open = partial(_execute_bash, f'ffplay -v 0 -autoexit {pathname} &>/dev/null')
@@ -48,10 +59,11 @@ def open_command(pathname: str) -> Optional[str]:
             if not output:
                 return f"`{pathname}` was successfully opened!"
             return output
-    return None
+
+    return f"Error: Could not open '{pathname}'!"
 
 
-def execute_command(shell: str, command: str) -> Optional[str]:
+def execute_command(shell: str, command: str) -> str:
     """Execute a terminal command using the specified language.
     :param shell: The shell type to be used.
     :param command: The command line to be executed.
@@ -65,10 +77,10 @@ def execute_command(shell: str, command: str) -> Optional[str]:
         case _:
             raise NotImplementedError(f"'{shell}' is not supported!")
 
-    return output
+    return output or 'Error: Nothing has been executed!'
 
 
-def _execute_bash(command_line: str) -> Tuple[bool, Optional[str]]:
+def _execute_bash(command_line: str) -> Tuple[bool, str]:
     """Execute the provided command line using bash.
     :param command_line: The command line to be executed in bash.
     """
@@ -89,8 +101,8 @@ def _execute_bash(command_line: str) -> Tuple[bool, Optional[str]]:
                 output = msg.cmd_success(command_line, exit_code)
             else:
                 output = f"\n```bash\n{output}\n```"
-                # shared.context.push("CONTEXT", f"Please execute `{command_line}`", 'assistant')
-                # shared.context.push("CONTEXT", output)
+                shared.context.push("CONTEXT", f"Please execute `{command_line}`", 'assistant')
+                shared.context.push("CONTEXT", output)
             status = True
         else:
             log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), command)

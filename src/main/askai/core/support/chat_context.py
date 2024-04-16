@@ -16,6 +16,8 @@ from functools import reduce
 from typing import Any, List, Literal, Optional, TypeAlias
 
 from hspylib.core.zoned_datetime import now
+from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
 from askai.exception.exceptions import TokenLengthExceeded
 
@@ -31,20 +33,22 @@ ContextEntry = namedtuple("ContextEntry", ["created_at", "role", "content"], ren
 class ChatContext:
     """Provide a chat context helper for AI engines."""
 
+    LANGCHAIN_ROLE_MAP: dict = {"human": HumanMessage, "system": SystemMessage, "assistant": AIMessage}
+
     def __init__(self, token_limit: int):
-        self._context: dict[Any, list] = defaultdict(list)
+        self._store: dict[Any, list] = defaultdict(list)
         self._token_limit: int = token_limit * 1024  # The limit is given in KB
 
     def __str__(self):
-        return os.linesep.join(f"'{k}': '{v}'" for k, v in self._context.items())
+        return os.linesep.join(f"'{k}': '{v}'" for k, v in self._store.items())
 
     def __getitem__(self, key) -> List[ContextEntry]:
-        return self._context[key]
+        return self._store[key]
 
     def push(self, key: str, content: Any, role: ChatRoles = "human") -> ContextRaw:
         """Push a context message to the chat with the provided role."""
         entry = ContextEntry(now(), role, str(content))
-        ctx = self._context[key]
+        ctx = self._store[key]
         token_length = reduce(lambda total, e: total + len(e.content), ctx, 0) if len(ctx) > 0 else 0
         if (token_length := token_length + len(content)) > self._token_limit:
             raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
@@ -59,7 +63,7 @@ class ChatContext:
     def remove(self, key: str, index: int) -> Optional[str]:
         """Remove a context message from the chat at the provided index."""
         val = None
-        if ctx := self._context[key]:
+        if ctx := self._store[key]:
             if index < len(ctx):
                 val = ctx[index]
                 del ctx[index]
@@ -67,7 +71,7 @@ class ChatContext:
 
     def get(self, key: str) -> ContextRaw:
         """Retrieve a context from the specified by key."""
-        return [{"role": ctx.role, "content": ctx.content} for ctx in self._context[key]] or []
+        return [{"role": ctx.role, "content": ctx.content} for ctx in self._store[key]] or []
 
     def join(self, *keys: str) -> LangChainContext:
         """Join contexts specified by keys."""
@@ -83,21 +87,26 @@ class ChatContext:
                 list(map(context.append, [(t['role'], t['content']) for t in ctx]))
         return context
 
-    def flat(self, *keys: str) -> str:
+    def flat(self, *keys: str) -> ChatMessageHistory:
         """Flatten contexts specified by keys."""
-        return os.linesep.join([f"\n{ctx[0].upper()}\n{ctx[1]}" for ctx in self.join(*keys)])
+        history = ChatMessageHistory()
+        flatten: LangChainContext = self.join(*keys)
+        for ctx_entry in flatten:
+            mtype = self.LANGCHAIN_ROLE_MAP[ctx_entry[0]]
+            history.add_message(mtype(ctx_entry[1]))
+        return history
 
     def clear(self, *keys: str) -> int:
         """Clear the all the chat context specified by key."""
         for key in keys:
-            if self._context[key]:
-                del self._context[key]
-        return len(self._context)
+            if self._store[key]:
+                del self._store[key]
+        return len(self._store)
 
     def forget(self) -> None:
         """Forget all entries pushed to the chat context."""
-        del self._context
-        self._context = defaultdict(list)
+        del self._store
+        self._store = defaultdict(list)
 
 
 if __name__ == '__main__':
@@ -106,4 +115,4 @@ if __name__ == '__main__':
     c.push("TESTE", 'What is the size of the moon?', 'assistant')
     c.push("TESTE", 'Who are you?')
     c.push("TESTE", "I'm Taius, you digital assistant", 'assistant')
-    print(c.join("TESTE"))
+    print(c.flat("TESTE"))

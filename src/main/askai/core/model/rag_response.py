@@ -34,7 +34,7 @@ class RagResponse(Enumeration):
 
     @classmethod
     def _re(cls) -> str:
-        return rf"({'|'.join(cls.values())}),(.+)"
+        return rf"(^{'|'.join(cls.values())})[:,-]\s*(.+)"
 
     @classmethod
     def strip_code(cls, message: str) -> str:
