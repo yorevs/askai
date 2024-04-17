@@ -45,7 +45,7 @@ from askai.core.support.chat_context import ChatContext
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
-from askai.exception.exceptions import ImpossibleQuery, UnintelligibleQuery, TerminatingQuery, MaxInteractionsReached, \
+from askai.exception.exceptions import ImpossibleQuery, TerminatingQuery, MaxInteractionsReached, \
     InaccurateResponse
 
 
@@ -249,7 +249,7 @@ class AskAi:
             else:
                 log.debug("Reply found for '%s' in cache.", question)
                 self.reply(reply)
-        except (NotImplementedError, ImpossibleQuery, UnintelligibleQuery) as err:
+        except (NotImplementedError, ImpossibleQuery) as err:
             self.reply_error(str(err))
         except (MaxInteractionsReached, InaccurateResponse) as err:
             self.reply_error(msg.unprocessable(str(err)))

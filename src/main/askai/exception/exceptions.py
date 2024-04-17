@@ -68,10 +68,5 @@ class ImpossibleQuery(HSBaseException):
     """Raised when tracing or executing an action plan is/was not possible."""
 
 
-class UnintelligibleQuery(HSBaseException):
-    """Raised when received an intelligible question."""
-
-
 class TerminatingQuery(HSBaseException):
     """Raised when received a terminating question."""
-

@@ -69,7 +69,7 @@ class Router(metaclass=Singleton):
             chat_prompt = ChatPromptTemplate.from_messages([
                 ("system", final_prompt),
                 MessagesPlaceholder("chat_history", optional=True),
-                ("human", "{input}\n\n (reminder to respond use at least one tool and not to respond directly)'")])
+                ("human", "{input}\n\n (Reminder to ALWAYS respond with a valid list of tools. Always use tools. Respond directly using 'display' tool if appropriate. Refer to the tool description and usage.)'")])
             runnable = chat_prompt | lc_llm.create_chat_model()
             chain = RunnableWithMessageHistory(
                 runnable, shared.context.flat,

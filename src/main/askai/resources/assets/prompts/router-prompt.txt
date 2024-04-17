@@ -25,12 +25,4 @@ ASSISTANT:
 4. check_output('What should I do first?')
 ```
 
-```
-USER
-find . -maxdepth 0 -iname "reminder.txt"
-
-ASSISTANT:
-1. terminal('bash', 'find . -maxdepth 0 -iname \"reminder.txt\"')
-```
-
-Begin! Remember to provide a list of tools and also to use the 'final_answer' tool to provide definitive responses to user inquiries, engage in casual conversation to maintain user engagement, and respond to well-known facts to enhance interaction quality.
+Begin! Reminder to ALWAYS respond with a valid list of tools. Always use tools. Respond directly using 'display' tool if appropriate. Refer to the tool description and usage.

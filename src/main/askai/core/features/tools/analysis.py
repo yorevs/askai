@@ -49,7 +49,7 @@ def assert_accuracy(question: str, ai_response: str) -> str:
             status, reason = mat.group(1), mat.group(2)
             log.info("Accuracy check  status: '%s'  reason: '%s'", status, reason)
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity='debug')
-            if RagResponse.of_value(status.strip()).is_bad:
+            if RagResponse.of_status(status).is_bad:
                 shared.context.push("CONTEXT", ASSERT_MSG.substitute(reason='A BAD'))
                 raise InaccurateResponse(RagResponse.strip_code(output))
             return ai_response

@@ -13,7 +13,7 @@ from askai.core.features.tools.browser import browse
 from askai.core.features.tools.general import final_answer, display
 from askai.core.features.tools.summarization import summarize
 from askai.core.features.tools.terminal import execute_command, list_contents, open_command
-from askai.exception.exceptions import ImpossibleQuery, UnintelligibleQuery, TerminatingQuery
+from askai.exception.exceptions import ImpossibleQuery, TerminatingQuery
 
 
 class Actions(metaclass=Singleton):
@@ -68,16 +68,6 @@ class Actions(metaclass=Singleton):
 
         return self._approved
 
-    def unintelligible(self, *args: str) -> None:
-        """
-        Tool: 'Unintelligible Question Handler'
-        Description: Use this tool when a user's question is unclear or difficult to comprehend.
-        Usage: 'unintelligible(question, reason)'
-          param `question`: The question posed by the user that is considered unintelligible.
-          param `reason`: Explanation of why the question is deemed unintelligible.
-        """
-        raise UnintelligibleQuery(f"{args[1]}: '{args[0]}'")
-
     def terminate(self, *args: str) -> None:
         """
         Tool: 'Terminating Intention Handler'
@@ -86,15 +76,6 @@ class Actions(metaclass=Singleton):
         Usage: 'terminate()'
         """
         raise TerminatingQuery('')
-
-    def impossible(self, *args: str) -> None:
-        """
-        Tool: 'Impossible Action or Plan'
-        Description: This tool should be used when an action or plan is unfeasible or cannot be executed.
-        Usage: 'impossible(reason)'
-          param `reason`: A description of why the action or plan is impossible to implement.
-        """
-        raise ImpossibleQuery(' '.join(args))
 
     def terminal(self, *args: str) -> str:
         """
@@ -134,7 +115,7 @@ class Actions(metaclass=Singleton):
         """
         return check_output(args[0], args[1])
 
-    def final_answer(self, *args: str) -> str:
+    def _final_answer(self, *args: str) -> str:
         """
         Tool: 'Final answer provider'
         Description: Use this tool to deliver the final response to user inquiries. It is ideal for casual interactions, responding to well-known facts, or when a definitive answer is ready for the user's question.
@@ -147,7 +128,7 @@ class Actions(metaclass=Singleton):
     def browse(self, *args: str) -> str:
         """
         Tool: 'Internet Browsing'
-        Description: Use this tool to stay updated on the latest news and current events, particularly when you need real-time information quickly. This tool is ideal for acquiring fresh data but should not be used for queries about common knowledge.
+        Description: Use this tool to stay updated on the latest news and current events, particularly when you need real-time information quickly. This tool is ideal for acquiring fresh data but should not be used for queries about well-known facts.
         Usage: 'browse(search_query)'
           param `search_query`: The web search query in string format.
         """
@@ -162,13 +143,13 @@ class Actions(metaclass=Singleton):
         """
         return display(*args[:-1])
 
-    def summarize_files(self, *args: str) -> str:
+    def summarize(self, *args: str) -> str:
         """
-        Tool: 'Summarization of Files and Folders'
-        Description: Use this tool to efficiently summarize the contents of files and folders, activating only upon explicit requests for summarization or related tasks.
-        Usage: summarize_files(folder_name, path_wildcard)
+        Tool: 'Summarization tool'
+        Description: Use this tool to create summary the contents of files and folders. ONLY USE THIS TOOL WHEN THE TERM 'SUMMARIZE' OR ITS SYNONYMS ARE EXPLICITLY MENTIONED IN THE USER'S QUESTION.
+        Usage: summarize(folder_name, glob)
           param `folder_name`: Name of the directory containing the files.
-          param `path_wildcard`: Glob pattern to specify files within the folder for summarization.
+          param `glob`: Glob pattern to specify files within the folder for summarization.
         """
         return summarize(args[0], args[1])
 

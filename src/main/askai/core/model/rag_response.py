@@ -42,6 +42,10 @@ class RagResponse(Enumeration):
         mat = cls.matches(message)
         return str(mat.group(2)).strip() if mat else message
 
+    @classmethod
+    def of_status(cls, status: str) -> 'RagResponse':
+        return cls.of_value(status.title())
+
 
 if __name__ == '__main__':
     print(RagResponse.values())
