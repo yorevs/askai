@@ -15,10 +15,10 @@ from askai.core.support.text_formatter import text_formatter
 from askai.exception.exceptions import InaccurateResponse
 
 ASSERT_MSG: Template = Template(
-    "The AI provided a bad answer\n"
-    "Please try again improving your response. Address the following problems: \n"
-    "'{reason}'.\n"
-    "(Reminder to respond using at least one tool, stick to the tools syntax and avoid responding directly).\n"
+    "You (AI) provided an unsatisfactory answer. Please enhance your response in the next attempt. \n\n"
+    "Address these issues: \n\n"
+    "'{problems}'\n\n"
+    "(Remember to use at least one tool in your response, adhere to tool syntax, and refrain from direct responses).\n"
 )
 
 
