@@ -42,17 +42,19 @@ class Router(metaclass=Singleton):
     def _route(question: str, actions: list[str]) -> Optional[str]:
         """Route the actions to the proper function invocations."""
         max_iteraction: int = 20  # TODO Move to configs
-        result: str = ''
+        last_result: str = ''
+        accumulated: list[str] = []
         for idx, action in enumerate(actions):
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{action}`", verbosity='debug')
             if idx > max_iteraction:
                 AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
                 raise MaxInteractionsReached(f"Maximum number of action was reached")
-            if not (result := features.invoke(action, result)):
+            if not (last_result := features.invoke(action, last_result)):
                 log.warning("Last result brought an empty response for '%s'", action)
                 break
+            accumulated.append(f"AI Response: {last_result}")
 
-        return assert_accuracy(question, result)
+        return assert_accuracy(question, os.linesep.join(accumulated))
 
     def process(self, query: str) -> Optional[str]:
         """Process the user query and retrieve the final response."""

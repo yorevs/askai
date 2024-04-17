@@ -17,9 +17,10 @@ from askai.core.support.text_formatter import text_formatter
 from askai.exception.exceptions import InaccurateResponse
 
 ASSERT_MSG: Template = Template(
-    "The AI provided {reason} answer\n"
-    "Please try again improving your response. Address the problems above.\n(Reminder "
-    "to respond using at least one tool, stick to the tools syntax and avoid responding directly).\n"
+    "The AI provided a bad answer\n"
+    "Please try again improving your response. Address the following problems: \n"
+    "'{reason}'.\n"
+    "(Reminder to respond using at least one tool, stick to the tools syntax and avoid responding directly).\n"
 )
 
 
@@ -31,14 +32,14 @@ def assert_accuracy(question: str, ai_response: str) -> str:
     if ai_response in msg.accurate_responses:
         return ai_response
     elif not ai_response:
-        reason = ASSERT_MSG.substitute(reason='AN EMPTY')
+        reason = ASSERT_MSG.substitute(reason='AI provided AN EMPTY response')
         shared.context.push("CONTEXT", reason)
         raise InaccurateResponse(f"AI Assistant didn't respond accurately => 'EMPTY'")
 
     template = PromptTemplate(
-        input_variables=['response', 'question'],
+        input_variables=['response', 'input'],
         template=prompt.read_prompt('ryg-prompt'))
-    final_prompt = template.format(response=ai_response, question=question)
+    final_prompt = template.format(response=ai_response, input=question)
     log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
     response: AIMessage = llm.invoke(final_prompt)
@@ -50,8 +51,9 @@ def assert_accuracy(question: str, ai_response: str) -> str:
             log.info("Accuracy check  status: '%s'  reason: '%s'", status, reason)
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity='debug')
             if RagResponse.of_status(status).is_bad:
-                shared.context.push("CONTEXT", ASSERT_MSG.substitute(reason='A BAD'))
-                raise InaccurateResponse(RagResponse.strip_code(output))
+                reason = RagResponse.strip_code(output)
+                shared.context.push("CONTEXT", ASSERT_MSG.substitute(reason=reason))
+                raise InaccurateResponse(reason)
             return ai_response
 
     raise InaccurateResponse(f"AI Assistant didn't respond accurately => '{response.content}'")

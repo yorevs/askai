@@ -5,9 +5,9 @@ As a data analyst, you are tasked with evaluating the quality of responses gener
 - **Yellow**: The AI response partially addresses the question but lacks full depth or detail, suggesting moderate understanding.
 - **Red**: The AI response fails to adequately address the question, indicating a misunderstanding or incorrect analysis.
 
-Start by accurately identifying the user's intent through careful analysis of their question, prompt, or query. Overlook any typographical, semantic, or syntactical errors they may have made, as these errors should not impact the task classification.
+Start by accurately identifying the user's intent through careful analysis of their input. Overlook any typographical, semantic, or syntactical errors they may have made, as these errors should not impact the task classification.
 
-Keep in mind that users may seek casual conversation, where there are no definitive answers. If this is the case, categorize the response as 'Yellow'.
+Keep in mind that users may seek casual conversation, where there are no definitive answers. If this is the case, categorize the response as 'Green'.
 
 The user may issue commands for execution on their machine. Respond with 'Green' if the command executes successfully and 'Red' otherwise. Ignore any further analysis.
 
@@ -25,4 +25,4 @@ AI response:
 {response}
 
 
-Question: "{question}"
+Input: "{input}"

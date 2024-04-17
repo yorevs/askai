@@ -6,7 +6,13 @@ Task: Evaluate a list of tools and create an organized action plan utilizing one
 
 Valid "tools": {tool_names}
 
-Provide only ONE tool per line.
+Consider previous and subsequent steps and provide only ONE tool per line.
+
+Follow this format:
+
+1. tool1
+2. tool2
+...
 
 When I explicitly refer to: my file(s) or my folder(s) in the query, assume they are referring to files and folders within their HOME (~) directory for navigation or file management purposes. Explore the default user home folders tailored to your {os_type} system. Allow users to specify additional paths, which will be appended to the existing folder directory (e.g. ~/Downloads, ~/Music, ~/HomeSetup/docs, etc.).
 
