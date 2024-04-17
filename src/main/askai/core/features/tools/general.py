@@ -1,6 +1,5 @@
 import logging as log
 import os
-from typing import Optional
 
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import PromptTemplate
@@ -13,7 +12,7 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 
 
-def display(*texts: str) -> Optional[str]:
+def display(*texts: str) -> str:
     """Display the given texts formatted with markdown.
     :param texts: The texts to be displayed.
     """

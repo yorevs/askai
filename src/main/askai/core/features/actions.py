@@ -11,6 +11,7 @@ from askai.core.askai_messages import msg
 from askai.core.features.tools.analysis import check_output
 from askai.core.features.tools.browser import browse
 from askai.core.features.tools.general import display
+from askai.core.features.tools.generation import generate_content
 from askai.core.features.tools.summarization import summarize
 from askai.core.features.tools.terminal import execute_command, list_contents, open_command
 from askai.exception.exceptions import ImpossibleQuery, TerminatingQuery
@@ -43,7 +44,7 @@ class Actions(metaclass=Singleton):
             if tool_fn := re.findall(r'([a-zA-Z]\w+)\s*\((.*)\)', tool.strip()):
                 fn_name = tool_fn[0][0].lower()
                 fn = self._all[fn_name]
-                args: list[str] = re.sub("['\"]", '', tool_fn[0][1]).split(',')
+                args: list[str] = re.split(r'(?!\\),', tool_fn[0][1], re.MULTILINE)
                 args.append(context)
                 return fn(*list(map(str.strip, args)))
         except KeyError as err:
@@ -104,7 +105,7 @@ class Actions(metaclass=Singleton):
           param `mime_type`: Specify the content type and format using MIME types.
           param `path_name`: Specify the directory path where you want to save the generated content. This parameter is optional and should be included only if you wish to save files directly to your disk. If not specified, the content will not be saved.
         """
-        return str(NotImplementedError("Tool 'generate_content' is not yet implemented !"))
+        return generate_content(args[0], args[1], args[2])
 
     def display(self, *args: str) -> str:
         """
@@ -146,7 +147,7 @@ class Actions(metaclass=Singleton):
     def terminal(self, *args: str) -> str:
         """
         Tool: 'Terminal Tool'
-        Description: Use this tool to execute commands directly in the user terminal or process user-provided commands efficiently. Pay special attention to properly handling and escaping single or double quotes passed in the command parameters. Fix any syntax errors if you find any.
+        Description: Use this tool to execute commands directly in the user terminal or process user-provided commands efficiently. Fix any syntax errors if you find any.
         Usage: 'terminal(shell_type, command)'
           param `shell_type`: A string that specifies the type of terminal environment (e.g., bash, zsh, powershell, etc).
           param `command`: The actual commands you wish to execute in the terminal.

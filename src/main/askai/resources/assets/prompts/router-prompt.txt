@@ -20,7 +20,7 @@ When file(s) or folder(s) are not specified, assume operations are performed wit
 
 Do not use markdown to format the response. Use plain text only.
 
-Pay special attention to properly escaping single or double quotes passed in the tool parameters (e.g. \'*.py\', \"My Stuff\")).
+Please escape commas and single or double quotes passed in the tool parameters (e.g. \'*.py\', \"My\, good Stuff\").
 
 Please refer to the detailed examples below:
 
@@ -33,7 +33,7 @@ ASSISTANT:
 2. check_output("Is there any reminder in the list?")
 3. open_command('%cross_referenced_filenames%')
 4. check_output('What should I do first and next?')
-5. display('First, go to the doctor', 'Next, go to school')
+5. display('First, go to the doctor', 'Next, don\'t go to school')
 ```
 
 Begin!
