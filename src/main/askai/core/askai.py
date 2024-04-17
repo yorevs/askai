@@ -16,6 +16,7 @@ import logging as log
 import os
 import sys
 from functools import partial
+from pathlib import Path
 from threading import Thread
 from typing import List, Optional
 
@@ -26,7 +27,9 @@ from clitt.core.term.screen import screen
 from clitt.core.term.terminal import terminal
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import sysout, is_debugging
+from hspylib.core.tools.text_tools import elide_text
 from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.application.version import Version
 from hspylib.modules.eventbus.event import Event
 from langchain_core.prompts import PromptTemplate
 
@@ -37,6 +40,7 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
+from askai.core.component.geo_location import geo_location
 from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.openai.temperature import Temperature
@@ -86,17 +90,21 @@ class AskAi:
 
     def __str__(self) -> str:
         device_info = f"{recorder.input_device[1].title()}" if recorder.input_device else ""
+        dtm = f" {geo_location.datetime} "
+        cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, '…')
         return (
             f"%GREEN%"
-            f"{'-=' * 40} %EOL%"
+            f"AskAI v{Version.load(load_dir=classpath.source_path())} %EOL%"
+            f"{dtm.center(80, '=')} %EOL%"
             f"     Engine: {self.engine} %EOL%"
             f"   Language: {configs.language} %EOL%"
-            f"{'-+' * 40} %EOL%"
+            f"    WorkDir: {cur_dir} %EOL%"
+            f"{'-' * 80} %EOL%"
             f" Microphone: {device_info or '%RED%Undetected'} %GREEN%%EOL%"
             f"  Debugging: {'ON' if self.is_debugging else '%RED%OFF'} %GREEN%%EOL%"
             f"   Speaking: {'ON, tempo: ' + str(configs.tempo) if self.is_speak else '%RED%OFF'} %GREEN%%EOL%"
             f"    Caching: {'ON, TTL: ' + configs.ttl if cache.is_cache_enabled() else '%RED%OFF'} %GREEN%%EOL%"
-            f"{'-=' * 40} %EOL%%NC%"
+            f"{'=' * 80}%EOL%%NC%"
         )
 
     @property
