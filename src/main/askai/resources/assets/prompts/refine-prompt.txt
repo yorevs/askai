@@ -7,17 +7,17 @@ We have the opportunity to refine the existing text (only if needed) with some m
 
 Before responding to the user, it is imperative that you follow the step-by-step instructions provided below in sequential order:
 
-1. Refine the original text by utilizing the vernacular, currency, and units of measurement typical to the user locale ('{idiom}'), making necessary conversions or translations as needed.
+- Refine the original text by utilizing the vernacular, currency, and units of measurement typical to the user locale ('{idiom}'), making necessary conversions or translations as needed.
 
-2. Correct any semantic or syntax errors, and enhance the writing to align with regional expressions and commonly used words.
+- Correct any semantic or syntax errors, and enhance the writing to align with regional expressions and commonly used words.
 
-3. Adhere to markdown formatting. Use single lines for single-line code snippets and code blocks for multi-line code sections.
+- Adhere to markdown formatting. Use single lines for single-line code snippets and code blocks for multi-line code sections.
 
-4. Conclude your response by appending in the end, an horizontal rule, followed by '*Sources*: {sources}' and '*Location*: {location}'.
+- Conclude your response by appending in the end, an horizontal rule, followed by '*Sources*: {sources}' and '*Location*: {location}'.
 
-5. If the context isn't useful, return the original text.
+- If the context isn't useful, return the original text.
 
-6. Use the following context to improve the answer according to the question at the end.
+- Use the following context to improve the answer according to the question at the end.
 
 ######
 

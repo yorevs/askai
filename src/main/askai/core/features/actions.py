@@ -72,9 +72,10 @@ class Actions(metaclass=Singleton):
         """
         Tool: 'Terminating Intention Handler'
         Description: Use this tool when the user decides to conclude the interaction. This function ensures a smooth and clear ending to the session, confirming user intent to terminate the dialogue.
-        Usage: 'terminate()'
+        Usage: 'terminate(reason)'
+          param `reason`: A string indicating the reason for termination.
         """
-        raise TerminatingQuery('')
+        raise TerminatingQuery(args[0])
 
     def terminal(self, *args: str) -> str:
         """
@@ -98,8 +99,8 @@ class Actions(metaclass=Singleton):
 
     def open_command(self, *args: str) -> str:
         """
-        Tool: 'Open files, folders, and applications'
-        Description: This tool is used to open any file, folder, or application on your system.
+        Tool: 'Open or Show files, folders, and applications'
+        Description: This tool is used to open or show the contents of files, folders, or applications on my system.
         Usage: 'open_command(pathname)'
           param `pathname`: The file, folder or application name.
         """
@@ -108,7 +109,7 @@ class Actions(metaclass=Singleton):
     def check_output(self, *args: str) -> str:
         """
         Tool: 'Check Output'
-        Description: This tool should be invoked after a command that produces an output to leverage that output as input for subsequent function calls, optimizing workflow continuity and efficiency.
+        Description: Invoke this tool only after the output from a previous tool has been generated, to use that output as input for subsequent operations, thereby ensuring seamless workflow and enhanced efficiency.
         Usage: `check_output(question)`
           param `question`: The query from the user.
         """
@@ -126,8 +127,8 @@ class Actions(metaclass=Singleton):
     def display(self, *args: str) -> str:
         """
         Tool: 'display'
-        Description: Use this tool to display text. It is intended only for displaying purposes and is not equipped for data retrieval or processing tasks.
-        Usage: 'display(texts, ...)'
+        Description: Use this tool to display text. Please join subsequent display usages together in only one call as you can input a list of texts do be displayed.
+        Usage: 'display(text1, text2, ...)'
           param `texts`: The comma separated list of texts to be displayed.
         """
         return display(*args[:-1])
@@ -135,7 +136,7 @@ class Actions(metaclass=Singleton):
     def summarize(self, *args: str) -> str:
         """
         Tool: 'Summarization intent'
-        Description: Use this tool when the user explicitly requests summaries of their files and/or folders to enhance their understanding or management of the contents.
+        Description: Use this tool to display text. Consolidate subsequent display actions into a single call by inputting a list of texts.
         Usage: summarize(folder_name, glob)
           param `folder_name`: Name of the directory containing the files.
           param `glob`: Glob pattern to specify files within the folder for summarization.

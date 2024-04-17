@@ -6,19 +6,19 @@ Task: Evaluate a list of tools and create an organized action plan utilizing one
 
 Valid "tools": {tool_names}
 
-Consider previous and subsequent steps and provide only ONE tool per line.
+Consider previous and subsequent steps and provide only ONE tool invocation per line.
 
 Follow this format:
 
 1. tool1
 2. tool2
-...
+... (repeat tool N times)
 
 When I explicitly refer to: my file(s) or my folder(s) in the query, assume they are referring to files and folders within their HOME (~) directory for navigation or file management purposes. Explore the default user home folders tailored to your {os_type} system. Allow users to specify additional paths, which will be appended to the existing folder directory (e.g. ~/Downloads, ~/Music, ~/HomeSetup/docs, etc.).
 
 When file(s) or folder(s) are not specified, assume operations are performed within the current working directory.
 
-Do not use markdown to format the response messages. Use plain text.
+Do not use markdown to format the response. Use plain text only.
 
 Pay special attention to properly escaping single or double quotes passed in the tool parameters (e.g. \'*.py\', \"My Stuff\")).
 
@@ -32,7 +32,8 @@ ASSISTANT:
 1. list_contents('~/Downloads')
 2. check_output("Is there any reminder in the list?")
 3. open_command('%cross_referenced_filenames%')
-4. check_output('What should I do first?')
+4. check_output('What should I do first and next?')
+5. display('First, go to the doctor', 'Next, go to school')
 ```
 
 Begin!

@@ -39,7 +39,7 @@ def open_command(pathname: str) -> str:
 
     if not posix_path.exists():
         # Attempt to resolve cross-references
-        if history := str(shared.context.flat('CONTEXT') or ''):
+        if history := str(shared.context.flat('HISTORY') or ''):
             if x_referenced := replace_x_refs(pathname, history):
                 x_referenced = Path(f"{x_referenced.replace('~', os.getenv('HOME'))}")
                 posix_path = x_referenced if x_referenced.exists() else posix_path
@@ -101,8 +101,8 @@ def _execute_bash(command_line: str) -> Tuple[bool, str]:
                 output = msg.cmd_success(command_line, exit_code)
             else:
                 output = f"Command '{command_line}' succeeded: \n```bash\n{output}\n```"
-                shared.context.push("CONTEXT", f"Please execute `{command_line}`", 'assistant')
-                shared.context.push("CONTEXT", output)
+                shared.context.push("HISTORY", f"Please execute `{command_line}`", 'assistant')
+                shared.context.push("HISTORY", output)
             status = True
         else:
             log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), command)

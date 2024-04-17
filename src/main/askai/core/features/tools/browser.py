@@ -37,8 +37,8 @@ def browse(query: str) -> Optional[str]:
         else:
             output = internet.search_google(search)
             if output:
-                shared.context.push("CONTEXT", query)
-                shared.context.push("CONTEXT", output, "assistant")
+                shared.context.push("HISTORY", query)
+                shared.context.push("HISTORY", output, "assistant")
                 cache.save_reply(query, output)
             else:
                 output = msg.search_empty()

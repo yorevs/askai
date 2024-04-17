@@ -16,6 +16,7 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.features.actions import features
 from askai.core.features.tools.analysis import assert_accuracy
+from askai.core.features.tools.general import stt_response
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse, MaxInteractionsReached
@@ -38,24 +39,6 @@ class Router(metaclass=Singleton):
     def template(self) -> str:
         return prompt.read_prompt("router-prompt.txt")
 
-    @staticmethod
-    def _route(question: str, actions: list[str]) -> Optional[str]:
-        """Route the actions to the proper function invocations."""
-        max_iteraction: int = 20  # TODO Move to configs
-        last_result: str = ''
-        accumulated: list[str] = []
-        for idx, action in enumerate(actions):
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{action}`", verbosity='debug')
-            if idx > max_iteraction:
-                AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
-                raise MaxInteractionsReached(f"Maximum number of action was reached")
-            if not (last_result := features.invoke(action, last_result)):
-                log.warning("Last result brought an empty response for '%s'", action)
-                break
-            accumulated.append(f"AI Response: {last_result}")
-
-        return assert_accuracy(question, os.linesep.join(accumulated))
-
     def process(self, query: str) -> Optional[str]:
         """Process the user query and retrieve the final response."""
         @retry(exceptions=InaccurateResponse, tries=Router.MAX_RETRIES, delay=0, backoff=0)
@@ -77,7 +60,7 @@ class Router(metaclass=Singleton):
                 runnable, shared.context.flat,
                 input_messages_key="input", history_messages_key="chat_history",
             )
-            if response := chain.invoke({"input": query}, config={"configurable": {"session_id": "CONTEXT"}}):
+            if response := chain.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
                 actions: list[str] = re.sub(r'\d+[.:)-]\s+', '', response.content).split(os.linesep)
                 actions = list(filter(len, map(str.strip, actions)))
@@ -89,6 +72,31 @@ class Router(metaclass=Singleton):
             return output
 
         return _process_wrapper(query)
+
+    def _route(self, question: str, actions: list[str]) -> str:
+        """Route the actions to the proper function invocations."""
+        max_iteraction: int = 20  # TODO Move to configs
+        last_result: str = ''
+        accumulated: list[str] = []
+        for idx, action in enumerate(actions):
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{action}`", verbosity='debug')
+            if idx > max_iteraction:
+                AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
+                raise MaxInteractionsReached(f"Maximum number of action was reached")
+            if not (last_result := features.invoke(action, last_result)):
+                log.warning("Last result brought an empty response for '%s'", action)
+                break
+            accumulated.append(f"AI Response: {last_result}")
+
+        assert_accuracy(question, os.linesep.join(accumulated))
+
+        return self._final_answer(question, last_result)
+
+    def _final_answer(self, question: str, response: str) -> str:
+        """Provide a final answer to the user."""
+        # TODO For now we are just returning the response, but we can opt to use Taius, STT or no persona.
+        #return final_answer(question, response)
+        return stt_response(question, response)
 
 
 assert (router := Router().INSTANCE) is not None
