@@ -30,6 +30,6 @@ Composite:
 40 21 9 4 2 /Users/hjunior/Desktop/TechWeek/play-intro.sh
 
 
-
+find ~/HomeSetup -inme '*.py'
 
 

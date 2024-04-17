@@ -10,7 +10,7 @@ from hspylib.core.metaclass.singleton import Singleton
 from askai.core.askai_messages import msg
 from askai.core.features.tools.analysis import check_output
 from askai.core.features.tools.browser import browse
-from askai.core.features.tools.general import final_answer, display
+from askai.core.features.tools.general import display
 from askai.core.features.tools.summarization import summarize
 from askai.core.features.tools.terminal import execute_command, list_contents, open_command
 from askai.exception.exceptions import ImpossibleQuery, TerminatingQuery
@@ -71,8 +71,7 @@ class Actions(metaclass=Singleton):
     def terminate(self, *args: str) -> None:
         """
         Tool: 'Terminating Intention Handler'
-        Description: Use this tool when the user decides to conclude the interaction. This function ensures a
-        smooth and clear ending to the session, confirming user intent to terminate the dialogue.
+        Description: Use this tool when the user decides to conclude the interaction. This function ensures a smooth and clear ending to the session, confirming user intent to terminate the dialogue.
         Usage: 'terminate()'
         """
         raise TerminatingQuery('')
@@ -82,7 +81,7 @@ class Actions(metaclass=Singleton):
         Tool: 'Execute Terminal Commands'
         Description: Use this tool to execute commands directly in the user terminal or process user-provided commands efficiently. Pay special attention to properly handling and escaping single or double quotes passed in the command parameters. Fix any syntax errors if you find any.
         Usage: 'terminal(shell_type, command)'
-          param `shell_type`: A string that specifies the type of terminal environment (e.g., bash, zsh, powershell, etc.).
+          param `shell_type`: A string that specifies the type of terminal environment (e.g., bash, zsh, powershell, etc).
           param `command`: The actual commands you wish to execute in the terminal.
         """
         # TODO Check for permission before executing
@@ -115,16 +114,6 @@ class Actions(metaclass=Singleton):
         """
         return check_output(args[0], args[1])
 
-    def _final_answer(self, *args: str) -> str:
-        """
-        Tool: 'Final answer provider'
-        Description: Use this tool to deliver the final response to user inquiries. It is ideal for casual interactions, responding to well-known facts, or when a definitive answer is ready for the user's question.
-        Usage: `final_answer(question, answer)`
-          param `question`: The user question.
-          param `answer`: The final answer you have.
-        """
-        return final_answer(args[0], args[1])
-
     def browse(self, *args: str) -> str:
         """
         Tool: 'Internet Browsing'
@@ -145,8 +134,8 @@ class Actions(metaclass=Singleton):
 
     def summarize(self, *args: str) -> str:
         """
-        Tool: 'Summarization tool'
-        Description: Use this tool to create summary the contents of files and folders. ONLY USE THIS TOOL WHEN THE TERM 'SUMMARIZE' OR ITS SYNONYMS ARE EXPLICITLY MENTIONED IN THE USER'S QUESTION.
+        Tool: 'Summarization intent'
+        Description: Use this tool when the user explicitly requests summaries of their files and/or folders to enhance their understanding or management of the contents.
         Usage: summarize(folder_name, glob)
           param `folder_name`: Name of the directory containing the files.
           param `glob`: Glob pattern to specify files within the folder for summarization.

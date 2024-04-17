@@ -36,9 +36,9 @@ def assert_accuracy(question: str, ai_response: str) -> str:
         raise InaccurateResponse(f"AI Assistant didn't respond accurately => 'EMPTY'")
 
     template = PromptTemplate(
-        input_variables=['context', 'question'],
+        input_variables=['response', 'question'],
         template=prompt.read_prompt('ryg-prompt'))
-    final_prompt = template.format(context=ai_response, question=question)
+    final_prompt = template.format(response=ai_response, question=question)
     log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
     response: AIMessage = llm.invoke(final_prompt)
