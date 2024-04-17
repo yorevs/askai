@@ -56,7 +56,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def executing(self, command_line: str) -> str:
-        return self.translate(f"$ Executing `{command_line}`…")
+        return self.translate(f"> Executing `{command_line}`…")
 
     @lru_cache
     def cmd_success(self, command_line: str, exit_code: ExitStatus) -> str:
@@ -96,11 +96,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def assert_acc(self, result: str) -> str:
-        return self.translate(f"!! Accuracy check: **{result}**")
+        return self.translate(f"! Accuracy check: **{result}**")
 
     @lru_cache
     def action_plan(self, plan_text: str) -> str:
-        return self.translate(f"@@ Action plan: `{plan_text}`")
+        return self.translate(f"@ Action plan: `{plan_text}`")
 
     @lru_cache
     def x_reference(self) -> str:

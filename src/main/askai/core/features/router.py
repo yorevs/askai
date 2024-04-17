@@ -30,7 +30,9 @@ class Router(metaclass=Singleton):
 
     INSTANCE: 'Router' = None
 
-    MAX_RETRIES: int = 3
+    MAX_RETRIES: int = 5    # Move to configs
+
+    MAX_REQUESTS: int = 30  # Move to config
 
     def __init__(self):
         self._approved = False
@@ -75,7 +77,7 @@ class Router(metaclass=Singleton):
 
     def _route(self, question: str, actions: list[str]) -> str:
         """Route the actions to the proper function invocations."""
-        max_iteraction: int = 20  # TODO Move to configs
+        max_iteraction: int = self.MAX_REQUESTS
         last_result: str = ''
         accumulated: list[str] = []
         for idx, action in enumerate(actions):
