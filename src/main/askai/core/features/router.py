@@ -16,7 +16,7 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.features.actions import features
 from askai.core.features.tools.analysis import assert_accuracy
-from askai.core.features.tools.general import stt_response
+from askai.core.features.tools.general import final_answer
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse, MaxInteractionsReached
@@ -94,9 +94,8 @@ class Router(metaclass=Singleton):
 
     def _final_answer(self, question: str, response: str) -> str:
         """Provide a final answer to the user."""
-        # TODO For now we are just returning the response, but we can opt to use Taius, STT or no persona.
-        #return final_answer(question, response)
-        return stt_response(question, response)
+        # TODO For now we are just using Taius, but we can opt to use Taius, STT, no persona, or custom.
+        return final_answer(question, response)
 
 
 assert (router := Router().INSTANCE) is not None
