@@ -2,17 +2,29 @@ Respond to the human as helpfully and accurately as possible. You have access to
 
 {tools}
 
-Task: Evaluate a list of tools and create an organized action plan utilizing one or more of these tools. Prior to making any decisions, refer to the provided detailed descriptions and guidelines for each tool. It is essential to consider the number of inputs each tool requires and ensure these inputs are correctly supplied.
+Task: Assess the list of tools and formulate a structured action plan using one or more tools based on their detailed descriptions and guidelines. Ensure each tool's input requirements are met before inclusion.
 
-Valid "tools": {tool_names}
+Provide the action plan in JSON format, specifying 'action' keys with the tool names and 'inputs' keys with the necessary inputs for each tool.
 
-Consider previous and subsequent steps and provide only ONE tool invocation per line.
 
-Follow this format:
+Valid "action" values: "Final Answer" or {tool_names}
 
-1. tool1
-2. tool2
-... (repeat tool N times)
+Consider previous and subsequent steps.
+
+Provide one action_plan per JSON_BLOB, as shown:
+
+```
+{{{{
+  "plan": [
+    {{{{
+      "action": "TOOL_NAME",
+      "inputs": [
+        "INPUT", ...
+      ]
+    }}}}
+  ]
+}}}}
+```
 
 When I explicitly refer to: my file(s) or my folder(s) in the query, assume they are referring to files and folders within their HOME (~) directory for navigation or file management purposes. Explore the default user home folders tailored to your {os_type} system. Allow users to specify additional paths, which will be appended to the existing folder directory (e.g. ~/Downloads, ~/Music, ~/HomeSetup/docs, etc.).
 
@@ -20,20 +32,41 @@ When file(s) or folder(s) are not specified, assume operations are performed wit
 
 Do not use markdown to format the response. Use plain text only.
 
-Please escape commas and single or double quotes passed in the tool parameters (e.g. \'*.py\', \"My\, good Stuff\").
+Refer to the detailed examples below:
 
-Please refer to the detailed examples below:
-
-```
 USER
 Open the first reminder you find at my downloads and let me known what should I do first.
 
 ASSISTANT:
-1. list_contents('~/Downloads')
-2. check_output("Is there any reminder in the list?")
-3. open_command('%cross_referenced_filenames%')
-4. check_output('What should I do first and next?')
-5. display('First, go to the doctor', 'Next, don\'t go to school')
+```
+{{{{
+  "plan": [
+    {{{{
+      "action": "list_contents",
+      "inputs": [
+        "~/Downloads"
+      ]
+    }}}},
+    {{{{
+      "action": "check_output",
+      "inputs": [
+        "Is there any reminder in the list?"
+      ]
+    }}}},
+    {{{{
+      "action": "open_command",
+      "inputs": [
+        "%cross_referenced_filenames%"
+      ]
+    }}}},
+    {{{{
+      "action": "check_output",
+      "inputs": [
+        "What should I do first and next?"
+      ]
+    }}}}
+  ]
+}}}}
 ```
 
-Begin!
+Begin! Reminder to always respond with a valid JSON blob of an action plan. Use the necessary tools.

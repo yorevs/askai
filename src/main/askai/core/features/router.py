@@ -1,11 +1,10 @@
 import logging as log
 import os
-import re
 from functools import lru_cache
 from typing import TypeAlias, Optional
 
 from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.runnables.utils import Input, Output
@@ -42,15 +41,20 @@ class Router(metaclass=Singleton):
         return prompt.read_prompt("router-prompt.txt")
 
     def process(self, query: str) -> Optional[str]:
-        """Process the user query and retrieve the final response."""
+        """Process the user query and retrieve the final response.
+        :param query: The user query to complete.
+        """
         @retry(exceptions=InaccurateResponse, tries=Router.MAX_RETRIES, delay=0, backoff=0)
         def _process_wrapper(question: str) -> Optional[str]:
-            """Wrapper to allow RAG retries."""
+            """Wrapper to allow RAG retries.
+            :param question: The user query to complete.
+            """
             template = PromptTemplate(input_variables=[
                 'tools', 'tool_names', 'os_type'
             ], template=self.template())
             final_prompt = template.format(
-                tools=features.enlist(), tool_names=features.tool_names,
+                tools=features.enlist(),
+                tool_names=features.tool_names,
                 os_type=prompt.os_type)
             log.info("Router::[QUESTION] '%s'", question)
             chat_prompt = ChatPromptTemplate.from_messages([
@@ -64,25 +68,28 @@ class Router(metaclass=Singleton):
             )
             if response := chain.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
-                actions: list[str] = re.sub(r'\d+[.:)-]\s+', '', response.content).split(os.linesep)
-                actions = list(filter(len, map(str.strip, actions)))
-                AskAiEvents.ASKAI_BUS.events.reply.emit(
-                    message=msg.action_plan('` -> `'.join(actions)), verbosity='debug')
-                output = self._route(question, actions)
+                # actions: list[str] = re.sub(r'\d+[.:)-]\s+', '', response.content).split(os.linesep)
+                # actions = list(filter(len, map(str.strip, actions)))
+                # AskAiEvents.ASKAI_BUS.events.reply.emit(
+                #     message=msg.action_plan('` -> `'.join(actions)), verbosity='debug')
+                # output = self._route(question, actions)
+                return ''
             else:
                 output = response
             return output
 
         return _process_wrapper(query)
 
-    def _route(self, question: str, actions: list[str]) -> str:
-        """Route the actions to the proper function invocations."""
-        max_iteraction: int = self.MAX_REQUESTS
+    def _route(self, query: str, actions: list[str]) -> str:
+        """Route the actions to the proper function invocations.
+
+        :param query: The user query to complete.
+        """
         last_result: str = ''
         accumulated: list[str] = []
         for idx, action in enumerate(actions):
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{action}`", verbosity='debug')
-            if idx > max_iteraction:
+            if idx > self.MAX_REQUESTS:
                 AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
                 raise MaxInteractionsReached(f"Maximum number of action was reached")
             if not (last_result := features.invoke(action, last_result)):
@@ -90,12 +97,15 @@ class Router(metaclass=Singleton):
                 break
             accumulated.append(f"AI Response: {last_result}")
 
-        assert_accuracy(question, os.linesep.join(accumulated))
+        assert_accuracy(query, os.linesep.join(accumulated))
 
-        return self._final_answer(question, last_result)
+        return self._final_answer(query, last_result)
 
     def _final_answer(self, question: str, response: str) -> str:
-        """Provide a final answer to the user."""
+        """Provide a final answer to the user.
+        :param question: The user question.
+        :param response: The AI response.
+        """
         # TODO For now we are just using Taius, but we can opt to use Taius, STT, no persona, or custom.
         return final_answer(question, response)
 
