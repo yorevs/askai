@@ -1,0 +1,49 @@
+/*
+    Gradle Oracle integration extension
+
+    Created: 4th March, 2021
+    License: MIT - Please refer to <https://opensource.org/licenses/MIT>
+    Copyright·(c)·2024,·HSPyLib
+*/
+
+def libDir = "${project.rootDir}/src/main/hydratation/resources/lib"
+def clientAppFile = "instantclient_19_3"
+def uri = "https://download.oracle.com/otn_software/mac/instantclient/193000/instantclient-basiclite-macos.x64-19.3.0.0.0dbru.zip"
+def outFile = "${libDir}/${clientAppFile}.zip"
+def installDir = new File("$libDir/$clientAppFile")
+
+/* Tasks ------------------------------------------------------------------- */
+
+/* Download oracle driver and client from the oracle website */
+task downloadOraClient(type: Task) {
+  group = 'Oracle'
+  description = 'Download oracle driver and client from the oracle website'
+  doLast {
+    println "Downloading oracle client and driver"
+    println "  From: ${uri}"
+    println "  Into: ${outFile}"
+    mkdir libDir
+    exec {
+      commandLine 'curl', '-o', "${outFile}", '-O', uri
+    }
+  }
+}
+
+/* Install oracle driver and client into the system */
+task installOraClient(type: Task) {
+  group = 'Oracle'
+  description = 'Install oracle driver and client into the system'
+  dependsOn downloadOraClient
+  doLast {
+    println "Extracting oracle client and driver"
+    println "  From: ${outFile}"
+    println "  Into: ${libDir}"
+    copy {
+      from zipTree("${outFile}")
+      into "${libDir}"
+    }
+  }
+}
+
+downloadOraClient.onlyIf { !installDir?.exists() }
+installOraClient.onlyIf { !installDir?.exists() }
