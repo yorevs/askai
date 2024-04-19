@@ -1,0 +1,24 @@
+{
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    ".gradle": true,
+    ".idea": true,
+    ".run": true,
+    ".vscode": true,
+    "run-configs": true,
+    "AskAI.code-workspace": true,
+    ".gitattributes": true,
+    ".gitconfig": true,
+    ".gitignore": true,
+    ".gitmodules": true,
+    "src/main/askai/.DS_Store": true,
+    "src/main/askai/.version": true,
+    "src/main/askai/.vscode": true,
+    "src/main/askai/__pycache__": true
+  }
+}

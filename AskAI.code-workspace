@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"hide-files.files": [
+			".gradle",
+			".idea",
+			".run",
+			".vscode",
+			"run-configs",
+			"AskAI.code-workspace",
+			".gitattributes",
+			".gitconfig",
+			".gitignore",
+			".gitmodules"
+		]
+	}
+}

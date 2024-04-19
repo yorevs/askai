@@ -9,9 +9,6 @@ db/
 ### Gradle ###
 .gradle/
 
-## VSCode ##
-.vscode
-
 ### Eclipse ###
 .apt_generated
 .classpath
