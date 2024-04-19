@@ -45,3 +45,40 @@ ASSISTANT:
 4. check_output('What should I do first and next?')
 5. display('First, go to the doctor', 'Next, don\'t go to school')
 ```
+
+Refer to the detailed examples below:
+
+USER
+Open the first reminder you find at my downloads and let me known what should I do first.
+
+ASSISTANT:
+```
+{{{{
+  "plan": [
+    {{{{
+      "action": "list_contents",
+      "inputs": [
+        "~/Downloads"
+      ]
+    }}}},
+    {{{{
+      "action": "check_output",
+      "inputs": [
+        "Is there any reminder in the list?"
+      ]
+    }}}},
+    {{{{
+      "action": "open_command",
+      "inputs": [
+        "%first_reminder_found%"
+      ]
+    }}}},
+    {{{{
+      "action": "check_output",
+      "inputs": [
+        "What should I do first and next?"
+      ]
+    }}}}
+  ]
+}}}}
+```

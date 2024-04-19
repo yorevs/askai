@@ -13,7 +13,18 @@
    Copyright·(c)·2024,·HSPyLib
 """
 
+from askai.__classpath__ import classpath
+from askai.core.askai import AskAi
 from clitt.core.term.commons import is_a_tty
+from clitt.core.tui.tui_application import TUIApplication
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import to_bool
+from hspylib.core.tools.dict_tools import get_or_default
+from hspylib.core.zoned_datetime import now
+from hspylib.modules.application.argparse.parser_action import ParserAction
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.application.version import Version
+from textwrap import dedent
 from typing import Any, Optional
 
 import logging as log
@@ -21,17 +32,6 @@ import sys
 
 if not is_a_tty():
     log.getLogger().setLevel(log.ERROR)
-
-from askai.__classpath__ import classpath
-from askai.core.askai import AskAi
-from clitt.core.tui.tui_application import TUIApplication
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.dict_tools import get_or_default
-from hspylib.core.zoned_datetime import now
-from hspylib.modules.application.argparse.parser_action import ParserAction
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.application.version import Version
-from textwrap import dedent
 
 
 class Main(TUIApplication):
@@ -46,12 +46,15 @@ class Main(TUIApplication):
     # The resources folder
     RESOURCE_DIR = str(classpath.resource_path())
 
+    INSTANCE: "Main"
+
     def __init__(self, app_name: str):
         super().__init__(app_name, self.VERSION, self.DESCRIPTION.format(self.VERSION), resource_dir=self.RESOURCE_DIR)
-        self._askai = None
+        self._askai: AskAi
 
     def _setup_arguments(self) -> None:
         """Initialize application parameters and options."""
+
         # fmt: off
         self._with_options() \
             .option(
@@ -91,14 +94,14 @@ class Main(TUIApplication):
     def _main(self, *params, **kwargs) -> ExitStatus:
         """Run the application with the command line arguments."""
         self._askai = AskAi(
-            self.get_arg("interactive"),
-            self.get_arg("quiet"),
-            self.get_arg("debug"),
-            int(self._get_argument("tempo")),
+            to_bool(self.get_arg("interactive")),
+            to_bool(self.get_arg("quiet")),
+            to_bool(self.get_arg("debug")),
+            int(self._get_argument("tempo") or 1),
             str(self._get_argument("prompt")),
-            self.get_arg("engine"),
-            self.get_arg("model"),
-            self.get_arg("query_string"),
+            str(self.get_arg("engine")),
+            str(self.get_arg("model")),
+            str(self.get_arg("query_string")),
         )
 
         log.info(

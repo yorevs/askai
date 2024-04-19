@@ -12,12 +12,11 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import json
 from dataclasses import dataclass
 from functools import cached_property
 from types import SimpleNamespace
 from typing import Any
-
-import json
 
 
 @dataclass(frozen=True)
@@ -31,6 +30,7 @@ class ActionPlan:
         tool: str
         params: list[Any]
 
+    reasoning: str = None
     plan: list[SimpleNamespace] = None
 
     @cached_property

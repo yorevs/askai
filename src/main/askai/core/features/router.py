@@ -1,3 +1,15 @@
+import logging as log
+import os
+from functools import lru_cache
+from typing import Optional, TypeAlias
+
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables import Runnable
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.runnables.utils import Input, Output
+from retry import retry
+
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -7,18 +19,7 @@ from askai.core.model.action_plan import ActionPlan
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
-from askai.exception.exceptions import InaccurateResponse, MaxInteractionsReached
-from functools import lru_cache
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables import Runnable
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_core.runnables.utils import Input, Output
-from retry import retry
-from typing import Optional, TypeAlias
-
-import logging as log
-import os
+from askai.exception.exceptions import InaccurateResponse, MaxInteractionsReached, InvalidStructuredResponse
 
 RunnableTool: TypeAlias = Runnable[list[Input], list[Output]]
 
@@ -57,14 +58,14 @@ class Router(metaclass=Singleton):
                 tools=features.enlist(), tool_names=features.tool_names, os_type=prompt.os_type
             )
             log.info("Router::[QUESTION] '%s'", question)
-            chat_prompt = ChatPromptTemplate.from_messages(
+            router_prompt = ChatPromptTemplate.from_messages(
                 [
                     ("system", final_prompt),
                     MessagesPlaceholder("chat_history", optional=True),
-                    ("human", "{input}\n\n " + self.REMINDER_MSG),
+                    ("human", self._scratch_pad() + "\n\n{input}\n" + self.REMINDER_MSG),
                 ]
             )
-            runnable = chat_prompt | lc_llm.create_chat_model()
+            runnable = router_prompt | lc_llm.create_chat_model()
             chain = RunnableWithMessageHistory(
                 runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
             )
@@ -72,8 +73,10 @@ class Router(metaclass=Singleton):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
                 action_plan: ActionPlan = object_mapper.of_json(response.content, ActionPlan)
                 if not isinstance(action_plan, ActionPlan):
-                    raise InaccurateResponse(ASSERT_MSG.substitute(reason="Invalid Json Format"))
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.action_plan(str(action_plan)), verbosity="debug")
+                    raise InvalidStructuredResponse(ASSERT_MSG.substitute(reason="Invalid Json Format"))
+                AskAiEvents.ASKAI_BUS.events.reply.emit(
+                    message=msg.action_plan(action_plan.reasoning), verbosity="debug"
+                )
                 output = self._route(question, action_plan.actions)
             else:
                 output = response
@@ -86,7 +89,7 @@ class Router(metaclass=Singleton):
 
         :param query: The user query to complete.
         """
-        last_result: str = ""
+        last_response: str = ""
         accumulated: list[str] = []
         for idx, action in enumerate(actions):
             AskAiEvents.ASKAI_BUS.events.reply.emit(
@@ -95,14 +98,18 @@ class Router(metaclass=Singleton):
             if idx > self.MAX_REQUESTS:
                 AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
                 raise MaxInteractionsReached(f"Maximum number of action was reached")
-            if not (last_result := features.invoke(action, last_result)):
+            if not (last_response := features.invoke(action, last_response)):
                 log.warning("Last result brought an empty response for '%s'", action)
                 break
-            accumulated.append(f"AI Response: {last_result}")
+            accumulated.append(f"AI Response: {last_response}")
 
         assert_accuracy(query, os.linesep.join(accumulated))
 
-        return self._final_answer(query, last_result)
+        return self._final_answer(query, last_response)
+
+    def _scratch_pad(self) -> Optional[str]:
+        """TODO"""
+        return ""
 
     def _final_answer(self, question: str, response: str) -> str:
         """Provide a final answer to the user.

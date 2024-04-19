@@ -47,7 +47,7 @@ def assert_accuracy(question: str, ai_response: str) -> None:
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity="debug")
             if RagResponse.of_status(status).is_bad:
                 reason = RagResponse.strip_code(output)
-                shared.context.push("HISTORY", ASSERT_MSG.substitute(reason=reason))
+                shared.context.push("SCRATCHPAD", ASSERT_MSG.substitute(reason=reason))
                 raise InaccurateResponse(reason)
             return
 
