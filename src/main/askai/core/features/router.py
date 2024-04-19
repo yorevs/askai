@@ -1,15 +1,3 @@
-import logging as log
-import os
-from functools import lru_cache
-from typing import TypeAlias, Optional
-
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables import Runnable
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_core.runnables.utils import Input, Output
-from retry import retry
-
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -20,6 +8,17 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse, MaxInteractionsReached
+from functools import lru_cache
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables import Runnable
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.runnables.utils import Input, Output
+from retry import retry
+from typing import Optional, TypeAlias
+
+import logging as log
+import os
 
 RunnableTool: TypeAlias = Runnable[list[Input], list[Output]]
 
@@ -28,11 +27,13 @@ class Router(metaclass=Singleton):
     """Class to provide a divide and conquer set of actions to fulfill an objective. This is responsible for the
     orchestration and execution of the actions."""
 
-    INSTANCE: 'Router' = None
+    INSTANCE: "Router" = None
 
-    MAX_RETRIES: int = 5    # Move to configs
+    MAX_RETRIES: int = 5  # Move to configs
 
     MAX_REQUESTS: int = 30  # Move to config
+
+    REMINDER_MSG: str = "(Reminder to ALWAYS respond with a valid list of one or more tools.)"
 
     def __init__(self):
         self._approved = False
@@ -45,35 +46,34 @@ class Router(metaclass=Singleton):
         """Process the user query and retrieve the final response.
         :param query: The user query to complete.
         """
+
         @retry(exceptions=InaccurateResponse, tries=Router.MAX_RETRIES, delay=0, backoff=0)
         def _process_wrapper(question: str) -> Optional[str]:
             """Wrapper to allow RAG retries.
             :param question: The user query to complete.
             """
-            template = PromptTemplate(input_variables=[
-                'tools', 'tool_names', 'os_type'
-            ], template=self.template())
+            template = PromptTemplate(input_variables=["tools", "tool_names", "os_type"], template=self.template())
             final_prompt = template.format(
-                tools=features.enlist(),
-                tool_names=features.tool_names,
-                os_type=prompt.os_type)
+                tools=features.enlist(), tool_names=features.tool_names, os_type=prompt.os_type
+            )
             log.info("Router::[QUESTION] '%s'", question)
-            chat_prompt = ChatPromptTemplate.from_messages([
-                ("system", final_prompt),
-                MessagesPlaceholder("chat_history", optional=True),
-                ("human", "{input}\n\n (Reminder to ALWAYS respond with a valid list of one or more tools.)'")])
+            chat_prompt = ChatPromptTemplate.from_messages(
+                [
+                    ("system", final_prompt),
+                    MessagesPlaceholder("chat_history", optional=True),
+                    ("human", "{input}\n\n " + self.REMINDER_MSG),
+                ]
+            )
             runnable = chat_prompt | lc_llm.create_chat_model()
             chain = RunnableWithMessageHistory(
-                runnable, shared.context.flat,
-                input_messages_key="input", history_messages_key="chat_history",
+                runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
             )
             if response := chain.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
                 action_plan: ActionPlan = object_mapper.of_json(response.content, ActionPlan)
                 if not isinstance(action_plan, ActionPlan):
-                    raise InaccurateResponse(ASSERT_MSG.substitute(reason='Invalid Json Format'))
-                AskAiEvents.ASKAI_BUS.events.reply.emit(
-                    message=msg.action_plan(str(action_plan)), verbosity='debug')
+                    raise InaccurateResponse(ASSERT_MSG.substitute(reason="Invalid Json Format"))
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.action_plan(str(action_plan)), verbosity="debug")
                 output = self._route(question, action_plan.actions)
             else:
                 output = response
@@ -86,10 +86,12 @@ class Router(metaclass=Singleton):
 
         :param query: The user query to complete.
         """
-        last_result: str = ''
+        last_result: str = ""
         accumulated: list[str] = []
         for idx, action in enumerate(actions):
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{action.tool}({', '.join(action.params)})`", verbosity='debug')
+            AskAiEvents.ASKAI_BUS.events.reply.emit(
+                message=f"> `{action.tool}({', '.join(action.params)})`", verbosity="debug"
+            )
             if idx > self.MAX_REQUESTS:
                 AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
                 raise MaxInteractionsReached(f"Maximum number of action was reached")

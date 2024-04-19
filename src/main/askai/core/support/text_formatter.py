@@ -1,8 +1,3 @@
-import os
-import re
-from textwrap import dedent
-from typing import Any
-
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
 from hspylib.modules.cli.vt100.vt_code import VtCode
@@ -10,6 +5,11 @@ from hspylib.modules.cli.vt100.vt_color import VtColor
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.text import Text
+from textwrap import dedent
+from typing import Any
+
+import os
+import re
 
 
 class TextFormatter(metaclass=Singleton):

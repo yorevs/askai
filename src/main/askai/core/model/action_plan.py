@@ -12,11 +12,12 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import json
 from dataclasses import dataclass
 from functools import cached_property
 from types import SimpleNamespace
 from typing import Any
+
+import json
 
 
 @dataclass(frozen=True)
@@ -26,6 +27,7 @@ class ActionPlan:
     @dataclass
     class Action:
         """Represents a single action."""
+
         tool: str
         params: list[Any]
 

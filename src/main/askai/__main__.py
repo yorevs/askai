@@ -13,17 +13,17 @@
    Copyright·(c)·2024,·HSPyLib
 """
 
-import logging as log
-import sys
+from clitt.core.term.commons import is_a_tty
 from typing import Any, Optional
 
-from clitt.core.term.commons import is_a_tty
+import logging as log
+import sys
 
 if not is_a_tty():
     log.getLogger().setLevel(log.ERROR)
 
-from textwrap import dedent
-
+from askai.__classpath__ import classpath
+from askai.core.askai import AskAi
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.dict_tools import get_or_default
@@ -31,9 +31,7 @@ from hspylib.core.zoned_datetime import now
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
-
-from askai.__classpath__ import classpath
-from askai.core.askai import AskAi
+from textwrap import dedent
 
 
 class Main(TUIApplication):
@@ -128,11 +126,11 @@ class Main(TUIApplication):
             if isinstance(arg, str):
                 return arg
             elif isinstance(arg, list):
-                return get_or_default(arg, 0, '')
+                return get_or_default(arg, 0, "")
             else:
                 raise TypeError("Argument '' has an invalid type: ''", arg, type(arg))
         else:
-            return ''
+            return ""
 
 
 # Application entry point

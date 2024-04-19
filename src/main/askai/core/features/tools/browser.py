@@ -1,8 +1,3 @@
-import logging as log
-from typing import Optional
-
-from langchain_core.prompts import PromptTemplate
-
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
@@ -13,18 +8,22 @@ from askai.core.model.search_result import SearchResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
+from langchain_core.prompts import PromptTemplate
+from typing import Optional
+
+import logging as log
 
 
 def browse(query: str) -> Optional[str]:
     """Fetch the information from the Internet.
     :param query: The search query.
     """
-    template = PromptTemplate(input_variables=[
-        "idiom", "datetime", 'location', 'question'
-    ], template=prompt.read_prompt('internet-prompt'))
+    template = PromptTemplate(
+        input_variables=["idiom", "datetime", "location", "question"], template=prompt.read_prompt("internet-prompt")
+    )
     final_prompt: str = template.format(
-        idiom=shared.idiom, datetime=geo_location.datetime,
-        location=geo_location.location, question=query)
+        idiom=shared.idiom, datetime=geo_location.datetime, location=geo_location.location, question=query
+    )
     log.info("Browser::[QUESTION] '%s'  context=''", final_prompt)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
     response: str = llm.invoke(final_prompt).content

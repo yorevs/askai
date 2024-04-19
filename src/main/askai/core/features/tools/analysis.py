@@ -1,9 +1,3 @@
-import logging as log
-from string import Template
-
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import PromptTemplate
-
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -13,6 +7,11 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.exception.exceptions import InaccurateResponse
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import PromptTemplate
+from string import Template
+
+import logging as log
 
 ASSERT_MSG: Template = Template(
     "You (AI) provided an unsatisfactory answer. Improve your response in the next attempt. \n"
@@ -30,13 +29,11 @@ def assert_accuracy(question: str, ai_response: str) -> None:
     if ai_response in msg.accurate_responses:
         return
     elif not ai_response:
-        reason = ASSERT_MSG.substitute(reason='AI provided AN EMPTY response')
+        reason = ASSERT_MSG.substitute(reason="AI provided AN EMPTY response")
         shared.context.push("HISTORY", reason)
         raise InaccurateResponse(f"AI Assistant didn't respond accurately => 'EMPTY'")
 
-    template = PromptTemplate(
-        input_variables=['response', 'input'],
-        template=prompt.read_prompt('ryg-prompt'))
+    template = PromptTemplate(input_variables=["response", "input"], template=prompt.read_prompt("ryg-prompt"))
     final_prompt = template.format(response=ai_response, input=question)
     log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
@@ -47,7 +44,7 @@ def assert_accuracy(question: str, ai_response: str) -> None:
             output: str = output
             status, reason = mat.group(1), mat.group(2)
             log.info("Accuracy check  status: '%s'  reason: '%s'", status, reason)
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity='debug')
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity="debug")
             if RagResponse.of_status(status).is_bad:
                 reason = RagResponse.strip_code(output)
                 shared.context.push("HISTORY", ASSERT_MSG.substitute(reason=reason))
@@ -62,14 +59,13 @@ def replace_x_refs(question: str, context: str) -> str:
     :param question: The original useer question.
     :param context: The context to analyze the references.
     """
-    template = PromptTemplate(input_variables=[
-        'history', 'question'
-    ], template=prompt.read_prompt('x-references-prompt'))
-    final_prompt = template.format(
-        history=context, question=question)
+    template = PromptTemplate(
+        input_variables=["history", "question"], template=prompt.read_prompt("x-references-prompt")
+    )
+    final_prompt = template.format(history=context, question=question)
     log.info("X-REFS::[QUESTION] %s => CTX: '%s'", question, context)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-    AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.x_reference(), verbosity='debug')
+    AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.x_reference(), verbosity="debug")
 
     return llm.invoke(final_prompt).content.strip()
 
@@ -84,18 +80,16 @@ def check_output(question: str, context: str | None) -> str:
         context = str(shared.context.flat("HISTORY"))
     log.info("Analysis::[QUESTION] '%s'  context=%s", question, context)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-    template = PromptTemplate(
-        input_variables=['context', 'question'],
-        template=prompt.read_prompt('analysis-prompt'))
+    template = PromptTemplate(input_variables=["context", "question"], template=prompt.read_prompt("analysis-prompt"))
     final_prompt = template.format(context=context, question=question)
-    AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(), verbosity='debug')
+    AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(), verbosity="debug")
     response = llm.invoke(final_prompt)
 
     if response and (output := response.content):
         if output and shared.UNCERTAIN_ID not in output:
             shared.context.push("HISTORY", question)
-            shared.context.push("HISTORY", output, 'assistant')
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis_done(output), verbosity='debug')
+            shared.context.push("HISTORY", output, "assistant")
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis_done(output), verbosity="debug")
             output = text_formatter.ensure_ln(output)
 
     return output or msg.translate("Sorry, I don't know.")

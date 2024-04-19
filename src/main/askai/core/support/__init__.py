@@ -6,12 +6,12 @@
 """Package initialization."""
 
 __all__ = [
-    'langchain_support', 
-    'object_mapper', 
-    'presets', 
-    'settings', 
-    'shared_instances', 
-    'text_formatter', 
-    'utilities'
+    "langchain_support",
+    "object_mapper",
+    "presets",
+    "settings",
+    "shared_instances",
+    "text_formatter",
+    "utilities",
 ]
-__version__ = '1.0.5'
+__version__ = "1.0.5"

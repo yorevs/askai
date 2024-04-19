@@ -1,15 +1,14 @@
-import logging as log
-import os
-from typing import Optional
-
-from hspylib.core.tools.text_tools import ensure_startswith
-
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.component.summarizer import summarizer
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 from askai.exception.exceptions import DocumentsNotFound
+from hspylib.core.tools.text_tools import ensure_startswith
+from typing import Optional
+
+import logging as log
+import os
 
 
 def summarize(base_folder: str, glob: str) -> Optional[str]:
@@ -18,7 +17,7 @@ def summarize(base_folder: str, glob: str) -> Optional[str]:
     :param glob: The glob to match the files to be summarized.
     """
     try:
-        glob = ensure_startswith(glob, '**/')
+        glob = ensure_startswith(glob, "**/")
         if not summarizer.exists(base_folder, glob):
             if not summarizer.generate(base_folder, glob):
                 return msg.summary_not_possible()
@@ -46,9 +45,7 @@ def _ask_and_reply(question: str) -> Optional[str]:
 def _qna() -> str:
     """Questions and Answers about the summarized content."""
     display_text(
-        f"# {msg.enter_qna()} %EOL%"
-        f"> Content:  {summarizer.sum_path} %EOL%%EOL%"
-        f"`{msg.press_esc_enter()}` %EOL%"
+        f"# {msg.enter_qna()} %EOL%" f"> Content:  {summarizer.sum_path} %EOL%%EOL%" f"`{msg.press_esc_enter()}` %EOL%"
     )
     AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.qna_welcome())
     while question := shared.input_text(f"{shared.username}: %GREEN%"):

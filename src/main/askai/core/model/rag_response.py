@@ -1,6 +1,6 @@
-import re
-
 from hspylib.core.enums.enumeration import Enumeration
+
+import re
 
 
 class RagResponse(Enumeration):
@@ -43,10 +43,10 @@ class RagResponse(Enumeration):
         return str(mat.group(2)).strip() if mat else message
 
     @classmethod
-    def of_status(cls, status: str) -> 'RagResponse':
+    def of_status(cls, status: str) -> "RagResponse":
         return cls.of_value(status.title())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(RagResponse.values())
     print(RagResponse.strip_code("Red, Because I said so"))

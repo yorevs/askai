@@ -12,27 +12,6 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import os
-import sys
-from functools import partial
-from pathlib import Path
-from threading import Thread
-from typing import List, Optional
-
-import nltk
-import pause
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.term.terminal import terminal
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import sysout, is_debugging
-from hspylib.core.tools.text_tools import elide_text
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from langchain_core.prompts import PromptTemplate
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
@@ -49,8 +28,27 @@ from askai.core.support.chat_context import ChatContext
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
-from askai.exception.exceptions import ImpossibleQuery, TerminatingQuery, MaxInteractionsReached, \
-    InaccurateResponse
+from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.term.terminal import terminal
+from functools import partial
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging, sysout
+from hspylib.core.tools.text_tools import elide_text
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from langchain_core.prompts import PromptTemplate
+from pathlib import Path
+from threading import Thread
+from typing import List, Optional
+
+import logging as log
+import nltk
+import os
+import pause
+import sys
 
 
 class AskAi:
@@ -64,14 +62,15 @@ class AskAi:
         sys.exit(ExitStatus.FAILED.val)
 
     def __init__(
-        self, interactive: bool,
+        self,
+        interactive: bool,
         quiet: bool,
         debug: bool,
         tempo: int,
         query_prompt: str,
         engine_name: str,
         model_name: str,
-        query: str | List[str]
+        query: str | List[str],
     ):
         self._interactive: bool = interactive
         self._ready: bool = False
@@ -91,7 +90,7 @@ class AskAi:
     def __str__(self) -> str:
         device_info = f"{recorder.input_device[1].title()}" if recorder.input_device else ""
         dtm = f" {geo_location.datetime} "
-        cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, '…')
+        cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, "…")
         return (
             f"%GREEN%"
             f"AskAI v{Version.load(load_dir=classpath.source_path())} %EOL%"
@@ -193,7 +192,7 @@ class AskAi:
             self.reply_error(ev.args.message)
         else:
             verbose = ev.args.verbosity.lower()
-            if verbose == 'normal' or self.is_debugging:
+            if verbose == "normal" or self.is_debugging:
                 if ev.args.erase_last:
                     cursor.erase_line()
                 self.reply(ev.args.message)
@@ -277,8 +276,9 @@ class AskAi:
         if not interactive:
             stdin_args = read_stdin()
             template = PromptTemplate(
-                input_variables=['context', 'question'],
-                template=prompt.read_prompt(file_name, dir_name.replace('~', os.getenv('HOME'))))
+                input_variables=["context", "question"],
+                template=prompt.read_prompt(file_name, dir_name.replace("~", os.getenv("HOME"))),
+            )
             final_prompt = template.format(context=stdin_args, question=self._question)
             self._query_string = final_prompt if query else stdin_args
             self._question = self._question or self._query_string

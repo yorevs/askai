@@ -12,11 +12,17 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import re
+from askai.core.askai_events import AskAiEvents
+from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
+from askai.core.component.cache_service import PERSIST_DIR
+from askai.core.component.geo_location import geo_location
+from askai.core.component.summarizer import summarizer
+from askai.core.engine.openai.temperature import Temperature
+from askai.core.model.search_result import SearchResult
+from askai.core.support.langchain_support import lc_llm, load_document
+from askai.core.support.shared_instances import shared
 from functools import lru_cache
-from typing import List, Optional
-
 from googleapiclient.errors import HttpError
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -28,17 +34,10 @@ from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.tools import Tool
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from typing import List, Optional
 
-from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import msg
-from askai.core.askai_prompt import prompt
-from askai.core.component.cache_service import PERSIST_DIR
-from askai.core.component.geo_location import geo_location
-from askai.core.component.summarizer import summarizer
-from askai.core.engine.openai.temperature import Temperature
-from askai.core.model.search_result import SearchResult
-from askai.core.support.langchain_support import lc_llm, load_document
-from askai.core.support.shared_instances import shared
+import logging as log
+import re
 
 
 class InternetService(metaclass=Singleton):
@@ -105,15 +104,16 @@ class InternetService(metaclass=Singleton):
         :param search: The AI search parameters.
         """
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
-        search.sites = search.sites if len(search.sites) > 0 else ['google.com', 'bing.com']
+        search.sites = search.sites if len(search.sites) > 0 else ["google.com", "bing.com"]
         try:
             query = self._build_query(search).strip()
             log.info("Searching Google for '%s'", query)
             ctx = str(self._tool.run(query))
             llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
             context: List[Document] = [Document(ctx)]
-            chain = create_stuff_documents_chain(lc_llm.create_chat_model(
-                temperature=Temperature.DATA_ANALYSIS.temp), llm_prompt)
+            chain = create_stuff_documents_chain(
+                lc_llm.create_chat_model(temperature=Temperature.DATA_ANALYSIS.temp), llm_prompt
+            )
             output = chain.invoke({"query": search.question, "context": context})
         except HttpError as err:
             output = msg.fail_to_search(str(err))
@@ -123,8 +123,8 @@ class InternetService(metaclass=Singleton):
     def refine_text(self, question: str, context: str, sites: list[str]) -> Optional[str]:
         """Refines the text retrieved by the search engine."""
         refine_prompt = PromptTemplate.from_template(self.refine_template()).format(
-            idiom=shared.idiom, sources=sites, location=geo_location.location,
-            context=context, question=question)
+            idiom=shared.idiom, sources=sites, location=geo_location.location, context=context, question=question
+        )
         log.info("STT::[QUESTION] '%s'", context)
         llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)
 

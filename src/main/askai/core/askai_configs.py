@@ -12,15 +12,14 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import os
-from shutil import which
-
+from askai.__classpath__ import classpath
+from askai.language.language import Language
 from hspylib.core.config.app_config import AppConfigs
 from hspylib.core.enums.charset import Charset
 from hspylib.core.metaclass.singleton import Singleton
+from shutil import which
 
-from askai.__classpath__ import classpath
-from askai.language.language import Language
+import os
 
 
 class AskAiConfigs(metaclass=Singleton):

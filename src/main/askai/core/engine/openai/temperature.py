@@ -55,4 +55,3 @@ class Temperature(Enumeration):
     @property
     def top_p(self) -> float:
         return self.value[1]
-

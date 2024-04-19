@@ -12,20 +12,6 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import logging as log
-import os
-from pathlib import Path
-from typing import Callable, List, Optional, Tuple
-
-import pause
-from clitt.core.term.cursor import cursor
-from clitt.core.tui.mselect.mselect import mselect
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.commons import file_is_not_empty
-from hspylib.core.zoned_datetime import now_ms
-from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
-
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import REC_DIR
@@ -33,6 +19,19 @@ from askai.core.support.settings import Settings
 from askai.core.support.utilities import display_text
 from askai.exception.exceptions import IntelligibleAudioError, InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
+from clitt.core.term.cursor import cursor
+from clitt.core.tui.mselect.mselect import mselect
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.commons import file_is_not_empty
+from hspylib.core.zoned_datetime import now_ms
+from pathlib import Path
+from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
+from typing import Callable, List, Optional, Tuple
+
+import logging as log
+import os
+import pause
 
 
 class Recorder(metaclass=Singleton):
@@ -95,7 +94,8 @@ class Recorder(metaclass=Singleton):
                 self._detect_noise()
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.listening())
                 audio: AudioData = self._rec.listen(
-                    source, phrase_time_limit=self._rec_phrase_limit_s, timeout=self._rec_wait_timeout_s)
+                    source, phrase_time_limit=self._rec_phrase_limit_s, timeout=self._rec_wait_timeout_s
+                )
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.transcribing(), erase_last=True)
                 with open(audio_path, "wb") as f_rec:
                     f_rec.write(audio.get_wav_data())

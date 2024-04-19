@@ -12,26 +12,25 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
-import hashlib
-import mimetypes
-import os
-import re
-import sys
-from os.path import basename, dirname
-from pathlib import Path
-from typing import Any, Optional, Tuple
-
-import pause
+from askai.core.support.presets import Presets
+from askai.core.support.text_formatter import text_formatter
+from askai.language.language import Language
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.cli.vt100.vt_color import VtColor
+from os.path import basename, dirname
+from pathlib import Path
+from typing import Any, Optional, Tuple
 
-from askai.core.support.presets import Presets
-from askai.core.support.text_formatter import text_formatter
-from askai.language.language import Language
+import hashlib
+import mimetypes
+import os
+import pause
+import re
+import sys
 
 
 def read_stdin() -> Optional[str]:
@@ -180,6 +179,6 @@ def media_type_of(pathname: str) -> Optional[tuple[str, ...]] | None:
     mtype, _ = mimetypes.guess_type(basename(pathname))
 
     if mtype is not None:
-        return tuple(mtype.split('/'))
+        return tuple(mtype.split("/"))
 
     return None

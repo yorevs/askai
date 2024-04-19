@@ -1,11 +1,9 @@
-from functools import lru_cache, cached_property
-
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.modules.application.exit_status import ExitStatus
-
 from askai.core.askai_configs import configs
 from askai.language.argos_translator import ArgosTranslator
 from askai.language.language import Language
+from functools import cached_property, lru_cache
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.modules.application.exit_status import ExitStatus
 
 
 class AskAiMessages(metaclass=Singleton):
@@ -15,9 +13,7 @@ class AskAiMessages(metaclass=Singleton):
 
     def __init__(self):
         self._translator = ArgosTranslator(Language.EN_US, configs.language)
-        self._accurate_responses: list[str] = [
-            self.welcome_back()
-        ]
+        self._accurate_responses: list[str] = [self.welcome_back()]
 
     @cached_property
     def accurate_responses(self) -> list[str]:

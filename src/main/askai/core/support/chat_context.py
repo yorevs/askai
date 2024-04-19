@@ -10,16 +10,15 @@
    Copyright·(c)·2024,·HSPyLib
 """
 
-import os
+from askai.exception.exceptions import TokenLengthExceeded
 from collections import defaultdict, namedtuple
 from functools import reduce
-from typing import Any, List, Literal, Optional, TypeAlias
-
 from hspylib.core.zoned_datetime import now
 from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
-from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from typing import Any, List, Literal, Optional, TypeAlias
 
-from askai.exception.exceptions import TokenLengthExceeded
+import os
 
 ChatRoles: TypeAlias = Literal["system", "human", "assistant"]
 
@@ -79,12 +78,12 @@ class ChatContext:
         token_length = 0
         for key in keys:
             ctx: ContextRaw = self.get(key)
-            content: str = os.linesep.join([tk['content'] for tk in ctx])
+            content: str = os.linesep.join([tk["content"] for tk in ctx])
             token_length += len(content or "")
             if token_length > self._token_limit:
                 raise TokenLengthExceeded(f"Required token length={token_length}k  limit={self._token_limit}k")
             if content and ctx not in context:
-                list(map(context.append, [(t['role'], t['content']) for t in ctx]))
+                list(map(context.append, [(t["role"], t["content"]) for t in ctx]))
         return context
 
     def flat(self, *keys: str) -> ChatMessageHistory:
@@ -109,10 +108,10 @@ class ChatContext:
         self._store = defaultdict(list)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     c = ChatContext(1000)
-    c.push("TESTE", 'What is the size of the moon?')
-    c.push("TESTE", 'What is the size of the moon?', 'assistant')
-    c.push("TESTE", 'Who are you?')
-    c.push("TESTE", "I'm Taius, you digital assistant", 'assistant')
+    c.push("TESTE", "What is the size of the moon?")
+    c.push("TESTE", "What is the size of the moon?", "assistant")
+    c.push("TESTE", "Who are you?")
+    c.push("TESTE", "I'm Taius, you digital assistant", "assistant")
     print(c.flat("TESTE"))
