@@ -14,9 +14,10 @@ from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.features.actions import features
-from askai.core.features.tools.analysis import assert_accuracy
-from askai.core.features.tools.general import final_answer
+from askai.core.features.tools.analysis import assert_accuracy, ASSERT_MSG
+from askai.core.model.action_plan import ActionPlan
 from askai.core.support.langchain_support import lc_llm
+from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse, MaxInteractionsReached
 
@@ -68,19 +69,19 @@ class Router(metaclass=Singleton):
             )
             if response := chain.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
-                # actions: list[str] = re.sub(r'\d+[.:)-]\s+', '', response.content).split(os.linesep)
-                # actions = list(filter(len, map(str.strip, actions)))
-                # AskAiEvents.ASKAI_BUS.events.reply.emit(
-                #     message=msg.action_plan('` -> `'.join(actions)), verbosity='debug')
-                # output = self._route(question, actions)
-                return ''
+                action_plan: ActionPlan = object_mapper.of_json(response.content, ActionPlan)
+                if not isinstance(action_plan, ActionPlan):
+                    raise InaccurateResponse(ASSERT_MSG.substitute(reason='Invalid Json Format'))
+                AskAiEvents.ASKAI_BUS.events.reply.emit(
+                    message=msg.action_plan(str(action_plan)), verbosity='debug')
+                output = self._route(question, action_plan.actions)
             else:
                 output = response
             return output
 
         return _process_wrapper(query)
 
-    def _route(self, query: str, actions: list[str]) -> str:
+    def _route(self, query: str, actions: list[ActionPlan.Action]) -> str:
         """Route the actions to the proper function invocations.
 
         :param query: The user query to complete.
@@ -88,7 +89,7 @@ class Router(metaclass=Singleton):
         last_result: str = ''
         accumulated: list[str] = []
         for idx, action in enumerate(actions):
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{action}`", verbosity='debug')
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{action.tool}({', '.join(action.params)})`", verbosity='debug')
             if idx > self.MAX_REQUESTS:
                 AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
                 raise MaxInteractionsReached(f"Maximum number of action was reached")
@@ -107,7 +108,8 @@ class Router(metaclass=Singleton):
         :param response: The AI response.
         """
         # TODO For now we are just using Taius, but we can opt to use Taius, STT, no persona, or custom.
-        return final_answer(question, response)
+        # return final_answer(question, response)
+        return response
 
 
 assert (router := Router().INSTANCE) is not None

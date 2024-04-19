@@ -50,7 +50,7 @@ def open_command(pathname: str) -> str:
         match media_type_of(pathname):
             case ('audio', _) | ('video', _):
                 fn_open = partial(_execute_bash, f'ffplay -v 0 -autoexit {pathname} &>/dev/null')
-            case ('text', 'plain'):
+            case ('text', _):
                 fn_open = partial(_execute_bash, f'echo "File \\`{pathname}\\`: \n" && cat {pathname}')
             case _:
                 fn_open = partial(_execute_bash, f'open {pathname} 2>/dev/null')

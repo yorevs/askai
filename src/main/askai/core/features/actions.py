@@ -1,8 +1,7 @@
 import inspect
-import re
 from functools import lru_cache, cached_property
 from textwrap import dedent
-from typing import Optional
+from typing import Optional, Any
 
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.metaclass.singleton import Singleton
@@ -14,6 +13,7 @@ from askai.core.features.tools.general import display
 from askai.core.features.tools.generation import generate_content
 from askai.core.features.tools.summarization import summarize
 from askai.core.features.tools.terminal import execute_command, list_contents, open_command
+from askai.core.model.action_plan import ActionPlan
 from askai.exception.exceptions import ImpossibleQuery, TerminatingQuery
 
 
@@ -34,21 +34,18 @@ class Actions(metaclass=Singleton):
     def tool_names(self) -> list[str]:
         return [str(dk) for dk in self._all.keys()]
 
-    def invoke(self, tool: str, context: str = '') -> Optional[str]:
+    def invoke(self, action: ActionPlan.Action, context: str = '') -> Optional[str]:
         """Invoke the tool with its arguments and context.
-        :param tool: The tool to be performed.
+        :param action: The action to be performed.
         :param context: the tool context.
         """
-        fn_name = None
         try:
-            if tool_fn := re.findall(r'([a-zA-Z]\w+)\s*\((.*)\)', tool.strip()):
-                fn_name = tool_fn[0][0].lower()
-                fn = self._all[fn_name]
-                args: list[str] = re.split(r'(?!\\),', tool_fn[0][1], re.MULTILINE)
+            if fn := self._all[action.tool]:
+                args: list[Any] = action.params
                 args.append(context)
                 return fn(*list(map(str.strip, args)))
         except KeyError as err:
-            raise ImpossibleQuery(f"Tool not found: {fn_name} => {str(err)}")
+            raise ImpossibleQuery(f"Tool not found: {action.tool} => {str(err)}")
 
         return None
 

@@ -56,7 +56,7 @@ ASSISTANT:
     {{{{
       "action": "open_command",
       "inputs": [
-        "%cross_referenced_filenames%"
+        "%first_reminder_found%"
       ]
     }}}},
     {{{{
