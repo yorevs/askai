@@ -1,8 +1,3 @@
-import inspect
-from functools import cached_property, lru_cache
-from textwrap import dedent
-from typing import Any, Optional
-
 from askai.core.askai_messages import msg
 from askai.core.features.tools.analysis import check_output
 from askai.core.features.tools.browser import browse
@@ -13,7 +8,12 @@ from askai.core.features.tools.terminal import execute_command, list_contents, o
 from askai.core.model.action_plan import ActionPlan
 from askai.exception.exceptions import ImpossibleQuery, TerminatingQuery
 from clitt.core.tui.line_input.line_input import line_input
+from functools import cached_property, lru_cache
 from hspylib.core.metaclass.singleton import Singleton
+from textwrap import dedent
+from typing import Any, Optional
+
+import inspect
 
 
 class Actions(metaclass=Singleton):
@@ -98,10 +98,10 @@ class Actions(metaclass=Singleton):
         """
         Name: 'generate_content'
         Description: 'Generative AI Tool'; This tool is specifically designed for tasks that require generating (creating) content such as, code, text, image, and others.
-        Usage: generate_content(prompt, mime_type, path_name)
-          input `prompt`: Specify the prompt to be used to generate the content.
-          input `mime_type`: Specify the content type and format using MIME types.
-          input `path_name`: Specify the directory path where you want to save the generated content. This parameter is optional and should be included only if you wish to save files directly to your disk. If not specified, the content will not be saved.
+        Usage: generate_content(instructions, mime_type, path_name)
+          input `instructions`: These are the instructions for generating content (not the content itself).
+          input `mime_type`: This is the content type (use MIME types).
+          input `path_name`: This is the directory path where you want to save the generated content. This parameter is optional and should be included only if you wish to save files directly to your disk. If not specified, the content will not be saved.
         """
         return generate_content(args[0], args[1], args[2])
 

@@ -14,12 +14,12 @@ from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.features.actions import features
-from askai.core.features.tools.analysis import assert_accuracy, ASSERT_MSG
+from askai.core.features.tools.analysis import assert_accuracy
 from askai.core.model.action_plan import ActionPlan
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
-from askai.exception.exceptions import InaccurateResponse, MaxInteractionsReached, InvalidStructuredResponse
+from askai.exception.exceptions import InaccurateResponse, MaxInteractionsReached
 
 RunnableTool: TypeAlias = Runnable[list[Input], list[Output]]
 
@@ -73,7 +73,7 @@ class Router(metaclass=Singleton):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
                 action_plan: ActionPlan = object_mapper.of_json(response.content, ActionPlan)
                 if not isinstance(action_plan, ActionPlan):
-                    raise InvalidStructuredResponse(ASSERT_MSG.substitute(reason="Invalid Json Format"))
+                    return str(action_plan)
                 AskAiEvents.ASKAI_BUS.events.reply.emit(
                     message=msg.action_plan(action_plan.reasoning), verbosity="debug"
                 )
@@ -109,7 +109,7 @@ class Router(metaclass=Singleton):
 
     def _scratch_pad(self) -> Optional[str]:
         """TODO"""
-        return ""
+        return str(shared.context.flat("SCRATCHPAD"))
 
     def _final_answer(self, question: str, response: str) -> str:
         """Provide a final answer to the user.

@@ -157,17 +157,17 @@ def extract_path(command_line: str, flags: int = re.IGNORECASE | re.MULTILINE) -
     return None
 
 
-def extract_command(markdown_text: str, flags: int = re.IGNORECASE | re.MULTILINE) -> Optional[Tuple[str, str]]:
-    """Extract command from the markdown code block formatted text.
-    :param markdown_text: The markdown formatted command line text.
-    :param flags: Regex match flags.
+def extract_codeblock(markdown_text: str) -> Optional[Tuple[str, str]]:
+    """Extract language and actual code from a markdown multi-line code block.
+    :param markdown_text: The markdown formatted text.
     """
+    flags: int = re.IGNORECASE | re.MULTILINE
     # Match a terminal command formatted in a markdown code block.
     re_command = r"^`{3}((\w+)\s*)?(.+)\s*?`{3}$"
     if markdown_text and (mat := re.search(re_command, markdown_text.replace("\n", " ").strip(), flags)):
         if mat and len(mat.groups()) == 3:
-            shell, cmd = mat.group(1) or "", mat.group(3) or ""
-            return shell.strip(), cmd.strip()
+            lang, code = mat.group(1) or "", mat.group(3) or ""
+            return lang.strip(), code.strip()
     return None
 
 

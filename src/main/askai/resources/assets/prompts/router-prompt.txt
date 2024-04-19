@@ -12,8 +12,6 @@ Guidelines:
 
 - Valid "action" values: "Final Answer" or {tool_names}
 
-- Consider previous and subsequent steps.
-
 - When I explicitly refer to: my file(s) or my folder(s) in the query, assume they are referring to files and folders within their HOME (~) directory for navigation or file management purposes. Explore the default user home folders tailored to your {os_type} system. Allow users to specify additional paths, which will be appended to the existing folder directory (e.g. ~/Downloads, ~/Music, ~/HomeSetup/docs, etc.).
 
 - When file(s) or folder(s) are not specified, assume operations are performed within the current working directory.
