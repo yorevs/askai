@@ -12,6 +12,7 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+
 from dataclasses import dataclass
 
 

@@ -1,19 +1,25 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.features.router
+      @file: router.py
+   @created: Mon, 01 Apr 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+      @site: https://github.com/yorevs/hspylib
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright·(c)·2024,·HSPyLib
+"""
+
 import logging as log
 import os
-from functools import lru_cache
 from typing import Optional, TypeAlias
-
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables import Runnable
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_core.runnables.utils import Input, Output
-from retry import retry
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.engine.openai.temperature import Temperature
 from askai.core.features.actions import features
 from askai.core.features.tools.analysis import assert_accuracy
 from askai.core.model.action_plan import ActionPlan
@@ -21,6 +27,12 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse, MaxInteractionsReached
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables import Runnable
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.runnables.utils import Input, Output
+from retry import retry
 
 RunnableTool: TypeAlias = Runnable[list[Input], list[Output]]
 
@@ -31,16 +43,12 @@ class Router(metaclass=Singleton):
 
     INSTANCE: "Router"
 
-    MAX_RETRIES: int = 5  # Move to configs
-
-    MAX_REQUESTS: int = 30  # Move to config
-
     REMINDER_MSG: str = "(Reminder to ALWAYS respond with a valid list of one or more tools.)"
 
     def __init__(self):
         self._approved = False
 
-    @lru_cache
+    @property
     def template(self) -> str:
         return prompt.read_prompt("router.txt")
 
@@ -56,7 +64,7 @@ class Router(metaclass=Singleton):
             """
             template = PromptTemplate(input_variables=[
                 "tools", "tool_names", "os_type", "user"
-            ], template=self.template())
+            ], template=self.template)
             final_prompt = template.format(
                 tools=features.enlist(), tool_names=features.tool_names,
                 os_type=prompt.os_type, user=prompt.user
@@ -69,7 +77,7 @@ class Router(metaclass=Singleton):
                     ("human",  "{scratchpad}\n\n{input}\n" + self.REMINDER_MSG),
                 ]
             )
-            runnable = router_prompt | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
+            runnable = router_prompt | lc_llm.create_chat_model()
             chain = RunnableWithMessageHistory(
                 runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
             )
@@ -112,6 +120,7 @@ class Router(metaclass=Singleton):
             accumulated.append(f"AI Response: {last_response}")
 
         assert_accuracy(query, os.linesep.join(accumulated))
+        shared.context.clear("SCRATCHPAD")
 
         return self._final_answer(query, last_response)
 

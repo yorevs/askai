@@ -3,7 +3,7 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.model
+   @package: askai.core.model.action_plan
       @file: action_plan.py
    @created: Fri, 19 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
@@ -12,6 +12,7 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+
 import json
 from dataclasses import dataclass
 from functools import cached_property

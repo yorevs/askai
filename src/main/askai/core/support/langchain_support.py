@@ -1,9 +1,22 @@
-from askai.core.support.shared_instances import shared
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.support.langchain_support
+      @file: langchain_support.py
+   @created: Fri, 28 Feb 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+      @site: https://github.com/yorevs/hspylib
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright·(c)·2024,·HSPyLib
+"""
+
 from functools import lru_cache
+from typing import Any, List, Type
+
+from askai.core.support.shared_instances import shared
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_not_none
 from langchain_core.documents import Document
-from typing import Any, List, Type
 
 
 def load_document(loader_type: Type, url: str | List[str]) -> List[Document]:

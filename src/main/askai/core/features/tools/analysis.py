@@ -1,7 +1,19 @@
-import logging as log
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import PromptTemplate
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.features.tools.analysis
+      @file: analysis.py
+   @created: Mon, 01 Apr 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+      @site: https://github.com/yorevs/hspylib
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright·(c)·2024,·HSPyLib
+"""
+
+import logging as log
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -12,8 +24,8 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.exception.exceptions import InaccurateResponse
-
-ASSERT_PROMPT = PromptTemplate(input_variables=['problems'], template=prompt.read_prompt("assert"))
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import PromptTemplate
 
 
 def assert_accuracy(question: str, ai_response: str) -> None:
@@ -21,15 +33,16 @@ def assert_accuracy(question: str, ai_response: str) -> None:
     :param question: The user question.
     :param ai_response: The AI response to be analysed.
     """
+    issues_prompt = PromptTemplate(input_variables=['problems'], template=prompt.read_prompt("assert"))
     if ai_response in msg.accurate_responses:
         return
     elif not ai_response:
-        problems = ASSERT_PROMPT.format(problems="AI provided AN EMPTY response")
+        problems = issues_prompt.format(problems="AI provided AN EMPTY response")
         shared.context.push("SCRATCHPAD", problems)
         raise InaccurateResponse(f"AI Assistant didn't respond accurately => 'EMPTY'")
 
-    template = PromptTemplate(input_variables=["response", "input"], template=prompt.read_prompt("ryg-rag"))
-    final_prompt = template.format(response=ai_response, input=question)
+    assert_template = PromptTemplate(input_variables=["response", "input"], template=prompt.read_prompt("ryg-rag"))
+    final_prompt = assert_template.format(response=ai_response, input=question)
     log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
     response: AIMessage = llm.invoke(final_prompt)
@@ -42,7 +55,7 @@ def assert_accuracy(question: str, ai_response: str) -> None:
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity="debug")
             if RagResponse.of_status(status).is_bad:
                 problems = RagResponse.strip_code(output)
-                shared.context.push("SCRATCHPAD", ASSERT_PROMPT.format(problems=problems))
+                shared.context.push("SCRATCHPAD", issues_prompt.format(problems=problems))
                 raise InaccurateResponse(problems)
             return
 
@@ -81,7 +94,7 @@ def check_output(question: str, context: str | None) -> str:
     response = llm.invoke(final_prompt)
 
     if response and (output := response.content):
-        if output and shared.UNCERTAIN_ID not in output:
+        if output and all(i not in [shared.UNCERTAIN_ID, shared.NEGATIVE_ID] for i in output):
             shared.context.push("HISTORY", question)
             shared.context.push("HISTORY", output, "assistant")
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis_done(output), verbosity="debug")

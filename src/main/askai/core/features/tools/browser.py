@@ -1,3 +1,21 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.features.tools.browser
+      @file: browser.py
+   @created: Mon, 01 Apr 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+      @site: https://github.com/yorevs/hspylib
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright·(c)·2024,·HSPyLib
+"""
+
+import logging as log
+from typing import Optional
+
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
@@ -9,9 +27,6 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from langchain_core.prompts import PromptTemplate
-from typing import Optional
-
-import logging as log
 
 
 def browse(query: str) -> Optional[str]:

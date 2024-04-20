@@ -1,3 +1,23 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.features.actions
+      @file: actions.py
+   @created: Mon, 01 Apr 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+      @site: https://github.com/yorevs/hspylib
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright·(c)·2024,·HSPyLib
+"""
+
+import inspect
+from functools import cached_property, lru_cache
+from textwrap import dedent
+from typing import Any, Optional
+
 from askai.core.askai_messages import msg
 from askai.core.features.tools.analysis import check_output
 from askai.core.features.tools.browser import browse
@@ -8,12 +28,7 @@ from askai.core.features.tools.terminal import execute_command, list_contents, o
 from askai.core.model.action_plan import ActionPlan
 from askai.exception.exceptions import ImpossibleQuery, TerminatingQuery
 from clitt.core.tui.line_input.line_input import line_input
-from functools import cached_property, lru_cache
 from hspylib.core.metaclass.singleton import Singleton
-from textwrap import dedent
-from typing import Any, Optional
-
-import inspect
 
 
 class Actions(metaclass=Singleton):
@@ -105,11 +120,11 @@ class Actions(metaclass=Singleton):
         """
         return generate_content(args[0], args[1], args[2])
 
-    def display(self, *args: str) -> str:
+    def final_answer(self, *args: str) -> str:
         """
-        Name: 'display'
-        Description: Use this tool to display text. Join subsequent display usages together in only one call as you can input a list of texts do be displayed.
-        Usage: 'display(text, ...repeat N times)'
+        Name: 'final_answer'
+        Description: Use this tool to provide your final answer. Join all messages to the user together in only one call as you can input a list of texts do be displayed.
+        Usage: 'final_answer(text, ...repeat N times)'
           input `texts`: The comma separated list of texts to be displayed.
         """
         return display_tool(*args[:-1])

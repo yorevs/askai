@@ -1,3 +1,22 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.features.tools.summarization
+      @file: summarization.py
+   @created: Mon, 01 Apr 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+      @site: https://github.com/yorevs/hspylib
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright·(c)·2024,·HSPyLib
+"""
+
+import logging as log
+import os
+from typing import Optional
+
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.component.summarizer import summarizer
@@ -5,10 +24,6 @@ from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 from askai.exception.exceptions import DocumentsNotFound
 from hspylib.core.tools.text_tools import ensure_startswith
-from typing import Optional
-
-import logging as log
-import os
 
 
 def summarize(base_folder: str, glob: str) -> Optional[str]:

@@ -1,6 +1,6 @@
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.model
+   @package: askai.core.support.chat_context
       @file: chat_context.py
    @created: Fri, 28 Feb 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
@@ -10,15 +10,15 @@
    Copyright·(c)·2024,·HSPyLib
 """
 
+import os
+from collections import defaultdict, namedtuple, deque
+from functools import reduce, partial
+from typing import Any, Literal, Optional, TypeAlias
+
 from askai.exception.exceptions import TokenLengthExceeded
-from collections import defaultdict, namedtuple
-from functools import reduce
 from hspylib.core.zoned_datetime import now
 from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from typing import Any, List, Literal, Optional, TypeAlias
-
-import os
 
 ChatRoles: TypeAlias = Literal["system", "human", "assistant"]
 
@@ -26,7 +26,7 @@ ContextRaw: TypeAlias = list[dict[str, str]]
 
 LangChainContext: TypeAlias = list[tuple[str, str]]
 
-ContextEntry = namedtuple("ContextEntry", ["created_at", "role", "content"], rename=False)
+ContextEntry = namedtuple("ContextEntry", ["created_at", "role", "content"])
 
 
 class ChatContext:
@@ -34,14 +34,14 @@ class ChatContext:
 
     LANGCHAIN_ROLE_MAP: dict = {"human": HumanMessage, "system": SystemMessage, "assistant": AIMessage}
 
-    def __init__(self, token_limit: int):
-        self._store: dict[Any, list] = defaultdict(list)
+    def __init__(self, token_limit: int, max_context_length: int):
+        self._store: dict[Any, deque] = defaultdict(partial(deque, maxlen=max_context_length))
         self._token_limit: int = token_limit * 1024  # The limit is given in KB
 
     def __str__(self):
         return os.linesep.join(f"'{k}': '{v}'" for k, v in self._store.items())
 
-    def __getitem__(self, key) -> List[ContextEntry]:
+    def __getitem__(self, key) -> deque[ContextEntry]:
         return self._store[key]
 
     def push(self, key: str, content: Any, role: ChatRoles = "human") -> ContextRaw:
@@ -109,9 +109,12 @@ class ChatContext:
 
 
 if __name__ == "__main__":
-    c = ChatContext(1000)
-    c.push("TESTE", "What is the size of the moon?")
-    c.push("TESTE", "What is the size of the moon?", "assistant")
-    c.push("TESTE", "Who are you?")
-    c.push("TESTE", "I'm Taius, you digital assistant", "assistant")
+    c = ChatContext(1000, 5)
+    c.push("TESTE", "1 What is the size of the moon?")
+    c.push("TESTE", "2 What is the size of the moon?", "assistant")
+    c.push("TESTE", "3 Who are you?")
+    c.push("TESTE", "4 I'm Taius, you digital assistant", "assistant")
+    c.push("TESTE", "5 I'm Taius, you digital assistant", "assistant")
+    c.push("TESTE", "6 I'm Taius, you digital assistant", "assistant")
+    c.push("TESTE", "7 I'm Taius, you digital assistant", "assistant")
     print(c.flat("TESTE"))
