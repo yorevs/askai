@@ -23,7 +23,7 @@ from hspylib.core.metaclass.singleton import Singleton
 class AskAiPrompt(metaclass=Singleton):
     """Provide the prompts used by the AskAi."""
 
-    INSTANCE: "AskAiPrompt" = None
+    INSTANCE: "AskAiPrompt"
 
     # AI Prompts directory.
     PROMPT_DIR = str(classpath.resource_path()) + "/assets/prompts"

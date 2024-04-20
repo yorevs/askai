@@ -22,7 +22,7 @@ from typing import Literal
 class OpenAiConfigs(AskAiConfigs, metaclass=Singleton):
     """Provides access to OpenAI configurations."""
 
-    INSTANCE: "OpenAiConfigs" = None
+    INSTANCE: "OpenAiConfigs"
 
     # The resources folder
     RESOURCE_DIR = str(classpath.resource_path())

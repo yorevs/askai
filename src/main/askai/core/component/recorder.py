@@ -37,7 +37,7 @@ import pause
 class Recorder(metaclass=Singleton):
     """Provide an interface to record voice using the microphone device."""
 
-    INSTANCE: "Recorder" = None
+    INSTANCE: "Recorder"
 
     ASKAI_SETTINGS_DIR: str = f'{os.getenv("HHS_DIR", os.getenv("TEMP", "/tmp"))}'
 

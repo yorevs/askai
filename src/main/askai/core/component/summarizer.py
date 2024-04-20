@@ -37,7 +37,7 @@ import os
 class Summarizer(metaclass=Singleton):
     """Provide a summarization service to complete queries that require summarization."""
 
-    INSTANCE: "Summarizer" = None
+    INSTANCE: "Summarizer"
 
     ASKAI_SUMMARY_DATA_KEY = "askai-summary-data"
 

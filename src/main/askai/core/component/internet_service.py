@@ -43,7 +43,7 @@ import re
 class InternetService(metaclass=Singleton):
     """Provide a internet search service to complete queries that require realtime data."""
 
-    INSTANCE: "InternetService" = None
+    INSTANCE: "InternetService"
 
     ASKAI_INTERNET_DATA_KEY = "askai-internet-data"
 

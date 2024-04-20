@@ -10,7 +10,7 @@ from typing import List
 class EngineFactory(metaclass=Singleton):
     """TODO"""
 
-    INSTANCE: "EngineFactory" = None
+    INSTANCE: "EngineFactory"
 
     _ACTIVE_AI_ENGINE: AIEngine = None
 

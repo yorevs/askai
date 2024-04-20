@@ -9,7 +9,7 @@ from hspylib.modules.application.exit_status import ExitStatus
 class AskAiMessages(metaclass=Singleton):
     """Provide access to static 'translated' messages."""
 
-    INSTANCE: "AskAiMessages" = None
+    INSTANCE: "AskAiMessages"
 
     def __init__(self):
         self._translator = ArgosTranslator(Language.EN_US, configs.language)

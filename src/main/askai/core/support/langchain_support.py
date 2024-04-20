@@ -14,7 +14,7 @@ def load_document(loader_type: Type, url: str | List[str]) -> List[Document]:
 class LangChainSupport(metaclass=Singleton):
     """TODO"""
 
-    INSTANCE: "" = None
+    INSTANCE: ""
 
     @staticmethod
     @lru_cache

@@ -15,7 +15,7 @@ import re
 class TextFormatter(metaclass=Singleton):
     """TODO"""
 
-    INSTANCE: "TextFormatter" = None
+    INSTANCE: "TextFormatter"
 
     CHAT_ICONS = {
         "": "\n%RED%  Error: ",

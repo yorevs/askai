@@ -28,7 +28,7 @@ class Router(metaclass=Singleton):
     """Class to provide a divide and conquer set of actions to fulfill an objective. This is responsible for the
     orchestration and execution of the actions."""
 
-    INSTANCE: "Router" = None
+    INSTANCE: "Router"
 
     MAX_RETRIES: int = 5  # Move to configs
 
@@ -58,7 +58,7 @@ class Router(metaclass=Singleton):
             ], template=self.template())
             final_prompt = template.format(
                 tools=features.enlist(), tool_names=features.tool_names,
-                os_type=prompt.os_type, user=prompt.user.title()
+                os_type=prompt.os_type, user=prompt.user
             )
             log.info("Router::[QUESTION] '%s'", question)
             router_prompt = ChatPromptTemplate.from_messages(
@@ -73,7 +73,7 @@ class Router(metaclass=Singleton):
                 runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
             )
             response = chain.invoke({
-                "input": query, "scratchpad": self._scratch_pad()
+                "input": query, "scratchpad": str(shared.context.flat("SCRATCHPAD"))
             }, config={"configurable": {"session_id": "HISTORY"}})
             if response:
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
@@ -113,10 +113,6 @@ class Router(metaclass=Singleton):
         assert_accuracy(query, os.linesep.join(accumulated))
 
         return self._final_answer(query, last_response)
-
-    def _scratch_pad(self) -> Optional[str]:
-        """Return a scratchpad from the AI response failures."""
-        return str(shared.context.flat("SCRATCHPAD"))
 
     def _final_answer(self, question: str, response: str) -> str:
         """Provide a final answer to the user.

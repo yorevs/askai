@@ -11,6 +11,7 @@
 """
 
 from dataclasses import dataclass
+from functools import lru_cache
 from os.path import basename
 from typing import Literal, TypeAlias
 
@@ -23,16 +24,19 @@ SupportedPlatforms: TypeAlias = Literal["linux", "windows", "darwin"] | None
 SupportedShells: TypeAlias = Literal["bash", "csh", "dash", "ksh", "tcsh", "zsh", "sh"] | None
 
 
+@lru_cache
 def get_os() -> SupportedPlatforms:
     os_name = platform.system().lower()
     return os_name if os_name and os_name in ["linux", "windows", "darwin"] else None
 
 
+@lru_cache
 def get_shell() -> SupportedShells:
     shell = basename(os.getenv("SHELL", "bash")).lower()
     return shell if shell and shell in ["bash", "csh", "dash", "ksh", "tcsh", "zsh", "sh"] else None
 
 
+@lru_cache
 def get_user() -> str:
     return os.getenv("USER", "user")
 

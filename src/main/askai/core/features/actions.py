@@ -19,7 +19,7 @@ import inspect
 class Actions(metaclass=Singleton):
     """This class provides the AskAI available actions."""
 
-    INSTANCE: "Actions" = None
+    INSTANCE: "Actions"
 
     RESERVED: list[str] = ["invoke", "enlist"]
 

@@ -43,7 +43,7 @@ if not PERSIST_DIR.exists():
 class CacheService(metaclass=Singleton):
     """Provide a cache service for previously used queries, audio generation, etc..."""
 
-    INSTANCE: "CacheService" = None
+    INSTANCE: "CacheService"
 
     ASKAI_INPUT_CACHE_KEY = "askai-input-history"
 

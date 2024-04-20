@@ -15,7 +15,7 @@ import pytz
 class GeoLocation(metaclass=Singleton):
     """TODO"""
 
-    INSTANCE: "GeoLocation" = None
+    INSTANCE: "GeoLocation"
 
     GEO_LOC_URL: str = "http://ip-api.com/json"
 

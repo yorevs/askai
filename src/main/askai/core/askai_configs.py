@@ -25,7 +25,7 @@ import os
 class AskAiConfigs(metaclass=Singleton):
     """Provides access to AskAI configurations."""
 
-    INSTANCE: "AskAiConfigs" = None
+    INSTANCE: "AskAiConfigs"
 
     # The resources folder
     RESOURCE_DIR = str(classpath.resource_path())

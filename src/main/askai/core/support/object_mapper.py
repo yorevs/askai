@@ -27,7 +27,7 @@ FnConverter: TypeAlias = Callable[[Any, Type], Any]
 class ObjectMapper(metaclass=Singleton):
     """Provide a utility class to convert one object into the other, and vice-versa."""
 
-    INSTANCE: "ObjectMapper" = None
+    INSTANCE: "ObjectMapper"
 
     class ConversionMode(Enumeration):
         """TODO"""

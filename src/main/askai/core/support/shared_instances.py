@@ -15,7 +15,7 @@ from typing import Optional
 class SharedInstances(metaclass=Singleton):
     """Provides access to shared instances."""
 
-    INSTANCE: "SharedInstances" = None
+    INSTANCE: "SharedInstances"
 
     # This is the uuid used in the prompts to indicate that the AI does not know the answer.
     UNCERTAIN_ID: str = "bde6f44d-c1a0-4b0c-bd74-8278e468e50c"

@@ -30,7 +30,7 @@ import time
 class AudioPlayer(metaclass=Singleton):
     """Provide an interface to play audio using the default speaker device."""
 
-    INSTANCE: "AudioPlayer" = None
+    INSTANCE: "AudioPlayer"
 
     # Sound effects directory.
     SFX_DIR = str(classpath.resource_path()) + "/assets/sound-fx"
