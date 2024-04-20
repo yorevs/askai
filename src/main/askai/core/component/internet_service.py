@@ -116,9 +116,9 @@ class InternetService(metaclass=Singleton):
         except HttpError as err:
             output = msg.fail_to_search(str(err))
 
-        return self.refine_context(search.question, output, search.sites)
+        return self.refine_search(search.question, output, search.sites)
 
-    def refine_context(self, question: str, context: str, sites: list[str]) -> str:
+    def refine_search(self, question: str, context: str, sites: list[str]) -> str:
         """Refines the text retrieved by the search engine.
         :param question: The user question, used to refine the context.
         :param context: The context to refine.

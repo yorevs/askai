@@ -10,16 +10,17 @@ Guidelines:
 
 - Outline the reasoning behind your action plan and select the appropriate category for your question. Available categories include: 'chat', 'internet', 'terminal', 'file & folders', 'summarization'.
 
-
 - Valid "action" values: {tool_names}
-
-- When I explicitly refer to: my file(s) or my folder(s) in the query, assume they are referring to files and folders within their HOME (~) directory for navigation or file management purposes. Explore the default user home folders tailored to your {os_type} system. Allow users to specify additional paths, which will be appended to the existing folder directory (e.g. ~/Downloads, ~/Music, ~/HomeSetup/docs, etc.).
-
-- When file(s) or folder(s) are not specified, assume operations are performed within the current working directory.
 
 - When specifying tool inputs for which the actual value is yet to be determined, use placeholders (e.g. tool('<reminder_file>')). Ensure that the placeholder name clearly describes its purpose. Remember to quote the value inside the tool input.
 
+- When referring to "my file(s)" or "my folder(s)" in queries, assume they pertain to the HOME directory for file management purposes. Explore my user '{user}' home directories specific to my '{os_type}'. Users can specify additional paths to append to the existing folder directory.
+
+- When file(s) or folder(s) are not specified, assume operations are performed within the current working directory.
+
 - Always check for files and folders existence before performing any operations on it.
+
+- As responses will invariably be JSON_BLOBs, ensure all double quotes not part of the JSON structure are escaped.
 
 Provide the action_plan per JSON_BLOB, as shown:
 

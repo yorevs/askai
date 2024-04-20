@@ -59,7 +59,7 @@ class Actions(metaclass=Singleton):
         return doc_strings
 
     def _human_approval(self) -> bool:
-        """Prompt for human approval. This is mostly used to execute terminal commands."""
+        """Prompt for human approval."""
         confirm_msg = msg.access_grant()
         if (resp := line_input(confirm_msg).lower()) not in ("yes", "y"):
             raise ValueError(f"Terminal command execution was not approved '{resp}' !")
@@ -70,7 +70,7 @@ class Actions(metaclass=Singleton):
     def browse(self, *args: str) -> str:
         """
         Name: 'browse'
-        Description: Use this tool to stay updated on the latest news and current events, particularly when you need real-time information quickly. This tool is ideal for acquiring fresh data but should not be used for queries about well-known facts.
+        Description: Use this tool to stay updated on the latest news and current events, particularly when you need real-time information quickly. This tool is ideal for acquiring fresh data.
         Usage: 'browse(search_query)'
           input `search_query`: The web search query in string format.
         """
@@ -80,7 +80,6 @@ class Actions(metaclass=Singleton):
         """
         Name: 'check_output'
         Description: Utilize this tool to: Analyze output from a prior tool. Examine files and folders. Review command outputs.
-
         Usage: `check_output(question)`
           input `question`: The query about the output.
         """
@@ -106,11 +105,11 @@ class Actions(metaclass=Singleton):
         """
         return generate_content(args[0], args[1], args[2])
 
-    def display_tool(self, *args: str) -> str:
+    def display(self, *args: str) -> str:
         """
-        Name: 'display_tool'
+        Name: 'display'
         Description: Use this tool to display text. Join subsequent display usages together in only one call as you can input a list of texts do be displayed.
-        Usage: 'display_tool(text, ...repeat N times)'
+        Usage: 'display(text, ...repeat N times)'
           input `texts`: The comma separated list of texts to be displayed.
         """
         return display_tool(*args[:-1])
@@ -143,11 +142,11 @@ class Actions(metaclass=Singleton):
         """
         return summarize(args[0], args[1])
 
-    def terminal_tool(self, *args: str) -> str:
+    def terminal(self, *args: str) -> str:
         """
-        Name: 'terminal_tool'
+        Name: 'terminal'
         Description: Use this tool to execute commands directly in the user terminal or process user-provided commands efficiently. Fix any syntax errors if you find any.
-        Usage: 'terminal_tool(shell_type, command)'
+        Usage: 'terminal(shell_type, command)'
           input `shell_type`: A string that specifies the type of terminal environment (e.g., bash, zsh, powershell, etc).
           input `command`: The actual commands you wish to execute in the terminal.
         """

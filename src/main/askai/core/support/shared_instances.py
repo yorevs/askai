@@ -13,7 +13,7 @@ from typing import Optional
 
 
 class SharedInstances(metaclass=Singleton):
-    """TODO"""
+    """Provides access to shared instances."""
 
     INSTANCE: "SharedInstances" = None
 

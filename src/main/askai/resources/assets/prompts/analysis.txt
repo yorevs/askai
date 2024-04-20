@@ -9,8 +9,9 @@ When the response includes a list, prefer rendering numbered than bulleted lists
 
 If you lack an answer, respond with: 'bde6f44d-c1a0-4b0c-bd74-8278e468e50c'. No further clarifications or details are necessary.
 
-######
+If the answer to the question is negative, respond with: 'Negative'. No further clarifications or details are necessary.
 
+######
 
 Context:
 

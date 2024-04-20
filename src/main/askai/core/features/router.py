@@ -53,31 +53,38 @@ class Router(metaclass=Singleton):
             """Wrapper to allow RAG retries.
             :param question: The user query to complete.
             """
-            template = PromptTemplate(input_variables=["tools", "tool_names", "os_type"], template=self.template())
+            template = PromptTemplate(input_variables=[
+                "tools", "tool_names", "os_type", "user"
+            ], template=self.template())
             final_prompt = template.format(
-                tools=features.enlist(), tool_names=features.tool_names, os_type=prompt.os_type
+                tools=features.enlist(), tool_names=features.tool_names,
+                os_type=prompt.os_type, user=prompt.user.title()
             )
             log.info("Router::[QUESTION] '%s'", question)
             router_prompt = ChatPromptTemplate.from_messages(
                 [
                     ("system", final_prompt),
                     MessagesPlaceholder("chat_history", optional=True),
-                    ("human", self._scratch_pad() + "\n\n{input}\n" + self.REMINDER_MSG),
+                    ("human",  "{scratchpad}\n\n{input}\n" + self.REMINDER_MSG),
                 ]
             )
             runnable = router_prompt | lc_llm.create_chat_model()
             chain = RunnableWithMessageHistory(
                 runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
             )
-            if response := chain.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
+            response = chain.invoke({
+                "input": query, "scratchpad": self._scratch_pad()
+            }, config={"configurable": {"session_id": "HISTORY"}})
+            if response:
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
-                action_plan: ActionPlan = object_mapper.of_json(response.content, ActionPlan)
-                if not isinstance(action_plan, ActionPlan):
-                    return str(action_plan)
+                plan: ActionPlan = object_mapper.of_json(response.content, ActionPlan)
+                if not isinstance(plan, ActionPlan):
+                    return str(plan)
                 AskAiEvents.ASKAI_BUS.events.reply.emit(
-                    message=msg.action_plan(action_plan.reasoning), verbosity="debug"
+                    message=msg.action_plan(f"[{plan.category.upper()}] {plan.reasoning}"),
+                    verbosity="debug"
                 )
-                output = self._route(question, action_plan.actions)
+                output = self._route(question, plan.actions)
             else:
                 output = response
             return output
