@@ -157,18 +157,19 @@ def extract_path(command_line: str, flags: int = re.IGNORECASE | re.MULTILINE) -
     return None
 
 
-def extract_codeblock(markdown_text: str) -> Optional[Tuple[str, str]]:
+def extract_codeblock(text: str) -> Tuple[Optional[str], str]:
     """Extract language and actual code from a markdown multi-line code block.
-    :param markdown_text: The markdown formatted text.
+    :param text: The markdown formatted text.
     """
     flags: int = re.IGNORECASE | re.MULTILINE
     # Match a terminal command formatted in a markdown code block.
     re_command = r"^`{3}((\w+)\s*)?(.+)\s*?`{3}$"
-    if markdown_text and (mat := re.search(re_command, markdown_text.replace("\n", " ").strip(), flags)):
+    if text and (mat := re.search(re_command, text.replace("\n", " ").strip(), flags)):
         if mat and len(mat.groups()) == 3:
             lang, code = mat.group(1) or "", mat.group(3) or ""
             return lang.strip(), code.strip()
-    return None
+
+    return None, text
 
 
 def media_type_of(pathname: str) -> Optional[tuple[str, ...]] | None:

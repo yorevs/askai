@@ -12,8 +12,8 @@ import os
 
 
 def display(*texts: str) -> str:
-    """Display the given texts formatted with markdown.
-    :param texts: The texts to be displayed.
+    """Display the given texts using markdown.
+    :param texts: The list of texts to be displayed.
     """
     if output := os.linesep.join(texts):
         shared.context.push("HISTORY", output, "assistant")
@@ -28,7 +28,7 @@ def final_answer(
     persona: str = "taius-prompt",
     context: str | None = None,
 ) -> str:
-    """Fetch the information from the AI Database.
+    """Provide the final response to the user.
     :param question: The user question.
     :param username: The user name.
     :param idiom: The determined user idiom.

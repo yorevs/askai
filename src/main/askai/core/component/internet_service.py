@@ -96,7 +96,7 @@ class InternetService(metaclass=Singleton):
 
     @lru_cache
     def refine_template(self) -> str:
-        return prompt.read_prompt("refine-prompt")
+        return prompt.read_prompt("refine-search-prompt")
 
     def search_google(self, search: SearchResult) -> Optional[str]:
         """Search the web using google search API.
@@ -118,12 +118,13 @@ class InternetService(metaclass=Singleton):
         except HttpError as err:
             output = msg.fail_to_search(str(err))
 
-        return self.refine_text(search.question, output, search.sites) if output else None
+        return self.refine_search(search.question, output, search.sites) if output else None
 
-    def refine_text(self, question: str, context: str, sites: list[str]) -> Optional[str]:
+    def refine_search(self, question: str, context: str, sites: list[str]) -> str:
         """Refines the text retrieved by the search engine."""
         refine_prompt = PromptTemplate.from_template(self.refine_template()).format(
-            idiom=shared.idiom, sources=sites, location=geo_location.location, context=context, question=question
+            idiom=shared.idiom, sources=sites, location=geo_location.location,
+            datetime=geo_location.datetime, context=context, question=question
         )
         log.info("STT::[QUESTION] '%s'", context)
         llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)
