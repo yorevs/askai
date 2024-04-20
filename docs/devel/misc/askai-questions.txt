@@ -23,7 +23,7 @@ Composite:
 3. Create a small Python program to allow me to calculate the speed given the time and distance, save it as './dist.py'. Show me the contents afterwards.
 4. list my downloads and let me know if there is any reminder.
 5. list my downloads and let me know if there is any image.
-6. Open the first reminder you find at my downloads and let me known what should I do first.
+6. Open the first reminder you find at my downloads and tell me what I must do first.
 
 
 

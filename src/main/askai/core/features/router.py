@@ -13,6 +13,7 @@ from retry import retry
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
+from askai.core.engine.openai.temperature import Temperature
 from askai.core.features.actions import features
 from askai.core.features.tools.analysis import assert_accuracy
 from askai.core.model.action_plan import ActionPlan
@@ -68,7 +69,7 @@ class Router(metaclass=Singleton):
                     ("human",  "{scratchpad}\n\n{input}\n" + self.REMINDER_MSG),
                 ]
             )
-            runnable = router_prompt | lc_llm.create_chat_model()
+            runnable = router_prompt | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
             chain = RunnableWithMessageHistory(
                 runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
             )

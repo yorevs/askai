@@ -79,7 +79,7 @@ class Actions(metaclass=Singleton):
     def check_output(self, *args: str) -> str:
         """
         Name: 'check_output'
-        Description: Utilize this tool to: Analyze output from a prior tool. Examine files and folders. Review command outputs.
+        Description: Utilize this tool to: Analyze output from a prior tool. Examine files and folders. Review command outputs. Determine tasks, events and appointments.
         Usage: `check_output(question)`
           input `question`: The query about the output.
         """
