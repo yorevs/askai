@@ -68,8 +68,10 @@ class InternetService(metaclass=Singleton):
         return None
 
     @staticmethod
-    def _build_query(search: SearchResult) -> str:
-        """TODO"""
+    def _build_google_query(search: SearchResult) -> str:
+        """Build a Google Search query from search parameters.
+        :param search: The AI search parameters.
+        """
         query = ""
         # Gather the sites to be used in te search.
         if search.sites:
@@ -91,14 +93,10 @@ class InternetService(metaclass=Singleton):
         self._text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=25)
 
     @lru_cache
-    def template(self) -> str:
-        return prompt.read_prompt("search-prompt")
-
-    @lru_cache
     def refine_template(self) -> str:
-        return prompt.read_prompt("refine-search-prompt")
+        return prompt.read_prompt("refine-search")
 
-    def search_google(self, search: SearchResult) -> Optional[str]:
+    def search_google(self, search: SearchResult) -> str:
         """Search the web using google search API.
         Google search operators: https://ahrefs.com/blog/google-advanced-search-operators/
         :param search: The AI search parameters.
@@ -106,7 +104,7 @@ class InternetService(metaclass=Singleton):
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
         search.sites = search.sites if len(search.sites) > 0 else ["google.com", "bing.com"]
         try:
-            query = self._build_query(search).strip()
+            query = self._build_google_query(search).strip()
             log.info("Searching Google for '%s'", query)
             ctx = str(self._tool.run(query))
             llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
@@ -118,10 +116,14 @@ class InternetService(metaclass=Singleton):
         except HttpError as err:
             output = msg.fail_to_search(str(err))
 
-        return self.refine_search(search.question, output, search.sites) if output else None
+        return self.refine_context(search.question, output, search.sites)
 
-    def refine_search(self, question: str, context: str, sites: list[str]) -> str:
-        """Refines the text retrieved by the search engine."""
+    def refine_context(self, question: str, context: str, sites: list[str]) -> str:
+        """Refines the text retrieved by the search engine.
+        :param question: The user question, used to refine the context.
+        :param context: The context to refine.
+        :param sites: The list of source sites used on the search.
+        """
         refine_prompt = PromptTemplate.from_template(self.refine_template()).format(
             idiom=shared.idiom, sources=sites, location=geo_location.location,
             datetime=geo_location.datetime, context=context, question=question

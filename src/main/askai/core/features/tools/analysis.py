@@ -33,7 +33,7 @@ def assert_accuracy(question: str, ai_response: str) -> None:
         shared.context.push("HISTORY", reason)
         raise InaccurateResponse(f"AI Assistant didn't respond accurately => 'EMPTY'")
 
-    template = PromptTemplate(input_variables=["response", "input"], template=prompt.read_prompt("ryg-prompt"))
+    template = PromptTemplate(input_variables=["response", "input"], template=prompt.read_prompt("ryg-rag"))
     final_prompt = template.format(response=ai_response, input=question)
     log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
@@ -60,7 +60,7 @@ def replace_x_refs(question: str, context: str) -> str:
     :param context: The context to analyze the references.
     """
     template = PromptTemplate(
-        input_variables=["history", "question"], template=prompt.read_prompt("x-references-prompt")
+        input_variables=["history", "question"], template=prompt.read_prompt("x-references")
     )
     final_prompt = template.format(history=context, question=question)
     log.info("X-REFS::[QUESTION] %s => CTX: '%s'", question, context)
@@ -80,7 +80,7 @@ def check_output(question: str, context: str | None) -> str:
         context = str(shared.context.flat("HISTORY"))
     log.info("Analysis::[QUESTION] '%s'  context=%s", question, context)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-    template = PromptTemplate(input_variables=["context", "question"], template=prompt.read_prompt("analysis-prompt"))
+    template = PromptTemplate(input_variables=["context", "question"], template=prompt.read_prompt("analysis"))
     final_prompt = template.format(context=context, question=question)
     AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(), verbosity="debug")
     response = llm.invoke(final_prompt)

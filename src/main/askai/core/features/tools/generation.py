@@ -24,7 +24,7 @@ def generate_content(description: str, mime_type: str, pathname: str | None) -> 
     :param pathname: The directory path where you want to save the generated content.
     """
     check_not_none((description, mime_type, pathname))
-    template = PromptTemplate(input_variables=["mime_type", "input"], template=prompt.read_prompt("generator-prompt"))
+    template = PromptTemplate(input_variables=["mime_type", "input"], template=prompt.read_prompt("generator"))
     final_prompt = template.format(mime_type=mime_type, input=description)
 
     log.info("GENERATE::[PROMPT] '%s'  Type: '%s'  Path: '%s'", description, mime_type, pathname)

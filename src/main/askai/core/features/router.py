@@ -41,7 +41,7 @@ class Router(metaclass=Singleton):
 
     @lru_cache
     def template(self) -> str:
-        return prompt.read_prompt("router-prompt.txt")
+        return prompt.read_prompt("router.txt")
 
     def process(self, query: str) -> Optional[str]:
         """Process the user query and retrieve the final response.

@@ -77,7 +77,7 @@ class Main(TUIApplication):
             .option(
                 "prompt", "p", "prompt",
                 "specifies the query prompt file (not useful with interactive mode).",
-                nargs=1, default='qstring-prompt')\
+                nargs=1, default='qstring')\
             .option(
                 "engine", "e", "engine",
                 "specifies which AI engine to use. If not provided, the default engine wil be used.",

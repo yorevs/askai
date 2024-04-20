@@ -19,7 +19,7 @@ def browse(query: str) -> Optional[str]:
     :param query: The search query.
     """
     template = PromptTemplate(
-        input_variables=["idiom", "datetime", "location", "question"], template=prompt.read_prompt("internet-prompt")
+        input_variables=["idiom", "datetime", "location", "question"], template=prompt.read_prompt("search-builder")
     )
     final_prompt: str = template.format(
         idiom=shared.idiom, datetime=geo_location.datetime, location=geo_location.location, question=query

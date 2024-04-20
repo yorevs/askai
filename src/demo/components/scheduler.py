@@ -57,7 +57,7 @@ def taius_intro() -> None:
     with open(welcome_file) as f_pt:
         Terminal.clear()
         sysout(f"%GREEN%{intro}%NC%")
-        ai = AskAi(False, False, False, 1, "taius-prompt", "openai", "gpt-3.5-turbo", f_pt.readlines())
+        ai = AskAi(False, False, False, 1, "taius", "openai", "gpt-3.5-turbo", f_pt.readlines())
         ai.run()
         pause.seconds(1)
         Terminal.shell_exec(f"open {ppt_url}")

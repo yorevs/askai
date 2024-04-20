@@ -25,7 +25,7 @@ def final_answer(
     question: str,
     username: str = prompt.user.title(),
     idiom: str = shared.idiom,
-    persona: str = "taius-prompt",
+    persona: str = "taius",
     context: str | None = None,
 ) -> str:
     """Provide the final response to the user.
