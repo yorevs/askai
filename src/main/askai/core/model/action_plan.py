@@ -31,6 +31,7 @@ class ActionPlan:
         params: list[Any]
 
     reasoning: str = None
+    category: str = None
     plan: list[SimpleNamespace] = None
 
     @cached_property

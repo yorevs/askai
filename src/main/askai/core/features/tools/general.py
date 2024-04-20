@@ -11,7 +11,7 @@ import logging as log
 import os
 
 
-def display(*texts: str) -> str:
+def display_tool(*texts: str) -> str:
     """Display the given texts using markdown.
     :param texts: The list of texts to be displayed.
     """

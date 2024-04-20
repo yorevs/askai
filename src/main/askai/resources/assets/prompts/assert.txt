@@ -1,0 +1,7 @@
+You (AI) provided an unsatisfactory answer. Please improve your response in the next attempt.
+
+Address these issues:
+
+'{problems}'
+
+Reminder to always respond with a valid JSON blob of an action plan. Use the necessary tools.

@@ -1,7 +1,7 @@
 from askai.core.askai_messages import msg
 from askai.core.features.tools.analysis import check_output
 from askai.core.features.tools.browser import browse
-from askai.core.features.tools.general import display
+from askai.core.features.tools.general import display_tool
 from askai.core.features.tools.generation import generate_content
 from askai.core.features.tools.summarization import summarize
 from askai.core.features.tools.terminal import execute_command, list_contents, open_command
@@ -70,17 +70,18 @@ class Actions(metaclass=Singleton):
     def browse(self, *args: str) -> str:
         """
         Name: 'browse'
-        Description: 'Internet Browsing Tool'; Use this tool to stay updated on the latest news and current events, particularly when you need real-time information quickly. This tool is ideal for acquiring fresh data but should not be used for queries about well-known facts.
+        Description: Use this tool to stay updated on the latest news and current events, particularly when you need real-time information quickly. This tool is ideal for acquiring fresh data but should not be used for queries about well-known facts.
         Usage: 'browse(search_query)'
           input `search_query`: The web search query in string format.
         """
         return browse(args[0])
 
-    def query_output(self, *args: str) -> str:
+    def check_output(self, *args: str) -> str:
         """
-        Name: 'query_output'
-        Description: 'Output Checker Tool'; Use this tool only after the output from a previous tool has been generated, to use that output as input for subsequent operations, thereby ensuring seamless workflow and enhanced efficiency.
-        Usage: `query_output(question)`
+        Name: 'check_output'
+        Description: Utilize this tool to: Analyze output from a prior tool. Examine files and folders. Review command outputs.
+
+        Usage: `check_output(question)`
           input `question`: The query about the output.
         """
         return check_output(args[0], args[1])
@@ -88,7 +89,7 @@ class Actions(metaclass=Singleton):
     def describe_image(self, *args: str) -> str:
         """
         Name: 'describe_image'
-        Description: 'Image Analysis Tool'; This tool is specially engineered for tasks necessitating the analysis of visual content in image files.
+        Description: This tool is specially engineered for tasks necessitating the analysis of visual content in image files.
         Usage: describe_image(image_path)
           input `image_path`: The file path of the image to be analyzed.
         """
@@ -97,7 +98,7 @@ class Actions(metaclass=Singleton):
     def generate_content(self, *args: str) -> str:
         """
         Name: 'generate_content'
-        Description: 'Generative AI Tool'; This tool is specifically designed for tasks that require generating (creating) content such as, code, text, image, and others.
+        Description: This tool is specifically designed for tasks that require generating (creating) content such as, code, text, image, and others.
         Usage: generate_content(instructions, mime_type, path_name)
           input `instructions`: These are the instructions for generating content (not the content itself).
           input `mime_type`: This is the content type (use MIME types).
@@ -108,16 +109,16 @@ class Actions(metaclass=Singleton):
     def display_tool(self, *args: str) -> str:
         """
         Name: 'display_tool'
-        Description: 'Display Tool'; Use this tool to display text. Join subsequent display usages together in only one call as you can input a list of texts do be displayed.
+        Description: Use this tool to display text. Join subsequent display usages together in only one call as you can input a list of texts do be displayed.
         Usage: 'display_tool(text, ...repeat N times)'
           input `texts`: The comma separated list of texts to be displayed.
         """
-        return display(*args[:-1])
+        return display_tool(*args[:-1])
 
     def list_tool(self, *args: str) -> str:
         """
         Name: 'list_tool'
-        Description: 'List Tool'; This tool is designed for retrieving and displaying the contents of a specified folder. It is useful for quickly assessing the files and subdirectories within any directory.
+        Description: This tool is designed for retrieving and displaying the contents of a specified folder. It is useful for quickly assessing the files and subdirectories within any directory.
         Usage: 'list_tool(folder)'
           input `folder`: A string representing the name of the directory whose contents you wish to list.
         """
@@ -126,16 +127,16 @@ class Actions(metaclass=Singleton):
     def open_tool(self, *args: str) -> str:
         """
         Name: 'open_tool'
-        Description: 'Open Tool'; This tool is used to open or show the contents of files, folders, or applications on my system. This can be also used to play media files.
+        Description: This tool is used to open or show the contents of files, folders, or applications on my system. This can be also used to play media files.
         Usage: 'open_tool(pathname)'
           input `pathname`: The file, folder or application name.
         """
         return open_command(args[0])
 
-    def summarize_tool(self, *args: str) -> str:
+    def q_and_a_tool(self, *args: str) -> str:
         """
-        Name: 'summarize_tool'
-        Description: 'Summarization Intent Tool'; Use this tool to display text. Consolidate subsequent display actions into a single call by inputting a list of texts.
+        Name: 'q_and_a_tool'
+        Description: Use this tool upon specific user request. The user input **MUST CONTAIN THE KEYWORD** 'summarize'.
         Usage: summarize_tool(folder_name, glob)
           input `folder_name`: Name of the directory containing the files.
           input `glob`: Glob pattern to specify files within the folder for summarization.
@@ -145,7 +146,7 @@ class Actions(metaclass=Singleton):
     def terminal_tool(self, *args: str) -> str:
         """
         Name: 'terminal_tool'
-        Description: 'Terminal Tool'; Use this tool to execute commands directly in the user terminal or process user-provided commands efficiently. Fix any syntax errors if you find any.
+        Description: Use this tool to execute commands directly in the user terminal or process user-provided commands efficiently. Fix any syntax errors if you find any.
         Usage: 'terminal_tool(shell_type, command)'
           input `shell_type`: A string that specifies the type of terminal environment (e.g., bash, zsh, powershell, etc).
           input `command`: The actual commands you wish to execute in the terminal.
@@ -156,7 +157,7 @@ class Actions(metaclass=Singleton):
     def terminate(self, *args: str) -> None:
         """
         Name: 'terminate'
-        Description: 'Terminating Intention Tool'; Use this tool when the user decides to conclude the interaction. This function ensures a smooth and clear ending to the session, confirming user intent to terminate the dialogue.
+        Description: Use this tool when the user decides to conclude the interaction. This function ensures a smooth and clear ending to the session, confirming user intent to terminate the dialogue.
         Usage: 'terminate(reason)'
           input `reason`: A string indicating the reason for termination.
         """

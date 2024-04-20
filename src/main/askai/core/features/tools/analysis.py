@@ -13,12 +13,7 @@ from string import Template
 
 import logging as log
 
-ASSERT_MSG: Template = Template(
-    "You (AI) provided an unsatisfactory answer. Improve your response in the next attempt. \n"
-    "Address these issues: \n"
-    "'{problems}'\n"
-    "(Reminder to always respond with a valid JSON blob of an action plan. Use the necessary tools).\n"
-)
+ASSERT_PROMPT = Template(prompt.read_prompt("assert"))
 
 
 def assert_accuracy(question: str, ai_response: str) -> None:
@@ -29,7 +24,7 @@ def assert_accuracy(question: str, ai_response: str) -> None:
     if ai_response in msg.accurate_responses:
         return
     elif not ai_response:
-        reason = ASSERT_MSG.substitute(problems="AI provided AN EMPTY response")
+        reason = ASSERT_PROMPT.substitute(problems="AI provided AN EMPTY response")
         shared.context.push("HISTORY", reason)
         raise InaccurateResponse(f"AI Assistant didn't respond accurately => 'EMPTY'")
 
@@ -47,7 +42,7 @@ def assert_accuracy(question: str, ai_response: str) -> None:
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity="debug")
             if RagResponse.of_status(status).is_bad:
                 reason = RagResponse.strip_code(output)
-                shared.context.push("SCRATCHPAD", ASSERT_MSG.substitute(problems=reason))
+                shared.context.push("SCRATCHPAD", ASSERT_PROMPT.substitute(problems=reason))
                 raise InaccurateResponse(reason)
             return
 

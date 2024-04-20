@@ -108,7 +108,7 @@ class Router(metaclass=Singleton):
         return self._final_answer(query, last_response)
 
     def _scratch_pad(self) -> Optional[str]:
-        """TODO"""
+        """Return a scratchpad from the AI response failures."""
         return str(shared.context.flat("SCRATCHPAD"))
 
     def _final_answer(self, question: str, response: str) -> str:
