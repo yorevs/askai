@@ -40,21 +40,21 @@ def final_answer(
     question: str,
     username: str = prompt.user.title(),
     idiom: str = shared.idiom,
-    persona: str = "taius",
+    persona_prompt: str = "taius",
     context: str | None = None,
 ) -> str:
     """Provide the final response to the user.
     :param question: The user question.
     :param username: The user name.
     :param idiom: The determined user idiom.
-    :param persona: The persona prompt to be used.
+    :param persona_prompt: The persona prompt to be used.
     :param context: The final AI response or context.
     """
     output = None
     if not context:
         context: str = str(shared.context.flat("HISTORY"))
     template = PromptTemplate(
-        input_variables=["user", "idiom", "context", "question"], template=prompt.read_prompt(persona)
+        input_variables=["user", "idiom", "context", "question"], template=prompt.read_prompt(persona_prompt)
     )
     final_prompt = template.format(user=username, idiom=idiom, context=context, question=question)
 

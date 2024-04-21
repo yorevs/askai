@@ -17,11 +17,13 @@ import logging as log
 import os
 from typing import Optional, TypeAlias
 
+from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.features.actions import features
 from askai.core.features.tools.analysis import assert_accuracy
+from askai.core.features.tools.general import final_answer
 from askai.core.model.action_plan import ActionPlan
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
@@ -57,7 +59,7 @@ class Router(metaclass=Singleton):
         :param query: The user query to complete.
         """
 
-        @retry(exceptions=InaccurateResponse, tries=Router.MAX_RETRIES, delay=0, backoff=0)
+        @retry(exceptions=InaccurateResponse, tries=configs.max_router_retries, backoff=0)
         def _process_wrapper(question: str) -> Optional[str]:
             """Wrapper to allow RAG retries.
             :param question: The user query to complete.
@@ -93,25 +95,26 @@ class Router(metaclass=Singleton):
                     message=msg.action_plan(f"[{plan.category.upper()}] {plan.reasoning}"),
                     verbosity="debug"
                 )
-                output = self._route(question, plan.actions)
+                output = self._route(question, plan)
             else:
                 output = response
             return output
 
         return _process_wrapper(query)
 
-    def _route(self, query: str, actions: list[ActionPlan.Action]) -> str:
+    def _route(self, query: str, plan: ActionPlan) -> str:
         """Route the actions to the proper function invocations.
 
         :param query: The user query to complete.
         """
         last_response: str = ""
         accumulated: list[str] = []
+        actions: list[ActionPlan.Action] = plan.actions
         for idx, action in enumerate(actions):
             AskAiEvents.ASKAI_BUS.events.reply.emit(
                 message=f"> `{action.tool}({', '.join(action.params)})`", verbosity="debug"
             )
-            if idx > self.MAX_REQUESTS:
+            if idx >= configs.max_iteractions:
                 AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.too_many_actions())
                 raise MaxInteractionsReached(f"Maximum number of action was reached")
             if not (last_response := features.invoke(action, last_response)):
@@ -122,16 +125,20 @@ class Router(metaclass=Singleton):
         assert_accuracy(query, os.linesep.join(accumulated))
         shared.context.clear("SCRATCHPAD")
 
-        return self._final_answer(query, last_response)
+        return self._wrap_answer(query, plan.category, msg.translate(last_response))
 
-    def _final_answer(self, question: str, response: str) -> str:
+    def _wrap_answer(self, question: str, category: str, response: str) -> str:
         """Provide a final answer to the user.
         :param question: The user question.
         :param response: The AI response.
         """
-        # TODO For now we are just using Taius, but we can opt to use Taius, STT, no persona, or custom.
-        # return final_answer(question, response)
-        return response
+        match category.lower(), configs.is_speak:
+            case "chat", False:
+                return final_answer(question, context=response)
+            case "file system", True:
+                return final_answer(question, persona_prompt='stt', context=response)
+            case _:
+                return response
 
 
 assert (router := Router().INSTANCE) is not None

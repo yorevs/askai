@@ -12,14 +12,14 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import os
+from shutil import which
+
 from askai.__classpath__ import classpath
 from askai.language.language import Language
 from hspylib.core.config.app_config import AppConfigs
 from hspylib.core.enums.charset import Charset
 from hspylib.core.metaclass.singleton import Singleton
-from shutil import which
-
-import os
 
 
 class AskAiConfigs(metaclass=Singleton):
@@ -32,31 +32,26 @@ class AskAiConfigs(metaclass=Singleton):
 
     def __init__(self):
         self._configs = AppConfigs.INSTANCE or AppConfigs(self.RESOURCE_DIR)
-        self._is_interactive = self._configs.get_bool("askai.interactive.enabled")
-        self._is_speak = self._configs.get_bool("askai.speak.enabled")
-        self._is_debug = self._configs.get_bool("askai.debug.enabled")
-        self._is_cache = self._configs.get_bool("askai.cache.enabled")
-        self._ttl = self._configs.get_int("askai.cache.ttl.minutes")
-        self._tempo = self._configs.get_int("askai.speech.tempo")
-        self._language = Language.of_locale(
+        self._is_interactive: bool = self._configs.get_bool("askai.interactive.enabled")
+        self._is_speak: bool = self._configs.get_bool("askai.speak.enabled")
+        self._is_debug: bool = self._configs.get_bool("askai.debug.enabled")
+        self._is_cache: bool = self._configs.get_bool("askai.cache.enabled")
+        self._tempo: int = self._configs.get_int("askai.speech.tempo")
+        self._language: Language = Language.of_locale(
             os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG", os.getenv("LANGUAGE", "en_US.UTF-8"))))
         )
+        self._ttl: int = self._configs.get_int("askai.cache.ttl.minutes")
+        self._max_context_size: int = self._configs.get_int("askai.max.context.size")
+        self._max_iteractions: int = self._configs.get_int("askai.max.iteractions")
+        self._max_router_retries: int = self._configs.get_int("askai.max.router.retries")
 
     @property
-    def is_cache(self) -> bool:
-        return self._is_cache
+    def is_interactive(self) -> bool:
+        return self._is_interactive
 
-    @is_cache.setter
-    def is_cache(self, value: bool) -> None:
-        self._is_cache = value
-
-    @property
-    def tempo(self) -> int:
-        return self._tempo
-
-    @tempo.setter
-    def tempo(self, value: int) -> None:
-        self._tempo = value
+    @is_interactive.setter
+    def is_interactive(self, value: bool) -> None:
+        self._is_interactive = value
 
     @property
     def is_speak(self) -> bool:
@@ -75,12 +70,20 @@ class AskAiConfigs(metaclass=Singleton):
         self._is_debug = value
 
     @property
-    def is_interactive(self) -> bool:
-        return self._is_interactive
+    def is_cache(self) -> bool:
+        return self._is_cache
 
-    @is_interactive.setter
-    def is_interactive(self, value: bool) -> None:
-        self._is_interactive = value
+    @is_cache.setter
+    def is_cache(self, value: bool) -> None:
+        self._is_cache = value
+
+    @property
+    def tempo(self) -> int:
+        return self._tempo
+
+    @tempo.setter
+    def tempo(self, value: int) -> None:
+        self._tempo = value
 
     @property
     def language(self) -> Language:
@@ -93,6 +96,18 @@ class AskAiConfigs(metaclass=Singleton):
     @property
     def ttl(self) -> int:
         return self._ttl
+
+    @property
+    def max_iteractions(self) -> int:
+        return self._max_iteractions
+
+    @property
+    def max_context_size(self) -> int:
+        return self._max_context_size
+
+    @property
+    def max_router_retries(self) -> int:
+        return self._max_router_retries
 
 
 assert (configs := AskAiConfigs().INSTANCE) is not None

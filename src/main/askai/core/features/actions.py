@@ -123,7 +123,7 @@ class Actions(metaclass=Singleton):
     def final_answer(self, *args: str) -> str:
         """
         Name: 'final_answer'
-        Description: Use this tool to provide your final answer. Join all messages to the user together in only one call as you can input a list of texts do be displayed.
+        Description: Use this tool as your final tool to provide your final answer. Join all messages to the user together in only one call as you can input a list of texts do be displayed.
         Usage: 'final_answer(text, ...repeat N times)'
           input `texts`: The comma separated list of texts to be displayed.
         """

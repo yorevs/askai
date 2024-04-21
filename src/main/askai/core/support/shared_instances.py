@@ -1,3 +1,5 @@
+from typing import Optional
+
 from askai.core.askai_configs import configs
 from askai.core.askai_prompt import prompt
 from askai.core.engine.ai_engine import AIEngine
@@ -9,7 +11,6 @@ from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_state
 from hspylib.modules.cli.keyboard import Keyboard
-from typing import Optional
 
 
 class SharedInstances(metaclass=Singleton):
@@ -27,6 +28,8 @@ class SharedInstances(metaclass=Singleton):
         self._engine: Optional[AIEngine] = None
         self._context: Optional[ChatContext] = None
         self._idiom: str = configs.language.idiom
+        self._max_context_size: int = configs.max_context_size
+        self._max_iteractions: int = configs.max_iteractions
 
     @property
     def engine(self) -> Optional[AIEngine]:
@@ -58,6 +61,14 @@ class SharedInstances(metaclass=Singleton):
     def idiom(self) -> str:
         return self._idiom
 
+    @property
+    def max_context_size(self) -> int:
+        return self._max_context_size
+
+    @property
+    def max_iteractions(self) -> int:
+        return self._max_iteractions
+
     def create_engine(self, engine_name: str, model_name: str) -> AIEngine:
         """TODO"""
         if self._engine is None:
@@ -67,7 +78,7 @@ class SharedInstances(metaclass=Singleton):
     def create_context(self, token_limit: int) -> ChatContext:
         """TODO"""
         if self._context is None:
-            self._context = ChatContext(token_limit)
+            self._context = ChatContext(token_limit, self.max_context_size)
         return self._context
 
     def input_text(self, input_prompt: str) -> Optional[str]:
