@@ -94,10 +94,9 @@ def check_output(question: str, context: str | None) -> str:
     response = llm.invoke(final_prompt)
 
     if response and (output := response.content):
-        if output and all(i not in [shared.UNCERTAIN_ID, shared.NEGATIVE_ID] for i in output):
-            shared.context.push("HISTORY", question)
-            shared.context.push("HISTORY", output, "assistant")
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis_done(output), verbosity="debug")
-            output = text_formatter.ensure_ln(output)
+        shared.context.push("HISTORY", question)
+        shared.context.push("HISTORY", output, "assistant")
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=output, verbosity="debug")
+        output = text_formatter.ensure_ln(output)
 
     return output or msg.translate("Sorry, I don't know.")

@@ -84,11 +84,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def analysis(self) -> str:
-        return self.translate(f"Analysing the output…")
-
-    @lru_cache
-    def analysis_done(self, ai_response: str) -> str:
-        return self.translate(f"Here is what I found: `{ai_response}`")
+        return self.translate(f"Here is what I found…")
 
     @lru_cache
     def assert_acc(self, result: str) -> str:

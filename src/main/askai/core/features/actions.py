@@ -94,7 +94,7 @@ class Actions(metaclass=Singleton):
     def check_output(self, *args: str) -> str:
         """
         Name: 'check_output'
-        Description: Utilize this tool to: Analyze output from a prior tool. Examine files and folders. Review command outputs. Determine tasks, events and appointments.
+        Description: Use this tool for: Analyzing or checking outputs from previous tools and examining files and folders.
         Usage: `check_output(question)`
           input `question`: The query about the output.
         """
@@ -103,7 +103,7 @@ class Actions(metaclass=Singleton):
     def describe_image(self, *args: str) -> str:
         """
         Name: 'describe_image'
-        Description: This tool is specially engineered for tasks necessitating the analysis of visual content in image files.
+        Description: Use this tool to open and analyze of visual content in a single image file.
         Usage: describe_image(image_path)
           input `image_path`: The file path of the image to be analyzed.
         """
@@ -160,7 +160,7 @@ class Actions(metaclass=Singleton):
     def terminal(self, *args: str) -> str:
         """
         Name: 'terminal'
-        Description: Use this tool to execute commands directly in the user terminal or process user-provided commands efficiently. Fix any syntax errors if you find any.
+        Description: Use this tool to execute terminal commands directly within the user shell or process user-provided commands efficiently.
         Usage: 'terminal(shell_type, command)'
           input `shell_type`: A string that specifies the type of terminal environment (e.g., bash, zsh, powershell, etc).
           input `command`: The actual commands you wish to execute in the terminal.

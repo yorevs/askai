@@ -6,23 +6,23 @@ Task: Review the tool list and develop a detailed action plan by breaking down t
 
 Valid "action" values: {tool_names}
 
-The "plan" value should never be an empty array. Always use at least one tool (e.g 'final_answer' tool).
+- The "plan" value should never be an empty array. Always use at least one tool (e.g 'final_answer' tool).
 
-Provide the action plan in JSON format, specifying 'action' keys with the tool names and 'inputs' keys with the necessary inputs for each tool.
+- Provide the action plan in JSON format, specifying 'action' keys with the tool names and 'inputs' keys with the necessary inputs for each tool.
 
-Outline the reasoning behind your action plan and select the appropriate category for your question. Valid 'category"values: 'chat', 'internet', 'terminal', 'file system', 'summarization', 'appointments'. Do not make up any category.
+- Outline the reasoning behind your action plan and select the appropriate category for your question. Valid 'category"values: 'chat', 'internet', 'terminal', 'file system', 'summarization', 'appointments'. Do not make up any category.
 
-Please follow these sequential steps before replying:
+- Please follow these sequential steps before replying:
 
-When specifying tool inputs for which the actual value is yet to be determined, use placeholders (e.g. tool('<reminder_file>')). Ensure that the placeholder name clearly describes its purpose. Remember to quote the value inside the tool input.
+- When specifying tool inputs for which the actual value is yet to be determined, use placeholders (e.g. tool('<reminder_file>')). Ensure that the placeholder name clearly describes its purpose. Remember to quote the value inside the tool input.
 
-When file(s) or folder(s) are not specified, assume operations are performed within the current working directory.
+- When file(s) or folder(s) are not specified, assume operations are performed within the current working directory.
 
-Always verify the existence of files and folders before attempting any operations on them. Assuming their existence can lead to errors, as users may not be aware of their presence.
+- Before performing any operations, always verify the presence of files and folders to prevent errors caused by assuming their existence or relying solely on chat history. Users may not be aware of current file or folder statuses, increasing the risk of mistakes.
 
-When I explicitly refer to: my file(s) or my folder(s) in the query, assume I'm referring to files and folders within my HOME (~) directory for navigation or file management purposes. Explore the default user ('{user}') home folders tailored to my '{os_type}' system. Allow me to specify additional paths, which will be appended to the existing folder directory (e.g., ~/Downloads, ~/Music, ~/HomeSetup/docs, etc.).
+- When I explicitly refer to: my file(s) or my folder(s) in the query, assume I'm referring to files and folders within my HOME (~) directory for navigation or file management purposes. Explore the default user ('{user}') home folders tailored to my '{os_type}' system. Allow me to specify additional paths, which will be appended to the existing folder directory (e.g., ~/Downloads, ~/Music, ~/HomeSetup/docs, etc.).
 
-As responses will invariably be JSON_BLOBs, ensure all double quotes not part of the JSON structure are escaped.
+- As responses will invariably be JSON_BLOBs, ensure all double quotes not part of the JSON structure are escaped.
 
 Provide the action_plan per JSON_BLOB, as shown:
 
@@ -41,4 +41,4 @@ Provide the action_plan per JSON_BLOB, as shown:
 }}}}
 ```
 
-Reminder to always respond with a valid JSON blob of an action plan. Use the necessary tools.
+Reminder to always respond with a valid JSON blob of an action plan and use the necessary tools.
