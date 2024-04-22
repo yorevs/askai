@@ -16,7 +16,11 @@
 import inspect
 from functools import cached_property, lru_cache
 from textwrap import dedent
-from typing import Any, Optional
+from typing import Any, Optional, Callable
+
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.tools import BaseTool, StructuredTool
 
 from askai.core.askai_messages import msg
 from askai.core.features.tools.analysis import check_output
@@ -27,8 +31,6 @@ from askai.core.features.tools.summarization import summarize
 from askai.core.features.tools.terminal import execute_command, list_contents, open_command
 from askai.core.model.action_plan import ActionPlan
 from askai.exception.exceptions import ImpossibleQuery, TerminatingQuery
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.metaclass.singleton import Singleton
 
 
 class Actions(metaclass=Singleton):
@@ -39,6 +41,7 @@ class Actions(metaclass=Singleton):
     RESERVED: list[str] = ["invoke", "enlist"]
 
     def __init__(self):
+        """TODO"""
         self._all = dict(
             filter(
                 lambda pair: pair[0] not in self.RESERVED and not pair[0].startswith("_"),
@@ -49,6 +52,11 @@ class Actions(metaclass=Singleton):
     @cached_property
     def tool_names(self) -> list[str]:
         return [str(dk) for dk in self._all.keys()]
+
+    @lru_cache
+    def agent_tools(self) -> list[BaseTool]:
+        """TODO"""
+        return [self._create_agent_tool(v) for _, v in self._all.items()]
 
     def invoke(self, action: ActionPlan.Action, context: str = "") -> Optional[str]:
         """Invoke the tool with its arguments and context.
@@ -82,25 +90,43 @@ class Actions(metaclass=Singleton):
 
         return self._approved
 
-    def browse(self, *args: str) -> str:
+    def _create_agent_tool(
+        self,
+        fn: Callable,
+    ) -> BaseTool:
+        """Create the LangChain agent tool."""
+
+        def arun(*args) -> Any:
+            raise NotImplementedError("This tool does not support async")
+
+        tool = StructuredTool.from_function(
+            fn,
+            name=fn.__name__,
+            description=f"```{dedent(fn.__doc__)}```\n\n" if fn and fn.__doc__ else "",
+            return_direct=True,
+        )
+
+        return tool
+
+    def browse(self, search_query: str) -> str:
         """
         Name: 'browse'
         Description: Use this tool to stay updated on the latest news and current events, particularly when you need real-time information quickly. This tool is ideal for acquiring fresh data.
         Usage: 'browse(search_query)'
           input `search_query`: The web search query in string format.
         """
-        return browse(args[0])
+        return browse(search_query)
 
-    def check_output(self, *args: str) -> str:
+    def check_output(self, question: str) -> str:
         """
         Name: 'check_output'
-        Description: Use this tool for: Analyzing or checking outputs from previous tools and examining files and folders.
+        Description: Use this tool for analyzing or checking outputs from previous tools and examining files and folders.
         Usage: `check_output(question)`
           input `question`: The query about the output.
         """
-        return check_output(args[0], args[1])
+        return check_output(question)
 
-    def describe_image(self, *args: str) -> str:
+    def describe_image(self, image_path: str) -> str:
         """
         Name: 'describe_image'
         Description: Use this tool to open and analyze of visual content in a single image file.
@@ -109,7 +135,7 @@ class Actions(metaclass=Singleton):
         """
         return str(NotImplementedError("Tool 'describe_image' is not yet implemented !"))
 
-    def generate_content(self, *args: str) -> str:
+    def generate_content(self, instructions: str, mime_type: str, path_name: str) -> str:
         """
         Name: 'generate_content'
         Description: This tool is specifically designed for tasks that require generating (creating) content such as, code, text, image, and others.
@@ -118,36 +144,36 @@ class Actions(metaclass=Singleton):
           input `mime_type`: This is the content type (use MIME types).
           input `path_name`: This is the directory path where you want to save the generated content. This parameter is optional and should be included only if you wish to save files directly to your disk. If not specified, the content will not be saved.
         """
-        return generate_content(args[0], args[1], args[2])
+        return generate_content(instructions, mime_type, path_name)
 
-    def final_answer(self, *args: str) -> str:
+    def final_answer(self, texts: list[str]) -> str:
         """
         Name: 'final_answer'
         Description: Use this tool as your final tool to provide your final answer. Join all messages to the user together in only one call as you can input a list of texts do be displayed.
         Usage: 'final_answer(text, ...repeat N times)'
           input `texts`: The comma separated list of texts to be displayed.
         """
-        return display_tool(*args[:-1])
+        return display_tool(*texts[:-1])
 
-    def list_tool(self, *args: str) -> str:
+    def list_tool(self, folder: str) -> str:
         """
         Name: 'list_tool'
         Description: This tool is designed for retrieving and displaying the contents of a specified folder. It is useful for quickly assessing the files and subdirectories within any directory.
         Usage: 'list_tool(folder)'
           input `folder`: A string representing the name of the directory whose contents you wish to list.
         """
-        return list_contents(args[0])
+        return list_contents(folder)
 
-    def open_tool(self, *args: str) -> str:
+    def open_tool(self, path_name: str) -> str:
         """
         Name: 'open_tool'
         Description: This tool is used to open or show the contents of files, folders, or applications on my system. This can be also used to play media files.
         Usage: 'open_tool(pathname)'
-          input `pathname`: The file, folder or application name.
+          input `path_name`: The file, folder or application name.
         """
-        return open_command(args[0])
+        return open_command(path_name)
 
-    def q_and_a_tool(self, *args: str) -> str:
+    def q_and_a_tool(self, folder_name: str, glob) -> str:
         """
         Name: 'q_and_a_tool'
         Description: Use this tool upon specific user request. The user input **MUST CONTAIN THE KEYWORD** 'summarize'.
@@ -155,9 +181,9 @@ class Actions(metaclass=Singleton):
           input `folder_name`: Name of the directory containing the files.
           input `glob`: Glob pattern to specify files within the folder for summarization.
         """
-        return summarize(args[0], args[1])
+        return summarize(folder_name, glob)
 
-    def terminal(self, *args: str) -> str:
+    def terminal(self, shell_type: str, command: str) -> str:
         """
         Name: 'terminal'
         Description: Use this tool to execute terminal commands directly within the user shell or process user-provided commands efficiently.
@@ -166,16 +192,16 @@ class Actions(metaclass=Singleton):
           input `command`: The actual commands you wish to execute in the terminal.
         """
         # TODO Check for permission before executing
-        return execute_command(args[0], args[1])
+        return execute_command(shell_type, command)
 
-    def terminate(self, *args: str) -> None:
+    def terminate(self, reason: str) -> None:
         """
         Name: 'terminate'
         Description: Use this tool when the user decides to conclude the interaction. This function ensures a smooth and clear ending to the session, confirming user intent to terminate the dialogue.
         Usage: 'terminate(reason)'
           input `reason`: A string indicating the reason for termination.
         """
-        raise TerminatingQuery(args[0])
+        raise TerminatingQuery(reason)
 
 
 assert (features := Actions().INSTANCE) is not None

@@ -1,20 +1,40 @@
-Respond to the human as helpfully and accurately as possible. You have access to the following tools
+Respond to the human as helpfully and accurately as possible. You have access to the following tools:
 
-{tools}
+{{tools}}
 
-Task: Review the tool list and develop a detailed action plan by breaking down the action into specific tasks. For each task, select the most suitable tools based on their detailed descriptions and guidelines. Confirm that each tool meets the input requirements necessary for deployment. Ensure that the action plan comprehensively addresses all task aspects, choosing tools based on functionality rather than name.
+Use a json blob to specify a tool by providing an action key (tool name) and an action_input key (tool input).
 
-Valid "action" values: {tool_names}
+Valid "action" values: "Final Answer" or {{tool_names}}
 
-- The "plan" value should never be an empty array. Always use at least one tool (e.g 'final_answer' tool).
+Provide only ONE action per $JSON_BLOB, as shown:
 
-- Provide the action plan in JSON format, specifying 'action' keys with the tool names and 'inputs' keys with the necessary inputs for each tool.
+```
+{{{{
+        "action": $TOOL_NAME,
+  "action_input": $INPUT
+}}}}
+```
 
-- Outline the reasoning behind your action plan and select the appropriate category for your question. Valid 'category"values: 'chat', 'internet', 'terminal', 'file system', 'summarization', 'appointments'. Do not make up any category.
+Follow this format:
 
-- Please follow these sequential steps before replying:
+Question: input question to answer
+Thought: consider previous and subsequent steps
+Action:
+```
+$JSON_BLOB
+```
+Observation: action result
+... (repeat Thought/Action/Observation N times)
+Thought: I know what to respond
+Action:
+```
+{{{{
+      "action": "Final Answer",
+  "action_input": "Final response to human"
+}}}}
 
-- When specifying tool inputs for which the actual value is yet to be determined, use placeholders (e.g. tool('<reminder_file>')). Ensure that the placeholder name clearly describes its purpose. Remember to quote the value inside the tool input.
+
+Please follow these sequential steps before replying:
 
 - When file(s) or folder(s) are not specified, assume operations are performed within the current working directory.
 
@@ -24,21 +44,4 @@ Valid "action" values: {tool_names}
 
 - As responses will invariably be JSON_BLOBs, ensure all double quotes not part of the JSON structure are escaped.
 
-Provide the action_plan per JSON_BLOB, as shown:
-
-```
-{{{{
-  "reasoning": "THOUGHT",
-  "category": "CATEGORY",
-  "plan": [
-    {{{{
-      "action": "TOOL_NAME",
-      "inputs": [
-        "INPUT", ...
-      ]
-    }}}}
-  ]
-}}}}
-```
-
-Reminder to always respond with a valid JSON blob of an action plan and use the necessary tools.
+Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation

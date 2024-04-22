@@ -78,7 +78,7 @@ def replace_x_refs(question: str, context: str) -> str:
     return llm.invoke(final_prompt).content.strip()
 
 
-def check_output(question: str, context: str | None) -> str:
+def check_output(question: str, context: str | None = None) -> str:
     """Handle 'Text analysis', invoking: analyze(question: str). Analyze the context and answer the question.
     :param question: The question about the content to be analyzed.
     :param context: The context of the question.
