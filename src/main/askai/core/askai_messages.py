@@ -83,8 +83,8 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate("Press [Esc or Enter] to leave")
 
     @lru_cache
-    def analysis(self) -> str:
-        return self.translate(f"Here is what I found…")
+    def analysis(self, result: str) -> str:
+        return self.translate(f"Analysis result: `{result}`")
 
     @lru_cache
     def assert_acc(self, result: str) -> str:
@@ -106,7 +106,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def access_grant(self) -> str:
-        return self.translate("Do you approve executing this command on you terminal (yes/[no])?")
+        return self.translate("Do you approve executing this command on you terminal (**yes/[no]**)?")
 
     # Failures
 
