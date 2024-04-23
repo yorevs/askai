@@ -12,8 +12,13 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+from langchain_community.document_loaders.directory import DirectoryLoader
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 from askai.core.component.cache_service import cache
 from askai.core.component.summarizer import summarizer
+from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.tools.commons import log_init, sysout
@@ -31,7 +36,12 @@ if __name__ == "__main__":
     folder, glob = os.getenv("HOME") + "/HomeSetup", "**/*.md"
     shared.create_engine(engine_name="openai", model_name="gpt-3.5-turbo")
     sysout(f"%GREEN%Summarizing: {folder}/{glob} ...")
-    summarizer.generate(folder, glob)
+
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    documents: List[Document] = DirectoryLoader('~/HomeSetup/docs', glob='**/*.md').load()
+    embeddings = lc_llm.create_embeddings.embed_documents(documents)
+
+
     sysout(f"READY to answer")
     sysout("--" * 40)
     while (query := line_input("You: ")) not in ["exit", "q", "quit"]:

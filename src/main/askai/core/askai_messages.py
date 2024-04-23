@@ -65,6 +65,10 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"Searching on the internet…")
 
     @lru_cache
+    def scrapping(self) -> str:
+        return self.translate(f"Scrapping web site…")
+
+    @lru_cache
     def summarizing(self, path: str) -> str:
         return self.translate(f"Summarizing docs at:'{path}' …")
 

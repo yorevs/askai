@@ -41,7 +41,8 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 ######
 
-{context}
+Question: {question}
 
+Context: {context}
 
-Question: "{question}"
+Answer:

@@ -19,6 +19,7 @@
     "src/main/askai/.DS_Store": true,
     "src/main/askai/.version": true,
     "src/main/askai/.vscode": true,
-    "src/main/askai/__pycache__": true
+    "src/main/askai/__pycache__": true,
+    "src/main/askai/core/__pycache__": true
   }
 }

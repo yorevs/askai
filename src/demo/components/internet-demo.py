@@ -36,8 +36,9 @@ if __name__ == "__main__":
 
     while (query := line_input("You: ")) not in ["exit", "q", "quit"]:
         kw: list[str] = re.split("[ ,;]", query)
-        sites: list[str] = ["accuweather.com", "weather.com"]
-        q = SearchResult(query, geo_location.now, kw, sites)
-        answer = internet.search_google(q)
+        sites: list[str] = ["https://www.uol.com.br/"]
+        q = SearchResult(query, geo_location.datetime, "news", kw, sites)
+        # answer = internet.search_google(q)
+        answer = internet.scrap_sites(q)
         sysout(f"%GREEN%AI: {answer}")
     cache.save_query_history()

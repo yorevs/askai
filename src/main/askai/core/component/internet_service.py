@@ -12,32 +12,35 @@
 
    Copyright·(c)·2024,·HSPyLib
 """
+import logging as log
+import re
+from functools import lru_cache
+from typing import List
+
+import bs4
+from googleapiclient.errors import HttpError
+from hspylib.core.metaclass.singleton import Singleton
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_community.document_loaders.web_base import WebBaseLoader
+from langchain_community.utilities import GoogleSearchAPIWrapper
+from langchain_community.vectorstores.chroma import Chroma
+from langchain_core.documents import Document
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.runnables.utils import Output
+from langchain_core.tools import Tool
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.component.cache_service import PERSIST_DIR
 from askai.core.component.geo_location import geo_location
 from askai.core.component.summarizer import summarizer
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.model.search_result import SearchResult
-from askai.core.support.langchain_support import lc_llm, load_document
+from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from functools import lru_cache
-from googleapiclient.errors import HttpError
-from hspylib.core.metaclass.singleton import Singleton
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain.chains.retrieval_qa.base import RetrievalQA
-from langchain_community.document_loaders.async_html import AsyncHtmlLoader
-from langchain_community.utilities import GoogleSearchAPIWrapper
-from langchain_community.vectorstores.chroma import Chroma
-from langchain_core.documents import Document
-from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
-from langchain_core.tools import Tool
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from typing import List, Optional
-
-import logging as log
-import re
 
 
 class InternetService(metaclass=Singleton):
@@ -46,26 +49,6 @@ class InternetService(metaclass=Singleton):
     INSTANCE: "InternetService"
 
     ASKAI_INTERNET_DATA_KEY = "askai-internet-data"
-
-    @staticmethod
-    def scrap_sites(search: SearchResult) -> Optional[str]:
-        """Scrap a web page and summarize it's contents.
-        :param search: The AI search parameters.
-        """
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
-        if len(search.sites) > 0:
-            query = "+".join(search.keywords)
-            log.info("Scrapping sites: '%s'", str(", ".join(search.sites)))
-            documents: List[Document] = load_document(AsyncHtmlLoader, list(search.sites))
-            if len(documents) > 0:
-                texts: List[Document] = summarizer.text_splitter.split_documents(documents)
-                v_store = Chroma.from_documents(texts, lc_llm.create_embeddings(), persist_directory=str(PERSIST_DIR))
-                retriever = RetrievalQA.from_chain_type(
-                    llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever()
-                )
-                search_results = retriever.invoke({"query": query})
-                return search_results["result"]
-        return None
 
     @staticmethod
     def _build_google_query(search: SearchResult) -> str:
@@ -90,7 +73,7 @@ class InternetService(metaclass=Singleton):
     def __init__(self):
         self._google = GoogleSearchAPIWrapper()
         self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
-        self._text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=25)
+        self._text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=200)
 
     @lru_cache
     def refine_template(self) -> str:
@@ -118,6 +101,41 @@ class InternetService(metaclass=Singleton):
 
         return self.refine_search(search.question, output, search.sites)
 
+    def scrap_sites(self, search: SearchResult) -> str:
+        """Scrap a web page and summarize it's contents.
+        :param search: The AI search parameters.
+        """
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.scrapping())
+        if len(search.sites) > 0:
+            log.info("Scrapping sites: '%s'", str(", ".join(search.sites)))
+            loader = WebBaseLoader(
+                web_paths=search.sites,
+                bs_kwargs=dict(parse_only=bs4.SoupStrainer(["article", "span", "div", "h1", "h2", "h3"])),
+            )
+            if (page_content := loader.load()) and len(page_content) > 0:
+                splits: List[Document] = summarizer.text_splitter.split_documents(page_content)
+                v_store = Chroma.from_documents(splits, lc_llm.create_embeddings())
+                retriever = v_store.as_retriever()
+                scrap_prompt = PromptTemplate(input_variables=["context", "question"], template=prompt.read_prompt("qstring"))
+
+                def format_docs(docs):
+                    return "\n\n".join(doc.page_content for doc in docs)
+
+                rag_chain = (
+                    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+                    | scrap_prompt
+                    | lc_llm.create_model()
+                    | StrOutputParser()
+                )
+
+                output: Output = rag_chain.invoke(search.question)
+                # cleanup
+                v_store.delete_collection()
+                log.info("Scrapping sites retuned: '%s'", str(output))
+
+                return self.refine_search(search.question, str(output), search.sites)
+        return msg.search_empty()
+
     def refine_search(self, question: str, context: str, sites: list[str]) -> str:
         """Refines the text retrieved by the search engine.
         :param question: The user question, used to refine the context.
@@ -125,8 +143,12 @@ class InternetService(metaclass=Singleton):
         :param sites: The list of source sites used on the search.
         """
         refine_prompt = PromptTemplate.from_template(self.refine_template()).format(
-            idiom=shared.idiom, sources=sites, location=geo_location.location,
-            datetime=geo_location.datetime, context=context, question=question
+            idiom=shared.idiom,
+            sources=sites,
+            location=geo_location.location,
+            datetime=geo_location.datetime,
+            context=context,
+            question=question,
         )
         log.info("STT::[QUESTION] '%s'", context)
         llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)

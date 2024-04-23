@@ -19,9 +19,8 @@ Additionally, there is an opportunity to refine the existing text (only if neces
 
 ######
 
-Context:
+Question: {question}
 
-{context}
+Context: {context}
 
-
-Question: "{question}"
+Answer:

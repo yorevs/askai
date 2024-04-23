@@ -21,7 +21,8 @@ Use the following AI responses to address the input at the end.
 
 ######
 
-{response}
+Response: {response}
 
+Input: {input}
 
-User Input: "{input}"
+Answer:

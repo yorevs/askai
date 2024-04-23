@@ -30,9 +30,8 @@ Use the following context to create your answer, according to the question at th
 
 ######
 
-Context:
+Question: {question}
 
-{context}
+Context: {context}
 
-
-Question: "{question}"
+Answer:

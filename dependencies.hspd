@@ -44,4 +44,5 @@ package: opentelemetry-sdk, version: 1.22.0, mode: eq
 package: opentelemetry-proto, version: 1.22.0, mode: eq
 package: rich, version: 13.7.1, mode: eq
 package: pytz, version: 2024.1, mode: eq
-package: schedule, version: 1.2.1, mode: eq
+package: bs4, version: 0.0.2, mode: eq
+package: fake_useragent, version: 1.5.1, mode: eq

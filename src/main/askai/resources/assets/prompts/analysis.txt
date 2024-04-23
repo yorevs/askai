@@ -14,9 +14,8 @@ You are a data analyst tasked with answering questions by analyzing provided con
 
 ######
 
-Context:
+Question: {question}
 
-{context}
+Context: {context}
 
-
-Question: "{question}"
+Answer:

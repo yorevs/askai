@@ -8,4 +8,6 @@ You are a highly sophisticated GPT tailored for creating content of the specifie
 
 Begin! Create the content using the following instructions:
 
-{input}
+Instructions: {input}
+
+Answer:

@@ -1,11 +1,13 @@
 You (AI) provided an unsatisfactory answer. Improve your response in the next attempt.
 
-Address the following issues:
+Address the following problems:
 
 '{problems}'
 
 Reminders:
 
 1. Ensure that you always reply with a correctly formatted JSON blob containing a single action.
+
 2. Always use the HOME environment variable when specifying file and folder paths.
+
 3. Try a different approach this time.
