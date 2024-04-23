@@ -15,6 +15,9 @@
 
 import logging as log
 
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import PromptTemplate
+
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -24,8 +27,6 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.exception.exceptions import InaccurateResponse
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import PromptTemplate
 
 
 def assert_accuracy(question: str, ai_response: str) -> None:
@@ -37,9 +38,9 @@ def assert_accuracy(question: str, ai_response: str) -> None:
     if ai_response in msg.accurate_responses:
         return
     elif not ai_response:
-        problems = issues_prompt.format(problems="AI provided AN EMPTY response")
+        problems = issues_prompt.format(problems="AI provided AN <EMPTY> response")
         shared.context.push("SCRATCHPAD", problems)
-        raise InaccurateResponse(f"AI Assistant didn't respond accurately => 'EMPTY'")
+        raise InaccurateResponse(problems)
 
     assert_template = PromptTemplate(input_variables=["response", "input"], template=prompt.read_prompt("ryg-rag"))
     final_prompt = assert_template.format(response=ai_response, input=question)
@@ -54,8 +55,8 @@ def assert_accuracy(question: str, ai_response: str) -> None:
             log.info("Accuracy check  status: '%s'  reason: '%s'", status, problems)
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity="debug")
             if RagResponse.of_status(status).is_bad:
-                problems = RagResponse.strip_code(output)
-                shared.context.push("SCRATCHPAD", issues_prompt.format(problems=problems))
+                problems = issues_prompt.format(problems=RagResponse.strip_code(output))
+                shared.context.push("SCRATCHPAD", problems)
                 raise InaccurateResponse(problems)
             return
 

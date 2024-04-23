@@ -1,9 +1,11 @@
+from functools import cached_property, lru_cache
+
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.modules.application.exit_status import ExitStatus
+
 from askai.core.askai_configs import configs
 from askai.language.argos_translator import ArgosTranslator
 from askai.language.language import Language
-from functools import cached_property, lru_cache
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.modules.application.exit_status import ExitStatus
 
 
 class AskAiMessages(metaclass=Singleton):
@@ -89,10 +91,6 @@ class AskAiMessages(metaclass=Singleton):
     @lru_cache
     def assert_acc(self, result: str) -> str:
         return self.translate(f"! Accuracy check: `{result}`")
-
-    @lru_cache
-    def action_plan(self, plan_text: str) -> str:
-        return self.translate(f"@ Action plan: `{plan_text}`")
 
     @lru_cache
     def x_reference(self) -> str:
