@@ -15,6 +15,7 @@
 
 import json
 from dataclasses import dataclass
+from types import SimpleNamespace
 
 
 @dataclass(frozen=True)
@@ -23,7 +24,7 @@ class ActionPlan:
 
     reasoning: str = None
     category: str = None
-    plan: list[str] = None
+    plan: list[SimpleNamespace] = None
 
     def __str__(self):
         return f"Action Plan: {json.dumps(self.__dict__, default=lambda obj: obj.__dict__)}"

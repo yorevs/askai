@@ -14,6 +14,7 @@
 """
 
 import logging as log
+from types import SimpleNamespace
 from typing import Optional, TypeAlias, Any
 
 from hspylib.core.metaclass.singleton import Singleton
@@ -46,11 +47,26 @@ class Router(metaclass=Singleton):
 
     HUMAN_PROMPT: str = "{input}\n (reminder to respond in a JSON blob no matter what)"
 
+    @staticmethod
+    def _wrap_answer(question: str, category: str, response: str) -> str:
+        """Provide a final answer to the user.
+        :param question: The user question.
+        :param response: The AI response.
+        """
+        match category.lower(), configs.is_speak:
+            case "chat", False:
+                return final_answer(question, context=response)
+            case "file system", True:
+                return final_answer(question, persona_prompt='stt', context=response)
+            case _:
+                return response
+
     def __init__(self):
         self._approved = False
 
     @property
     def router_template(self) -> ChatPromptTemplate:
+        """TODO"""
         template = PromptTemplate(input_variables=["os_type", "user"], template=prompt.read_prompt("router.txt"))
         return ChatPromptTemplate.from_messages(
             [
@@ -62,13 +78,15 @@ class Router(metaclass=Singleton):
 
     @property
     def agent_template(self) -> ChatPromptTemplate:
+        """TODO"""
         return prompt.hub("hwchase17/structured-chat-agent")
 
     def process(self, query: str) -> Optional[str]:
         """Process the user query and retrieve the final response.
         :param query: The user query to complete.
         """
-        @retry(exceptions=InaccurateResponse, tries=configs.max_router_retries, backoff=0)
+
+        @retry(exceptions=(InaccurateResponse, ValueError), tries=configs.max_router_retries, backoff=0)
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
@@ -80,7 +98,8 @@ class Router(metaclass=Singleton):
                 if not isinstance(plan, ActionPlan):
                     return f"Error: AI responded an invalid JSON object -> {str(plan)}"
                 AskAiEvents.ASKAI_BUS.events.reply.emit(
-                    message=msg.action_plan(f"[{plan.category.upper()}] {plan.reasoning}"),
+                    message=msg.action_plan(
+                        f"[{plan.category.upper()}] `{plan.reasoning}`"),
                     verbosity="debug"
                 )
                 output = self._route(query, plan)
@@ -96,10 +115,10 @@ class Router(metaclass=Singleton):
         :param query: The user query to complete.
         """
         last_response: str = ''
-        actions: list[str] = action_plan.plan
+        actions: list[SimpleNamespace] = action_plan.plan
         for action in actions:
             task = ', '.join([f"{k.title()}: {v}" for k, v in vars(action).items()])
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{action}`", verbosity="debug")
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{task}`", verbosity="debug")
             llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
             chat_memory = shared.create_chat_memory()
             lc_agent = create_structured_chat_agent(llm, features.agent_tools(), self.agent_template)
@@ -116,24 +135,11 @@ class Router(metaclass=Singleton):
             if (response := agent.invoke({"input": task})) and (output := response['output']):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
                 last_response = output
-                assert_accuracy(query,  output)
+                assert_accuracy(action.action, output)
                 continue
             raise InaccurateResponse("AI provided AN EMPTY response")
 
         return self._wrap_answer(query, action_plan.category, msg.translate(last_response))
-
-    def _wrap_answer(self, question: str, category: str, response: str) -> str:
-        """Provide a final answer to the user.
-        :param question: The user question.
-        :param response: The AI response.
-        """
-        match category.lower(), configs.is_speak:
-            case "chat", False:
-                return final_answer(question, context=response)
-            case "file system", True:
-                return final_answer(question, persona_prompt='stt', context=response)
-            case _:
-                return response
 
 
 assert (router := Router().INSTANCE) is not None

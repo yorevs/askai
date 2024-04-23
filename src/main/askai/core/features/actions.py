@@ -92,7 +92,7 @@ class Actions(metaclass=Singleton):
     def check_output(self, question: str) -> str:
         """
         Name: 'check_output'
-        Description: Use this tool for analyzing or checking outputs from previous tools and examining files and folders.
+        Description: Use this tool for analyzing or checking outputs, examining files and folders and lists as well as examining any content.
         Usage: `check_output(question)`
           input `question`: The query about the output.
         """

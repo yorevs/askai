@@ -9,7 +9,7 @@ Requirements:
 
 3. Each action comprises an ATOMIC set of clear, precise instructions that outline the necessary action. Use explicit paths when refering them (e.g. ~/Downloads, ~/HomeSetup/docs). Do not suggest any terminal command.
 
-4. Explain the reasoning behind each action in the plan.
+4. Explain the reasoning behind the action plan.
 
 5. Indicate the appropriate category for the question. Valid categories are: 'chat', 'internet', 'terminal', 'file system', 'summarization', 'appointments'.
 
