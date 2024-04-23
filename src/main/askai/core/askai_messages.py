@@ -93,6 +93,10 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"! Accuracy check: `{result}`")
 
     @lru_cache
+    def action_plan(self, plan_text: str) -> str:
+        return self.translate(f"@ Action plan: `{plan_text}`")
+
+    @lru_cache
     def x_reference(self) -> str:
         return self.translate(f"> Looking for **X-References**…")
 

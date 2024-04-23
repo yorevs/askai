@@ -14,9 +14,9 @@
 """
 
 import inspect
-from functools import cached_property, lru_cache
+from functools import lru_cache
 from textwrap import dedent
-from typing import Any, Optional, Callable
+from typing import Any, Callable
 
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.metaclass.singleton import Singleton
@@ -29,8 +29,7 @@ from askai.core.features.tools.general import display_tool
 from askai.core.features.tools.generation import generate_content
 from askai.core.features.tools.summarization import summarize
 from askai.core.features.tools.terminal import execute_command, list_contents, open_command
-from askai.core.model.action_plan import ActionPlan
-from askai.exception.exceptions import ImpossibleQuery, TerminatingQuery
+from askai.exception.exceptions import TerminatingQuery
 
 
 class Actions(metaclass=Singleton):
@@ -49,37 +48,10 @@ class Actions(metaclass=Singleton):
             )
         )
 
-    @cached_property
-    def tool_names(self) -> list[str]:
-        return [str(dk) for dk in self._all.keys()]
-
     @lru_cache
     def agent_tools(self) -> list[BaseTool]:
         """TODO"""
         return [self._create_agent_tool(v) for _, v in self._all.items()]
-
-    def invoke(self, action: ActionPlan.Action, context: str = "") -> Optional[str]:
-        """Invoke the tool with its arguments and context.
-        :param action: The action to be performed.
-        :param context: the tool context.
-        """
-        try:
-            if fn := self._all[action.tool]:
-                args: list[Any] = action.params
-                args.append(context)
-                return fn(*list(map(str.strip, args)))
-        except KeyError as err:
-            raise ImpossibleQuery(f"Tool not found: {action.tool} => {str(err)}")
-
-        return None
-
-    @lru_cache
-    def enlist(self) -> str:
-        """Return an 'os.linesep' separated string list of feature descriptions."""
-        doc_strings: str = ""
-        for fn in self._all.values():
-            doc_strings += f"```{dedent(fn.__doc__)}```\n\n" if fn and fn.__doc__ else ""
-        return doc_strings
 
     def _human_approval(self) -> bool:
         """Prompt for human approval."""
@@ -146,14 +118,14 @@ class Actions(metaclass=Singleton):
         """
         return generate_content(instructions, mime_type, path_name)
 
-    def final_answer(self, texts: list[str]) -> str:
+    def final_answer(self, answer: list[str] | str) -> str:
         """
         Name: 'final_answer'
         Description: Use this tool as your final tool to provide your final answer. Join all messages to the user together in only one call as you can input a list of texts do be displayed.
         Usage: 'final_answer(text, ...repeat N times)'
           input `texts`: The comma separated list of texts to be displayed.
         """
-        return display_tool(*texts[:-1])
+        return display_tool(*answer if isinstance(answer, list) else answer)
 
     def list_tool(self, folder: str) -> str:
         """

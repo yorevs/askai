@@ -15,29 +15,15 @@
 
 import json
 from dataclasses import dataclass
-from functools import cached_property
-from types import SimpleNamespace
-from typing import Any
 
 
 @dataclass(frozen=True)
 class ActionPlan:
     """Keep track of the router action plan."""
 
-    @dataclass
-    class Action:
-        """Represents a single action."""
-
-        tool: str
-        params: list[Any]
-
     reasoning: str = None
     category: str = None
-    plan: list[SimpleNamespace] = None
-
-    @cached_property
-    def actions(self) -> list[Action]:
-        return [self.Action(a.action, a.inputs) for a in self.plan]
+    plan: list[str] = None
 
     def __str__(self):
         return f"Action Plan: {json.dumps(self.__dict__, default=lambda obj: obj.__dict__)}"

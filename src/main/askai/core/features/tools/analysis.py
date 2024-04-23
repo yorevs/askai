@@ -39,7 +39,6 @@ def assert_accuracy(question: str, ai_response: str) -> None:
         return
     elif not ai_response:
         problems = issues_prompt.format(problems="AI provided AN <EMPTY> response")
-        shared.context.push("SCRATCHPAD", problems)
         raise InaccurateResponse(problems)
 
     assert_template = PromptTemplate(input_variables=["response", "input"], template=prompt.read_prompt("ryg-rag"))
@@ -56,7 +55,6 @@ def assert_accuracy(question: str, ai_response: str) -> None:
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity="debug")
             if RagResponse.of_status(status).is_bad:
                 problems = issues_prompt.format(problems=RagResponse.strip_code(output))
-                shared.context.push("SCRATCHPAD", problems)
                 raise InaccurateResponse(problems)
             return
 

@@ -1,47 +1,38 @@
-Task: Review the tool list and develop a detailed action plan by breaking down the action into specific tasks. For each task, select the most suitable tools based on their detailed descriptions and guidelines. Confirm that each tool meets the input requirements necessary for deployment. Ensure that the action plan comprehensively addresses all task aspects, choosing tools based on functionality rather than name. Respond to the human as helpfully and accurately as possible. You have access to the following tools:
+Task: Review user input, identify all user goals, and create a detailed action plan consisting of simple, single tasks that comprehensively address all goals. Respond as helpfully and accurately as possible.
 
-{{tools}}
 
-Use a json blob to specify a tool by providing an action key (tool name) and an action_input key (tool input).
+Requirements:
 
-Valid "action" values: "Final Answer" or {{tool_names}}
+1. The action plan should be provided in JSON format.
 
-Provide only ONE action per $JSON_BLOB, as shown:
+2. The plan must not contain an empty array; include at least one action.
+
+3. Each action comprises an ATOMIC set of clear, precise instructions that outline the necessary action. Use explicit paths when refering them (e.g. ~/Downloads, ~/HomeSetup/docs). Do not suggest any terminal command.
+
+4. Explain the reasoning behind each action in the plan.
+
+5. Indicate the appropriate category for the question. Valid categories are: 'chat', 'internet', 'terminal', 'file system', 'summarization', 'appointments'.
+
+Additional Guidelines:
+
+- Perform operations in the current working directory unless specified otherwise.
+
+- Assume references to files or folders imply those within the user's $HOME directory, based on the user's operating system.
+
+- Allow the user to specify additional paths. These should be correctly integrated into the final path.
+
+
+Provide the action_plan per JSON_BLOB, as shown:
 
 ```
 {{{{
-        "action": $TOOL_NAME,
-  "action_input": $INPUT
+  "reasoning": $THOUGHT,
+  "category": $CATEGORY,
+  "plan": [
+    $TASK,
+    ... (repeat N times)
+  ]
 }}}}
 ```
 
-Follow this format:
-
-Question: input question to answer
-Thought: consider previous and subsequent steps
-Action:
-```
-$JSON_BLOB
-```
-Observation: action result
-... (repeat Thought/Action/Observation N times)
-Thought: I know what to respond
-Action:
-```
-{{{{
-        "action": "Final Answer",
-  "action_input": "Final response to human"
-}}}}
-
-
-Before responding to the user, it is imperative that you follow the step-by-step instructions provided below in sequential order:
-
-1. When file(s) or folder(s) are not specified, assume operations are performed within the current working directory.
-
-2. Before performing any operations, always verify the presence of files and folders to prevent errors caused by assuming their existence or relying solely on chat history. Users may not be aware of current file or folder statuses, increasing the risk of mistakes.
-
-3. When I explicitly refer to: my file(s) or my folder(s) in the query, assume I'm referring to files and folders within my HOME (~) directory for navigation or file management purposes. Explore the default user ('{user}') home folders tailored to my '{os_type}' system. Allow me to specify additional paths, which will be appended to the existing folder directory (e.g., ~/Downloads, ~/Music, ~/HomeSetup/docs, etc.).
-
-4. As responses will invariably be JSON_BLOBs, ensure all double quotes not part of the JSON structure are escaped.
-
-Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation
+Begin! Reminder to always respond with a valid JSON blob of an action plan and use single actions.
