@@ -6,8 +6,8 @@
    @package: askai.core.component
       @file: internet_service.py
    @created: Sun, 10 Mar 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
-      @site: https://github.com/yorevs/hspylib
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+      @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup

@@ -2,16 +2,22 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib
+   @project: HsPyLib-AskAI
    @package: demo.components
       @file: summarizer-demo.py
    @created: Tue, 14 May 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
-      @site: https://github.com/yorevs/hspylib
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+      @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+from typing import List
+
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.tools.commons import log_init, sysout
 from langchain_community.document_loaders.directory import DirectoryLoader
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -20,12 +26,6 @@ from askai.core.component.cache_service import cache
 from askai.core.component.summarizer import summarizer
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.tools.commons import log_init, sysout
-from typing import List
-
-import logging as log
-import os
 
 if __name__ == "__main__":
     log_init("summarizer-demo.log", level=log.INFO)

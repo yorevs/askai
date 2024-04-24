@@ -4,7 +4,7 @@
       @file: terminal_command.py
    @created: Thu, 29 Feb 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
-      @site: https://github.com/yorevs/hspylib
+      @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup

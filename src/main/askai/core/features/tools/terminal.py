@@ -7,19 +7,11 @@
       @file: terminal.py
    @created: Mon, 01 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
-      @site: https://github.com/yorevs/hspylib
+      @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-
-import logging as log
-import os
-from functools import partial
-from os.path import expandvars
-from pathlib import Path
-from shutil import which
-from typing import Tuple
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -27,7 +19,15 @@ from askai.core.features.tools.analysis import replace_x_refs
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_path, media_type_of
 from clitt.core.term.terminal import Terminal
+from functools import partial
 from hspylib.modules.application.exit_status import ExitStatus
+from os.path import expandvars
+from pathlib import Path
+from shutil import which
+from typing import Tuple
+
+import logging as log
+import os
 
 
 def list_contents(folder: str) -> str:

@@ -4,21 +4,21 @@
       @file: chat_context.py
    @created: Fri, 28 Feb 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
-      @site: https://github.com/yorevs/hspylib
+      @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
 
-import os
-from collections import defaultdict, namedtuple, deque
-from functools import reduce, partial
-from typing import Any, Literal, Optional, TypeAlias
-
 from askai.exception.exceptions import TokenLengthExceeded
+from collections import defaultdict, deque, namedtuple
+from functools import partial, reduce
 from hspylib.core.zoned_datetime import now
 from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from typing import Any, Literal, Optional, TypeAlias
+
+import os
 
 ChatRoles: TypeAlias = Literal["system", "human", "assistant"]
 

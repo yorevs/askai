@@ -1,10 +1,27 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.engine
+      @file: engine_factory.py
+   @created: Tue, 23 Apr 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+      @site: https://github.com/yorevs/askai
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright (c) 2024, HomeSetup
+"""
+
+from typing import List
+
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_not_none
+
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.openai.openai_engine import OpenAIEngine
 from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.exception.exceptions import NoSuchEngineError
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_not_none
-from typing import List
 
 
 class EngineFactory(metaclass=Singleton):

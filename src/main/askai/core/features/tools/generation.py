@@ -7,16 +7,11 @@
       @file: generation.py
    @created: Mon, 01 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
-      @site: https://github.com/yorevs/hspylib
+      @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-
-import logging as log
-import os
-from os.path import dirname, basename
-from pathlib import Path
 
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -28,6 +23,11 @@ from askai.core.support.utilities import extract_codeblock
 from hspylib.core.preconditions import check_not_none
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import PromptTemplate
+from os.path import basename, dirname
+from pathlib import Path
+
+import logging as log
+import os
 
 
 def generate_content(description: str, mime_type: str, pathname: str | None) -> str:

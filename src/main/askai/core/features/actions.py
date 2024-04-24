@@ -7,20 +7,11 @@
       @file: actions.py
    @created: Mon, 01 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
-      @site: https://github.com/yorevs/hspylib
+      @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-
-import inspect
-from functools import lru_cache
-from textwrap import dedent
-from typing import Any, Callable
-
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.tools import BaseTool, StructuredTool
 
 from askai.core.askai_messages import msg
 from askai.core.features.tools.analysis import check_output
@@ -30,6 +21,14 @@ from askai.core.features.tools.generation import generate_content
 from askai.core.features.tools.summarization import summarize
 from askai.core.features.tools.terminal import execute_command, list_contents, open_command
 from askai.exception.exceptions import TerminatingQuery
+from clitt.core.tui.line_input.line_input import line_input
+from functools import lru_cache
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.tools import BaseTool, StructuredTool
+from textwrap import dedent
+from typing import Any, Callable
+
+import inspect
 
 
 class Actions(metaclass=Singleton):

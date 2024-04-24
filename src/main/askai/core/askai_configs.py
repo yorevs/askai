@@ -7,20 +7,19 @@
       @file: askai_configs.py
    @created: Fri, 5 Jan 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
-      @site: https://github.com/yorevs/hspylib
+      @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-from shutil import which
-
+from askai.__classpath__ import classpath
+from askai.language.language import Language
 from hspylib.core.config.app_config import AppConfigs
 from hspylib.core.enums.charset import Charset
 from hspylib.core.metaclass.singleton import Singleton
+from shutil import which
 
-from askai.__classpath__ import classpath
-from askai.language.language import Language
+import os
 
 
 class AskAiConfigs(metaclass=Singleton):

@@ -7,20 +7,11 @@
       @file: router.py
    @created: Mon, 01 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
-      @site: https://github.com/yorevs/hspylib
+      @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-
-import logging as log
-from types import SimpleNamespace
-from typing import Optional, TypeAlias, Any
-
-from hspylib.core.metaclass.singleton import Singleton
-from langchain.agents import create_structured_chat_agent, AgentExecutor
-from langchain_core.prompts import ChatPromptTemplate, PromptTemplate, MessagesPlaceholder
-from retry import retry
 
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
@@ -35,6 +26,14 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
+from hspylib.core.metaclass.singleton import Singleton
+from langchain.agents import AgentExecutor, create_structured_chat_agent
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from retry import retry
+from types import SimpleNamespace
+from typing import Any, Optional, TypeAlias
+
+import logging as log
 
 AgentResponse: TypeAlias = dict[str, Any]
 

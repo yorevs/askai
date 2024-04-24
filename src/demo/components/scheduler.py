@@ -1,18 +1,32 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: demo.components
+      @file: scheduler.py
+   @created: Tue, 23 Apr 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+      @site: https://github.com/yorevs/askai
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright (c) 2024, HomeSetup
+"""
+
+import os
+import sys
+from datetime import datetime, timedelta
+from pathlib import Path
+from threading import Timer
+
+import pause
+from clitt.core.term.terminal import Terminal
+from hspylib.core.tools.commons import sysout
+from hspylib.core.tools.dict_tools import get_or_default
 
 from askai.core.askai import AskAi
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.support.shared_instances import shared
-from clitt.core.term.terminal import Terminal
-from datetime import datetime, timedelta
-from hspylib.core.tools.commons import sysout
-from hspylib.core.tools.dict_tools import get_or_default
-from pathlib import Path
-from threading import Timer
-
-import os
-import pause
-import sys
 
 today = datetime.today()
 th_dir: str = f'{os.getenv("HOME")}/TechWeek'

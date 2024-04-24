@@ -1,3 +1,18 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: "askai"
+   @package: "askai".main.askai.core.support
+      @file: shared_instances.py
+   @created: Tue, 23 Apr 2024
+    @author: "<B>H</B>ugo <B>S</B>aporetti <B>J</B>unior")"
+      @site: "https://github.com/yorevs/askai")
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright (c) 2024, HomeSetup
+"""
+
 from functools import lru_cache
 from typing import Optional
 
@@ -29,8 +44,9 @@ class SharedInstances(metaclass=Singleton):
     NEGATIVE_ID: str = "1b11b759-e50e-44de-b5b2-4879354fd9cf"
 
     def __init__(self) -> None:
-        self._engine: Optional[AIEngine] = None
-        self._context: Optional[ChatContext] = None
+        self._engine: AIEngine | None = None
+        self._context: ChatContext | None = None
+        self._memory: BaseChatMemory | None = None
         self._idiom: str = configs.language.idiom
         self._max_context_size: int = configs.max_context_size
         self._max_iteractions: int = configs.max_iteractions
@@ -88,7 +104,9 @@ class SharedInstances(metaclass=Singleton):
     @lru_cache
     def create_chat_memory(self) -> BaseChatMemory:
         """TODO"""
-        return ConversationBufferWindowMemory(memory_key="chat_history", k=self.max_context_size, return_messages=True)
+        if self._memory is None:
+            self._memory = ConversationBufferWindowMemory(memory_key="chat_history", k=self.max_context_size, return_messages=True)
+        return self._memory
 
     def input_text(self, input_prompt: str) -> Optional[str]:
         """Prompt for user input.

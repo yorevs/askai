@@ -7,21 +7,19 @@
       @file: askai_prompt.py
    @created: Mon, 22 Jan 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
-      @site: https://github.com/yorevs/hspylib
+      @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-from functools import lru_cache
-
-from hspylib.core.metaclass.singleton import Singleton
-from langchain import hub
-from langchain_core.prompts import ChatPromptTemplate
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.model.terminal_command import get_os, get_shell, get_user, SupportedPlatforms, SupportedShells
 from askai.core.support.utilities import read_resource
+from functools import lru_cache
+from hspylib.core.metaclass.singleton import Singleton
+from langchain import hub
+from langchain_core.prompts import ChatPromptTemplate
 
 
 class AskAiPrompt(metaclass=Singleton):

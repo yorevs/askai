@@ -7,21 +7,11 @@
       @file: utilities.py
    @created: Wed, 10 Jan 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
-      @site: https://github.com/yorevs/hspylib
+      @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-import hashlib
-import mimetypes
-import os
-import re
-import sys
-from os.path import basename, dirname
-from pathlib import Path
-from typing import Any, Optional, Tuple
-
-import pause
 from askai.core.support.presets import Presets
 from askai.core.support.text_formatter import text_formatter
 from askai.language.language import Language
@@ -31,6 +21,16 @@ from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.cli.vt100.vt_color import VtColor
+from os.path import basename, dirname
+from pathlib import Path
+from typing import Any, Optional, Tuple
+
+import hashlib
+import mimetypes
+import os
+import pause
+import re
+import sys
 
 
 def read_stdin() -> Optional[str]:

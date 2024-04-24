@@ -1,15 +1,29 @@
-from argostranslate import package, translate
-from argostranslate.translate import ITranslation
-from askai.core.component.cache_service import CACHE_DIR
-from askai.exception.exceptions import TranslationPackageError
-from askai.language.language import Language
-from functools import lru_cache
-from hspylib.core.metaclass.singleton import Singleton
-from typing import Optional
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.language.argos_translator
+      @file: argos_translator.py
+   @created: Fri, 5 Jan 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+      @site: https://github.com/yorevs/askai
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright (c) 2024, HomeSetup
+"""
 
 import logging as log
 import os
 import sys
+from functools import lru_cache
+from typing import Optional
+
+from argostranslate import package, translate
+from argostranslate.translate import ITranslation
+
+from askai.exception.exceptions import TranslationPackageError
+from askai.language.language import Language
 
 
 class ArgosTranslator:

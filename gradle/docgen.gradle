@@ -31,7 +31,7 @@ def PY_FILE_HEADER = """#!/usr/bin/env python3
       @site: ${project.ext.siteUrl}
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright ${year}, HSPyLib team
+   Copyright (c) ${year}, HomeSetup
 \"\"\"
 """
 
@@ -127,6 +127,6 @@ task syncFileHeaders(type: Task) {
       }
       fh_file.setText("${has_old_headers ? old_headers.join('\n') : headers }\n${imports.join('\n')}${code.join('\n')}\n")
     }
-    println "Finished processing all python files"
+    println "Finished processing all python file headers from " + sourceRoot
   }
 }

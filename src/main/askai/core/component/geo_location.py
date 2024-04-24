@@ -1,15 +1,31 @@
-from askai.core.askai_configs import configs
-from datetime import datetime
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.namespace import Namespace
-from hspylib.modules.fetch import fetch
-from json import JSONDecodeError
-from requests.exceptions import ConnectionError
-from textwrap import dedent
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.component
+      @file: geo_location.py
+   @created: Tue, 23 Apr 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+      @site: https://github.com/yorevs/askai
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright (c) 2024, HomeSetup
+"""
 
 import json
 import logging as log
+from datetime import datetime
+from json import JSONDecodeError
+from textwrap import dedent
+
 import pytz
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.namespace import Namespace
+from hspylib.modules.fetch import fetch
+from requests.exceptions import ConnectionError
+
+from askai.core.askai_configs import configs
 
 
 class GeoLocation(metaclass=Singleton):

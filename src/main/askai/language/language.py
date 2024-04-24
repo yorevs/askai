@@ -1,9 +1,24 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.language.language
+      @file: language.py
+   @created: Fri, 5 Jan 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+      @site: https://github.com/yorevs/askai
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright (c) 2024, HomeSetup
+"""
+
+import re
+from typing import Tuple
+
 from hspylib.core.enums.charset import Charset
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.tools.dict_tools import get_or_default
-from typing import Tuple
-
-import re
 
 
 class Language(Enumeration):

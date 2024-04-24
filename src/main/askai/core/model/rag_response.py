@@ -1,6 +1,21 @@
-from hspylib.core.enums.enumeration import Enumeration
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.model
+      @file: rag_response.py
+   @created: Tue, 23 Apr 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+      @site: https://github.com/yorevs/askai
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright (c) 2024, HomeSetup
+"""
 
 import re
+
+from hspylib.core.enums.enumeration import Enumeration
 
 
 class RagResponse(Enumeration):

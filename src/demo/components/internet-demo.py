@@ -2,26 +2,27 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib
+   @project: HsPyLib-AskAI
    @package: demo.components
       @file: internet-demo.py
    @created: Tue, 14 May 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
-      @site: https://github.com/yorevs/hspylib
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+      @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import re
+
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.tools.commons import log_init, sysout
+
 from askai.core.component.cache_service import cache
 from askai.core.component.geo_location import geo_location
 from askai.core.component.internet_service import internet
 from askai.core.model.search_result import SearchResult
 from askai.core.support.shared_instances import shared
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.tools.commons import log_init, sysout
-
-import logging as log
-import re
 
 if __name__ == "__main__":
 

@@ -1,10 +1,25 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.support
+      @file: settings.py
+   @created: Tue, 23 Apr 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+      @site: https://github.com/yorevs/askai
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright (c) 2024, HomeSetup
+"""
+
+import os
+from typing import Any
+
 from hspylib.core.config.properties import Properties
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import touch_file
 from hspylib.core.tools.text_tools import ensure_endswith
-from typing import Any
-
-import os
 
 
 class Settings(Properties):
