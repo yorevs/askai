@@ -18,8 +18,6 @@ import sys
 from textwrap import dedent
 from typing import Any, Optional
 
-from askai.__classpath__ import classpath
-from askai.core.askai import AskAi
 from clitt.core.term.commons import is_a_tty
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
@@ -30,6 +28,9 @@ from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
 
+from askai.__classpath__ import classpath
+from askai.core.askai import AskAi
+
 if not is_a_tty():
     log.getLogger().setLevel(log.ERROR)
 
@@ -38,13 +39,13 @@ class Main(TUIApplication):
     """HomeSetup Ask-AI - Unleash the Power of AI in Your Terminal."""
 
     # The welcome message
-    DESCRIPTION = classpath.get_source("welcome.txt").read_text(encoding=Charset.UTF_8.val)
+    DESCRIPTION: str = classpath.get_source("welcome.txt").read_text(encoding=Charset.UTF_8.val)
 
     # Location of the .version file
-    VERSION = Version.load(load_dir=classpath.source_path())
+    VERSION: Version = Version.load(load_dir=classpath.source_path())
 
     # The resources folder
-    RESOURCE_DIR = str(classpath.resource_path())
+    RESOURCE_DIR: str = str(classpath.resource_path())
 
     INSTANCE: "Main"
 
@@ -124,7 +125,7 @@ class Main(TUIApplication):
         return ExitStatus.SUCCESS
 
     def _get_argument(self, arg_name: str) -> Optional[Any]:
-        """TODO"""
+        """Get a command line argument, converting to the appropriate type."""
         if arg := self.get_arg(arg_name):
             if isinstance(arg, str):
                 return arg

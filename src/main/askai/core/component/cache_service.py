@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from askai.core.askai_settings import ASKAI_DIR
 from askai.core.support.utilities import hash_text
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.metaclass.singleton import Singleton
@@ -22,19 +23,25 @@ from typing import List, Optional, Tuple
 
 import os
 
-CACHE_DIR: Path = Path(f'{os.getenv("HHS_DIR", os.getenv("TEMP", "/tmp"))}/askai/cache')
+# AskAI cache root directory.
+CACHE_DIR: Path = Path(f'{ASKAI_DIR}/cache')
 
-# Transcribed audio directory.
+# Settings directory.
+SETTINGS_DIR: Path = Path(str(ASKAI_DIR) + "/settings")
+if not SETTINGS_DIR.exists():
+    SETTINGS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Transcribed audio cache directory.
 AUDIO_DIR: Path = Path(str(CACHE_DIR) + "/audio")
 if not AUDIO_DIR.exists():
     AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 
-# Voice recordings directory.
+# Voice recordings cache directory.
 REC_DIR: Path = Path(str(CACHE_DIR) + "/recordings")
 if not REC_DIR.exists():
     REC_DIR.mkdir(parents=True, exist_ok=True)
 
-# Transcribed audio directory.
+# Transcribed audio cache directory.
 PERSIST_DIR: Path = Path(str(CACHE_DIR) + "/chroma")
 if not PERSIST_DIR.exists():
     PERSIST_DIR.mkdir(parents=True, exist_ok=True)

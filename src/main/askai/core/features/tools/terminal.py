@@ -34,8 +34,8 @@ def list_contents(folder: str) -> str:
     """List the contents of a folder.
     :param folder: The folder to list contents from.
     """
-    posix_path = Path(f"{folder.replace('~', os.getenv('HOME'))}")
-    if posix_path.exists() and posix_path.is_dir():
+    path_obj = PathObject.of(folder)
+    if path_obj.exists() and path_obj.is_dir():
         status, output = _execute_bash(f"ls -lht {folder} 2>/dev/null | sort -k9,9")
         if status:
             if not output:
@@ -45,36 +45,35 @@ def list_contents(folder: str) -> str:
     return f"Error: Could not list folder '{folder}'!"
 
 
-def open_command(pathname: str) -> str:
+def open_command(path_name: str) -> str:
     """Open the specified path, regardless if it's a file, folder or application.
-    :param pathname: The file path to open.
+    :param path_name: The file path to open.
     """
-    posix_path = Path(f"{pathname.replace('~', os.getenv('HOME'))}")
-
+    posix_path = PathObject.of(path_name)
     if not posix_path.exists():
         # Attempt to resolve cross-references
         if history := str(shared.context.flat("HISTORY") or ""):
-            if x_referenced := replace_x_refs(pathname, history):
-                x_referenced = Path(f"{x_referenced.replace('~', os.getenv('HOME'))}")
-                posix_path = x_referenced if x_referenced.exists() else posix_path
+            if x_referenced := replace_x_refs(path_name, history):
+                x_referenced = PathObject.of(x_referenced)
+                posix_path = str(x_referenced) if x_referenced.exists() else posix_path
 
     if posix_path.exists():
         # find the best app to open the file.
-        pathname: str = str(posix_path)
-        match media_type_of(pathname):
+        path_name: str = str(posix_path)
+        match media_type_of(path_name):
             case ("audio", _) | ("video", _):
-                fn_open = partial(_execute_bash, f"ffplay -v 0 -autoexit {pathname} &>/dev/null")
+                fn_open = partial(_execute_bash, f"ffplay -v 0 -autoexit {path_name} &>/dev/null")
             case ("text", _):
-                fn_open = partial(_execute_bash, f'echo "File \\`{pathname}\\`: \n" && cat {pathname}')
+                fn_open = partial(_execute_bash, f'echo "File \\`{path_name}\\`: \n" && cat {path_name}')
             case _:
-                fn_open = partial(_execute_bash, f"open {pathname} 2>/dev/null")
+                fn_open = partial(_execute_bash, f"open {path_name} 2>/dev/null")
         status, output = fn_open()
         if status:
             if not output:
-                return f"`{pathname}` was successfully opened!"
+                return f"`{path_name}` was successfully opened!"
             return output
 
-    return f"Error: Could not open '{pathname}'!"
+    return f"Error: Could not open '{path_name}'!"
 
 
 def execute_command(shell: str, command: str) -> str:

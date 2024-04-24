@@ -15,14 +15,25 @@
 import logging as log
 import os
 import re
+from pathlib import Path
 from typing import Any, Optional
 
-from askai.__classpath__ import classpath
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import to_bool
 from setman.settings.settings import Settings
 from setman.settings.settings_config import SettingsConfig
 from setman.settings.settings_entry import SettingsEntry
+
+from askai.__classpath__ import classpath
+
+
+# AskAI config directory.
+ASKAI_DIR: Path = Path(f'{os.getenv("HHS_DIR", os.getenv("ASKAI_DIR", os.getenv("TEMP", "/tmp")))}/askai')
+if not ASKAI_DIR.exists():
+    ASKAI_DIR: Path = classpath.resource_path()
+
+# Make sure the AskAI directory is exported.
+os.environ["ASKAI_DIR"] = str(ASKAI_DIR)
 
 
 class AskAiSettings(metaclass=Singleton):
@@ -30,14 +41,11 @@ class AskAiSettings(metaclass=Singleton):
 
     INSTANCE: 'AskAiSettings'
 
-    SETTINGS_DIR = f'{os.getenv("HHS_DIR", os.getenv("TEMP", "/tmp"))}'
-
     RESOURCE_DIR = str(classpath.resource_path())
 
     _ACTUAL_VERSION: str = '0.0.2'
 
     def __init__(self) -> None:
-        self._db_file = f"{self.SETTINGS_DIR}/askai/askai.db"
         self._configs = SettingsConfig(self.RESOURCE_DIR, "application.properties")
         self._settings = Settings(self._configs)
         if not self._settings.count() or self.get("askai.settings.version.id") != self._ACTUAL_VERSION:
@@ -78,7 +86,7 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("openai.text.to.speech.model", "openai", "tts-1")
         self._settings.put("openai.text.to.speech.voice", "openai", "onyx")
         self._settings.put("openai.text.to.speech.audio.format", "openai", "mp3")
-        log.debug(f"Settings database created at: '{self._db_file}'")
+        log.debug(f"Settings database created !")
 
     def get(self, key: str, default_value: str | None = '') -> str:
         val = self.__getitem__(key)

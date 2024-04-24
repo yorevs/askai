@@ -34,6 +34,7 @@ from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.features.router import router
+from hspylib.core.config.path_object import PathObject
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
@@ -272,12 +273,11 @@ class AskAi:
         """
         query: str = str(" ".join(query_arg) if isinstance(query_arg, list) else query_arg)
         self._question = query
-        dir_name, file_name = os.path.split(self._query_prompt)
+        dir_name, file_name = PathObject.split(self._query_prompt)
         if not interactive:
             stdin_args = read_stdin()
             template = PromptTemplate(
-                input_variables=["context", "question"],
-                template=prompt.read_prompt(file_name, dir_name.replace("~", os.getenv("HOME"))),
+                input_variables=["context", "question"], template=prompt.read_prompt(file_name, dir_name)
             )
             final_prompt = template.format(context=stdin_args, question=self._question)
             self._query_string = final_prompt if query else stdin_args

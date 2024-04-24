@@ -12,14 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import msg
-from askai.core.component.cache_service import PERSIST_DIR
-from askai.core.model.summary_result import SummaryResult
-from askai.core.support.langchain_support import lc_llm
-from askai.core.support.utilities import hash_text
-from askai.exception.exceptions import DocumentsNotFound
+import logging as log
 from functools import lru_cache
+from pathlib import Path
+from typing import List, Optional, Tuple
+
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import ensure_endswith
 from langchain.chains import RetrievalQA
@@ -27,11 +24,15 @@ from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter, TextSplitter
-from pathlib import Path
-from typing import List, Optional, Tuple
 
-import logging as log
-import os
+from askai.core.askai_events import AskAiEvents
+from askai.core.askai_messages import msg
+from askai.core.component.cache_service import PERSIST_DIR
+from hspylib.core.config.path_object import PathObject
+from askai.core.model.summary_result import SummaryResult
+from askai.core.support.langchain_support import lc_llm
+from askai.core.support.utilities import hash_text
+from askai.exception.exceptions import DocumentsNotFound
 
 
 class Summarizer(metaclass=Singleton):
@@ -96,7 +97,7 @@ class Summarizer(metaclass=Singleton):
         :param folder: The base folder of the summarization.
         :param glob: The glob pattern or file of the summarization.
         """
-        self._folder: str = str(folder).replace("~", os.getenv("HOME")).strip()
+        self._folder = str(PathObject.of(folder))
         self._glob: str = glob.strip()
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.summarizing(self.sum_path))
         embeddings = lc_llm.create_embeddings()

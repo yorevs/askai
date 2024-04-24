@@ -10,14 +10,11 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from dataclasses import dataclass
+import os
+import platform
 from functools import lru_cache
 from os.path import basename
 from typing import Literal, TypeAlias
-
-import json
-import os
-import platform
 
 SupportedPlatforms: TypeAlias = Literal["linux", "windows", "darwin"] | None
 
@@ -39,16 +36,3 @@ def get_shell() -> SupportedShells:
 @lru_cache
 def get_user() -> str:
     return os.getenv("USER", "user")
-
-
-@dataclass
-class TerminalCommand:
-    """Keep track of the executed terminal commands."""
-
-    cmd_line: str
-    cmd_out: str
-    os: SupportedPlatforms = get_os()
-    shell: SupportedShells = get_shell()
-
-    def __str__(self):
-        return json.dumps(self.__dict__, default=lambda obj: obj.__dict__)
