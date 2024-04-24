@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/hspylib
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright·(c)·2024,·HSPyLib
+   Copyright (c) 2024, HomeSetup
 """
 
 from hspylib.core.exception.exceptions import HSBaseException

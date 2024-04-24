@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/hspylib
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright·(c)·2024,·HSPyLib
+   Copyright (c) 2024, HomeSetup
 """
 from askai.core.model.ai_model import AIModel
 from hspylib.core.enums.enumeration import Enumeration

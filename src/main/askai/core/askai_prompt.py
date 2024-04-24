@@ -3,14 +3,14 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.utils
+   @package: askai.core.askai_prompt
       @file: askai_prompt.py
    @created: Mon, 22 Jan 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
       @site: https://github.com/yorevs/hspylib
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright·(c)·2024,·HSPyLib
+   Copyright (c) 2024, HomeSetup
 """
 from functools import lru_cache
 

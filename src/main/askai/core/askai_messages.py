@@ -1,3 +1,17 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.askai_messages
+      @file: askai_messages.py
+   @created: Fri, 5 Jan 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+      @site: https://github.com/yorevs/hspylib
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright (c) 2024, HomeSetup
+"""
 from functools import cached_property, lru_cache
 
 from hspylib.core.metaclass.singleton import Singleton
