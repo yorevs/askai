@@ -11,6 +11,7 @@
 
 package: hspylib, version: 1.12.36, mode: ge
 package: hspylib-clitt, version: 0.9.122, mode: ge
+package: hspylib-setman, version: 0.10.34, mode: ge
 
 /* Application dependencies */
 

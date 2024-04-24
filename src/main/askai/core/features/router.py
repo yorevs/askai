@@ -13,6 +13,10 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import logging as log
+from types import SimpleNamespace
+from typing import Any, Optional, TypeAlias, Type
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -30,10 +34,6 @@ from hspylib.core.metaclass.singleton import Singleton
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from retry import retry
-from types import SimpleNamespace
-from typing import Any, Optional, TypeAlias
-
-import logging as log
 
 AgentResponse: TypeAlias = dict[str, Any]
 
@@ -45,6 +45,11 @@ class Router(metaclass=Singleton):
     INSTANCE: "Router"
 
     HUMAN_PROMPT: str = "{input}\n (reminder to respond in a JSON blob no matter what)"
+
+    # Allow the router to retry on the errors bellow.
+    RETRIABLE_ERRORS: tuple[Type[Exception], ...] = (
+        InaccurateResponse, ValueError, AttributeError
+    )
 
     @staticmethod
     def _wrap_answer(question: str, category: str, response: str) -> str:
@@ -65,7 +70,7 @@ class Router(metaclass=Singleton):
 
     @property
     def router_template(self) -> ChatPromptTemplate:
-        """TODO"""
+        """Retrieve the Router Template."""
         template = PromptTemplate(input_variables=["os_type", "user"], template=prompt.read_prompt("router.txt"))
         return ChatPromptTemplate.from_messages(
             [
@@ -77,7 +82,7 @@ class Router(metaclass=Singleton):
 
     @property
     def agent_template(self) -> ChatPromptTemplate:
-        """TODO"""
+        """Retrieve the Structured Agent Template."""
         return prompt.hub("hwchase17/structured-chat-agent")
 
     def process(self, query: str) -> Optional[str]:
@@ -85,22 +90,19 @@ class Router(metaclass=Singleton):
         :param query: The user query to complete.
         """
 
-        @retry(exceptions=(InaccurateResponse, ValueError), tries=configs.max_router_retries, backoff=0)
+        @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
             runnable = self.router_template | lc_llm.create_chat_model(Temperature.COLDEST.temp)
-            response = runnable.invoke({"input": query})
-            if response:
+            if response := runnable.invoke({"input": query}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
                 plan: ActionPlan = object_mapper.of_json(response.content, ActionPlan)
                 if not isinstance(plan, ActionPlan):
                     return f"Error: AI responded an invalid JSON object -> {str(plan)}"
                 AskAiEvents.ASKAI_BUS.events.reply.emit(
-                    message=msg.action_plan(
-                        f"[{plan.category.upper()}] `{plan.reasoning}`"),
-                    verbosity="debug"
-                )
+                    message=msg.action_plan(f"[{plan.category}] `{plan.reasoning}`"),
+                    verbosity="debug")
                 output = self._route(query, plan)
             else:
                 output = response
@@ -110,8 +112,8 @@ class Router(metaclass=Singleton):
 
     def _route(self, query: str, action_plan: ActionPlan) -> str:
         """Route the actions to the proper function invocations.
-
         :param query: The user query to complete.
+        :param action_plan: The action plan to resolve the request.
         """
         last_response: str = ''
         actions: list[SimpleNamespace] = action_plan.plan
@@ -125,7 +127,7 @@ class Router(metaclass=Singleton):
                 agent=lc_agent, tools=features.agent_tools(),
                 max_iteraction=configs.max_router_retries,
                 memory=chat_memory,
-                max_execution_time=30,
+                max_execution_time=configs.max_agent_execution_time_seconds,
                 handle_parsing_errors=True,
                 return_only_outputs=True,
                 early_stopping_method=True,

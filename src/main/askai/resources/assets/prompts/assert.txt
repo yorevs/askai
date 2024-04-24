@@ -4,10 +4,12 @@ Address the following problems:
 
 '{problems}'
 
-Reminders:
+Suggestions to improve your response:
 
-1. Ensure that you always reply with a correctly formatted JSON blob containing a single action.
+1. Use the user's HOME folder when specifying file and folder paths.
 
-2. Always use the HOME environment variable when specifying file and folder paths.
+2. Implement a different action plan this time.
 
-3. Try a different approach this time.
+3. Employ alternative tools.
+
+(Reminder: Always respond in a JSON format no matter what).

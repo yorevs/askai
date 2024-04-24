@@ -12,6 +12,16 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+import sys
+from functools import partial
+from pathlib import Path
+from threading import Thread
+from typing import List, Optional
+
+import nltk
+import pause
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
@@ -32,7 +42,6 @@ from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxI
 from clitt.core.term.cursor import cursor
 from clitt.core.term.screen import screen
 from clitt.core.term.terminal import terminal
-from functools import partial
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import is_debugging, sysout
 from hspylib.core.tools.text_tools import elide_text
@@ -40,15 +49,6 @@ from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
 from hspylib.modules.eventbus.event import Event
 from langchain_core.prompts import PromptTemplate
-from pathlib import Path
-from threading import Thread
-from typing import List, Optional
-
-import logging as log
-import nltk
-import os
-import pause
-import sys
 
 
 class AskAi:
@@ -216,13 +216,13 @@ class AskAi:
         if self.is_interactive:
             splash_thread: Thread = Thread(daemon=True, target=self._splash)
             splash_thread.start()
-            recorder.setup()
             nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
             cache.set_cache_enable(self.cache_enabled)
             cache.read_query_history()
             player.start_delay()
             self._ready = True
             splash_thread.join()
+            recorder.setup()
             display_text(self, markdown=False)
             self.reply(msg.welcome(os.getenv("USER", "you")))
         else:

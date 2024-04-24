@@ -12,10 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+from pathlib import Path
+from typing import Callable, List, Optional, Tuple
+
+import pause
+from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import REC_DIR
-from askai.core.support.settings import Settings
 from askai.core.support.utilities import display_text
 from askai.exception.exceptions import IntelligibleAudioError, InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
@@ -23,25 +28,14 @@ from clitt.core.term.cursor import cursor
 from clitt.core.tui.mselect.mselect import mselect
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.zoned_datetime import now_ms
-from pathlib import Path
 from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
-from typing import Callable, List, Optional, Tuple
-
-import logging as log
-import os
-import pause
 
 
 class Recorder(metaclass=Singleton):
     """Provide an interface to record voice using the microphone device."""
 
     INSTANCE: "Recorder"
-
-    ASKAI_SETTINGS_DIR: str = f'{os.getenv("HHS_DIR", os.getenv("TEMP", "/tmp"))}'
-
-    ASKAI_SETTINGS_FILE: str = ".askai.properties"
 
     class RecognitionApi(Enumeration):
         # fmt: off
@@ -59,8 +53,7 @@ class Recorder(metaclass=Singleton):
 
     def __init__(self):
         self._rec: Recognizer = Recognizer()
-        self._settings: Settings = Settings(self.ASKAI_SETTINGS_FILE, load_dir=self.ASKAI_SETTINGS_DIR)
-        self._devices = []
+        self._devices: list[tuple[int, str]] = []
         self._device_index = None
         self._input_device = None
         self._rec_phrase_limit_s = 10
@@ -133,19 +126,13 @@ class Recorder(metaclass=Singleton):
     def _select_device(self) -> Optional[int]:
         """Select device for recording."""
         done = False
-        filepath: str = f"{self.ASKAI_SETTINGS_DIR}/{self.ASKAI_SETTINGS_FILE}"
-        if not file_is_not_empty(filepath):
-            self._settings.set("askai.recorder.devices", None)
-            self._settings.set("askai.recorder.silence-timeout_ms", 1500)
-            self._settings.set("askai.recorder.phrase.limit_ms", 0)
         available: List[str] = list(
-            filter(lambda d: d, map(str.strip, eval(self._settings.get("askai.recorder.devices") or "[]")))
+            filter(lambda d: d, map(str.strip, configs.recorder_devices))
         )
         while not done:
             if available:
                 for idx, device in self.devices:
                     if device in available and self._test_device(idx):
-                        self._settings.save()
                         return idx
             # Choose device from list
             idx_device: Tuple[int, str] = mselect(
@@ -155,8 +142,7 @@ class Recorder(metaclass=Singleton):
                 break
             elif self._test_device(idx_device[0]):
                 available.append(idx_device[1])
-                self._settings.set("askai.recorder.devices", available)
-                self._settings.save()
+                configs.add_device(idx_device[1])
                 return idx_device[0]
 
             display_text(f"%HOM%%ED2%Error:{idx_device[1]} does not support INPUTS !%NC%")

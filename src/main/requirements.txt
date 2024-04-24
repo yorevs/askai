@@ -1,7 +1,8 @@
 ###### AUTO-GENERATED Requirements file for: AskAi ######
 
-hspylib>=1.12.35
-hspylib-clitt>=0.9.120
+hspylib>=1.12.36
+hspylib-clitt>=0.9.122
+hspylib-setman>=0.10.34
 retry2==0.9.5
 pause==0.3
 requests==2.31.0
@@ -32,4 +33,5 @@ opentelemetry-sdk==1.22.0
 opentelemetry-proto==1.22.0
 rich==13.7.1
 pytz==2024.1
-schedule==1.2.1
+bs4==0.0.2
+fake_useragent==1.5.1

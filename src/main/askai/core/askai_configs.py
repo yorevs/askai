@@ -12,14 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.__classpath__ import classpath
-from askai.language.language import Language
-from hspylib.core.config.app_config import AppConfigs
-from hspylib.core.enums.charset import Charset
-from hspylib.core.metaclass.singleton import Singleton
+import os
 from shutil import which
 
-import os
+from askai.__classpath__ import classpath
+from askai.core.askai_settings import settings
+from askai.language.language import Language
+from hspylib.core.enums.charset import Charset
+from hspylib.core.metaclass.singleton import Singleton
 
 
 class AskAiConfigs(metaclass=Singleton):
@@ -31,59 +31,50 @@ class AskAiConfigs(metaclass=Singleton):
     RESOURCE_DIR = str(classpath.resource_path())
 
     def __init__(self):
-        self._configs = AppConfigs.INSTANCE or AppConfigs(self.RESOURCE_DIR)
-        self._is_interactive: bool = self._configs.get_bool("askai.interactive.enabled")
-        self._is_speak: bool = self._configs.get_bool("askai.speak.enabled")
-        self._is_debug: bool = self._configs.get_bool("askai.debug.enabled")
-        self._is_cache: bool = self._configs.get_bool("askai.cache.enabled")
-        self._tempo: int = self._configs.get_int("askai.speech.tempo")
         self._language: Language = Language.of_locale(
             os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG", os.getenv("LANGUAGE", "en_US.UTF-8"))))
         )
-        self._ttl: int = self._configs.get_int("askai.cache.ttl.minutes")
-        self._max_context_size: int = self._configs.get_int("askai.max.context.size")
-        self._max_iteractions: int = self._configs.get_int("askai.max.iteractions")
-        self._max_router_retries: int = self._configs.get_int("askai.max.router.retries")
+        self._recorder_devices: list[str] = settings.get_list("askai.recorder.devices")
 
     @property
     def is_interactive(self) -> bool:
-        return self._is_interactive
+        return settings.get_bool("askai.interactive.enabled")
 
     @is_interactive.setter
     def is_interactive(self, value: bool) -> None:
-        self._is_interactive = value
+        settings.put("askai.interactive.enabled", value)
 
     @property
     def is_speak(self) -> bool:
-        return which("ffplay") and self._is_speak
+        return which("ffplay") and settings.get_bool("askai.speak.enabled")
 
     @is_speak.setter
     def is_speak(self, value: bool) -> None:
-        self._is_speak = which("ffplay") and value
+        settings.put("askai.speak.enabled", which("ffplay") and value)
 
     @property
     def is_debug(self) -> bool:
-        return self._is_debug
+        return settings.get_bool("askai.debug.enabled")
 
     @is_debug.setter
     def is_debug(self, value: bool) -> None:
-        self._is_debug = value
+        settings.put("askai.debug.enabled", value)
 
     @property
     def is_cache(self) -> bool:
-        return self._is_cache
+        return settings.get_bool("askai.cache.enabled")
 
     @is_cache.setter
     def is_cache(self, value: bool) -> None:
-        self._is_cache = value
+        settings.put("askai.cache.enabled", value)
 
     @property
     def tempo(self) -> int:
-        return self._tempo
+        return settings.get_int("askai.speech.tempo")
 
     @tempo.setter
     def tempo(self, value: int) -> None:
-        self._tempo = value
+        settings.get_int("askai.speech.tempo", value)
 
     @property
     def language(self) -> Language:
@@ -95,19 +86,35 @@ class AskAiConfigs(metaclass=Singleton):
 
     @property
     def ttl(self) -> int:
-        return self._ttl
+        return settings.get_int("askai.cache.ttl.minutes")
 
     @property
     def max_iteractions(self) -> int:
-        return self._max_iteractions
+        return settings.get_int("askai.max.iteractions")
 
     @property
     def max_context_size(self) -> int:
-        return self._max_context_size
+        return settings.get_int("askai.max.context.size")
 
     @property
     def max_router_retries(self) -> int:
-        return self._max_router_retries
+        return settings.get_int("askai.max.router.retries")
+
+    @property
+    def max_agent_execution_time_seconds(self) -> int:
+        return settings.get_int("askai.max.agent.execution.time.seconds")
+
+    @property
+    def recorder_devices(self) -> list[str]:
+        return self._recorder_devices
+
+    def add_device(self, device_name: str) -> None:
+        self._recorder_devices.append(device_name)
+        settings.put("askai.recorder.devices", ', '.join(self._recorder_devices))
+
+    def remove_device(self, device_name: str) -> None:
+        self._recorder_devices.remove(device_name)
+        settings.put("askai.recorder.devices", ', '.join(self._recorder_devices))
 
 
 assert (configs := AskAiConfigs().INSTANCE) is not None
