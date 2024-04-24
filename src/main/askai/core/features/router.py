@@ -14,8 +14,13 @@
 """
 
 import logging as log
+from textwrap import dedent
 from types import SimpleNamespace
 from typing import Any, Optional, TypeAlias, Type
+
+import PIL
+from hspylib.core.exception.exceptions import InvalidArgumentError
+from hspylib.core.preconditions import check_argument
 
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
@@ -44,11 +49,15 @@ class Router(metaclass=Singleton):
 
     INSTANCE: "Router"
 
-    HUMAN_PROMPT: str = "{input}\n (reminder to respond in a JSON blob no matter what)"
+    HUMAN_PROMPT: str = dedent(
+    """
+    Answer my question in the end.\n(reminder to respond in a JSON blob no matter what)\nQuestion: '{input}'
+    """)
 
     # Allow the router to retry on the errors bellow.
     RETRIABLE_ERRORS: tuple[Type[Exception], ...] = (
-        InaccurateResponse, ValueError, AttributeError
+        InaccurateResponse, ValueError, AttributeError,
+        InvalidArgumentError, PIL.UnidentifiedImageError
     )
 
     @staticmethod
@@ -58,12 +67,12 @@ class Router(metaclass=Singleton):
         :param response: The AI response.
         """
         match category.lower(), configs.is_speak:
-            case "chat", False:
-                return final_answer(question, context=response)
+            case "chat" | "image analysis", False:
+                response = final_answer(question, context=response)
             case "file system", True:
-                return final_answer(question, persona_prompt='stt', context=response)
-            case _:
-                return response
+                response = final_answer(question, persona_prompt='stt', context=response)
+
+        return response
 
     def __init__(self):
         self._approved = False
@@ -117,6 +126,7 @@ class Router(metaclass=Singleton):
         """
         last_response: str = ''
         actions: list[SimpleNamespace] = action_plan.plan
+        check_argument(all(isinstance(act, SimpleNamespace) for act in actions), "Invalid action format")
         for action in actions:
             task = ', '.join([f"{k.title()}: {v}" for k, v in vars(action).items()])
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{task}`", verbosity="debug")

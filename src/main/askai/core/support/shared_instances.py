@@ -40,9 +40,6 @@ class SharedInstances(metaclass=Singleton):
     # This is the uuid used in the prompts to indicate that the AI does not know the answer.
     UNCERTAIN_ID: str = "bde6f44d-c1a0-4b0c-bd74-8278e468e50c"
 
-    # This is the uuid used in the prompts to indicate that the response is negative.
-    NEGATIVE_ID: str = "1b11b759-e50e-44de-b5b2-4879354fd9cf"
-
     def __init__(self) -> None:
         self._engine: AIEngine | None = None
         self._context: ChatContext | None = None

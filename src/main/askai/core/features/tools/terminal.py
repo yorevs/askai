@@ -13,21 +13,21 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import msg
-from askai.core.features.tools.analysis import replace_x_refs
-from askai.core.support.shared_instances import shared
-from askai.core.support.utilities import extract_path, media_type_of
-from clitt.core.term.terminal import Terminal
+import logging as log
+import os
 from functools import partial
-from hspylib.modules.application.exit_status import ExitStatus
 from os.path import expandvars
-from pathlib import Path
 from shutil import which
 from typing import Tuple
 
-import logging as log
-import os
+from askai.core.askai_events import AskAiEvents
+from askai.core.askai_messages import msg
+from askai.core.features.tools.analysis import resolve_x_refs
+from askai.core.support.shared_instances import shared
+from askai.core.support.utilities import extract_path, media_type_of
+from clitt.core.term.terminal import Terminal
+from hspylib.core.config.path_object import PathObject
+from hspylib.modules.application.exit_status import ExitStatus
 
 
 def list_contents(folder: str) -> str:
@@ -35,8 +35,8 @@ def list_contents(folder: str) -> str:
     :param folder: The folder to list contents from.
     """
     path_obj = PathObject.of(folder)
-    if path_obj.exists() and path_obj.is_dir():
-        status, output = _execute_bash(f"ls -lht {folder} 2>/dev/null | sort -k9,9")
+    if path_obj.exists and path_obj.is_dir:
+        status, output = _execute_bash(f"ls -lLht {folder} 2>/dev/null | sort -k9,9")
         if status:
             if not output:
                 return f"Folder {folder} is empty!"
@@ -50,14 +50,14 @@ def open_command(path_name: str) -> str:
     :param path_name: The file path to open.
     """
     posix_path = PathObject.of(path_name)
-    if not posix_path.exists():
+    if not posix_path.exists:
         # Attempt to resolve cross-references
         if history := str(shared.context.flat("HISTORY") or ""):
-            if x_referenced := replace_x_refs(path_name, history):
+            if x_referenced := resolve_x_refs(path_name, history):
                 x_referenced = PathObject.of(x_referenced)
-                posix_path = str(x_referenced) if x_referenced.exists() else posix_path
+                posix_path = str(x_referenced) if x_referenced.exists else posix_path
 
-    if posix_path.exists():
+    if posix_path.exists:
         # find the best app to open the file.
         path_name: str = str(posix_path)
         match media_type_of(path_name):

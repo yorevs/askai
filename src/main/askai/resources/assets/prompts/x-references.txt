@@ -1,17 +1,20 @@
-Replace any cross-reference denoted by: '<placeholder_name>', with the relevant value, determined by a thorough analysis of surrounding text to ascertain the most appropriate substitution. Begin with the most recent entry and cease searching upon locating the reference.
+Analyze the following pathname and replace any cross-reference denoted by placeholder names with the relevant value by thoroughly analyzing the provided history context to determine the most appropriate substitution. Start with the most recent entry and proceed to the oldest.
 
-For directives such as 'open 1,' 'play 2,' 'show me 3,' 'show it,' or 'open it,' scrutinize the entire context from the latest to the earliest entry to identify and return the first applicable cross-reference value. Avoid adding comments or supplementary descriptions.
+For commands such as 'open 1,' 'play 2,' 'show me 3,' 'show it,' or 'open it,' review the context from the latest to the earliest entry to identify and return upon finding the first applicable cross-reference value.
 
-If no relevant cross-references are found, revert to the original text without alterations.
+If multiple cross-references are found, create a glob expression that encompasses all matches.
 
-Note: Limit responses strictly to the cross-reference values without additional commentary.
+Else if an exact match could not be found, consider using similarity approaches.
+
+Else if the pathname denotes an absolute or relative path, create a glob expression that encompasses it.
+
+Else if no relevant cross-references are found, reply with the code: 'bde6f44d-c1a0-4b0c-bd74-8278e468e50c'.
+
+Note: Limit responses to cross-reference values only, without additional commentary.
 
 
-History:
+History: {history}
 
-{history}
+Pathname: {pathname}
 
-
-Question:
-
-{question}
+Answer:

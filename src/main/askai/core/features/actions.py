@@ -20,6 +20,7 @@ from askai.core.features.tools.general import display_tool
 from askai.core.features.tools.generation import generate_content
 from askai.core.features.tools.summarization import summarize
 from askai.core.features.tools.terminal import execute_command, list_contents, open_command
+from askai.core.features.visual import image_captioner
 from askai.exception.exceptions import TerminatingQuery
 from clitt.core.tui.line_input.line_input import line_input
 from functools import lru_cache
@@ -36,7 +37,7 @@ class Actions(metaclass=Singleton):
 
     INSTANCE: "Actions"
 
-    RESERVED: list[str] = ["invoke", "enlist"]
+    RESERVED: list[str] = ["agent_tools"]
 
     def __init__(self):
         """TODO"""
@@ -82,7 +83,7 @@ class Actions(metaclass=Singleton):
     def browse(self, search_query: str) -> str:
         """
         Name: 'browse'
-        Description: Use this tool to stay updated on the latest news and current events, particularly when you need real-time information quickly. This tool is ideal for acquiring fresh data.
+        Description: Use this tool to browse the internet or to stay informed about the latest news and current events, especially when you require up-to-date information quickly. It is especially effective for accessing the most recent data available online.
         Usage: 'browse(search_query)'
           input `search_query`: The web search query in string format.
         """
@@ -91,20 +92,20 @@ class Actions(metaclass=Singleton):
     def check_output(self, question: str) -> str:
         """
         Name: 'check_output'
-        Description: Use this tool for analyzing or checking outputs, examining files and folders and lists as well as examining any content.
+        Description: Use this tool to analyze tool outputs, examine file structures, and assess textual content such as reminders and appointments. The use of terminal commands is prohibited.
         Usage: `check_output(question)`
           input `question`: The query about the output.
         """
         return check_output(question)
 
-    def describe_image(self, image_path: str) -> str:
+    def image_captioner(self, image_path: str) -> str:
         """
-        Name: 'describe_image'
-        Description: Use this tool to open and analyze of visual content in a single image file.
-        Usage: describe_image(image_path)
+        Name: 'image_captioner'
+        Description: Use this tool to analyze visual content of a single image file.
+        Usage: image_captioner(image_path)
           input `image_path`: The file path of the image to be analyzed.
         """
-        return str(NotImplementedError("Tool 'describe_image' is not yet implemented !"))
+        return image_captioner(image_path)
 
     def generate_content(self, instructions: str, mime_type: str, path_name: str) -> str:
         """
@@ -117,14 +118,14 @@ class Actions(metaclass=Singleton):
         """
         return generate_content(instructions, mime_type, path_name)
 
-    def final_answer(self, answer: list[str] | str) -> str:
+    def display_tool(self, answer: list[str] | str) -> str:
         """
-        Name: 'final_answer'
-        Description: Use this tool as your final tool to provide your final answer. Join all messages to the user together in only one call as you can input a list of texts do be displayed.
+        Name: 'display_tool'
+        Description: Use this tool to provide general conversation responses, to display text or to output your final answer.
         Usage: 'final_answer(text, ...repeat N times)'
           input `texts`: The comma separated list of texts to be displayed.
         """
-        return display_tool(*answer if isinstance(answer, list) else answer)
+        return display_tool(*(answer if isinstance(answer, list) else [answer]))
 
     def list_tool(self, folder: str) -> str:
         """

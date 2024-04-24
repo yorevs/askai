@@ -118,6 +118,10 @@ class AskAiMessages(metaclass=Singleton):
     def x_reference(self) -> str:
         return self.translate(f"> Looking for **X-References**…")
 
+    @lru_cache
+    def describe_image(self, image_path: str) -> str:
+        return self.translate(f"Describing image: '{image_path}' …")
+
     # Warnings and alerts
 
     @lru_cache
@@ -176,7 +180,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def unprocessable(self, reason: str) -> str:
-        return self.translate(f"Sorry, I was unable to process your request => {reason}")
+        return self.translate(f"Sorry, I was unable to process your request => '{reason}'")
 
 
 assert (msg := AskAiMessages().INSTANCE) is not None

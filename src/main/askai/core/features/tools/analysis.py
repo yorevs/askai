@@ -60,20 +60,25 @@ def assert_accuracy(question: str, ai_response: str) -> None:
     raise InaccurateResponse(f"AI Assistant didn't respond accurately => '{response.content}'")
 
 
-def replace_x_refs(question: str, context: str) -> str:
+def resolve_x_refs(ref_name: str, context: str | None) -> str:
     """Replace all cross references by their actual values.
-    :param question: The original useer question.
+    :param ref_name: The cross-reference or variable name.
     :param context: The context to analyze the references.
     """
-    template = PromptTemplate(
-        input_variables=["history", "question"], template=prompt.read_prompt("x-references")
-    )
-    final_prompt = template.format(history=context, question=question)
-    log.info("X-REFS::[QUESTION] %s => CTX: '%s'", question, context)
-    llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-    AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.x_reference(), verbosity="debug")
+    output = ref_name
+    if context or (context := str(shared.context.flat("HISTORY"))):
+        template = PromptTemplate(
+            input_variables=["history", "pathname"], template=prompt.read_prompt("x-references")
+        )
+        final_prompt = template.format(history=context, pathname=ref_name)
+        log.info("X-REFS::[QUESTION] %s => CTX: '%s'", ref_name, context)
+        llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.x_reference(), verbosity="debug")
 
-    return llm.invoke(final_prompt).content.strip()
+        if (result := llm.invoke(final_prompt).content.strip()) and shared.UNCERTAIN_ID not in result:
+            output = result
+
+    return output
 
 
 def check_output(question: str, context: str | None = None) -> str:
@@ -82,19 +87,18 @@ def check_output(question: str, context: str | None = None) -> str:
     :param context: The context of the question.
     """
     output = None
-    if not context:
-        context = str(shared.context.flat("HISTORY"))
-    log.info("Analysis::[QUESTION] '%s'  context=%s", question, context)
-    llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-    template = PromptTemplate(input_variables=["context", "question"], template=prompt.read_prompt("analysis"))
-    final_prompt = template.format(context=context, question=question)
-    response: AIMessage = llm.invoke(final_prompt)
-    AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(response.content), verbosity="debug")
+    if context or (context := str(shared.context.flat("HISTORY"))):
+        log.info("Analysis::[QUESTION] '%s'  context=%s", question, context)
+        llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+        template = PromptTemplate(input_variables=["context", "question"], template=prompt.read_prompt("analysis"))
+        final_prompt = template.format(context=context, question=question)
+        response: AIMessage = llm.invoke(final_prompt)
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(response.content), verbosity="debug")
 
-    if response and (output := response.content):
-        shared.context.push("HISTORY", question)
-        shared.context.push("HISTORY", output, "assistant")
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=output, verbosity="debug")
-        output = text_formatter.ensure_ln(output)
+        if response and (output := response.content):
+            shared.context.push("HISTORY", question)
+            shared.context.push("HISTORY", output, "assistant")
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=output, verbosity="debug")
+            output = text_formatter.ensure_ln(output)
 
     return output or msg.translate("Sorry, I don't know.")
