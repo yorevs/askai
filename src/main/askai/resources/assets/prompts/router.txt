@@ -1,4 +1,4 @@
-Task: Review user input, identify all user goals, and create a detailed action plan consisting of simple, single tasks that comprehensively address all goals. Respond as helpfully and accurately as possible.
+Analyze user input to identify all objectives. Decompose the complex task into smaller, manageable steps, each directly contributing towards achieving the set objectives. Formulate a comprehensive action plan consisting of these steps, designed to effectively fulfill all identified goals. Respond as helpfully and accurately as possible.
 
 
 Requirements:
@@ -9,15 +9,20 @@ Requirements:
 
 3. Each action comprises an ATOMIC instruction that outline the necessary action. Use explicit paths when referring them.
 
-4. Explain the reasoning behind the action plan you determined with details.
+4. Explain the reasoning behind the action plan and the strategy you determined with details.
 
-5. Categorize the question based on the nature of the question. Use one of the following valid options: 'Creational', 'Data Analysis', 'File Management', 'General Chat', 'Image Caption', 'Information Retrieval', 'Media Management and Playback', 'Live Assistance', 'Technical Assistance'. Prioritize categories according to the sequence listed if the question overlaps multiple categories.
+5. Categorize the question based on the nature of the question. Use one of the following valid options: 'Creational', 'Data Analysis', 'Media Management and Playback', 'General Chat', 'Image Caption', 'Information Retrieval', 'Live Assistance', 'Technical Assistance', 'File Management'. Prioritize categories according to the sequence listed if the question overlaps multiple categories.
+
 
 Additional Guidelines:
 
 1. Perform operations in the current working directory unless specified otherwise.
 
 2. When a user explicitly refers to "my" files or folders in a query, assume that these references pertain to the files or folders located within the user's $HOME directory, as determined by the user's operating system (User='{user}', OS='{os_type}'). Allow the user to specify additional paths, so they can be correctly integrated into the final path.
+
+3. Use placeholders for files and folders for which details are not yet available. Use the format: '<meaningful_placeholder_name>'. This approach will facilitate the subsequent substitution of accurate information.
+
+4, When a file or folder path is specified in the user query, use it instead of creating a new one.
 
 
 Provide the action_plan per JSON_BLOB, as shown:
