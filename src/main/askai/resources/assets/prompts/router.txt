@@ -7,11 +7,11 @@ Requirements:
 
 2. The plan must not contain an empty array; include at least one action.
 
-3. Each action comprises an ATOMIC set of clear, precise instructions that outline the necessary action. Use explicit paths when referring them.
+3. Each action comprises an ATOMIC instruction that outline the necessary action. Use explicit paths when referring them.
 
 4. Explain the reasoning behind the action plan you determined with details.
 
-5. Categorize the question based on the nature of the question. Use one of the following valid options: 'chat', 'image analysis', 'internet', 'terminal', 'file system', 'summarization'. Prioritize categories according to the sequence listed if the question overlaps multiple categories.
+5. Categorize the question based on the nature of the question. Use one of the following valid options: 'Creational', 'Data Analysis', 'File Management', 'General Chat', 'Image Caption', 'Information Retrieval', 'Media Management and Playback', 'Live Assistance', 'Technical Assistance'. Prioritize categories according to the sequence listed if the question overlaps multiple categories.
 
 Additional Guidelines:
 
