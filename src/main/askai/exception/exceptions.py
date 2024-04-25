@@ -71,5 +71,6 @@ class ImpossibleQuery(HSBaseException):
 class TerminatingQuery(HSBaseException):
     """Raised when received a terminating question."""
 
+
 class InvalidStructuredResponse(HSBaseException):
     """Raised when received an invalid structured response."""

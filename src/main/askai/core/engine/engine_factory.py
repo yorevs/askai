@@ -13,15 +13,13 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from typing import List
-
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_not_none
-
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.openai.openai_engine import OpenAIEngine
 from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.exception.exceptions import NoSuchEngineError
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_not_none
+from typing import List
 
 
 class EngineFactory(metaclass=Singleton):

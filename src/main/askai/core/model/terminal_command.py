@@ -10,11 +10,12 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import os
-import platform
 from functools import lru_cache
 from os.path import basename
 from typing import Literal, TypeAlias
+
+import os
+import platform
 
 SupportedPlatforms: TypeAlias = Literal["linux", "windows", "darwin"] | None
 

@@ -13,9 +13,9 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import re
-
 from hspylib.core.enums.enumeration import Enumeration
+
+import re
 
 
 class RagResponse(Enumeration):
@@ -45,7 +45,7 @@ class RagResponse(Enumeration):
 
     @classmethod
     def matches(cls, output: str) -> re.Match:
-        return re.search(cls._re(), output.replace('\n', ' '), re.IGNORECASE)
+        return re.search(cls._re(), output.replace("\n", " "), re.IGNORECASE)
 
     @classmethod
     def _re(cls) -> str:

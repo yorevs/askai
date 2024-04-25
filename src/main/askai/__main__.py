@@ -13,11 +13,8 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-import sys
-from textwrap import dedent
-from typing import Any, Optional
-
+from askai.__classpath__ import classpath
+from askai.core.askai import AskAi
 from clitt.core.term.commons import is_a_tty
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
@@ -27,9 +24,11 @@ from hspylib.core.zoned_datetime import now
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
+from textwrap import dedent
+from typing import Any, Optional
 
-from askai.__classpath__ import classpath
-from askai.core.askai import AskAi
+import logging as log
+import sys
 
 if not is_a_tty():
     log.getLogger().setLevel(log.ERROR)

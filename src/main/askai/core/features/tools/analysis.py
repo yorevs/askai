@@ -33,7 +33,7 @@ def assert_accuracy(question: str, ai_response: str) -> None:
     :param question: The user question.
     :param ai_response: The AI response to be analysed.
     """
-    issues_prompt = PromptTemplate(input_variables=['problems'], template=prompt.read_prompt("assert"))
+    issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("assert"))
     if ai_response in msg.accurate_responses:
         return
     elif not ai_response:
@@ -67,9 +67,7 @@ def resolve_x_refs(ref_name: str, context: str | None) -> str:
     """
     output = ref_name
     if context or (context := str(shared.context.flat("HISTORY"))):
-        template = PromptTemplate(
-            input_variables=["history", "pathname"], template=prompt.read_prompt("x-references")
-        )
+        template = PromptTemplate(input_variables=["history", "pathname"], template=prompt.read_prompt("x-references"))
         final_prompt = template.format(history=context, pathname=ref_name)
         log.info("X-REFS::[QUESTION] %s => CTX: '%s'", ref_name, context)
         llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)

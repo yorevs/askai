@@ -12,20 +12,19 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from typing import List
-
+from askai.core.component.cache_service import cache
+from askai.core.component.summarizer import summarizer
+from askai.core.support.langchain_support import lc_llm
+from askai.core.support.shared_instances import shared
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.tools.commons import log_init, sysout
 from langchain_community.document_loaders.directory import DirectoryLoader
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from typing import List
 
-from askai.core.component.cache_service import cache
-from askai.core.component.summarizer import summarizer
-from askai.core.support.langchain_support import lc_llm
-from askai.core.support.shared_instances import shared
+import logging as log
+import os
 
 if __name__ == "__main__":
     log_init("summarizer-demo.log", level=log.INFO)
@@ -38,9 +37,8 @@ if __name__ == "__main__":
     sysout(f"%GREEN%Summarizing: {folder}/{glob} ...")
 
     splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-    documents: List[Document] = DirectoryLoader('~/HomeSetup/docs', glob='**/*.md').load()
+    documents: List[Document] = DirectoryLoader("~/HomeSetup/docs", glob="**/*.md").load()
     embeddings = lc_llm.create_embeddings.embed_documents(documents)
-
 
     sysout(f"READY to answer")
     sysout("--" * 40)

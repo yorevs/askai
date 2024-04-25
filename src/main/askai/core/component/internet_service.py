@@ -12,12 +12,16 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import re
+from askai.core.askai_events import AskAiEvents
+from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
+from askai.core.component.geo_location import geo_location
+from askai.core.component.summarizer import summarizer
+from askai.core.engine.openai.temperature import Temperature
+from askai.core.model.search_result import SearchResult
+from askai.core.support.langchain_support import lc_llm
+from askai.core.support.shared_instances import shared
 from functools import lru_cache
-from typing import List
-
-import bs4
 from googleapiclient.errors import HttpError
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -31,16 +35,11 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.runnables.utils import Output
 from langchain_core.tools import Tool
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from typing import List
 
-from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import msg
-from askai.core.askai_prompt import prompt
-from askai.core.component.geo_location import geo_location
-from askai.core.component.summarizer import summarizer
-from askai.core.engine.openai.temperature import Temperature
-from askai.core.model.search_result import SearchResult
-from askai.core.support.langchain_support import lc_llm
-from askai.core.support.shared_instances import shared
+import bs4
+import logging as log
+import re
 
 
 class InternetService(metaclass=Singleton):
@@ -116,7 +115,9 @@ class InternetService(metaclass=Singleton):
                 splits: List[Document] = summarizer.text_splitter.split_documents(page_content)
                 v_store = Chroma.from_documents(splits, lc_llm.create_embeddings())
                 retriever = v_store.as_retriever()
-                scrap_prompt = PromptTemplate(input_variables=["context", "question"], template=prompt.read_prompt("qstring"))
+                scrap_prompt = PromptTemplate(
+                    input_variables=["context", "question"], template=prompt.read_prompt("qstring")
+                )
 
                 def format_docs(docs):
                     return "\n\n".join(doc.page_content for doc in docs)

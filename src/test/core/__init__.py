@@ -5,7 +5,5 @@
 # Package: test.core
 """Package initialization."""
 
-__all__ = [
-    'support'
-]
-__version__ = '1.0.6'
+__all__ = ["support"]
+__version__ = "1.0.6"

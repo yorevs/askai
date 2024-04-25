@@ -13,19 +13,18 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import json
-import logging as log
+from askai.core.askai_configs import configs
 from datetime import datetime
-from json import JSONDecodeError
-from textwrap import dedent
-
-import pytz
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.namespace import Namespace
 from hspylib.modules.fetch import fetch
+from json import JSONDecodeError
 from requests.exceptions import ConnectionError
+from textwrap import dedent
 
-from askai.core.askai_configs import configs
+import json
+import logging as log
+import pytz
 
 
 class GeoLocation(metaclass=Singleton):

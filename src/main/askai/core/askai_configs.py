@@ -12,14 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-from shutil import which
-
 from askai.__classpath__ import classpath
 from askai.core.askai_settings import settings
 from askai.language.language import Language
 from hspylib.core.enums.charset import Charset
 from hspylib.core.metaclass.singleton import Singleton
+from shutil import which
+
+import os
 
 
 class AskAiConfigs(metaclass=Singleton):
@@ -110,11 +110,11 @@ class AskAiConfigs(metaclass=Singleton):
 
     def add_device(self, device_name: str) -> None:
         self._recorder_devices.append(device_name)
-        settings.put("askai.recorder.devices", ', '.join(self._recorder_devices))
+        settings.put("askai.recorder.devices", ", ".join(self._recorder_devices))
 
     def remove_device(self, device_name: str) -> None:
         self._recorder_devices.remove(device_name)
-        settings.put("askai.recorder.devices", ', '.join(self._recorder_devices))
+        settings.put("askai.recorder.devices", ", ".join(self._recorder_devices))
 
 
 assert (configs := AskAiConfigs().INSTANCE) is not None

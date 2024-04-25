@@ -24,9 +24,9 @@ def load_document(loader_type: Type, url: str | List[str]) -> List[Document]:
 
 
 class LangChainSupport(metaclass=Singleton):
-    """TODO"""
+    """Helper class to support the use of langchain framework."""
 
-    INSTANCE: ""
+    INSTANCE: "LangChainSupport"
 
     @staticmethod
     @lru_cache

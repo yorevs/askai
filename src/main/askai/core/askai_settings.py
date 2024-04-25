@@ -12,20 +12,18 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-import re
-from pathlib import Path
-from typing import Any, Optional
-
+from askai.__classpath__ import classpath
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import to_bool
+from pathlib import Path
 from setman.settings.settings import Settings
 from setman.settings.settings_config import SettingsConfig
 from setman.settings.settings_entry import SettingsEntry
+from typing import Any, Optional
 
-from askai.__classpath__ import classpath
-
+import logging as log
+import os
+import re
 
 # AskAI config directory.
 ASKAI_DIR: Path = Path(f'{os.getenv("HHS_DIR", os.getenv("ASKAI_DIR", os.getenv("TEMP", "/tmp")))}/askai')
@@ -39,11 +37,11 @@ os.environ["ASKAI_DIR"] = str(ASKAI_DIR)
 class AskAiSettings(metaclass=Singleton):
     """The Setman Settings."""
 
-    INSTANCE: 'AskAiSettings'
+    INSTANCE: "AskAiSettings"
 
     RESOURCE_DIR = str(classpath.resource_path())
 
-    _ACTUAL_VERSION: str = '0.0.3'
+    _ACTUAL_VERSION: str = "0.0.3"
 
     def __init__(self) -> None:
         self._configs = SettingsConfig(self.RESOURCE_DIR, "application.properties")
@@ -61,7 +59,7 @@ class AskAiSettings(metaclass=Singleton):
         return self._settings.get(name)
 
     def __setitem__(self, name: str, item: Any) -> None:
-        self._settings.put(name, name[:name.find('.')], item)
+        self._settings.put(name, name[: name.find(".")], item)
 
     def _defaults(self) -> None:
         """Create the default settings database if they doesn't exist."""
@@ -89,7 +87,7 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("openai.text.to.speech.audio.format", "openai", "mp3")
         log.debug(f"Settings database created !")
 
-    def get(self, key: str, default_value: str | None = '') -> str:
+    def get(self, key: str, default_value: str | None = "") -> str:
         val = self.__getitem__(key)
         return str(val.value) if val else default_value
 
@@ -112,10 +110,10 @@ class AskAiSettings(metaclass=Singleton):
             return 0
 
     def get_list(self, key: str, default_value: list | None = None) -> list:
-        str_val: str = self.get(key) or ''
+        str_val: str = self.get(key) or ""
         val: list | None = None
         if str_val:
-            val: list = re.split(r'[;,|]', str_val)
+            val: list = re.split(r"[;,|]", str_val)
         return val or default_value or []
 
 

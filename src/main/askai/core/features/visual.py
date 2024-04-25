@@ -1,12 +1,12 @@
-import torch
-from PIL import Image
-from hspylib.core.config.path_object import PathObject
-from transformers import BlipProcessor, BlipForConditionalGeneration
-
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.features.tools.analysis import resolve_x_refs
 from askai.core.support.shared_instances import shared
+from hspylib.core.config.path_object import PathObject
+from PIL import Image
+from transformers import BlipForConditionalGeneration, BlipProcessor
+
+import torch
 
 
 def image_captioner(path_name: str) -> str:
@@ -25,13 +25,13 @@ def image_captioner(path_name: str) -> str:
         # specify model to be used
         hf_model = "Salesforce/blip-image-captioning-large"
         # use GPU if it's available
-        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        device = "cuda" if torch.cuda.is_available() else "cpu"
         # preprocessor will prepare images for the model
         processor = BlipProcessor.from_pretrained(hf_model)
         # then we initialize the model itself
         model = BlipForConditionalGeneration.from_pretrained(hf_model).to(device)
         # download the image and convert to PIL object
-        image = Image.open(str(posix_path)).convert('RGB')
+        image = Image.open(str(posix_path)).convert("RGB")
         # preprocess the image
         hf_model = "Salesforce/blip-image-captioning-large"
         inputs = processor(image, return_tensors="pt").to(device)

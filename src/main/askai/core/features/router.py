@@ -13,15 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-from textwrap import dedent
-from types import SimpleNamespace
-from typing import Any, Optional, TypeAlias, Type
-
-import PIL
-from hspylib.core.exception.exceptions import InvalidArgumentError
-from hspylib.core.preconditions import check_argument
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -35,10 +26,18 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
+from hspylib.core.exception.exceptions import InvalidArgumentError
 from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_argument
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from retry import retry
+from textwrap import dedent
+from types import SimpleNamespace
+from typing import Any, Optional, Type, TypeAlias
+
+import logging as log
+import PIL
 
 AgentResponse: TypeAlias = dict[str, Any]
 
@@ -50,14 +49,18 @@ class Router(metaclass=Singleton):
     INSTANCE: "Router"
 
     HUMAN_PROMPT: str = dedent(
-    """
+        """
     Answer my question in the end.\n(reminder to respond in a JSON blob no matter what)\nQuestion: '{input}'
-    """)
+    """
+    )
 
     # Allow the router to retry on the errors bellow.
     RETRIABLE_ERRORS: tuple[Type[Exception], ...] = (
-        InaccurateResponse, ValueError, AttributeError,
-        InvalidArgumentError, PIL.UnidentifiedImageError
+        InaccurateResponse,
+        ValueError,
+        AttributeError,
+        InvalidArgumentError,
+        PIL.UnidentifiedImageError,
     )
 
     @staticmethod
@@ -70,7 +73,7 @@ class Router(metaclass=Singleton):
             case "chat" | "image analysis", False:
                 response = final_answer(question, context=response)
             case "file system", True:
-                response = final_answer(question, persona_prompt='stt', context=response)
+                response = final_answer(question, persona_prompt="stt", context=response)
 
         return response
 
@@ -110,8 +113,8 @@ class Router(metaclass=Singleton):
                 if not isinstance(plan, ActionPlan):
                     return f"Error: AI responded an invalid JSON object -> {str(plan)}"
                 AskAiEvents.ASKAI_BUS.events.reply.emit(
-                    message=msg.action_plan(f"[{plan.category}] `{plan.reasoning}`"),
-                    verbosity="debug")
+                    message=msg.action_plan(f"[{plan.category}] `{plan.reasoning}`"), verbosity="debug"
+                )
                 output = self._route(query, plan)
             else:
                 output = response
@@ -124,17 +127,18 @@ class Router(metaclass=Singleton):
         :param query: The user query to complete.
         :param action_plan: The action plan to resolve the request.
         """
-        last_response: str = ''
+        last_response: str = ""
         actions: list[SimpleNamespace] = action_plan.plan
         check_argument(all(isinstance(act, SimpleNamespace) for act in actions), "Invalid action format")
         for action in actions:
-            task = ', '.join([f"{k.title()}: {v}" for k, v in vars(action).items()])
+            task = ", ".join([f"{k.title()}: {v}" for k, v in vars(action).items()])
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{task}`", verbosity="debug")
             llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
             chat_memory = shared.create_chat_memory()
             lc_agent = create_structured_chat_agent(llm, features.agent_tools(), self.agent_template)
             agent = AgentExecutor(
-                agent=lc_agent, tools=features.agent_tools(),
+                agent=lc_agent,
+                tools=features.agent_tools(),
                 max_iteraction=configs.max_router_retries,
                 memory=chat_memory,
                 max_execution_time=configs.max_agent_execution_time_seconds,
@@ -143,7 +147,7 @@ class Router(metaclass=Singleton):
                 early_stopping_method=True,
                 verbose=configs.is_debug,
             )
-            if (response := agent.invoke({"input": task})) and (output := response['output']):
+            if (response := agent.invoke({"input": task})) and (output := response["output"]):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
                 last_response = output
                 assert_accuracy(action.action, output)

@@ -13,23 +13,21 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from functools import lru_cache
-from typing import Optional
-
-from clitt.core.term.terminal import terminal
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_state
-from hspylib.modules.cli.keyboard import Keyboard
-from langchain.memory import ConversationBufferWindowMemory
-from langchain.memory.chat_memory import BaseChatMemory
-
 from askai.core.askai_configs import configs
 from askai.core.askai_prompt import prompt
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.utilities import display_text
+from clitt.core.term.terminal import terminal
+from clitt.core.tui.line_input.line_input import line_input
+from functools import lru_cache
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_state
+from hspylib.modules.cli.keyboard import Keyboard
+from langchain.memory import ConversationBufferWindowMemory
+from langchain.memory.chat_memory import BaseChatMemory
+from typing import Optional
 
 
 class SharedInstances(metaclass=Singleton):
@@ -102,7 +100,9 @@ class SharedInstances(metaclass=Singleton):
     def create_chat_memory(self) -> BaseChatMemory:
         """TODO"""
         if self._memory is None:
-            self._memory = ConversationBufferWindowMemory(memory_key="chat_history", k=self.max_context_size, return_messages=True)
+            self._memory = ConversationBufferWindowMemory(
+                memory_key="chat_history", k=self.max_context_size, return_messages=True
+            )
         return self._memory
 
     def input_text(self, input_prompt: str) -> Optional[str]:

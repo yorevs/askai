@@ -62,10 +62,7 @@ class Actions(metaclass=Singleton):
 
         return self._approved
 
-    def _create_agent_tool(
-        self,
-        fn: Callable,
-    ) -> BaseTool:
+    def _create_agent_tool(self, fn: Callable) -> BaseTool:
         """Create the LangChain agent tool."""
 
         def arun(*args) -> Any:

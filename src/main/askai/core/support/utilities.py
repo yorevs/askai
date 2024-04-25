@@ -12,26 +12,25 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import hashlib
-import mimetypes
-import os
-import re
-import sys
-from os.path import basename, dirname
-from pathlib import Path
-from typing import Any, Optional, Tuple
-
-import pause
+from askai.core.support.presets import Presets
+from askai.core.support.text_formatter import text_formatter
+from askai.language.language import Language
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.cli.vt100.vt_color import VtColor
+from os.path import basename, dirname
+from pathlib import Path
+from typing import Any, Optional, Tuple
 
-from askai.core.support.presets import Presets
-from askai.core.support.text_formatter import text_formatter
-from askai.language.language import Language
+import hashlib
+import mimetypes
+import os
+import pause
+import re
+import sys
 
 
 def read_stdin() -> Optional[str]:
@@ -76,7 +75,7 @@ def stream_text(text: Any, prefix: Any = "", tempo: int = 1, language: Language 
     for i, char in enumerate(text):
         if char == "%" and (i + 1) < len(text):
             try:
-                if (color := text[i + 1: text.index("%", i + 1)]) in VtColor.names():
+                if (color := text[i + 1 : text.index("%", i + 1)]) in VtColor.names():
                     hide, idx = True, text.index("%", i + 1)
                     sysout(f"%{color}%", end="")
                     continue

@@ -12,11 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-from pathlib import Path
-from typing import Callable, List, Optional, Tuple
-
-import pause
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -29,7 +24,12 @@ from clitt.core.tui.mselect.mselect import mselect
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.zoned_datetime import now_ms
+from pathlib import Path
 from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
+from typing import Callable, List, Optional, Tuple
+
+import logging as log
+import pause
 
 
 class Recorder(metaclass=Singleton):
@@ -126,9 +126,7 @@ class Recorder(metaclass=Singleton):
     def _select_device(self) -> Optional[int]:
         """Select device for recording."""
         done = False
-        available: List[str] = list(
-            filter(lambda d: d, map(str.strip, configs.recorder_devices))
-        )
+        available: List[str] = list(filter(lambda d: d, map(str.strip, configs.recorder_devices)))
         while not done:
             if available:
                 for idx, device in self.devices:

@@ -13,17 +13,16 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-import os
-import sys
+from argostranslate import package, translate
+from argostranslate.translate import ITranslation
+from askai.exception.exceptions import TranslationPackageError
+from askai.language.language import Language
 from functools import lru_cache
 from typing import Optional
 
-from argostranslate import package, translate
-from argostranslate.translate import ITranslation
-
-from askai.exception.exceptions import TranslationPackageError
-from askai.language.language import Language
+import logging as log
+import os
+import sys
 
 
 class ArgosTranslator:
