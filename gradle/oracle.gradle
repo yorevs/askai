@@ -6,11 +6,11 @@
     Copyright (c) 2024, HomeSetup
 */
 
-def libDir = "${project.rootDir}/src/main/hydratation/resources/lib"
+def libDir = "${project.rootDir}/src/main/resources/lib"
 def clientAppFile = "instantclient_19_3"
-def uri = "https://download.oracle.com/otn_software/mac/instantclient/193000/instantclient-basiclite-macos.x64-19.3.0.0.0dbru.zip"
+def url = "https://download.oracle.com/otn_software/mac/instantclient/193000/instantclient-basiclite-macos.x64-19.3.0.0.0dbru.zip"
 def outFile = "${libDir}/${clientAppFile}.zip"
-def installDir = new File("$libDir/$clientAppFile")
+def installDir = new File("${libDir}/${clientAppFile}")
 
 /* Tasks ------------------------------------------------------------------- */
 
@@ -20,11 +20,11 @@ task downloadOraClient(type: Task) {
   description = 'Download oracle driver and client from the oracle website'
   doLast {
     println "Downloading oracle client and driver"
-    println "  From: ${uri}"
+    println "  From: ${url}"
     println "  Into: ${outFile}"
     mkdir libDir
     exec {
-      commandLine 'curl', '-o', "${outFile}", '-O', uri
+      commandLine 'curl', '-L', '-o', "${outFile}", url
     }
   }
 }

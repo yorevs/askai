@@ -3,7 +3,7 @@
 
     Created: 23rd April, 2021
     License: MIT - Please refer to <https://opensource.org/licenses/MIT>
-    Copyright (c) 2024, HomeSetup
+    Copyright·(c)·2024,·HSPyLib
 */
 
 import groovy.json.JsonSlurper
@@ -44,14 +44,15 @@ task cleanDist(type: Task) {
   }
 }
 
-/* Copy LICENSE file into main folder */
-task copyLicense(type: Copy) {
+/* Copy LICENSE and README files into main folder */
+task copyLicenseAndReadme(type: Copy) {
   group = 'Publish'
   description = "Copy LICENSE file into main folder"
   from(rootDir) {
-    include 'LICENSE.md'
+    include 'LICENSE*'
+    include 'README*'
   }
-  into "$sourceRoot/main"
+  into "${sourceRoot}/main"
 }
 
 /* Check files created in dist folder */
@@ -81,7 +82,7 @@ task sdist(type: Task) {
     dependsOn patchVersion
   }
   dependsOn cleanDist
-  dependsOn copyLicense
+  dependsOn copyLicenseAndReadme
   dependsOn syncRequirements
   finalizedBy checkDist
   doLast {
@@ -147,7 +148,7 @@ task pypiShow(type: Task) {
     def outFile = "${tempDir}/${app_name}-info.json"
     println("PyPi Instance: " + url)
     exec {
-      commandLine 'curl', '-s', '-o', outFile, '-O', url
+      commandLine 'curl', '-s', '-o', outFile, url
     }
     def json = new JsonSlurper().parseText(new File(outFile).getText())
     println("\n--------------------------------------------------------------------------------")

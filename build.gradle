@@ -19,7 +19,7 @@ idea {
     excludeDirs += file('run-configs')
     excludeDirs += file('src/main/build')
     excludeDirs += file('src/main/dist')
-    excludeDirs += file('src/main/hspylib_' + project.name + '.egg-info')
+    excludeDirs += file('src/main/hspylib_askai.egg-info')
   }
 }
 
@@ -28,33 +28,54 @@ configurations {
 }
 
 ext {
-  python = "python" + (System.getenv('PYTHON_VERSION') ?: '3.11')
+  python = "python" + (System.getenv('PYTHON_VERSION') ?: '3')
   pyrcc = "pyrcc" + (System.getenv('PYRCC_VERSION') ?: '5')
-  sourceRoot = "$rootDir/src"
-  application = "$sourceRoot/main/__main__.py"
-  pythonPath = "$sourceRoot/main:$sourceRoot/test:$sourceRoot/demo"
+  sourceRoot = "${rootDir}/src"
+  application = "${sourceRoot}/main/__main__.py"
+  pythonPath = "${sourceRoot}/main:${sourceRoot}/test:${sourceRoot}/demo"
   buildToolsFile = new File("${project.projectDir}/buildTools.txt")
   buildTools = "${buildTools}".split(",")
   startTime = System.currentTimeMillis()
   verbose = findProperty('verbose') ?: false
 }
 
-apply from: "$rootDir/gradle/dependencies.gradle"
-apply from: "$rootDir/gradle/python.gradle"
-apply from: "$rootDir/gradle/versioning.gradle"
-apply from: "$rootDir/gradle/pypi-publish.gradle"
-apply from: "$rootDir/gradle/docker.gradle"
-apply from: "$rootDir/gradle/oracle.gradle"
-apply from: "$rootDir/gradle/docgen.gradle"
-apply from: "$rootDir/gradle/idea.gradle"
+apply from: "${rootDir}/gradle/dependencies.gradle"
+apply from: "${rootDir}/gradle/python.gradle"
+apply from: "${rootDir}/gradle/versioning.gradle"
+apply from: "${rootDir}/gradle/pypi-publish.gradle"
+apply from: "${rootDir}/gradle/docker.gradle"
+apply from: "${rootDir}/gradle/oracle.gradle"
+apply from: "${rootDir}/gradle/docgen.gradle"
+apply from: "${rootDir}/gradle/idea.gradle"
 
-task copyReadme(type: Copy) {
-  group = 'Publish'
-  description = "Copy README into main folder"
-  from(rootDir) {
-    include 'README.md'
+/* Download and extract the yorevs/py-gradle project ZIP */
+task pyGradleUpdate(type: Task) {
+  group = 'build'
+  description = 'Download and extract the yorevs/py-gradle project ZIP'
+  doLast {
+    def gradleDir = "${rootDir}/gradle"
+    def outFile = "${gradleDir}/py-gradle.zip"
+    def url = "https://github.com/yorevs/py-gradle/archive/master.zip"
+    println "Downloading the yorevs/py-gradle project"
+    println "  From: ${url}"
+    println "  Into: ${outFile}"
+    mkdir gradleDir
+    exec {
+      commandLine 'curl', '-L', '-o', "${outFile}", url
+    }
+    copy {
+      from zipTree("${outFile}")
+      into "${gradleDir}"
+    }
+    copy {
+      from "${gradleDir}/py-gradle-master"
+      into "${gradleDir}"
+    }
+    delete fileTree(gradleDir).matching {
+      include "README*"
+      include "LICENSE*"
+      include "py-gradle*"
+    }
+    delete "${gradleDir}/py-gradle-master"
   }
-  into "$sourceRoot/main"
 }
-
-copyLicense.finalizedBy(copyReadme)

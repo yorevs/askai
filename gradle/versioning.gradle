@@ -3,7 +3,7 @@
 
     Created: 4th March, 2021
     License: MIT - Please refer to <https://opensource.org/licenses/MIT>
-    Copyright (c) 2024, HomeSetup
+    Copyright·(c)·2024,·HSPyLib
     This module uses python module bumpver: https://pypi.org/project/bumpver/
     Note: Following Semantic Versioning 2.0.0 => https://semver.org/
     - Increment the MAJOR version when making incompatible API changes
