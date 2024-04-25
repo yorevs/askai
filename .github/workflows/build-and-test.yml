@@ -103,6 +103,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Update PIP
         run: pip install --upgrade pip
+      - name: Install Build Tools
+        run: |
+          gradle installBuildTools
       - name: Build AskAI
         run: |
           gradle ${{ inputs.gradle_debug_params }} clean build installModule
