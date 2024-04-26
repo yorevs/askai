@@ -39,7 +39,8 @@ class Scheduler(Thread, metaclass=Singleton):
 
     @staticmethod
     def every(interval_ms: int, delay_ms: int):
-        """Decorate a function to be run every `interval_ms` seconds."""
+        """Decorate a function to be run every `interval_ms` seconds. Can't be used to decorate instance
+        methods (with self). For that use the `set_interval` method."""
 
         def every_wrapper(func: Callable, *fargs, **fkwargs):
             """every wrapper"""
@@ -49,7 +50,8 @@ class Scheduler(Thread, metaclass=Singleton):
 
     @staticmethod
     def at(hour: int, minute: int, second: int, millis: int):
-        """Decorate a function to run at a specific time."""
+        """Decorate a function to run at a specific time. Can't be used to decorate instance
+        methods (with self). For that use the `schedule` method."""
 
         def at_wrapper(func: Callable, *fargs, **fkwargs):
             """at wrapper"""

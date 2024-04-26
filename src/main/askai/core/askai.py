@@ -201,13 +201,11 @@ class AskAi:
 
     def _splash(self) -> None:
         """Display the AskAI splash screen."""
-        splash_interval = 1000
+        splash_interval = 500
+        screen.clear()
+        sysout(f"%GREEN%{self.SPLASH}%NC%")
         while not self._ready:
-            if not self._processing:
-                screen.clear()
-                sysout(f"%GREEN%{self.SPLASH}%NC%")
             pause.milliseconds(splash_interval)
-        pause.milliseconds(splash_interval)
         screen.clear()
 
     def _startup(self) -> None:
@@ -223,9 +221,9 @@ class AskAi:
             cache.read_query_history()
             player.start_delay()
             scheduler.start()
+            recorder.setup()
             self._ready = True
             splash_thread.join()
-            recorder.setup()
             display_text(self, markdown=False)
             self.reply(msg.welcome(os.getenv("USER", "you")))
         else:

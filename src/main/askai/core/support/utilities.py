@@ -183,3 +183,8 @@ def media_type_of(pathname: str) -> Optional[tuple[str, ...]] | None:
         return tuple(mtype.split("/"))
 
     return None
+
+
+def seconds(millis: int) -> float:
+    """Return the amount of second from milliseconds."""
+    return millis / 1000

@@ -12,11 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.__classpath__ import classpath
-from askai.core.askai_configs import AskAiConfigs
-from hspylib.core.config.app_config import AppConfigs
-from hspylib.core.metaclass.singleton import Singleton
 from typing import Literal
+
+from hspylib.core.metaclass.singleton import Singleton
+
+from askai.__classpath__ import classpath
+from askai.core.askai_configs import AskAiConfigs, configs
+from askai.core.askai_settings import settings
 
 
 class OpenAiConfigs(AskAiConfigs, metaclass=Singleton):
@@ -29,11 +31,10 @@ class OpenAiConfigs(AskAiConfigs, metaclass=Singleton):
 
     def __init__(self):
         super().__init__()
-        self._configs = AppConfigs.INSTANCE or AppConfigs(self.RESOURCE_DIR)
-        self._stt_model = self._configs.get("openai.speech.to.text.model")
-        self._tts_model = self._configs.get("openai.text.to.speech.model")
-        self._tts_voice = self._configs.get("openai.text.to.speech.voice")
-        self._tts_format = self._configs.get("openai.text.to.speech.audio.format")
+        self._stt_model = settings.get("openai.speech.to.text.model")
+        self._tts_model = settings.get("openai.text.to.speech.model")
+        self._tts_voice = settings.get("openai.text.to.speech.voice")
+        self._tts_format = settings.get("openai.text.to.speech.audio.format")
 
     @property
     def stt_model(self) -> Literal["whisper-1"]:

@@ -106,6 +106,14 @@ class AskAiConfigs(metaclass=Singleton):
         return settings.get_int("askai.max.agent.execution.time.seconds")
 
     @property
+    def recorder_phrase_limit_millis(self) -> int:
+        return settings.get_int("askai.recorder.phrase.limit.millis")
+
+    @property
+    def recorder_silence_timeout_millis(self) -> int:
+        return settings.get_int("askai.recorder.silence.timeout.millis")
+
+    @property
     def recorder_devices(self) -> list[str]:
         return self._recorder_devices
 

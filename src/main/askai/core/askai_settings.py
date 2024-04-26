@@ -78,8 +78,8 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.max.agent.execution.time.seconds", "askai", 120)
         # Recorder
         self._settings.put("askai.recorder.devices", "askai", "")
-        self._settings.put("askai.recorder.silence.timeout.millis", "askai", 1500)
-        self._settings.put("askai.recorder.phrase.limit.millis", "askai", 0)
+        self._settings.put("askai.recorder.silence.timeout.millis", "askai", 800)
+        self._settings.put("askai.recorder.phrase.limit.millis", "askai", 10000)
         # OpenAI
         self._settings.put("openai.speech.to.text.model", "openai", "whisper-1")
         self._settings.put("openai.text.to.speech.model", "openai", "tts-1")
