@@ -91,6 +91,7 @@ class AskAi:
 
     def __str__(self) -> str:
         device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
+        device_info += f", AUTO-SWAP {'ON' if recorder.is_auto_swap else '%RED%OFF'}"
         dtm = f" {geo_location.datetime} "
         cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, "…")
         return (
@@ -201,7 +202,7 @@ class AskAi:
 
     def _splash(self) -> None:
         """Display the AskAI splash screen."""
-        splash_interval = 500
+        splash_interval = 250
         screen.clear()
         sysout(f"%GREEN%{self.SPLASH}%NC%")
         while not self._ready:

@@ -41,7 +41,7 @@ class AskAiSettings(metaclass=Singleton):
 
     RESOURCE_DIR = str(classpath.resource_path())
 
-    _ACTUAL_VERSION: str = "0.0.3"
+    _ACTUAL_VERSION: str = "0.0.4"
 
     def __init__(self) -> None:
         self._configs = SettingsConfig(self.RESOURCE_DIR, "application.properties")
@@ -72,7 +72,7 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.cache.ttl.minutes", "askai", 30)
         self._settings.put("askai.speech.tempo", "askai", 1)
         # Router
-        self._settings.put("askai.max.context.size", "askai", 3)
+        self._settings.put("askai.max.context.size", "askai", 5)
         self._settings.put("askai.max.iteractions", "askai", 30)
         self._settings.put("askai.max.router.retries", "askai", 3)
         self._settings.put("askai.max.agent.execution.time.seconds", "askai", 120)
@@ -80,6 +80,8 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.recorder.devices", "askai", "")
         self._settings.put("askai.recorder.silence.timeout.millis", "askai", 800)
         self._settings.put("askai.recorder.phrase.limit.millis", "askai", 10000)
+        self._settings.put("askai.recorder.noise.detection.duration.millis", "askai", 600)
+        self._settings.put("askai.recorder.input.device.auto.swap", "askai", True)
         # OpenAI
         self._settings.put("openai.speech.to.text.model", "openai", "whisper-1")
         self._settings.put("openai.text.to.speech.model", "openai", "tts-1")

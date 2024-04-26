@@ -113,6 +113,14 @@ class AskAiConfigs(metaclass=Singleton):
         return settings.get_int("askai.recorder.silence.timeout.millis")
 
     @property
+    def recorder_noise_detection_duration_millis(self) -> int:
+        return settings.get_int("askai.recorder.noise.detection.duration.millis")
+
+    @property
+    def recorder_input_device_auto_swap(self) -> bool:
+        return settings.get_bool("askai.recorder.input.device.auto.swap")
+
+    @property
     def recorder_devices(self) -> list[str]:
         return self._recorder_devices
 

@@ -12,6 +12,20 @@
 
    Copyright (c) 2024, HomeSetup
 """
+
+import logging as log
+import operator
+from pathlib import Path
+from typing import Callable, Optional, Tuple
+
+import pause
+from clitt.core.term.cursor import cursor
+from clitt.core.tui.mselect.mselect import mselect
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.zoned_datetime import now_ms
+from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -20,18 +34,6 @@ from askai.core.component.scheduler import Scheduler
 from askai.core.support.utilities import display_text, seconds
 from askai.exception.exceptions import IntelligibleAudioError, InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
-from clitt.core.term.cursor import cursor
-from clitt.core.tui.mselect.mselect import mselect
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.zoned_datetime import now_ms
-from pathlib import Path
-from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
-from typing import Callable, Optional, Tuple
-
-import logging as log
-import operator
-import pause
 
 
 class Recorder(metaclass=Singleton):
@@ -51,7 +53,6 @@ class Recorder(metaclass=Singleton):
         devices = []
         for index, name in enumerate(Microphone.list_microphone_names()):
             devices.append((index, name))
-        devices.sort(key=operator.itemgetter(1))
         return devices
 
     def __init__(self):
@@ -72,7 +73,7 @@ class Recorder(metaclass=Singleton):
     @Scheduler.every(2000, 10000)
     def __device_watcher() -> None:
         """Watch for device changes and swap if a new input device is found."""
-        if recorder.devices:
+        if recorder.is_auto_swap and recorder.devices:
             new_list = recorder.get_device_list()
             new_list.sort(key=operator.itemgetter(1))
             if len(recorder.devices) < len(new_list):
@@ -107,8 +108,15 @@ class Recorder(metaclass=Singleton):
         """TODO"""
         return self._input_device if self._input_device else None
 
+    @property
+    def is_auto_swap(self) -> bool:
+        """TODO"""
+        return configs.recorder_input_device_auto_swap
+
     def listen(
-        self, recognition_api: RecognitionApi = RecognitionApi.OPEN_AI, language: Language = Language.EN_US
+        self,
+        recognition_api: RecognitionApi = RecognitionApi.OPEN_AI,
+        language: Language = Language.EN_US
     ) -> Tuple[Path, Optional[str]]:
         """listen to the microphone, save the AudioData as a wav file and then, transcribe the speech.
         :param recognition_api: the API to be used to recognize the speech.
@@ -146,14 +154,13 @@ class Recorder(metaclass=Singleton):
 
         return audio_path, stt_text
 
-    def _detect_noise(self, interval: float = 0.8) -> None:
-        """Detect and adjust the background noise level.
-        :param interval: the interval in seconds of the noise detection.
-        """
+    def _detect_noise(self) -> None:
+        """Detect and adjust the background noise level."""
         with Microphone() as source:
             try:
                 log.debug("Adjusting noise levels…")
-                self._rec.adjust_for_ambient_noise(source, duration=interval)
+                duration = seconds(configs.recorder_noise_detection_duration_millis)
+                self._rec.adjust_for_ambient_noise(source, duration=duration)
             except UnknownValueError as err:
                 raise IntelligibleAudioError(f"Unable to detect noise => {str(err)}") from err
 
@@ -187,16 +194,17 @@ class Recorder(metaclass=Singleton):
         """Test whether the input device specified by index can be used as an STT input.
         :param idx: The index of the device to be tested.
         """
-        log.debug(f"Testing input device at index: %d", idx)
+        log.debug(f"Testing audio input device at index: '%d'", idx)
+        test_timeout, test_phrase_limit = 0.5, 0.5
         try:
             with Microphone(device_index=idx) as source:
-                self._rec.listen(source, timeout=0.5, phrase_time_limit=0.5)
+                self._rec.listen(source, timeout=test_timeout, phrase_time_limit=test_phrase_limit)
                 return True
         except WaitTimeoutError:
-            log.info(f"Device: at index %d is functional!", idx)
+            log.info(f"Device at index: '%d' is functional!", idx)
             return True
         except (AssertionError, AttributeError):
-            log.error(f"Device: at index %d is non functional!", idx)
+            log.warning(f"Device at index: '%d' is non functional!", idx)
 
         return False
 
