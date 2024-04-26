@@ -90,7 +90,7 @@ class AskAi:
         configs.is_interactive = interactive
 
     def __str__(self) -> str:
-        device_info = f"{recorder.input_device[1].title()}" if recorder.input_device else ""
+        device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
         dtm = f" {geo_location.datetime} "
         cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, "…")
         return (

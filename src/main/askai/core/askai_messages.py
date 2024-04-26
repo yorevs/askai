@@ -119,11 +119,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def describe_image(self, image_path: str) -> str:
-        return self.translate(f"Describing image: '{image_path}' …")
+        return self.translate(f"Describing image: `{image_path}` …")
 
     @lru_cache
     def device_switch(self, device_info: str) -> str:
-        return self.translate(f"\nSwitching to Audio Input device: '{device_info}'")
+        return self.translate(f"\nSwitching to Audio Input device: `{device_info}`")
 
     # Warnings and alerts
 

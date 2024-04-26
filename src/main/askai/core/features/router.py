@@ -13,6 +13,12 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import logging as log
+from textwrap import dedent
+from types import SimpleNamespace
+from typing import Any, Optional, Type, TypeAlias
+
+import PIL
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -32,12 +38,6 @@ from hspylib.core.preconditions import check_argument
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from retry import retry
-from textwrap import dedent
-from types import SimpleNamespace
-from typing import Any, Optional, Type, TypeAlias
-
-import logging as log
-import PIL
 
 AgentResponse: TypeAlias = dict[str, Any]
 
@@ -70,9 +70,11 @@ class Router(metaclass=Singleton):
         :param response: The AI response.
         """
         match category.lower(), configs.is_speak:
-            case "chat" | "image analysis", False:
+            case "general chat" | "image caption", _:
                 response = final_answer(question, context=response)
-            case "file system", True:
+            case "file management", True:
+                response = final_answer(question, persona_prompt="stt", context=response)
+            case "technical assistance", _:
                 response = final_answer(question, persona_prompt="stt", context=response)
 
         return response

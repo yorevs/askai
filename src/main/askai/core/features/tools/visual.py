@@ -1,14 +1,16 @@
+from functools import lru_cache
+
+import torch
+from PIL import Image
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.features.tools.analysis import resolve_x_refs
 from askai.core.support.shared_instances import shared
 from hspylib.core.config.path_object import PathObject
-from PIL import Image
 from transformers import BlipForConditionalGeneration, BlipProcessor
 
-import torch
 
-
+@lru_cache
 def image_captioner(path_name: str) -> str:
     """TODO"""
     caption = None
@@ -40,4 +42,4 @@ def image_captioner(path_name: str) -> str:
         # get the caption
         caption = processor.decode(out[0], skip_special_tokens=True)
 
-    return caption or msg.translate(f"The image '{path_name}' was not found.")
+    return f"Analysis: File: {path_name} => {caption.title()}" or msg.translate(f"File: '{path_name}' was not found!")
