@@ -14,7 +14,6 @@
 """
 import logging as log
 import operator
-from itertools import cycle
 from pathlib import Path
 from typing import Callable, Optional, Tuple
 
@@ -23,7 +22,7 @@ from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import REC_DIR
-from askai.core.component.task_scheduler import Scheduled
+from askai.core.component.scheduler import Scheduler
 from askai.core.support.utilities import display_text
 from askai.exception.exceptions import IntelligibleAudioError, InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
@@ -70,33 +69,44 @@ class Recorder(metaclass=Singleton):
         log.debug("Available audio devices:\n%s", "\n".join([f"{d[0]} - {d[1]}" for d in self._devices]))
         self._device_index = self._select_device()
         self._input_device = self._devices[self._device_index] if self._device_index is not None else None
-        self._old_device = self._input_device
 
     @staticmethod
-    @Scheduled.every(1000, 12000)
-    def _device_watcher() -> None:
-        """TODO"""
-        if Recorder.INSTANCE.devices:
-            new_list = Recorder.get_device_list()
+    @Scheduler.every(2000, 10000)
+    def __device_watcher() -> None:
+        """Watch for device changes and swap if a new input device is found."""
+        if recorder.devices:
+            new_list = recorder.get_device_list()
             new_list.sort(key=operator.itemgetter(1))
-            if len(Recorder.INSTANCE.devices) < len(new_list):
-                device = next(cycle(new_list))
-                log.info(f'Using new Audio Input device: {device}')
-                if Recorder.INSTANCE._test_device(device[0]):
-                    AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.device_switch(str(device)))
-                    Recorder.INSTANCE._old_device = Recorder.INSTANCE._input_device
-                    Recorder.INSTANCE._input_device = device[0]
-                Recorder.INSTANCE._devices = new_list
-            elif len(Recorder.INSTANCE.devices) > len(new_list):
-                Recorder.INSTANCE._input_device = Recorder.INSTANCE._old_device
-                Recorder.INSTANCE._devices = new_list
+            if len(recorder.devices) < len(new_list):
+                new_devices = [d for d in new_list if d not in recorder.devices]
+                for device in new_devices:
+                    if recorder._test_device(device[0]):
+                        log.info(msg.device_switch(str(device)))
+                        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.device_switch(str(device)), erase_last=True)
+                        recorder._input_device = device[0]
+                        configs.add_device(device[1])
+                        break
+            elif len(recorder.devices) > len(new_list):
+                for device in recorder.devices:
+                    if recorder._test_device(device[0]):
+                        log.info(msg.device_switch(str(device)))
+                        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.device_switch(str(device)), erase_last=True)
+                        recorder._input_device = device[0]
+                        break
+            recorder.devices = new_list
 
     @property
     def devices(self) -> list[Tuple[int, str]]:
+        """TODO"""
         return self._devices if self._devices else []
+
+    @devices.setter
+    def devices(self, value: list[Tuple[int, str]]) -> None:
+        self._devices = value
 
     @property
     def input_device(self) -> Optional[Tuple[int, str]]:
+        """TODO"""
         return self._input_device if self._input_device else None
 
     def listen(
@@ -112,8 +122,7 @@ class Recorder(metaclass=Singleton):
                 self._detect_noise()
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.listening())
                 audio: AudioData = self._rec.listen(
-                    source, phrase_time_limit=self._rec_phrase_limit_s, timeout=self._rec_wait_timeout_s
-                )
+                    source, phrase_time_limit=self._rec_phrase_limit_s, timeout=self._rec_wait_timeout_s)
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.transcribing(), erase_last=True)
                 with open(audio_path, "wb") as f_rec:
                     f_rec.write(audio.get_wav_data())
@@ -154,7 +163,7 @@ class Recorder(metaclass=Singleton):
         available: list[str] = list(filter(lambda d: d, map(str.strip, configs.recorder_devices)))
         while not done:
             if available:
-                for idx, device in self.devices:
+                for idx, device in reversed(self.devices):
                     if device in available and self._test_device(idx):
                         return idx
             # Choose device from list

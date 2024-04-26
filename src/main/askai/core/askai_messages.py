@@ -12,10 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from functools import cached_property, lru_cache
+
 from askai.core.askai_configs import configs
 from askai.language.argos_translator import ArgosTranslator
 from askai.language.language import Language
-from functools import cached_property, lru_cache
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.modules.application.exit_status import ExitStatus
 
@@ -122,7 +123,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def device_switch(self, device_info: str) -> str:
-        return self.translate(f"Switching to new audio input device: '{device_info}'")
+        return self.translate(f"\nSwitching to Audio Input device: '{device_info}'")
 
     # Warnings and alerts
 
