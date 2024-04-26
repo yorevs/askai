@@ -1,6 +1,5 @@
 from asyncio import sleep
 from random import randint
-
 from textual import work
 from textual.app import App, ComposeResult
 from textual.widgets import DataTable

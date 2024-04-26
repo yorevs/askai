@@ -13,12 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-from textwrap import dedent
-from types import SimpleNamespace
-from typing import Any, Optional, Type, TypeAlias
-
-import PIL
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -38,6 +32,12 @@ from hspylib.core.preconditions import check_argument
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from retry import retry
+from textwrap import dedent
+from types import SimpleNamespace
+from typing import Any, Optional, Type, TypeAlias
+
+import logging as log
+import PIL
 
 AgentResponse: TypeAlias = dict[str, Any]
 

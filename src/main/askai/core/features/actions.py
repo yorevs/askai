@@ -13,11 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import inspect
-from functools import lru_cache
-from textwrap import dedent
-from typing import Any, Callable
-
 from askai.core.askai_messages import msg
 from askai.core.features.tools.analysis import check_output
 from askai.core.features.tools.browser import browse
@@ -28,8 +23,13 @@ from askai.core.features.tools.terminal import execute_command, list_contents, o
 from askai.core.features.tools.visual import image_captioner
 from askai.exception.exceptions import TerminatingQuery
 from clitt.core.tui.line_input.line_input import line_input
+from functools import lru_cache
 from hspylib.core.metaclass.singleton import Singleton
 from langchain_core.tools import BaseTool, StructuredTool
+from textwrap import dedent
+from typing import Any, Callable
+
+import inspect
 
 
 class Actions(metaclass=Singleton):

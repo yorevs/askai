@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-import random
 from datetime import timedelta
-from time import monotonic
-
 from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Grid
@@ -11,6 +8,9 @@ from textual.reactive import var
 from textual.renderables.gradient import LinearGradient
 from textual.widget import Widget
 from textual.widgets import Digits, Label, Switch
+from time import monotonic
+
+import random
 
 # A nice rainbow of colors.
 COLORS = [

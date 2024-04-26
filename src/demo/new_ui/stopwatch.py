@@ -1,9 +1,8 @@
-from time import monotonic
-
 from textual.app import App, ComposeResult
 from textual.containers import ScrollableContainer
 from textual.reactive import reactive
 from textual.widgets import Button, Footer, Header, Static
+from time import monotonic
 
 
 class TimeDisplay(Static):

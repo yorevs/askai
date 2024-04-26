@@ -1,9 +1,8 @@
-from time import time
-
 from textual.app import App, ComposeResult, RenderableType
 from textual.containers import Container
 from textual.renderables.gradient import LinearGradient
 from textual.widgets import Static
+from time import time
 
 COLORS = [
     "#881177",

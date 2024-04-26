@@ -13,15 +13,15 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import threading
 from datetime import datetime, timedelta
-from threading import Thread
-from time import monotonic
-from typing import Callable, Any, Iterable, Mapping
-
-import pause
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument
+from threading import Thread
+from time import monotonic
+from typing import Any, Callable, Iterable, Mapping
+
+import pause
+import threading
 
 
 class Scheduler(Thread, metaclass=Singleton):
