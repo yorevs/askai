@@ -12,10 +12,18 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import operator
+from itertools import cycle
+from pathlib import Path
+from typing import Callable, Optional, Tuple
+
+import pause
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import REC_DIR
+from askai.core.component.task_scheduler import Scheduled
 from askai.core.support.utilities import display_text
 from askai.exception.exceptions import IntelligibleAudioError, InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
@@ -24,12 +32,7 @@ from clitt.core.tui.mselect.mselect import mselect
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.zoned_datetime import now_ms
-from pathlib import Path
 from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
-from typing import Callable, List, Optional, Tuple
-
-import logging as log
-import pause
 
 
 class Recorder(metaclass=Singleton):
@@ -44,11 +47,12 @@ class Recorder(metaclass=Singleton):
         # fmt: on
 
     @classmethod
-    def get_device_list(cls) -> List[Tuple[int, str]]:
+    def get_device_list(cls) -> list[Tuple[int, str]]:
         """Return a list of available devices."""
         devices = []
         for index, name in enumerate(Microphone.list_microphone_names()):
             devices.append((index, name))
+        devices.sort(key=operator.itemgetter(1))
         return devices
 
     def __init__(self):
@@ -56,6 +60,7 @@ class Recorder(metaclass=Singleton):
         self._devices: list[tuple[int, str]] = []
         self._device_index = None
         self._input_device = None
+        self._old_device = None
         self._rec_phrase_limit_s = 10
         self._rec_wait_timeout_s = 0.8
 
@@ -65,9 +70,29 @@ class Recorder(metaclass=Singleton):
         log.debug("Available audio devices:\n%s", "\n".join([f"{d[0]} - {d[1]}" for d in self._devices]))
         self._device_index = self._select_device()
         self._input_device = self._devices[self._device_index] if self._device_index is not None else None
+        self._old_device = self._input_device
+
+    @staticmethod
+    @Scheduled.every(1000, 12000)
+    def _device_watcher() -> None:
+        """TODO"""
+        if Recorder.INSTANCE.devices:
+            new_list = Recorder.get_device_list()
+            new_list.sort(key=operator.itemgetter(1))
+            if len(Recorder.INSTANCE.devices) < len(new_list):
+                device = next(cycle(new_list))
+                log.info(f'Using new Audio Input device: {device}')
+                if Recorder.INSTANCE._test_device(device[0]):
+                    AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.device_switch(str(device)))
+                    Recorder.INSTANCE._old_device = Recorder.INSTANCE._input_device
+                    Recorder.INSTANCE._input_device = device[0]
+                Recorder.INSTANCE._devices = new_list
+            elif len(Recorder.INSTANCE.devices) > len(new_list):
+                Recorder.INSTANCE._input_device = Recorder.INSTANCE._old_device
+                Recorder.INSTANCE._devices = new_list
 
     @property
-    def devices(self) -> List[Tuple[int, str]]:
+    def devices(self) -> list[Tuple[int, str]]:
         return self._devices if self._devices else []
 
     @property
@@ -77,7 +102,7 @@ class Recorder(metaclass=Singleton):
     def listen(
         self, recognition_api: RecognitionApi = RecognitionApi.OPEN_AI, language: Language = Language.EN_US
     ) -> Tuple[Path, Optional[str]]:
-        """Listen to the microphone, save the AudioData as a wav file and then, transcribe the speech.
+        """listen to the microphone, save the AudioData as a wav file and then, transcribe the speech.
         :param recognition_api: the API to be used to recognize the speech.
         :param language: the spoken language.
         """
@@ -126,7 +151,7 @@ class Recorder(metaclass=Singleton):
     def _select_device(self) -> Optional[int]:
         """Select device for recording."""
         done = False
-        available: List[str] = list(filter(lambda d: d, map(str.strip, configs.recorder_devices)))
+        available: list[str] = list(filter(lambda d: d, map(str.strip, configs.recorder_devices)))
         while not done:
             if available:
                 for idx, device in self.devices:

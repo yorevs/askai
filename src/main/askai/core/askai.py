@@ -21,6 +21,7 @@ from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.geo_location import geo_location
 from askai.core.component.recorder import recorder
+from askai.core.component.task_scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.features.router import router
@@ -221,6 +222,7 @@ class AskAi:
             cache.set_cache_enable(self.cache_enabled)
             cache.read_query_history()
             player.start_delay()
+            scheduler.start()
             self._ready = True
             splash_thread.join()
             recorder.setup()
