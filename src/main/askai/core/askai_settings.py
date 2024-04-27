@@ -12,18 +12,22 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.__classpath__ import classpath
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.commons import to_bool
-from pathlib import Path
-from setman.settings.settings import Settings
-from setman.settings.settings_config import SettingsConfig
-from setman.settings.settings_entry import SettingsEntry
-from typing import Any, Optional
-
 import logging as log
 import os
 import re
+from contextlib import redirect_stdout
+from io import StringIO
+from pathlib import Path
+from typing import Any, Optional
+
+from askai.__classpath__ import classpath
+from clitt.core.tui.table.table_enums import TextAlignment, TextCase
+from clitt.core.tui.table.table_renderer import TableRenderer
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.commons import to_bool
+from setman.settings.settings import Settings
+from setman.settings.settings_config import SettingsConfig
+from setman.settings.settings_entry import SettingsEntry
 
 # AskAI config directory.
 ASKAI_DIR: Path = Path(f'{os.getenv("HHS_DIR", os.getenv("ASKAI_DIR", os.getenv("TEMP", "/tmp")))}/askai')
@@ -47,10 +51,10 @@ class AskAiSettings(metaclass=Singleton):
         self._configs = SettingsConfig(self.RESOURCE_DIR, "application.properties")
         self._settings = Settings(self._configs)
         if not self._settings.count() or self.get("askai.settings.version.id") != self._ACTUAL_VERSION:
-            self._defaults()
+            self.defaults()
 
     def __str__(self) -> str:
-        return str(self._settings)
+        return self.search()
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -61,7 +65,23 @@ class AskAiSettings(metaclass=Singleton):
     def __setitem__(self, name: str, item: Any) -> None:
         self._settings.put(name, name[: name.find(".")], item)
 
-    def _defaults(self) -> None:
+    @property
+    def settings(self) -> Settings:
+        return self._settings
+
+    def search(self, filters: str | None = None) -> str:
+        h = ['Name', 'Value']
+        data = [(s.name, s.value) for s in self._settings.search(filters)]
+        tr = TableRenderer(h, data, "AskAI - Settings")
+        tr.set_header_alignment(TextAlignment.CENTER)
+        tr.set_header_case(TextCase.TITLE)
+        tr.set_cell_alignment(TextAlignment.LEFT)
+        tr.adjust_cells_auto()
+        with StringIO() as buf, redirect_stdout(buf):
+            tr.render()
+            return buf.getvalue()
+
+    def defaults(self) -> None:
         """Create the default settings database if they doesn't exist."""
         # AskAI General
         self._settings.clear()

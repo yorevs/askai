@@ -12,11 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import re
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
+from askai.core.commander.commander import askai
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.geo_location import geo_location
@@ -56,7 +59,9 @@ import sys
 class AskAi:
     """Responsible for the OpenAI functionalities."""
 
-    SPLASH = classpath.get_resource("splash.txt").read_text(encoding=Charset.UTF_8.val)
+    SPLASH: str = classpath.get_resource("splash.txt").read_text(encoding=Charset.UTF_8.val)
+
+    RE_ASKAI_CMD: str = r'^(?<!\\)/(\w+)( (.*))*$'
 
     @staticmethod
     def _abort():
@@ -250,7 +255,12 @@ class AskAi:
         """
         status = True
         try:
-            if not (reply := cache.read_reply(question)):
+            if command := re.search(self.RE_ASKAI_CMD, question):
+                args: list[str] = list(filter(
+                    lambda a: a and a != 'None', re.split(r'\s', f"{command.group(1)} {command.group(2)}")
+                ))
+                askai(args, standalone_mode=False)
+            elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.wait())
                 if output := router.process(question):
