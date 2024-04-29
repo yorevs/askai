@@ -11,13 +11,13 @@ HELP_MSG = """
 > Commands:
 
 ```
+  `/debug`              : toggle debugging ON/OFF.
+  `/devices`            : list/set the audio input device.
   `/help`               : show this help message and exit.
   `/settings`           : list/get/set/reset settings.
-  `/voices`             : list/set speech-to-text voice.
-  `/tempo`              : list/set speech-to-text tempo.
-  `/debug`              : toggle debugging ON/OFF.
   `/speak`              : toggle speaking ON/OFF.
-  `/devices`            : show or select the audio input device.
+  `/tempo`              : list/set speech-to-text tempo.
+  `/voices`             : list/set/play speech-to-text voice.
 ```
 
 > Keybindings:
@@ -90,7 +90,7 @@ def devices(operation: str, name: str | None = None) -> None:
 @click.argument('operation', default='list')
 @click.argument('name', default='onyx')
 def voices(operation: str, name: str | int | None = None) -> None:
-    """Set the Text-To-Speech voice.
+    """Manage the Text-To-Speech voices.
     :param operation The operation to manage voices.
     :param name The voice name.
     """
@@ -99,6 +99,8 @@ def voices(operation: str, name: str | int | None = None) -> None:
             TtsSttCmd.voice_list()
         case 'set':
             TtsSttCmd.voice_set(name)
+        case 'play':
+            TtsSttCmd.voice_play(name)
         case _:
             err = str(click.BadParameter(f"Invalid voices operation: '{operation}'"))
             text_formatter.cmd_print(f"%RED%{err}%NC%")
@@ -107,7 +109,7 @@ def voices(operation: str, name: str | int | None = None) -> None:
 @askai.command()
 @click.argument('speed', type=click.INT, default=1)
 def tempo(speed: int | None = None) -> None:
-    """The Text-To-Speech tempo.
+    """Adjust the Text-To-Speech tempo.
     :param speed The tempo to set.
     """
     TtsSttCmd.tempo(speed)

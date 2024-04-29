@@ -146,7 +146,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def invalid_command(self, response_text: str) -> str:
-        return self.translate(f"Invalid command => '{response_text}' !")
+        return self.translate(f"Invalid **AskAI** command => '{response_text}' !")
 
     @lru_cache
     def cmd_no_exist(self, command: str) -> str:

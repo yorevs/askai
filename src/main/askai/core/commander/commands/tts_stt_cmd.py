@@ -2,6 +2,7 @@ from abc import ABC
 
 from askai.core.askai_configs import configs
 from askai.core.askai_settings import settings
+from askai.core.component.audio_player import player
 from askai.core.component.recorder import recorder
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
@@ -17,7 +18,8 @@ class TtsSttCmd(ABC):
         str_voices = '\n'.join([f"{i}. {v.title()}" for i, v in enumerate(all_voices)])
         text_formatter.cmd_print(
             f"Available `{shared.engine.configs.stt_model}` voices: \n"
-            f"\n{str_voices}\n> Hint: Type: '/voices set \\<number|voice_name\\>' to select a voice."
+            f"\n{str_voices}\n> Hint: Type: '/voices set \\<number|voice_name\\>' to select a voice. "
+            f"To hear a sample use: '/voices play \\<number|voice_name\\>'"
         )
 
     @staticmethod
@@ -27,9 +29,22 @@ class TtsSttCmd(ABC):
         if name.isdecimal() and 0 <= int(name) <= len(all_voices):
             name = all_voices[int(name)]
         if name in all_voices:
-            settings.set("openai.text.to.speech.voice", name)
+            settings.put("openai.text.to.speech.voice", name)
             shared.engine.configs.tts_voice = name
             text_formatter.cmd_print(f"`Speech-To-Text` voice changed to %GREEN%{name.title()}%NC%")
+        else:
+            text_formatter.cmd_print(f"%RED%Invalid voice: '{name}'%NC%")
+
+    @staticmethod
+    def voice_play(name: str | int | None = None) -> None:
+        """TODO"""
+        all_voices = shared.engine.voices()
+        ai_name = shared.engine.ai_name().lower().replace('engine', '')
+        if name.isdecimal() and 0 <= int(name) <= len(all_voices):
+            name = all_voices[int(name)]
+        if name in all_voices:
+            text_formatter.cmd_print(f"Sampling voice `{name}` …")
+            player.play_sfx(f"voices/{ai_name}-{name}-sample")
         else:
             text_formatter.cmd_print(f"%RED%Invalid voice: '{name}'%NC%")
 
@@ -39,7 +54,7 @@ class TtsSttCmd(ABC):
         if not speed:
             settings.get("askai.text.to.speech.tempo")
         elif 1 <= speed <= 3:
-            settings.set("askai.text.to.speech.tempo", speed)
+            settings.put("askai.text.to.speech.tempo", speed)
             configs.tempo = speed
             tempo_str: str = 'Normal' if speed == 1 else ('Fast' if speed == 2 else 'Ultra')
             text_formatter.cmd_print(f"`Speech-To-Text` **tempo** changed to %GREEN%{tempo_str} ({speed})%NC%")
