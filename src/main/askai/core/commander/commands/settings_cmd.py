@@ -1,9 +1,11 @@
 from abc import ABC
-from typing import Any
+from typing import Any, Optional
 
 from askai.core.askai_settings import settings
 from askai.core.component.recorder import recorder
+from askai.core.support.text_formatter import text_formatter
 from hspylib.core.tools.commons import sysout
+from setman.settings.settings_entry import SettingsEntry
 
 
 class SettingsCmd(ABC):
@@ -15,7 +17,10 @@ class SettingsCmd(ABC):
     @staticmethod
     def list(filters: str | None = None) -> None:
         """TODO"""
-        sysout(settings.search(f"*{filters}*"))
+        if all_settings := settings.search(f"*{filters}*"):
+            sysout(all_settings)
+        else:
+            sysout(f"\n%YELLOW%-=- No settings found! -=-%NC%\n")
 
     @staticmethod
     def set(key: str, value: Any) -> None:
@@ -23,15 +28,16 @@ class SettingsCmd(ABC):
         if settings[key]:
             settings.put(key, value)
         else:
-            sysout(f"\n%RED%Setting: '{key}' was not found!%NC%\n")
+            text_formatter.cmd_print(f"%RED%Setting: '{key}' was not found!%NC%")
 
     @staticmethod
-    def get(key: str) -> None:
+    def get(key: str) -> Optional[SettingsEntry]:
         """TODO"""
         if ss := settings[key]:
-            sysout(f"\n%WHITE%Name: %BLUE%{ss.name}\t%WHITE%Value: %GREEN%{ss.value}%NC%\n")
-        else:
-            sysout(f"\n%RED%Setting: '{key}' was not found!%NC%\n")
+            text_formatter.cmd_print(f"%WHITE%Name: %BLUE%{ss.name}\t%WHITE%Value: %GREEN%{ss.value}%NC%")
+            return ss
+        text_formatter.cmd_print(f"%RED%Setting: '{key}' was not found!%NC%")
+        return None
 
     @staticmethod
     def reset() -> None:

@@ -12,14 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
+from shutil import which
+
+from hspylib.core.enums.charset import Charset
+from hspylib.core.metaclass.singleton import Singleton
+
 from askai.__classpath__ import classpath
 from askai.core.askai_settings import settings
 from askai.language.language import Language
-from hspylib.core.enums.charset import Charset
-from hspylib.core.metaclass.singleton import Singleton
-from shutil import which
-
-import os
 
 
 class AskAiConfigs(metaclass=Singleton):
@@ -70,11 +71,11 @@ class AskAiConfigs(metaclass=Singleton):
 
     @property
     def tempo(self) -> int:
-        return settings.get_int("askai.speech.tempo")
+        return settings.get_int("askai.text.to.speech.tempo")
 
     @tempo.setter
     def tempo(self, value: int) -> None:
-        settings.get_int("askai.speech.tempo", value)
+        settings.get_int("askai.text.to.speech.tempo", value)
 
     @property
     def language(self) -> Language:

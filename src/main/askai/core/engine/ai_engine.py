@@ -12,10 +12,12 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from typing import Any, List, Optional, Protocol
+
+from langchain_core.language_models import BaseChatModel, BaseLLM
+
 from askai.core.model.ai_model import AIModel
 from askai.core.model.ai_reply import AIReply
-from langchain_core.language_models import BaseChatModel, BaseLLM
-from typing import Any, List, Optional, Protocol
 
 
 class AIEngine(Protocol):
@@ -76,3 +78,6 @@ class AIEngine(Protocol):
     def speech_to_text(self) -> Optional[str]:
         """Transcribes audio input from the microphone into the text input language."""
         ...
+
+    def voices(self) -> list[str]:
+        """Return the available model voices for speech to text."""

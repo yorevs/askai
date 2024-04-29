@@ -20,14 +20,15 @@ from io import StringIO
 from pathlib import Path
 from typing import Any, Optional
 
-from askai.__classpath__ import classpath
-from clitt.core.tui.table.table_enums import TextAlignment, TextCase
-from clitt.core.tui.table.table_renderer import TableRenderer
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import to_bool
+from rich.table import Table
 from setman.settings.settings import Settings
 from setman.settings.settings_config import SettingsConfig
 from setman.settings.settings_entry import SettingsEntry
+
+from askai.__classpath__ import classpath
+from askai.core.support.text_formatter import text_formatter
 
 # AskAI config directory.
 ASKAI_DIR: Path = Path(f'{os.getenv("HHS_DIR", os.getenv("ASKAI_DIR", os.getenv("TEMP", "/tmp")))}/askai')
@@ -45,7 +46,7 @@ class AskAiSettings(metaclass=Singleton):
 
     RESOURCE_DIR = str(classpath.resource_path())
 
-    _ACTUAL_VERSION: str = "0.0.4"
+    _ACTUAL_VERSION: str = "0.0.5"
 
     def __init__(self) -> None:
         self._configs = SettingsConfig(self.RESOURCE_DIR, "application.properties")
@@ -69,17 +70,18 @@ class AskAiSettings(metaclass=Singleton):
     def settings(self) -> Settings:
         return self._settings
 
-    def search(self, filters: str | None = None) -> str:
-        h = ['Name', 'Value']
+    def search(self, filters: str | None = None) -> Optional[str]:
         data = [(s.name, s.value) for s in self._settings.search(filters)]
-        tr = TableRenderer(h, data, "AskAI - Settings")
-        tr.set_header_alignment(TextAlignment.CENTER)
-        tr.set_header_case(TextCase.TITLE)
-        tr.set_cell_alignment(TextAlignment.LEFT)
-        tr.adjust_cells_auto()
-        with StringIO() as buf, redirect_stdout(buf):
-            tr.render()
-            return buf.getvalue()
+        if data:
+            table = Table(title="AskAI - Settings")
+            table.add_column("Name", style="cyan", no_wrap=True)
+            table.add_column("Value", style="green", no_wrap=True)
+            for d in data:
+                table.add_row(d[0], d[1])
+            with StringIO() as buf, redirect_stdout(buf):
+                text_formatter.console.print(table)
+                return buf.getvalue()
+        return None
 
     def defaults(self) -> None:
         """Create the default settings database if they doesn't exist."""
@@ -90,7 +92,7 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.speak.enabled", "askai", False)
         self._settings.put("askai.cache.enabled", "askai", False)
         self._settings.put("askai.cache.ttl.minutes", "askai", 30)
-        self._settings.put("askai.speech.tempo", "askai", 1)
+        self._settings.put("askai.text.to.speech.tempo", "askai", 1)
         # Router
         self._settings.put("askai.max.context.size", "askai", 5)
         self._settings.put("askai.max.iteractions", "askai", 30)

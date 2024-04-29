@@ -12,8 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
 import re
+import sys
+from functools import partial
+from pathlib import Path
+from threading import Thread
+from typing import List, Optional
 
+import nltk
+import pause
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
@@ -33,10 +42,10 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
 from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery
+from click import UsageError
 from clitt.core.term.cursor import cursor
 from clitt.core.term.screen import screen
 from clitt.core.term.terminal import terminal
-from functools import partial
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import is_debugging, sysout
@@ -45,15 +54,6 @@ from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
 from hspylib.modules.eventbus.event import Event
 from langchain_core.prompts import PromptTemplate
-from pathlib import Path
-from threading import Thread
-from typing import List, Optional
-
-import logging as log
-import nltk
-import os
-import pause
-import sys
 
 
 class AskAi:
@@ -98,6 +98,7 @@ class AskAi:
         device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
         device_info += f", AUTO-SWAP {'ON' if recorder.is_auto_swap else '%RED%OFF'}"
         dtm = f" {geo_location.datetime} "
+        speak_info = str(configs.tempo) + ' @' + shared.engine.configs.tts_voice
         cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, "…")
         return (
             f"%GREEN%"
@@ -109,7 +110,7 @@ class AskAi:
             f"{'-' * 80} %EOL%"
             f" Microphone: {device_info or '%RED%Undetected'} %GREEN%%EOL%"
             f"  Debugging: {'ON' if self.is_debugging else '%RED%OFF'} %GREEN%%EOL%"
-            f"   Speaking: {'ON, tempo: ' + str(configs.tempo) if self.is_speak else '%RED%OFF'} %GREEN%%EOL%"
+            f"   Speaking: {'ON, tempo: ' + speak_info if self.is_speak else '%RED%OFF'} %GREEN%%EOL%"
             f"    Caching: {'ON, TTL: ' + configs.ttl if cache.is_cache_enabled() else '%RED%OFF'} %GREEN%%EOL%"
             f"{'=' * 80}%EOL%%NC%"
         )
@@ -270,7 +271,7 @@ class AskAi:
                 self.reply(reply)
         except (NotImplementedError, ImpossibleQuery) as err:
             self.reply_error(str(err))
-        except (MaxInteractionsReached, InaccurateResponse, ValueError) as err:
+        except (UsageError, MaxInteractionsReached, InaccurateResponse, ValueError) as err:
             self.reply_error(msg.unprocessable(type(err)))
         except TerminatingQuery:
             status = False

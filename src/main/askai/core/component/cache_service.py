@@ -12,14 +12,16 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.askai_settings import ASKAI_DIR
-from askai.core.support.utilities import hash_text
+from pathlib import Path
+from typing import Optional, Tuple
+
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.modules.cache.ttl_cache import TTLCache
-from pathlib import Path
-from typing import Optional, Tuple
+
+from askai.core.askai_settings import ASKAI_DIR
+from askai.core.support.utilities import hash_text
 
 # AskAI cache root directory.
 CACHE_DIR: Path = Path(f"{ASKAI_DIR}/cache")
@@ -102,12 +104,13 @@ class CacheService(metaclass=Singleton):
         cls._TTL_CACHE.save(cls.ASKAI_INPUT_CACHE_KEY, ",".join(hist))
 
     @classmethod
-    def get_audio_file(cls, text: str, audio_format: str = "mp3") -> Tuple[str, bool]:
+    def get_audio_file(cls, text: str, voice: str = "onyx", audio_format: str = "mp3") -> Tuple[str, bool]:
         """Retrieve the audio file path and whether it exists or not.
         :param text: Text to be cached. This is the text that the audio is speaking.
+        :param voice: The voice used.
         :param audio_format: The audio format used.
         """
-        key = text.strip().lower()
+        key = f"{text.strip().lower()}-{hash_text(voice)}"
         audio_file_path = f"{str(AUDIO_DIR)}/askai-{hash_text(key)}.{audio_format}"
         return audio_file_path, file_is_not_empty(audio_file_path)
 

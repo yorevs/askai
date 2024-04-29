@@ -12,11 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from typing import Literal
+
+from hspylib.core.metaclass.singleton import Singleton
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import AskAiConfigs
 from askai.core.askai_settings import settings
-from hspylib.core.metaclass.singleton import Singleton
-from typing import Literal
 
 
 class OpenAiConfigs(AskAiConfigs, metaclass=Singleton):
