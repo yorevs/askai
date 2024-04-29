@@ -1,0 +1,8 @@
+Splash {
+  align: center middle;
+}
+#splash {
+  width: 60;
+  padding: 2 4;
+  color: #7FD5AD;
+}

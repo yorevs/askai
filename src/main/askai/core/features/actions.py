@@ -20,7 +20,7 @@ from askai.core.features.tools.general import display_tool
 from askai.core.features.tools.generation import generate_content
 from askai.core.features.tools.summarization import summarize
 from askai.core.features.tools.terminal import execute_command, list_contents, open_command
-from askai.core.features.tools.visual import image_captioner
+from askai.core.features.tools.vision import image_captioner
 from askai.exception.exceptions import TerminatingQuery
 from clitt.core.tui.line_input.line_input import line_input
 from functools import lru_cache
