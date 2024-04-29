@@ -145,6 +145,10 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"Invalid query response/type => '{response_text}' !")
 
     @lru_cache
+    def invalid_command(self, response_text: str) -> str:
+        return self.translate(f"Invalid command => '{response_text}' !")
+
+    @lru_cache
     def cmd_no_exist(self, command: str) -> str:
         return self.translate(f"Command `{command}' does not exist !")
 

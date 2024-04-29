@@ -74,10 +74,11 @@ class AskAiSettings(metaclass=Singleton):
         data = [(s.name, s.value) for s in self._settings.search(filters)]
         if data:
             table = Table(title="AskAI - Settings")
+            table.add_column("No.", style="white", no_wrap=True)
             table.add_column("Name", style="cyan", no_wrap=True)
             table.add_column("Value", style="green", no_wrap=True)
-            for d in data:
-                table.add_row(d[0], d[1])
+            for i, d in enumerate(data):
+                table.add_row(str(i), d[0], d[1])
             with StringIO() as buf, redirect_stdout(buf):
                 text_formatter.console.print(table)
                 return buf.getvalue()

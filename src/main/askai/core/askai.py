@@ -111,7 +111,7 @@ class AskAi:
             f" Microphone: {device_info or '%RED%Undetected'} %GREEN%%EOL%"
             f"  Debugging: {'ON' if self.is_debugging else '%RED%OFF'} %GREEN%%EOL%"
             f"   Speaking: {'ON, tempo: ' + speak_info if self.is_speak else '%RED%OFF'} %GREEN%%EOL%"
-            f"    Caching: {'ON, TTL: ' + configs.ttl if cache.is_cache_enabled() else '%RED%OFF'} %GREEN%%EOL%"
+            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else '%RED%OFF'} %GREEN%%EOL%"
             f"{'=' * 80}%EOL%%NC%"
         )
 
@@ -271,8 +271,10 @@ class AskAi:
                 self.reply(reply)
         except (NotImplementedError, ImpossibleQuery) as err:
             self.reply_error(str(err))
-        except (UsageError, MaxInteractionsReached, InaccurateResponse, ValueError) as err:
+        except (MaxInteractionsReached, InaccurateResponse, ValueError) as err:
             self.reply_error(msg.unprocessable(type(err)))
+        except UsageError as err:
+            self.reply_error(msg.invalid_command(err))
         except TerminatingQuery:
             status = False
 

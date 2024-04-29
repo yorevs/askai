@@ -16,7 +16,6 @@ from textwrap import dedent
 from typing import Any
 
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.commons import sysout
 from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
 from hspylib.modules.cli.vt100.vt_code import VtCode
 from hspylib.modules.cli.vt100.vt_color import VtColor
@@ -90,7 +89,7 @@ class TextFormatter(metaclass=Singleton):
 
     def cmd_print(self, text: str):
         """TODO"""
-        sysout(f"%BLUE%  Commander%NC%: {text}")
+        self.display_markdown(f"%ORANGE%  Commander%NC%: {text}")
 
 
 assert (text_formatter := TextFormatter().INSTANCE) is not None

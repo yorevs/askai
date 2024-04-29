@@ -79,7 +79,7 @@ class Recorder(metaclass=Singleton):
             if len(recorder.devices) < len(new_list):
                 new_devices = [d for d in new_list if d not in recorder.devices]
                 for device in new_devices:
-                    if recorder._test_device(device[0]):
+                    if recorder.test_device(device[0]):
                         log.info(msg.device_switch(str(device)))
                         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.device_switch(str(device)), erase_last=True)
                         recorder._input_device = device[0]
@@ -87,7 +87,7 @@ class Recorder(metaclass=Singleton):
                         break
             elif len(recorder.devices) > len(new_list):
                 for device in recorder.devices:
-                    if recorder._test_device(device[0]):
+                    if recorder.test_device(device[0]):
                         log.info(msg.device_switch(str(device)))
                         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.device_switch(str(device)), erase_last=True)
                         recorder._input_device = device[0]
@@ -154,6 +154,24 @@ class Recorder(metaclass=Singleton):
 
         return audio_path, stt_text
 
+    def test_device(self, idx: int) -> bool:
+        """Test whether the input device specified by index can be used as an STT input.
+        :param idx: The index of the device to be tested.
+        """
+        log.debug(f"Testing audio input device at index: '%d'", idx)
+        test_timeout, test_phrase_limit = 0.5, 0.5
+        try:
+            with Microphone(device_index=idx) as source:
+                self._rec.listen(source, timeout=test_timeout, phrase_time_limit=test_phrase_limit)
+                return True
+        except WaitTimeoutError:
+            log.info(f"Device at index: '%d' is functional!", idx)
+            return True
+        except (AssertionError, AttributeError):
+            log.warning(f"Device at index: '%d' is non functional!", idx)
+
+        return False
+
     def _detect_noise(self) -> None:
         """Detect and adjust the background noise level."""
         with Microphone() as source:
@@ -171,7 +189,7 @@ class Recorder(metaclass=Singleton):
         while not done:
             if available:
                 for idx, device in reversed(self.devices):
-                    if device in available and self._test_device(idx):
+                    if device in available and self.test_device(idx):
                         return idx
             # Choose device from list
             idx_device: Tuple[int, str] = mselect(
@@ -179,7 +197,7 @@ class Recorder(metaclass=Singleton):
             )
             if not idx_device:
                 break
-            elif self._test_device(idx_device[0]):
+            elif self.test_device(idx_device[0]):
                 available.append(idx_device[1])
                 configs.add_device(idx_device[1])
                 return idx_device[0]
@@ -189,24 +207,6 @@ class Recorder(metaclass=Singleton):
             pause.seconds(2)
 
         return None
-
-    def _test_device(self, idx: int) -> bool:
-        """Test whether the input device specified by index can be used as an STT input.
-        :param idx: The index of the device to be tested.
-        """
-        log.debug(f"Testing audio input device at index: '%d'", idx)
-        test_timeout, test_phrase_limit = 0.5, 0.5
-        try:
-            with Microphone(device_index=idx) as source:
-                self._rec.listen(source, timeout=test_timeout, phrase_time_limit=test_phrase_limit)
-                return True
-        except WaitTimeoutError:
-            log.info(f"Device at index: '%d' is functional!", idx)
-            return True
-        except (AssertionError, AttributeError):
-            log.warning(f"Device at index: '%d' is non functional!", idx)
-
-        return False
 
 
 assert (recorder := Recorder().INSTANCE) is not None

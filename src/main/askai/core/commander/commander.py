@@ -1,11 +1,9 @@
-import os
-
 import click
+
 from askai.core.askai_configs import configs
 from askai.core.commander.commands.settings_cmd import SettingsCmd
-from askai.core.support.shared_instances import shared
+from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
 from askai.core.support.text_formatter import text_formatter
-from hspylib.core.tools.commons import sysout
 
 HELP_MSG = """
 # AskAI Commander - HELP
@@ -19,6 +17,17 @@ HELP_MSG = """
   `/tempo`              : list/set speech-to-text tempo.
   `/debug`              : toggle debugging ON/OFF.
   `/speak`              : toggle speaking ON/OFF.
+  `/devices`            : show or select the audio input device.
+```
+
+> Keybindings:
+
+```
+  `Ctrl+G`              : toggle speaking ON/OFF.
+  `Ctrl+K`              : resets the chat context.
+  `Ctrl+L`              : push-To-Talk.
+  `Ctrl+R`              : resets input filed.
+  `Ctrl+F`              : forget the input history.
 ```
 """
 
@@ -37,65 +46,71 @@ def help() -> None:
 
 @askai.command()
 @click.argument('operation', default='list')
-@click.argument('key', default='')
+@click.argument('name', default='')
 @click.argument('value', default='')
-def settings(operation: str, key: str | None = None, value: str | None = None) -> None:
+def settings(operation: str, name: str | None = None, value: str | None = None) -> None:
     """Manage AskAI settings.
     :param operation The operation to manage settings.
-    :param key The settings key to operate.
+    :param name The settings key to operate.
     :param value The settings value to be set.
     """
     match operation:
         case 'list':
-            SettingsCmd.list(key)
+            SettingsCmd.list(name)
         case 'get':
-            SettingsCmd.get(key)
+            SettingsCmd.get(name)
         case 'set':
-            SettingsCmd.set(key, value)
+            SettingsCmd.set(name, value)
         case 'reset':
             SettingsCmd.reset()
         case _:
-            err = str(click.BadParameter(f"Invalid operation: '{operation}'"))
+            err = str(click.BadParameter(f"Invalid settings operation: '{operation}'"))
+            text_formatter.cmd_print(f"%RED%{err}%NC%")
+
+
+@askai.command()
+@click.argument('operation', default='list')
+@click.argument('name', default='')
+def devices(operation: str, name: str | None = None) -> None:
+    """Manage the Audio Input devices.
+    :param operation The operation to manage devices.
+    :param name The device name to set.
+    """
+    match operation:
+        case 'list':
+            TtsSttCmd.device_list()
+        case 'set':
+            TtsSttCmd.device_set(name)
+        case _:
+            err = str(click.BadParameter(f"Invalid settings operation: '{operation}'"))
             text_formatter.cmd_print(f"%RED%{err}%NC%")
 
 
 @askai.command()
 @click.argument('operation', default='list')
 @click.argument('name', default='onyx')
-def voices(operation: str, name: str | None = None) -> None:
-    """Set the Text-To-Speech voice."""
-    all_voices = shared.engine.voices()
-    str_voices = os.linesep.join([f"%YELLOW%{i}.%NC%  `{v}`" for i, v in enumerate(all_voices)])
+def voices(operation: str, name: str | int | None = None) -> None:
+    """Set the Text-To-Speech voice.
+    :param operation The operation to manage voices.
+    :param name The voice name.
+    """
     match operation:
         case 'list':
-            sysout(str_voices)
+            TtsSttCmd.voice_list()
         case 'set':
-            if name in all_voices:
-                SettingsCmd.set("openai.text.to.speech.voice", name)
-                shared.engine.configs.tts_voice = name
-                text_formatter.cmd_print(f"`Speech-To-Text` voice changed to %GREEN%{name}%NC%")
-            else:
-                text_formatter.cmd_print(f"%RED%Invalid voice: '{name}'%NC%")
+            TtsSttCmd.voice_set(name)
         case _:
-            err = str(click.BadParameter(f"Invalid operation: '{operation}'"))
+            err = str(click.BadParameter(f"Invalid voices operation: '{operation}'"))
             text_formatter.cmd_print(f"%RED%{err}%NC%")
 
 
 @askai.command()
-@click.argument('speed', type=click.INT, default=0)
+@click.argument('speed', type=click.INT, default=1)
 def tempo(speed: int | None = None) -> None:
     """The Text-To-Speech tempo.
     :param speed The tempo to set.
     """
-    if not speed:
-        SettingsCmd.get("askai.text.to.speech.tempo")
-    elif 1 <= speed <= 3:
-        SettingsCmd.set("askai.text.to.speech.tempo", speed)
-        configs.tempo = speed
-        tempo_str: str = 'Normal' if speed == 1 else ('Fast' if speed == 2 else 'Ultra')
-        text_formatter.cmd_print(f"`Speech-To-Text` **tempo** changed to %GREEN%{tempo_str} ({speed})%NC%")
-    else:
-        text_formatter.cmd_print(f"%RED%Invalid tempo value: '{speed}'. Please choose beteen [1..3].%NC%")
+    TtsSttCmd.tempo(speed)
 
 
 @askai.command()
