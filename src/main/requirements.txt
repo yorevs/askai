@@ -35,3 +35,4 @@ rich==13.7.1
 pytz==2024.1
 bs4==0.0.2
 fake_useragent==1.5.1
+textual==0.58.0
