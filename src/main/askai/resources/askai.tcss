@@ -1,3 +1,7 @@
+Screen {
+  border: #183236;
+}
+
 ScrollableContainer {
   background: #030F12;
   color: #DAF7F0;
@@ -6,34 +10,34 @@ ScrollableContainer {
 #splash, #info {
   color: #7FD5AD;
   width: 60;
+}
+
+#splash {
   padding: 5 5;
 }
 
-HeaderIcon {
-  dock: left;
+#info {
+  border: #7FD5AD;
+  background: #000000;
+  content-align: left middle;
+  padding: 0 1;
+}
+
+MenuIcon {
   padding: 0 1;
   width: 4;
   content-align: left middle;
 }
 
-AppInfoIcon {
-  content-align: center middle;
-  padding: 0 1;
-  width: 4;
-}
-
-HeaderIcon:hover {
+MenuIcon:hover {
   background: #7FD5AD 10%;
-}
-
-HeaderClockSpace {
-  dock: right;
-  width: 10;
-  padding: 0 1;
 }
 
 HeaderClock {
   content-align: center middle;
+  dock: right;
+  width: 10;
+  padding: 0 1;
 }
 
 HeaderTitle {
@@ -46,7 +50,8 @@ Header {
   color: #7FD5AD;
   dock: top;
   width: 100%;
-  height: 1;
+  height: 3;
+  layout: horizontal;
 }
 
 MarkdownViewer.-hidden {
@@ -62,7 +67,7 @@ MarkdownViewer.-visible {
 Input {
   background: #030F12;
   color: #DAF7F0;
-  padding: 0 0;
+  padding: 0 1;
   border: solid #183236;
   width: 100%;
   height: 3;
@@ -73,26 +78,28 @@ Input:focus {
 }
 
 Footer {
-    background: #051416 70%;
-    color: #7FD5AD 70%;
-    dock: bottom;
-    height: 1;
+  background: #051416 70%;
+  color: #7FD5AD 70%;
+  dock: bottom;
+  height: 3;
+  padding: 0 1;
+  content-align: left middle;
 }
 
 Footer > .footer--key {
-    background: #183236 70%;
-    color: #7FD5AD 70%;
-    text-style: bold;
+  background: #183236 70%;
+  color: #7FD5AD 70%;
+  text-style: bold;
 }
 
 Footer > .footer--highlight {
-    background: #051416;
-    color: #7FD5AD;
-    text-style: bold;
+  background: #051416;
+  color: #7FD5AD;
+  text-style: bold;
 }
 
 Footer > .footer--highlight-key {
-    background: #183236;
-    color: #7FD5AD;
-    text-style: bold;
+  background: #183236;
+  color: #7FD5AD;
+  text-style: bold;
 }

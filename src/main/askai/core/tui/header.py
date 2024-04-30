@@ -2,41 +2,12 @@ from datetime import datetime
 
 from rich.text import Text
 from textual.app import RenderResult
-from textual.events import Mount, Click
+from textual.events import Mount
 from textual.reactive import Reactive
 from textual.widget import Widget
 
-
-class HeaderIcon(Widget):
-    """Display an 'icon' on the left of the header."""
-
-    menu_icon = ""
-
-    async def on_click(self, event: Click) -> None:
-        """Launch the command palette when icon is clicked."""
-        event.stop()
-        await self.run_action("command_palette")
-
-    def render(self) -> RenderResult:
-        """Render the header icon."""
-        return self.menu_icon
-
-
-class AppInfoIcon(Widget):
-    """Display an 'icon' on the left of the header."""
-
-    menu_icon = ""
-
-    def on_click(self, event: Click) -> None:
-        """Launch the command palette when icon is clicked."""
-        event.stop()
-        self.app.info.toggle_class("-hidden")
-        self.app.splash.toggle_class("-hidden")
-        self.app.info.app_text = 'Updated text'
-
-    def render(self) -> RenderResult:
-        """Render the header icon."""
-        return self.menu_icon
+from askai.core.tui.app_icons import AppIcons
+from askai.core.tui.app_widgets import MenuIcon
 
 
 class HeaderTitle(Widget):
@@ -55,14 +26,7 @@ class HeaderTitle(Widget):
         return text
 
 
-class HeaderClockSpace(Widget):
-    """The space taken up by the clock on the right of the header."""
-    def render(self) -> RenderResult:
-        """Render the header clock space."""
-        return ""
-
-
-class HeaderClock(HeaderClockSpace):
+class HeaderClock(Widget):
     """Display a clock on the right of the header."""
     def _on_mount(self, _: Mount) -> None:
         self.set_interval(1, callback=self.refresh, name=f"update header clock")
@@ -77,19 +41,19 @@ class Header(Widget):
 
     def __init__(
         self,
-        show_clock: bool = False,
         *,
         name: str | None = None,
         id: str | None = None,
         classes: str | None = None,
     ):
         super().__init__(name=name, id=id, classes=classes)
-        self._show_clock = show_clock
 
     def compose(self):
-        yield HeaderIcon()
+        yield MenuIcon(AppIcons.MENU.value, self._show_menu)
+        yield MenuIcon(AppIcons.INFO.value, self._show_info)
+        yield MenuIcon(AppIcons.CONSOLE.value, self._show_console)
         yield HeaderTitle()
-        yield HeaderClock() if self._show_clock else HeaderClockSpace()
+        yield HeaderClock()
 
     @property
     def screen_title(self) -> str:
@@ -118,3 +82,15 @@ class Header(Widget):
         self.watch(self.app, "sub_title", set_sub_title)
         self.watch(self.screen, "title", set_title)
         self.watch(self.screen, "sub_title", set_sub_title)
+
+    async def _show_menu(self) -> None:
+        await self.run_action("command_palette")
+
+    async def _show_info(self) -> None:
+        self.app.info.toggle_class("-hidden")
+        self.app.splash.toggle_class("-hidden")
+
+    async def _show_console(self) -> None:
+        self.app.info.set_class(True, "-hidden")
+        self.app.splash.set_class(True, "-hidden")
+        await self.app.activate_markdown()

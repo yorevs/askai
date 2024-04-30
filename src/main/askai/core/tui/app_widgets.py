@@ -1,12 +1,37 @@
-from textual.app import ComposeResult
+from typing import Callable, Optional
+
+from textual.app import ComposeResult, RenderResult
+from textual.events import Click, Event
 from textual.reactive import Reactive
+from textual.widget import Widget
 from textual.widgets import Static
+
+from askai.core.tui.app_icons import AppIcons
+
+
+class MenuIcon(Widget):
+    """Display an 'icon' on the left of the header."""
+
+    menu_icon: Reactive[str] = AppIcons.DEFAULT.value
+
+    def __init__(self, menu_icon: str, on_click: Optional[Callable] = None):
+        super().__init__()
+        self.menu_icon = menu_icon
+        self.click_cb: Callable[[Event], None] = on_click
+
+    async def on_click(self, event: Click) -> None:
+        """Launch the command palette when icon is clicked."""
+        event.stop()
+        if self.click_cb:
+            await self.click_cb()
+
+    def render(self) -> RenderResult:
+        """Render the header icon."""
+        return self.menu_icon
 
 
 class Splash(Static):
     """Splash widget that extends Container."""
-
-    # icons:                          婢    鬒
 
     DEFAULT_CSS = """
     Splash {
