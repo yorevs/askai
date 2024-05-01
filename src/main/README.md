@@ -20,7 +20,7 @@ Born from the idea of empowering individuals with disabilities to navigate the d
 
 At the heart of AskAI lies its innovative integration of Speech-to-Text and Text-to-Speech technologies, offering a seamless experience for both visually and hearing impaired users. Through these cutting-edge features, individuals can interact with their computers using their natural voice, transcending the barriers imposed by traditional input methods. Moreover, AskAI introduces a unique push-to-talk input mechanism, enabling users to issue commands effortlessly, enhancing the fluidity and ease of interaction.
 
-<img src="https://iili.io/J8wiCqQ.png" style="padding-right: 10px" width="238" height="170" align="left" />
+<img src="https://iili.io/J8wiCqQ.png" style="padding-right: 10px" width="270" height="154" align="left" />
 
 Furthermore, AskAI embraces diversity by breaking language barriers, ensuring that no matter the tongue spoken, users can communicate effectively with their systems. Its adaptive language capabilities ensure that commands are understood and executed accurately, regardless of linguistic nuances. By championing inclusivity on all fronts, AskAI redefines the landscape of computing accessibility, empowering individuals with disabilities to navigate the digital realm with confidence and autonomy.
 
@@ -42,6 +42,8 @@ The see a brief demo about AskAI feature check our asciinema video.
 - Enjoy a Natural Typewriter Effect Synced with Speaking Text.
 - Automate Offline Language Translations for Enhanced Accessibility.
 - Interactive and Non-Interactive modes.
+- Image captions to provide textual descriptions for visual content.
+- Enhanced accuracy in responses is achieved through the implementation of a Retrieval-Augmented Generation (RAG) system.
 
 ## Installation
 
@@ -62,23 +64,6 @@ The see a brief demo about AskAI feature check our asciinema video.
 
 You may want to install HsPyLib on other OS's and it will probably work, but there are no guarantees that it
 **WILL ACTUALLY WORK**.
-
-#### Python packages
-
-There are some python dependencies, but they will be automatically downloaded when the build runs. The following python packages are required:
-
-- retry
-- pause
-- requests
-- argostranslate
-- soundfile
-- langchain
-- langchain-openai
-- PyAudio
-- SpeechRecognition
-- openai-whisper
-- urllib3
-- openai
 
 #### Applications / Libraries
 
