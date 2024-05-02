@@ -1,3 +1,18 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.tui.app_widgets
+      @file: app_widgets.py
+   @created: Mon, 29 Apr 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+      @site: https://github.com/yorevs/askai
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright (c) 2024, HomeSetup
+"""
+
 from typing import Callable, Optional
 
 from textual.app import ComposeResult, RenderResult
@@ -31,11 +46,11 @@ class MenuIcon(Widget):
         self.menu_icon = menu_icon
         self.click_cb: Callable = on_click
 
-    async def on_click(self, event: Click) -> None:
+    def on_click(self, event: Click) -> None:
         """Launch the command palette when icon is clicked."""
         event.stop()
         if self.click_cb:
-            await self.click_cb()
+            self.click_cb()
 
     def render(self) -> RenderResult:
         """Render the header icon."""

@@ -30,7 +30,7 @@ class TextFormatter(metaclass=Singleton):
     INSTANCE: "TextFormatter"
 
     CHAT_ICONS = {
-        "": "\n%RED%  Error: ",
+        "": "\n>   *Error*: ",
         "": "\n>   *TIP:* ",
         "": "\n>   *Analysis:* ",
         "": "\n>   *Summary:* ",
@@ -75,21 +75,21 @@ class TextFormatter(metaclass=Singleton):
         text = re.sub(r'(`{3}.+`{3})', r'\n\1\n', text)
         # fmt: on
 
-        return text.strip()
+        return text
 
     def display_markdown(self, text: str) -> None:
         """TODO"""
-        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text)))
+        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text).strip()))
         self.console.print(Markdown(colorized))
 
     def display_text(self, text: str) -> None:
         """TODO"""
-        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text)))
+        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text).strip()))
         self.console.print(Text.from_ansi(colorized))
 
     def cmd_print(self, text: str):
         """TODO"""
-        self.display_markdown(f"%ORANGE%  Commander%NC%: {text}")
+        self.display_markdown(f"%ORANGE%  Commander%NC%: {self.beautify(text).strip()}")
 
 
 assert (text_formatter := TextFormatter().INSTANCE) is not None

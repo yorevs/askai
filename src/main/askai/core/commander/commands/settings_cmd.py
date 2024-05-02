@@ -1,12 +1,27 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.commander.settings_cmd
+      @file: settings_cmd.py
+   @created: Thu, 25 Apr 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+      @site: https://github.com/yorevs/askai
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright (c) 2024, HomeSetup
+"""
+
 from abc import ABC
 from typing import Any, Optional
+
+from hspylib.core.tools.commons import sysout
+from setman.settings.settings_entry import SettingsEntry
 
 from askai.core.askai_settings import settings
 from askai.core.component.recorder import recorder
 from askai.core.support.text_formatter import text_formatter
-from hspylib.core.tools.commons import sysout
-from setman.settings.settings_entry import SettingsEntry
-
 from askai.core.support.utilities import display_text
 
 

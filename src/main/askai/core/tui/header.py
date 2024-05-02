@@ -1,3 +1,18 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.tui.header
+      @file: header.py
+   @created: Mon, 29 Apr 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+      @site: https://github.com/yorevs/askai
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright (c) 2024, HomeSetup
+"""
+
 from datetime import datetime
 
 from rich.text import Text
@@ -49,6 +64,7 @@ class Header(Widget):
         super().__init__(name=name, id=id, classes=classes)
 
     def compose(self):
+        """Compose the Header Widget."""
         yield MenuIcon(AppIcons.MENU.value, self._show_menu)
         yield MenuIcon(AppIcons.INFO.value, self._show_info)
         yield MenuIcon(AppIcons.CONSOLE.value, self._show_console)
@@ -73,11 +89,11 @@ class Header(Widget):
 
     def _on_mount(self, _: Mount) -> None:
         async def set_title() -> None:
-            """TODO"""
+            """The title that this header will display."""
             self.query_one(HeaderTitle).text = self.screen_title
 
         async def set_sub_title() -> None:
-            """TODO"""
+            """The sub-title that this header will display."""
             self.query_one(HeaderTitle).sub_text = self.screen_sub_title
 
         self.watch(self.app, "title", set_title)
@@ -85,13 +101,13 @@ class Header(Widget):
         self.watch(self.screen, "title", set_title)
         self.watch(self.screen, "sub_title", set_sub_title)
 
-    async def _show_menu(self) -> None:
-        await self.run_action("command_palette")
+    def _show_menu(self) -> None:
+        self.run_action("command_palette")
 
-    async def _show_info(self) -> None:
+    def _show_info(self) -> None:
         self.app.info.set_class(False, "-hidden")
         self.app.md_console.set_class(True, "-hidden")
 
-    async def _show_console(self) -> None:
+    def _show_console(self) -> None:
         self.app.info.set_class(True, "-hidden")
-        await self.app.activate_markdown()
+        self.app.activate_markdown()

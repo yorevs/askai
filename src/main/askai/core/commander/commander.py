@@ -1,3 +1,18 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.commander.commander
+      @file: commander.py
+   @created: Thu, 25 Apr 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+      @site: https://github.com/yorevs/askai
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright (c) 2024, HomeSetup
+"""
+
 import click
 
 from askai.core.askai_configs import configs
@@ -34,17 +49,18 @@ HELP_MSG = """
 
 @click.group()
 @click.pass_context
-def askai(ctx) -> None:
+def ask_cli(ctx) -> None:
+    """TODO"""
     pass
 
 
-@askai.command()
+@ask_cli.command()
 def help() -> None:
     """Display this help and exit."""
     text_formatter.cmd_print(HELP_MSG)
 
 
-@askai.command()
+@ask_cli.command()
 @click.argument('operation', default='list')
 @click.argument('name', default='')
 @click.argument('value', default='')
@@ -68,7 +84,7 @@ def settings(operation: str, name: str | None = None, value: str | None = None) 
             text_formatter.cmd_print(f"%RED%{err}%NC%")
 
 
-@askai.command()
+@ask_cli.command()
 @click.argument('operation', default='list')
 @click.argument('name', default='')
 def devices(operation: str, name: str | None = None) -> None:
@@ -86,7 +102,7 @@ def devices(operation: str, name: str | None = None) -> None:
             text_formatter.cmd_print(f"%RED%{err}%NC%")
 
 
-@askai.command()
+@ask_cli.command()
 @click.argument('operation', default='list')
 @click.argument('name', default='onyx')
 def voices(operation: str, name: str | int | None = None) -> None:
@@ -106,7 +122,7 @@ def voices(operation: str, name: str | int | None = None) -> None:
             text_formatter.cmd_print(f"%RED%{err}%NC%")
 
 
-@askai.command()
+@ask_cli.command()
 @click.argument('speed', type=click.INT, default=1)
 def tempo(speed: int | None = None) -> None:
     """Adjust the Text-To-Speech tempo.
@@ -115,14 +131,14 @@ def tempo(speed: int | None = None) -> None:
     TtsSttCmd.tempo(speed)
 
 
-@askai.command()
+@ask_cli.command()
 def debug():
     """Toggle debugging ON/OFF."""
     configs.is_debug = not configs.is_debug
     text_formatter.cmd_print(f"`Debugging` is {'%GREEN%ON' if configs.is_debug else '%RED%OFF'}%NC%")
 
 
-@askai.command()
+@ask_cli.command()
 def speak():
     """Toggle speaking ON/OFF."""
     configs.is_speak = not configs.is_speak

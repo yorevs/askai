@@ -23,12 +23,25 @@ from typing import List, Optional
 
 import nltk
 import pause
+from click import UsageError
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.term.terminal import terminal
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging, sysout
+from hspylib.core.tools.text_tools import elide_text
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from langchain_core.prompts import PromptTemplate
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.commander.commander import askai
+from askai.core.commander.commander import ask_cli
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.geo_location import geo_location
@@ -42,18 +55,6 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
 from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery
-from click import UsageError
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.term.terminal import terminal
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging, sysout
-from hspylib.core.tools.text_tools import elide_text
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from langchain_core.prompts import PromptTemplate
 
 
 class AskAi:
@@ -260,7 +261,7 @@ class AskAi:
                 args: list[str] = list(filter(
                     lambda a: a and a != 'None', re.split(r'\s', f"{command.group(1)} {command.group(2)}")
                 ))
-                askai(args, standalone_mode=False)
+                ask_cli(args, standalone_mode=False)
             elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.wait())
