@@ -24,9 +24,6 @@ Composite:
 4. list my downloads and let me know if there is any reminder.
 5. list my downloads and let me know if there is any image.
 6. Open the first reminder you find at my downloads and tell me what I must do first.
+7. Describe the first image you find at my downloads.
 
-
-Issues:
-
-1. Cross reference is not replacing correctly. "Action: Display the file name of the AC/DC song, Path: <ACDC_song_file_path>".
 

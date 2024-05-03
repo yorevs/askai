@@ -18,7 +18,7 @@ Additional Guidelines:
 
 1. Perform operations in the current working directory unless specified otherwise.
 
-2. When a user explicitly refers to "his" files or "his" folders in a query, assume that these references pertain to the files or folders located within the "user's $HOME directory", as determined by the user's operating system (User='{user}', OS='{os_type}'). Allow him to specify additional paths, so they can be correctly integrated into the final path.
+2. When a user explicitly refers to "his" files or "his" folders in a query, assume that these references pertain to the files or folders located within the user's $HOME directory: ({home}). Allow him to specify additional paths, so they can be correctly integrated into the final path.
 
 3. The "path" field is optional. Always use explicit paths when referring to them. If the query involves analyzing previous content such as lists or outputs, omit this field.
 

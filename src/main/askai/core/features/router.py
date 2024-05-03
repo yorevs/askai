@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from pathlib import Path
 
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
@@ -31,6 +32,7 @@ from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables.history import RunnableWithMessageHistory
 from retry import retry
 from textwrap import dedent
 from types import SimpleNamespace
@@ -85,10 +87,10 @@ class Router(metaclass=Singleton):
     @property
     def router_template(self) -> ChatPromptTemplate:
         """Retrieve the Router Template."""
-        template = PromptTemplate(input_variables=["os_type", "user"], template=prompt.read_prompt("router.txt"))
+        template = PromptTemplate(input_variables=["home"], template=prompt.read_prompt("router.txt"))
         return ChatPromptTemplate.from_messages(
             [
-                ("system", template.format(os_type=prompt.os_type, user=prompt.user)),
+                ("system", template.format(home=Path.home())),
                 MessagesPlaceholder("chat_history", optional=True),
                 ("human", self.HUMAN_PROMPT),
             ]
@@ -105,13 +107,20 @@ class Router(metaclass=Singleton):
         """
 
         shared.create_chat_memory().clear()
+        shared.context.clear("ACCURACY")
 
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
-            if response := runnable.invoke({"input": query}):
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
+            runnable = RunnableWithMessageHistory(
+                runnable,
+                shared.context.flat,
+                input_messages_key="input",
+                history_messages_key="history",
+            )
+            if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "ACCURACY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
                 plan: ActionPlan = object_mapper.of_json(response.content, ActionPlan)
                 if not isinstance(plan, ActionPlan):
