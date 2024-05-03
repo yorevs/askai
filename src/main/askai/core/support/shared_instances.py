@@ -105,13 +105,14 @@ class SharedInstances(metaclass=Singleton):
             )
         return self._memory
 
-    def input_text(self, input_prompt: str) -> Optional[str]:
+    def input_text(self, input_prompt: str, placeholder: str | None = None) -> Optional[str]:
         """Prompt for user input.
         :param input_prompt: The prompt to display to the user.
+        :param placeholder: The input placeholder text.
         """
         ret = None
         while ret is None:
-            if (ret := line_input(input_prompt)) == Keyboard.VK_CTRL_L:  # Use STT as input method.
+            if (ret := line_input(input_prompt, placeholder)) == Keyboard.VK_CTRL_L:  # Use STT as input method.
                 terminal.cursor.erase_line()
                 if spoken_text := self.engine.speech_to_text():
                     display_text(f"{self.username}: {spoken_text}")

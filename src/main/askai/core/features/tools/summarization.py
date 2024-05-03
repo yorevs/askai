@@ -63,7 +63,7 @@ def _qna() -> str:
         f"# {msg.enter_qna()} %EOL%" f"> Content:  {summarizer.sum_path} %EOL%%EOL%" f"`{msg.press_esc_enter()}` %EOL%"
     )
     AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.qna_welcome())
-    while question := shared.input_text(f"{shared.username}: %GREEN%"):
+    while question := shared.input_text(f"{shared.username}: %GREEN%", f"Ask about the summarized content"):
         if not (output := _ask_and_reply(question)):
             break
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"{output}")
