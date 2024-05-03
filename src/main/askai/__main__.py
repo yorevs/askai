@@ -14,7 +14,9 @@
 """
 
 import logging as log
+import os
 import sys
+from pathlib import Path
 from textwrap import dedent
 from typing import Any, Optional
 
@@ -99,6 +101,7 @@ class Main(TUIApplication):
 
     def _main(self, *params, **kwargs) -> ExitStatus:
         """Run the application with the command line arguments."""
+        os.chdir(Path.home())
         is_new_ui: bool = to_bool(self.get_arg("ui"))
         if not is_new_ui:
             self._askai = AskAi(

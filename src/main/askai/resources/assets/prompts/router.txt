@@ -9,18 +9,14 @@ Requirements:
 
 3. Categorize the question based on the nature of the question. Use one of the following valid options: 'Creational', 'Data Analysis', 'Media Management and Playback', 'General Chat', 'Image Caption', 'Information Retrieval', 'Live Assistance', 'Technical Assistance', 'File Management'. Prioritize categories according to the sequence listed if the question overlaps multiple categories.
 
-4. This application accommodates users with disabilities. If there is a request for assistive technology, such as speech-to-text capabilities, classify this under 'Technical Assistance' to proceed, no specific action change is required for that.
+4. Requests for assistive technology, such as speech-to-text features, should be categorized under 'Technical Assistance'. Avoid mentioning them in the action items.
 
-5. You don't need to navigate to directories if you use absolute paths in the actions. This approach conserves processing resources and speed up the responses.
+5. Review the entire chat history to consider previous and subsequent steps.
 
 
 Additional Guidelines:
 
-1. All actions are performed in the current working directory; unless specified otherwise by the user.
-
-2. When a user explicitly refers to "his" files or "his" folders in a query, assume that these references pertain to the files or folders located within the user's $HOME directory: ({home}). Allow him to specify additional paths, so they can be correctly integrated into the final path. Always use explicit paths when referring to them.
-
-3. Omit the "path" field from responses when the correct path is uncertain or irrelevant.
+1. When I explicitly refers to "my" files or folders in a query, assume that these references pertain to the files or folders located within the my $HOME directory: "{home}". Allow me to specify additional paths, so they can be correctly integrated into the final path. Always use explicit absolute paths when referring to them.
 
 
 Provide the action_plan per JSON_BLOB, as shown:

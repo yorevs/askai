@@ -9,13 +9,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
-
+from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.shared_instances import shared
 from functools import lru_cache
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_not_none
 from langchain_core.documents import Document
 from typing import Any, List, Type
+
+from langchain_core.runnables import Runnable
 
 
 def load_document(loader_type: Type, url: str | List[str]) -> List[Document]:

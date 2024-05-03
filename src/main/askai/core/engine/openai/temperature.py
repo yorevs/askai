@@ -37,16 +37,13 @@ class Temperature(Enumeration):
 
     COLDEST                     = 0.0, 0.
 
-    # Custom value used by the AskAI router.
-    ROUTER                      = 0.1, 0.0
-
     # Generates data analysis scripts that are more likely to be correct and efficient. Output is more deterministic
     # and focused.
     DATA_ANALYSIS               = 0.2, 0.1
 
     # Generates code that adheres to established patterns and conventions. Output is more deterministic and focused.
     # Useful for generating syntactically correct code.
-    CODE_GENERATION             = 0.2, 0.2
+    CODE_GENERATION             = 0.2, 0.1
 
     # Generates code comments that are more likely to be concise and relevant. Output is more deterministic
     # and adheres to conventions.

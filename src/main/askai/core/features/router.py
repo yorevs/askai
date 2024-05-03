@@ -37,6 +37,8 @@ from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables import Runnable
+from langchain_core.runnables.history import RunnableWithMessageHistory
 from retry import retry
 
 AgentResponse: TypeAlias = dict[str, Any]
@@ -81,6 +83,7 @@ class Router(metaclass=Singleton):
 
     def __init__(self):
         self._approved = False
+        self._agent = None
 
     @property
     def router_template(self) -> ChatPromptTemplate:
@@ -111,8 +114,14 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_COMMENT_GENERATION.temp)
-            if response := runnable.invoke({"input": query}):
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.COLDEST.temp)
+            runnable = RunnableWithMessageHistory(
+                runnable,
+                shared.context.flat,
+                input_messages_key="input",
+                history_messages_key="history",
+            )
+            if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "ACCURACY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
                 _, json_string = extract_codeblock(response.content)
                 plan: ActionPlan = object_mapper.of_json(json_string, ActionPlan)
@@ -133,13 +142,26 @@ class Router(metaclass=Singleton):
         last_response: str = ""
         actions: list[SimpleNamespace] = action_plan.plan
         check_argument(all(isinstance(act, SimpleNamespace) for act in actions), "Invalid action format")
+        agent = self._create_agent()
         for action in actions:
             task = ", ".join([f"{k.title()}: {v}" for k, v in vars(action).items()])
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{task}`", verbosity="debug")
-            llm = lc_llm.create_chat_model(Temperature.ROUTER.temp)
+            if (response := agent.invoke({"input": task})) and (output := response["output"]):
+                log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
+                last_response = output
+                assert_accuracy(action.action, output)
+                continue
+            raise InaccurateResponse("AI provided AN EMPTY response")
+
+        return self._wrap_answer(query, action_plan.category, msg.translate(last_response))
+
+    def _create_agent(self) -> Runnable:
+        """TODO"""
+        if self._agent is None:
+            llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
             chat_memory = shared.create_chat_memory()
             lc_agent = create_structured_chat_agent(llm, features.agent_tools(), self.agent_template)
-            agent = AgentExecutor(
+            self._agent = AgentExecutor(
                 agent=lc_agent,
                 tools=features.agent_tools(),
                 max_iteraction=configs.max_router_retries,
@@ -150,14 +172,7 @@ class Router(metaclass=Singleton):
                 early_stopping_method=True,
                 verbose=configs.is_debug,
             )
-            if (response := agent.invoke({"input": task})) and (output := response["output"]):
-                log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
-                last_response = output
-                assert_accuracy(action.action, output)
-                continue
-            raise InaccurateResponse("AI provided AN EMPTY response")
-
-        return self._wrap_answer(query, action_plan.category, msg.translate(last_response))
+        return self._agent
 
 
 assert (router := Router().INSTANCE) is not None
