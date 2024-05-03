@@ -8,22 +8,15 @@ en_US
 4. Who currently holds the office of President of the United States?
 5. List my downloads using stt.
 6. Who is Hugo Saporetti junior?
+7. List my music and let me know if there is any ac/dc song. If so, show me the file name and open it.
+8. Open the first reminder file you find at my downloads.
+9. Create a small Python program to allow me to calculate the speed given the time and distance, save it as './dist.py'. Show me the contents afterwards.
+10. List my downloads and let me know if there is any reminder.
+11. List my downloads and let me know if there is any image.
+12. Open the first reminder you find at my downloads and tell me what I must do first.
+13. Describe the first image you find at my downloads.
 
-pt_BR
-
-1. Qual a previsao do tempo hoje para Belo Horizonte?
-2. Quem e o atual presidente do Brasil?
-3. Quem e Hugo Saporetti junior?
 
 
-Composite:
-
-1. list my music and let me know if there is any ac/dc song. If so, show me the file name and open it.
-2. open the first reminder file you find at my downloads.
-3. Create a small Python program to allow me to calculate the speed given the time and distance, save it as './dist.py'. Show me the contents afterwards.
-4. list my downloads and let me know if there is any reminder.
-5. list my downloads and let me know if there is any image.
-6. Open the first reminder you find at my downloads and tell me what I must do first.
-7. Describe the first image you find at my downloads.
 
 

@@ -13,14 +13,16 @@ Requirements:
 
 5. Categorize the question based on the nature of the question. Use one of the following valid options: 'Creational', 'Data Analysis', 'Media Management and Playback', 'General Chat', 'Image Caption', 'Information Retrieval', 'Live Assistance', 'Technical Assistance', 'File Management'. Prioritize categories according to the sequence listed if the question overlaps multiple categories.
 
+6. This application accommodates users with disabilities. If there is a request for assistive technology, such as speech-to-text capabilities, classify this under 'Technical Assistance' to proceed, no specific action is required for that.
+
 
 Additional Guidelines:
 
 1. Perform operations in the current working directory unless specified otherwise.
 
-2. When a user explicitly refers to "his" files or "his" folders in a query, assume that these references pertain to the files or folders located within the user's $HOME directory: ({home}). Allow him to specify additional paths, so they can be correctly integrated into the final path.
+2. When a user explicitly refers to "his" files or "his" folders in a query, assume that these references pertain to the files or folders located within the user's $HOME directory: ({home}). Allow him to specify additional paths, so they can be correctly integrated into the final path. Always use explicit paths when referring to them.
 
-3. The "path" field is optional. Always use explicit paths when referring to them. If the query involves analyzing previous content such as lists or outputs, omit this field.
+3. If the query involves analyzing previous content such as lists or outputs, omit the "path" field.
 
 
 Provide the action_plan per JSON_BLOB, as shown:
