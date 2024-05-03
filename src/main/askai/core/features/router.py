@@ -104,11 +104,13 @@ class Router(metaclass=Singleton):
         :param query: The user query to complete.
         """
 
+        shared.create_chat_memory().clear()
+
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.COLDEST.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
             if response := runnable.invoke({"input": query}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
                 plan: ActionPlan = object_mapper.of_json(response.content, ActionPlan)
@@ -135,7 +137,7 @@ class Router(metaclass=Singleton):
         for action in actions:
             task = ", ".join([f"{k.title()}: {v}" for k, v in vars(action).items()])
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{task}`", verbosity="debug")
-            llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
+            llm = lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
             chat_memory = shared.create_chat_memory()
             lc_agent = create_structured_chat_agent(llm, features.agent_tools(), self.agent_template)
             agent = AgentExecutor(

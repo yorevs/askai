@@ -273,7 +273,7 @@ class AskAi:
         except (NotImplementedError, ImpossibleQuery) as err:
             self.reply_error(str(err))
         except (MaxInteractionsReached, InaccurateResponse, ValueError) as err:
-            self.reply_error(msg.unprocessable(type(err)))
+            self.reply_error(msg.unprocessable(str(err)))
         except UsageError as err:
             self.reply_error(msg.invalid_command(err))
         except TerminatingQuery:

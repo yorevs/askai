@@ -26,24 +26,7 @@ Composite:
 6. Open the first reminder you find at my downloads and tell me what I must do first.
 
 
+Issues:
 
-40 21 9 4 2 /Users/hjunior/Desktop/TechWeek/play-intro.sh
-
-
-find ~/HomeSetup -inme '*.py'
-
-Please refer to the detailed examples below:
-
-```
-USER
-Open the first reminder you find at my downloads and let me known what should I do first.
-
-ASSISTANT:
-1. list_contents('~/Downloads')
-2. check_output("Is there any reminder in the list?")
-3. open_command('%cross_referenced_filenames%')
-4. check_output('What should I do first and next?')
-5. display('First, go to the doctor', 'Next, don\'t go to school')
-```
-
+1. Cross reference is not replacing correctly. "Action: Display the file name of the AC/DC song, Path: <ACDC_song_file_path>".
 

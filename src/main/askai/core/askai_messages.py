@@ -186,7 +186,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache
     def unprocessable(self, reason: str) -> str:
-        return self.translate(f"Sorry, I was unable to process your request => '{reason}'")
+        return self.translate(f"Sorry, {reason}")
 
 
 assert (msg := AskAiMessages().INSTANCE) is not None

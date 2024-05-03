@@ -53,8 +53,8 @@ def assert_accuracy(question: str, ai_response: str) -> None:
             log.info("Accuracy check  status: '%s'  reason: '%s'", status, problems)
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity="debug")
             if RagResponse.of_status(status).is_bad:
-                problems = issues_prompt.format(problems=RagResponse.strip_code(output))
-                raise InaccurateResponse(problems)
+                shared.context.push("HISTORY", issues_prompt.format(problems=RagResponse.strip_code(output)))
+                raise InaccurateResponse(f"AI Assistant didn't respond accurately => '{response.content}'")
             return
 
     raise InaccurateResponse(f"AI Assistant didn't respond accurately => '{response.content}'")
@@ -67,8 +67,8 @@ def resolve_x_refs(ref_name: str, context: str | None) -> str:
     """
     output = ref_name
     if context or (context := str(shared.context.flat("HISTORY"))):
-        template = PromptTemplate(input_variables=["history", "pathname"], template=prompt.read_prompt("x-references"))
-        final_prompt = template.format(history=context, pathname=ref_name)
+        template = PromptTemplate(input_variables=["context", "pathname"], template=prompt.read_prompt("x-references"))
+        final_prompt = template.format(context=context, pathname=ref_name)
         log.info("X-REFS::[QUESTION] %s => CTX: '%s'", ref_name, context)
         llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.x_reference(), verbosity="debug")
