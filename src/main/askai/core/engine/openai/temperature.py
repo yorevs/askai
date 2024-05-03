@@ -35,29 +35,32 @@ class Temperature(Enumeration):
 
     # fmt: off
 
-    COLDEST                     = 0.0, 0.0
+    COLDEST                     = 0.0, 0.
 
-    # Generates code that adheres to established patterns and conventions. Output is more deterministic and focused.
-    # Useful for generating syntactically correct code.
-    CODE_GENERATION             = 0.2, 0.1
-
-    # Generates creative and diverse text for storytelling. Output is more exploratory and less constrained by patterns.
-    CREATIVE_WRITING            = 0.7, 0.8
-
-    # Generates conversational responses that balance coherence and diversity. Output is more natural and engaging.
-    CHATBOT_RESPONSES           = 0.5, 0.5
-
-    # Generates code comments that are more likely to be concise and relevant. Output is more deterministic
-    # and adheres to conventions.
-    CODE_COMMENT_GENERATION     = 0.3, 0.2
+    # Custom value used by the AskAI router.
+    ROUTER                      = 0.1, 0.0
 
     # Generates data analysis scripts that are more likely to be correct and efficient. Output is more deterministic
     # and focused.
     DATA_ANALYSIS               = 0.2, 0.1
 
+    # Generates code that adheres to established patterns and conventions. Output is more deterministic and focused.
+    # Useful for generating syntactically correct code.
+    CODE_GENERATION             = 0.2, 0.2
+
+    # Generates code comments that are more likely to be concise and relevant. Output is more deterministic
+    # and adheres to conventions.
+    CODE_COMMENT_GENERATION     = 0.3, 0.2
+
+    # Generates conversational responses that balance coherence and diversity. Output is more natural and engaging.
+    CHATBOT_RESPONSES           = 0.5, 0.5
+
     # Generates code that explores alternative solutions and creative approaches. Output is less constrained by
     # established patterns.
     EXPLORATORY_CODE_WRITING    = 0.6, 0.7
+
+    # Generates creative and diverse text for storytelling. Output is more exploratory and less constrained by patterns.
+    CREATIVE_WRITING            = 0.7, 0.8
 
     HOTTEST                     = 1.0, 1.0
 

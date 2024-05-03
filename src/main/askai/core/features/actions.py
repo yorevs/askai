@@ -84,7 +84,7 @@ class Actions(metaclass=Singleton):
     def check_output(self, question: str) -> str:
         """
         Name: 'check_output'
-        Description: Use this tool to analyze tool outputs, examine file structures, and assess textual content such as reminders and appointments. The use of terminal commands is prohibited.
+        Description: Utilize this tool to evaluate outputs, scrutinize file structures, identify files and folders, and analyze textual content such as reminders and appointments. Usage of terminal commands is strictly prohibited.
         Usage: `check_output(question)`
           input `question`: The query about the output.
         """

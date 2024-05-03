@@ -195,11 +195,16 @@ class AskAiApp(App):
         """Called application is mounted."""
         self.screen.title = f"AskAI v{Version.load(load_dir=classpath.source_path())}"
         self.screen.sub_title = self.engine.ai_model_name()
-        self.header.disabled = True
-        self.line_input.loading = True
-        self.footer.disabled = True
+        self.enable_controls(False)
         self.md_console.set_class(True, "-hidden")
         self._startup()
+
+    def enable_controls(self, enable: bool = True):
+        self.header.disabled = not enable
+        self.line_input.loading = not enable
+        self.footer.disabled = not enable
+        if enable:
+            self.line_input.focus()
 
     @work
     async def activate_markdown(self) -> None:
@@ -211,12 +216,16 @@ class AskAiApp(App):
         await self._refresh_console()
         self.md_console.set_interval(1, self._refresh_console)
 
-    @work
+    @work(thread=True)
     async def action_clear(self) -> None:
         """Clear the output console."""
+        self.enable_controls(False)
         with open(self._console_path, 'w', encoding=Charset.UTF_8.val) as f_console:
             f_console.write(f"---\n\n# {now()}\n\n")
             f_console.flush()
+            self._re_render = True
+        await self.reply(f"{msg.welcome(prompt.user.title())}")
+        self.enable_controls(True)
 
     async def action_speaking(self) -> None:
         """Toggle Speaking ON/OFF."""
@@ -271,12 +280,13 @@ class AskAiApp(App):
         status = True
         try:
             if command := re.search(self.RE_ASKAI_CMD, question):
-                args: list[str] = list(filter(
-                    lambda a: a and a != 'None', re.split(r'\s', f"{command.group(1)} {command.group(2)}")
-                ))
                 with StringIO() as buf, redirect_stdout(buf):
+                    args: list[str] = list(filter(
+                        lambda a: a and a != 'None', re.split(r'\s', f"{command.group(1)} {command.group(2)}")
+                    ))
                     ask_cli(args, standalone_mode=False)
-                    self.display_text(f"\n```bash\n{strip_escapes(buf.getvalue())}\n```")
+                    if output := buf.getvalue():
+                        self.display_text(f"\n```bash\n{strip_escapes(output)}\n```")
             elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
                 await self.reply(message=msg.wait())
@@ -288,7 +298,7 @@ class AskAiApp(App):
         except (NotImplementedError, ImpossibleQuery) as err:
             await self.reply_error(str(err))
         except (MaxInteractionsReached, InaccurateResponse, ValueError) as err:
-            await self.reply_error(msg.unprocessable(type(err)))
+            await self.reply_error(msg.unprocessable(str(err)))
         except UsageError as err:
             await self.reply_error(msg.invalid_command(err))
         except TerminatingQuery:
@@ -316,12 +326,9 @@ class AskAiApp(App):
             f_console.flush()
         # At this point the application is ready.
         self.splash.set_class(True, "-hidden")
-        self.header.disabled = False
-        self.line_input.loading = False
-        self.footer.disabled = False
         self.activate_markdown()
-        self.line_input.focus()
         await self.reply(f"{msg.welcome(prompt.user.title())}")
+        self.enable_controls()
         log.info("AskAI is ready to use!")
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:

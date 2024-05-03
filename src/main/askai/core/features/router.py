@@ -12,8 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
 from pathlib import Path
+from textwrap import dedent
+from types import SimpleNamespace
+from typing import Any, Optional, Type, TypeAlias
 
+import PIL
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -25,20 +30,14 @@ from askai.core.model.action_plan import ActionPlan
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
+from askai.core.support.utilities import extract_codeblock
 from askai.exception.exceptions import InaccurateResponse
 from hspylib.core.exception.exceptions import InvalidArgumentError
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables.history import RunnableWithMessageHistory
 from retry import retry
-from textwrap import dedent
-from types import SimpleNamespace
-from typing import Any, Optional, Type, TypeAlias
-
-import logging as log
-import PIL
 
 AgentResponse: TypeAlias = dict[str, Any]
 
@@ -86,10 +85,10 @@ class Router(metaclass=Singleton):
     @property
     def router_template(self) -> ChatPromptTemplate:
         """Retrieve the Router Template."""
-        template = PromptTemplate(input_variables=["home"], template=prompt.read_prompt("router.txt"))
+        template = PromptTemplate(input_variables=["home", "scratchpad"], template=prompt.read_prompt("router.txt"))
         return ChatPromptTemplate.from_messages(
             [
-                ("system", template.format(home=Path.home())),
+                ("system", template.format(home=Path.home(), scratchpad=str(shared.context.flat("ACCURACY")))),
                 MessagesPlaceholder("chat_history", optional=True),
                 ("human", self.HUMAN_PROMPT),
             ]
@@ -112,21 +111,13 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
-            runnable = RunnableWithMessageHistory(
-                runnable,
-                shared.context.flat,
-                input_messages_key="input",
-                history_messages_key="history",
-            )
-            if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "ACCURACY"}}):
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_COMMENT_GENERATION.temp)
+            if response := runnable.invoke({"input": query}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
-                plan: ActionPlan = object_mapper.of_json(response.content, ActionPlan)
+                _, json_string = extract_codeblock(response.content)
+                plan: ActionPlan = object_mapper.of_json(json_string, ActionPlan)
                 if not isinstance(plan, ActionPlan):
-                    return f"Error: AI responded an invalid JSON object -> {str(plan)}"
-                AskAiEvents.ASKAI_BUS.events.reply.emit(
-                    message=msg.action_plan(f"[{plan.category}] `{plan.reasoning}`"), verbosity="debug"
-                )
+                    raise InaccurateResponse(f"AI responded an invalid JSON object -> {str(plan)}")
                 output = self._route(query, plan)
             else:
                 output = response
@@ -145,7 +136,7 @@ class Router(metaclass=Singleton):
         for action in actions:
             task = ", ".join([f"{k.title()}: {v}" for k, v in vars(action).items()])
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{task}`", verbosity="debug")
-            llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
+            llm = lc_llm.create_chat_model(Temperature.ROUTER.temp)
             chat_memory = shared.create_chat_memory()
             lc_agent = create_structured_chat_agent(llm, features.agent_tools(), self.agent_template)
             agent = AgentExecutor(

@@ -91,7 +91,7 @@ class AskAiConfigs(metaclass=Singleton):
 
     @property
     def max_iteractions(self) -> int:
-        return settings.get_int("askai.max.iteractions")
+        return settings.get_int("askai.max.router.iteractions")
 
     @property
     def max_context_size(self) -> int:
@@ -99,7 +99,7 @@ class AskAiConfigs(metaclass=Singleton):
 
     @property
     def max_router_retries(self) -> int:
-        return settings.get_int("askai.max.router.retries")
+        return settings.get_int("askai.max.agent.retries")
 
     @property
     def max_agent_execution_time_seconds(self) -> int:
