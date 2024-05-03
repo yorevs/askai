@@ -15,7 +15,7 @@
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
-from askai.core.features.tools.analysis import resolve_x_refs
+from askai.core.features.rag.commons import resolve_x_refs
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_path, media_type_of
 from clitt.core.term.terminal import Terminal

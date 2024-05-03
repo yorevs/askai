@@ -13,72 +13,17 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import logging as log
+
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.model.rag_response import RagResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
-from askai.exception.exceptions import InaccurateResponse
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import PromptTemplate
-
-import logging as log
-
-
-def assert_accuracy(question: str, ai_response: str) -> None:
-    """Function responsible for asserting that the question was properly answered.
-    :param question: The user question.
-    :param ai_response: The AI response to be analysed.
-    """
-    issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("assert"))
-    if ai_response in msg.accurate_responses:
-        return
-    elif not ai_response:
-        empty_msg = "AI provided AN <EMPTY> response"
-        problems = issues_prompt.format(problems=empty_msg)
-        shared.context.push("ACCURACY", issues_prompt.format(problems=RagResponse.strip_code(empty_msg)))
-        raise InaccurateResponse(problems)
-
-    assert_template = PromptTemplate(input_variables=["response", "input"], template=prompt.read_prompt("ryg-rag"))
-    final_prompt = assert_template.format(response=ai_response, input=question)
-    log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
-    llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-    response: AIMessage = llm.invoke(final_prompt)
-
-    if response and (output := response.content):
-        if mat := RagResponse.matches(output):
-            output: str = output
-            status, problems = mat.group(1), mat.group(2)
-            log.info("Accuracy check  status: '%s'  reason: '%s'", status, problems)
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity="debug")
-            if RagResponse.of_status(status).is_bad:
-                shared.context.push("ACCURACY", issues_prompt.format(problems=RagResponse.strip_code(output)))
-                raise InaccurateResponse(f"AI Assistant didn't respond accurately => '{response.content}'")
-            return
-
-    raise InaccurateResponse(f"AI Assistant didn't respond accurately => '{response.content}'")
-
-
-def resolve_x_refs(ref_name: str, context: str | None) -> str:
-    """Replace all cross references by their actual values.
-    :param ref_name: The cross-reference or variable name.
-    :param context: The context to analyze the references.
-    """
-    output = ref_name
-    if context or (context := str(shared.context.flat("HISTORY"))):
-        template = PromptTemplate(input_variables=["context", "pathname"], template=prompt.read_prompt("x-references"))
-        final_prompt = template.format(context=context, pathname=ref_name)
-        log.info("X-REFS::[QUESTION] %s => CTX: '%s'", ref_name, context)
-        llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.x_reference(), verbosity="debug")
-
-        if (result := llm.invoke(final_prompt).content.strip()) and shared.UNCERTAIN_ID not in result:
-            output = result
-
-    return output
 
 
 def check_output(question: str, context: str | None = None) -> str:

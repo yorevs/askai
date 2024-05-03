@@ -20,8 +20,7 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.features.actions import features
-from askai.core.features.tools.analysis import assert_accuracy
-from askai.core.features.tools.general import final_answer
+from askai.core.features.rag.commons import final_answer, assert_accuracy
 from askai.core.model.action_plan import ActionPlan
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
@@ -113,7 +112,7 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.COLDEST.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
             runnable = RunnableWithMessageHistory(
                 runnable,
                 shared.context.flat,

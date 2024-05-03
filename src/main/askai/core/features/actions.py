@@ -13,6 +13,11 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import inspect
+from functools import lru_cache
+from textwrap import dedent
+from typing import Callable
+
 from askai.core.askai_messages import msg
 from askai.core.features.tools.analysis import check_output
 from askai.core.features.tools.browser import browse
@@ -23,13 +28,8 @@ from askai.core.features.tools.terminal import execute_command, list_contents, o
 from askai.core.features.tools.vision import image_captioner
 from askai.exception.exceptions import TerminatingQuery
 from clitt.core.tui.line_input.line_input import line_input
-from functools import lru_cache
 from hspylib.core.metaclass.singleton import Singleton
 from langchain_core.tools import BaseTool, StructuredTool
-from textwrap import dedent
-from typing import Any, Callable
-
-import inspect
 
 
 class Actions(metaclass=Singleton):
@@ -65,17 +65,12 @@ class Actions(metaclass=Singleton):
     def _create_agent_tool(self, fn: Callable) -> BaseTool:
         """Create the LangChain agent tool."""
 
-        def arun(*args) -> Any:
-            raise NotImplementedError("This tool does not support async")
-
-        tool = StructuredTool.from_function(
+        return StructuredTool.from_function(
             fn,
             name=fn.__name__,
             description=f"```{dedent(fn.__doc__)}```\n\n" if fn and fn.__doc__ else "",
             return_direct=True,
         )
-
-        return tool
 
     def browse(self, search_query: str) -> str:
         """

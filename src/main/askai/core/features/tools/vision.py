@@ -1,18 +1,15 @@
+import torch
+from PIL import Image
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
-from askai.core.features.tools.analysis import resolve_x_refs
+from askai.core.features.rag.commons import resolve_x_refs
 from askai.core.support.shared_instances import shared
-from functools import lru_cache
 from hspylib.core.config.path_object import PathObject
-from PIL import Image
 from transformers import BlipForConditionalGeneration, BlipProcessor
 
-import torch
 
-
-@lru_cache
 def image_captioner(path_name: str) -> str:
-    """TODO"""
+    """This tool is used to describe an image."""
     caption = None
     posix_path = PathObject.of(path_name)
     if not posix_path.exists:
