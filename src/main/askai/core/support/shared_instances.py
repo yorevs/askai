@@ -13,8 +13,13 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from functools import lru_cache
 from typing import Optional
+
+from clitt.core.term.terminal import terminal
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_state
+from hspylib.modules.cli.keyboard import Keyboard
 
 from askai.core.askai_configs import configs
 from askai.core.askai_prompt import prompt
@@ -22,13 +27,6 @@ from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.utilities import display_text
-from clitt.core.term.terminal import terminal
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_state
-from hspylib.modules.cli.keyboard import Keyboard
-from langchain.memory import ConversationBufferWindowMemory
-from langchain.memory.chat_memory import BaseChatMemory
 
 
 class SharedInstances(metaclass=Singleton):
@@ -42,7 +40,6 @@ class SharedInstances(metaclass=Singleton):
     def __init__(self) -> None:
         self._engine: AIEngine | None = None
         self._context: ChatContext | None = None
-        self._memory: BaseChatMemory | None = None
         self._idiom: str = configs.language.idiom
         self._max_context_size: int = configs.max_context_size
         self._max_iteractions: int = configs.max_iteractions
@@ -85,28 +82,17 @@ class SharedInstances(metaclass=Singleton):
     def max_iteractions(self) -> int:
         return self._max_iteractions
 
-    @lru_cache
     def create_engine(self, engine_name: str, model_name: str) -> AIEngine:
         """TODO"""
         if self._engine is None:
             self._engine = EngineFactory.create_engine(engine_name, model_name)
         return self._engine
 
-    @lru_cache
     def create_context(self, token_limit: int) -> ChatContext:
         """TODO"""
         if self._context is None:
             self._context = ChatContext(token_limit, self.max_context_size)
         return self._context
-
-    @lru_cache
-    def create_chat_memory(self) -> BaseChatMemory:
-        """TODO"""
-        if self._memory is None:
-            self._memory = ConversationBufferWindowMemory(
-                memory_key="chat_history", k=self.max_context_size, return_messages=True
-            )
-        return self._memory
 
     def input_text(self, input_prompt: str, placeholder: str | None = None) -> Optional[str]:
         """Prompt for user input.
@@ -120,16 +106,6 @@ class SharedInstances(metaclass=Singleton):
                 if spoken_text := self.engine.speech_to_text():
                     display_text(f"{self.username}: {spoken_text}")
                     ret = spoken_text
-            elif ret == Keyboard.VK_CTRL_K:
-                shared.context.forget()
-                display_text(f"{self.nickname}: Context reset", erase_last=True)
-                ret = None
-                continue
-            elif ret == Keyboard.VK_CTRL_G:
-                configs.is_speak = not configs.is_speak
-                display_text(f"{self.nickname}: Speaking is {'ON' if configs.is_speak else 'OFF'}", erase_last=True)
-                ret = None
-                continue
 
         return ret if not ret or isinstance(ret, str) else ret.val
 

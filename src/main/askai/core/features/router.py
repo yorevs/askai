@@ -19,6 +19,17 @@ from types import SimpleNamespace
 from typing import Any, Optional, Type, TypeAlias
 
 import PIL
+from hspylib.core.exception.exceptions import InvalidArgumentError
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_argument
+from langchain.agents import AgentExecutor, create_structured_chat_agent
+from langchain.memory import ConversationBufferWindowMemory
+from langchain.memory.chat_memory import BaseChatMemory
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate, MessagesPlaceholder
+from langchain_core.runnables import Runnable
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from retry import retry
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -32,14 +43,6 @@ from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_codeblock
 from askai.exception.exceptions import InaccurateResponse
-from hspylib.core.exception.exceptions import InvalidArgumentError
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_argument
-from langchain.agents import AgentExecutor, create_structured_chat_agent
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables import Runnable
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from retry import retry
 
 AgentResponse: TypeAlias = dict[str, Any]
 
@@ -72,7 +75,7 @@ class Router(metaclass=Singleton):
         :param response: The AI response.
         """
         match category.lower(), configs.is_speak:
-            case "general chat" | "image caption", _:
+            case "final answer" | "general chat" | "image caption", _:
                 response = final_answer(question, context=response)
             case "file management", True:
                 response = final_answer(question, persona_prompt="stt", context=response)
@@ -83,15 +86,16 @@ class Router(metaclass=Singleton):
 
     def __init__(self):
         self._approved = False
-        self._agent = None
 
     @property
     def router_template(self) -> ChatPromptTemplate:
         """Retrieve the Router Template."""
-        template = PromptTemplate(input_variables=["home", "scratchpad"], template=prompt.read_prompt("router.txt"))
+        template = PromptTemplate(
+            input_variables=["home", "scratchpad"], template=prompt.read_prompt("router.txt")
+        )
         return ChatPromptTemplate.from_messages(
             [
-                ("system", template.format(home=Path.home(), scratchpad=str(shared.context.flat("ACCURACY")))),
+                ("system", template.format(home=Path.home())),
                 MessagesPlaceholder("chat_history", optional=True),
                 ("human", self.HUMAN_PROMPT),
             ]
@@ -107,34 +111,35 @@ class Router(metaclass=Singleton):
         :param query: The user query to complete.
         """
 
-        shared.create_chat_memory().clear()
-        shared.context.clear("ACCURACY")
+        agent = self._create_agent()
 
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.COLDEST.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
             runnable = RunnableWithMessageHistory(
                 runnable,
                 shared.context.flat,
                 input_messages_key="input",
-                history_messages_key="history",
+                history_messages_key="chat_history",
             )
-            if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "ACCURACY"}}):
+            if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
                 _, json_string = extract_codeblock(response.content)
                 plan: ActionPlan = object_mapper.of_json(json_string, ActionPlan)
                 if not isinstance(plan, ActionPlan):
                     raise InaccurateResponse(f"AI responded an invalid JSON object -> {str(plan)}")
-                output = self._route(query, plan)
+                AskAiEvents.ASKAI_BUS.events.reply.emit(
+                    message=f"- **{plan.category}**: `{plan.reasoning}`", verbosity="debug")
+                output = self._route(agent, query, plan)
             else:
                 output = response
             return output
 
         return _process_wrapper()
 
-    def _route(self, query: str, action_plan: ActionPlan) -> str:
+    def _route(self, agent: Runnable, query: str, action_plan: ActionPlan) -> str:
         """Route the actions to the proper function invocations.
         :param query: The user query to complete.
         :param action_plan: The action plan to resolve the request.
@@ -142,7 +147,6 @@ class Router(metaclass=Singleton):
         last_response: str = ""
         actions: list[SimpleNamespace] = action_plan.plan
         check_argument(all(isinstance(act, SimpleNamespace) for act in actions), "Invalid action format")
-        agent = self._create_agent()
         for action in actions:
             task = ", ".join([f"{k.title()}: {v}" for k, v in vars(action).items()])
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{task}`", verbosity="debug")
@@ -157,22 +161,25 @@ class Router(metaclass=Singleton):
 
     def _create_agent(self) -> Runnable:
         """TODO"""
-        if self._agent is None:
-            llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
-            chat_memory = shared.create_chat_memory()
-            lc_agent = create_structured_chat_agent(llm, features.agent_tools(), self.agent_template)
-            self._agent = AgentExecutor(
-                agent=lc_agent,
-                tools=features.agent_tools(),
-                max_iteraction=configs.max_router_retries,
-                memory=chat_memory,
-                max_execution_time=configs.max_agent_execution_time_seconds,
-                handle_parsing_errors=True,
-                return_only_outputs=True,
-                early_stopping_method=True,
-                verbose=configs.is_debug,
-            )
-        return self._agent
+        llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
+        chat_memory = self._create_chat_memory()
+        lc_agent = create_structured_chat_agent(llm, features.agent_tools(), self.agent_template)
+        return AgentExecutor(
+            agent=lc_agent,
+            tools=features.agent_tools(),
+            max_iteraction=configs.max_router_retries,
+            memory=chat_memory,
+            max_execution_time=configs.max_agent_execution_time_seconds,
+            handle_parsing_errors=True,
+            return_only_outputs=True,
+            early_stopping_method=True,
+            verbose=configs.is_debug,
+        )
+
+    def _create_chat_memory(self) -> BaseChatMemory:
+        """TODO"""
+        return ConversationBufferWindowMemory(
+            memory_key="chat_history", k=configs.max_chat_history_size, return_messages=True)
 
 
 assert (router := Router().INSTANCE) is not None

@@ -1,15 +1,7 @@
-You (AI) provided an unsatisfactory answer. Improve your response in the next attempt.
+You (AI) provided an unsatisfactory answer.
 
 Address the following problems:
 
 '{problems}'
-
-Suggestions to improve your response:
-
-1. Use the user's HOME folder when specifying file and folder paths.
-
-2. Implement a different action plan this time.
-
-3. Employ alternative tools.
 
 (Reminder: Always respond in a JSON format no matter what).
