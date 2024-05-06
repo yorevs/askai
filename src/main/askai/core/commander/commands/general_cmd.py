@@ -12,8 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
-
+import re
 from abc import ABC
+
+from clitt.core.term.terminal import Terminal
+from hspylib.modules.application.exit_status import ExitStatus
 
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
@@ -24,6 +27,22 @@ class GeneralCmd(ABC):
 
     @staticmethod
     def forget(context: str | None = None) -> None:
-        """TODO"""
-        shared.context.forget(context)
-        text_formatter.cmd_print(f"Context %GREEN%'{context or 'ALL'}'%NC% has been reset!")
+        """Forget entries pushed to the chat context.
+        :param context: The context key; or none to forget all context.
+        """
+        if context:
+            shared.context.clear(*(re.split(r'[;,|]', context.upper())))
+        else:
+            shared.context.forget()
+        text_formatter.cmd_print(f"Context %GREEN%'{context.upper() or 'ALL'}'%NC% has been reset!")
+
+    @staticmethod
+    def execute(cmd_line: str | None = None) -> None:
+        """Execute a terminal command.
+        :param cmd_line The command line to execute.
+        """
+        output, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
+        if exit_code == ExitStatus.SUCCESS:
+            text_formatter.cmd_print(output)
+        else:
+            text_formatter.cmd_print(f"Command `{cmd_line}` failed to execute: Code ({exit_code})")

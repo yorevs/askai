@@ -16,6 +16,7 @@
 import click
 
 from askai.core.askai_configs import configs
+from askai.core.commander.commands.general_cmd import GeneralCmd
 from askai.core.commander.commands.settings_cmd import SettingsCmd
 from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
 from askai.core.support.text_formatter import text_formatter
@@ -33,13 +34,12 @@ HELP_MSG = """
   `/speak`              : toggle speaking ON/OFF.
   `/tempo`              : list/set speech-to-text tempo.
   `/voices`             : list/set/play speech-to-text voice.
+  `/forget`             : forget a specific or all chat context.
 ```
 
 > Keybindings:
 
 ```
-  `Ctrl+G`              : toggle speaking ON/OFF.
-  `Ctrl+K`              : resets the chat context.
   `Ctrl+L`              : push-To-Talk.
   `Ctrl+R`              : resets input filed.
   `Ctrl+F`              : forget the input history.
@@ -132,14 +132,23 @@ def tempo(speed: int | None = None) -> None:
 
 
 @ask_cli.command()
-def debug():
+def debug() -> None:
     """Toggle debugging ON/OFF."""
     configs.is_debug = not configs.is_debug
     text_formatter.cmd_print(f"`Debugging` is {'%GREEN%ON' if configs.is_debug else '%RED%OFF'}%NC%")
 
 
 @ask_cli.command()
-def speak():
+def speak() -> None:
     """Toggle speaking ON/OFF."""
     configs.is_speak = not configs.is_speak
     text_formatter.cmd_print(f"`Speech-To-Text` is {'%GREEN%ON' if configs.is_speak else '%RED%OFF'}%NC%")
+
+
+@ask_cli.command()
+@click.argument('context', default='')
+def forget(context: str | None = None) -> None:
+    """Forget a specific or all chat context.
+    :param context The context to reset.
+    """
+    GeneralCmd.forget(context)
