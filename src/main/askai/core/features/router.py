@@ -24,7 +24,6 @@ from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain.memory import ConversationBufferWindowMemory
-from langchain.memory.chat_memory import BaseChatMemory
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -34,6 +33,7 @@ from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
+from askai.core.component.cache_service import cache
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.features.actions import features
 from askai.core.features.rag.rag import final_answer, assert_accuracy
@@ -69,23 +69,27 @@ class Router(metaclass=Singleton):
     )
 
     @staticmethod
-    def _wrap_answer(question: str, category: str, response: str) -> str:
+    def _wrap_answer(query: str, category: str, response: str) -> str:
         """Provide a final answer to the user.
-        :param question: The user question.
+        :param query: The user question.
         :param response: The AI response.
         """
+        output: str = response
         match category.lower(), configs.is_speak:
-            case "general chat" | "image caption", _:
-                response = final_answer(question, context=response)
             case "file management", True:
-                response = final_answer(question, persona_prompt="stt", context=response)
+                output = final_answer(query, persona_prompt="stt", context=response)
             case "assistive requests", _:
-                response = final_answer(question, persona_prompt="stt", context=response)
+                output = final_answer(query, persona_prompt="stt", context=response)
 
-        return response
+        shared.context.push("HISTORY", query)
+        shared.context.push("HISTORY", output, "assistant")
+        cache.save_reply(query, output)
+
+        return output
 
     def __init__(self):
-        self._approved = False
+        self._approved: bool = False
+        self._agent: Runnable | None = None
 
     @property
     def router_template(self) -> ChatPromptTemplate:
@@ -111,7 +115,8 @@ class Router(metaclass=Singleton):
         :param query: The user query to complete.
         """
 
-        agent = self._create_agent()
+        if self._agent is None:
+            self._agent = self._create_agent()
 
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
         def _process_wrapper() -> Optional[str]:
@@ -132,7 +137,7 @@ class Router(metaclass=Singleton):
                     raise InaccurateResponse(f"AI responded an invalid JSON object -> {str(plan)}")
                 AskAiEvents.ASKAI_BUS.events.reply.emit(
                     message=f"- **{plan.category}**: `{plan.reasoning}`", verbosity="debug")
-                output = self._route(agent, query, plan)
+                output = self._route(self._agent, query, plan)
             else:
                 output = response
             return output
@@ -144,25 +149,32 @@ class Router(metaclass=Singleton):
         :param query: The user query to complete.
         :param action_plan: The action plan to resolve the request.
         """
-        last_response: str = ""
+        output: str = ""
         actions: list[SimpleNamespace] = action_plan.plan
         check_argument(all(isinstance(act, SimpleNamespace) for act in actions), "Invalid action format")
+
         for action in actions:
             task = ", ".join([f"{k.title()}: {v}" for k, v in vars(action).items()])
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{task}`", verbosity="debug")
             if (response := agent.invoke({"input": task})) and (output := response["output"]):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
-                last_response = output
                 assert_accuracy(action.action, output)
+                shared.context.push("HISTORY", action.action, "assistant")
+                shared.context.push("HISTORY", output, "assistant")
                 continue
+
             raise InaccurateResponse("AI provided AN EMPTY response")
 
-        return self._wrap_answer(query, action_plan.category, msg.translate(last_response))
+        # Provide a final RAG check to ensure the question has been accurately responded.
+        assert_accuracy(query, output)
+
+        return self._wrap_answer(query, action_plan.category, msg.translate(output))
 
     def _create_agent(self) -> Runnable:
         """TODO"""
         llm = lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
-        chat_memory = self._create_chat_memory()
+        chat_memory = ConversationBufferWindowMemory(
+            memory_key="chat_history", k=configs.max_chat_history_size, return_messages=True)
         lc_agent = create_structured_chat_agent(llm, features.agent_tools(), self.agent_template)
         return AgentExecutor(
             agent=lc_agent,
@@ -175,11 +187,6 @@ class Router(metaclass=Singleton):
             early_stopping_method=True,
             verbose=configs.is_debug,
         )
-
-    def _create_chat_memory(self) -> BaseChatMemory:
-        """TODO"""
-        return ConversationBufferWindowMemory(
-            memory_key="chat_history", k=configs.max_chat_history_size, return_messages=True)
 
 
 assert (router := Router().INSTANCE) is not None

@@ -26,23 +26,21 @@ from langchain_core.messages import AIMessage
 from langchain_core.prompts import PromptTemplate
 
 
-def query_output(question: str, context: str | None = None) -> str:
+def query_output(query: str, context: str = None) -> str:
     """Handle 'Text analysis', invoking: analyze(question: str). Analyze the context and answer the question.
-    :param question: The question about the content to be analyzed.
+    :param query: The question about the content to be analyzed.
     :param context: The context of the question.
     """
     output = None
     if context or (context := str(shared.context.flat("HISTORY"))):
-        log.info("Analysis::[QUESTION] '%s'  context=%s", question, context)
+        log.info("Analysis::[QUERY] '%s'  context=%s", query, context)
         llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
         template = PromptTemplate(input_variables=["context", "question"], template=prompt.read_prompt("analysis"))
-        final_prompt = template.format(context=context, question=question)
+        final_prompt = template.format(context=context, question=query)
         response: AIMessage = llm.invoke(final_prompt)
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(response.content), verbosity="debug")
 
         if response and (output := response.content):
-            shared.context.push("HISTORY", question)
-            shared.context.push("HISTORY", output, "assistant")
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=output, verbosity="debug")
             output = text_formatter.ensure_ln(output)
 

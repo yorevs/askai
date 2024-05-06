@@ -135,7 +135,7 @@ class InternetService(metaclass=Singleton):
                 log.info("Scrapping sites retuned: '%s'", str(output))
 
                 return self.refine_search(search.question, str(output), search.sites)
-        return msg.search_empty()
+        return msg.no_output("search")
 
     def refine_search(self, question: str, context: str, sites: list[str]) -> str:
         """Refines the text retrieved by the search engine.

@@ -13,9 +13,13 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import logging as log
+from typing import Optional
+
+from langchain_core.prompts import PromptTemplate
+
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.component.cache_service import cache
 from askai.core.component.geo_location import geo_location
 from askai.core.component.internet_service import internet
 from askai.core.engine.openai.temperature import Temperature
@@ -23,10 +27,6 @@ from askai.core.model.search_result import SearchResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
-from langchain_core.prompts import PromptTemplate
-from typing import Optional
-
-import logging as log
 
 
 def browse(query: str) -> Optional[str]:
@@ -50,11 +50,7 @@ def browse(query: str) -> Optional[str]:
             output = response.strip()
         else:
             output = internet.search_google(search)
-            if output:
-                shared.context.push("HISTORY", query)
-                shared.context.push("HISTORY", output, "assistant")
-                cache.save_reply(query, output)
-            else:
+            if not output:
                 output = msg.search_empty()
     else:
         output = msg.translate("Sorry, I don't know.")

@@ -16,14 +16,12 @@
 import os
 
 from askai.core.askai_messages import msg
-from askai.core.support.shared_instances import shared
 
 
 def display_tool(*texts: str) -> str:
     """Display the given texts using markdown.
     :param texts: The list of texts to be displayed.
     """
-    if output := os.linesep.join(texts):
-        shared.context.push("HISTORY", output, "assistant")
+    output = os.linesep.join(texts)
 
     return output or msg.translate("Sorry, there is nothing to display")

@@ -15,17 +15,17 @@
 
 import logging as log
 
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import PromptTemplate
+
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.component.cache_service import cache
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.model.rag_response import RagResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import PromptTemplate
 
 
 def assert_accuracy(question: str, ai_response: str) -> None:
@@ -86,7 +86,7 @@ def final_answer(
     username: str = prompt.user.title(),
     idiom: str = shared.idiom,
     persona_prompt: str = "taius",
-    context: str | None = None,
+    context: str = None,
 ) -> str:
     """Provide the final response to the user.
     :param question: The user question.
@@ -96,21 +96,19 @@ def final_answer(
     :param context: The final AI response or context.
     """
     output = None
-    if not context:
-        context: str = str(shared.context.flat("HISTORY"))
-    template = PromptTemplate(
-        input_variables=["user", "idiom", "context", "question"], template=prompt.read_prompt(persona_prompt)
-    )
-    final_prompt = template.format(user=username, idiom=idiom, context=context, question=question)
+    if context or (context := str(shared.context.flat("HISTORY"))):
+        template = PromptTemplate(
+            input_variables=["user", "idiom", "context", "question"], template=prompt.read_prompt(persona_prompt)
+        )
+        final_prompt = template.format(user=username, idiom=idiom, context=context, question=question)
 
-    log.info("FETCH::[QUESTION] '%s'  context: '%s'", question, context)
-    llm = lc_llm.create_chat_model(temperature=Temperature.EXPLORATORY_CODE_WRITING.temp)
-    response: AIMessage = llm.invoke(final_prompt)
+        log.info("FETCH::[QUESTION] '%s'  context: '%s'", question, context)
+        llm = lc_llm.create_chat_model(temperature=Temperature.EXPLORATORY_CODE_WRITING.temp)
+        response: AIMessage = llm.invoke(final_prompt)
 
-    if response and (output := response.content) and shared.UNCERTAIN_ID not in response.content:
-        shared.context.push("HISTORY", output, "assistant")
-        cache.save_reply(question, output)
-    else:
-        output = msg.translate("Sorry, I don't know.")
+        if response and (output := response.content) and shared.UNCERTAIN_ID not in response.content:
+            shared.context.push("HISTORY", output, "assistant")
+        else:
+            output = msg.translate("Sorry, I don't know.")
 
     return output or msg.translate("Sorry, the query produced no response!")

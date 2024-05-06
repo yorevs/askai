@@ -69,8 +69,8 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"> Executing `{command_line}`…")
 
     @lru_cache
-    def cmd_success(self, command_line: str, exit_code: ExitStatus) -> str:
-        return self.translate(f"OK, command `{command_line}` executed with {str(exit_code).lower()}")
+    def cmd_success(self, command_line: str) -> str:
+        return self.translate(f"OK, command `{command_line}` succeeded, but didn't produce an output.")
 
     @lru_cache
     def searching(self) -> str:
@@ -127,8 +127,8 @@ class AskAiMessages(metaclass=Singleton):
     # Warnings and alerts
 
     @lru_cache
-    def search_empty(self) -> str:
-        return self.translate("The search didn't return an output !")
+    def no_output(self, source: str) -> str:
+        return self.translate(f"The {source} didn't return an output !")
 
     @lru_cache
     def access_grant(self) -> str:

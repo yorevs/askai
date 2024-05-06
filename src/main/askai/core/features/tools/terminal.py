@@ -39,10 +39,10 @@ def list_contents(folder: str) -> str:
         status, output = _execute_bash(f"ls -lLht {folder} 2>/dev/null | sort -k9,9")
         if status:
             if not output:
-                return f"Folder {folder} is empty!"
-            return f"Showing the contents of `{folder}`: \n{output}"
+                return msg.translate(f"Folder {folder} is empty!")
+            return msg.translate(f"Showing the contents of `{folder}`: \n{output}")
 
-    return f"Error: Could not list folder '{folder}'!"
+    return msg.translate(f"Error: Could not list folder '{folder}'!")
 
 
 def open_command(path_name: str) -> str:
@@ -72,10 +72,10 @@ def open_command(path_name: str) -> str:
         status, output = fn_open()
         if status:
             if not output:
-                return f"`{path_name}` was successfully opened!"
+                return msg.translate(f"`{path_name}` was successfully opened!")
             return output
 
-    return f"Error: Could not open '{path_name}'!"
+    return msg.translate(f"Error: Could not open '{path_name}'!")
 
 
 def execute_command(shell: str, command: str) -> str:
@@ -86,13 +86,10 @@ def execute_command(shell: str, command: str) -> str:
     match shell:
         case "bash":
             status, output = _execute_bash(command)
-            if status:
-                if not output:
-                    output = f"'{shell.title()}' command `{command}` successfully executed"
         case _:
-            raise NotImplementedError(f"'{shell}' is not supported!")
+            raise NotImplementedError(msg.translate(f"'{shell}' is not supported!"))
 
-    return output or "Error: Nothing has been executed!"
+    return output or msg.cmd_failed(command)
 
 
 def _execute_bash(command_line: str) -> Tuple[bool, str]:
@@ -113,11 +110,9 @@ def _execute_bash(command_line: str) -> Tuple[bool, str]:
             else:
                 log.warning("Directory '%s' does not exist. Current dir unchanged!", _path_)
             if not output:
-                output = msg.cmd_success(command_line, exit_code)
+                output = msg.cmd_success(command_line)
             else:
                 output = f"Command '{command_line}' succeeded: \n```bash\n{output}\n```"
-                shared.context.push("HISTORY", f"Please execute `{command_line}`", "assistant")
-                shared.context.push("HISTORY", output)
             status = True
         else:
             log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), command)

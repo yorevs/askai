@@ -15,6 +15,6 @@ en_US
 11. List my downloads and let me know if there is any image.
 12. Open the first reminder you find at my downloads and tell me what I must do first.
 13. Describe the first image you find at my downloads.
-14. Open the first reminder you find at my downloads and tell me what I must do first.
+14. find . -maxdepth 1 -type f -nme *.png
 
 

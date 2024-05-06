@@ -82,14 +82,14 @@ class Actions(metaclass=Singleton):
         """
         return browse(search_query)
 
-    def query_output(self, question: str) -> str:
+    def query_output(self, query: str) -> str:
         """
         Name: 'query_output'
-        Description: Use this tool to verify the presence of files and folders, and conduct text analysis.
-        Usage: `query_output(question)`
-          input `question`: The query regarding the output. Do not provide terminal commands for this input.
+        Description: Use this tool to identify the presence of files, folders, applications, and conduct any text analysis.
+        Usage: `query_output(query)`
+          input `query`: The query regarding the output. Do not provide terminal commands for this input.
         """
-        return query_output(question)
+        return query_output(query)
 
     def image_captioner(self, image_path: str) -> str:
         """
@@ -114,7 +114,7 @@ class Actions(metaclass=Singleton):
     def display_tool(self, answer: list[str] | str) -> str:
         """
         Name: 'display_tool'
-        Description: Use this tool to provide general conversation responses, to display text or to output your final answer.
+        Description: Use this tool to provide general conversation responses, display text or to output your final answer.
         Usage: 'final_answer(text, ...repeat N times)'
           input `texts`: The comma separated list of texts to be displayed.
         """
@@ -123,7 +123,7 @@ class Actions(metaclass=Singleton):
     def list_tool(self, folder: str) -> str:
         """
         Name: 'list_tool'
-        Description: This tool is designed for retrieving and displaying the contents of a specified folder. It is useful for quickly assessing the files and subdirectories within any directory.
+        Description: Use this tool to list or access the contents of a specified folder.
         Usage: 'list_tool(folder)'
           input `folder`: A string representing the name of the directory whose contents you wish to list.
         """
@@ -132,9 +132,9 @@ class Actions(metaclass=Singleton):
     def open_tool(self, path_name: str) -> str:
         """
         Name: 'open_tool'
-        Description: This tool is used to open or show the contents of files, folders, or applications on my system. This can be also used to play media files.
+        Description: Use this tool to open or show the contents of files, folders, or applications on my system. This can be also used to play media files.
         Usage: 'open_tool(pathname)'
-          input `path_name`: The file, folder or application name.
+          input `path_name`: The absolute file, folder, or application path name.
         """
         return open_command(path_name)
 
