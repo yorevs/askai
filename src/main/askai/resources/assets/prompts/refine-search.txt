@@ -1,4 +1,3 @@
-######
 Your task is to filter and refine the internet search results according to the question provided at the end.
 
 We have conducted a search from the internet. You are required to filter out any data unrelated to the question or that may be outdated (we are currently in '{datetime}').
@@ -9,7 +8,7 @@ Additionally, there is an opportunity to refine the existing text (only if neces
 
 - Correct any semantic or syntax errors, and enhance the writing to align with regional expressions and commonly used words.
 
-- Ensure adherence to markdown formatting. Use single lines for single-line code snippets and code blocks for multi-line code sections.
+Enhance the response using Markdown to format single-line code blocks for brief code snippets and multi-line code blocks for extensive code sections. Emphasize key elements or important stuff in **bold** and names in *italic*. When the response is already a markdown formatted text, just ensure everything is neat.
 
 - Conclude your response by appending a horizontal rule, followed by 'Sources: {sources}', and on the next line, '> {location} - {datetime}'.
 
@@ -17,7 +16,6 @@ Additionally, there is an opportunity to refine the existing text (only if neces
 
 - Utilize the following context to improve the answer according to the question at the end.
 
-######
 
 Question: {question}
 

@@ -69,6 +69,13 @@ class Router(metaclass=Singleton):
     )
 
     @staticmethod
+    def _assert_and_store(action: str, output: str) -> None:
+        """TODO"""
+        assert_accuracy(action, output)
+        shared.context.push("HISTORY", action, "assistant")
+        shared.context.push("HISTORY", output, "assistant")
+
+    @staticmethod
     def _wrap_answer(query: str, category: str, response: str) -> str:
         """Provide a final answer to the user.
         :param query: The user question.
@@ -80,6 +87,8 @@ class Router(metaclass=Singleton):
                 output = final_answer(query, persona_prompt="stt", context=response)
             case "assistive requests", _:
                 output = final_answer(query, persona_prompt="stt", context=response)
+            case "image caption" | "general chat", _:
+                output = final_answer(query, context=response)
 
         shared.context.push("HISTORY", query)
         shared.context.push("HISTORY", output, "assistant")
@@ -155,12 +164,14 @@ class Router(metaclass=Singleton):
 
         for action in actions:
             task = ", ".join([f"{k.title()}: {v}" for k, v in vars(action).items()])
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> `{task}`", verbosity="debug")
-            if (response := agent.invoke({"input": task})) and (output := response["output"]):
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {task}", verbosity="debug")
+            if action_plan.is_final() and (output := action.action):
+                log.info("Router::[RESPONSE] Action is a final answer from AI: \n%s.", output)
+                self._assert_and_store(action.action, output)
+                break
+            elif (response := agent.invoke({"input": task})) and (output := response["output"]):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
-                assert_accuracy(action.action, output)
-                shared.context.push("HISTORY", action.action, "assistant")
-                shared.context.push("HISTORY", output, "assistant")
+                self._assert_and_store(action.action, output)
                 continue
 
             raise InaccurateResponse("AI provided AN EMPTY response")

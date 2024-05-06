@@ -37,15 +37,15 @@ Provide the action_plan per JSON_BLOB, as shown:
 }}}}
 ```
 
-When a definitive answer is available, refrain from providing a simple yes/no response. Instead, offer a detailed explanation incorporating all relevant information. Ensure to adhere to the following response format:
+When a definitive answer is available, provide more than a simple yes/no response. Instead, offer a detailed explanation that incorporates all relevant information. Adhere to the following response format:
 
 ```
 {{{{
-  "reasoning": "I already know what to respond",
+  "reasoning": "I already know what to respond.",
   "category": "Final Answer",
   "plan": [
-    {{{{ "action": $ACTION }}}}
-  ]
+    {{{{ "action": $RESPONSE }}}}
+  ],
 }}}}
 ```
 
