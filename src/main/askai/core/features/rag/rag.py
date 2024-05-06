@@ -42,7 +42,7 @@ def assert_accuracy(question: str, ai_response: str) -> None:
         shared.context.push("ACCURACY", issues_prompt.format(problems=RagResponse.strip_code(empty_msg)))
         raise InaccurateResponse(problems)
 
-    assert_template = PromptTemplate(input_variables=["response", "input"], template=prompt.read_prompt("ryg-rag"))
+    assert_template = PromptTemplate(input_variables=["response", "input"], template=prompt.read_prompt("rag"))
     final_prompt = assert_template.format(response=ai_response, input=question)
     log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)

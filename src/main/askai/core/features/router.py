@@ -36,7 +36,7 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.features.actions import features
-from askai.core.features.rag.commons import final_answer, assert_accuracy
+from askai.core.features.rag.rag import final_answer, assert_accuracy
 from askai.core.model.action_plan import ActionPlan
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
