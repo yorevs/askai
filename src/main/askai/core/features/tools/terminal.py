@@ -65,6 +65,8 @@ def open_command(path_name: str) -> str:
                 fn_open = partial(_execute_bash, f"ffplay -v 0 -autoexit {path_name} &>/dev/null")
             case ("text", _):
                 fn_open = partial(_execute_bash, f'echo "File \\`{path_name}\\`: \n" && cat {path_name}')
+            case ("inode", "directory"):
+                fn_open = partial(list_contents, path_name)
             case _:
                 fn_open = partial(_execute_bash, f"open {path_name} 2>/dev/null")
         status, output = fn_open()

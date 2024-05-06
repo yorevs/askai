@@ -75,11 +75,11 @@ class Router(metaclass=Singleton):
         :param response: The AI response.
         """
         match category.lower(), configs.is_speak:
-            case "final answer" | "general chat" | "image caption", _:
+            case "general chat" | "image caption", _:
                 response = final_answer(question, context=response)
             case "file management", True:
                 response = final_answer(question, persona_prompt="stt", context=response)
-            case "technical assistance", _:
+            case "assistive requests", _:
                 response = final_answer(question, persona_prompt="stt", context=response)
 
         return response
@@ -117,7 +117,7 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_COMMENT_GENERATION.temp)
             runnable = RunnableWithMessageHistory(
                 runnable,
                 shared.context.flat,
@@ -161,7 +161,7 @@ class Router(metaclass=Singleton):
 
     def _create_agent(self) -> Runnable:
         """TODO"""
-        llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
+        llm = lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
         chat_memory = self._create_chat_memory()
         lc_agent = create_structured_chat_agent(llm, features.agent_tools(), self.agent_template)
         return AgentExecutor(

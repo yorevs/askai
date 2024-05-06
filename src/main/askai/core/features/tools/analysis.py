@@ -26,7 +26,7 @@ from langchain_core.messages import AIMessage
 from langchain_core.prompts import PromptTemplate
 
 
-def check_output(question: str, context: str | None = None) -> str:
+def query_output(question: str, context: str | None = None) -> str:
     """Handle 'Text analysis', invoking: analyze(question: str). Analyze the context and answer the question.
     :param question: The question about the content to be analyzed.
     :param context: The context of the question.
