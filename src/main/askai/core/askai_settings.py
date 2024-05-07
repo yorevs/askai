@@ -46,7 +46,7 @@ class AskAiSettings(metaclass=Singleton):
 
     RESOURCE_DIR = str(classpath.resource_path())
 
-    _ACTUAL_VERSION: str = "0.0.8"
+    _ACTUAL_VERSION: str = "0.0.9"
 
     def __init__(self) -> None:
         self._configs = SettingsConfig(self.RESOURCE_DIR, "application.properties")
@@ -96,10 +96,10 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.text.to.speech.tempo", "askai", 1)
         # Router
         self._settings.put("askai.max.context.size", "askai", 15)
-        self._settings.put("askai.max.chat.history.size", "askai", 10)
+        self._settings.put("askai.max.chat.history.size", "askai", 15)
         self._settings.put("askai.max.router.iteractions", "askai", 30)
-        self._settings.put("askai.max.agent.retries", "askai", 2)
-        self._settings.put("askai.max.agent.execution.time.seconds", "askai", 60)
+        self._settings.put("askai.max.agent.retries", "askai", 3)
+        self._settings.put("askai.max.agent.execution.time.seconds", "askai", 45)
         # Recorder
         self._settings.put("askai.recorder.devices", "askai", "")
         self._settings.put("askai.recorder.silence.timeout.millis", "askai", 800)

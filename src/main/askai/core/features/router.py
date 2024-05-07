@@ -14,7 +14,6 @@
 """
 import logging as log
 from pathlib import Path
-from textwrap import dedent
 from types import SimpleNamespace
 from typing import Any, Optional, Type, TypeAlias
 
@@ -54,11 +53,7 @@ class Router(metaclass=Singleton):
 
     INSTANCE: "Router"
 
-    HUMAN_PROMPT: str = dedent(
-        """
-    Answer my question in the end.\n(reminder to respond in a JSON blob no matter what)\nQuestion: '{input}'
-    """
-    )
+    HUMAN_PROMPT: str = "Question: '{input}'"
 
     # Allow the router to retry on the errors bellow.
     RETRIABLE_ERRORS: tuple[Type[Exception], ...] = (
@@ -135,7 +130,7 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.EXPLORATORY_CODE_WRITING.temp)
             runnable = RunnableWithMessageHistory(
                 runnable,
                 shared.context.flat,

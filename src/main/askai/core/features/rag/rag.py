@@ -103,7 +103,7 @@ def final_answer(
         )
         final_prompt = template.format(user=username, idiom=idiom, context=response, question=question)
         log.info("FETCH::[QUESTION] '%s'  context: '%s'", question, response)
-        llm = lc_llm.create_chat_model(temperature=Temperature.EXPLORATORY_CODE_WRITING.temp)
+        llm = lc_llm.create_chat_model(temperature=Temperature.CODE_GENERATION.temp)
         response: AIMessage = llm.invoke(final_prompt)
 
         if not response or not (output := response.content) or shared.UNCERTAIN_ID in response.content:
