@@ -68,8 +68,11 @@ class Actions(metaclass=Singleton):
                 tools = [self.display_tool]
             case Category.DATA_ANALYSIS:
                 tools = [self.query_output, self.display_tool]
+            case Category.FILE_MANAGEMENT:
+                excluded = [self.summarize, self.generate_content]
+                tools = list(filter(lambda t: t not in excluded, [v for _, v in self._all.items()]))
             case _:
-                excluded = [self.summarize, self.terminal, self.generate_content]
+                excluded = [self.summarize, self.terminal, self.generate_content, self.image_captioner]
                 tools = list(filter(lambda t: t not in excluded, [v for _, v in self._all.items()]))
 
         log.debug("Available tools for category: '%s' are: '%s'", category, tools)
