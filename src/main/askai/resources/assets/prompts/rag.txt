@@ -16,7 +16,7 @@ Use the following criteria for classification:
 
 - Do not include any part of the question in your response. Indicate your classification choice ('Red', 'Yellow', or 'Green') followed by a brief explanation for your decision.
 
-- Format is: "$COLOR: reasoning to the Human".
+- Format is: "COLOR: reasoning to the Human".
 
 
 Qualify the following AI responses that address the input at the end.

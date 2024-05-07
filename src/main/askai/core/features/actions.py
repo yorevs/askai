@@ -85,7 +85,7 @@ class Actions(metaclass=Singleton):
     def query_output(self, query: str) -> str:
         """
         Name: 'query_output'
-        Description: Use this tool to identify the presence of files, folders, applications, and conduct text analysis.
+        Description: Use this tool to analyze textual content and identify the presence of files, folders, and applications. It is designed to process and analyze content that is already available in textual form, but not to read or extract file contents directly.
         Usage: `query_output(query)`
           input `query`: The query regarding the output.
         """
