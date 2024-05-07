@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 from hspylib.core.enums.enumeration import Enumeration
 
 
@@ -12,13 +14,11 @@ class Category(Enumeration):
 
     MEDIA_MANAGEMENT_AND_PLAYBACK       = 'Media Management and Playback'
 
-    GENERAL_CHAT                        = 'General Chat'
+    CONVERSATIONAL                      = 'Conversational'
 
     IMAGE_CAPTION                       = 'Image Caption'
 
     INFORMATION_RETRIEVAL               = 'Information Retrieval'
-
-    LIVE_ASSISTANCE                     = 'Live Assistance'
 
     ASSISTIVE_REQUESTS                  = 'Assistive Requests'
 
@@ -26,6 +26,18 @@ class Category(Enumeration):
 
     TERMINAL_COMMAND                    = 'Terminal Command'
 
+    SUMMARIZATION                       = 'Summarization'
+
     FINAL_ANSWER                        = 'Final Answer'
 
     # fmt: on
+
+    @classmethod
+    def template(cls) -> str:
+        return dedent(f"""
+        - Categorize the question based on the nature of the question. Use one of the following valid options: {cls.values()}. Prioritize categories according to the sequence listed if the question overlaps multiple categories.
+
+        - Requests for **assistive technologies**, such as speech-to-text features, should be categorized under '{cls.ASSISTIVE_REQUESTS.value}'. Avoid mentioning them in the action items.
+
+        - If you receive any queries that are actually commands provided by the Human, categorize them under '{cls.TERMINAL_COMMAND.value}'. The "action" field will be: "Execute the command '<command>' provided by the Human." Correct any syntax errors and exclude the "path" field from the actions.
+        """)

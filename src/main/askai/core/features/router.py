@@ -78,18 +78,20 @@ class Router(metaclass=Singleton):
         shared.context.push("HISTORY", output, "assistant")
 
     @staticmethod
-    def _wrap_answer(query: str, category: str, response: str) -> str:
+    def _wrap_answer(query: str, category_str: str, response: str) -> str:
         """Provide a final answer to the user.
         :param query: The user question.
+        :param category_str: The category of the question.
         :param response: The AI response.
         """
         output: str = response
-        match category.lower(), configs.is_speak:
-            case "file management", True:
+        category: Category = Category.of_value(category_str)
+        match category, configs.is_speak:
+            case Category.FILE_MANAGEMENT | Category.TERMINAL_COMMAND, True:
                 output = final_answer(query, persona_prompt="stt", response=response)
-            case "assistive requests", _:
+            case Category.ASSISTIVE_REQUESTS, _:
                 output = final_answer(query, persona_prompt="stt", response=response)
-            case "image caption" | "general chat", _:
+            case Category.IMAGE_CAPTION | Category.CONVERSATIONAL, _:
                 output = final_answer(query, persona_prompt="taius", response=response)
             case _, _:
                 output = final_answer(query, persona_prompt="refine-response", response=response)
@@ -113,7 +115,7 @@ class Router(metaclass=Singleton):
         )
         return ChatPromptTemplate.from_messages(
             [
-                ("system", template.format(home=Path.home(), scratchpad=scratchpad, categories=Category.values())),
+                ("system", template.format(home=Path.home(), scratchpad=scratchpad, categories=Category.template())),
                 MessagesPlaceholder("chat_history", optional=True),
                 ("human", self.HUMAN_PROMPT),
             ]
@@ -129,14 +131,11 @@ class Router(metaclass=Singleton):
         :param query: The user query to complete.
         """
 
-        if self._agent is None:
-            self._agent = self._create_agent()
-
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
             runnable = RunnableWithMessageHistory(
                 runnable,
                 shared.context.flat,
@@ -150,10 +149,12 @@ class Router(metaclass=Singleton):
                 if not isinstance(plan, ActionPlan):
                     raise InaccurateResponse(f"AI responded an invalid JSON object -> {str(plan)}")
                 if not plan.plan:
-                    plan.category = Category.FINAL_ANSWER.value
+                    plan.category = Category.FINAL_ANSWER.value if not plan.category else plan.category
                     plan.plan = [SimpleNamespace(action=f"Answer the question: {query}")]
                 AskAiEvents.ASKAI_BUS.events.reply.emit(
                     message=f"- **{plan.category}**: `{plan.reasoning}`", verbosity="debug")
+                if self._agent is None:
+                    self._agent = self._create_agent(plan.category)
                 output = self._route(self._agent, query, plan)
             else:
                 output = response
@@ -173,7 +174,7 @@ class Router(metaclass=Singleton):
 
         for action in actions:
             task = ", ".join(list(filter(len, [
-                f"{k.title()}: {v}" if v and v.upper() != 'N/A' else '' for k, v in vars(action).items()
+                f"{k.title()}: {v}" if v and v.upper() not in ['N/A', 'None'] else '' for k, v in vars(action).items()
             ])))
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {task}", verbosity="debug")
             if (response := agent.invoke({"input": task})) and (output := response["output"]):
@@ -189,15 +190,16 @@ class Router(metaclass=Singleton):
 
         return self._wrap_answer(query, action_plan.category, msg.translate(output))
 
-    def _create_agent(self) -> Runnable:
+    def _create_agent(self, category: str) -> Runnable:
         """TODO"""
+        tools = features.agent_tools(Category.of_value(category))
         llm = lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
         chat_memory = ConversationBufferWindowMemory(
             memory_key="chat_history", k=configs.max_chat_history_size, return_messages=True)
-        lc_agent = create_structured_chat_agent(llm, features.agent_tools(), self.agent_template)
+        lc_agent = create_structured_chat_agent(llm, tools, self.agent_template)
         return AgentExecutor(
             agent=lc_agent,
-            tools=features.agent_tools(),
+            tools=tools,
             max_iteraction=configs.max_router_retries,
             memory=chat_memory,
             handle_parsing_errors=True,

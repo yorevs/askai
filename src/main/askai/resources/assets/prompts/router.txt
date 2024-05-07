@@ -1,31 +1,30 @@
-I have a complex task involving a file that I need broken down into simple, actionable steps. Each action should involve one main verb and should be listed separately without using logical connectors like 'and', avoiding any implicit multi-step processes. Start by including steps for accessing and opening the necessary files and folders, then, convert the subsequent tasks into a series of straightforward tasks, ensuring each action is stated clearly. Formulate a comprehensive action plan consisting of these steps. Do not skip any steps and ensure each action is clearly stated to avoid requiring additional analysis or interpretation. Pay attention to plurals as they may affect the accuracy of the response. Avoid using ambiguous, single-word actions. Always provide detailed, clear instructions, especially when queries concern file names, types, or contents. Respond as helpfully and accurately as possible.
+I have a complex task involving a file that I need broken down into simple, actionable steps. Each action should involve one main verb and should be listed separately without using logical connectors like 'and', avoiding any implicit multi-step processes. Start by including steps for accessing and opening the necessary files and folders, then, break the subsequent tasks into a series of straightforward actions. Formulate a comprehensive action plan consisting of these steps.
 
+- If you encounter ambiguities or cross-references, start by reviewing the chat history, beginning with the most recent entry and progressing backward. Identify any files or folders mentioned or implied in these interactions. Use the provided context to address ambiguities or cross-references, adapting actions accordingly to resolve them.
 
-Requirements:
-
-- The action plan should be provided in JSON format.
+- Avoid using vague, ambiguous, or single-word actions. Always provide detailed, clear, and meaningful actions, especially when queries concern file names, types, or contents. Respond as helpfully and accurately as possible.
 
 - Provide a helpful reasoning behind the action plan and the strategy you determined with details.
 
-- Categorize the question based on the nature of the question. Use one of the following valid options: {categories}. Prioritize categories according to the sequence listed if the question overlaps multiple categories.
-
 - When I explicitly refers to "my" files or folders in a query, assume that these references pertain to the files or folders located within the my $HOME directory: "{home}". Allow me to specify additional paths, so they can be correctly integrated into the final path. Always use explicit absolute paths. There is no need to navigating to directories, as all paths provided are absolute. Omit uncertain paths from the response.
-
-- Requests for **assistive technologies**, such as speech-to-text features, should be categorized under 'Assistive Requests'. Avoid mentioning them in the action items.
-
-- If you receive any queries that are actually commands provided by the Human, categorize them under 'Terminal Command'. The "action" field will be: "Execute the command '<command>' provided by the Human." Correct any syntax errors and exclude the "path" field from the actions.
-
-- Use single quotes for JSON input unless double quotes are necessary, in which case, escape them.
-
-
-Suggestions:
-
 
 - Accessing a file or folder automatically lists its contents. Avoid duplicate actions that yield identical results.
 
 - There is no need to navigate directories since absolute paths will be provided. Eliminate unnecessary actions.
 
-- There is a summarization tool capable of summarizing files and folders. Utilize the "Summarize" action for this purpose.
+- There is a summarization tool capable of summarizing files and folders. Use the "Summarize" action for this purpose.
+
+{categories}
+
+- The action plan should be provided in JSON format.
+
+- Use single quotes for JSON input unless double quotes are necessary, in which case, escape them.
+
+- Accessing a file or folder automatically lists its contents. Avoid duplicate actions that yield identical results.
+
+- There is no need to navigate directories since absolute paths will be provided. Eliminate unnecessary actions.
+
+- There is a summarization tool capable of summarizing files and folders. Use the "Summarize" action for this purpose.
 
 
 Provide the action_plan per JSON_BLOB, as shown:
@@ -42,4 +41,4 @@ Provide the action_plan per JSON_BLOB, as shown:
 ```
 
 
-Begin! Reminder to always respond with a valid JSON blob.
+Begin! Reminder to always respond with a valid JSON blob no matter what.

@@ -14,6 +14,7 @@
 """
 
 import inspect
+import logging as log
 from functools import lru_cache
 from textwrap import dedent
 from typing import Callable
@@ -30,6 +31,7 @@ from askai.core.features.tools.generation import generate_content
 from askai.core.features.tools.summarization import summarize
 from askai.core.features.tools.terminal import execute_command, list_contents, open_command
 from askai.core.features.tools.vision import image_captioner
+from askai.core.model.category import Category
 from askai.exception.exceptions import TerminatingQuery
 
 
@@ -42,7 +44,7 @@ class Actions(metaclass=Singleton):
 
     def __init__(self):
         """TODO"""
-        self._all = dict(
+        self._all: dict[str, Callable] = dict(
             filter(
                 lambda pair: pair[0] not in self.RESERVED and not pair[0].startswith("_"),
                 {n: fn for n, fn in inspect.getmembers(self, predicate=inspect.ismethod)}.items(),
@@ -50,9 +52,29 @@ class Actions(metaclass=Singleton):
         )
 
     @lru_cache
-    def agent_tools(self) -> list[BaseTool]:
+    def agent_tools(self, category: Category | None = None) -> list[BaseTool]:
         """TODO"""
-        return [self._create_agent_tool(v) for _, v in self._all.items()]
+        tools: list[Callable]
+        match category:
+            case Category.CREATIONAL:
+                tools = [self.generate_content]
+            case Category.SUMMARIZATION:
+                tools = [self.summarize]
+            case Category.TERMINAL_COMMAND:
+                tools = [self.terminal]
+            case Category.IMAGE_CAPTION:
+                tools = [self.image_captioner]
+            case Category.CONVERSATIONAL:
+                tools = [self.display_tool]
+            case Category.DATA_ANALYSIS:
+                tools = [self.query_output, self.display_tool]
+            case _:
+                excluded = [self.summarize, self.terminal, self.generate_content]
+                tools = list(filter(lambda t: t not in excluded, [v for _, v in self._all.items()]))
+
+        log.debug("Available tools for category: '%s' are: '%s'", category, tools)
+
+        return [self._create_agent_tool(v) for v in tools]
 
     def _human_approval(self) -> bool:
         """Prompt for human approval."""
