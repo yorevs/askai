@@ -87,14 +87,14 @@ class Actions(metaclass=Singleton):
         Name: 'query_output'
         Description: Use this tool to identify the presence of files, folders, applications, and conduct text analysis.
         Usage: `query_output(query)`
-          input `query`: The query regarding the output. Do not provide terminal commands for this input.
+          input `query`: The query regarding the output.
         """
         return query_output(query)
 
     def image_captioner(self, image_path: str) -> str:
         """
         Name: 'image_captioner'
-        Description: Use this tool to analyze visual content of a single image file.
+        Description: Use this tool to provide a textual description of a visual content, such as, image files.
         Usage: image_captioner(image_path)
           input `image_path`: The file path of the image to be analyzed.
         """
@@ -103,7 +103,7 @@ class Actions(metaclass=Singleton):
     def generate_content(self, instructions: str, mime_type: str, path_name: str) -> str:
         """
         Name: 'generate_content'
-        Description: This tool is specifically designed for tasks that require generating (creating) content such as, code, text, image, and others.
+        Description: Use this tool for tasks that require generating any content such as, code, text, image, and others.
         Usage: generate_content(instructions, mime_type, path_name)
           input `instructions`: These are the instructions for generating content (not the content itself).
           input `mime_type`: This is the content type (use MIME types).
@@ -114,8 +114,8 @@ class Actions(metaclass=Singleton):
     def display_tool(self, answer: list[str] | str) -> str:
         """
         Name: 'display_tool'
-        Description: Use this tool to provide general conversation responses, display text or to output your final answer.
-        Usage: 'final_answer(text, ...repeat N times)'
+        Description: Use this tool to display conversation responses, or any textual information.
+        Usage: 'display_tool(text, ...repeat N times)'
           input `texts`: The comma separated list of texts to be displayed.
         """
         return display_tool(*(answer if isinstance(answer, list) else [answer]))
@@ -132,7 +132,7 @@ class Actions(metaclass=Singleton):
     def open_tool(self, path_name: str) -> str:
         """
         Name: 'open_tool'
-        Description: Use this tool to open, show or read the contents of files, folders, or applications on my system. This can be also used to play media files.
+        Description: Use this tool to open, show or read content of files, folders, or applications. This can be also be to play media files.
         Usage: 'open_tool(pathname)'
           input `path_name`: The absolute file, folder, or application path name.
         """
@@ -153,7 +153,7 @@ class Actions(metaclass=Singleton):
         Name: 'terminal'
         Description: Use this tool to execute terminal commands directly within the user shell or process user-provided commands efficiently.
         Usage: 'terminal(shell_type, command)'
-          input `shell_type`: A string that specifies the type of terminal environment (e.g., bash, zsh, powershell, etc).
+          input `shell_type`: A string that specifies the type of shell type (e.g. bash, zsh, powershell, etc).
           input `command`: The actual commands you wish to execute in the terminal.
         """
         # TODO Check for permission before executing
@@ -162,7 +162,7 @@ class Actions(metaclass=Singleton):
     def terminate(self, reason: str) -> None:
         """
         Name: 'terminate'
-        Description: Use this tool when the user decides to conclude the interaction. This function ensures a smooth and clear ending to the session, confirming user intent to terminate the dialogue.
+        Description: Use this tool when the user decides to conclude the interaction.
         Usage: 'terminate(reason)'
           input `reason`: A string indicating the reason for termination.
         """

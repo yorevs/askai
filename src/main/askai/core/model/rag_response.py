@@ -49,7 +49,7 @@ class RagResponse(Enumeration):
 
     @classmethod
     def _re(cls) -> str:
-        return rf"(^{'|'.join(cls.values())})[:,-]\s*(.+)"
+        return rf"^\$?({'|'.join(cls.values())})[:,-]\s*(.+)"
 
     @classmethod
     def strip_code(cls, message: str) -> str:
@@ -60,8 +60,3 @@ class RagResponse(Enumeration):
     @classmethod
     def of_status(cls, status: str) -> "RagResponse":
         return cls.of_value(status.title())
-
-
-if __name__ == "__main__":
-    print(RagResponse.values())
-    print(RagResponse.strip_code("Red, Because I said so"))
