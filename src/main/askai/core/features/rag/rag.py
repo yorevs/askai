@@ -106,9 +106,7 @@ def final_answer(
         llm = lc_llm.create_chat_model(temperature=Temperature.EXPLORATORY_CODE_WRITING.temp)
         response: AIMessage = llm.invoke(final_prompt)
 
-        if response and (output := response.content) and shared.UNCERTAIN_ID not in response.content:
-            shared.context.push("HISTORY", output, "assistant")
-        else:
+        if not response or not (output := response.content) or shared.UNCERTAIN_ID in response.content:
             output = msg.translate("Sorry, I don't know.")
 
     return output or msg.translate("Sorry, the query produced no response!")

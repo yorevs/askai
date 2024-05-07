@@ -72,7 +72,8 @@ class Router(metaclass=Singleton):
     def _assert_and_store(action: str, output: str) -> None:
         """TODO"""
         assert_accuracy(action, output)
-        shared.context.push("HISTORY", action, "assistant")
+        # If the assert fails, context will not be updated due to the raise of the exception.
+        shared.context.push("HISTORY", action)
         shared.context.push("HISTORY", output, "assistant")
 
     @staticmethod
@@ -90,8 +91,6 @@ class Router(metaclass=Singleton):
             case "image caption" | "general chat", _:
                 output = final_answer(query, context=response)
 
-        shared.context.push("HISTORY", query)
-        shared.context.push("HISTORY", output, "assistant")
         cache.save_reply(query, output)
 
         return output

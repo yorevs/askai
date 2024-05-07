@@ -85,9 +85,9 @@ class Actions(metaclass=Singleton):
     def query_output(self, query: str) -> str:
         """
         Name: 'query_output'
-        Description: Use this tool to analyze textual content and identify the presence of files, folders, and applications. It is designed to process and analyze content that is already available in textual form, but not to read or extract file contents directly.
+        Description: Use this tool to search or analyze textual content and identify the presence of files, folders, and applications. It is designed to process and analyze content that is already available in textual form, but not to read or extract file contents directly.
         Usage: `query_output(query)`
-          input `query`: The query regarding the output.
+          input `query`: The query regarding the output. Prefer using "Identify <file types or name or textual content>".
         """
         return query_output(query)
 
@@ -138,13 +138,13 @@ class Actions(metaclass=Singleton):
         """
         return open_command(path_name)
 
-    def q_and_a_tool(self, folder_name: str, glob) -> str:
+    def summarize(self, folder_name: str, glob) -> str:
         """
-        Name: 'q_and_a_tool'
-        Description: Use this tool only when the user explicitly requests a summary. The user's request must include the keyword 'summarize' for the tool to be engaged. Ensure that the tool is not activated if the keyword 'summarize' is not present in the user's input.
-        Usage: summarize_tool(folder_name, glob)
-          input `folder_name`: Name of the directory containing the files.
-          input `glob`: Glob pattern to specify files within the folder for summarization.
+        Name: 'summarize'
+        Description: Use this tool only when the user explicitly requests a summary of files and folders.
+        Usage: summarize(folder_name, glob)
+          input `folder_name`: Name of the base directory containing the files.
+          input `glob`: Glob expression to specify files within the folder for summarization.
         """
         return summarize(folder_name, glob)
 

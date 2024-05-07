@@ -15,6 +15,9 @@
 
 import logging as log
 
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import PromptTemplate
+
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -22,8 +25,6 @@ from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import PromptTemplate
 
 
 def query_output(query: str, context: str = None) -> str:
