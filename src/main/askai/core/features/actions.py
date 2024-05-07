@@ -76,7 +76,7 @@ class Actions(metaclass=Singleton):
     def browse(self, search_query: str) -> str:
         """
         Name: 'browse'
-        Description: Use this tool when you need to answer questions about current events.
+        Description: Use this tool to browse the internet or to stay informed about the latest news and current events, especially when you require up-to-date information quickly. It is especially effective for accessing the most recent data available online.
         Usage: 'browse(search_query)'
           input `search_query`: The web search query in string format.
         """

@@ -39,8 +39,6 @@ class Summarizer(metaclass=Singleton):
 
     INSTANCE: "Summarizer"
 
-    ASKAI_SUMMARY_DATA_KEY = "askai-summary-data"
-
     @staticmethod
     def _extract_result(result: dict) -> Tuple[str, str]:
         """Extract the question and answer from the summarization result."""
@@ -123,6 +121,7 @@ class Summarizer(metaclass=Singleton):
 
         return False
 
+    @lru_cache
     def query(self, *queries: str) -> Optional[List[SummaryResult]]:
         """Answer questions about the summarized content.
         :param queries: The queries to ask the AI engine.

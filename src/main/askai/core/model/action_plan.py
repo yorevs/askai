@@ -19,7 +19,7 @@ from types import SimpleNamespace
 import json
 
 
-@dataclass(frozen=True)
+@dataclass
 class ActionPlan:
     """Keep track of the router action plan."""
 
@@ -29,6 +29,9 @@ class ActionPlan:
 
     def __str__(self):
         return f"Action Plan: {json.dumps(self.__dict__, default=lambda obj: obj.__dict__)}"
+
+    def __len__(self):
+        return len(self.plan)
 
     def is_final(self) -> bool:
         """TODO"""

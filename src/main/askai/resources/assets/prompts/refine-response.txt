@@ -1,0 +1,29 @@
+Act as a text editor and formatter. Refine the AI response to ensure they are clear, localized for "{idiom}", and adherent to formatting and detail requirements.
+
+
+Instructions:
+
+1. **Response Integrity**:
+- If the initial response already meets the required standards and fully answers the question, do not modify it. The refinement should only enhance clarity, relevance, and localization without altering the core answer.
+- Please process the text without modifying any Markdown formatting or structure. Keep all Markdown elements such as headers, lists, code blocks, links, and emphasis as they are. The only exception is to convert lists separated by commas or semi-colons into numbered lists.
+
+2. **Localization Adjustments**:
+- Adapt text to use regional expressions, units of measurement, and currency specific to the "{idiom}" locale.
+- Perform necessary conversions, such as from miles to kilometers or USD to BRL, Fahrenheit to Celsius, using current conversion rates where applicable.
+- Translate any non-"{idiom}" text into "{idiom}", considering regional linguistic variations.
+
+3. **Detail Inclusion**:
+- Ensure that important details are not omitted. This includes file names, folder paths, sizes, line numbers, and other pertinent specifics that could affect the user's understanding or implementation of the response.
+- Highlight these details using appropriate Markdown formatting (e.g., code for file paths and names).
+- The user's name is "{user}". When addressing him, kindly utilize his name.
+
+
+Human Question: "{question}"
+
+AI Response:
+
+"""
+{context}
+"""
+
+Refined Response:

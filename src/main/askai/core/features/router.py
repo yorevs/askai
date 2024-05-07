@@ -38,6 +38,7 @@ from askai.core.engine.openai.temperature import Temperature
 from askai.core.features.actions import features
 from askai.core.features.rag.rag import final_answer, assert_accuracy
 from askai.core.model.action_plan import ActionPlan
+from askai.core.model.category import Category
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
@@ -85,11 +86,13 @@ class Router(metaclass=Singleton):
         output: str = response
         match category.lower(), configs.is_speak:
             case "file management", True:
-                output = final_answer(query, persona_prompt="stt", context=response)
+                output = final_answer(query, persona_prompt="stt", response=response)
             case "assistive requests", _:
-                output = final_answer(query, persona_prompt="stt", context=response)
+                output = final_answer(query, persona_prompt="stt", response=response)
             case "image caption" | "general chat", _:
-                output = final_answer(query, context=response)
+                output = final_answer(query, persona_prompt="taius", response=response)
+            case _, _:
+                output = final_answer(query, persona_prompt="refine-response", response=response)
 
         cache.save_reply(query, output)
 
@@ -102,12 +105,15 @@ class Router(metaclass=Singleton):
     @property
     def router_template(self) -> ChatPromptTemplate:
         """Retrieve the Router Template."""
+        scratchpad: str = str(shared.context.flat("SCRATCHPAD"))
         template = PromptTemplate(
-            input_variables=["home", "scratchpad"], template=prompt.read_prompt("router.txt")
+            input_variables=[
+                "home", "scratchpad", "categories"
+            ], template=prompt.read_prompt("router.txt")
         )
         return ChatPromptTemplate.from_messages(
             [
-                ("system", template.format(home=Path.home())),
+                ("system", template.format(home=Path.home(), scratchpad=scratchpad, categories=Category.values())),
                 MessagesPlaceholder("chat_history", optional=True),
                 ("human", self.HUMAN_PROMPT),
             ]
@@ -143,6 +149,9 @@ class Router(metaclass=Singleton):
                 plan: ActionPlan = object_mapper.of_json(json_string, ActionPlan)
                 if not isinstance(plan, ActionPlan):
                     raise InaccurateResponse(f"AI responded an invalid JSON object -> {str(plan)}")
+                if not plan.plan:
+                    plan.category = Category.FINAL_ANSWER.value
+                    plan.plan = [SimpleNamespace(action=f"Answer the question: {query}")]
                 AskAiEvents.ASKAI_BUS.events.reply.emit(
                     message=f"- **{plan.category}**: `{plan.reasoning}`", verbosity="debug")
                 output = self._route(self._agent, query, plan)
@@ -163,7 +172,9 @@ class Router(metaclass=Singleton):
             actions is not None and all(isinstance(act, SimpleNamespace) for act in actions), "Invalid action format")
 
         for action in actions:
-            task = ", ".join([f"{k.title()}: {v}" for k, v in vars(action).items()])
+            task = ", ".join(list(filter(len, [
+                f"{k.title()}: {v}" if v and v.upper() != 'N/A' else '' for k, v in vars(action).items()
+            ])))
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {task}", verbosity="debug")
             if (response := agent.invoke({"input": task})) and (output := response["output"]):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
@@ -172,8 +183,9 @@ class Router(metaclass=Singleton):
 
             raise InaccurateResponse("AI provided AN EMPTY response")
 
-        # Provide a final RAG check to ensure the question has been accurately responded.
-        assert_accuracy(query, output)
+        if len(action_plan) > 1:
+            # Provide a final RAG check to ensure the action plan has been accurately responded.
+            assert_accuracy(query, output)
 
         return self._wrap_answer(query, action_plan.category, msg.translate(output))
 
