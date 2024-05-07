@@ -131,7 +131,7 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_COMMENT_GENERATION.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
             runnable = RunnableWithMessageHistory(
                 runnable,
                 shared.context.flat,
@@ -160,16 +160,13 @@ class Router(metaclass=Singleton):
         """
         output: str = ""
         actions: list[SimpleNamespace] = action_plan.plan
-        check_argument(all(isinstance(act, SimpleNamespace) for act in actions), "Invalid action format")
+        check_argument(
+            actions is not None and all(isinstance(act, SimpleNamespace) for act in actions), "Invalid action format")
 
         for action in actions:
             task = ", ".join([f"{k.title()}: {v}" for k, v in vars(action).items()])
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {task}", verbosity="debug")
-            if action_plan.is_final() and (output := action.action):
-                log.info("Router::[RESPONSE] Action is a final answer from AI: \n%s.", output)
-                self._assert_and_store(action.action, output)
-                break
-            elif (response := agent.invoke({"input": task})) and (output := response["output"]):
+            if (response := agent.invoke({"input": task})) and (output := response["output"]):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
                 self._assert_and_store(action.action, output)
                 continue
@@ -192,10 +189,8 @@ class Router(metaclass=Singleton):
             tools=features.agent_tools(),
             max_iteraction=configs.max_router_retries,
             memory=chat_memory,
-            max_execution_time=configs.max_agent_execution_time_seconds,
             handle_parsing_errors=True,
-            return_only_outputs=True,
-            early_stopping_method=True,
+            max_execution_time=configs.max_agent_execution_time_seconds,
             verbose=configs.is_debug,
         )
 

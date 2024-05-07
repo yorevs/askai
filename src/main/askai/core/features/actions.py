@@ -85,7 +85,7 @@ class Actions(metaclass=Singleton):
     def query_output(self, query: str) -> str:
         """
         Name: 'query_output'
-        Description: Use this tool to identify the presence of files, folders, applications, and conduct any text analysis.
+        Description: Use this tool to identify the presence of files, folders, applications, and conduct text analysis.
         Usage: `query_output(query)`
           input `query`: The query regarding the output. Do not provide terminal commands for this input.
         """
@@ -132,7 +132,7 @@ class Actions(metaclass=Singleton):
     def open_tool(self, path_name: str) -> str:
         """
         Name: 'open_tool'
-        Description: Use this tool to open or show the contents of files, folders, or applications on my system. This can be also used to play media files.
+        Description: Use this tool to open, show or read the contents of files, folders, or applications on my system. This can be also used to play media files.
         Usage: 'open_tool(pathname)'
           input `path_name`: The absolute file, folder, or application path name.
         """
