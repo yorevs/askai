@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from types import SimpleNamespace
 
 from askai.core.askai_messages import msg
+from askai.core.model.category import Category
 
 
 @dataclass
@@ -28,6 +29,15 @@ class ActionPlan:
     category: str = None
     ultimate_goal: str = None
     actions: list[SimpleNamespace] = None
+
+    @staticmethod
+    def final(query: str) -> 'ActionPlan':
+        """TODO"""
+        plan = ActionPlan()
+        plan.category = Category.FINAL_ANSWER.value
+        plan.ultimate_goal = query
+        plan.actions = [SimpleNamespace(task=f"Answer the human: {query}")]
+        return plan
 
     def __str__(self):
         return f"Action Plan: {json.dumps(self.__dict__, default=lambda obj: obj.__dict__)}"

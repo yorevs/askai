@@ -31,7 +31,6 @@ from askai.core.features.tools.generation import generate_content
 from askai.core.features.tools.summarization import summarize
 from askai.core.features.tools.terminal import execute_command, list_contents, open_command
 from askai.core.features.tools.vision import image_captioner
-from askai.core.model.category import Category
 from askai.exception.exceptions import TerminatingQuery
 
 
@@ -52,34 +51,13 @@ class Actions(metaclass=Singleton):
         )
 
     @lru_cache
-    def agent_tools(self, category: Category | None = None) -> list[BaseTool]:
+    def agent_tools(self) -> list[BaseTool]:
         """TODO"""
-        tools: list[Callable] = [self.terminate, self.display_tool]
-        match category:
-            case Category.CREATIONAL:
-                tools += [self.generate_content]
-            case Category.SUMMARIZATION:
-                tools += [self.summarize]
-            case Category.TERMINAL_COMMAND:
-                tools += [self.terminal]
-            case Category.IMAGE_CAPTION:
-                tools += [self.image_captioner]
-            case Category.CONVERSATIONAL:
-                pass  # No more tools to add
-            case Category.DATA_ANALYSIS:
-                tools += [self.query_output]
-            case Category.INFORMATION_RETRIEVAL:
-                tools += [self.query_output, self.browse]
-            case Category.FILE_MANAGEMENT:
-                excluded = [self.summarize, self.generate_content]
-                tools += list(filter(lambda t: t not in excluded, [v for _, v in self._all.items()]))
-            case _:
-                excluded = [self.summarize, self.terminal, self.generate_content, self.image_captioner]
-                tools += list(filter(lambda t: t not in excluded, [v for _, v in self._all.items()]))
+        tools: list[BaseTool] = [self._create_agent_tool(v) for _, v in self._all.items()]
 
-        log.debug("Available tools for category: '%s' are: '%s'", category, tools)
+        log.debug("Available tools: are: '%s'", tools)
 
-        return [self._create_agent_tool(v) for v in tools]
+        return tools
 
     def _human_approval(self) -> bool:
         """Prompt for human approval."""

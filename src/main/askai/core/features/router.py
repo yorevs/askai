@@ -13,8 +13,9 @@
    Copyright (c) 2024, HomeSetup
 """
 import logging as log
-from functools import lru_cache
+from functools import cached_property
 from pathlib import Path
+from textwrap import dedent
 from types import SimpleNamespace
 from typing import Any, Optional, Type, TypeAlias
 
@@ -54,7 +55,11 @@ class Router(metaclass=Singleton):
 
     INSTANCE: "Router"
 
-    HUMAN_PROMPT: str = "Human Task: '{input}'"
+    HUMAN_PROMPT: str = dedent("""
+    {input}
+
+    (reminder to respond in a JSON blob and to use at least one action, no matter what).
+    """)
 
     # Allow the router to retry on the errors bellow.
     RETRIABLE_ERRORS: tuple[Type[Exception], ...] = (
@@ -89,8 +94,6 @@ class Router(metaclass=Singleton):
                 output = final_answer(query, persona_prompt="stt", response=response)
             case Category.IMAGE_CAPTION | Category.CONVERSATIONAL, _:
                 output = final_answer(query, response=response)
-            case _, _:
-                output = final_answer(query, persona_prompt="refine-response", response=response)
 
         cache.save_reply(query, output)
 
@@ -122,6 +125,24 @@ class Router(metaclass=Singleton):
         """Retrieve the Structured Agent Template."""
         return prompt.hub("hwchase17/structured-chat-agent")
 
+    @cached_property
+    def agent(self) -> Runnable:
+        """TODO"""
+        tools = features.agent_tools()
+        llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
+        chat_memory = ConversationBufferWindowMemory(
+            memory_key="chat_history", k=configs.max_chat_history_size, return_messages=True)
+        lc_agent = create_structured_chat_agent(llm, tools, self.agent_template)
+        return AgentExecutor(
+            agent=lc_agent,
+            tools=tools,
+            max_iteraction=configs.max_router_retries,
+            memory=chat_memory,
+            handle_parsing_errors=True,
+            max_execution_time=configs.max_agent_execution_time_seconds,
+            verbose=configs.is_debug,
+        )
+
     def process(self, query: str) -> Optional[str]:
         """Process the user query and retrieve the final response.
         :param query: The user query to complete.
@@ -131,7 +152,7 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.COLDEST.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
             runnable = RunnableWithMessageHistory(
                 runnable,
                 shared.context.flat,
@@ -143,10 +164,13 @@ class Router(metaclass=Singleton):
                 _, json_string = extract_codeblock(response.content)
                 plan: ActionPlan = object_mapper.of_json(json_string, ActionPlan)
                 if not isinstance(plan, ActionPlan):
-                    raise InaccurateResponse(f"AI responded an invalid JSON object -> {str(plan)}")
+                    raise InaccurateResponse(f"AI responded an invalid JSON blob -> {str(plan)}")
                 if not plan.actions:
-                    plan.actions = [SimpleNamespace(action=f"Answer the human: {query}")]
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=plan.speak)
+                    plan.category = plan.category if hasattr(plan, 'category') else Category.FINAL_ANSWER.value
+                    plan.ultimate_goal = plan.ultimate_goal if hasattr(plan, 'ultimate_goal') else query
+                    plan.actions = [SimpleNamespace(task=f"Answer the human: {query}")]
+                if hasattr(plan, 'thoughts') and hasattr(plan.thoughts, 'speak'):
+                    AskAiEvents.ASKAI_BUS.events.reply.emit(message=plan.thoughts.speak)
                 output = self._route(query, plan)
             else:
                 output = response
@@ -164,15 +188,14 @@ class Router(metaclass=Singleton):
         check_argument(
             actions is not None and all(isinstance(act, SimpleNamespace) for act in actions), "Invalid action format")
         for action in actions:
-            agent = self._create_agent(action.category)
             task = (
-                f"Action: {action.action}  "
-                f"{'Path: ' + action.path if action.path and action.path not in ['N/A', 'NONE'] else ''}"
+                f"Task: {action.task}  "
+                f"{'Path: ' + action.path if hasattr(action, 'path') and action.path not in ['N/A', 'NONE'] else ''}"
             )
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {task}", verbosity="debug")
-            if (response := agent.invoke({"input": task})) and (output := response["output"]):
+            if (response := self.agent.invoke({"input": task})) and (output := response["output"]):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
-                self._assert_and_store(action.action, output)
+                self._assert_and_store(task, output)
                 continue
 
             raise InaccurateResponse("AI provided AN EMPTY response")
@@ -182,24 +205,6 @@ class Router(metaclass=Singleton):
             assert_accuracy(action_plan.ultimate_goal, output)
 
         return self._wrap_answer(query, action_plan.category, msg.translate(output))
-
-    @lru_cache
-    def _create_agent(self, category: str) -> Runnable:
-        """TODO"""
-        tools = features.agent_tools(Category.of_value(category))
-        llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
-        chat_memory = ConversationBufferWindowMemory(
-            memory_key="chat_history", k=configs.max_chat_history_size, return_messages=True)
-        lc_agent = create_structured_chat_agent(llm, tools, self.agent_template)
-        return AgentExecutor(
-            agent=lc_agent,
-            tools=tools,
-            max_iteraction=configs.max_router_retries,
-            memory=chat_memory,
-            handle_parsing_errors=True,
-            max_execution_time=configs.max_agent_execution_time_seconds,
-            verbose=configs.is_debug,
-        )
 
 
 assert (router := Router().INSTANCE) is not None

@@ -64,7 +64,7 @@ def open_command(path_name: str) -> str:
             case ("audio", _) | ("video", _):
                 fn_open = partial(_execute_bash, f"ffplay -v 0 -autoexit {path_name} &>/dev/null")
             case ("text", _):
-                fn_open = partial(_execute_bash, f'echo "File \\`{path_name}\\`: \n" && cat {path_name}')
+                fn_open = partial(_execute_bash, f'cat {path_name}')
             case ("inode", "directory"):
                 fn_open = partial(list_contents, path_name)
             case _:
@@ -78,18 +78,18 @@ def open_command(path_name: str) -> str:
     return msg.translate(f"Error: Could not open '{path_name}'!")
 
 
-def execute_command(shell: str, command: str) -> str:
+def execute_command(shell: str, command_line: str) -> str:
     """Execute a terminal command using the specified language.
     :param shell: The shell type to be used.
-    :param command: The command line to be executed.
+    :param command_line: The command line to be executed.
     """
     match shell:
         case "bash":
-            status, output = _execute_bash(command)
+            status, output = _execute_bash(command_line)
         case _:
             raise NotImplementedError(msg.translate(f"'{shell}' is not supported!"))
 
-    return output or msg.cmd_failed(command)
+    return output or msg.cmd_failed(command_line)
 
 
 def _execute_bash(command_line: str) -> Tuple[bool, str]:
@@ -112,7 +112,7 @@ def _execute_bash(command_line: str) -> Tuple[bool, str]:
             if not output:
                 output = msg.cmd_success(command_line)
             else:
-                output = f"Command '{command_line}' succeeded: \n```bash\n{output}\n```"
+                output = f"Command: `{command_line}` succeeded: \n```bash\n{output}\n```"
             status = True
         else:
             log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), command)
