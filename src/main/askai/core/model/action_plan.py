@@ -13,17 +13,18 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import json
 from dataclasses import dataclass
 from types import SimpleNamespace
 
-import json
+from askai.core.askai_messages import msg
 
 
 @dataclass
 class ActionPlan:
     """Keep track of the router action plan."""
 
-    reasoning: str = None
+    thoughts: SimpleNamespace = None
     category: str = None
     plan: list[SimpleNamespace] = None
 
@@ -33,6 +34,7 @@ class ActionPlan:
     def __len__(self):
         return len(self.plan)
 
-    def is_final(self) -> bool:
+    @property
+    def speak(self) -> str:
         """TODO"""
-        return self.category.lower() == 'final answer'
+        return msg.translate(self.thoughts.speak)

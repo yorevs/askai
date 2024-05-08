@@ -13,6 +13,7 @@
    Copyright (c) 2024, HomeSetup
 """
 import logging as log
+from functools import lru_cache
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Optional, Type, TypeAlias
@@ -53,7 +54,7 @@ class Router(metaclass=Singleton):
 
     INSTANCE: "Router"
 
-    HUMAN_PROMPT: str = "Question: '{input}'"
+    HUMAN_PROMPT: str = "Human Task: '{input}'"
 
     # Allow the router to retry on the errors bellow.
     RETRIABLE_ERRORS: tuple[Type[Exception], ...] = (
@@ -87,7 +88,7 @@ class Router(metaclass=Singleton):
             case Category.ASSISTIVE_REQUESTS, _:
                 output = final_answer(query, persona_prompt="stt", response=response)
             case Category.IMAGE_CAPTION | Category.CONVERSATIONAL, _:
-                output = final_answer(query, persona_prompt="taius", response=response)
+                output = final_answer(query, response=response)
             case _, _:
                 output = final_answer(query, persona_prompt="refine-response", response=response)
 
@@ -97,7 +98,6 @@ class Router(metaclass=Singleton):
 
     def __init__(self):
         self._approved: bool = False
-        self._agent: Runnable | None = None
 
     @property
     def router_template(self) -> ChatPromptTemplate:
@@ -105,13 +105,14 @@ class Router(metaclass=Singleton):
         scratchpad: str = str(shared.context.flat("SCRATCHPAD"))
         template = PromptTemplate(
             input_variables=[
-                "home", "scratchpad", "categories"
+                "home", "categories"
             ], template=prompt.read_prompt("router.txt")
         )
         return ChatPromptTemplate.from_messages(
             [
-                ("system", template.format(home=Path.home(), scratchpad=scratchpad, categories=Category.template())),
+                ("system", template.format(home=Path.home(), categories=Category.template())),
                 MessagesPlaceholder("chat_history", optional=True),
+                ("assistant", scratchpad),
                 ("human", self.HUMAN_PROMPT),
             ]
         )
@@ -130,7 +131,7 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.EXPLORATORY_CODE_WRITING.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.COLDEST.temp)
             runnable = RunnableWithMessageHistory(
                 runnable,
                 shared.context.flat,
@@ -144,20 +145,16 @@ class Router(metaclass=Singleton):
                 if not isinstance(plan, ActionPlan):
                     raise InaccurateResponse(f"AI responded an invalid JSON object -> {str(plan)}")
                 if not plan.plan:
-                    plan.category = Category.FINAL_ANSWER.value if not plan.category else plan.category
-                    plan.plan = [SimpleNamespace(action=f"Answer the question: {query}")]
-                AskAiEvents.ASKAI_BUS.events.reply.emit(
-                    message=f"- **{plan.category}**: `{plan.reasoning}`", verbosity="debug")
-                if self._agent is None:
-                    self._agent = self._create_agent(plan.category)
-                output = self._route(self._agent, query, plan)
+                    plan.plan = [SimpleNamespace(action=f"Answer the human: {query}")]
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=plan.speak)
+                output = self._route(query, plan)
             else:
                 output = response
             return output
 
         return _process_wrapper()
 
-    def _route(self, agent: Runnable, query: str, action_plan: ActionPlan) -> str:
+    def _route(self, query: str, action_plan: ActionPlan) -> str:
         """Route the actions to the proper function invocations.
         :param query: The user query to complete.
         :param action_plan: The action plan to resolve the request.
@@ -166,8 +163,8 @@ class Router(metaclass=Singleton):
         actions: list[SimpleNamespace] = action_plan.plan
         check_argument(
             actions is not None and all(isinstance(act, SimpleNamespace) for act in actions), "Invalid action format")
-
         for action in actions:
+            agent = self._create_agent(action.category)
             task = ", ".join(list(filter(len, [
                 f"{k.title()}: {v}" if v and v.upper() not in ['N/A', 'None'] else '' for k, v in vars(action).items()
             ])))
@@ -185,10 +182,11 @@ class Router(metaclass=Singleton):
 
         return self._wrap_answer(query, action_plan.category, msg.translate(output))
 
+    @lru_cache
     def _create_agent(self, category: str) -> Runnable:
         """TODO"""
         tools = features.agent_tools(Category.of_value(category))
-        llm = lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
+        llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
         chat_memory = ConversationBufferWindowMemory(
             memory_key="chat_history", k=configs.max_chat_history_size, return_messages=True)
         lc_agent = create_structured_chat_agent(llm, tools, self.agent_template)

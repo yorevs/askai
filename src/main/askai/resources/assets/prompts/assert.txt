@@ -1,7 +1,13 @@
-You (AI) provided an unsatisfactory answer.
+Human: You (AI) provided an unsatisfactory answer.
 
-Address the following problems:
+The following problems were detected:
 
-'{problems}'
+-----
+{problems}
+-----
 
-(Reminder: Always respond in a JSON format no matter what).
+Performance Evaluation:
+
+1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities.
+2. Constructively self-criticize your big-picture behavior constantly.
+3. Reflect on past decisions and strategies to refine your approach.

@@ -18,9 +18,3 @@ en_US
 14. find . -mxdepth 1 -type f -nme *.png
 
 
-- Accessing a file or folder automatically lists its contents. Avoid duplicate actions that yield identical results.
-
-- There is no need to navigate directories since absolute paths will be provided. Eliminate unnecessary actions.
-
-- There is a summarization tool capable of summarizing files and folders. Use the "Summarize" action for this purpose.
-

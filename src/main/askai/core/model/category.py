@@ -35,7 +35,7 @@ class Category(Enumeration):
     @classmethod
     def template(cls) -> str:
         return dedent(f"""
-        - Categorize the question based on the nature of the question. Use one of the following valid options: {cls.values()}. Prioritize categories according to the sequence listed if the question overlaps multiple categories.
+        - Categorize the action plan and each action based on its nature. Use one of the following valid options: {cls.values()}. Prioritize categories according to the sequence listed if the question overlaps multiple categories.
 
         - Requests for **assistive technologies**, such as speech-to-text features, should be categorized under '{cls.ASSISTIVE_REQUESTS.value}'. Avoid mentioning them in the action items.
 

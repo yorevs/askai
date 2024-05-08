@@ -12,25 +12,26 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.support.presets import Presets
-from askai.core.support.text_formatter import text_formatter
-from askai.language.language import Language
+import hashlib
+import mimetypes
+import os
+import re
+import sys
+from os.path import basename, dirname
+from pathlib import Path
+from typing import Any, Optional, Tuple
+
+import pause
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.cli.vt100.vt_color import VtColor
-from os.path import basename, dirname
-from pathlib import Path
-from typing import Any, Optional, Tuple
 
-import hashlib
-import mimetypes
-import os
-import pause
-import re
-import sys
+from askai.core.support.presets import Presets
+from askai.core.support.text_formatter import text_formatter
+from askai.language.language import Language
 
 
 def read_stdin() -> Optional[str]:
@@ -163,7 +164,7 @@ def extract_codeblock(text: str) -> Tuple[Optional[str], str]:
     """
     flags: int = re.IGNORECASE | re.MULTILINE
     # Match a terminal command formatted in a markdown code block.
-    re_command = r"^`{3}((\w+)\s*)?(.+)\s*?`{3}$"
+    re_command = r".*`{3}((\w+)\s*)?(.+)\s*?`{3}.*"
     if text and (mat := re.search(re_command, text.replace("\n", " ").strip(), flags)):
         if mat and len(mat.groups()) == 3:
             lang, code = mat.group(1) or "", mat.group(3) or ""

@@ -54,26 +54,28 @@ class Actions(metaclass=Singleton):
     @lru_cache
     def agent_tools(self, category: Category | None = None) -> list[BaseTool]:
         """TODO"""
-        tools: list[Callable]
+        tools: list[Callable] = [self.terminate, self.display_tool]
         match category:
             case Category.CREATIONAL:
-                tools = [self.generate_content]
+                tools += [self.generate_content]
             case Category.SUMMARIZATION:
-                tools = [self.summarize]
+                tools += [self.summarize]
             case Category.TERMINAL_COMMAND:
-                tools = [self.terminal]
+                tools += [self.terminal]
             case Category.IMAGE_CAPTION:
-                tools = [self.image_captioner]
+                tools += [self.image_captioner]
             case Category.CONVERSATIONAL:
-                tools = [self.display_tool]
+                pass  # No more tools to add
             case Category.DATA_ANALYSIS:
-                tools = [self.query_output, self.display_tool]
+                tools += [self.query_output]
+            case Category.INFORMATION_RETRIEVAL:
+                tools += [self.query_output, self.browse]
             case Category.FILE_MANAGEMENT:
                 excluded = [self.summarize, self.generate_content]
-                tools = list(filter(lambda t: t not in excluded, [v for _, v in self._all.items()]))
+                tools += list(filter(lambda t: t not in excluded, [v for _, v in self._all.items()]))
             case _:
                 excluded = [self.summarize, self.terminal, self.generate_content, self.image_captioner]
-                tools = list(filter(lambda t: t not in excluded, [v for _, v in self._all.items()]))
+                tools += list(filter(lambda t: t not in excluded, [v for _, v in self._all.items()]))
 
         log.debug("Available tools for category: '%s' are: '%s'", category, tools)
 
