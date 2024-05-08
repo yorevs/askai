@@ -144,8 +144,8 @@ class Router(metaclass=Singleton):
                 plan: ActionPlan = object_mapper.of_json(json_string, ActionPlan)
                 if not isinstance(plan, ActionPlan):
                     raise InaccurateResponse(f"AI responded an invalid JSON object -> {str(plan)}")
-                if not plan.plan:
-                    plan.plan = [SimpleNamespace(action=f"Answer the human: {query}")]
+                if not plan.actions:
+                    plan.actions = [SimpleNamespace(action=f"Answer the human: {query}")]
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=plan.speak)
                 output = self._route(query, plan)
             else:
@@ -160,14 +160,15 @@ class Router(metaclass=Singleton):
         :param action_plan: The action plan to resolve the request.
         """
         output: str = ""
-        actions: list[SimpleNamespace] = action_plan.plan
+        actions: list[SimpleNamespace] = action_plan.actions
         check_argument(
             actions is not None and all(isinstance(act, SimpleNamespace) for act in actions), "Invalid action format")
         for action in actions:
             agent = self._create_agent(action.category)
-            task = ", ".join(list(filter(len, [
-                f"{k.title()}: {v}" if v and v.upper() not in ['N/A', 'None'] else '' for k, v in vars(action).items()
-            ])))
+            task = (
+                f"Action: {action.action}  "
+                f"{'Path: ' + action.path if action.path and action.path not in ['N/A', 'NONE'] else ''}"
+            )
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {task}", verbosity="debug")
             if (response := agent.invoke({"input": task})) and (output := response["output"]):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
@@ -178,7 +179,7 @@ class Router(metaclass=Singleton):
 
         if len(action_plan) > 1:
             # Provide a final RAG check to ensure the action plan has been accurately responded.
-            assert_accuracy(query, output)
+            assert_accuracy(action_plan.ultimate_goal, output)
 
         return self._wrap_answer(query, action_plan.category, msg.translate(output))
 

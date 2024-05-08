@@ -26,14 +26,14 @@ class ActionPlan:
 
     thoughts: SimpleNamespace = None
     category: str = None
-    final_goal: str = None
-    plan: list[SimpleNamespace] = None
+    ultimate_goal: str = None
+    actions: list[SimpleNamespace] = None
 
     def __str__(self):
         return f"Action Plan: {json.dumps(self.__dict__, default=lambda obj: obj.__dict__)}"
 
     def __len__(self):
-        return len(self.plan)
+        return len(self.actions)
 
     @property
     def speak(self) -> str:
