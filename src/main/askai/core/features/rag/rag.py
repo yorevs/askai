@@ -33,7 +33,8 @@ def assert_accuracy(question: str, ai_response: str) -> None:
     :param question: The user question.
     :param ai_response: The AI response to be analysed.
     """
-    issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("assert"))
+    issues_prompt = PromptTemplate(
+        input_variables=["problems"], template=prompt.read_prompt("assert"))
     if ai_response in msg.accurate_responses:
         return
     elif not ai_response:
@@ -42,8 +43,9 @@ def assert_accuracy(question: str, ai_response: str) -> None:
         shared.context.push("SCRATCHPAD", issues_prompt.format(problems=RagResponse.strip_code(empty_msg)))
         raise InaccurateResponse(problems)
 
-    assert_template = PromptTemplate(input_variables=["response", "input"], template=prompt.read_prompt("rag"))
-    final_prompt = assert_template.format(response=ai_response, input=question)
+    assert_template = PromptTemplate(
+        input_variables=["input", "goals", "response"], template=prompt.read_prompt("rag"))
+    final_prompt = assert_template.format(input=question, response=ai_response)
     log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
     response: AIMessage = llm.invoke(final_prompt)

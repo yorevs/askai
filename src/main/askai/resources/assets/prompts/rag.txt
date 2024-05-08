@@ -39,8 +39,8 @@ Guidelines:
 Begin! Qualify the following AI responses:
 
 
-AI Response: """{response}"""
-
 Human Input: "{input}"
+
+AI Response: """{response}"""
 
 Answer:

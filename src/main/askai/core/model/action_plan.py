@@ -26,6 +26,7 @@ class ActionPlan:
 
     thoughts: SimpleNamespace = None
     category: str = None
+    final_goal: str = None
     plan: list[SimpleNamespace] = None
 
     def __str__(self):
