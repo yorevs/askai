@@ -6,8 +6,9 @@
 """Package initialization."""
 
 __all__ = [
-    'internet-demo', 
-    'scheduler', 
-    'summarizer-demo'
+    'internet_demo', 
+    'router_demo', 
+    'summarizer_demo', 
+    'tech_week_demo'
 ]
 __version__ = '1.0.7'

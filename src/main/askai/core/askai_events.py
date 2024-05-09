@@ -17,7 +17,7 @@ from functools import partial
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.namespace import Namespace
 from hspylib.modules.eventbus.eventbus import emit, EventBus
-from typing import Optional
+from typing import Optional, Callable
 
 ASKAI_BUS_NAME: str = "askai-reply-bus"
 
@@ -44,6 +44,9 @@ class AskAiEvents(Enumeration):
         def emit(self, bus_name: str, event_name: str, **kwargs) -> None:
             pass
 
+        def subscribe(self, cb_event_handler: Callable) -> None:
+            pass
+
     @staticmethod
     class _EventBus:
         """Provide a generic event bus interface."""
@@ -53,6 +56,7 @@ class AskAiEvents(Enumeration):
             self.bus = EventBus.get(bus_name)
             for key, evt in kwargs.items():
                 setattr(evt, "emit", partial(emit, bus_name, evt.name, **vars(evt)))
+                setattr(evt, "subscribe", partial(self.bus.subscribe, evt.name, cb_event_handler=evt.cb_event_handler))
             self.events = Namespace(f"AskAi-EventBus::{bus_name}", True, **kwargs)
 
         def __str__(self):
@@ -61,8 +65,8 @@ class AskAiEvents(Enumeration):
     # fmt: off
     ASKAI_BUS = _EventBus(
         ASKAI_BUS_NAME,
-        reply=_Event(REPLY_EVENT, verbosity='normal', erase_last=False),
-        reply_error=_Event(REPLY_ERROR_EVENT)
+        reply=_Event(REPLY_EVENT, verbosity='normal', erase_last=False, cb_event_handler=None),
+        reply_error=_Event(REPLY_ERROR_EVENT, cb_event_handler=None)
     )
 
     # fmt: on

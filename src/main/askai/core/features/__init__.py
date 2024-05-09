@@ -7,7 +7,9 @@
 
 __all__ = [
     'actions', 
+    'rag', 
     'router', 
+    'structured_agent', 
     'tools'
 ]
 __version__ = '1.0.7'

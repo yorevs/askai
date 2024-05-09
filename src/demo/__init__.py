@@ -6,7 +6,7 @@
 """Package initialization."""
 
 __all__ = [
-    'components', 
-    'new_ui'
+    'components',
+    'textual'
 ]
 __version__ = '1.0.7'

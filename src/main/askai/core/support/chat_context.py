@@ -10,15 +10,15 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.exception.exceptions import TokenLengthExceeded
+import os
 from collections import defaultdict, deque, namedtuple
 from functools import partial, reduce
-from hspylib.core.zoned_datetime import now
-from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from typing import Any, Literal, Optional, TypeAlias
 
-import os
+from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+
+from askai.exception.exceptions import TokenLengthExceeded
 
 ChatRoles: TypeAlias = Literal["system", "human", "assistant"]
 
@@ -26,7 +26,7 @@ ContextRaw: TypeAlias = list[dict[str, str]]
 
 LangChainContext: TypeAlias = list[tuple[str, str]]
 
-ContextEntry = namedtuple("ContextEntry", ["created_at", "role", "content"])
+ContextEntry = namedtuple("ContextEntry", ["role", "content"])
 
 
 class ChatContext:
@@ -34,19 +34,25 @@ class ChatContext:
 
     LANGCHAIN_ROLE_MAP: dict = {"human": HumanMessage, "system": SystemMessage, "assistant": AIMessage}
 
-    def __init__(self, token_limit: int, max_context_length: int):
-        self._store: dict[Any, deque] = defaultdict(partial(deque, maxlen=max_context_length))
+    def __init__(self, token_limit: int, _max_context_size: int):
+        self._store: dict[Any, deque] = defaultdict(partial(deque, maxlen=_max_context_size))
         self._token_limit: int = token_limit * 1024  # The limit is given in KB
+        self._max_context_size: int = _max_context_size
 
     def __str__(self):
-        return os.linesep.join(f"'{k}': '{v}'" for k, v in self._store.items())
+        ln: str = os.linesep
+        return ln.join(f"'{k}': '{v}'" + ln for k, v in self._store.items())
 
     def __getitem__(self, key) -> deque[ContextEntry]:
         return self._store[key]
 
+    @property
+    def max_context_size(self) -> int:
+        return self._max_context_size
+
     def push(self, key: str, content: Any, role: ChatRoles = "human") -> ContextRaw:
         """Push a context message to the chat with the provided role."""
-        entry = ContextEntry(now(), role, str(content))
+        entry = ContextEntry(role, str(content))
         ctx = self._store[key]
         token_length = reduce(lambda total, e: total + len(e.content), ctx, 0) if len(ctx) > 0 else 0
         if (token_length := token_length + len(content)) > self._token_limit:
@@ -106,6 +112,10 @@ class ChatContext:
         """Forget all entries pushed to the chat context."""
         del self._store
         self._store = defaultdict(list)
+
+    def size(self, key: str) -> int:
+        """Return the amount of entries a context specified by key have."""
+        return len(self._store[key])
 
 
 if __name__ == "__main__":

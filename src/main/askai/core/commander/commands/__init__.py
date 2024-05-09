@@ -6,6 +6,7 @@
 """Package initialization."""
 
 __all__ = [
+    'general_cmd', 
     'settings_cmd', 
     'tts_stt_cmd'
 ]

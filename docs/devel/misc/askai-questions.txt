@@ -18,3 +18,8 @@ en_US
 14. find . -mxdepth 1 -type f -nme *.png
 
 
+Major Issues:
+
+1. Router is Not Understanding: 'What should I do first/second/third'
+2. query_output: 'Confused with the cross-references'
+3. Router should respond promptly from chat history.

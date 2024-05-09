@@ -9,6 +9,7 @@ __all__ = [
     'action_plan', 
     'ai_model', 
     'ai_reply', 
+    'category', 
     'rag_response', 
     'search_result', 
     'summary_result', 
