@@ -1,6 +1,6 @@
-from textual import events
-from textual.app import App, ComposeResult
-from textual.widgets import RichLog
+from textual_ui import events
+from textual_ui.app import App, ComposeResult
+from textual_ui.widgets import RichLog
 
 
 class KeyLogger(RichLog):

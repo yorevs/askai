@@ -1,8 +1,8 @@
 from pathlib import Path
 from sys import argv
-from textual.app import App, ComposeResult
-from textual.reactive import var
-from textual.widgets import Footer, MarkdownViewer
+from textual_ui.app import App, ComposeResult
+from textual_ui.reactive import var
+from textual_ui.widgets import Footer, MarkdownViewer
 
 
 class MarkdownApp(App):

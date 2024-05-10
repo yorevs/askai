@@ -94,12 +94,8 @@ class AskAiConfigs(metaclass=Singleton):
         return settings.get_int("askai.max.router.iteractions")
 
     @property
-    def max_context_size(self) -> int:
-        return settings.get_int("askai.max.context.size")
-
-    @property
-    def max_chat_history_size(self) -> int:
-        return settings.get_int("askai.max.chat.history.size")
+    def max_short_memory_size(self) -> int:
+        return settings.get_int("askai.max.short.memory.size")
 
     @property
     def max_router_retries(self) -> int:

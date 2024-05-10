@@ -20,6 +20,7 @@ from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_state
 from hspylib.modules.cli.keyboard import Keyboard
+from langchain.memory import ConversationBufferWindowMemory
 
 from askai.core.askai_configs import configs
 from askai.core.askai_prompt import prompt
@@ -40,8 +41,9 @@ class SharedInstances(metaclass=Singleton):
     def __init__(self) -> None:
         self._engine: AIEngine | None = None
         self._context: ChatContext | None = None
+        self._memory: ConversationBufferWindowMemory | None = None
         self._idiom: str = configs.language.idiom
-        self._max_context_size: int = configs.max_context_size
+        self._max_short_memory_size: int = configs.max_short_memory_size
         self._max_iteractions: int = configs.max_iteractions
 
     @property
@@ -75,8 +77,12 @@ class SharedInstances(metaclass=Singleton):
         return self._idiom
 
     @property
-    def max_context_size(self) -> int:
-        return self._max_context_size
+    def memory(self) -> ConversationBufferWindowMemory:
+        return self.create_memory()
+
+    @property
+    def max_short_memory_size(self) -> int:
+        return self._max_short_memory_size
 
     @property
     def max_iteractions(self) -> int:
@@ -91,8 +97,15 @@ class SharedInstances(metaclass=Singleton):
     def create_context(self, token_limit: int) -> ChatContext:
         """TODO"""
         if self._context is None:
-            self._context = ChatContext(token_limit, self.max_context_size)
+            self._context = ChatContext(token_limit, self.max_short_memory_size)
         return self._context
+
+    def create_memory(self, memory_key: str = "chat_history") -> ConversationBufferWindowMemory:
+        """TODO"""
+        if self._memory is None:
+            self._memory = ConversationBufferWindowMemory(
+                memory_key=memory_key, k=configs.max_short_memory_size, return_messages=True)
+        return self._memory
 
     def input_text(self, input_prompt: str, placeholder: str | None = None) -> Optional[str]:
         """Prompt for user input.

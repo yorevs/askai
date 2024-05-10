@@ -29,7 +29,7 @@ from hspylib.core.tools.text_tools import ensure_endswith, elide_text, strip_esc
 from hspylib.core.zoned_datetime import now
 from hspylib.modules.application.version import Version
 from hspylib.modules.eventbus.event import Event
-from textual import on, work
+from textual import work, on
 from textual.app import App, ComposeResult
 from textual.containers import ScrollableContainer
 from textual.suggester import SuggestFromList

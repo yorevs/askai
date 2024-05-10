@@ -7,6 +7,6 @@
 
 __all__ = [
     'components',
-    'textual'
+    'textual_ui'
 ]
 __version__ = '1.0.7'

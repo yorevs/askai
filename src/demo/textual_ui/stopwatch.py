@@ -1,7 +1,7 @@
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.reactive import reactive
-from textual.widgets import Button, Footer, Header, Static
+from textual_ui.app import App, ComposeResult
+from textual_ui.containers import ScrollableContainer
+from textual_ui.reactive import reactive
+from textual_ui.widgets import Button, Footer, Header, Static
 from time import monotonic
 
 

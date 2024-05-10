@@ -31,17 +31,3 @@ class Category(Enumeration):
     FINAL_ANSWER                        = 'Final Answer'
 
     # fmt: on
-
-    @classmethod
-    def template(cls) -> str:
-        return dedent(f"""
-        - Categorize the action plan and each action based on its nature. Use one of the following: {cls.values()}.
-
-        - Prioritize categories according to the sequence listed if the question overlaps multiple categories.
-
-        - Requests for **assistive technologies**, such as speech-to-text features, should be categorized under '{cls.ASSISTIVE_REQUESTS.value}'. Avoid mentioning them in the action items.
-
-        - If you receive any queries that are actually commands provided by the Human, categorize them under '{cls.TERMINAL_COMMAND.value}'. The "action" field will be: "Execute the command '<command>' provided by the Human." Correct any syntax errors and exclude the "path" field from the actions.
-
-        - Use the '{cls.FINAL_ANSWER}' category when you have a final answer even without the need of executing the action plan.
-        """)

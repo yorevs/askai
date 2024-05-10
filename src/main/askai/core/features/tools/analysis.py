@@ -24,6 +24,7 @@ from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from askai.core.support.utilities import ensure_ln
 
 
 def query_output(query: str, context: str = None) -> str:
@@ -52,4 +53,4 @@ def query_output(query: str, context: str = None) -> str:
             output = response.content
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(output), verbosity="debug")
 
-    return output or msg.translate("Sorry, I don't know.")
+    return ensure_ln(output or msg.translate("Sorry, I don't know."))

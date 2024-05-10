@@ -26,7 +26,7 @@ from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
-from hspylib.core.tools.text_tools import ensure_endswith
+from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
 from hspylib.modules.cli.vt100.vt_color import VtColor
 
 from askai.core.support.presets import Presets
@@ -189,3 +189,9 @@ def media_type_of(pathname: str) -> Optional[tuple[str, ...]] | None:
 def seconds(millis: int) -> float:
     """Return the amount of second from milliseconds."""
     return millis / 1000
+
+
+def ensure_ln(text: str) -> str:
+    """Ensure text starts and ends with new line."""
+    ln: str = os.linesep
+    return ensure_endswith(ensure_startswith(text, ln), ln)

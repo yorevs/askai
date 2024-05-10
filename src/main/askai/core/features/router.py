@@ -13,9 +13,8 @@
    Copyright (c) 2024, HomeSetup
 """
 import logging as log
+import re
 from pathlib import Path
-from textwrap import dedent
-from types import SimpleNamespace
 from typing import Any, Optional, Type, TypeAlias
 
 import PIL
@@ -26,7 +25,6 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from retry import retry
 
 from askai.core.askai_configs import configs
-from askai.core.askai_events import AskAiEvents
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.features.structured_agent import agent
@@ -47,11 +45,7 @@ class Router(metaclass=Singleton):
 
     INSTANCE: "Router"
 
-    HUMAN_PROMPT: str = dedent("""
-    {input}
-
-    (reminder to respond in a JSON blob and to use at least one action, no matter what).
-    """)
+    HUMAN_PROMPT: str = "\n(reminder to respond in a JSON blob no matter what)\n\nQuestion: '{input}'"
 
     # Allow the router to retry on the errors bellow.
     RETRIABLE_ERRORS: tuple[Type[Exception], ...] = (
@@ -76,7 +70,7 @@ class Router(metaclass=Singleton):
         )
         return ChatPromptTemplate.from_messages(
             [
-                ("system", template.format(home=Path.home(), categories=Category.template())),
+                ("system", template.format(home=Path.home(), categories=Category.values())),
                 MessagesPlaceholder("chat_history", optional=True),
                 ("assistant", scratchpad),
                 ("human", self.HUMAN_PROMPT),
@@ -92,7 +86,7 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
             runnable = RunnableWithMessageHistory(
                 runnable,
                 shared.context.flat,
@@ -100,23 +94,26 @@ class Router(metaclass=Singleton):
                 history_messages_key="chat_history",
             )
             if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
-                log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response))
-                _, json_string = extract_codeblock(response.content)
+                log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
+                json_string = self._parse_response(response.content)
                 plan: ActionPlan = object_mapper.of_json(json_string, ActionPlan)
                 if not isinstance(plan, ActionPlan):
                     raise InaccurateResponse(f"AI responded an invalid JSON blob -> {str(plan)}")
-                if not plan.actions:
-                    plan.category = plan.category if hasattr(plan, 'category') else Category.FINAL_ANSWER.value
-                    plan.ultimate_goal = plan.ultimate_goal if hasattr(plan, 'ultimate_goal') else query
-                    plan.actions = [SimpleNamespace(task=f"Answer the human: {query}")]
-                if hasattr(plan, 'thoughts') and hasattr(plan.thoughts, 'speak'):
-                    AskAiEvents.ASKAI_BUS.events.reply.emit(message=plan.thoughts.speak)
                 output = agent.invoke(query, plan)
             else:
                 output = response
             return output
 
         return _process_wrapper()
+
+    def _parse_response(self, response: str) -> str:
+        """TODO"""
+        json_string = response
+
+        if re.match(r'^`{3}(.+)`{3}$', response):
+            _, json_string = extract_codeblock(response)
+
+        return json_string
 
 
 assert (router := Router().INSTANCE) is not None

@@ -2,9 +2,8 @@ import logging as log
 from types import SimpleNamespace
 
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_argument, check_not_none
+from hspylib.core.preconditions import check_argument
 from langchain.agents import create_structured_chat_agent, AgentExecutor
-from langchain.memory import ConversationBufferWindowMemory
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
 
@@ -51,9 +50,10 @@ class StructuredAgent(metaclass=Singleton):
 
     @staticmethod
     def _assert_actions(actions, *attrs):
-        check_not_none(
-            actions,
-            "Invalid Actions (None)")
+        """TODO"""
+        check_argument(
+            actions is not None and len(actions) > 0,
+            "Invalid Actions (None or Empty)")
         check_argument(
             all(isinstance(act, SimpleNamespace) for act in actions),
             "Invalid action format (JSON)")
@@ -79,25 +79,21 @@ class StructuredAgent(metaclass=Singleton):
         output: str = ""
         actions: list[SimpleNamespace] = action_plan.actions
         self._assert_actions(actions, 'task', 'category')
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=action_plan.thoughts.speak)
         for action in actions:
             task = (
                 f"Task: {action.task}  "
-                f"{'Path: ' + action.path if hasattr(action, 'path') and action.path not in ['N/A', 'NONE'] else ''}"
+                f"{'Path: ' + action.path if hasattr(action, 'path') and action.path.upper() not in ['N/A', 'NONE'] else ''}"
             )
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {task}", verbosity="debug")
             if (response := self.lc_agent.invoke({"input": task})) and (output := response["output"]):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
                 assert_accuracy(task, output)
-                # If the assert fails, context will not be updated due to the raise of the exception.
                 shared.context.push("HISTORY", task)
                 shared.context.push("HISTORY", output, "assistant")
+                shared.memory.save_context({'input': task}, {'output': output})
                 continue
-
             raise InaccurateResponse("AI provided AN EMPTY response")
-
-        if len(action_plan) > 1:
-            # Provide a final RAG check to ensure the action plan has been accurately responded.
-            assert_accuracy(action_plan.ultimate_goal, output)
 
         return self._wrap_answer(query, action_plan.category, msg.translate(output))
 
@@ -106,10 +102,9 @@ class StructuredAgent(metaclass=Singleton):
         if self._lc_agent is None:
             tools = features.agent_tools()
             llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
-            chat_memory = ConversationBufferWindowMemory(
-                memory_key="chat_history", k=configs.max_chat_history_size, return_messages=True)
+            chat_memory = shared.memory
             lc_agent = create_structured_chat_agent(llm, tools, self.agent_template)
-            return AgentExecutor(
+            self._lc_agent = AgentExecutor(
                 agent=lc_agent,
                 tools=tools,
                 max_iteraction=configs.max_router_retries,
