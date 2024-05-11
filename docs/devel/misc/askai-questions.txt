@@ -23,3 +23,8 @@ Major Issues:
 1. Router is Not Understanding: 'What should I do first/second/third'
 2. query_output: 'Confused with the cross-references'
 3. Router should respond promptly from chat history.
+
+
+
+
+Start by including steps for accessing and opening the necessary files and folders, then, convert the subsequent tasks into a series of straightforward tasks, ensuring each action is stated clearly
