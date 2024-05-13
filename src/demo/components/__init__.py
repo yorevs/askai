@@ -7,8 +7,6 @@
 
 __all__ = [
     'internet_demo', 
-    'router_demo', 
-    'summarizer_demo', 
-    'tech_week_demo'
+    'summarizer_demo'
 ]
 __version__ = '1.0.7'

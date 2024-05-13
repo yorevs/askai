@@ -71,6 +71,9 @@ class AskAiSettings(metaclass=Singleton):
         return self._settings
 
     def search(self, filters: str | None = None) -> Optional[str]:
+        """Search setting using the specified filters.
+        :param filters: Filters used on the search.
+        """
         data = [(s.name, s.value) for s in self._settings.search(filters)]
         if data:
             table = Table(title="AskAI - Settings")

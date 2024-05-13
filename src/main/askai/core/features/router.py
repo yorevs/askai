@@ -27,7 +27,7 @@ from retry import retry
 from askai.core.askai_configs import configs
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.features.structured_agent import agent
+from askai.core.features.lc_agent import agent
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.category import Category
 from askai.core.support.langchain_support import lc_llm
@@ -50,6 +50,7 @@ class Router(metaclass=Singleton):
     # Allow the router to retry on the errors bellow.
     RETRIABLE_ERRORS: tuple[Type[Exception], ...] = (
         InaccurateResponse,
+        InvalidArgumentError,
         ValueError,
         AttributeError,
         InvalidArgumentError,
@@ -65,12 +66,15 @@ class Router(metaclass=Singleton):
         scratchpad: str = str(shared.context.flat("SCRATCHPAD"))
         template = PromptTemplate(
             input_variables=[
-                "home", "categories"
+                "home", "categories", "os_type", "shell"
             ], template=prompt.read_prompt("router.txt")
         )
         return ChatPromptTemplate.from_messages(
             [
-                ("system", template.format(home=Path.home(), categories=Category.values())),
+                ("system", template.format(
+                    home=Path.home(), categories=Category.values(),
+                    os_type=prompt.os_type, shell=prompt.shell
+                )),
                 MessagesPlaceholder("chat_history", optional=True),
                 ("assistant", scratchpad),
                 ("human", self.HUMAN_PROMPT),
@@ -95,10 +99,7 @@ class Router(metaclass=Singleton):
             )
             if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
-                json_string = self._parse_response(response.content)
-                plan: ActionPlan = object_mapper.of_json(json_string, ActionPlan)
-                if not isinstance(plan, ActionPlan):
-                    raise InaccurateResponse(f"AI responded an invalid JSON blob -> {str(plan)}")
+                plan = self._parse_response(response.content)
                 output = agent.invoke(query, plan)
             else:
                 output = response
@@ -106,14 +107,19 @@ class Router(metaclass=Singleton):
 
         return _process_wrapper()
 
-    def _parse_response(self, response: str) -> str:
-        """TODO"""
+    def _parse_response(self, response: str) -> ActionPlan:
+        """Parse the router response.
+        :param response: The router response. This should be a JSON blob, but
+        sometimes the AI responds with a straight JSON string.
+        """
         json_string = response
-
         if re.match(r'^`{3}(.+)`{3}$', response):
             _, json_string = extract_codeblock(response)
+        plan: ActionPlan = object_mapper.of_json(json_string, ActionPlan)
+        if not isinstance(plan, ActionPlan):
+            raise InaccurateResponse(f"AI responded an invalid JSON blob -> {str(plan)}")
 
-        return json_string
+        return plan
 
 
 assert (router := Router().INSTANCE) is not None

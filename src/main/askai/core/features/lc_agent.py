@@ -22,10 +22,10 @@ from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
 
 
-class StructuredAgent(metaclass=Singleton):
+class LCAgent(metaclass=Singleton):
     """TODO"""
 
-    INSTANCE: 'StructuredAgent'
+    INSTANCE: 'LCAgent'
 
     @staticmethod
     def _wrap_answer(query: str, category_str: str, response: str) -> str:
@@ -50,7 +50,9 @@ class StructuredAgent(metaclass=Singleton):
 
     @staticmethod
     def _assert_actions(actions, *attrs):
-        """TODO"""
+        """Assert the actions comply with the required fields.
+        :param actions: The actions to assert.
+        """
         check_argument(
             actions is not None and len(actions) > 0,
             "Invalid Actions (None or Empty)")
@@ -71,11 +73,13 @@ class StructuredAgent(metaclass=Singleton):
 
     @property
     def lc_agent(self) -> Runnable:
-        """TODO"""
         return self._create_lc_agent()
 
     def invoke(self, query: str, action_plan: ActionPlan) -> str:
-        """TODO"""
+        """Invoke the agent to respond the given query, using the specified action plan.
+        :param query: The user question.
+        :param action_plan: The AI action plan.
+        """
         output: str = ""
         actions: list[SimpleNamespace] = action_plan.actions
         self._assert_actions(actions, 'task', 'category')
@@ -98,7 +102,7 @@ class StructuredAgent(metaclass=Singleton):
         return self._wrap_answer(query, action_plan.category, msg.translate(output))
 
     def _create_lc_agent(self) -> Runnable:
-        """TODO"""
+        """Create the LangChain agent."""
         if self._lc_agent is None:
             tools = features.agent_tools()
             llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
@@ -117,4 +121,4 @@ class StructuredAgent(metaclass=Singleton):
         return self._lc_agent
 
 
-assert (agent := StructuredAgent().INSTANCE) is not None
+assert (agent := LCAgent().INSTANCE) is not None
