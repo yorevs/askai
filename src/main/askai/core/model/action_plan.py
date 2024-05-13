@@ -26,7 +26,7 @@ class ActionPlan:
 
     thoughts: SimpleNamespace = None
     category: str = None
-    ultimate_goal: str = None
+    primary_goal: str = None
     actions: list[SimpleNamespace] = None
 
     @staticmethod
@@ -34,15 +34,20 @@ class ActionPlan:
         """TODO"""
         plan = ActionPlan()
         plan.category = Category.FINAL_ANSWER.value
-        plan.ultimate_goal = query
+        plan.primary_goal = query
         plan.actions = [SimpleNamespace(task=f"Answer the human: {query}")]
         return plan
 
     def __str__(self):
+        sub_goals: str = '  '.join(f"{i + 1}. {g}" for i, g in enumerate(self.sub_goals))
+        actions: str = '.  '.join([f"{i + 1}. {a.task}" for i, a in enumerate(self.actions)])
         return (
-            f"Objective: {self.reasoning}  "
+            f"Reasoning: {self.reasoning}  "
             f"Observations: {self.thoughts.observations}  "
             f"Criticism: {self.thoughts.criticism}  "
+            f"Sub-Goals: [{sub_goals}]  "
+            f"Primary Goal: {self.primary_goal}  "
+            f"Actions: [{actions}]  ."
         )
 
     def __len__(self):
@@ -69,6 +74,6 @@ class ActionPlan:
         return self.thoughts.criticism
 
     @property
-    def goals(self) -> list[str]:
+    def sub_goals(self) -> list[str]:
         """TODO"""
-        return self.thoughts.sub_goals + [self.ultimate_goal]
+        return self.thoughts.sub_goals

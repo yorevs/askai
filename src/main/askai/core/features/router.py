@@ -15,6 +15,7 @@
 import logging as log
 import re
 from pathlib import Path
+from textwrap import dedent
 from typing import Any, Optional, Type, TypeAlias
 
 import PIL
@@ -45,7 +46,11 @@ class Router(metaclass=Singleton):
 
     INSTANCE: "Router"
 
-    HUMAN_PROMPT: str = "\n(reminder to respond in a JSON blob no matter what)\n\nQuestion: '{input}'"
+    HUMAN_PROMPT: str = dedent("""
+    (remember to identify all my goals and subgoals and to respond in a JSON blob no matter what)
+
+    Question: '{input}'
+    """)
 
     # Allow the router to retry on the errors bellow.
     RETRIABLE_ERRORS: tuple[Type[Exception], ...] = (
@@ -53,7 +58,6 @@ class Router(metaclass=Singleton):
         InvalidArgumentError,
         ValueError,
         AttributeError,
-        InvalidArgumentError,
         PIL.UnidentifiedImageError,
     )
 
@@ -90,7 +94,7 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.EXPLORATORY_CODE_WRITING.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.COLDEST.temp)
             runnable = RunnableWithMessageHistory(
                 runnable,
                 shared.context.flat,

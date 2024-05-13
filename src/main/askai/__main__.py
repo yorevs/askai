@@ -102,24 +102,24 @@ class Main(TUIApplication):
     def _main(self, *params, **kwargs) -> ExitStatus:
         """Run the application with the command line arguments."""
         os.chdir(Path.home())
-        is_new_ui: bool = to_bool(self.get_arg("ui"))
+        is_new_ui: bool = to_bool(self._get_argument("ui"))
         if not is_new_ui:
             self._askai = AskAi(
-                to_bool(self.get_arg("interactive")),
-                to_bool(self.get_arg("quiet")),
-                to_bool(self.get_arg("debug")),
+                to_bool(self._get_argument("interactive")),
+                to_bool(self._get_argument("quiet")),
+                to_bool(self._get_argument("debug")),
                 int(self._get_argument("tempo") or 1),
                 str(self._get_argument("prompt")),
-                str(self.get_arg("engine")),
-                str(self.get_arg("model")),
-                str(self.get_arg("query_string")),
+                str(self._get_argument("engine")),
+                str(self._get_argument("model")),
+                str(self._get_argument("query_string")),
             )
         else:
-            self._askai = app = AskAiApp(
-                to_bool(self.get_arg("quiet")),
+            self._askai = AskAiApp(
+                to_bool(self._get_argument("quiet")),
                 int(self._get_argument("tempo") or 1),
-                str(self.get_arg("engine")),
-                str(self.get_arg("model"))
+                str(self._get_argument("engine")),
+                str(self._get_argument("model"))
             )
 
         log.info(
@@ -148,6 +148,10 @@ class Main(TUIApplication):
                 return arg
             elif isinstance(arg, list):
                 return get_or_default(arg, 0, "")
+            elif isinstance(arg, bool):
+                return arg
+            elif isinstance(arg, int):
+                return arg
             else:
                 raise TypeError("Argument '' has an invalid type: ''", arg, type(arg))
         else:

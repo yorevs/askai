@@ -75,15 +75,15 @@ class LCAgent(metaclass=Singleton):
     def lc_agent(self) -> Runnable:
         return self._create_lc_agent()
 
-    def invoke(self, query: str, action_plan: ActionPlan) -> str:
+    def invoke(self, query: str, plan: ActionPlan) -> str:
         """Invoke the agent to respond the given query, using the specified action plan.
         :param query: The user question.
-        :param action_plan: The AI action plan.
+        :param plan: The AI action plan.
         """
         output: str = ""
-        actions: list[SimpleNamespace] = action_plan.actions
+        actions: list[SimpleNamespace] = plan.actions
         self._assert_actions(actions, 'task', 'category')
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=action_plan.thoughts.speak)
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=plan.thoughts.speak)
         for action in actions:
             task = (
                 f"Task: {action.task}  "
@@ -99,13 +99,15 @@ class LCAgent(metaclass=Singleton):
                 continue
             raise InaccurateResponse("AI provided AN EMPTY response")
 
-        return self._wrap_answer(query, action_plan.category, msg.translate(output))
+        assert_accuracy(plan.primary_goal, output)
+
+        return self._wrap_answer(query, plan.category, msg.translate(output))
 
     def _create_lc_agent(self) -> Runnable:
         """Create the LangChain agent."""
         if self._lc_agent is None:
             tools = features.agent_tools()
-            llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
+            llm = lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
             chat_memory = shared.memory
             lc_agent = create_structured_chat_agent(llm, tools, self.agent_template)
             self._lc_agent = AgentExecutor(
