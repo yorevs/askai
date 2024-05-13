@@ -15,7 +15,7 @@ Known Bad Responses:
 
 1. When evaluating responses, mark as 'Red' if the response fails to resolve the ultimate goal.
 
-2. Terminal commands should provide feedback as follows: if the command is executed successfully and correctly, return "Green"; if not, return "Red". For commands that yield no output, verify the successful execution before returning "Green".
+2. User commands executed on their machine should receive feedback as follows: return 'Green' if the command is appropriate and successful; return 'Red' otherwise.
 
 3. Upon receiving the following message: "Invalid or incomplete response", classify it as 'Red' since the agent failed to perform his action.
 

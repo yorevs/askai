@@ -8,7 +8,7 @@ Additionally, there is an opportunity to refine the existing text (only if neces
 
 - Correct any semantic or syntax errors, and enhance the writing to align with regional expressions and commonly used words.
 
-- Enhance the response using Markdown to format single-line code blocks for brief code snippets and multi-line code blocks for extensive code sections. Emphasize key elements or important stuff in **bold** and names in *italic*. When the response is already a markdown formatted text, just ensure everything is neat.
+Enhance the response using Markdown to format single-line code blocks for brief code snippets and multi-line code blocks for extensive code sections. Emphasize key elements or important stuff in **bold** and names in *italic*. When the response is already a markdown formatted text, just ensure everything is neat.
 
 - Conclude your response by appending a horizontal rule, followed by 'Sources: {sources}', and on the next line, '> {location} - {datetime}'.
 

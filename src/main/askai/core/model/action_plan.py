@@ -13,7 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import json
 from dataclasses import dataclass
 from types import SimpleNamespace
 
@@ -40,7 +39,11 @@ class ActionPlan:
         return plan
 
     def __str__(self):
-        return f"Action Plan: {json.dumps(self.__dict__, default=lambda obj: obj.__dict__)}"
+        return (
+            f"Objective: {self.reasoning}  "
+            f"Observations: {self.thoughts.observations}  "
+            f"Criticism: {self.thoughts.criticism}  "
+        )
 
     def __len__(self):
         return len(self.actions)
@@ -49,3 +52,23 @@ class ActionPlan:
     def speak(self) -> str:
         """TODO"""
         return msg.translate(self.thoughts.speak)
+
+    @property
+    def reasoning(self) -> str:
+        """TODO"""
+        return self.thoughts.reasoning
+
+    @property
+    def observations(self) -> str:
+        """TODO"""
+        return self.thoughts.observations
+
+    @property
+    def criticism(self) -> str:
+        """TODO"""
+        return self.thoughts.criticism
+
+    @property
+    def goals(self) -> list[str]:
+        """TODO"""
+        return self.thoughts.sub_goals + [self.ultimate_goal]

@@ -90,7 +90,7 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.EXPLORATORY_CODE_WRITING.temp)
             runnable = RunnableWithMessageHistory(
                 runnable,
                 shared.context.flat,
