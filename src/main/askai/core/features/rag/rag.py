@@ -16,7 +16,8 @@
 import logging as log
 
 from langchain_core.messages import AIMessage
-from langchain_core.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -70,15 +71,26 @@ def resolve_x_refs(ref_name: str, context: str | None) -> str:
     :param context: The context to analyze the references.
     """
     output = ref_name
+    template = ChatPromptTemplate.from_messages(
+        [
+            ("system", prompt.read_prompt("x-references")),
+            MessagesPlaceholder("chat_history", optional=True),
+            ("human", "{input}"),
+        ]
+    )
     if context or (context := str(shared.context.flat("HISTORY"))):
-        template = PromptTemplate(input_variables=["context", "pathname"], template=prompt.read_prompt("x-references"))
-        final_prompt = template.format(context=context, pathname=ref_name)
-        log.info("X-REFS::[QUESTION] %s => CTX: '%s'", ref_name, context)
-        llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.x_reference(), verbosity="debug")
-
-        if (result := llm.invoke(final_prompt).content.strip()) and shared.UNCERTAIN_ID not in result:
-            output = result
+        runnable = template | lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+        runnable = RunnableWithMessageHistory(
+            runnable,
+            shared.context.flat,
+            input_messages_key="input",
+            history_messages_key="chat_history",
+        )
+        log.info("Analysis::[QUERY] '%s'  context=%s", ref_name, context)
+        response = runnable.invoke({"input": ref_name}, config={"configurable": {"session_id": "HISTORY"}})
+        if response and (output := response.content) and shared.UNCERTAIN_ID != output:
+            output = response.content
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(output), verbosity="debug")
 
     return output
 
