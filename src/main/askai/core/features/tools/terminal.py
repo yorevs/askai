@@ -49,13 +49,13 @@ def open_command(path_name: str) -> str:
     """Open the specified path, regardless if it's a file, folder or application.
     :param path_name: The file path to open.
     """
-    posix_path = PathObject.of(path_name)
+    posix_path: PathObject = PathObject.of(path_name)
     if not posix_path.exists:
         # Attempt to resolve cross-references
         if history := str(shared.context.flat("HISTORY") or ""):
             if x_referenced := resolve_x_refs(path_name, history):
-                x_referenced = PathObject.of(x_referenced)
-                posix_path = str(x_referenced) if x_referenced.exists else posix_path
+                path_name: PathObject = PathObject.of(x_referenced)
+                posix_path: str = str(path_name) if path_name.exists else posix_path
 
     if posix_path.exists:
         # find the best app to open the file.

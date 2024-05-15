@@ -2,12 +2,10 @@
 #
 # "askai" v1.0.7
 #
-# Package: demo.features
+# Package: demo.features.rag
 """Package initialization."""
 
 __all__ = [
-    'rag', 
-    'router_demo', 
-    'tools'
+    'x_refs_demo'
 ]
 __version__ = '1.0.7'

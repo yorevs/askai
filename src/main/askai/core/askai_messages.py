@@ -114,8 +114,8 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"@ Action plan: `{plan_text}`")
 
     @lru_cache
-    def x_reference(self) -> str:
-        return self.translate(f"> Looking for **X-References**…")
+    def x_reference(self, pathname: str) -> str:
+        return self.translate(f"> Resolving X-References: `{pathname}`")
 
     @lru_cache
     def describe_image(self, image_path: str) -> str:

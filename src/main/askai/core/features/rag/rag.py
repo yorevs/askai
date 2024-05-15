@@ -65,32 +65,32 @@ def assert_accuracy(question: str, ai_response: str) -> None:
     raise InaccurateResponse(f"AI Assistant didn't respond accurately => '{response.content}'")
 
 
-def resolve_x_refs(ref_name: str, context: str | None) -> str:
+def resolve_x_refs(ref_name: str, context: str | None = None) -> str:
     """Replace all cross references by their actual values.
     :param ref_name: The cross-reference or variable name.
     :param context: The context to analyze the references.
     """
-    output = ref_name
     template = ChatPromptTemplate.from_messages(
         [
             ("system", prompt.read_prompt("x-references")),
-            MessagesPlaceholder("chat_history", optional=True),
-            ("human", "{input}"),
+            MessagesPlaceholder("context", optional=True),
+            ("human", "{pathname}"),
         ]
     )
+    output = ref_name
     if context or (context := str(shared.context.flat("HISTORY"))):
         runnable = template | lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
         runnable = RunnableWithMessageHistory(
             runnable,
             shared.context.flat,
-            input_messages_key="input",
-            history_messages_key="chat_history",
+            input_messages_key="pathname",
+            history_messages_key="context",
         )
         log.info("Analysis::[QUERY] '%s'  context=%s", ref_name, context)
-        response = runnable.invoke({"input": ref_name}, config={"configurable": {"session_id": "HISTORY"}})
+        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.x_reference(ref_name), verbosity="debug")
+        response = runnable.invoke({"pathname": ref_name}, config={"configurable": {"session_id": "HISTORY"}})
         if response and (output := response.content) and shared.UNCERTAIN_ID != output:
             output = response.content
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(output), verbosity="debug")
 
     return output
 

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 from PIL import Image
 from askai.core.askai_events import AskAiEvents
@@ -8,16 +10,16 @@ from hspylib.core.config.path_object import PathObject
 from transformers import BlipForConditionalGeneration, BlipProcessor
 
 
-def image_captioner(path_name: str) -> str:
+def image_captioner(path_name: str) -> Optional[str]:
     """This tool is used to describe an image."""
-    caption = None
-    posix_path = PathObject.of(path_name)
+    caption: str | None = None
+    posix_path: PathObject = PathObject.of(path_name)
     if not posix_path.exists:
         # Attempt to resolve cross-references
         if history := str(shared.context.flat("HISTORY") or ""):
             if x_referenced := resolve_x_refs(path_name, history):
-                x_referenced = PathObject.of(x_referenced)
-                posix_path = x_referenced if x_referenced.exists else posix_path
+                path_name: PathObject = PathObject.of(x_referenced)
+                posix_path: str = str(path_name) if path_name.exists else posix_path
 
     if posix_path.exists:
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.describe_image(str(posix_path)))
@@ -38,5 +40,6 @@ def image_captioner(path_name: str) -> str:
         out = model.generate(**inputs, max_new_tokens=20)
         # get the caption
         caption = processor.decode(out[0], skip_special_tokens=True)
+        caption = msg.translate(f"Caption of '{path_name}' => {caption.title() if caption else 'I dont know'}")
 
-    return f"Analysis: File: {path_name} => {caption.title()}" or msg.translate(f"File: '{path_name}' was not found!")
+    return caption
