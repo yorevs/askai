@@ -78,8 +78,9 @@ class RouterAgent(metaclass=Singleton):
         self._assert_actions(actions, "task", "category")
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=plan.thoughts.speak)
         for action in actions:
-            ap: str = action.path
-            path_str: str = 'Path: ' + ap if hasattr(action, 'path') and ap.upper() not in ['N/A', 'NONE'] else ''
+            path_str: str = 'Path: ' + action.path \
+                if hasattr(action, 'path') and action.path.upper() not in ['N/A', 'NONE'] \
+                else ''
             task = f"Task: {action.task}  {path_str}"
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {task}", verbosity="debug")
             if (response := self.lc_agent.invoke({"input": task})) and (output := response["output"]):
@@ -98,7 +99,7 @@ class RouterAgent(metaclass=Singleton):
     def _create_lc_agent(self) -> Runnable:
         """Create the LangChain agent."""
         if self._lc_agent is None:
-            tools = features.agent_tools()
+            tools = features.tools()
             llm = lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
             chat_memory = shared.memory
             lc_agent = create_structured_chat_agent(llm, tools, self.agent_template)

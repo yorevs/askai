@@ -15,6 +15,10 @@ package: hspylib-setman, version: 0.10.35, mode: ge
 
 /* Application dependencies */
 
+package: langchain, version: 0.1.20, mode: eq
+package: langchain-openai, version: 0.1.7, mode: eq
+package: langchain-community, version: 0.0.38, mode: eq
+package: langchainhub, version: 0.1.15, mode: eq
 package: retry2, version: 0.9.5, mode: eq
 package: pause, version: 0.3, mode: eq
 package: requests, version: 2.31.0, mode: eq
@@ -24,10 +28,6 @@ package: torch, version: 2.2.0, mode: eq
 package: stanza, version: 1.1.1, mode: eq
 package: soundfile, version: 0.12.1, mode: eq
 package: urllib3, version: 1.26.18, mode: eq
-package: langchain, version: 0.1.12, mode: ge
-package: langchain-openai, version: 0.0.8, mode: eq
-package: langchain-community, version: 0.0.28, mode: eq
-package: langchainhub
 package: unstructured, version: 0.12.4, mode: eq
 package: unstructured[md], version: 0.12.4, mode: eq
 package: python-magic-bin, version: 0.4.14, mode: eq

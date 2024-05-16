@@ -1,8 +1,12 @@
 ###### AUTO-GENERATED Requirements file for: askai ######
 
 hspylib>=1.12.38
-hspylib-clitt>=0.9.122
+hspylib-clitt>=0.9.124
 hspylib-setman>=0.10.35
+langchain
+langchain-openai
+langchain-community
+langchainhub
 retry2==0.9.5
 pause==0.3
 requests==2.31.0
@@ -12,10 +16,6 @@ torch==2.2.0
 stanza==1.1.1
 soundfile==0.12.1
 urllib3==1.26.18
-langchain>=0.1.12
-langchain-openai==0.0.8
-langchain-community==0.0.28
-langchainhub
 unstructured==0.12.4
 unstructured[md]==0.12.4
 python-magic-bin==0.4.14

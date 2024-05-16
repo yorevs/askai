@@ -53,9 +53,9 @@ def open_command(path_name: str) -> str:
     if not posix_path.exists:
         # Attempt to resolve cross-references
         if history := str(shared.context.flat("HISTORY") or ""):
-            if x_referenced := resolve_x_refs(path_name, history):
-                path_name: PathObject = PathObject.of(x_referenced)
-                posix_path: str = str(path_name) if path_name.exists else posix_path
+            if (x_referenced := resolve_x_refs(path_name, history)) and x_referenced != shared.UNCERTAIN_ID:
+                x_ref_path: PathObject = PathObject.of(x_referenced)
+                posix_path: PathObject = x_ref_path if x_ref_path.exists else posix_path
 
     if posix_path.exists:
         # find the best app to open the file.

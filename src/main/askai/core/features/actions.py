@@ -38,7 +38,7 @@ class Actions(metaclass=Singleton):
 
     INSTANCE: "Actions"
 
-    RESERVED: list[str] = ["agent_tools"]
+    RESERVED: list[str] = ["tools"]
 
     def __init__(self):
         """TODO"""
@@ -50,9 +50,9 @@ class Actions(metaclass=Singleton):
         )
 
     @lru_cache
-    def agent_tools(self) -> list[BaseTool]:
-        """TODO"""
-        tools: list[BaseTool] = [self._create_agent_tool(v) for _, v in self._all.items()]
+    def tools(self) -> list[BaseTool]:
+        """Return a list of Langchain base tools."""
+        tools: list[BaseTool] = [self._create_structured_tool(v) for _, v in self._all.items()]
 
         log.debug("Available tools: are: '%s'", tools)
 
@@ -67,9 +67,8 @@ class Actions(metaclass=Singleton):
 
         return self._approved
 
-    def _create_agent_tool(self, fn: Callable) -> BaseTool:
+    def _create_structured_tool(self, fn: Callable) -> BaseTool:
         """Create the LangChain agent tool."""
-
         return StructuredTool.from_function(
             fn,
             name=fn.__name__,
@@ -79,7 +78,7 @@ class Actions(metaclass=Singleton):
 
     def browse(self, search_query: str) -> str:
         """
-        Name: 'browse'
+        Name: 'Google Search'
         Description: Use this tool to browse the internet or to stay informed about the latest news and current events, especially when you require up-to-date information quickly. It is especially effective for accessing the most recent data available online.
         Usage: 'browse(search_query)'
           input `search_query`: The web search query in string format.
@@ -88,8 +87,8 @@ class Actions(metaclass=Singleton):
 
     def query_output(self, query: str) -> str:
         """
-        Name: 'query_output'
-        Description: Use this tool to search or analyze textual content and identify the presence of files, folders, and applications. It is designed to process and analyze content that is already available in textual form, but not to read or extract file contents directly.
+        Name: 'Analyze Output'
+        Description: Use this tool to analyze textual content to identify the presence of files, folders, and applications. It is designed to process and analyze content that is already available in textual form, but not to read or extract file contents directly.
         Usage: `query_output(query)`
           input `query`: The query regarding the output. Prefer using "Identify <file types or name or textual content>".
         """
@@ -97,7 +96,7 @@ class Actions(metaclass=Singleton):
 
     def image_captioner(self, image_path: str) -> str:
         """
-        Name: 'image_captioner'
+        Name: 'Describe Image'
         Description: Use this tool to provide a textual description of a visual content, such as, image files.
         Usage: image_captioner(image_path)
           input `image_path`: The file path of the image to be analyzed.
@@ -106,7 +105,7 @@ class Actions(metaclass=Singleton):
 
     def generate_content(self, instructions: str, mime_type: str, path_name: str) -> str:
         """
-        Name: 'generate_content'
+        Name: 'Generate Content'
         Description: Use this tool for tasks that require generating any content such as, code, text, image, and others.
         Usage: generate_content(instructions, mime_type, path_name)
           input `instructions`: These are the instructions for generating content (not the content itself).
@@ -117,8 +116,8 @@ class Actions(metaclass=Singleton):
 
     def display_tool(self, answer: list[str] | str) -> str:
         """
-        Name: 'display_tool'
-        Description: Use this tool to display conversation responses, or any textual information.
+        Name: 'Display Tool'
+        Description: Use this tool to display textual information.
         Usage: 'display_tool(text, ...repeat N times)'
           input `texts`: The comma separated list of texts to be displayed.
         """
@@ -126,8 +125,8 @@ class Actions(metaclass=Singleton):
 
     def list_tool(self, folder: str) -> str:
         """
-        Name: 'list_tool'
-        Description: Use this tool to list or access the contents of a specified folder.
+        Name: 'List Folder'
+        Description: Use this tool to access the contents of a specified folder.
         Usage: 'list_tool(folder)'
           input `folder`: A string representing the name of the directory whose contents you wish to list.
         """
@@ -135,8 +134,8 @@ class Actions(metaclass=Singleton):
 
     def open_tool(self, path_name: str) -> str:
         """
-        Name: 'open_tool'
-        Description: Use this tool to open, show or read content of files, folders, or applications. This can be also be to play media files.
+        Name: 'Open Tool'
+        Description: Use this tool to open, show or read content of files. This can be also be to play media files.
         Usage: 'open_tool(pathname)'
           input `path_name`: The absolute file, folder, or application path name.
         """
@@ -144,7 +143,7 @@ class Actions(metaclass=Singleton):
 
     def summarize(self, folder_name: str, glob) -> str:
         """
-        Name: 'summarize'
+        Name: 'Summarize Tool'
         Description: Use this tool only when the user explicitly requests a summary of files and folders.
         Usage: summarize(folder_name, glob)
           input `folder_name`: Name of the base directory containing the files.
@@ -154,8 +153,8 @@ class Actions(metaclass=Singleton):
 
     def terminal(self, shell_type: str, command: str) -> str:
         """
-        Name: 'terminal'
-        Description: Use this tool to execute terminal commands directly within the user shell or process user-provided commands efficiently.
+        Name: 'Terminal Command'
+        Description: Use this tool to execute terminal commands or process user-provided commands. This is also useful when no other tool is suitable to answer the user's request."
         Usage: 'terminal(shell_type, command)'
           input `shell_type`: A string that specifies the type of shell type (e.g. bash, zsh, powershell, etc).
           input `command`: The actual commands you wish to execute in the terminal.
@@ -165,7 +164,7 @@ class Actions(metaclass=Singleton):
 
     def terminate(self, reason: str) -> None:
         """
-        Name: 'terminate'
+        Name: 'Task Complete (Shutdown)'
         Description: Use this tool when the user decides to conclude the interaction.
         Usage: 'terminate(reason)'
           input `reason`: A string indicating the reason for termination.
