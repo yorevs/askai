@@ -13,18 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-import os
-from threading import Thread
-from typing import List, Optional
-
-import langchain_openai
-import pause
-from hspylib.core.preconditions import check_not_none
-from langchain_core.embeddings import Embeddings
-from langchain_core.language_models import BaseChatModel, BaseLLM
-from openai import APIError, OpenAI
-
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.component.cache_service import CacheService
 from askai.core.component.recorder import Recorder
@@ -33,6 +21,17 @@ from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.model.ai_model import AIModel
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.utilities import stream_text
+from hspylib.core.preconditions import check_not_none
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models import BaseChatModel, BaseLLM
+from openai import APIError, OpenAI
+from threading import Thread
+from typing import List, Optional
+
+import langchain_openai
+import logging as log
+import os
+import pause
 
 
 class OpenAIEngine:
@@ -105,8 +104,7 @@ class OpenAIEngine:
             check_not_none(chat_context)
             log.debug(f"Generating AI answer")
             response = self.client.chat.completions.create(
-                model=self.ai_model_name(), messages=chat_context,
-                temperature=temperature, top_p=top_p
+                model=self.ai_model_name(), messages=chat_context, temperature=temperature, top_p=top_p
             )
             reply = AIReply(response.choices[0].message.content, True)
             log.debug("Response received from LLM: %s", str(reply))
@@ -122,7 +120,8 @@ class OpenAIEngine:
         :param prefix: The prefix of the streamed text.
         """
         speech_file_path, file_exists = CacheService.get_audio_file(
-            text, self._configs.tts_voice, self._configs.tts_format)
+            text, self._configs.tts_voice, self._configs.tts_format
+        )
         if not file_exists:
             log.debug(f'Audio file "%s" not found in cache. Generating from %s.', self.nickname(), speech_file_path)
             response = self.client.audio.speech.create(

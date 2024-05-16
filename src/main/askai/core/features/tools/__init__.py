@@ -5,13 +5,5 @@
 # Package: main.askai.core.features.tools
 """Package initialization."""
 
-__all__ = [
-    'analysis', 
-    'browser', 
-    'general', 
-    'generation', 
-    'summarization', 
-    'terminal', 
-    'vision'
-]
-__version__ = '1.0.7'
+__all__ = ["analysis", "browser", "general", "generation", "summarization", "terminal", "vision"]
+__version__ = "1.0.7"

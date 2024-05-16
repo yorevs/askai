@@ -145,9 +145,7 @@ class MerlinApp(App):
 
     def check_win(self) -> bool:
         """Check for a win."""
-        on_switches = {
-            int(switch.name or "0") for switch in self.query(Switch) if switch.value
-        }
+        on_switches = {int(switch.name or "0") for switch in self.query(Switch) if switch.value}
         return on_switches == {1, 2, 3, 4, 6, 7, 8, 9}
 
     def on_switch_changed(self, event: Switch.Changed) -> None:

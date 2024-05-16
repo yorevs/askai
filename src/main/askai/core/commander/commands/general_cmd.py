@@ -12,14 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import re
 from abc import ABC
-
+from askai.core.support.shared_instances import shared
+from askai.core.support.text_formatter import text_formatter
 from clitt.core.term.terminal import Terminal
 from hspylib.modules.application.exit_status import ExitStatus
 
-from askai.core.support.shared_instances import shared
-from askai.core.support.text_formatter import text_formatter
+import re
 
 
 class GeneralCmd(ABC):
@@ -31,7 +30,7 @@ class GeneralCmd(ABC):
         :param context: The context key; or none to forget all context.
         """
         if context:
-            shared.context.clear(*(re.split(r'[;,|]', context.upper())))
+            shared.context.clear(*(re.split(r"[;,|]", context.upper())))
         else:
             shared.context.forget()
         text_formatter.cmd_print(f"Context %GREEN%'{context.upper() or 'ALL'}'%NC% has been reset!")

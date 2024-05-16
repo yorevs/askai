@@ -1,25 +1,20 @@
-import atexit
-import logging as log
-from pathlib import Path
-from typing import Literal
-
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import log_init
-from hspylib.core.tools.text_tools import ensure_endswith
-
 from askai.__classpath__ import classpath
 from askai.core.askai_events import AskAiEvents
 from askai.core.component.cache_service import cache
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import log_init
+from hspylib.core.tools.text_tools import ensure_endswith
+from pathlib import Path
+from typing import Literal
 
-BASE_DIR: str = str(classpath.resource_path()).replace('/main/askai/', '/demo/')
+import atexit
+import logging as log
 
-RESOURCES: dict[str, any] = {
-    "files": "ctx-files.txt",
-    "reminders": "ctx-reminders.txt",
-    "songs": "ctx-songs.txt",
-}
+BASE_DIR: str = str(classpath.resource_path()).replace("/main/askai/", "/demo/")
+
+RESOURCES: dict[str, any] = {"files": "ctx-files.txt", "reminders": "ctx-reminders.txt", "songs": "ctx-songs.txt"}
 
 
 def init_context(

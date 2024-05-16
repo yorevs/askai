@@ -27,7 +27,7 @@ import threading
 class Scheduler(Thread, metaclass=Singleton):
     """Provide a scheduler class."""
 
-    INSTANCE: 'Scheduler'
+    INSTANCE: "Scheduler"
 
     _done = False
 
@@ -73,10 +73,13 @@ class Scheduler(Thread, metaclass=Singleton):
 
     def schedule(
         self,
-        hh: int, mm: int, ss: int, us: int,
+        hh: int,
+        mm: int,
+        ss: int,
+        us: int,
         callback: Callable,
         cb_fn_args: Iterable | None = None,
-        cb_fn_kwargs: Mapping[str, Any] | None = None
+        cb_fn_kwargs: Mapping[str, Any] | None = None,
     ) -> None:
         """Schedule a task to run at specific time in future.
         :param hh: The hour of the day.
@@ -87,8 +90,7 @@ class Scheduler(Thread, metaclass=Singleton):
         :param cb_fn_args: The arguments of the callback function.
         :param cb_fn_kwargs: The keyword arguments of the callback function.
         """
-        run_at: datetime = self._today.replace(
-            day=self._today.day, hour=hh, minute=mm, second=ss, microsecond=us)
+        run_at: datetime = self._today.replace(day=self._today.day, hour=hh, minute=mm, second=ss, microsecond=us)
         delta_t: timedelta = run_at - self._today
         check_argument(delta_t.total_seconds() > 0, ">> Time is in the past <<")
         secs: float = max(0, delta_t.seconds) + 1
@@ -111,7 +113,7 @@ class Scheduler(Thread, metaclass=Singleton):
         callback: Callable,
         delay_ms: int = 0,
         cb_fn_args: Iterable | None = None,
-        cb_fn_kwargs: Mapping[str, Any] | None = None
+        cb_fn_kwargs: Mapping[str, Any] | None = None,
     ) -> None:
         """Schedule a task to run every interval in milliseconds.
         :param interval_ms: The interval in milliseconds, to invoke the callback function.

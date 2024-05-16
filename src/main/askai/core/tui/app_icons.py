@@ -6,13 +6,13 @@ class AppIcons(Enumeration):
 
     # icons:                        鬒
 
-    DEFAULT         = ''
-    MENU            = ''
-    INFO            = ''
-    HELP            = ''
-    CONSOLE         = ''
-    SETTINGS        = ''
-    DEBUG_ON        = ''
-    DEBUG_OFF       = ''
-    SPEAKING_ON     = ''
-    SPEAKING_OFF    = '婢'
+    DEFAULT = ""
+    MENU = ""
+    INFO = ""
+    HELP = ""
+    CONSOLE = ""
+    SETTINGS = ""
+    DEBUG_ON = ""
+    DEBUG_OFF = ""
+    SPEAKING_ON = ""
+    SPEAKING_OFF = "婢"

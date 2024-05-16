@@ -13,11 +13,10 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from dataclasses import dataclass
-from types import SimpleNamespace
-
 from askai.core.askai_messages import msg
 from askai.core.model.category import Category
+from dataclasses import dataclass
+from types import SimpleNamespace
 
 
 @dataclass
@@ -30,7 +29,7 @@ class ActionPlan:
     actions: list[SimpleNamespace] = None
 
     @staticmethod
-    def final(query: str) -> 'ActionPlan':
+    def final(query: str) -> "ActionPlan":
         """TODO"""
         plan = ActionPlan()
         plan.category = Category.FINAL_ANSWER.value
@@ -39,8 +38,8 @@ class ActionPlan:
         return plan
 
     def __str__(self):
-        sub_goals: str = '  '.join(f"{i + 1}. {g}" for i, g in enumerate(self.sub_goals))
-        actions: str = '.  '.join([f"{i + 1}. {a.task}" for i, a in enumerate(self.actions)])
+        sub_goals: str = "  ".join(f"{i + 1}. {g}" for i, g in enumerate(self.sub_goals))
+        actions: str = ".  ".join([f"{i + 1}. {a.task}" for i, a in enumerate(self.actions)])
         return (
             f"Reasoning: {self.reasoning}  "
             f"Observations: {self.thoughts.observations}  "

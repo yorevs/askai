@@ -5,7 +5,5 @@
 # Package: main.askai.core.features.rag
 """Package initialization."""
 
-__all__ = [
-    'rag'
-]
-__version__ = '1.0.7'
+__all__ = ["rag"]
+__version__ = "1.0.7"

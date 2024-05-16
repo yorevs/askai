@@ -13,12 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.runnables.history import RunnableWithMessageHistory
-
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -27,6 +21,11 @@ from askai.core.model.rag_response import RagResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
+import logging as log
 
 
 def assert_accuracy(question: str, ai_response: str) -> None:
@@ -34,8 +33,7 @@ def assert_accuracy(question: str, ai_response: str) -> None:
     :param question: The user question.
     :param ai_response: The AI response to be analysed.
     """
-    issues_prompt = PromptTemplate(
-        input_variables=["problems"], template=prompt.read_prompt("assert"))
+    issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("assert"))
     if ai_response in msg.accurate_responses:
         return
     elif not ai_response:
@@ -44,8 +42,7 @@ def assert_accuracy(question: str, ai_response: str) -> None:
         shared.context.push("SCRATCHPAD", issues_prompt.format(problems=RagResponse.strip_code(empty_msg)))
         raise InaccurateResponse(problems)
 
-    assert_template = PromptTemplate(
-        input_variables=["input", "goals", "response"], template=prompt.read_prompt("rag"))
+    assert_template = PromptTemplate(input_variables=["input", "goals", "response"], template=prompt.read_prompt("rag"))
     final_prompt = assert_template.format(input=question, response=ai_response)
     log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
@@ -81,10 +78,7 @@ def resolve_x_refs(ref_name: str, context: str | None = None) -> str:
     if context or (context := str(shared.context.flat("HISTORY"))):
         runnable = template | lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
         runnable = RunnableWithMessageHistory(
-            runnable,
-            shared.context.flat,
-            input_messages_key="pathname",
-            history_messages_key="context",
+            runnable, shared.context.flat, input_messages_key="pathname", history_messages_key="context"
         )
         log.info("Analysis::[QUERY] '%s'  context=%s", ref_name, context)
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.x_reference(ref_name), verbosity="debug")
@@ -112,8 +106,7 @@ def final_answer(
     output = response
     if response:
         template = PromptTemplate(
-            input_variables=["user", "idiom", "context", "question"],
-            template=prompt.read_prompt(persona_prompt)
+            input_variables=["user", "idiom", "context", "question"], template=prompt.read_prompt(persona_prompt)
         )
         final_prompt = template.format(user=username, idiom=idiom, context=response, question=question)
         log.info("FETCH::[QUESTION] '%s'  context: '%s'", question, response)

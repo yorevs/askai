@@ -13,19 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-import operator
-from pathlib import Path
-from typing import Callable, Optional, Tuple
-
-import pause
-from clitt.core.term.cursor import cursor
-from clitt.core.tui.mselect.mselect import mselect
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.zoned_datetime import now_ms
-from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -34,6 +21,18 @@ from askai.core.component.scheduler import Scheduler
 from askai.core.support.utilities import display_text, seconds
 from askai.exception.exceptions import IntelligibleAudioError, InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
+from clitt.core.term.cursor import cursor
+from clitt.core.tui.mselect.mselect import mselect
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.zoned_datetime import now_ms
+from pathlib import Path
+from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
+from typing import Callable, Optional, Tuple
+
+import logging as log
+import operator
+import pause
 
 
 class Recorder(metaclass=Singleton):
@@ -114,9 +113,7 @@ class Recorder(metaclass=Singleton):
         return configs.recorder_input_device_auto_swap
 
     def listen(
-        self,
-        recognition_api: RecognitionApi = RecognitionApi.OPEN_AI,
-        language: Language = Language.EN_US
+        self, recognition_api: RecognitionApi = RecognitionApi.OPEN_AI, language: Language = Language.EN_US
     ) -> Tuple[Path, Optional[str]]:
         """listen to the microphone, save the AudioData as a wav file and then, transcribe the speech.
         :param recognition_api: the API to be used to recognize the speech.
@@ -130,7 +127,8 @@ class Recorder(metaclass=Singleton):
                 audio: AudioData = self._rec.listen(
                     source,
                     phrase_time_limit=seconds(configs.recorder_phrase_limit_millis),
-                    timeout=seconds(configs.recorder_silence_timeout_millis))
+                    timeout=seconds(configs.recorder_silence_timeout_millis),
+                )
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.transcribing(), erase_last=True)
                 with open(audio_path, "wb") as f_rec:
                     f_rec.write(audio.get_wav_data())

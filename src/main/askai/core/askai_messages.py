@@ -12,13 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from functools import cached_property, lru_cache
-
-from hspylib.core.metaclass.singleton import Singleton
-
 from askai.core.askai_configs import configs
 from askai.language.argos_translator import ArgosTranslator
 from askai.language.language import Language
+from functools import cached_property, lru_cache
+from hspylib.core.metaclass.singleton import Singleton
 
 
 class AskAiMessages(metaclass=Singleton):

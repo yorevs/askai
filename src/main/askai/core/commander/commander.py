@@ -13,13 +13,13 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import click
-
 from askai.core.askai_configs import configs
 from askai.core.commander.commands.general_cmd import GeneralCmd
 from askai.core.commander.commands.settings_cmd import SettingsCmd
 from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
 from askai.core.support.text_formatter import text_formatter
+
+import click
 
 HELP_MSG = """
 # AskAI Commander - HELP
@@ -61,9 +61,9 @@ def help() -> None:
 
 
 @ask_cli.command()
-@click.argument('operation', default='list')
-@click.argument('name', default='')
-@click.argument('value', default='')
+@click.argument("operation", default="list")
+@click.argument("name", default="")
+@click.argument("value", default="")
 def settings(operation: str, name: str | None = None, value: str | None = None) -> None:
     """Manage AskAI settings.
     :param operation The operation to manage settings.
@@ -71,13 +71,13 @@ def settings(operation: str, name: str | None = None, value: str | None = None) 
     :param value The settings value to be set.
     """
     match operation:
-        case 'list':
+        case "list":
             SettingsCmd.list(name)
-        case 'get':
+        case "get":
             SettingsCmd.get(name)
-        case 'set':
+        case "set":
             SettingsCmd.set(name, value)
-        case 'reset':
+        case "reset":
             SettingsCmd.reset()
         case _:
             err = str(click.BadParameter(f"Invalid settings operation: '{operation}'"))
@@ -85,17 +85,17 @@ def settings(operation: str, name: str | None = None, value: str | None = None) 
 
 
 @ask_cli.command()
-@click.argument('operation', default='list')
-@click.argument('name', default='')
+@click.argument("operation", default="list")
+@click.argument("name", default="")
 def devices(operation: str, name: str | None = None) -> None:
     """Manage the Audio Input devices.
     :param operation The operation to manage devices.
     :param name The device name to set.
     """
     match operation:
-        case 'list':
+        case "list":
             TtsSttCmd.device_list()
-        case 'set':
+        case "set":
             TtsSttCmd.device_set(name)
         case _:
             err = str(click.BadParameter(f"Invalid settings operation: '{operation}'"))
@@ -103,19 +103,19 @@ def devices(operation: str, name: str | None = None) -> None:
 
 
 @ask_cli.command()
-@click.argument('operation', default='list')
-@click.argument('name', default='onyx')
+@click.argument("operation", default="list")
+@click.argument("name", default="onyx")
 def voices(operation: str, name: str | int | None = None) -> None:
     """Manage the Text-To-Speech voices.
     :param operation The operation to manage voices.
     :param name The voice name.
     """
     match operation:
-        case 'list':
+        case "list":
             TtsSttCmd.voice_list()
-        case 'set':
+        case "set":
             TtsSttCmd.voice_set(name)
-        case 'play':
+        case "play":
             TtsSttCmd.voice_play(name)
         case _:
             err = str(click.BadParameter(f"Invalid voices operation: '{operation}'"))
@@ -123,7 +123,7 @@ def voices(operation: str, name: str | int | None = None) -> None:
 
 
 @ask_cli.command()
-@click.argument('speed', type=click.INT, default=1)
+@click.argument("speed", type=click.INT, default=1)
 def tempo(speed: int | None = None) -> None:
     """Adjust the Text-To-Speech tempo.
     :param speed The tempo to set.
@@ -146,7 +146,7 @@ def speak() -> None:
 
 
 @ask_cli.command()
-@click.argument('context', default='')
+@click.argument("context", default="")
 def forget(context: str | None = None) -> None:
     """Forget a specific or all chat context.
     :param context The context to reset.

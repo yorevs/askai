@@ -13,13 +13,9 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-import os
-import sys
-from pathlib import Path
-from textwrap import dedent
-from typing import Any, Optional
-
+from askai.__classpath__ import classpath
+from askai.core.askai import AskAi
+from askai.core.tui.askai_app import AskAiApp
 from clitt.core.term.commons import is_a_tty
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
@@ -29,10 +25,13 @@ from hspylib.core.zoned_datetime import now
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
+from pathlib import Path
+from textwrap import dedent
+from typing import Any, Optional
 
-from askai.__classpath__ import classpath
-from askai.core.askai import AskAi
-from askai.core.tui.askai_app import AskAiApp
+import logging as log
+import os
+import sys
 
 if not is_a_tty():
     log.getLogger().setLevel(log.ERROR)
@@ -119,7 +118,7 @@ class Main(TUIApplication):
                 to_bool(self._get_argument("quiet")),
                 int(self._get_argument("tempo") or 1),
                 str(self._get_argument("engine")),
-                str(self._get_argument("model"))
+                str(self._get_argument("model")),
             )
 
         log.info(

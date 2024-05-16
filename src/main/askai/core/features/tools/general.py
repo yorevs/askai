@@ -13,9 +13,9 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import os
-
 from askai.core.askai_messages import msg
+
+import os
 
 
 def display_tool(*texts: str) -> str:

@@ -13,36 +13,14 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-import os
-import re
-from contextlib import redirect_stdout
-from functools import partial
-from io import StringIO
-from pathlib import Path
-
-import nltk
-from cachetools import LRUCache
-from click import UsageError
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.text_tools import ensure_endswith, elide_text, strip_escapes
-from hspylib.core.zoned_datetime import now
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from textual import work, on
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.suggester import SuggestFromList
-from textual.widgets import MarkdownViewer, Input, Footer
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
-from askai.core.askai_events import AskAiEvents, ASKAI_BUS_NAME, REPLY_EVENT, REPLY_ERROR_EVENT
+from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import ask_cli
 from askai.core.component.audio_player import player
-from askai.core.component.cache_service import CACHE_DIR, cache
+from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
@@ -50,9 +28,30 @@ from askai.core.features.router import router
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
-from askai.core.tui.app_widgets import Splash, AppInfo
+from askai.core.tui.app_widgets import AppInfo, Splash
 from askai.core.tui.header import Header
-from askai.exception.exceptions import ImpossibleQuery, MaxInteractionsReached, InaccurateResponse, TerminatingQuery
+from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery
+from cachetools import LRUCache
+from click import UsageError
+from contextlib import redirect_stdout
+from functools import partial
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
+from hspylib.core.zoned_datetime import now
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from io import StringIO
+from pathlib import Path
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.containers import ScrollableContainer
+from textual.suggester import SuggestFromList
+from textual.widgets import Footer, Input, MarkdownViewer
+
+import logging as log
+import nltk
+import os
+import re
 
 SOURCE_DIR: Path = classpath.source_path()
 
@@ -64,26 +63,16 @@ class AskAiApp(App):
 
     CSS_PATH = f"{RESOURCE_DIR}/askai.tcss"
 
-    BINDINGS = [
-        ("q", "quit", "Quit"),
-        ("c", "clear", "Clear Console"),
-        ("s", "speaking", "Toggle Speaking"),
-    ]
+    BINDINGS = [("q", "quit", "Quit"), ("c", "clear", "Clear Console"), ("s", "speaking", "Toggle Speaking")]
 
     SPLASH_IMAGE: str = classpath.get_resource("splash.txt").read_text(encoding=Charset.UTF_8.val)
 
-    RE_ASKAI_CMD: str = r'^(?<!\\)/(\w+)( (.*))*$'
+    RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"
 
-    def __init__(
-        self,
-        quiet: bool,
-        tempo: int,
-        engine_name: str,
-        model_name: str,
-    ):
+    def __init__(self, quiet: bool, tempo: int, engine_name: str, model_name: str):
         super().__init__()
-        self._session_id = now('%Y%m%d')[:8]
-        self._input_history = ['/help', '/settings', '/voices', '/debug']
+        self._session_id = now("%Y%m%d")[:8]
+        self._input_history = ["/help", "/settings", "/voices", "/debug"]
         self._question: str | None = None
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
@@ -98,7 +87,7 @@ class AskAiApp(App):
     def __str__(self) -> str:
         device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
         device_info += f", AUTO-SWAP {'ON' if recorder.is_auto_swap else 'OFF'}"
-        speak_info = str(configs.tempo) + ' @' + shared.engine.configs.tts_voice
+        speak_info = str(configs.tempo) + " @" + shared.engine.configs.tts_voice
         cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, "…")
         return (
             f"     Engine: {self.engine} \n"
@@ -185,10 +174,7 @@ class AskAiApp(App):
             yield AppInfo("")
             yield Splash(self.SPLASH_IMAGE)
             yield MarkdownViewer()
-        yield Input(
-            placeholder=f"Message {self.engine.nickname()}",
-            suggester=suggester
-        )
+        yield Input(placeholder=f"Message {self.engine.nickname()}", suggester=suggester)
         yield Footer()
 
     async def on_mount(self) -> None:
@@ -220,7 +206,7 @@ class AskAiApp(App):
     async def action_clear(self) -> None:
         """Clear the output console."""
         self.enable_controls(False)
-        with open(self._console_path, 'w', encoding=Charset.UTF_8.val) as f_console:
+        with open(self._console_path, "w", encoding=Charset.UTF_8.val) as f_console:
             f_console.write(f"---\n\n# {now()}\n\n")
             f_console.flush()
             self._re_render = True
@@ -234,7 +220,7 @@ class AskAiApp(App):
     @work
     async def display_text(self, markdown_text: str) -> None:
         """Send the text to the Markdown console."""
-        with open(self._console_path, 'a', encoding=Charset.UTF_8.val) as f_console:
+        with open(self._console_path, "a", encoding=Charset.UTF_8.val) as f_console:
             final_text: str = text_formatter.beautify(f"{ensure_endswith(markdown_text, os.linesep * 2)}")
             f_console.write(final_text)
             f_console.flush()
@@ -281,9 +267,9 @@ class AskAiApp(App):
         try:
             if command := re.search(self.RE_ASKAI_CMD, question):
                 with StringIO() as buf, redirect_stdout(buf):
-                    args: list[str] = list(filter(
-                        lambda a: a and a != 'None', re.split(r'\s', f"{command.group(1)} {command.group(2)}")
-                    ))
+                    args: list[str] = list(
+                        filter(lambda a: a and a != "None", re.split(r"\s", f"{command.group(1)} {command.group(2)}"))
+                    )
                     ask_cli(args, standalone_mode=False)
                     if output := buf.getvalue():
                         self.display_text(f"\n```bash\n{strip_escapes(output)}\n```")
@@ -321,7 +307,7 @@ class AskAiApp(App):
         scheduler.start()
         recorder.setup()
         self.info.info_text = str(self)
-        with open(self._console_path, 'a', encoding=Charset.UTF_8.val) as f_console:
+        with open(self._console_path, "a", encoding=Charset.UTF_8.val) as f_console:
             f_console.write(f"---\n\n# {now()}\n\n")
             f_console.flush()
         # At this point the application is ready.

@@ -6,11 +6,7 @@ from textual_ui.widgets import Footer, MarkdownViewer
 
 
 class MarkdownApp(App):
-    BINDINGS = [
-        ("t", "toggle_table_of_contents", "TOC"),
-        ("b", "back", "Back"),
-        ("f", "forward", "Forward"),
-    ]
+    BINDINGS = [("t", "toggle_table_of_contents", "TOC"), ("b", "back", "Back"), ("f", "forward", "Forward")]
 
     path = var(Path(__file__).parent / "../../../README.md")
 
@@ -31,9 +27,7 @@ class MarkdownApp(App):
             self.exit(message=f"Unable to load {self.path!r}")
 
     def action_toggle_table_of_contents(self) -> None:
-        self.markdown_viewer.show_table_of_contents = (
-            not self.markdown_viewer.show_table_of_contents
-        )
+        self.markdown_viewer.show_table_of_contents = not self.markdown_viewer.show_table_of_contents
 
     async def action_back(self) -> None:
         await self.markdown_viewer.back()

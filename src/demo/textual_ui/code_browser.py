@@ -20,10 +20,7 @@ class CodeBrowser(App):
     """Textual code browser app."""
 
     CSS_PATH = "code_browser.tcss"
-    BINDINGS = [
-        ("f", "toggle_files", "Toggle Files"),
-        ("q", "quit", "Quit"),
-    ]
+    BINDINGS = [("f", "toggle_files", "Toggle Files"), ("q", "quit", "Quit")]
 
     show_tree = var(True)
 
@@ -44,19 +41,13 @@ class CodeBrowser(App):
     def on_mount(self) -> None:
         self.query_one(DirectoryTree).focus()
 
-    def on_directory_tree_file_selected(
-        self, event: DirectoryTree.FileSelected
-    ) -> None:
+    def on_directory_tree_file_selected(self, event: DirectoryTree.FileSelected) -> None:
         """Called when the user click a file in the directory tree."""
         event.stop()
         code_view = self.query_one("#code", Static)
         try:
             syntax = Syntax.from_path(
-                str(event.path),
-                line_numbers=True,
-                word_wrap=False,
-                indent_guides=True,
-                theme="github-dark",
+                str(event.path), line_numbers=True, word_wrap=False, indent_guides=True, theme="github-dark"
             )
         except Exception:
             code_view.update(Traceback(theme="github-dark", width=None))

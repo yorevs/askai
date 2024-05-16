@@ -13,11 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.runnables.history import RunnableWithMessageHistory
-
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -25,6 +20,10 @@ from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import ensure_ln
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
+import logging as log
 
 
 def query_output(query: str, context: str = None) -> str:
@@ -43,10 +42,7 @@ def query_output(query: str, context: str = None) -> str:
     if context or (context := str(shared.context.flat("HISTORY"))):
         runnable = template | lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
         runnable = RunnableWithMessageHistory(
-            runnable,
-            shared.context.flat,
-            input_messages_key="input",
-            history_messages_key="chat_history",
+            runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
         )
         log.info("Analysis::[QUERY] '%s'  context=%s", query, context)
         if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):

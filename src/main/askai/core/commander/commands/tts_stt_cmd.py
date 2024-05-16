@@ -14,7 +14,6 @@
 """
 
 from abc import ABC
-
 from askai.core.askai_configs import configs
 from askai.core.askai_settings import settings
 from askai.core.component.audio_player import player
@@ -30,7 +29,7 @@ class TtsSttCmd(ABC):
     def voice_list() -> None:
         """TODO"""
         all_voices = shared.engine.voices()
-        str_voices = '\n'.join([f"{i}. {v.title()}" for i, v in enumerate(all_voices)])
+        str_voices = "\n".join([f"{i}. {v.title()}" for i, v in enumerate(all_voices)])
         text_formatter.cmd_print(
             f"Available `{shared.engine.configs.stt_model}` voices: \n"
             f"\n{str_voices}\n> Hint: Type: '/voices set \\<number|voice_name\\>' to select a voice. "
@@ -54,7 +53,7 @@ class TtsSttCmd(ABC):
     def voice_play(name: str | int | None = None) -> None:
         """TODO"""
         all_voices = shared.engine.voices()
-        ai_name = shared.engine.ai_name().lower().replace('engine', '')
+        ai_name = shared.engine.ai_name().lower().replace("engine", "")
         if name.isdecimal() and 0 <= int(name) <= len(all_voices):
             name = all_voices[int(name)]
         if name in all_voices:
@@ -71,7 +70,7 @@ class TtsSttCmd(ABC):
         elif 1 <= speed <= 3:
             settings.put("askai.text.to.speech.tempo", speed)
             configs.tempo = speed
-            tempo_str: str = 'Normal' if speed == 1 else ('Fast' if speed == 2 else 'Ultra')
+            tempo_str: str = "Normal" if speed == 1 else ("Fast" if speed == 2 else "Ultra")
             text_formatter.cmd_print(f"`Speech-To-Text` **tempo** changed to %GREEN%{tempo_str} ({speed})%NC%")
         else:
             text_formatter.cmd_print(f"%RED%Invalid tempo value: '{speed}'. Please choose between [1..3].%NC%")
@@ -80,7 +79,7 @@ class TtsSttCmd(ABC):
     def device_list() -> None:
         """TODO"""
         all_devices = recorder.devices
-        str_voices = '\n'.join([f"{d[0]}. {d[1]}" for d in all_devices])
+        str_voices = "\n".join([f"{d[0]}. {d[1]}" for d in all_devices])
         text_formatter.cmd_print(
             f"Available audio input devices: \n"
             f"\n{str_voices}\n> Hint: Type: '/devices set \\<number\\>' to select a device."

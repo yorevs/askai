@@ -13,21 +13,19 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from typing import Optional
-
-from clitt.core.term.terminal import terminal
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_state
-from hspylib.modules.cli.keyboard import Keyboard
-from langchain.memory import ConversationBufferWindowMemory
-
 from askai.core.askai_configs import configs
 from askai.core.askai_prompt import prompt
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.utilities import display_text
+from clitt.core.term.terminal import terminal
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_state
+from hspylib.modules.cli.keyboard import Keyboard
+from langchain.memory import ConversationBufferWindowMemory
+from typing import Optional
 
 
 class SharedInstances(metaclass=Singleton):
@@ -104,7 +102,8 @@ class SharedInstances(metaclass=Singleton):
         """TODO"""
         if self._memory is None:
             self._memory = ConversationBufferWindowMemory(
-                memory_key=memory_key, k=configs.max_short_memory_size, return_messages=True)
+                memory_key=memory_key, k=configs.max_short_memory_size, return_messages=True
+            )
         return self._memory
 
     def input_text(self, input_prompt: str, placeholder: str | None = None) -> Optional[str]:

@@ -13,16 +13,14 @@
    Copyright (c) 2024, HomeSetup
 """
 
+from askai.core.tui.app_icons import AppIcons
+from askai.core.tui.app_widgets import MenuIcon
 from datetime import datetime
-
 from rich.text import Text
 from textual.app import RenderResult
 from textual.events import Mount
 from textual.reactive import Reactive
 from textual.widget import Widget
-
-from askai.core.tui.app_icons import AppIcons
-from askai.core.tui.app_widgets import MenuIcon
 
 
 class HeaderTitle(Widget):
@@ -43,24 +41,19 @@ class HeaderTitle(Widget):
 
 class HeaderClock(Widget):
     """Display a clock on the right of the header."""
+
     def _on_mount(self, _: Mount) -> None:
         self.set_interval(1, callback=self.refresh, name=f"update header clock")
 
     def render(self) -> RenderResult:
         """Render the header clock."""
-        return Text(datetime.now().time().strftime('%X'))
+        return Text(datetime.now().time().strftime("%X"))
 
 
 class Header(Widget):
     """A header widget with icon and clock."""
 
-    def __init__(
-        self,
-        *,
-        name: str | None = None,
-        id: str | None = None,
-        classes: str | None = None,
-    ):
+    def __init__(self, *, name: str | None = None, id: str | None = None, classes: str | None = None):
         super().__init__(name=name, id=id, classes=classes)
 
     def compose(self):
@@ -82,9 +75,7 @@ class Header(Widget):
     def screen_sub_title(self) -> str:
         """The sub-title that this header will display."""
         screen_sub_title = self.screen.sub_title
-        sub_title = (
-            screen_sub_title if screen_sub_title is not None else self.app.sub_title
-        )
+        sub_title = screen_sub_title if screen_sub_title is not None else self.app.sub_title
         return sub_title
 
     def _on_mount(self, _: Mount) -> None:

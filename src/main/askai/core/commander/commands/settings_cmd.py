@@ -14,15 +14,13 @@
 """
 
 from abc import ABC
-from typing import Any, Optional
-
-from hspylib.core.tools.commons import sysout
-from setman.settings.settings_entry import SettingsEntry
-
 from askai.core.askai_settings import settings
 from askai.core.component.recorder import recorder
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
+from hspylib.core.tools.commons import sysout
+from setman.settings.settings_entry import SettingsEntry
+from typing import Any, Optional
 
 
 class SettingsCmd(ABC):
@@ -63,4 +61,4 @@ class SettingsCmd(ABC):
         """TODO"""
         settings.defaults()
         # Include the current audio input.
-        settings.put("askai.recorder.devices", recorder.input_device[1] or '')
+        settings.put("askai.recorder.devices", recorder.input_device[1] or "")

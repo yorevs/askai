@@ -13,16 +13,14 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from typing import Callable, Optional
-
+from askai.core.tui.app_icons import AppIcons
 from textual.app import ComposeResult, RenderResult
 from textual.containers import Container
 from textual.events import Click
 from textual.reactive import Reactive
 from textual.widget import Widget
 from textual.widgets import Static
-
-from askai.core.tui.app_icons import AppIcons
+from typing import Callable, Optional
 
 
 class MenuIcon(Widget):

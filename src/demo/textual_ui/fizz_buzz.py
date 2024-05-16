@@ -9,11 +9,7 @@ class FizzBuzz(Static):
         for n in range(1, 16):
             fizz = not n % 3
             buzz = not n % 5
-            table.add_row(
-                str(n),
-                "fizz" if fizz else "",
-                "buzz" if buzz else "",
-            )
+            table.add_row(str(n), "fizz" if fizz else "", "buzz" if buzz else "")
         self.update(table)
 
 

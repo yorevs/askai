@@ -5,11 +5,5 @@
 # Package: demo
 """Package initialization."""
 
-__all__ = [
-    'components', 
-    'features', 
-    'others', 
-    'textual_ui', 
-    'utils'
-]
-__version__ = '1.0.7'
+__all__ = ["components", "features", "others", "textual_ui", "utils"]
+__version__ = "1.0.7"

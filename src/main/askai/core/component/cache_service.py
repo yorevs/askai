@@ -12,16 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from pathlib import Path
-from typing import Optional, Tuple
-
+from askai.core.askai_settings import ASKAI_DIR
+from askai.core.support.utilities import hash_text
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.modules.cache.ttl_cache import TTLCache
-
-from askai.core.askai_settings import ASKAI_DIR
-from askai.core.support.utilities import hash_text
+from pathlib import Path
+from typing import Optional, Tuple
 
 # AskAI cache root directory.
 CACHE_DIR: Path = Path(f"{ASKAI_DIR}/cache")

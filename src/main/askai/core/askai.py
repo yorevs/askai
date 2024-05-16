@@ -12,30 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-import re
-import sys
-from functools import partial
-from pathlib import Path
-from threading import Thread
-from typing import List, Optional
-
-import nltk
-import pause
-from click import UsageError
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.term.terminal import terminal
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging, sysout
-from hspylib.core.tools.text_tools import elide_text
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from langchain_core.prompts import PromptTemplate
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
@@ -55,6 +31,29 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
 from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery
+from click import UsageError
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.term.terminal import terminal
+from functools import partial
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging, sysout
+from hspylib.core.tools.text_tools import elide_text
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from langchain_core.prompts import PromptTemplate
+from pathlib import Path
+from threading import Thread
+from typing import List, Optional
+
+import logging as log
+import nltk
+import os
+import pause
+import re
+import sys
 
 
 class AskAi:
@@ -62,7 +61,7 @@ class AskAi:
 
     SPLASH: str = classpath.get_resource("splash.txt").read_text(encoding=Charset.UTF_8.val)
 
-    RE_ASKAI_CMD: str = r'^(?<!\\)/(\w+)( (.*))*$'
+    RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"
 
     @staticmethod
     def _abort():
@@ -99,7 +98,7 @@ class AskAi:
         device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
         device_info += f", AUTO-SWAP {'ON' if recorder.is_auto_swap else '%RED%OFF'}"
         dtm = f" {geo_location.datetime} "
-        speak_info = str(configs.tempo) + ' @' + shared.engine.configs.tts_voice
+        speak_info = str(configs.tempo) + " @" + shared.engine.configs.tts_voice
         cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, "…")
         return (
             f"%GREEN%"
@@ -258,9 +257,9 @@ class AskAi:
         status = True
         try:
             if command := re.search(self.RE_ASKAI_CMD, question):
-                args: list[str] = list(filter(
-                    lambda a: a and a != 'None', re.split(r'\s', f"{command.group(1)} {command.group(2)}")
-                ))
+                args: list[str] = list(
+                    filter(lambda a: a and a != "None", re.split(r"\s", f"{command.group(1)} {command.group(2)}"))
+                )
                 ask_cli(args, standalone_mode=False)
             elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())

@@ -6,17 +6,17 @@
 """Package initialization."""
 
 __all__ = [
-    'bind_demo', 
-    'code_browser', 
-    'dictionary', 
-    'fizz_buzz', 
-    'hello_demo', 
-    'key_demo', 
-    'loading', 
-    'markdown', 
-    'merlin', 
-    'splash', 
-    'stopwatch', 
-    'tooltip'
+    "bind_demo",
+    "code_browser",
+    "dictionary",
+    "fizz_buzz",
+    "hello_demo",
+    "key_demo",
+    "loading",
+    "markdown",
+    "merlin",
+    "splash",
+    "stopwatch",
+    "tooltip",
 ]
-__version__ = '1.0.7'
+__version__ = "1.0.7"

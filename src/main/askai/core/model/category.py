@@ -1,6 +1,5 @@
-from textwrap import dedent
-
 from hspylib.core.enums.enumeration import Enumeration
+from textwrap import dedent
 
 
 class Category(Enumeration):
