@@ -46,8 +46,8 @@ class Router(metaclass=Singleton):
     INSTANCE: "Router"
 
     HUMAN_PROMPT: str = dedent(
-        """
-    (remember to identify all my goals and subgoals and to respond in a JSON blob no matter what)
+    """
+    (remember to respond in a JSON blob no matter what)
 
     Question: '{input}'
     """

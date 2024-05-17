@@ -27,6 +27,17 @@ Constraints:
 
 Ensure each task in your plan respects these constraints to create a clear, concise, and actionable set of instructions.
 
+Preparation:
+
+1. Select a suitable AI model from a list of models to process the user request.
+2. We have a list of models for you to choose from:
+
+ContentMaster: Select this model for generating any type of content, including text, code, and images, as it is designed to handle diverse content creation tasks effectively.
+TerminalExec: Select this model for executing shell commands and managing terminal operations on a user machine.
+ChatMaster: Select this model for providing conversational responses or engaging in general chat.
+SummarizeAndQuery: Specializes in summarizing files and folders and then conducting a Q&A session based on the summarized content.
+ImageProcessor: Processes images, performs recognition, and manipulation tasks.
+AssistiveTechHelper: For tasks related to assistive technologies or requests.
 
 Guidelines:
 
