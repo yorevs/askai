@@ -31,14 +31,14 @@ package: urllib3, version: 1.26.18, mode: eq
 package: unstructured, version: 0.12.4, mode: eq
 package: unstructured[md], version: 0.12.4, mode: eq
 package: python-magic-bin, version: 0.4.14, mode: eq
-package: tiktoken, version: 0.6.0, mode: eq
+package: tiktoken, version: 0.7.0, mode: eq
 package: aiohttp, version: 3.9.3, mode: eq
 package: html2text, version: 2024.2.26, mode: eq
 package: PyAudio, version: 0.2.14, mode: eq
 package: SpeechRecognition, version: 3.10.1, mode: eq
 package: openai-whisper, version: 20231117, mode: eq
+package: openai, version: 1.24.0, mode: eq
 package: google-api-python-client, version: 2.122.0, mode: eq
-package: openai, version: 1.14.1, mode: eq
 package: chromadb, version: 0.4.24, mode: eq
 package: opentelemetry-api, version: 1.22.0, mode: eq
 package: opentelemetry-sdk, version: 1.22.0, mode: eq
