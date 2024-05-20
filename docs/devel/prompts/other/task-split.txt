@@ -6,14 +6,16 @@ Given the user request, the AI assistant helps the user to break down the input 
 
 Steps to break the complex task:
 
-Step 1. Confirm that all required resources exists and are accessible (never assume a resource exist).
-Step 2. Resolve ambiguities by referring to past events (use the chat history or context).
-Step 3. When applicable, identify required resources (specify resource names or descriptions).
-Step 4. When applicable, Open/Read the identified resources (use full path names).
+Step 1. Confirm that all required resources exists and are accessible.
+Step 2. Resolve ambiguities by referring to past events.
+Step 3. When applicable, identify required resources.
+Step 4. When applicable, Open or Read the identified resources (using full path names).
 Step 5. Extract relevant information from the files or output (specify the information required).
 Step 6. Provide a direct instruction without explaining it's purpose.
-Step 7. Separate tasks clearly, avoiding the use of conjunctions like 'and', 'or', 'to' and implicit multi-step processes within a single task.
+Step 7. Separate tasks clearly, avoiding the use of conjunctions like 'and', 'or' and implicit multi-step processes within a single task.
 Step 8. Identify all sub goals, and create one action for each of them.
+
+As a general rule: "1. <Access/List/Navigate> -> 2. <Open/Read> -> 3. <Identify> -> 4. <Extract>".
 
 
 Constraints:
@@ -31,13 +33,11 @@ Constraints:
 Improve you response:
 
 1. If you receive any queries that are requests for **assistive technologies**, such as **speech-to-text**, the "task" will be: "ASSISTIVE: <normal task description>".
-2. Opening/Accessing files/folders, will automatically retrieve its content.
-
 
 Response Format:
 
 1. Ensure the response can be parsed by Python json.loads.
-2. The output must be in a strict JSON format: 
+2. The output must be in a strict JSON format:
 
 {{{{
   "thoughts": {{{{
@@ -58,4 +58,3 @@ Response Format:
 }}}}
 
 Begin!
- 
