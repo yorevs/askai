@@ -12,29 +12,29 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import re
+from pathlib import Path
+from textwrap import dedent
+from typing import Any, Optional, Type, TypeAlias
+
+import PIL
+from hspylib.core.exception.exceptions import InvalidArgumentError
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from retry import retry
+
 from askai.core.askai_configs import configs
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.features.router_agent import agent
 from askai.core.model.action_plan import ActionPlan
-from askai.core.model.category import Category
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_codeblock
 from askai.exception.exceptions import InaccurateResponse
-from hspylib.core.exception.exceptions import InvalidArgumentError
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from pathlib import Path
-from retry import retry
-from textwrap import dedent
-from typing import Any, Optional, Type, TypeAlias
-
-import logging as log
-import PIL
-import re
 
 AgentResponse: TypeAlias = dict[str, Any]
 
@@ -70,14 +70,14 @@ class Router(metaclass=Singleton):
         """Retrieve the Router Template."""
         scratchpad: str = str(shared.context.flat("SCRATCHPAD"))
         template = PromptTemplate(
-            input_variables=["home", "categories", "os_type", "shell"], template=prompt.read_prompt("router.txt")
+            input_variables=["home", "os_type", "shell"], template=prompt.read_prompt("task-split.txt")
         )
         return ChatPromptTemplate.from_messages(
             [
                 (
                     "system",
                     template.format(
-                        home=Path.home(), categories=Category.values(), os_type=prompt.os_type, shell=prompt.shell
+                        home=Path.home(), os_type=prompt.os_type, shell=prompt.shell
                     ),
                 ),
                 MessagesPlaceholder("chat_history", optional=True),
@@ -117,7 +117,7 @@ class Router(metaclass=Singleton):
             if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
                 plan = self._parse_response(response.content)
-                output = agent.invoke(query, plan)
+                output = agent.invoke(query, plan) if plan and plan.tasks else plan.speak
             else:
                 output = response
             return output

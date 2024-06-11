@@ -48,4 +48,4 @@ package: rich, version: 13.7.1, mode: eq
 package: pytz, version: 2024.1, mode: eq
 package: bs4, version: 0.0.2, mode: eq
 package: fake_useragent, version: 1.5.1, mode: eq
-package: textual, version: 0.58.0, mode: eq
+package: textual, version: 0.67.1, mode: eq

@@ -18,9 +18,9 @@ from dataclasses import dataclass
 @dataclass
 class ModelResult:
     """Keep track of the model select responses."""
-    uuid: str
+    mid: str
     goal: str
     reason: str
 
     def __str__(self):
-        return f"({self.uuid})->{self.reason}"
+        return f"({self.mid})->{self.reason}"

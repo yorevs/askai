@@ -18,15 +18,17 @@ from askai.core.model.category import Category
 from dataclasses import dataclass
 from types import SimpleNamespace
 
+from askai.core.model.model_result import ModelResult
+
 
 @dataclass
 class ActionPlan:
     """Keep track of the router action plan."""
 
     thoughts: SimpleNamespace = None
-    category: str = None
-    primary_goal: str = None
-    actions: list[SimpleNamespace] = None
+    model: ModelResult = None
+    sub_goals: list[str] = None
+    tasks: list[SimpleNamespace] = None
 
     @staticmethod
     def final(query: str) -> "ActionPlan":
@@ -34,23 +36,22 @@ class ActionPlan:
         plan = ActionPlan()
         plan.category = Category.FINAL_ANSWER.value
         plan.primary_goal = query
-        plan.actions = [SimpleNamespace(task=f"Answer the human: {query}")]
+        plan.tasks = [SimpleNamespace(task=f"Answer the human: {query}")]
         return plan
 
     def __str__(self):
         sub_goals: str = "  ".join(f"{i + 1}. {g}" for i, g in enumerate(self.sub_goals))
-        actions: str = ".  ".join([f"{i + 1}. {a.task}" for i, a in enumerate(self.actions)])
+        tasks: str = ".  ".join([f"{i + 1}. {a.task}" for i, a in enumerate(self.tasks)])
         return (
             f"Reasoning: {self.reasoning}  "
             f"Observations: {self.thoughts.observations}  "
             f"Criticism: {self.thoughts.criticism}  "
             f"Sub-Goals: [{sub_goals}]  "
-            f"Primary Goal: {self.primary_goal}  "
-            f"Actions: [{actions}]  ."
+            f"Tasks: [{tasks}]  ."
         )
 
     def __len__(self):
-        return len(self.actions)
+        return len(self.tasks)
 
     @property
     def speak(self) -> str:
@@ -71,8 +72,3 @@ class ActionPlan:
     def criticism(self) -> str:
         """TODO"""
         return self.thoughts.criticism
-
-    @property
-    def sub_goals(self) -> list[str]:
-        """TODO"""
-        return self.thoughts.sub_goals
