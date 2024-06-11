@@ -6,6 +6,7 @@ hspylib-setman>=0.10.35
 langchain==0.1.20
 langchain-openai==0.1.7
 langchain-community==0.0.38
+langchain-google-community==1.0.4
 langchainhub==0.1.15
 retry2==0.9.5
 pause==0.3

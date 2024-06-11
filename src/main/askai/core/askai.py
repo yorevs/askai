@@ -85,10 +85,10 @@ class AskAi:
         self._query_string: str | None = None
         self._question: str | None = None
         self._query_prompt: str | None = query_prompt
+        self._get_query_string(query)
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         # Setting configs from program args.
-        self._get_query_string(interactive, query)
         configs.is_speak = not quiet
         configs.is_debug = is_debugging() or debug
         configs.tempo = tempo
@@ -165,13 +165,14 @@ class AskAi:
         if self.is_interactive:
             self._prompt()
         elif self.query_string:
+            # Non-Interactive mode
             llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
             display_text(self.question, f"{shared.username}: ")
             if output := llm.invoke(self.query_string):
                 self.reply(output.content)
                 cache.save_query_history()
         else:
-            display_text(f"%RED%Error: {msg.no_query_string()}%NC%")
+            display_text(f"Error: {msg.no_query_string()}")
 
     def reply(self, message: str) -> None:
         """Reply to the user with the AI response.
@@ -233,7 +234,7 @@ class AskAi:
             splash_thread.join()
             display_text(self, markdown=False)
             self.reply(msg.welcome(os.getenv("USER", "you")))
-        else:
+        elif self.is_speak:
             recorder.setup()
             player.start_delay()
         log.info("AskAI is ready to use!")
@@ -280,21 +281,21 @@ class AskAi:
 
         return status
 
-    def _get_query_string(self, interactive: bool, query_arg: str | list[str]) -> None:
+    def _get_query_string(self, query_arg: str | list[str]) -> None:
         """Retrieve the proper query string used in the non interactive mode.
-        :param interactive: The interactive mode.
         :param query_arg: The query argument provided by the command line.
         """
-        query: str = str(" ".join(query_arg) if isinstance(query_arg, list) else query_arg)
-        self._question = query
-        dir_name, file_name = PathObject.split(self._query_prompt)
-        if not interactive:
-            stdin_args = read_stdin()
-            template = PromptTemplate(
-                input_variables=["context", "question"], template=prompt.read_prompt(file_name, dir_name)
-            )
-            final_prompt = template.format(context=stdin_args, question=self._question)
-            self._query_string = final_prompt if query else stdin_args
-            self._question = self._question or self._query_string
-        else:
-            self._query_string = query
+        if query_arg:
+            query: str = str(" ".join(query_arg) if isinstance(query_arg, list) else query_arg)
+            self._question = query
+            dir_name, file_name = PathObject.split(self._query_prompt or f"{prompt.PROMPT_DIR}/qstring")
+            if not self._interactive:
+                stdin_args = read_stdin()
+                template = PromptTemplate(
+                    input_variables=["context", "question"], template=prompt.read_prompt(file_name, dir_name)
+                )
+                final_prompt = template.format(context=stdin_args, question=self._question)
+                self._query_string = final_prompt if query else stdin_args
+                self._question = self._question or self._query_string
+            else:
+                self._query_string = query

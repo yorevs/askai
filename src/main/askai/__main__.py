@@ -80,7 +80,7 @@ class Main(TUIApplication):
             .option(
                 "prompt", "p", "prompt",
                 "specifies the query prompt file (not useful with interactive mode).",
-                nargs=1, default='qstring')\
+                nargs=1)\
             .option(
                 "engine", "e", "engine",
                 "specifies which AI engine to use. If not provided, the default engine wil be used.",
@@ -107,16 +107,16 @@ class Main(TUIApplication):
                 to_bool(self._get_argument("interactive")),
                 to_bool(self._get_argument("quiet")),
                 to_bool(self._get_argument("debug")),
-                int(self._get_argument("tempo") or 1),
+                int(self._get_argument("tempo")),
                 str(self._get_argument("prompt")),
                 str(self._get_argument("engine")),
                 str(self._get_argument("model")),
-                str(self._get_argument("query_string")),
+                self._get_query_string(),
             )
         else:
             self._askai = AskAiApp(
                 to_bool(self._get_argument("quiet")),
-                int(self._get_argument("tempo") or 1),
+                int(self._get_argument("tempo")),
                 str(self._get_argument("engine")),
                 str(self._get_argument("model")),
             )
@@ -155,6 +155,11 @@ class Main(TUIApplication):
                 raise TypeError("Argument '' has an invalid type: ''", arg, type(arg))
         else:
             return ""
+
+    def _get_query_string(self) -> str:
+        """Return the query_string parameter."""
+        query_string: str | list[str] = self.get_arg("query_string")
+        return query_string if isinstance(query_string, str) else " ".join(query_string)
 
 
 # Application entry point

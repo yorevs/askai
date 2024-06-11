@@ -12,6 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from langchain_google_community import GoogleSearchAPIWrapper
+
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -26,7 +28,6 @@ from googleapiclient.errors import HttpError
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_community.document_loaders.web_base import WebBaseLoader
-from langchain_community.utilities import GoogleSearchAPIWrapper
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
