@@ -36,6 +36,8 @@ Before responding to the user, it is imperative that you follow the step-by-step
 
 - Select only one: fun fact, joke, or advice. Do not combine them.
 
+- If you don't know the answer, simply say: "Sorry. I don't know". Don't try to come up with an answer.
+
 
 Question: {question}
 

@@ -117,7 +117,7 @@ class Router(metaclass=Singleton):
             if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
                 plan = self._parse_response(response.content)
-                output = agent.invoke(query, plan) if plan and plan.tasks else plan.speak
+                output = agent.invoke(query, plan) if plan and plan.tasks else agent.wrap_answer(query, plan.speak)
             else:
                 output = response
             return output

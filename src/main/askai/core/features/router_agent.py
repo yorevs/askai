@@ -2,7 +2,6 @@ import logging as log
 from types import SimpleNamespace
 
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_argument
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
@@ -29,15 +28,15 @@ class RouterAgent(metaclass=Singleton):
     INSTANCE: "RouterAgent"
 
     @staticmethod
-    def _wrap_answer(query: str, model_result: ModelResult, response: str) -> str:
+    def wrap_answer(query: str, response: str, model_result: ModelResult = ModelResult.default()) -> str:
         """Provide a final answer to the user.
         :param query: The user question.
-        :param model_result: The selected model.
         :param response: The AI response.
+        :param model_result: The selected model.
         """
         output: str = response
         if model_result:
-            model: RoutingModel = RoutingModel.of_value(model_result.mid)
+            model: RoutingModel = RoutingModel.value_of(model_result.mid)
             match model, configs.is_speak:
                 case RoutingModel.GPT_001, True:  # TERMINAL_COMMAND
                     output = final_answer(query, persona_prompt="stt", response=response)
@@ -49,15 +48,6 @@ class RouterAgent(metaclass=Singleton):
         cache.save_reply(query, output)
 
         return output
-
-    @staticmethod
-    def _assert_plan_attrs(tasks, *attrs):
-        """Assert the tasks comply with the required fields.
-        :param tasks: The action namespaces to assert.
-        """
-        check_argument(tasks is not None and len(tasks) > 0, "Invalid Actions (None or Empty)")
-        check_argument(all(isinstance(act, SimpleNamespace) for act in tasks), "Invalid action format (JSON)")
-        check_argument(all(hasattr(act, attr) for attr in attrs for act in tasks), "Invalid action arguments")
 
     def __init__(self):
         self._lc_agent: Runnable | None = None
@@ -77,9 +67,8 @@ class RouterAgent(metaclass=Singleton):
         :param plan: The AI action plan.
         """
         output: str = ""
-        tasks: list[SimpleNamespace] = plan.tasks
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=plan.thoughts.speak)
-        self._assert_plan_attrs(tasks, "task")
+        tasks: list[SimpleNamespace] = plan.tasks
         for action in tasks:
             path_str: str = 'Path: ' + action.path \
                 if hasattr(action, 'path') and action.path.upper() not in ['N/A', 'NONE'] \
@@ -95,9 +84,9 @@ class RouterAgent(metaclass=Singleton):
                 continue
             raise InaccurateResponse("AI provided AN EMPTY response")
 
-        assert_accuracy(query, output)
+        assert_accuracy(plan.primary_goal, output)
 
-        return self._wrap_answer(query, plan.model, msg.translate(output))
+        return self.wrap_answer(query, msg.translate(output), plan.model)
 
     def _create_lc_agent(self) -> Runnable:
         """Create the LangChain agent."""

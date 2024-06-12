@@ -15,7 +15,7 @@
 
 from askai.core.askai_messages import msg
 from askai.core.model.category import Category
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from types import SimpleNamespace
 
 from askai.core.model.model_result import ModelResult
@@ -26,7 +26,8 @@ class ActionPlan:
     """Keep track of the router action plan."""
 
     thoughts: SimpleNamespace = None
-    model: ModelResult = None
+    model: ModelResult = field(default_factory=ModelResult.default)
+    primary_goal: str = None
     sub_goals: list[str] = None
     tasks: list[SimpleNamespace] = None
 
@@ -46,6 +47,7 @@ class ActionPlan:
             f"Reasoning: {self.reasoning}  "
             f"Observations: {self.thoughts.observations}  "
             f"Criticism: {self.thoughts.criticism}  "
+            f"Speak: {self.thoughts.speak}  "
             f"Sub-Goals: [{sub_goals}]  "
             f"Tasks: [{tasks}]  ."
         )

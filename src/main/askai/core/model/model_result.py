@@ -13,6 +13,7 @@
    Copyright (c) 2024, HomeSetup
 """
 from dataclasses import dataclass
+from functools import lru_cache
 
 
 @dataclass
@@ -21,6 +22,12 @@ class ModelResult:
     mid: str
     goal: str
     reason: str
+
+    @staticmethod
+    @lru_cache
+    def default() -> 'ModelResult':
+        """Return  hte default ModelResult."""
+        return ModelResult("GPT_005", "Final Answer", "Provide a direct answer for the user")
 
     def __str__(self):
         return f"({self.mid})->{self.reason}"
