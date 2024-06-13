@@ -32,17 +32,17 @@ class RouterAgent(metaclass=Singleton):
         """Provide a final answer to the user.
         :param query: The user question.
         :param response: The AI response.
-        :param model_result: The selected model.
+        :param model_result: The selected routing model.
         """
         output: str = response
         if model_result:
             model: RoutingModel = RoutingModel.value_of(model_result.mid)
             match model, configs.is_speak:
-                case RoutingModel.GPT_001, True:  # TERMINAL_COMMAND
+                case RoutingModel.ASK_001, True:  # TERMINAL_COMMAND
                     output = final_answer(query, persona_prompt="stt", response=response)
-                case RoutingModel.GPT_008, _:  # ASSISTIVE_TECH_HELPER
+                case RoutingModel.ASK_008, _:  # ASSISTIVE_TECH_HELPER
                     output = final_answer(query, persona_prompt="stt", response=response)
-                case RoutingModel.GPT_007 | RoutingModel.GPT_005, _:  # IMAGE_PROCESSOR | CHAT_MASTER
+                case RoutingModel.ASK_007 | RoutingModel.ASK_005, _:  # IMAGE_PROCESSOR | CHAT_MASTER
                     output = final_answer(query, response=response)
 
         cache.save_reply(query, output)
@@ -88,11 +88,13 @@ class RouterAgent(metaclass=Singleton):
 
         return self.wrap_answer(query, msg.translate(output), plan.model)
 
-    def _create_lc_agent(self) -> Runnable:
-        """Create the LangChain agent."""
+    def _create_lc_agent(self, temperature: Temperature = Temperature.CODE_GENERATION) -> Runnable:
+        """Create the LangChain agent.
+        :param temperature: The LLM temperature.
+        """
         if self._lc_agent is None:
             tools = features.tools()
-            llm = lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
+            llm = lc_llm.create_chat_model(temperature.temp)
             chat_memory = shared.memory
             lc_agent = create_structured_chat_agent(llm, tools, self.agent_template)
             self._lc_agent = AgentExecutor(

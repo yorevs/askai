@@ -4,7 +4,7 @@ Given the user request, the AI assistant helps the user to select a suitable mod
 Guidelines:
 
 1. Identify all sub-goals of the question and the primary goal. The choice must be made by the nature of the primary goal.
-2. When the query involves explicit terminal command-line operations, so it should be processed by the 'GPT-001'.
+2. When the query involves explicit terminal command-line operations, so it should be processed by the 'ASK_001'.
 
 
 Models to choose from:

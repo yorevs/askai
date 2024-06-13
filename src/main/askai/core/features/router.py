@@ -21,6 +21,7 @@ from typing import Any, Optional, Type, TypeAlias
 import PIL
 from hspylib.core.exception.exceptions import InvalidArgumentError
 from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_state
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from retry import retry
@@ -30,6 +31,8 @@ from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.features.router_agent import agent
 from askai.core.model.action_plan import ActionPlan
+from askai.core.model.model_result import ModelResult
+from askai.core.model.routing_model import RoutingModel
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
@@ -46,11 +49,11 @@ class Router(metaclass=Singleton):
     INSTANCE: "Router"
 
     HUMAN_PROMPT: str = dedent(
-    """
-    (remember to respond in a JSON blob no matter what)
+        """
+        (remember to respond in a JSON blob no matter what)
 
-    Question: '{input}'
-    """
+        Question: '{input}'
+        """
     )
 
     # Allow the router to retry on the errors bellow.
@@ -86,6 +89,12 @@ class Router(metaclass=Singleton):
             ]
         )
 
+    @property
+    def model_template(self) -> str:
+        """Retrieve the Routing Model Template."""
+        template = PromptTemplate(input_variables=["models"], template=prompt.read_prompt("model-select.txt"))
+        return template.format(models=RoutingModel.enlist())
+
     @staticmethod
     def _parse_response(response: str) -> ActionPlan:
         """Parse the router response.
@@ -101,10 +110,23 @@ class Router(metaclass=Singleton):
 
         return plan
 
+    def _select_model(self) -> ModelResult:
+        """Select the response model."""
+        llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
+        if response := llm.invoke(self.model_template):
+            json_string: str = response.content  # from AIMessage
+            model_result: ModelResult = object_mapper.of_json(json_string, ModelResult)
+            return model_result \
+                if isinstance(model_result, ModelResult) \
+                else ModelResult.default()
+        return ModelResult.default()
+
     def process(self, query: str) -> Optional[str]:
         """Process the user query and retrieve the final response.
         :param query: The user query to complete.
         """
+
+        model: ModelResult = self._select_model()
 
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
         def _process_wrapper() -> Optional[str]:
@@ -116,9 +138,13 @@ class Router(metaclass=Singleton):
             )
             if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
-                plan = self._parse_response(response.content)
-                output = agent.invoke(query, plan) if plan and plan.tasks else agent.wrap_answer(query, plan.speak)
+                plan: ActionPlan = self._parse_response(response.content)
+                check_state(plan is not None and isinstance(plan, ActionPlan),
+                            f"Invalid action plan received from LLM: {type(plan)}")
+                plan.model = model
+                output = agent.invoke(query, plan) if plan.tasks else agent.wrap_answer(query, plan.speak)
             else:
+                # Most of the times, this represents a failure.
                 output = response
             return output
 

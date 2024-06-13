@@ -19,15 +19,15 @@ from functools import lru_cache
 @dataclass
 class ModelResult:
     """Keep track of the model select responses."""
-    mid: str
-    goal: str
-    reason: str
+    mid: str = None
+    goal: str = None
+    reason: str = None
 
     @staticmethod
     @lru_cache
     def default() -> 'ModelResult':
         """Return  hte default ModelResult."""
-        return ModelResult("GPT_005", "Final Answer", "Provide a direct answer for the user")
+        return ModelResult("ASK_000", "Default model", "Provide the answer as received by the AI")
 
     def __str__(self):
         return f"({self.mid})->{self.reason}"
