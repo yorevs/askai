@@ -37,6 +37,7 @@ class RouterAgent(metaclass=Singleton):
         output: str = response
         if model_result:
             model: RoutingModel = RoutingModel.value_of(model_result.mid)
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.model_select(str(model)), verbosity="debug")
             match model, configs.is_speak:
                 case RoutingModel.ASK_001, True:  # TERMINAL_COMMAND
                     output = final_answer(query, persona_prompt="stt", response=response)

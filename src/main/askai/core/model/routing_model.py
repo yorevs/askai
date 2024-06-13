@@ -68,7 +68,7 @@ class RoutingModel(Enumeration):
         return separator.join(f"{m}: {v[1]}" for m, v in zip(cls.names(), cls.values()))
 
     def __str__(self):
-        return f"{self.name}::{self.description}"
+        return f"{self.name}::{self.category}"
 
     def __repr__(self):
         return str(self)

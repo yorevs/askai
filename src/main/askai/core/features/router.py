@@ -115,11 +115,14 @@ class Router(metaclass=Singleton):
         llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
         if response := llm.invoke(self.model_template):
             json_string: str = response.content  # from AIMessage
-            model_result: ModelResult = object_mapper.of_json(json_string, ModelResult)
-            return model_result \
+            model_result: ModelResult | str = object_mapper.of_json(json_string, ModelResult)
+            model_result: ModelResult = model_result \
                 if isinstance(model_result, ModelResult) \
                 else ModelResult.default()
-        return ModelResult.default()
+        else:
+            model_result: ModelResult = ModelResult.default()
+
+        return model_result
 
     def process(self, query: str) -> Optional[str]:
         """Process the user query and retrieve the final response.
@@ -136,7 +139,7 @@ class Router(metaclass=Singleton):
             runnable = RunnableWithMessageHistory(
                 runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
             )
-            if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
+            if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "ROUTER"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
                 plan: ActionPlan = self._parse_response(response.content)
                 check_state(plan is not None and isinstance(plan, ActionPlan),

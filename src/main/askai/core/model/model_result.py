@@ -30,4 +30,4 @@ class ModelResult:
         return ModelResult("ASK_000", "Default model", "Provide the answer as received by the AI")
 
     def __str__(self):
-        return f"({self.mid})->{self.reason}"
+        return f"{self.mid} -> {self.reason}"
