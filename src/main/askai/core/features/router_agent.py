@@ -16,6 +16,7 @@ from askai.core.features.actions import features
 from askai.core.features.rag.rag import assert_accuracy, final_answer
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
+from askai.core.model.rag_response import RagResponse
 from askai.core.model.routing_model import RoutingModel
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
@@ -28,13 +29,17 @@ class RouterAgent(metaclass=Singleton):
     INSTANCE: "RouterAgent"
 
     @staticmethod
-    def wrap_answer(query: str, response: str, model_result: ModelResult = ModelResult.default()) -> str:
+    def wrap_answer(
+        query: str,
+        response: str,
+        model_result: ModelResult = ModelResult.default()
+    ) -> str:
         """Provide a final answer to the user.
         :param query: The user question.
         :param response: The AI response.
         :param model_result: The selected routing model.
         """
-        output: str = response
+        output: str = msg.translate(response)
         if model_result:
             model: RoutingModel = RoutingModel.value_of(model_result.mid)
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.model_select(str(model)), verbosity="debug")
@@ -70,6 +75,7 @@ class RouterAgent(metaclass=Singleton):
         output: str = ""
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=plan.thoughts.speak)
         tasks: list[SimpleNamespace] = plan.tasks
+
         for action in tasks:
             path_str: str = 'Path: ' + action.path \
                 if hasattr(action, 'path') and action.path.upper() not in ['N/A', 'NONE'] \
@@ -78,16 +84,16 @@ class RouterAgent(metaclass=Singleton):
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {task}", verbosity="debug")
             if (response := self.lc_agent.invoke({"input": task})) and (output := response["output"]):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
-                assert_accuracy(task, output)
+                assert_accuracy(task, output, RagResponse.MODERATE)
                 shared.context.push("HISTORY", task)
                 shared.context.push("HISTORY", output, "assistant")
                 shared.memory.save_context({"input": task}, {"output": output})
                 continue
             raise InaccurateResponse("AI provided AN EMPTY response")
 
-        assert_accuracy(plan.primary_goal, output)
+        assert_accuracy(query, output, RagResponse.GOOD)
 
-        return self.wrap_answer(query, msg.translate(output), plan.model)
+        return self.wrap_answer(plan.primary_goal, output, plan.model)
 
     def _create_lc_agent(self, temperature: Temperature = Temperature.CODE_GENERATION) -> Runnable:
         """Create the LangChain agent.

@@ -6,40 +6,54 @@ Use the following criteria for classification:
 
 2. **Yellow**: The AI response partially addresses the question but lacks full depth or detail, suggesting moderate understanding.
 
-3. **Red**: The AI response fails to adequately address the question, indicating a misunderstanding or incorrect analysis.
+3. **Orange**: When you are unable to properly classify the AI response, indicating you need Human intervention.
 
-Format is: "COLOR: reasoning to the Human".
+4. **Red**: The AI response fails to adequately address the question, indicating a misunderstanding or incorrect analysis.
+
+Format is: "<Color>: <reasoning to the Human>"
 
 
 Known Bad Responses:
 
-1. When evaluating responses, mark as 'Red' if the response fails to resolve the ultimate goal.
+- When evaluating responses, mark as 'Red' if the response fails to resolve the primary goal.
 
-2. Terminal commands should provide feedback as follows: if the command is executed successfully and correctly, return "Green"; if not, return "Red". For commands that yield no output, verify the successful execution before returning "Green".
+- Terminal commands should provide feedback as follows: if the command is executed successfully. Classify "Red" if not. For commands that yield no output, verify the message for a successful execution, therefore returning "Red" upon failures.
 
-3. Upon receiving the following message: "Invalid or incomplete response", classify it as 'Red' since the agent failed to perform his action.
+- Upon receiving the following message: "Invalid or incomplete response", classify it as 'Red' since the agent failed to perform his action.
 
-4. Return a classification of 'Red' immediately if applicable, without applying further guidelines.
+- Acknowledging or mentioning previous responses are considered unhelpful, therefore, classified as 'Red'.
+
+- Return a classification of 'Red' immediately if applicable, without applying further guidelines.
+
+Known Good Responses:
+
+- Return a classification of 'Green' upon detecting a successful command execution, as the example of: "xxx was successfully opened".
+
+- Users may seek casual conversation, where there are no definitive answers. If this is the case, categorize the response as 'Green'.
+
+- Return a classification of 'Green' immediately if applicable, without applying further guidelines.
 
 
-Guidelines:
+Classification Guidelines:
 
 1. Assess the AI's response for correctness by considering its ability to effectively address and correct syntax errors or misinterpretations in the user's input, rather than focusing solely on literal repetitions or minor discrepancies in terminology.
 
-2. Users may seek casual conversation, where there are no definitive answers. If this is the case, categorize the response as 'Green'.
+2. Revise the classifications for responses from the AI that contain irrelevant information to 'Yellow' instead of 'Red', as any additional information is still valued.
 
-3. Revise the classifications for responses from the AI that contain irrelevant information to 'Yellow' instead of 'Red', as any additional information is still valued.
+3. Do not include any part of the question in your response. Indicate your classification choice ('Red', 'Orange', 'Yellow', or 'Green') followed by the reasoning behind your decision.
 
-4. Do not include any part of the question in your response. Indicate your classification choice ('Red', 'Yellow', or 'Green') followed by the reasoning behind your decision.
+4. When reviewing cross-references, vigilance is crucial to prevent misclassifications due to ambiguous entries. Consult if the ambiguity was resolved. Exercise caution to avoid categorizing entries as 'Red' unless absolutely certain.
 
-5. When reviewing cross-references, vigilance is crucial to prevent misclassifications due to ambiguous entries. Consult if the ambiguity was resolved. Exercise caution to avoid categorizing entries as 'Red' unless absolutely certain.
+5. If the primary goal is achieved but lacks further details, consider it 'Yellow' instead of 'Red'.
+
+6. When the classification is 'Red', provide actionable hints to help improve the AI's response in future interactions.
 
 
-Begin! Qualify the following AI responses:
+Begin!
 
 
 Human Input: "{input}"
 
-AI Response: """{response}"""
+AI Response: "{response}"
 
-Answer:
+Your classification:

@@ -13,11 +13,10 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.core.askai_messages import msg
-from askai.core.model.category import Category
 from dataclasses import dataclass, field
 from types import SimpleNamespace
 
+from askai.core.askai_messages import msg
 from askai.core.model.model_result import ModelResult
 
 
@@ -25,31 +24,24 @@ from askai.core.model.model_result import ModelResult
 class ActionPlan:
     """Keep track of the router action plan."""
 
-    thoughts: SimpleNamespace = None
-    model: ModelResult = field(default_factory=ModelResult.default)
+    question: str = None
     primary_goal: str = None
     sub_goals: list[str] = None
+    thoughts: SimpleNamespace = None
     tasks: list[SimpleNamespace] = None
-
-    @staticmethod
-    def final(query: str) -> "ActionPlan":
-        """TODO"""
-        plan = ActionPlan()
-        plan.category = Category.FINAL_ANSWER.value
-        plan.primary_goal = query
-        plan.tasks = [SimpleNamespace(task=f"Answer the human: {query}")]
-        return plan
+    model: ModelResult = field(default_factory=ModelResult.default)
 
     def __str__(self):
         sub_goals: str = "  ".join(f"{i + 1}. {g}" for i, g in enumerate(self.sub_goals))
         tasks: str = ".  ".join([f"{i + 1}. {a.task}" for i, a in enumerate(self.tasks)])
         return (
-            f"Reasoning: {self.reasoning}  "
-            f"Observations: {self.thoughts.observations}  "
-            f"Criticism: {self.thoughts.criticism}  "
-            f"Speak: {self.thoughts.speak}  "
-            f"Sub-Goals: [{sub_goals}]  "
-            f"Tasks: [{tasks}]  ."
+            f"`Question:` {self.question}  "
+            f"`Reasoning:` {self.reasoning}  "
+            f"`Observations:` {self.thoughts.observations}  "
+            f"`Criticism:` {self.thoughts.criticism}  "
+            f"`Speak:` {self.thoughts.speak}  "
+            f"`Sub-Goals:` [{sub_goals}]  "
+            f"`Tasks:` [{tasks}]  ."
         )
 
     def __len__(self):

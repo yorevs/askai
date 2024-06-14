@@ -69,7 +69,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def cmd_success(self, command_line: str) -> str:
-        return self.translate(f"OK, command `{command_line}` succeeded, but didn't produce an output.")
+        return self.translate(f"OK, command `{command_line}` succeeded")
 
     @lru_cache(maxsize=1)
     def searching(self) -> str:
@@ -101,31 +101,31 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def analysis(self, result: str) -> str:
-        return self.translate(f"Analysis result: `{result}`")
+        return self.translate(f"> Analysis result: `{result}`")
 
     @lru_cache(maxsize=1)
     def assert_acc(self, result: str) -> str:
-        return self.translate(f"! Accuracy check: `{result}`")
+        return self.translate(f"> Accuracy result: {result}")
 
     @lru_cache(maxsize=1)
     def action_plan(self, plan_text: str) -> str:
-        return self.translate(f"@ Action plan: `{plan_text}`")
+        return self.translate(f"> Action plan: {plan_text}")
 
     @lru_cache(maxsize=1)
     def x_reference(self, pathname: str) -> str:
-        return self.translate(f"> Resolving X-References: `{pathname}`")
+        return self.translate(f"> Resolving X-References: `{pathname}` …")
 
     @lru_cache(maxsize=1)
     def describe_image(self, image_path: str) -> str:
-        return self.translate(f"Describing image: `{image_path}` …")
-
-    @lru_cache(maxsize=1)
-    def device_switch(self, device_info: str) -> str:
-        return self.translate(f"\nSwitching to Audio Input device: `{device_info}`")
+        return self.translate(f"> Describing image: `{image_path}` …")
 
     @lru_cache(maxsize=1)
     def model_select(self, model: str) -> str:
-        return self.translate(f"\nUsing routing model: `{model}`")
+        return self.translate(f"> Using routing model: `{model}`")
+
+    @lru_cache(maxsize=1)
+    def device_switch(self, device_info: str) -> str:
+        return self.translate(f"\nSwitching to Audio Input device: `{device_info.strip()}`\n")
 
     # Warnings and alerts
 

@@ -16,6 +16,7 @@ en_US
 12. Open the first reminder you find at my downloads and tell me what I must do first.
 13. Describe the first image you find at my downloads.
 14. find . -mxdepth 1 -type f -nme *.png
+15. I have downloaded a QR logo, open it to me.
 
 
 Major Issues:

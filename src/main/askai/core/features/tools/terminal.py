@@ -60,7 +60,8 @@ def open_command(path_name: str) -> str:
     if posix_path.exists:
         # find the best app to open the file.
         path_name: str = str(posix_path)
-        match media_type_of(path_name):
+        mtype = media_type_of(path_name)
+        match mtype:
             case ("audio", _) | ("video", _):
                 fn_open = partial(_execute_bash, f"ffplay -v 0 -autoexit {path_name} &>/dev/null")
             case ("text", _):
@@ -72,10 +73,12 @@ def open_command(path_name: str) -> str:
         status, output = fn_open()
         if status:
             if not output:
-                return msg.translate(f"`{path_name}` was successfully opened!")
+                return msg.translate(f"{mtype[0].title()}: `{path_name}` was successfully opened!")
             return output
+    else:
+        return msg.translate(f"Error: File was not found: '{path_name}'!")
 
-    return msg.translate(f"Error: Could not open '{path_name}'!")
+    return msg.translate(f"Error: Failed to open: '{path_name}'!")
 
 
 def execute_command(shell: str, command_line: str) -> str:
@@ -89,14 +92,14 @@ def execute_command(shell: str, command_line: str) -> str:
         case _:
             raise NotImplementedError(msg.translate(f"'{shell}' is not supported!"))
 
-    return output or msg.cmd_failed(command_line)
+    return output or (msg.cmd_success(command_line) if status else msg.cmd_failed(command_line))
 
 
 def _execute_bash(command_line: str) -> Tuple[bool, str]:
     """Execute the provided command line using bash.
     :param command_line: The command line to be executed in bash.
     """
-    status = False
+    status, output = False, ''
     if (command := command_line.split(" ")[0].strip()) and which(command):
         command = expandvars(command_line.replace("~/", f"{os.getenv('HOME')}/").strip())
         log.info("Executing command `%s'", command)
@@ -109,10 +112,8 @@ def _execute_bash(command_line: str) -> Tuple[bool, str]:
                 log.info("Current directory changed to '%s'", _path_)
             else:
                 log.warning("Directory '%s' does not exist. Current dir unchanged!", _path_)
-            if not output:
-                output = msg.cmd_success(command_line)
-            else:
-                output = f"Command: `{command_line}` succeeded: \n```bash\n{output}\n```"
+            if output:
+                output = f"\n```bash\n{output}\n"
             status = True
         else:
             log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), command)

@@ -27,7 +27,9 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from retry import retry
 
 from askai.core.askai_configs import configs
+from askai.core.askai_events import AskAiEvents
 from askai.core.askai_prompt import prompt
+from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.features.router_agent import agent
 from askai.core.model.action_plan import ActionPlan
@@ -52,7 +54,7 @@ class Router(metaclass=Singleton):
         """
         (remember to respond in a JSON blob no matter what)
 
-        Question: '{input}'
+        {input}
         """
     )
 
@@ -71,20 +73,20 @@ class Router(metaclass=Singleton):
     @property
     def router_template(self) -> ChatPromptTemplate:
         """Retrieve the Router Template."""
-        scratchpad: str = str(shared.context.flat("SCRATCHPAD"))
+        rag: str = str(shared.context.flat("RAG"))
         template = PromptTemplate(
-            input_variables=["home", "os_type", "shell"], template=prompt.read_prompt("task-split.txt")
+            input_variables=["os_type", "shell", "datetime", "home"], template=prompt.read_prompt("task-split.txt")
         )
         return ChatPromptTemplate.from_messages(
             [
                 (
                     "system",
                     template.format(
-                        home=Path.home(), os_type=prompt.os_type, shell=prompt.shell
+                        os_type=prompt.os_type, shell=prompt.shell, datetime=geo_location.datetime, home=Path.home()
                     ),
                 ),
                 MessagesPlaceholder("chat_history", optional=True),
-                ("assistant", scratchpad),
+                ("assistant", rag),
                 ("human", self.HUMAN_PROMPT),
             ]
         )
@@ -135,16 +137,17 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.COLDEST.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
             runnable = RunnableWithMessageHistory(
                 runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
             )
-            if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "ROUTER"}}):
+            if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
                 plan: ActionPlan = self._parse_response(response.content)
                 check_state(plan is not None and isinstance(plan, ActionPlan),
                             f"Invalid action plan received from LLM: {type(plan)}")
                 plan.model = model
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {plan}", verbosity="debug")
                 output = agent.invoke(query, plan) if plan.tasks else agent.wrap_answer(query, plan.speak)
             else:
                 # Most of the times, this represents a failure.
