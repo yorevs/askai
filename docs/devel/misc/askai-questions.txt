@@ -2,27 +2,26 @@ Questions:
 
 en_US
 
-1. Summarize my markdown files at my HomeSetup docs folder.
-2. What are the current weather conditions in San Francisco, U.S today?
-3. When is the upcoming Los Angeles Lakers match?
-4. Who currently holds the office of President of the United States?
-5. List my downloads using stt.
-6. Who is Hugo Saporetti junior?
-7. List my music and let me know if there is any ac/dc song. If so, show me the file name and open it.
-8. Open the first reminder file you find at my downloads.
-9. Create a small Python program to allow me to calculate the speed given the time and distance, save it as './dist.py'. Show me the contents afterwards.
-10. List my downloads and let me know if there is any reminder.
-11. List my downloads and let me know if there is any image.
-12. Open the first reminder you find at my downloads and tell me what I must do first.
-13. Describe the first image you find at my downloads.
-14. find . -mxdepth 1 -type f -nme *.png
-15. I have downloaded a QR logo, open it to me.
+- Summarize my markdown files at my HomeSetup docs folder.
+- What are the current weather conditions in San Francisco, U.S today?
+- When is the upcoming Los Angeles Lakers match?
+- Who currently holds the office of President of the United States?
+- List my downloads using stt.
+- Who is Hugo Saporetti junior?
+- List my music and let me know if there is any ac/dc song. If so, show me the file name and open it.
+- Open the first reminder file you find at my downloads.
+- Create a small Python program to allow me to calculate the speed given the time and distance, save it as 'dist.py'.
+- List my downloads and let me know if there is any reminder.
+- List my downloads and let me know if there is any image.
+- Open the first reminder you find at my downloads and tell me what I must do first.
+- Describe the first image you find at my downloads.
+- find . -mxdepth 1 -type f -nme *.png
+- I have downloaded a QR logo, open it to me.
 
 
 Major Issues:
 
-1. Router is Not Understanding: 'What should I do first/second/third'
-2. query_output: 'Confused with the cross-references'
+1. Router is Not Understanding: 'What should I do first/second/third'.
 3. Router should respond promptly from chat history.
 
 

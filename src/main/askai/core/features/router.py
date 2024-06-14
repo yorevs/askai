@@ -114,7 +114,7 @@ class Router(metaclass=Singleton):
 
     def _select_model(self) -> ModelResult:
         """Select the response model."""
-        llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
+        llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
         if response := llm.invoke(self.model_template):
             json_string: str = response.content  # from AIMessage
             model_result: ModelResult | str = object_mapper.of_json(json_string, ModelResult)
@@ -137,7 +137,7 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_COMMENT_GENERATION.temp)
             runnable = RunnableWithMessageHistory(
                 runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
             )

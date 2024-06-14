@@ -39,10 +39,10 @@ def list_contents(folder: str) -> str:
         status, output = _execute_bash(f"ls -lLht {folder} 2>/dev/null | sort -k9,9")
         if status:
             if not output:
-                return msg.translate(f"Folder {folder} is empty!")
-            return msg.translate(f"Showing the contents of `{folder}`: \n{output}")
+                return msg.translate(f"Folder: `{folder}` is empty!")
+            return msg.translate(f"Listing the contents of: `{folder}`:\n\n{output}\n")
 
-    return msg.translate(f"Error: Could not list folder '{folder}'!")
+    return msg.translate(f"Error: Could not list folder: '{folder}'!")
 
 
 def open_command(path_name: str) -> str:
@@ -73,7 +73,9 @@ def open_command(path_name: str) -> str:
         status, output = fn_open()
         if status:
             if not output:
-                return msg.translate(f"{mtype[0].title()}: `{path_name}` was successfully opened!")
+                output = msg.translate(f"{mtype[0].title()}: `{path_name}` was successfully opened!")
+            else:
+                output = msg.translate(f"Showing the contents of: `{path_name}`:\n\n{output}\n")
             return output
     else:
         return msg.translate(f"Error: File was not found: '{path_name}'!")
@@ -113,7 +115,7 @@ def _execute_bash(command_line: str) -> Tuple[bool, str]:
             else:
                 log.warning("Directory '%s' does not exist. Current dir unchanged!", _path_)
             if output:
-                output = f"\n```bash\n{output}\n"
+                output = f"\n```bash\n{output}```\n"
             status = True
         else:
             log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), command)

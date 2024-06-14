@@ -106,11 +106,11 @@ class Actions(metaclass=Singleton):
     def generate_content(self, instructions: str, mime_type: str, path_name: str) -> str:
         """
         Name: 'Generate Content'
-        Description: Use this tool for tasks that require generating any content such as, code, text, image, and others.
+        Description: Use this tool for tasks that require generating content such as, code and text, image, and others.
         Usage: generate_content(instructions, mime_type, path_name)
-          input `instructions`: These are the instructions for generating content (not the content itself).
-          input `mime_type`: This is the content type (use MIME types).
-          input `path_name`: This is the directory path where you want to save the generated content. This parameter is optional and should be included only if you wish to save files directly to your disk. If not specified, the content will not be saved.
+          input `instructions`: These are the instructions for generating the content.
+          input `mime_type`: This is the generated content type (use MIME types).
+          input `path_name`: This is the file path where you want to save the generated content. This param is optional and must be used when you intend to save the generated content locally.
         """
         return generate_content(instructions, mime_type, path_name)
 

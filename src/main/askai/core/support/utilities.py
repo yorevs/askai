@@ -161,12 +161,11 @@ def extract_codeblock(text: str) -> Tuple[Optional[str], str]:
     """Extract language and actual code from a markdown multi-line code block.
     :param text: The markdown formatted text.
     """
-    flags: int = re.IGNORECASE | re.MULTILINE
     # Match a terminal command formatted in a markdown code block.
-    re_command = r".*`{3}((\w+)\s*)?(.+)\s*?`{3}.*"
-    if text and (mat := re.search(re_command, text.replace("\n", " ").strip(), flags)):
-        if mat and len(mat.groups()) == 3:
-            lang, code = mat.group(1) or "", mat.group(3) or ""
+    re_command = r'.*```((?:\w+)?\s*)\n(.*?)(?=^```)\s*\n?```.*'
+    if text and (mat := re.search(re_command, text, re.DOTALL | re.MULTILINE)):
+        if mat and len(mat.groups()) == 2:
+            lang, code = mat.group(1) or "", mat.group(2) or ""
             return lang.strip(), code.strip()
 
     return None, text

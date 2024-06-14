@@ -13,11 +13,11 @@ Step 1. Identify the primary goal and all sub goals (create one task to address 
 Step 2. Confirm that all required resources exists and are accessible (folder listing may be necessary).
 Step 3. Resolve ambiguities by referring to past events or conversations (from latest to earliest).
 Step 4. Identify file and folder names, paths, glob patterns, etc (as per the user query).
-Step 5. Open or Read required resources (files, folders, etc) using their full path names.
+Step 5. Open, Read or Save required resources (files, folders, etc) using their absolute path names.
 Step 6. Extract relevant information from the files or output (content, date and time, order, etc).
 Step 7. Analyze data and provide a direct instructions without explaining its purpose.
 Step 8. Separate tasks clearly, avoiding the use of conjunctions like 'and', 'or' and implicit multi-step processes within a single task.
-Step 9. Follow this workflow to guide you breaking the tasks: "<Search or Access or List or Navigate> -> <Open or Read> -> <Identify> -> <Operate or Extract> -> <Analyze>". Actions within the same action group, must not be repeated, as they will produce the same result.
+Step 9. Follow this workflow to guide you breaking the tasks: "<Search or Access or List or Navigate> -> <Open or Read or Save or Generate> -> <Identify or Locate> -> <Operate or Extract or Display> -> <Analyze or Calculate>". Actions within the same action group, must not be repeated, as they will produce the same result.
 
 
 Task Requirements:
@@ -51,7 +51,7 @@ Response Format:
     "speak": "thoughts to say to user in first person",
   }}}},
   "tasks": [
-    {{{{ "id": "id", "task": "<detailed task description>", "path": "resource path, or 'N/A' if uncertain" }}}},
+    {{{{ "id": "id", "task": "<detailed task description>", "path": "absolute file or folder path; 'N/A' if uncertain or not needed" }}}},
     ... (repeat N times)
   ]
 }}}}
