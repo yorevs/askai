@@ -52,9 +52,11 @@ class Router(metaclass=Singleton):
 
     HUMAN_PROMPT: str = dedent(
         """
-        (remember to respond in a JSON blob no matter what)
+        (reminder to respond in a strict JSON no matter what).
+        ---
+        Human Question: "{input}"
 
-        {input}
+        Answer:
         """
     )
 
@@ -137,7 +139,7 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_COMMENT_GENERATION.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.COLDEST.temp)
             runnable = RunnableWithMessageHistory(
                 runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
             )
