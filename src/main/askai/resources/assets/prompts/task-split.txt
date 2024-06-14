@@ -30,7 +30,6 @@ Task Requirements:
 6. When the user explicitly refer to his files or folders in a query, assume these references pertain to the files or folders located within his $HOME directory: "{home}". Pay attention to the case of the folder names, as they are case-sensitive; generally, use Snakecase with the first letter uppercase. Allow him to specify additional paths, which should be correctly integrated into the final "path".
 7. When: you can't determine a valid path, it's not applicable, or when it depends on a subsequent task, use: 'N/A'.
 8. If you receive any queries that are requests for **assistive technologies**, such as **speech-to-text**, the "task" will be: "ASSISTIVE: <normal task description>".
-9. When you have a concise and direct answer that fully addresses the primary goal without the need to break down tasks, the "task" will be: "FINAL_ANSWER: <Your final answer>". Always follow the format below.
 
 
 

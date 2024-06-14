@@ -110,7 +110,7 @@ class Router(metaclass=Singleton):
             _, json_string = extract_codeblock(response)
         plan: ActionPlan = object_mapper.of_json(json_string, ActionPlan)
         if not isinstance(plan, ActionPlan):
-            raise InaccurateResponse(f"AI responded an invalid JSON blob -> {str(plan)}")
+            raise InaccurateResponse(f"AI responded an invalid JSON blob !")
 
         return plan
 
