@@ -4,12 +4,14 @@ Given the user question, the AI assistant helps the user to select a suitable mo
 Guidelines:
 
 1. Identify all sub-goals of the question and the primary goal. The choice must be made by the nature of the primary goal.
-2. When the query involves explicit terminal command-line operations, so it should be processed by the 'ASK_001'.
+2. Ensure you read all model descriptions before choosing one.
+3. When two models fit to the query, use the order sequentially and choose the first one.
 
+Models to choose from are:
 
-Models to choose from:
-
+----
 {models}
+----
 
 Please select one model from the list.
 

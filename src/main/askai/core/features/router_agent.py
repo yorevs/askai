@@ -41,14 +41,14 @@ class RouterAgent(metaclass=Singleton):
         """
         output: str = msg.translate(response)
         if model_result:
-            model: RoutingModel = RoutingModel.value_of(model_result.mid)
+            model: RoutingModel = RoutingModel.of_model(model_result.mid)
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.model_select(str(model)), verbosity="debug")
             match model, configs.is_speak:
-                case RoutingModel.ASK_001, True:
+                case RoutingModel.TERMINAL_COMMAND, True:
                     output = final_answer(query, persona_prompt=f"taius-stt", response=response)
-                case RoutingModel.ASK_008, _:
+                case RoutingModel.ASSISTIVE_TECH_HELPER, _:
                     output = final_answer(query, persona_prompt=f"taius-stt", response=response)
-                case RoutingModel.ASK_005 | RoutingModel.ASK_011, _:
+                case RoutingModel.CHAT_MASTER | RoutingModel.FINAL_ANSWER, _:
                     output = final_answer(query, persona_prompt=f"taius-jarvis", response=response)
                 case _:
                     # Default is to leave the AI response intact.

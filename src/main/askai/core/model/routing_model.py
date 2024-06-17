@@ -9,80 +9,82 @@ class RoutingModel(Enumeration):
 
     # fmt: on
 
-    ASK_000 = (
-        "NEUTRAL", "Select this model when no other model fits the user request."
+    NEUTRAL = (
+        "ASK_000", "Select this model when no other model fits the user request."
     )
 
+    # ASSISTIVE_TECH_HELPER
+    ASSISTIVE_TECH_HELPER = "ASK_001", (
+        "Select this model when you receive requests for **assistive technologies**, such as **speech-to-text**")
+
+    # WELL_KNOWN
+    FINAL_ANSWER = "ASK_002", (
+        "Select this model to respond to well known queries, where you database is enough to "
+        "provide a clear and accurate answer.")
+
     # TERMINAL_COMMAND
-    ASK_001 = "TERMINAL_COMMAND", (
+    TERMINAL_COMMAND = "ASK_003", (
         "Select this model for executing shell commands, managing terminal operations, listing folder contents, "
         "reading files, and manipulating system resources directly through the command line interface.")
 
     # CONTENT_MASTER
-    ASK_002 = "CONTENT_MASTER", (
+    CONTENT_MASTER = "ASK_004", (
         "Select this model exclusively for creating, generating, and saving any type of content, including text, code, "
         "images, and others. This model should always be used when the task involves generating or saving content.")
 
     # TEXT_ANALYZER
-    ASK_003 = "TEXT_ANALYZER", (
-        "Select this model for extracting and processing information from within individual documents and files from "
-        "the user file system focusing on text analysis and content within a single file.")
+    TEXT_ANALYZER = "ASK_005", (
+        "Select this model for extracting and processing information from within individual documents and files "
+        "located at the user file system, focusing on text or content analysis within a single file.")
 
     # DATA_ANALYSIS
-    ASK_004 = "DATA_ANALYSIS", (
+    DATA_ANALYSIS = "ASK_006", (
         "Select this model for analyzing datasets, performing statistical analysis, and generating reports. Media "
         "Management and Playback: Select this model for organizing, categorizing, and playing multimedia content.")
 
     # CHAT_MASTER
-    ASK_005 = "CHAT_MASTER", (
+    CHAT_MASTER = "ASK_007", (
         "Select this model for providing conversational responses or engaging in general chat.")
 
     # MEDIA_MANAGEMENT_AND_PLAYBACK
-    ASK_006 = "MEDIA_MANAGEMENT_AND_PLAYBACK", (
+    MEDIA_MANAGEMENT_AND_PLAYBACK = "ASK_008", (
         "Select this model for organizing, categorizing, and playing multimedia content.")
 
     # IMAGE_PROCESSOR
-    ASK_007 = "IMAGE_PROCESSOR", (
-        "Select this model to execute tasks exclusively related to images, such as image captioning, face "
-        "recognition, and comprehensive visual analysis.")
-
-    # ASSISTIVE_TECH_HELPER
-    ASK_008 = "ASSISTIVE_TECH_HELPER", (
-        "Select this model for any tasks initiated or involving assistive technologies such as STT "
-        "(Speech-To-Text) and TTS (Text-To-Speech).")
+    IMAGE_PROCESSOR = "ASK_009", (
+        "Select this model to execute tasks exclusively related to image captioning, face recognition, and "
+        "visual analysis.")
 
     # SUMMARIZE_AND_QUERY
-    ASK_009 = "SUMMARIZE_AND_QUERY", (
+    SUMMARIZE_AND_QUERY = "ASK_010", (
         "Select this model upon receiving an explicit user request for 'summarization of files and folders'.")
 
     # WEB_FETCH
-    ASK_010 = "WEB_FETCH", (
-        "Select this model for retrieving information from the web using the browser.")
+    WEB_FETCH = "ASK_011", (
+        "Select this model for retrieving information about current events from the web.")
 
-    # WELL_KNOWN
-    ASK_011 = "WELL_KNOWN", (
-        "Select this model to respond to well known queries, where you database is enough to "
-        "provide a clear and accurate answer.")
+    @classmethod
+    def of_model(cls, model_id: str) -> 'RoutingModel':
+        """Returning teh matching model ID instance."""
+        for v in cls.values():
+            if v[0] == model_id:
+                return v
 
     @classmethod
     def enlist(cls, separator: str = os.linesep) -> str:
         """Return a list of selectable models."""
-        model_list: str = separator.join(f"{m}: {v[1]}" for m, v in zip(cls.names(), cls.values()))
+        model_list: str = separator.join(f"{v[0]}: {v[1]}" for v in cls.values())
         log.debug("Routing Models: %s", model_list)
         return model_list
 
     def __str__(self):
-        return f"{self.name}::{self.category}"
+        return f"{self.name}::{self.model}"
 
     def __repr__(self):
         return str(self)
 
     @property
     def model(self) -> str:
-        return self.name
-
-    @property
-    def category(self) -> str:
         return self.value[0]
 
     @property
@@ -90,7 +92,3 @@ class RoutingModel(Enumeration):
         return self.value[1]
 
     # fmt: on
-
-
-if __name__ == '__main__':
-    print(RoutingModel.enlist())

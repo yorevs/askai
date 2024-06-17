@@ -31,6 +31,8 @@ Known Good Responses:
 
 - Users may seek casual conversation, where there are no definitive answers. If this is the case, categorize the response as 'Green'.
 
+- Responses explicitly explaining about the lack of information available should be considered 'Good'; unless you are sure otherwise.
+
 - Return a classification of 'Green' immediately if applicable, without applying further guidelines.
 
 
