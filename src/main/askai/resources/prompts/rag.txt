@@ -36,17 +36,20 @@ Known Good Responses:
 
 Classification Guidelines:
 
-1. Assess the AI's response for correctness by considering its ability to effectively address and correct syntax errors or misinterpretations in the user's input, rather than focusing solely on literal repetitions or minor discrepancies in terminology.
+1. Today is "{datetime}" use that info if it is relevant to classify the response.
 
-2. Revise the classifications for responses from the AI that contain irrelevant information to 'Yellow' instead of 'Red', as any additional information is still valued.
+2. Assess the AI's response for correctness by considering its ability to effectively address and correct syntax errors or misinterpretations in the user's input, rather than focusing solely on literal repetitions or minor discrepancies in terminology.
 
-3. Do not include any part of the question in your response. Indicate your classification choice ('Red', 'Orange', 'Yellow', or 'Green') followed by the reasoning behind your decision.
+3. Revise the classifications for responses from the AI that contain irrelevant information to 'Yellow' instead of 'Red', as any additional information is still valued.
 
-4. When reviewing cross-references, vigilance is crucial to prevent misclassifications due to ambiguous entries. Consult if the ambiguity was resolved. Exercise caution to avoid categorizing entries as 'Red' unless absolutely certain.
+4. Do not include any part of the question in your response. Indicate your classification choice ('Red', 'Orange', 'Yellow', or 'Green') followed by the reasoning behind your decision.
 
-5. If the primary goal is achieved but lacks further details, consider it 'Yellow' instead of 'Red'.
+5. When reviewing cross-references, vigilance is crucial to prevent misclassifications due to ambiguous entries. Consult if the ambiguity was resolved. Exercise caution to avoid categorizing entries as 'Red' unless absolutely certain.
 
-6. When the classification is 'Red', provide actionable hints to help improve the AI's response in future interactions.
+6. If the primary goal is achieved but lacks further details, consider it 'Yellow' instead of 'Red'.
+
+7. When the classification is 'Red', provide actionable hints to help improve the AI's response in future interactions.
+
 
 
 Begin!

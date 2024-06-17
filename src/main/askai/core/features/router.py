@@ -94,10 +94,11 @@ class Router(metaclass=Singleton):
         )
 
     @property
-    def model_template(self) -> str:
+    def model_template(self) -> PromptTemplate:
         """Retrieve the Routing Model Template."""
-        template = PromptTemplate(input_variables=["models"], template=prompt.read_prompt("model-select.txt"))
-        return template.format(models=RoutingModel.enlist())
+        return PromptTemplate(
+            input_variables=["models", "question"],
+            template=prompt.read_prompt("model-select.txt"))
 
     @staticmethod
     def _parse_response(response: str) -> ActionPlan:
@@ -114,10 +115,11 @@ class Router(metaclass=Singleton):
 
         return plan
 
-    def _select_model(self) -> ModelResult:
+    def _select_model(self, query: str) -> ModelResult:
         """Select the response model."""
+        final_prompt: str = self.model_template.format(models=RoutingModel.enlist(), question=query)
         llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-        if response := llm.invoke(self.model_template):
+        if response := llm.invoke(final_prompt):
             json_string: str = response.content  # from AIMessage
             model_result: ModelResult | str = object_mapper.of_json(json_string, ModelResult)
             model_result: ModelResult = model_result \
@@ -133,7 +135,7 @@ class Router(metaclass=Singleton):
         :param query: The user query to complete.
         """
 
-        model: ModelResult = self._select_model()
+        model: ModelResult = self._select_model(query)
 
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
         def _process_wrapper() -> Optional[str]:
@@ -150,7 +152,7 @@ class Router(metaclass=Singleton):
                             f"Invalid action plan received from LLM: {type(plan)}")
                 plan.model = model
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {plan}", verbosity="debug")
-                output = agent.invoke(query, plan) if plan.tasks else agent.wrap_answer(query, plan.speak)
+                output = agent.invoke(query, plan) if plan.tasks else agent.wrap_answer(query, plan.speak, plan.model)
             else:
                 # Most of the times, this represents a failure.
                 output = response

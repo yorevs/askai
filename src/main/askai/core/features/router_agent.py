@@ -44,12 +44,15 @@ class RouterAgent(metaclass=Singleton):
             model: RoutingModel = RoutingModel.value_of(model_result.mid)
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.model_select(str(model)), verbosity="debug")
             match model, configs.is_speak:
-                case RoutingModel.ASK_001, True:  # TERMINAL_COMMAND
-                    output = final_answer(query, persona_prompt="stt", response=response)
-                case RoutingModel.ASK_008, _:  # ASSISTIVE_TECH_HELPER
-                    output = final_answer(query, persona_prompt="stt", response=response)
-                case RoutingModel.ASK_007 | RoutingModel.ASK_005, _:  # IMAGE_PROCESSOR | CHAT_MASTER
-                    output = final_answer(query, response=response)
+                case RoutingModel.ASK_001, True:
+                    output = final_answer(query, persona_prompt=f"taius-stt", response=response)
+                case RoutingModel.ASK_008, _:
+                    output = final_answer(query, persona_prompt=f"taius-stt", response=response)
+                case RoutingModel.ASK_005 | RoutingModel.ASK_011, _:
+                    output = final_answer(query, persona_prompt=f"taius-jarvis", response=response)
+                case _:
+                    # Default is to leave the AI response intact.
+                    pass
 
         cache.save_reply(query, output)
 

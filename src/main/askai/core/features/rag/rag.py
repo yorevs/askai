@@ -12,10 +12,12 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from hspylib.core.config.path_object import PathObject
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
+from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.model.rag_response import RagResponse
 from askai.core.support.langchain_support import lc_llm
@@ -43,8 +45,8 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse
         shared.context.push("RAG", issues_prompt.format(problems=empty_msg))
         raise InaccurateResponse(problems)
 
-    assert_template = PromptTemplate(input_variables=["input", "goals", "response"], template=prompt.read_prompt("rag"))
-    final_prompt = assert_template.format(input=question, response=ai_response)
+    assert_template = PromptTemplate(input_variables=["datetime", "input", "response"], template=prompt.read_prompt("rag"))
+    final_prompt = assert_template.format(datetime=geo_location.datetime, input=question, response=ai_response)
     log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
     response: AIMessage = llm.invoke(final_prompt)
@@ -93,8 +95,8 @@ def final_answer(
     question: str,
     username: str = prompt.user.title(),
     idiom: str = shared.idiom,
-    persona_prompt: str = "taius",
-    response: str = None,
+    persona_prompt: str | None = None,
+    response: str | None = None,
 ) -> str:
     """Provide the final response to the user.
     :param question: The user question.
@@ -103,17 +105,17 @@ def final_answer(
     :param persona_prompt: The persona prompt to be used.
     :param response: The final AI response or context.
     """
-    output = response
-    if response:
-        template = PromptTemplate(
-            input_variables=["user", "idiom", "context", "question"], template=prompt.read_prompt(persona_prompt)
-        )
-        final_prompt = template.format(user=username, idiom=idiom, context=response, question=question)
-        log.info("FETCH::[QUESTION] '%s'  context: '%s'", question, response)
-        llm = lc_llm.create_chat_model(temperature=Temperature.CODE_GENERATION.temp)
-        response: AIMessage = llm.invoke(final_prompt)
+    output = response or ""
+    prompt_file: PathObject = PathObject.of(prompt.append_path(f"taius/{persona_prompt}"))
+    template = PromptTemplate(
+        input_variables=["user", "idiom", "context", "question"],
+        template=prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir))
+    final_prompt = template.format(user=username, idiom=idiom, context=response, question=question)
+    log.info("FETCH::[QUESTION] '%s'  context: '%s'", question, response)
+    llm = lc_llm.create_chat_model(temperature=Temperature.CODE_GENERATION.temp)
+    response: AIMessage = llm.invoke(final_prompt)
 
-        if not response or not (output := response.content) or shared.UNCERTAIN_ID in response.content:
-            output = msg.translate("Sorry, I was not able to provide a helpful response.")
+    if not response or not (output := response.content) or shared.UNCERTAIN_ID in response.content:
+        output = msg.translate("Sorry, I was not able to provide a helpful response.")
 
     return output or msg.translate("Sorry, the query produced no response!")

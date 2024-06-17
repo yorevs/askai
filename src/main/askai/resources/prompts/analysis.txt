@@ -14,10 +14,12 @@ When enumerating is necessary, use numbered lists.
 
 If you have an answer, format like (attention to the new lines):
 
-"""Analysing the provided data:
+"""
+Analysing the provided data:
 
 <your conclusion>
 
+---
 Summary: <a small reasoning about the conclusion>
 """
 

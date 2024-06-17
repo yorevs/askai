@@ -28,7 +28,7 @@ class AskAiPrompt(metaclass=Singleton):
     INSTANCE: "AskAiPrompt"
 
     # AI Prompts directory.
-    PROMPT_DIR = str(classpath.resource_path()) + "/assets/prompts"
+    PROMPT_DIR = str(classpath.resource_path()) + "/prompts"
 
     def __init__(self):
         self._shell: SupportedShells = get_shell()
@@ -59,6 +59,10 @@ class AskAiPrompt(metaclass=Singleton):
     def hub(self, owner_repo_commit) -> ChatPromptTemplate:
         """Read a prompt from LangChain hub."""
         return hub.pull(owner_repo_commit)
+
+    def append_path(self, path: str) -> str:
+        """Return the PROMPT_DIR with the extra path appended."""
+        return f"{self.PROMPT_DIR}/{path}"
 
 
 assert (prompt := AskAiPrompt().INSTANCE) is not None

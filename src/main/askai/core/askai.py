@@ -288,7 +288,8 @@ class AskAi:
         if query_arg:
             query: str = str(" ".join(query_arg) if isinstance(query_arg, list) else query_arg)
             self._question = query
-            dir_name, file_name = PathObject.split(self._query_prompt or f"{prompt.PROMPT_DIR}/qstring")
+            dir_name, file_name = PathObject.split(
+                self._query_prompt or f"{prompt.PROMPT_DIR}/taius/taius-non-interactive")
             if not self._interactive:
                 stdin_args = read_stdin()
                 template = PromptTemplate(

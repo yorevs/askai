@@ -1,10 +1,11 @@
+import logging as log
 import os
 
 from hspylib.core.enums.enumeration import Enumeration
 
 
 class RoutingModel(Enumeration):
-    """TODO"""
+    """The model used to provide the final answer to the user."""
 
     # fmt: on
 
@@ -24,8 +25,8 @@ class RoutingModel(Enumeration):
 
     # TEXT_ANALYZER
     ASK_003 = "TEXT_ANALYZER", (
-        "Select this model for extracting and processing information from within individual documents and files, "
-        "focusing on text analysis and content within a single file.")
+        "Select this model for extracting and processing information from within individual documents and files from "
+        "the user file system focusing on text analysis and content within a single file.")
 
     # DATA_ANALYSIS
     ASK_004 = "DATA_ANALYSIS", (
@@ -56,16 +57,19 @@ class RoutingModel(Enumeration):
 
     # WEB_FETCH
     ASK_010 = "WEB_FETCH", (
-        "Select this model for retrieving information from the web.")
+        "Select this model for retrieving information from the web using the browser.")
 
-    # FINAL_ANSWER
-    ASK_011 = "FINAL_ANSWER", (
-        "Select this model to provide a clear and definitive answer to the human.")
+    # WELL_KNOWN
+    ASK_011 = "WELL_KNOWN", (
+        "Select this model to respond to well known queries, where you database is enough to "
+        "provide a clear and accurate answer.")
 
     @classmethod
     def enlist(cls, separator: str = os.linesep) -> str:
         """Return a list of selectable models."""
-        return separator.join(f"{m}: {v[1]}" for m, v in zip(cls.names(), cls.values()))
+        model_list: str = separator.join(f"{m}: {v[1]}" for m, v in zip(cls.names(), cls.values()))
+        log.debug("Routing Models: %s", model_list)
+        return model_list
 
     def __str__(self):
         return f"{self.name}::{self.category}"
