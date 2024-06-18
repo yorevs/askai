@@ -12,6 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from openai import RateLimitError
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
@@ -276,6 +278,9 @@ class AskAi:
             self.reply_error(msg.unprocessable(str(err)))
         except UsageError as err:
             self.reply_error(msg.invalid_command(err))
+        except RateLimitError as err:
+            self.reply_error(msg.quote_exceeded(err))
+            status = False
         except TerminatingQuery:
             status = False
 

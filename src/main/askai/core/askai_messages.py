@@ -191,5 +191,9 @@ class AskAiMessages(metaclass=Singleton):
     def unprocessable(self, reason: str) -> str:
         return self.translate(f"Sorry, {reason}")
 
+    @lru_cache(maxsize=1)
+    def quote_exceeded(self, reason: str) -> str:
+        return self.translate(f"Ops! Lookslike you have reached your quota limit: '{reason}'")
+
 
 assert (msg := AskAiMessages().INSTANCE) is not None
