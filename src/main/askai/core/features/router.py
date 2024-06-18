@@ -77,8 +77,8 @@ class Router(metaclass=Singleton):
         """Retrieve the Router Template."""
         rag: str = str(shared.context.flat("RAG"))
         template = PromptTemplate(
-            input_variables=["os_type", "shell", "datetime", "home"], template=prompt.read_prompt("task-split.txt")
-        )
+            input_variables=["os_type", "shell", "datetime", "home"],
+            template=prompt.read_prompt("task-split.txt"))
         return ChatPromptTemplate.from_messages(
             [
                 (
@@ -97,7 +97,7 @@ class Router(metaclass=Singleton):
     def model_template(self) -> PromptTemplate:
         """Retrieve the Routing Model Template."""
         return PromptTemplate(
-            input_variables=["models", "question"],
+            input_variables=["datetime", "models", "question"],
             template=prompt.read_prompt("model-select.txt"))
 
     @staticmethod
@@ -117,7 +117,8 @@ class Router(metaclass=Singleton):
 
     def _select_model(self, query: str) -> ModelResult:
         """Select the response model."""
-        final_prompt: str = self.model_template.format(models=RoutingModel.enlist(), question=query)
+        final_prompt: str = self.model_template.format(
+            datetime=geo_location.datetime, models=RoutingModel.enlist(), question=query)
         llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
         if response := llm.invoke(final_prompt):
             json_string: str = response.content  # from AIMessage
