@@ -13,7 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 import logging as log
-import re
 from pathlib import Path
 from textwrap import dedent
 from typing import Any, Optional, Type, TypeAlias
@@ -21,7 +20,6 @@ from typing import Any, Optional, Type, TypeAlias
 import PIL
 from hspylib.core.exception.exceptions import InvalidArgumentError
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_state
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from retry import retry
@@ -38,7 +36,6 @@ from askai.core.model.routing_model import RoutingModel
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
-from askai.core.support.utilities import extract_codeblock
 from askai.exception.exceptions import InaccurateResponse
 
 AgentResponse: TypeAlias = dict[str, Any]
@@ -100,21 +97,6 @@ class Router(metaclass=Singleton):
             input_variables=["datetime", "models", "question"],
             template=prompt.read_prompt("model-select.txt"))
 
-    @staticmethod
-    def _parse_response(response: str) -> ActionPlan:
-        """Parse the router response.
-        :param response: The router response. This should be a JSON blob, but sometimes the AI responds with a
-        straight JSON string.
-        """
-        json_string = response
-        if re.match(r"^`{3}(.+)`{3}$", response):
-            _, json_string = extract_codeblock(response)
-        plan: ActionPlan = object_mapper.of_json(json_string, ActionPlan)
-        if not isinstance(plan, ActionPlan):
-            raise InaccurateResponse(f"AI responded an invalid JSON blob !")
-
-        return plan
-
     def _select_model(self, query: str) -> ModelResult:
         """Select the response model."""
         final_prompt: str = self.model_template.format(
@@ -148,12 +130,9 @@ class Router(metaclass=Singleton):
             )
             if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
-                plan: ActionPlan = self._parse_response(response.content)
-                check_state(plan is not None and isinstance(plan, ActionPlan),
-                            f"Invalid action plan received from LLM: {type(plan)}")
-                plan.model = model
+                plan: ActionPlan = ActionPlan.create(query, response, model)
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {plan}", verbosity="debug")
-                output = agent.invoke(query, plan) if plan.tasks else agent.wrap_answer(query, plan.speak, plan.model)
+                output = agent.invoke(query, plan)
             else:
                 # Most of the times, this represents a failure.
                 output = response

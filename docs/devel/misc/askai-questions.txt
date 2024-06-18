@@ -22,7 +22,7 @@ en_US
 Major Issues:
 
 1. Router is Not Understanding: 'What should I do first/second/third'.
-3. Router should respond promptly from chat history.
+2. Fix summarize (Q&A mode).
 
 
 

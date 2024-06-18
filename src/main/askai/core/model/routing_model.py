@@ -68,7 +68,7 @@ class RoutingModel(Enumeration):
         """Returning teh matching model ID instance."""
         for v in cls.values():
             if v[0] == model_id:
-                return v
+                return cls.of_value(v)
 
     @classmethod
     def enlist(cls, separator: str = os.linesep) -> str:

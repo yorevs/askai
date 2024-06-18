@@ -193,7 +193,7 @@ class AskAi:
         if self.is_speak:
             self.engine.text_to_speech(f"Error: {message}", f"{shared.nickname}: ")
         else:
-            display_text(f"Error: {message}", f"{shared.nickname}: ")
+            display_text(f"%RED%Error: {message}%NC%", f"{shared.nickname}: ")
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.
@@ -278,8 +278,8 @@ class AskAi:
             self.reply_error(msg.unprocessable(str(err)))
         except UsageError as err:
             self.reply_error(msg.invalid_command(err))
-        except RateLimitError as err:
-            self.reply_error(msg.quote_exceeded(err))
+        except RateLimitError:
+            self.reply_error(msg.quote_exceeded())
             status = False
         except TerminatingQuery:
             status = False

@@ -30,14 +30,14 @@ class TextFormatter(metaclass=Singleton):
     INSTANCE: "TextFormatter"
 
     CHAT_ICONS = {
-        "": "\n>   *Error*: ",
-        "": "\n>   *TIP:* ",
-        "": "\n>   *Analysis:* ",
-        "": "\n>   *Summary:* ",
-        "": "\n>   *Joke:* ",
-        "": "\n>   *Fun-Fact:* ",
-        "": "\n>   *Advice:* ",
-        "﬽": "\n> ﬽  *Conclusion:* ",
+        "": "*An exception occurred*: \n> ",
+        "": "\n>   *TIP*: ",
+        "": "\n>   *Analysis*: ",
+        "": "\n>   *Summary*: ",
+        "": "\n>   *Joke*: ",
+        "": "\n>   *Fun-Fact*: ",
+        "": "\n>   *Advice*: ",
+        "﬽": "\n> ﬽  *Conclusion*: ",
     }
 
     @staticmethod
@@ -63,14 +63,14 @@ class TextFormatter(metaclass=Singleton):
             r"[a-zA-Z0-9]+\.[^\s')]{2,}|www\.[a-zA-Z0-9]+\.[^\s')]{2,})"
         )
         text = dedent(str(text))
-        text = re.sub(r"\**Errors?[-:\s][\s*]+", self.CHAT_ICONS[''], text)
-        text = re.sub(r"\**[Hh]ints?( (and|&) [Tt]ips)?[-:\s][\s*]+", self.CHAT_ICONS[''], text)
-        text = re.sub(r"\**[Aa]nalysis[-:\s][\s*]+", self.CHAT_ICONS[''], text)
-        text = re.sub(r"\**[Ss]ummary[-:\s][\s*]+", self.CHAT_ICONS[''], text)
-        text = re.sub(r"\**[Ff]un [Ff]acts?[-:\s][\s*]+", self.CHAT_ICONS[''], text)
-        text = re.sub(r"\**([Jj]oke( [Tt]ime)?)[-:\s][\s*]+", self.CHAT_ICONS[''], text)
-        text = re.sub(r"\**[Aa]dvice[-:\s][\s*]+", self.CHAT_ICONS[''], text)
-        text = re.sub(r"\**[Cc]onclusion[-:\s][\s*]+", self.CHAT_ICONS['﬽'], text)
+        text = re.sub(r"[\s*_]*Errors?[_*-:\s]+", self.CHAT_ICONS[''], text)
+        text = re.sub(r"[\s*_]*Hints?( (and|&) [Tt]ips?)?[_*-:\s]+", self.CHAT_ICONS[''], text)
+        text = re.sub(r"[\s*_]*Analysis[_*-:\s]+", self.CHAT_ICONS[''], text)
+        text = re.sub(r"[\s*_]*Summary[_*-:\s]+", self.CHAT_ICONS[''], text)
+        text = re.sub(r"[\s*_]*Fun[\s-]+[Ff]acts?[_*-:\s]+", self.CHAT_ICONS[''], text)
+        text = re.sub(r"[\s*_]*(Jokes?(\s+[Tt]ime)?)[_*-:\s]+", self.CHAT_ICONS[''], text)
+        text = re.sub(r"[\s*_]*Advice[_*-:\s]+", self.CHAT_ICONS[''], text)
+        text = re.sub(r"[\s*_]*Conclusion[_*-:\s]+", self.CHAT_ICONS['﬽'], text)
         text = re.sub(re_url, r' [\1](\1)', text)
         text = re.sub(r'(`{3}.+`{3})', r'\n\1\n', text)
         # fmt: on
@@ -93,3 +93,29 @@ class TextFormatter(metaclass=Singleton):
 
 
 assert (text_formatter := TextFormatter().INSTANCE) is not None
+
+
+if __name__ == '__main__':
+    print(text_formatter.beautify("Error: this is an error"))
+    print(text_formatter.beautify("*Error*: this is an error"))
+    print(text_formatter.beautify("**Error**: this is an error"))
+    print(text_formatter.beautify("**Errors**: this is an error"))
+    print(text_formatter.beautify("Hint: this is a hint"))
+    print(text_formatter.beautify("*Hint*: this is a hint"))
+    print(text_formatter.beautify("**Hint**: this is a hint"))
+    print(text_formatter.beautify("**Hints**: this is a hint"))
+    print(text_formatter.beautify("Joke: this is a joke"))
+    print(text_formatter.beautify("*Joke*: this is a joke"))
+    print(text_formatter.beautify("**Joke**: this is a joke"))
+    print(text_formatter.beautify("**Jokes**: this is a joke"))
+    print(text_formatter.beautify("Analysis: this is an analysis"))
+    print(text_formatter.beautify("*Analysis*: this is an analysis"))
+    print(text_formatter.beautify("**Analysis**: this is an analysis"))
+    print(text_formatter.beautify("Fun Fact: this is a fun fact"))
+    print(text_formatter.beautify("Fun-Fact: this is a fun fact"))
+    print(text_formatter.beautify("*Fun Fact*: this is a fun fact"))
+    print(text_formatter.beautify("*Fun-Fact*: this is a fun fact"))
+    print(text_formatter.beautify("**Fun Fact**: this is a fun fact"))
+    print(text_formatter.beautify("**Fun-Fact**: this is a fun fact"))
+    print(text_formatter.beautify("_Fun-Fact_: this is a fun fact"))
+    print(text_formatter.beautify("__Fun  Fact__: this is a fun fact"))

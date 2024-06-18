@@ -13,7 +13,8 @@ from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.features.actions import features
-from askai.core.features.rag.rag import assert_accuracy, final_answer
+from askai.core.features.rag.rag import assert_accuracy
+from askai.core.features.tools.general import final_answer
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
 from askai.core.model.rag_response import RagResponse
@@ -48,7 +49,7 @@ class RouterAgent(metaclass=Singleton):
                     output = final_answer(query, persona_prompt=f"taius-stt", response=response)
                 case RoutingModel.ASSISTIVE_TECH_HELPER, _:
                     output = final_answer(query, persona_prompt=f"taius-stt", response=response)
-                case RoutingModel.CHAT_MASTER | RoutingModel.FINAL_ANSWER, _:
+                case RoutingModel.CHAT_MASTER, _:
                     output = final_answer(query, persona_prompt=f"taius-jarvis", response=response)
                 case _:
                     # Default is to leave the AI response intact.

@@ -192,8 +192,10 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"Sorry, {reason}")
 
     @lru_cache(maxsize=1)
-    def quote_exceeded(self, reason: str) -> str:
-        return self.translate(f"Ops! Lookslike you have reached your quota limit: '{reason}'")
+    def quote_exceeded(self) -> str:
+        return self.translate(
+            f"Oops! Looks like you have reached your quota limit. You can add credits at: "
+            f"https://platform.openai.com/settings/organization/billing/overview")
 
 
 assert (msg := AskAiMessages().INSTANCE) is not None
