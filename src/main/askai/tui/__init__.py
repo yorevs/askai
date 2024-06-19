@@ -6,9 +6,9 @@
 """Package initialization."""
 
 __all__ = [
-    'app_icons', 
-    'app_widgets', 
-    'askai_app', 
-    'header'
+    'app_icons',
+    'app_widgets',
+    'askai_app',
+    'app_header.py'
 ]
 __version__ = '1.0.8'

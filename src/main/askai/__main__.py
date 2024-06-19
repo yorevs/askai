@@ -15,7 +15,7 @@
 
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
-from askai.core.tui.askai_app import AskAiApp
+from askai.tui.askai_app import AskAiApp
 from clitt.core.term.commons import is_a_tty
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset

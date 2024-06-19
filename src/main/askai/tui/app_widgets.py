@@ -3,7 +3,7 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.tui.app_widgets
+   @package: askai.tui.app_widgets
       @file: app_widgets.py
    @created: Mon, 29 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
@@ -22,7 +22,7 @@ from textual.reactive import Reactive, reactive
 from textual.widget import Widget
 from textual.widgets import Static
 
-from askai.core.tui.app_icons import AppIcons
+from askai.tui.app_icons import AppIcons
 
 
 class MenuIcon(Widget):

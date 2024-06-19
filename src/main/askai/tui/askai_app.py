@@ -3,7 +3,7 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.tui.askai_app
+   @package: askai.tui.askai_app
       @file: askai_app.py
    @created: Mon, 29 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
@@ -12,31 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-
-import logging as log
-import os
-import re
-from contextlib import redirect_stdout
-from functools import partial
-from io import StringIO
-from pathlib import Path
-from typing import Callable
-
-import nltk
-from cachetools import LRUCache
-from click import UsageError
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging
-from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
-from hspylib.core.zoned_datetime import now
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from openai import RateLimitError
-from textual import on, work
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.suggester import SuggestFromList
-from textual.widgets import Footer, Input, MarkdownViewer
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
@@ -53,9 +28,33 @@ from askai.core.features.router import router
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
-from askai.core.tui.app_widgets import AppInfo, Splash
-from askai.core.tui.header import Header
 from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery
+from askai.tui.app_widgets import AppInfo, Splash
+from askai.tui.app_header import Header
+from cachetools import LRUCache
+from click import UsageError
+from contextlib import redirect_stdout
+from functools import partial
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging
+from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
+from hspylib.core.zoned_datetime import now
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from io import StringIO
+from openai import RateLimitError
+from pathlib import Path
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.containers import ScrollableContainer
+from textual.suggester import SuggestFromList
+from textual.widgets import Footer, Input, MarkdownViewer
+from typing import Callable
+
+import logging as log
+import nltk
+import os
+import re
 
 SOURCE_DIR: Path = classpath.source_path()
 
@@ -199,6 +198,7 @@ class AskAiApp(App):
         self.screen.sub_title = self.engine.ai_model_name()
         self.enable_controls(False)
         self.md_console.set_class(True, "-hidden")
+        self.md_console.set_interval(0.7, self._refresh_console)
         self._startup()
 
     def enable_controls(self, enable: bool = True):
@@ -215,9 +215,6 @@ class AskAiApp(App):
         await self.md_console.go(self._console_path)
         self.md_console.set_classes("-visible")
         self.md_console.focus()
-        self.md_console.show_table_of_contents = True
-        await self._refresh_console()
-        self.md_console.set_interval(0.7, self._refresh_console)
 
     @work(thread=True)
     async def action_clear(self) -> None:
@@ -232,11 +229,11 @@ class AskAiApp(App):
 
     async def action_speaking(self) -> None:
         """Toggle Speaking ON/OFF."""
-        self._ask_and_reply("/speak", self._update_info)
+        self._ask_and_reply("/speak", self._update_app_info)
 
     async def action_debugging(self) -> None:
         """Toggle Debugging ON/OFF."""
-        self._ask_and_reply("/debug", self._update_info)
+        self._ask_and_reply("/debug", self._update_app_info)
 
     @work(thread=True)
     def display_text(self, markdown_text: str) -> None:
@@ -274,7 +271,7 @@ class AskAiApp(App):
         if self.is_speak:
             self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
 
-    def _update_info(self, status: int, output: str) -> None:
+    def _update_app_info(self, status: int, output: str) -> None:
         """Update the application information text. This callback is required because ask_and_reply is async."""
         self.info.info_text = str(self)
         self.header.clock.debugging = self.is_debugging
@@ -294,9 +291,9 @@ class AskAiApp(App):
 
     async def _refresh_console(self) -> None:
         if self._re_render:
+            self._re_render = False
             await self.md_console.go(self._console_path)
             self.md_console.scroll_end(animate=False)
-            self._re_render = False
 
     @work(thread=True)
     async def _ask_and_reply(self, question: str, cb_on_finish: Callable[[bool, str], None] = None) -> bool:

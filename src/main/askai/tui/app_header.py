@@ -3,8 +3,8 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.tui.header
-      @file: header.py
+   @package: askai.tui.header
+      @file: app_header.py
    @created: Mon, 29 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
       @site: https://github.com/yorevs/askai
@@ -21,8 +21,8 @@ from textual.reactive import reactive
 from textual.widget import Widget
 
 from askai.core.askai_configs import configs
-from askai.core.tui.app_icons import AppIcons
-from askai.core.tui.app_widgets import MenuIcon
+from askai.tui.app_icons import AppIcons
+from askai.tui.app_widgets import MenuIcon
 
 
 class HeaderTitle(Widget):
@@ -61,7 +61,8 @@ class HeaderClock(Widget):
         return Text(
             f"{AppIcons.SPEAKING_ON if self.speaking else AppIcons.SPEAKING_OFF}  "
             + f"{AppIcons.DEBUG_ON if self.debugging else AppIcons.DEBUG_OFF}"
-            + f"  {AppIcons.SEPARATOR}  " + now("%a %d %b %X")
+            + f"  {AppIcons.SEPARATOR}  "
+            + now("%a %d %b %X")
         )
 
     async def watch_speaking(self) -> None:

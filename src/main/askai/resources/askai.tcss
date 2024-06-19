@@ -3,6 +3,11 @@
   visibility: hidden;
 }
 
+.-visible {
+  display: block;
+  visibility: visible;
+}
+
 Screen {
   background: #030F12;
   color: #DAF7F0;
@@ -41,8 +46,6 @@ Header {
 
 MarkdownViewer {
   padding: 1 0;
-  display: block;
-  visibility: visible;
 }
 
 Input {
