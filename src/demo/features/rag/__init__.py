@@ -1,9 +1,11 @@
 # _*_ coding: utf-8 _*_
 #
-# "askai" v1.0.7
+# "askai" v1.0.8
 #
 # Package: demo.features.rag
 """Package initialization."""
 
-__all__ = ["x_refs_demo"]
-__version__ = "1.0.7"
+__all__ = [
+    'x_refs_demo'
+]
+__version__ = '1.0.8'
