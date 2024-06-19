@@ -1,11 +1,3 @@
-import logging as log
-from types import SimpleNamespace
-
-from hspylib.core.metaclass.singleton import Singleton
-from langchain.agents import AgentExecutor, create_structured_chat_agent
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import Runnable
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -22,6 +14,13 @@ from askai.core.model.routing_model import RoutingModel
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
+from hspylib.core.metaclass.singleton import Singleton
+from langchain.agents import AgentExecutor, create_structured_chat_agent
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import Runnable
+from types import SimpleNamespace
+
+import logging as log
 
 
 class RouterAgent(metaclass=Singleton):
@@ -101,7 +100,7 @@ class RouterAgent(metaclass=Singleton):
 
     def _create_lc_agent(self, temperature: Temperature = Temperature.CODE_GENERATION) -> Runnable:
         """Create the LangChain agent.
-        :param temperature: The LLM temperature.
+        :param temperature: The LLM temperature (randomness).
         """
         if self._lc_agent is None:
             tools = features.tools()

@@ -12,21 +12,20 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from pathlib import Path
-
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.preconditions import check_not_none
-from hspylib.core.tools.text_tools import ensure_endswith
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import PromptTemplate
-
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.utilities import extract_codeblock
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.preconditions import check_not_none
+from hspylib.core.tools.text_tools import ensure_endswith
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import PromptTemplate
+from pathlib import Path
+
+import logging as log
+import os
 
 
 def generate_content(query: str, mime_type: str, path_name: str | None) -> str:

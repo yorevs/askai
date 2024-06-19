@@ -12,8 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from langchain_google_community import GoogleSearchAPIWrapper
-
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -35,6 +33,7 @@ from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.runnables.utils import Output
 from langchain_core.tools import Tool
+from langchain_google_community import GoogleSearchAPIWrapper
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from typing import List
 

@@ -70,8 +70,7 @@ class Actions(metaclass=Singleton):
     def _create_structured_tool(self, fn: Callable) -> BaseTool:
         """Create the LangChain agent tool."""
         return StructuredTool.from_function(
-            fn,
-            name=fn.__name__,
+            fn, name=fn.__name__,
             description=f"```{dedent(fn.__doc__)}```\n\n" if fn and fn.__doc__ else "",
             return_direct=True,
         )

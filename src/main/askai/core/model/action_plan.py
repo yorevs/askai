@@ -12,18 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import re
-from dataclasses import dataclass, field
-from types import SimpleNamespace
-
-from hspylib.core.preconditions import check_state
-from langchain_core.messages import AIMessage
-
 from askai.core.askai_messages import msg
 from askai.core.model.model_result import ModelResult
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.utilities import extract_codeblock
 from askai.exception.exceptions import InaccurateResponse
+from dataclasses import dataclass, field
+from hspylib.core.preconditions import check_state
+from langchain_core.messages import AIMessage
+from types import SimpleNamespace
+
+import re
 
 
 @dataclass

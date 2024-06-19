@@ -12,8 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from openai import RateLimitError
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
@@ -46,6 +44,7 @@ from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
 from hspylib.modules.eventbus.event import Event
 from langchain_core.prompts import PromptTemplate
+from openai import RateLimitError
 from pathlib import Path
 from threading import Thread
 from typing import List, Optional
