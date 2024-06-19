@@ -13,6 +13,30 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import logging as log
+import os
+import re
+from contextlib import redirect_stdout
+from functools import partial
+from io import StringIO
+from pathlib import Path
+
+import nltk
+from cachetools import LRUCache
+from click import UsageError
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging
+from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
+from hspylib.core.zoned_datetime import now
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from openai import RateLimitError
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.containers import ScrollableContainer
+from textual.suggester import SuggestFromList
+from textual.widgets import Footer, Input, MarkdownViewer
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
@@ -21,6 +45,7 @@ from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import ask_cli
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
+from askai.core.component.geo_location import geo_location
 from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
@@ -31,27 +56,6 @@ from askai.core.support.text_formatter import text_formatter
 from askai.core.tui.app_widgets import AppInfo, Splash
 from askai.core.tui.header import Header
 from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery
-from cachetools import LRUCache
-from click import UsageError
-from contextlib import redirect_stdout
-from functools import partial
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
-from hspylib.core.zoned_datetime import now
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from io import StringIO
-from pathlib import Path
-from textual import on, work
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.suggester import SuggestFromList
-from textual.widgets import Footer, Input, MarkdownViewer
-
-import logging as log
-import nltk
-import os
-import re
 
 SOURCE_DIR: Path = classpath.source_path()
 
@@ -69,7 +73,7 @@ class AskAiApp(App):
 
     RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"
 
-    def __init__(self, quiet: bool, tempo: int, engine_name: str, model_name: str):
+    def __init__(self, quiet: bool, debug: bool, tempo: int, engine_name: str, model_name: str):
         super().__init__()
         self._session_id = now("%Y%m%d")[:8]
         self._input_history = ["/help", "/settings", "/voices", "/debug"]
@@ -82,20 +86,28 @@ class AskAiApp(App):
             self._console_path.touch()
         # Setting configs from program args.
         configs.is_speak = not quiet
+        configs.is_debug = is_debugging() or debug
         configs.tempo = tempo
 
     def __str__(self) -> str:
         device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
-        device_info += f", AUTO-SWAP {'ON' if recorder.is_auto_swap else 'OFF'}"
+        device_info += f", AUTO-SWAP {'ON' if recorder.is_auto_swap else '%RED%OFF'}"
+        dtm = f" {geo_location.datetime} "
         speak_info = str(configs.tempo) + " @" + shared.engine.configs.tts_voice
         cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, "…")
         return (
-            f"     Engine: {self.engine} \n"
-            f"   Language: {configs.language} \n"
-            f"    WorkDir: {cur_dir} \n\n"
-            f" Microphone: {device_info or 'Undetected'} \n"
-            f"   Speaking: {'ON, tempo: ' + speak_info if self.is_speak else 'OFF'} \n"
-            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else 'OFF'} \n"
+            f"%GREEN%"
+            f"AskAI v{Version.load(load_dir=classpath.source_path())} %EOL%"
+            f"{dtm.center(80, '=')} %EOL%"
+            f"     Engine: {self.engine} %EOL%"
+            f"   Language: {configs.language} %EOL%"
+            f"    WorkDir: {cur_dir} %EOL%"
+            f"{'-' * 80} %EOL%"
+            f" Microphone: {device_info or '%RED%Undetected'} %GREEN%%EOL%"
+            f"  Debugging: {'ON' if self.is_debugging else '%RED%OFF'} %GREEN%%EOL%"
+            f"   Speaking: {'ON, tempo: ' + speak_info if self.is_speak else '%RED%OFF'} %GREEN%%EOL%"
+            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else '%RED%OFF'} %GREEN%%EOL%"
+            f"{'=' * 80}%EOL%%NC%"
         )
 
     @property
@@ -200,7 +212,7 @@ class AskAiApp(App):
         self.md_console.focus()
         self.md_console.show_table_of_contents = True
         await self._refresh_console()
-        self.md_console.set_interval(1, self._refresh_console)
+        self.md_console.set_interval(0.5, self._refresh_console)
 
     @work(thread=True)
     async def action_clear(self) -> None:
@@ -210,7 +222,7 @@ class AskAiApp(App):
             f_console.write(f"---\n\n# {now()}\n\n")
             f_console.flush()
             self._re_render = True
-        await self.reply(f"{msg.welcome(prompt.user.title())}")
+        self.reply(f"{msg.welcome(prompt.user.title())}")
         self.enable_controls(True)
 
     async def action_speaking(self) -> None:
@@ -235,15 +247,16 @@ class AskAiApp(App):
         self.display_text(f"{self.username}: {question}")
         self._ask_and_reply(question)
 
-    async def reply(self, message: str) -> None:
+    def reply(self, message: str) -> None:
         """Reply to the user with the AI response.
         :param message: The message to reply to the user.
         """
+        log.debug(message)
         self.display_text(f"{self.nickname}: {message}")
         if self.is_speak:
             self.engine.text_to_speech(message, f"{self.nickname}: ")
 
-    async def reply_error(self, message: str) -> None:
+    def reply_error(self, message: str) -> None:
         """Reply API or system errors.
         :param message: The error message to be displayed.
         """
@@ -251,6 +264,18 @@ class AskAiApp(App):
         self.display_text(f"{self.nickname}: Error: {message}")
         if self.is_speak:
             self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
+
+    def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
+        """Callback to handle reply events.
+        :param ev: The reply event.
+        :param error: Whether the event is an error not not.
+        """
+        if error:
+            self.reply_error(ev.args.message)
+        else:
+            verbose = ev.args.verbosity.lower()
+            if verbose == "normal" or self.is_debugging:
+                self.reply(ev.args.message)
 
     async def _refresh_console(self) -> None:
         if self._re_render:
@@ -275,18 +300,21 @@ class AskAiApp(App):
                         self.display_text(f"\n```bash\n{strip_escapes(output)}\n```")
             elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
-                await self.reply(message=msg.wait())
+                self.reply(message=msg.wait())
                 if output := router.process(question):
-                    await self.reply(output)
+                    self.reply(output)
             else:
                 log.debug("Reply found for '%s' in cache.", question)
-                await self.reply(reply)
+                self.reply(reply)
         except (NotImplementedError, ImpossibleQuery) as err:
-            await self.reply_error(str(err))
-        except (MaxInteractionsReached, InaccurateResponse, ValueError) as err:
-            await self.reply_error(msg.unprocessable(str(err)))
+            self.reply_error(str(err))
+        except (MaxInteractionsReached, InaccurateResponse, ValueError, AttributeError) as err:
+            self.reply_error(msg.unprocessable(str(err)))
         except UsageError as err:
-            await self.reply_error(msg.invalid_command(err))
+            self.reply_error(msg.invalid_command(err))
+        except RateLimitError:
+            self.reply_error(msg.quote_exceeded())
+            status = False
         except TerminatingQuery:
             status = False
 
@@ -313,20 +341,6 @@ class AskAiApp(App):
         # At this point the application is ready.
         self.splash.set_class(True, "-hidden")
         self.activate_markdown()
-        await self.reply(f"{msg.welcome(prompt.user.title())}")
+        self.reply(f"{msg.welcome(prompt.user.title())}")
         self.enable_controls()
         log.info("AskAI is ready to use!")
-
-    def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
-        """Callback to handle reply events.
-        :param ev: The reply event.
-        :param error: Whether the event is an error not not.
-        """
-        if error:
-            self.reply_error(ev.args.message)
-        else:
-            verbose = ev.args.verbosity.lower()
-            if verbose == "normal" or self.is_debugging:
-                if ev.args.erase_last:
-                    pass
-                self.reply(ev.args.message)

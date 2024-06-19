@@ -116,6 +116,7 @@ class Main(TUIApplication):
         else:
             self._askai = AskAiApp(
                 to_bool(self._get_argument("quiet")),
+                to_bool(self._get_argument("debug")),
                 int(self._get_argument("tempo")),
                 str(self._get_argument("engine")),
                 str(self._get_argument("model")),
