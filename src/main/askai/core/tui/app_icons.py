@@ -16,3 +16,4 @@ class AppIcons(Enumeration):
     DEBUG_OFF = ""
     SPEAKING_ON = ""
     SPEAKING_OFF = "婢"
+    SEPARATOR = ""

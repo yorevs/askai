@@ -20,6 +20,7 @@ from textual.events import Mount
 from textual.reactive import reactive
 from textual.widget import Widget
 
+from askai.core.askai_configs import configs
 from askai.core.tui.app_icons import AppIcons
 from askai.core.tui.app_widgets import MenuIcon
 
@@ -43,12 +44,33 @@ class HeaderTitle(Widget):
 class HeaderClock(Widget):
     """Display a clock on the right of the header."""
 
+    speaking = reactive(True, repaint=True)
+
+    debugging = reactive(True, repaint=True)
+
+    def __init__(self):
+        super().__init__()
+        self.speaking = configs.is_speak
+        self.debugging = configs.is_debug
+
     def _on_mount(self, _: Mount) -> None:
         self.set_interval(1, callback=self.refresh, name=f"update header clock")
 
     def render(self) -> RenderResult:
         """Render the header clock."""
-        return Text(now("%a %d %b %X"))
+        return Text(
+            f"{AppIcons.SPEAKING_ON if self.speaking else AppIcons.SPEAKING_OFF}  "
+            + f"{AppIcons.DEBUG_ON if self.debugging else AppIcons.DEBUG_OFF}"
+            + f"  {AppIcons.SEPARATOR}  " + now("%a %d %b %X")
+        )
+
+    async def watch_speaking(self) -> None:
+        """TODO"""
+        self.refresh()
+
+    async def watch_debugging(self) -> None:
+        """TODO"""
+        self.refresh()
 
 
 class Header(Widget):
@@ -57,13 +79,9 @@ class Header(Widget):
     def __init__(self, *, name: str | None = None, id: str | None = None, classes: str | None = None):
         super().__init__(name=name, id=id, classes=classes)
 
-    def compose(self):
-        """Compose the Header Widget."""
-        yield MenuIcon(AppIcons.MENU.value, self._show_menu)
-        yield MenuIcon(AppIcons.INFO.value, self._show_info)
-        yield MenuIcon(AppIcons.CONSOLE.value, self._show_console)
-        yield HeaderTitle()
-        yield HeaderClock()
+    @property
+    def clock(self):
+        return self.query_one(HeaderClock)
 
     @property
     def screen_title(self) -> str:
@@ -78,6 +96,14 @@ class Header(Widget):
         screen_sub_title = self.screen.sub_title
         sub_title = screen_sub_title if screen_sub_title is not None else self.app.sub_title
         return sub_title
+
+    def compose(self):
+        """Compose the Header Widget."""
+        yield MenuIcon(AppIcons.MENU.value, self._show_menu)
+        yield MenuIcon(AppIcons.INFO.value, self._show_info)
+        yield MenuIcon(AppIcons.CONSOLE.value, self._show_console)
+        yield HeaderTitle()
+        yield HeaderClock()
 
     def _on_mount(self, _: Mount) -> None:
         async def set_title() -> None:

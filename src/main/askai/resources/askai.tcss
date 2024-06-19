@@ -19,9 +19,9 @@ Screen {
 }
 
 HeaderClock {
-  content-align: center middle;
+  content-align: right middle;
   dock: right;
-  width: 12;
+  width: 34;
   padding: 0 1;
 }
 

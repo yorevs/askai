@@ -102,8 +102,6 @@ class AskAiApp(App):
         speak_info = str(configs.tempo) + " @" + shared.engine.configs.tts_voice
         cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, "…")
         return (
-            f"AskAI v{Version.load(load_dir=classpath.source_path())} \n"
-            f"{'=' * 80} \n"
             f"     Engine: {self.engine} \n"
             f"   Language: {configs.language} \n"
             f"    WorkDir: {cur_dir} \n"
@@ -112,7 +110,6 @@ class AskAiApp(App):
             f"  Debugging: {'ON' if self.is_debugging else 'OFF'} \n"
             f"   Speaking: {'ON, tempo: ' + speak_info if self.is_speak else 'OFF'} \n"
             f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else 'OFF'} \n"
-            f"{'=' * 80}"
         )
 
     @property
@@ -220,7 +217,7 @@ class AskAiApp(App):
         self.md_console.focus()
         self.md_console.show_table_of_contents = True
         await self._refresh_console()
-        self.md_console.set_interval(0.5, self._refresh_console)
+        self.md_console.set_interval(0.7, self._refresh_console)
 
     @work(thread=True)
     async def action_clear(self) -> None:
@@ -280,6 +277,8 @@ class AskAiApp(App):
     def _update_info(self, status: int, output: str) -> None:
         """Update the application information text. This callback is required because ask_and_reply is async."""
         self.info.info_text = str(self)
+        self.header.clock.debugging = self.is_debugging
+        self.header.clock.speaking = self.is_speak
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.
