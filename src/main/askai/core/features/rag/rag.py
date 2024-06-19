@@ -12,7 +12,12 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from hspylib.core.config.path_object import PathObject
+
+import logging as log
+
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -23,11 +28,6 @@ from askai.core.model.rag_response import RagResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables.history import RunnableWithMessageHistory
-
-import logging as log
 
 
 def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse = RagResponse.MODERATE) -> None:
@@ -40,10 +40,10 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse
     if ai_response in msg.accurate_responses:
         return
     elif not ai_response:
-        empty_msg = "AI provided AN <EMPTY> response"
-        problems = issues_prompt.format(problems=empty_msg)
+        empty_msg = "AI provided a BAD response (empty)"
+        details = issues_prompt.format(problems=empty_msg)
         shared.context.push("RAG", issues_prompt.format(problems=empty_msg))
-        raise InaccurateResponse(problems)
+        raise InaccurateResponse(details)
 
     assert_template = PromptTemplate(input_variables=["datetime", "input", "response"], template=prompt.read_prompt("rag"))
     final_prompt = assert_template.format(datetime=geo_location.datetime, input=question, response=ai_response)
@@ -53,12 +53,12 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse
 
     if response and (output := response.content):
         if mat := RagResponse.matches(output):
-            status, problems = mat.group(1), mat.group(2)
-            log.info("Accuracy check ->  status: '%s'  reason: '%s'", status, problems)
+            status, details = mat.group(1), mat.group(2)
+            log.info("Accuracy check ->  status: '%s'  reason: '%s'", status, details)
             AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity="debug")
             if not RagResponse.of_status(status).passed(pass_threshold):
                 shared.context.push("RAG", issues_prompt.format(problems=RagResponse.strip_code(output)))
-                raise InaccurateResponse(f"AI Assistant didn't respond accurately => '{response.content}'")
+                raise InaccurateResponse(f"AI Assistant failed to respond => '{response.content}'")
             return
 
     raise InaccurateResponse(f"AI Assistant didn't respond accurately => '{response.content}'")

@@ -101,7 +101,7 @@ class Router(metaclass=Singleton):
         """Select the response model."""
         final_prompt: str = self.model_template.format(
             datetime=geo_location.datetime, models=RoutingModel.enlist(), question=query)
-        llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+        llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
         if response := llm.invoke(final_prompt):
             json_string: str = response.content  # from AIMessage
             model_result: ModelResult | str = object_mapper.of_json(json_string, ModelResult)

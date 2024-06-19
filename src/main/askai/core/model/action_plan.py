@@ -75,6 +75,8 @@ class ActionPlan:
                 plan is not None and isinstance(plan, ActionPlan),
                 f"Invalid action plan received from LLM: {type(plan)}")
             plan.model = model
+            if not plan.tasks:
+                plan.tasks.append(SimpleNamespace(id="1", task=f"FINAL ANSWER: {plan.speak}"))
         return plan
 
     def __str__(self):

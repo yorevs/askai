@@ -1,7 +1,7 @@
-###### AUTO-GENERATED Requirements file for: askai ######
+###### AUTO-GENERATED Requirements file for: AskAI ######
 
 hspylib>=1.12.38
-hspylib-clitt>=0.9.124
+hspylib-clitt>=0.9.125
 hspylib-setman>=0.10.35
 langchain==0.1.20
 langchain-openai==0.1.7
@@ -13,10 +13,10 @@ pause==0.3
 requests==2.31.0
 argostranslate==1.9.1
 protobuf==4.22.1
-torch==2.2.0
+torch==2.2.2
 stanza==1.1.1
 soundfile==0.12.1
-urllib3==1.26.18
+urllib3==1.26.19
 unstructured==0.12.4
 unstructured[md]==0.12.4
 python-magic-bin==0.4.14

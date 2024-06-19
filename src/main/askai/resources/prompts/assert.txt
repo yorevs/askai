@@ -1,13 +1,13 @@
-Human: You (AI) provided an unsatisfactory answer.
+The (AI) provided an inadequate answer.
 
-The following problems were detected:
+The following problems occurred:
 
 -----
 {problems}
 -----
 
-Performance Evaluation:
+**Performance Evaluation Guidelines**
 
-1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities.
-2. Constructively self-criticize your big-picture behavior constantly.
+1. Continuously review and analyze your actions to ensure optimal performance.
+2. Constructively self-criticize your overall behavior regularly.
 3. Reflect on past decisions and strategies to refine your approach.

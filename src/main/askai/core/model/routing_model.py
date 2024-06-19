@@ -10,58 +10,56 @@ class RoutingModel(Enumeration):
     # fmt: on
 
     NEUTRAL = (
-        "ASK_000", "Select this model when no other model fits the user request."
-    )
+        "ASK_000", "Select this model when no other model fits.")
 
     # ASSISTIVE_TECH_HELPER
     ASSISTIVE_TECH_HELPER = "ASK_001", (
         "Select this model when you receive requests for **assistive technologies**, such as **speech-to-text**")
 
-    # WELL_KNOWN
-    FINAL_ANSWER = "ASK_002", (
-        "Select this model to respond to well known queries, where you database is enough to "
-        "provide a clear and accurate answer.")
-
     # TERMINAL_COMMAND
-    TERMINAL_COMMAND = "ASK_003", (
+    TERMINAL_COMMAND = "ASK_002", (
         "Select this model for executing shell commands, managing terminal operations, listing folder contents, "
         "reading files, and manipulating system resources directly through the command line interface.")
 
     # CONTENT_MASTER
-    CONTENT_MASTER = "ASK_004", (
+    CONTENT_MASTER = "ASK_003", (
         "Select this model exclusively for creating, generating, and saving any type of content, including text, code, "
         "images, and others. This model should always be used when the task involves generating or saving content.")
 
     # TEXT_ANALYZER
-    TEXT_ANALYZER = "ASK_005", (
+    TEXT_ANALYZER = "ASK_004", (
         "Select this model for extracting and processing information from within individual documents and files "
         "located at the user file system, focusing on text or content analysis within a single file.")
 
     # DATA_ANALYSIS
-    DATA_ANALYSIS = "ASK_006", (
+    DATA_ANALYSIS = "ASK_005", (
         "Select this model for analyzing datasets, performing statistical analysis, and generating reports. Media "
         "Management and Playback: Select this model for organizing, categorizing, and playing multimedia content.")
 
     # CHAT_MASTER
-    CHAT_MASTER = "ASK_007", (
+    CHAT_MASTER = "ASK_006", (
         "Select this model for providing conversational responses or engaging in general chat.")
 
     # MEDIA_MANAGEMENT_AND_PLAYBACK
-    MEDIA_MANAGEMENT_AND_PLAYBACK = "ASK_008", (
+    MEDIA_MANAGEMENT_AND_PLAYBACK = "ASK_007", (
         "Select this model for organizing, categorizing, and playing multimedia content.")
 
     # IMAGE_PROCESSOR
-    IMAGE_PROCESSOR = "ASK_009", (
-        "Select this model to execute tasks exclusively related to image captioning, face recognition, and "
-        "visual analysis.")
+    IMAGE_PROCESSOR = "ASK_008", (
+        "Select this model for image captioning, face recognition, and visual analysis tasks.")
 
     # SUMMARIZE_AND_QUERY
-    SUMMARIZE_AND_QUERY = "ASK_010", (
+    SUMMARIZE_AND_QUERY = "ASK_009", (
         "Select this model upon receiving an explicit user request for 'summarization of files and folders'.")
 
     # WEB_FETCH
-    WEB_FETCH = "ASK_011", (
+    WEB_FETCH = "ASK_010", (
         "Select this model for retrieving information about current events from the web.")
+
+    # WELL_KNOWN
+    FINAL_ANSWER = "ASK_011", (
+        "Select this model to respond to well-known queries, where you database is enough to "
+        "provide a clear and accurate answer.")
 
     @classmethod
     def of_model(cls, model_id: str) -> 'RoutingModel':
