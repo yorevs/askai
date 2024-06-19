@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import re
 
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -30,17 +31,23 @@ import logging as log
 import os
 
 
-def list_contents(folder: str) -> str:
+def list_contents(folder: str, filters: str) -> str:
     """List the contents of a folder.
     :param folder: The folder to list contents from.
+    :param filters: The optional listing filters (file glob).
     """
+    def _build_filters_() -> str:
+        return '\\( ' + "-o".join([f" -name \"{f}\" " for f in re.split(r'[,;|]\s?', filters)]).strip() + ' \\)'
     path_obj = PathObject.of(folder)
     if path_obj.exists and path_obj.is_dir:
-        status, output = _execute_bash(f"ls -lLht {folder} 2>/dev/null | sort -k9,9")
+        cmd_line: str = (
+            f'find {folder} -maxdepth 1 -type f {_build_filters_() if filters else ""} '
+            f'-exec ls -lLht {{}} + 2>/dev/null | sort -k9,9')
+        status, output = _execute_bash(cmd_line)
         if status:
-            if not output:
-                return msg.translate(f"Folder: `{folder}` is empty!")
-            return msg.translate(f"Listing the contents of: `{folder}`:\n\n{output}\n")
+            if output:
+                return msg.translate(f"Listing the contents of: `{folder}`:\n\n{output}\n")
+            return '' if filters else f"The folder: '{folder}' is empty."
 
     return msg.translate(f"Error: Could not list folder: '{folder}'!")
 

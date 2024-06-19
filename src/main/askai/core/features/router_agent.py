@@ -1,10 +1,12 @@
+import os
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.features.actions import features
+from askai.core.features.toolkit import features
 from askai.core.features.rag.rag import assert_accuracy
 from askai.core.features.tools.general import final_answer
 from askai.core.model.action_plan import ActionPlan
@@ -78,8 +80,9 @@ class RouterAgent(metaclass=Singleton):
         output: str = ""
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=plan.thoughts.speak)
         tasks: list[SimpleNamespace] = plan.tasks
+        result_log: list[str] = []
 
-        for action in tasks:
+        for idx, action in enumerate(tasks):
             path_str: str = 'Path: ' + action.path \
                 if hasattr(action, 'path') and action.path.upper() not in ['N/A', 'NONE'] \
                 else ''
@@ -91,10 +94,12 @@ class RouterAgent(metaclass=Singleton):
                 shared.context.push("HISTORY", task)
                 shared.context.push("HISTORY", output, "assistant")
                 shared.memory.save_context({"input": task}, {"output": output})
+                result_log.append(output)
+                if idx + 1 < len(tasks):  # Print intermediary steps.
+                    AskAiEvents.ASKAI_BUS.events.reply.emit(message=output)
                 continue
-            raise InaccurateResponse("AI provided AN EMPTY response")
 
-        assert_accuracy(query, output, RagResponse.GOOD)
+        assert_accuracy(query, os.linesep.join(result_log), RagResponse.GOOD)
 
         return self.wrap_answer(plan.primary_goal, output, plan.model)
 

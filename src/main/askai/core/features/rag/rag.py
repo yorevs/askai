@@ -77,7 +77,7 @@ def resolve_x_refs(ref_name: str, context: str | None = None) -> str:
     )
     output = ref_name
     if context or (context := str(shared.context.flat("HISTORY"))):
-        runnable = template | lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+        runnable = template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
         runnable = RunnableWithMessageHistory(
             runnable, shared.context.flat, input_messages_key="pathname", history_messages_key="context"
         )

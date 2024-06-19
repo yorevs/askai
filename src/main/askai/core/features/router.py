@@ -100,7 +100,7 @@ class Router(metaclass=Singleton):
         """Select the response model."""
         final_prompt: str = self.model_template.format(
             datetime=geo_location.datetime, models=RoutingModel.enlist(), question=query)
-        llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
+        llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
         if response := llm.invoke(final_prompt):
             json_string: str = response.content  # from AIMessage
             model_result: ModelResult | str = object_mapper.of_json(json_string, ModelResult)
@@ -123,7 +123,7 @@ class Router(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
             log.info("Router::[QUESTION] '%s'", query)
-            runnable = self.router_template | lc_llm.create_chat_model(Temperature.COLDEST.temp)
+            runnable = self.router_template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
             runnable = RunnableWithMessageHistory(
                 runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
             )
@@ -133,7 +133,7 @@ class Router(metaclass=Singleton):
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {plan}", verbosity="debug")
                 output = agent.invoke(query, plan)
             else:
-                # Most of the times, this represents a failure.
+                # Most of the times, this indicates a failure.
                 output = response
             return output
 

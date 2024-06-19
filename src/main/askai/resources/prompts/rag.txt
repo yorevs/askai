@@ -23,6 +23,8 @@ Known Bad Responses:
 
 - Acknowledging or mentioning previous responses are considered unhelpful, therefore, classified as 'Red'.
 
+- Check whether the response is coherent with the question. Ensure that the answer is unbiased and does not rely on stereotypes. Classify any detected AI hallucinations as 'Red'.
+
 - Return a classification of 'Red' immediately if applicable, without applying further guidelines.
 
 Known Good Responses:
