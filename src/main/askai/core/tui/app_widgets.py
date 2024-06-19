@@ -13,14 +13,16 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.core.tui.app_icons import AppIcons
+from typing import Callable, Optional
+
 from textual.app import ComposeResult, RenderResult
 from textual.containers import Container
 from textual.events import Click
-from textual.reactive import Reactive
+from textual.reactive import Reactive, reactive
 from textual.widget import Widget
 from textual.widgets import Static
-from typing import Callable, Optional
+
+from askai.core.tui.app_icons import AppIcons
 
 
 class MenuIcon(Widget):
@@ -37,7 +39,7 @@ class MenuIcon(Widget):
     }
     """
 
-    menu_icon: Reactive[str] = AppIcons.DEFAULT.value
+    menu_icon = AppIcons.DEFAULT.value
 
     def __init__(self, menu_icon: str, on_click: Optional[Callable] = None):
         super().__init__()
@@ -88,7 +90,7 @@ class Splash(Container):
 
 
 class AppInfo(Static):
-    """Information widget."""
+    """Application Information Widget."""
 
     DEFAULT_CSS = """
     AppInfo {
@@ -98,7 +100,7 @@ class AppInfo(Static):
     }
     """
 
-    info_text: Reactive[str] = Reactive("")
+    info_text = reactive(True, repaint=True)
 
     def __init__(self, app_info: str):
         super().__init__()
@@ -116,6 +118,6 @@ class AppInfo(Static):
         """Called application is mounted."""
         self.set_class(True, "-hidden")
 
-    def watch_info_text(self) -> None:
+    async def watch_info_text(self) -> None:
         """TODO"""
         self.info.update(self.info_text)

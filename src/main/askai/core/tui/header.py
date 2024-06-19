@@ -13,22 +13,23 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.core.tui.app_icons import AppIcons
-from askai.core.tui.app_widgets import MenuIcon
-from datetime import datetime
+from hspylib.core.zoned_datetime import now
 from rich.text import Text
 from textual.app import RenderResult
 from textual.events import Mount
-from textual.reactive import Reactive
+from textual.reactive import reactive
 from textual.widget import Widget
+
+from askai.core.tui.app_icons import AppIcons
+from askai.core.tui.app_widgets import MenuIcon
 
 
 class HeaderTitle(Widget):
     """Display the title / subtitle in the header."""
 
-    text: Reactive[str] = Reactive("")
+    text = reactive(True, repaint=True)
 
-    sub_text = Reactive("")
+    sub_text = reactive(True, repaint=True)
 
     def render(self) -> RenderResult:
         """Render the title and sub-title."""
@@ -47,7 +48,7 @@ class HeaderClock(Widget):
 
     def render(self) -> RenderResult:
         """Render the header clock."""
-        return Text(datetime.now().time().strftime("%X"))
+        return Text(now("%a %d %b %X"))
 
 
 class Header(Widget):

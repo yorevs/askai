@@ -21,7 +21,7 @@ Screen {
 HeaderClock {
   content-align: center middle;
   dock: right;
-  width: 10;
+  width: 12;
   padding: 0 1;
 }
 
@@ -62,7 +62,7 @@ Footer {
   background: #051416 70%;
   color: #7FD5AD 70%;
   dock: bottom;
-  height: 3;
+  height: 2;
   padding: 0 1;
   content-align: left middle;
 }

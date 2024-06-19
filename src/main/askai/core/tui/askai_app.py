@@ -20,6 +20,7 @@ from contextlib import redirect_stdout
 from functools import partial
 from io import StringIO
 from pathlib import Path
+from typing import Callable
 
 import nltk
 from cachetools import LRUCache
@@ -45,7 +46,6 @@ from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import ask_cli
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
-from askai.core.component.geo_location import geo_location
 from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
@@ -67,7 +67,14 @@ class AskAiApp(App):
 
     CSS_PATH = f"{RESOURCE_DIR}/askai.tcss"
 
-    BINDINGS = [("q", "quit", "Quit"), ("c", "clear", "Clear Console"), ("s", "speaking", "Toggle Speaking")]
+    # fmt: off
+    BINDINGS = [
+        ("q", "quit", "Quit"),
+        ("c", "clear", "Clear Console"),
+        ("d", "debugging", "Toggle Debugging"),
+        ("s", "speaking", "Toggle Speaking"),
+    ]
+    # fmt: on
 
     SPLASH_IMAGE: str = classpath.get_resource("splash.txt").read_text(encoding=Charset.UTF_8.val)
 
@@ -91,23 +98,21 @@ class AskAiApp(App):
 
     def __str__(self) -> str:
         device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
-        device_info += f", AUTO-SWAP {'ON' if recorder.is_auto_swap else '%RED%OFF'}"
-        dtm = f" {geo_location.datetime} "
+        device_info += f", AUTO-SWAP {'ON' if recorder.is_auto_swap else 'OFF'}"
         speak_info = str(configs.tempo) + " @" + shared.engine.configs.tts_voice
         cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, "…")
         return (
-            f"%GREEN%"
-            f"AskAI v{Version.load(load_dir=classpath.source_path())} %EOL%"
-            f"{dtm.center(80, '=')} %EOL%"
-            f"     Engine: {self.engine} %EOL%"
-            f"   Language: {configs.language} %EOL%"
-            f"    WorkDir: {cur_dir} %EOL%"
-            f"{'-' * 80} %EOL%"
-            f" Microphone: {device_info or '%RED%Undetected'} %GREEN%%EOL%"
-            f"  Debugging: {'ON' if self.is_debugging else '%RED%OFF'} %GREEN%%EOL%"
-            f"   Speaking: {'ON, tempo: ' + speak_info if self.is_speak else '%RED%OFF'} %GREEN%%EOL%"
-            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else '%RED%OFF'} %GREEN%%EOL%"
-            f"{'=' * 80}%EOL%%NC%"
+            f"AskAI v{Version.load(load_dir=classpath.source_path())} \n"
+            f"{'=' * 80} \n"
+            f"     Engine: {self.engine} \n"
+            f"   Language: {configs.language} \n"
+            f"    WorkDir: {cur_dir} \n"
+            f"{'-' * 80} \n"
+            f" Microphone: {device_info or 'Undetected'} \n"
+            f"  Debugging: {'ON' if self.is_debugging else 'OFF'} \n"
+            f"   Speaking: {'ON, tempo: ' + speak_info if self.is_speak else 'OFF'} \n"
+            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else 'OFF'} \n"
+            f"{'=' * 80}"
         )
 
     @property
@@ -181,13 +186,15 @@ class AskAiApp(App):
         """Called to add widgets to the app."""
         suggester = SuggestFromList(self._input_history, case_sensitive=False)
         suggester.cache = LRUCache(1024)
+        footer = Footer()
+        footer.upper_case_keys = True
         yield Header()
         with ScrollableContainer():
             yield AppInfo("")
             yield Splash(self.SPLASH_IMAGE)
             yield MarkdownViewer()
         yield Input(placeholder=f"Message {self.engine.nickname()}", suggester=suggester)
-        yield Footer()
+        yield footer
 
     async def on_mount(self) -> None:
         """Called application is mounted."""
@@ -198,6 +205,7 @@ class AskAiApp(App):
         self._startup()
 
     def enable_controls(self, enable: bool = True):
+        """Enable all UI controls (header, input and footer)."""
         self.header.disabled = not enable
         self.line_input.loading = not enable
         self.footer.disabled = not enable
@@ -227,10 +235,14 @@ class AskAiApp(App):
 
     async def action_speaking(self) -> None:
         """Toggle Speaking ON/OFF."""
-        self._ask_and_reply("/speak")
+        self._ask_and_reply("/speak", self._update_info)
 
-    @work
-    async def display_text(self, markdown_text: str) -> None:
+    async def action_debugging(self) -> None:
+        """Toggle Debugging ON/OFF."""
+        self._ask_and_reply("/debug", self._update_info)
+
+    @work(thread=True)
+    def display_text(self, markdown_text: str) -> None:
         """Send the text to the Markdown console."""
         with open(self._console_path, "a", encoding=Charset.UTF_8.val) as f_console:
             final_text: str = text_formatter.beautify(f"{ensure_endswith(markdown_text, os.linesep * 2)}")
@@ -265,6 +277,10 @@ class AskAiApp(App):
         if self.is_speak:
             self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
 
+    def _update_info(self, status: int, output: str) -> None:
+        """Update the application information text. This callback is required because ask_and_reply is async."""
+        self.info.info_text = str(self)
+
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.
         :param ev: The reply event.
@@ -284,7 +300,7 @@ class AskAiApp(App):
             self._re_render = False
 
     @work(thread=True)
-    async def _ask_and_reply(self, question: str) -> bool:
+    async def _ask_and_reply(self, question: str, cb_on_finish: Callable[[bool, str], None] = None) -> bool:
         """Ask the question and provide the reply.
         :param question: The question to ask to the AI engine.
         """
@@ -319,6 +335,9 @@ class AskAiApp(App):
             status = False
 
         self.line_input.loading = False
+
+        if cb_on_finish:
+            cb_on_finish(status, output)
 
         return status
 
