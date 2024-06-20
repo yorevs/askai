@@ -21,7 +21,7 @@ from askai.core.support.text_formatter import text_formatter
 
 import click
 
-HELP_MSG = """
+COMMANDER_HELP = """
 # AskAI Commander - HELP
 
 > Commands:
@@ -68,7 +68,7 @@ def ask_cli(ctx) -> None:
 @ask_cli.command()
 def help() -> None:
     """Display this help and exit."""
-    text_formatter.cmd_print(HELP_MSG)
+    text_formatter.cmd_print(COMMANDER_HELP)
 
 
 @ask_cli.command()

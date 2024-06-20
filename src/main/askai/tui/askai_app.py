@@ -41,7 +41,7 @@ from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVE
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.askai_settings import settings
-from askai.core.commander.commander import ask_cli, COMMANDS
+from askai.core.commander.commander import ask_cli, COMMANDS, COMMANDER_HELP
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder
@@ -54,7 +54,7 @@ from askai.core.support.text_formatter import text_formatter
 from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery
 from askai.tui.app_header import Header
 from askai.tui.app_suggester import InputSuggester
-from askai.tui.app_widgets import AppInfo, Splash, AppSettings
+from askai.tui.app_widgets import AppInfo, Splash, AppSettings, AppHelp
 
 SOURCE_DIR: Path = classpath.source_path()
 
@@ -68,11 +68,11 @@ class AskAiApp(App):
 
     # fmt: off
     BINDINGS = [
-        ("c", "clear", "Clear Console"),
-        ("t", "toggle_table_of_contents", "Toggle TOC"),
-        ("d", "debugging", "Toggle Debugging"),
-        ("s", "speaking", "Toggle Speaking"),
-        ("p", "ptt", "Push-to-Talk"),
+        ("q", "quit", msg.translate(" Quit")),
+        ("c", "clear", msg.translate(" Clear Console")),
+        ("d", "debugging", msg.translate(" Toggle Debugging")),
+        ("s", "speaking", msg.translate(" Toggle Speaking")),
+        ("p", "ptt", msg.translate(" Push-to-Talk")),
     ]
     # fmt: on
 
@@ -103,7 +103,6 @@ class AskAiApp(App):
         speak_info = str(configs.tempo) + " @" + shared.engine.configs.tts_voice
         cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, "…")
         return (
-            f"{'=' * 80} \n"
             f"     Engine: {self.engine} \n"
             f"   Language: {configs.language} \n"
             f"    WorkDir: {cur_dir} \n"
@@ -112,7 +111,6 @@ class AskAiApp(App):
             f"  Debugging: {'ON' if self.is_debugging else 'OFF'} \n"
             f"   Speaking: {'ON, tempo: ' + speak_info if self.is_speak else 'OFF'} \n"
             f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else 'OFF'} \n"
-            f"{'=' * 80}"
         )
 
     @property
@@ -156,6 +154,11 @@ class AskAiApp(App):
     def info(self) -> AppInfo:
         """Get the AppInfo widget."""
         return self.query_one(AppInfo)
+
+    @property
+    def help(self) -> AppHelp:
+        """Get the AppHelp widget."""
+        return self.query_one(AppHelp)
 
     @property
     def settings(self) -> AppSettings:
@@ -211,6 +214,7 @@ class AskAiApp(App):
             yield AppSettings()
             yield AppInfo("")
             yield Splash(self.SPLASH_IMAGE)
+            yield AppHelp(COMMANDER_HELP)
             yield MarkdownViewer()
         yield Input(placeholder=f"Message {self.engine.nickname()}", suggester=suggester)
         yield footer
@@ -268,7 +272,7 @@ class AskAiApp(App):
         # fmt: on
         return history
 
-    @work(exclusive=True)
+    @work
     async def activate_markdown(self) -> None:
         """Activate the Markdown console."""
         await self.md_console.go(self._console_path)
@@ -307,8 +311,8 @@ class AskAiApp(App):
             cache.save_query_history(suggestions)
         self.activate_markdown()
 
-    @work(exclusive=True)
-    def display_text(self, markdown_text: str) -> None:
+    @work(thread=True)
+    async def display_text(self, markdown_text: str) -> None:
         """Send the text to the Markdown console."""
         with open(self._console_path, "a", encoding=Charset.UTF_8.val) as f_console:
             final_text: str = text_formatter.beautify(f"{ensure_endswith(markdown_text, os.linesep * 2)}")
@@ -334,8 +338,8 @@ class AskAiApp(App):
         if self.is_speak:
             self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
 
-    def _update_app(self) -> None:
-        """Update the application info and settings. This callback is required because ask_and_reply is async."""
+    def _update_widget(self) -> None:
+        """Update the application widgets. This callback is required because ask_and_reply is async."""
         self.header.clock.debugging = self.is_debugging
         self.header.clock.speaking = self.is_speak
         self.info.info_text = str(self)
@@ -360,7 +364,7 @@ class AskAiApp(App):
             await self.md_console.go(self._console_path)
             self.md_console.scroll_end(animate=False)
 
-    @work(exclusive=True)
+    @work(thread=True)
     async def _ask_and_reply(self, question: str) -> bool:
         """Ask the question and provide the reply.
         :param question: The question to ask to the AI engine.
@@ -395,12 +399,12 @@ class AskAiApp(App):
         except TerminatingQuery:
             status = False
 
-        self._update_app()
+        self._update_widget()
         self.line_input.loading = False
 
         return status
 
-    @work(exclusive=True)
+    @work(thread=True)
     async def _startup(self) -> None:
         """Initialize the application."""
         askai_bus = AskAiEvents.get_bus(ASKAI_BUS_NAME)
@@ -411,11 +415,11 @@ class AskAiApp(App):
         player.start_delay()
         scheduler.start()
         recorder.setup()
-        self.info.info_text = str(self)
         with open(self._console_path, "a", encoding=Charset.UTF_8.val) as f_console:
             f_console.write(f"---\n\n# {now()}\n\n")
             f_console.flush()
         # At this point the application is ready.
+        self._update_widget()
         self.splash.set_class(True, "-hidden")
         self.reply(f"{msg.welcome(prompt.user.title())}")
         self.activate_markdown()

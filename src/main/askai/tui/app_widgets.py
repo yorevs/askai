@@ -15,7 +15,6 @@
 
 from typing import Callable, Optional
 
-from askai.tui.app_icons import AppIcons
 from rich.text import Text
 from textual.app import ComposeResult, RenderResult
 from textual.containers import Container
@@ -23,6 +22,8 @@ from textual.events import Click
 from textual.reactive import Reactive, reactive
 from textual.widget import Widget
 from textual.widgets import Static, DataTable
+
+from askai.tui.app_icons import AppIcons
 
 
 class MenuIcon(Widget):
@@ -32,7 +33,7 @@ class MenuIcon(Widget):
     MenuIcon {
       padding: 0 1;
       width: 4;
-      content-align: left middle;
+      content-align: center middle;
     }
     MenuIcon:hover {
       background: #7FD5AD 10%;
@@ -62,16 +63,16 @@ class Splash(Container):
 
     DEFAULT_CSS = """
     Splash {
+      content-align: center middle;
       background: #030F12;
       width: 100%;
-      height: 95%;
-      padding: 0 0;
-      margin: 5 0;
+      height: 100%;
     }
     #splash {
       content-align: center middle;
       color: #7FD5AD;
-      background: #030F12;
+      width: 100%;
+      height: 100%;
     }
     """
 
@@ -89,6 +90,40 @@ class Splash(Container):
         self.set_class(False, "-hidden")
 
 
+class AppHelp(Static):
+    """Application Help Widget."""
+
+    DEFAULT_CSS = """
+    AppHelp {
+      align: center middle;
+      display: block;
+      visibility: visible;
+    }
+    #help {
+      color: #FFFFFF;
+      width: auto;
+      height: auto;
+      border: panel #183236;
+      background: #030F12;
+      color: #7FD5AD;
+      content-align: left middle;
+    }
+    """
+
+    help_text: str
+
+    def __init__(self, help_text: str):
+        super().__init__()
+        self.help_text = help_text
+
+    def compose(self) -> ComposeResult:
+        yield Static(self.help_text, id="help")
+
+    async def on_mount(self) -> None:
+        """Called application is mounted."""
+        self.set_class(True, "-hidden")
+
+
 class AppInfo(Static):
     """Application Information Widget."""
 
@@ -97,6 +132,15 @@ class AppInfo(Static):
       align: center middle;
       display: block;
       visibility: visible;
+    }
+    #info {
+      color: #FFFFFF;
+      width: auto;
+      height: auto;
+      border: panel #183236;
+      background: #030F12;
+      color: #7FD5AD;
+      content-align: left middle;
     }
     """
 
@@ -131,6 +175,14 @@ class AppSettings(DataTable):
       align: center middle;
       display: block;
       visibility: visible;
+      margin: 1 1 1 1;
+    }
+    #settings {
+      width: auto;
+      height: auto;
+      border: solid #183236;
+      background: #030F12;
+      content-align: center middle;
     }
     """
 

@@ -65,19 +65,17 @@ class HeaderClock(Widget):
         )
 
     async def watch_speaking(self) -> None:
-        """TODO"""
         self.refresh()
 
     async def watch_debugging(self) -> None:
-        """TODO"""
         self.refresh()
 
 
 class Header(Widget):
     """A header widget with icon and clock."""
 
-    def __init__(self, *, name: str | None = None, id: str | None = None, classes: str | None = None):
-        super().__init__(name=name, id=id, classes=classes)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     @property
     def clock(self):
@@ -99,11 +97,11 @@ class Header(Widget):
 
     def compose(self):
         """Compose the Header Widget."""
-        yield MenuIcon(AppIcons.EXIT.value, self.app.exit)
-        yield MenuIcon(AppIcons.HELP.value, self._show_help)
+        yield MenuIcon(AppIcons.MENU.value, self.app.action_toggle_table_of_contents)
+        yield MenuIcon(AppIcons.CONSOLE.value, self._show_console)
         yield MenuIcon(AppIcons.SETTINGS.value, self._show_settings)
         yield MenuIcon(AppIcons.INFO.value, self._show_info)
-        yield MenuIcon(AppIcons.CONSOLE.value, self._show_console)
+        yield MenuIcon(AppIcons.HELP.value, self._show_help)
         yield HeaderTitle()
         yield HeaderClock()
 
@@ -122,20 +120,29 @@ class Header(Widget):
         self.watch(self.screen, "sub_title", set_sub_title)
 
     def _show_help(self) -> None:
-        pass
+        """Handle the header menu 'help' clicks."""
+        self.app.help.set_class(False, "-hidden")
+        self.app.info.set_class(True, "-hidden")
+        self.app.md_console.set_class(True, "-hidden")
+        self.app.settings.set_class(True, "-hidden")
 
     def _show_settings(self) -> None:
-        self.app.settings.data = self.app.app_settings
+        """Handle the header menu 'settings' clicks."""
         self.app.settings.set_class(False, "-hidden")
+        self.app.help.set_class(True, "-hidden")
         self.app.info.set_class(True, "-hidden")
         self.app.md_console.set_class(True, "-hidden")
 
     def _show_info(self) -> None:
+        """Handle the header menu 'info' clicks."""
         self.app.info.set_class(False, "-hidden")
+        self.app.help.set_class(True, "-hidden")
         self.app.md_console.set_class(True, "-hidden")
         self.app.settings.set_class(True, "-hidden")
 
     def _show_console(self) -> None:
+        """Handle the header menu 'console' clicks."""
+        self.app.activate_markdown()
+        self.app.help.set_class(True, "-hidden")
         self.app.info.set_class(True, "-hidden")
         self.app.settings.set_class(True, "-hidden")
-        self.app.activate_markdown()

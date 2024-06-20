@@ -8,22 +8,15 @@ Screen {
   color: #DAF7F0;
 }
 
-#info {
-  color: #FFFFFF;
-  width: auto;
-  height: auto;
-  border: solid #183236;
-  background: #030F12;
-  content-align: left middle;
-  padding: 0 1;
-}
-
-#settings {
-  width: auto;
-  height: auto;
-  border: solid #183236;
-  background: #030F12;
-  content-align: center middle;
+ScrollableContainer {
+  scrollbar-size: 1 1;
+  scrollbar-color: #7FD5AD 70%;
+  scrollbar-color-active: #7FD5AD;
+  scrollbar-color-hover: #7FD5AD;
+  scrollbar-background: #183236 70%;
+  scrollbar-background-active: #183236;
+  scrollbar-background-hover: #183236;
+  scrollbar-corner-color: #183236 70%;
 }
 
 HeaderClock {
@@ -53,10 +46,39 @@ MarkdownViewer {
   visibility: visible;
 }
 
+Markdown {
+  .em {
+    color: #52be37;
+    text-style: bold;
+  }
+  .strong {
+    color: white;
+    text-style: bold;
+  }
+  .code_inline {
+    color: #8df9fd;
+    text-style: bold;
+  }
+}
+
+MarkdownTableOfContents {
+  width: auto;
+  background: #051416;
+  border: solid #183236;
+  box-sizing: content-box;
+}
+MarkdownTableOfContents > Tree {
+  background: #051416;
+  padding: 1;
+  width: auto;
+}
+
 Input {
   background: #030F12;
   color: #DAF7F0;
   padding: 0 1;
+  margin-left: 1;
+  margin-right: 1;
   border: solid #183236;
   width: 100%;
   height: 3;
@@ -66,29 +88,32 @@ Input:focus {
   border: solid #7FD5AD;
 }
 
+LoadingIndicator {
+  color: #7FD5AD;
+}
+
 Footer {
-  background: #051416 70%;
-  color: #7FD5AD 70%;
-  dock: bottom;
-  height: 2;
-  padding: 0 1;
-  content-align: left middle;
-}
-
-Footer > .footer--key {
-  background: #183236 70%;
-  color: #7FD5AD 70%;
-  text-style: bold;
-}
-
-Footer > .footer--highlight {
+  height: 3;
   background: #051416;
-  color: #7FD5AD;
-  text-style: bold;
+  color: #7FD5AD 70%;
+  padding-top: 1;
+  dock: bottom;
 }
 
-Footer > .footer--highlight-key {
-  background: #183236;
-  color: #7FD5AD;
-  text-style: bold;
+Footer > FooterKey {
+  background: #051416;
+  color: #7FD5AD 70%;
+  padding-left: 2;
+  .footer-key--key {
+    background: #183236 70%;
+    color: #7FD5AD 70%;
+  }
+  &:hover {
+    padding-left: 2;
+    color: #7FD5AD;
+    .footer-key--key {
+      background: #183236;
+      color: #7FD5AD;
+    }
+  }
 }
