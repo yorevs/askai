@@ -99,6 +99,8 @@ class Header(Widget):
 
     def compose(self):
         """Compose the Header Widget."""
+        yield MenuIcon(AppIcons.EXIT.value, self.app.exit)
+        yield MenuIcon(AppIcons.HELP.value, self._show_help)
         yield MenuIcon(AppIcons.SETTINGS.value, self._show_settings)
         yield MenuIcon(AppIcons.INFO.value, self._show_info)
         yield MenuIcon(AppIcons.CONSOLE.value, self._show_console)
@@ -118,6 +120,9 @@ class Header(Widget):
         self.watch(self.app, "sub_title", set_sub_title)
         self.watch(self.screen, "title", set_title)
         self.watch(self.screen, "sub_title", set_sub_title)
+
+    def _show_help(self) -> None:
+        pass
 
     def _show_settings(self) -> None:
         self.app.settings.data = self.app.app_settings

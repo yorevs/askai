@@ -19,29 +19,9 @@ from contextlib import redirect_stdout
 from functools import partial
 from io import StringIO
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Optional
 
 import nltk
-from askai.__classpath__ import classpath
-from askai.core.askai_configs import configs
-from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
-from askai.core.askai_messages import msg
-from askai.core.askai_prompt import prompt
-from askai.core.askai_settings import settings
-from askai.core.commander.commander import ask_cli
-from askai.core.component.audio_player import player
-from askai.core.component.cache_service import cache, CACHE_DIR
-from askai.core.component.recorder import recorder
-from askai.core.component.scheduler import scheduler
-from askai.core.engine.ai_engine import AIEngine
-from askai.core.features.router import router
-from askai.core.support.chat_context import ChatContext
-from askai.core.support.shared_instances import shared
-from askai.core.support.text_formatter import text_formatter
-from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery
-from askai.tui.app_header import Header
-from askai.tui.app_suggester import InputSuggester
-from askai.tui.app_widgets import AppInfo, Splash, AppSettings
 from click import UsageError
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import is_debugging
@@ -55,6 +35,27 @@ from textual.app import App, ComposeResult
 from textual.containers import ScrollableContainer
 from textual.widgets import Footer, Input, MarkdownViewer
 
+from askai.__classpath__ import classpath
+from askai.core.askai_configs import configs
+from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
+from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
+from askai.core.askai_settings import settings
+from askai.core.commander.commander import ask_cli, COMMANDS
+from askai.core.component.audio_player import player
+from askai.core.component.cache_service import cache, CACHE_DIR
+from askai.core.component.recorder import recorder
+from askai.core.component.scheduler import scheduler
+from askai.core.engine.ai_engine import AIEngine
+from askai.core.features.router import router
+from askai.core.support.chat_context import ChatContext
+from askai.core.support.shared_instances import shared
+from askai.core.support.text_formatter import text_formatter
+from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery
+from askai.tui.app_header import Header
+from askai.tui.app_suggester import InputSuggester
+from askai.tui.app_widgets import AppInfo, Splash, AppSettings
+
 SOURCE_DIR: Path = classpath.source_path()
 
 RESOURCE_DIR: Path = classpath.resource_path()
@@ -67,11 +68,11 @@ class AskAiApp(App):
 
     # fmt: off
     BINDINGS = [
-        ("q", "quit", "Quit"),
         ("c", "clear", "Clear Console"),
-        ("t", "toggle_table_of_contents", "TOC"),
-        ("d", "debugging", "Debugging"),
-        ("s", "speaking", "Speaking"),
+        ("t", "toggle_table_of_contents", "Toggle TOC"),
+        ("d", "debugging", "Toggle Debugging"),
+        ("s", "speaking", "Toggle Speaking"),
+        ("p", "ptt", "Push-to-Talk"),
     ]
     # fmt: on
 
@@ -89,7 +90,6 @@ class AskAiApp(App):
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         self._console_path = Path(f"{CACHE_DIR}/askai-{self.session_id}.md")
         self._re_render = True
-        self._suggester = InputSuggester(self.load_history(), case_sensitive=False)
         if not self._console_path.exists():
             self._console_path.touch()
         # Setting configs from program args.
@@ -175,7 +175,7 @@ class AskAiApp(App):
     @property
     def suggester(self) -> Optional[InputSuggester]:
         """Get the Input Suggester."""
-        return self._suggester
+        return self.line_input.suggester
 
     @property
     def header(self) -> Header:
@@ -202,15 +202,17 @@ class AskAiApp(App):
 
     def compose(self) -> ComposeResult:
         """Called to add widgets to the app."""
+        suggester = InputSuggester(self.load_history(), case_sensitive=False)
         footer = Footer()
         footer.upper_case_keys = True
+        footer.ctrl_to_caret = True
         yield Header()
         with ScrollableContainer():
             yield AppSettings()
             yield AppInfo("")
             yield Splash(self.SPLASH_IMAGE)
             yield MarkdownViewer()
-        yield Input(placeholder=f"Message {self.engine.nickname()}", suggester=self._suggester)
+        yield Input(placeholder=f"Message {self.engine.nickname()}", suggester=suggester)
         yield footer
 
     async def on_mount(self) -> None:
@@ -220,12 +222,31 @@ class AskAiApp(App):
         self.enable_controls(False)
         self.md_console.set_class(True, "-hidden")
         self.md_console.show_table_of_contents = False
-        self.md_console.set_interval(0.7, self._cb_refresh_console)
+        self.md_console.set_interval(0.5, self._cb_refresh_console)
         self._startup()
 
     def on_markdown_viewer_navigator_updated(self) -> None:
         """Refresh bindings for forward / back when the document changes."""
         self.refresh_bindings()
+
+    async def action_back(self) -> None:
+        """Navigate backwards."""
+        await self.md_console.back()
+
+    async def action_forward(self) -> None:
+        """Navigate forwards."""
+        await self.md_console.forward()
+
+    def check_action(self, action: str, _) -> bool | None:
+        """Check if certain actions can be performed."""
+        if action == "forward" and self.md_console.navigator.end:
+            # Disable footer link if we can't go forward
+            return None
+        if action == "back" and self.md_console.navigator.start:
+            # Disable footer link if we can't go backward
+            return None
+        # All other keys display as normal
+        return True
 
     def action_toggle_table_of_contents(self) -> None:
         """Toggles display of the table of contents."""
@@ -240,24 +261,21 @@ class AskAiApp(App):
             self.line_input.focus()
 
     def load_history(self) -> list[str]:
-        """TODO"""
+        """Load the suggester with user input history."""
         # fmt: off
-        history = [
-            "/debug", "/devices", "/help",
-            "/settings", "/speak", "/tempo",
-            "/voices", "/forget"
-        ]
-        history.extend(cache.read_query_history())
+        history = cache.read_query_history()
+        history.extend(list(filter(lambda c: c not in history, COMMANDS)))
         # fmt: on
         return history
 
-    @work
+    @work(exclusive=True)
     async def activate_markdown(self) -> None:
         """Activate the Markdown console."""
         await self.md_console.go(self._console_path)
         self.md_console.set_class(False, "-hidden")
+        self.md_console.focus()
 
-    @work(thread=True)
+    @work(exclusive=True)
     async def action_clear(self) -> None:
         """Clear the output console."""
         self.enable_controls(False)
@@ -270,13 +288,26 @@ class AskAiApp(App):
 
     async def action_speaking(self) -> None:
         """Toggle Speaking ON/OFF."""
-        self._ask_and_reply("/speak", self._update_app_info)
+        self._ask_and_reply("/speak")
 
     async def action_debugging(self) -> None:
         """Toggle Debugging ON/OFF."""
-        self._ask_and_reply("/debug", self._update_app_info)
+        self._ask_and_reply("/debug")
 
-    @work(thread=True)
+    @on(Input.Submitted)
+    async def on_submit(self, submitted: Input.Submitted) -> None:
+        """A coroutine to handle a input submission."""
+        question: str = submitted.value
+        self.line_input.loading = True
+        self.line_input.clear()
+        self.display_text(f"{self.username}: {question}")
+        if self._ask_and_reply(question):
+            await self.suggester.add_suggestion(question)
+            suggestions = await self.suggester.suggestions()
+            cache.save_query_history(suggestions)
+        self.activate_markdown()
+
+    @work(exclusive=True)
     def display_text(self, markdown_text: str) -> None:
         """Send the text to the Markdown console."""
         with open(self._console_path, "a", encoding=Charset.UTF_8.val) as f_console:
@@ -284,18 +315,6 @@ class AskAiApp(App):
             f_console.write(final_text)
             f_console.flush()
             self._re_render = True
-
-    @on(Input.Submitted)
-    async def on_submit(self, submitted: Input.Submitted) -> None:
-        """A coroutine to handle a input submission."""
-        question: str = submitted.value
-        self.line_input.clear()
-        self.line_input.loading = True
-        self.display_text(f"{self.username}: {question}")
-        if self._ask_and_reply(question):
-            await self.suggester.add_suggestion(question)
-            suggestions = await self.suggester.suggestions()
-            cache.save_query_history(suggestions)
 
     def reply(self, message: str) -> None:
         """Reply to the user with the AI response.
@@ -315,11 +334,11 @@ class AskAiApp(App):
         if self.is_speak:
             self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
 
-    def _update_app_info(self, _: int, __: str) -> None:
-        """Update the application information text. This callback is required because ask_and_reply is async."""
-        self.info.info_text = str(self)
+    def _update_app(self) -> None:
+        """Update the application info and settings. This callback is required because ask_and_reply is async."""
         self.header.clock.debugging = self.is_debugging
         self.header.clock.speaking = self.is_speak
+        self.info.info_text = str(self)
         self.settings.data = self.app_settings
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
@@ -341,8 +360,8 @@ class AskAiApp(App):
             await self.md_console.go(self._console_path)
             self.md_console.scroll_end(animate=False)
 
-    @work(thread=True)
-    async def _ask_and_reply(self, question: str, cb_on_finish: Callable[[bool, str], None] = None) -> bool:
+    @work(exclusive=True)
+    async def _ask_and_reply(self, question: str) -> bool:
         """Ask the question and provide the reply.
         :param question: The question to ask to the AI engine.
         """
@@ -376,14 +395,12 @@ class AskAiApp(App):
         except TerminatingQuery:
             status = False
 
-        if cb_on_finish:
-            cb_on_finish(status, output)
-
+        self._update_app()
         self.line_input.loading = False
 
         return status
 
-    @work(thread=True)
+    @work(exclusive=True)
     async def _startup(self) -> None:
         """Initialize the application."""
         askai_bus = AskAiEvents.get_bus(ASKAI_BUS_NAME)
@@ -400,7 +417,7 @@ class AskAiApp(App):
             f_console.flush()
         # At this point the application is ready.
         self.splash.set_class(True, "-hidden")
-        self.activate_markdown()
         self.reply(f"{msg.welcome(prompt.user.title())}")
+        self.activate_markdown()
         self.enable_controls()
         log.info("AskAI is ready to use!")

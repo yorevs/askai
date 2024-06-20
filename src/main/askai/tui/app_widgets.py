@@ -154,3 +154,4 @@ class AppSettings(DataTable):
             for i, row in enumerate(rows[1:], start=1):
                 label = Text(str(i), style="#B0FC38 italic")
                 self.add_row(*row, label=label)
+            self.refresh()

@@ -27,24 +27,35 @@ HELP_MSG = """
 > Commands:
 
 ```
-  `/debug`              : toggle debugging ON/OFF.
-  `/devices`            : list/set the audio input device.
-  `/help`               : show this help message and exit.
-  `/settings`           : list/get/set/reset settings.
-  `/speak`              : toggle speaking ON/OFF.
-  `/tempo`              : list/set speech-to-text tempo.
-  `/voices`             : list/set/play speech-to-text voice.
-  `/forget`             : forget a specific or all chat context.
+  `/help`                                   : Show this help message and exit.
+  `/debug`                                  : Toggle debugging ON/OFF.
+  `/speak`                                  : Toggle speaking ON/OFF.
+  `/forget   [CONTEXT]`                     : Forget a specific or `ALL' chat context.
+  `/devices  [set <index>]`                 : List/set the audio input devices.
+  `/settings [[get|set] <setting>]|reset]`  : List/get/set/reset settings.
+  `/tempo    [set <1..3>]`                  : List/set speech-to-text tempo.
+  `/voices   [<set|play> <voice>]`          : List/set/play speech-to-text voices.
 ```
 
-> Keybindings:
+> Input Key-Bindings:
 
 ```
-  `Ctrl+L`              : push-To-Talk.
-  `Ctrl+R`              : resets input filed.
-  `Ctrl+F`              : forget the input history.
+  `Ctrl+L`              : Push-To-Talk.
+  `Ctrl+R`              : Reset the input field.
+  `Ctrl+F`              : Forget the input history.
 ```
 """
+
+COMMANDS = [
+    "/debug",
+    "/devices",
+    "/help",
+    "/settings",
+    "/speak",
+    "/tempo",
+    "/voices",
+    "/forget"
+]
 
 
 @click.group()
