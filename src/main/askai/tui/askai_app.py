@@ -12,12 +12,37 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+import re
+from contextlib import redirect_stdout
+from functools import partial
+from io import StringIO
+from pathlib import Path
+from typing import Callable
+
+import nltk
+from cachetools import LRUCache
+from click import UsageError
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging
+from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
+from hspylib.core.zoned_datetime import now
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from openai import RateLimitError
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.containers import ScrollableContainer
+from textual.suggester import SuggestFromList
+from textual.widgets import Footer, Input, MarkdownViewer
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
+from askai.core.askai_settings import settings
 from askai.core.commander.commander import ask_cli
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
@@ -29,32 +54,8 @@ from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery
-from askai.tui.app_widgets import AppInfo, Splash
 from askai.tui.app_header import Header
-from cachetools import LRUCache
-from click import UsageError
-from contextlib import redirect_stdout
-from functools import partial
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging
-from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
-from hspylib.core.zoned_datetime import now
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from io import StringIO
-from openai import RateLimitError
-from pathlib import Path
-from textual import on, work
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.suggester import SuggestFromList
-from textual.widgets import Footer, Input, MarkdownViewer
-from typing import Callable
-
-import logging as log
-import nltk
-import os
-import re
+from askai.tui.app_widgets import AppInfo, Splash, AppSettings
 
 SOURCE_DIR: Path = classpath.source_path()
 
@@ -70,10 +71,13 @@ class AskAiApp(App):
     BINDINGS = [
         ("q", "quit", "Quit"),
         ("c", "clear", "Clear Console"),
-        ("d", "debugging", "Toggle Debugging"),
-        ("s", "speaking", "Toggle Speaking"),
+        ("t", "toggle_table_of_contents", "TOC"),
+        ("d", "debugging", "Debugging"),
+        ("s", "speaking", "Speaking"),
     ]
     # fmt: on
+
+    ENABLE_COMMAND_PALETTE = False
 
     SPLASH_IMAGE: str = classpath.get_resource("splash.txt").read_text(encoding=Charset.UTF_8.val)
 
@@ -154,6 +158,11 @@ class AskAiApp(App):
         return self.query_one(AppInfo)
 
     @property
+    def settings(self) -> AppSettings:
+        """Get the AppSettings widget."""
+        return self.query_one(AppSettings)
+
+    @property
     def splash(self) -> Splash:
         """Get the Splash widget."""
         return self.query_one(Splash)
@@ -186,6 +195,7 @@ class AskAiApp(App):
         footer.upper_case_keys = True
         yield Header()
         with ScrollableContainer():
+            yield AppSettings("")
             yield AppInfo("")
             yield Splash(self.SPLASH_IMAGE)
             yield MarkdownViewer()
@@ -198,8 +208,17 @@ class AskAiApp(App):
         self.screen.sub_title = self.engine.ai_model_name()
         self.enable_controls(False)
         self.md_console.set_class(True, "-hidden")
-        self.md_console.set_interval(0.7, self._refresh_console)
+        self.md_console.show_table_of_contents = False
+        self.md_console.set_interval(0.7, self._cb_refresh_console)
         self._startup()
+
+    def on_markdown_viewer_navigator_updated(self) -> None:
+        """Refresh bindings for forward / back when the document changes."""
+        self.refresh_bindings()
+
+    def action_toggle_table_of_contents(self) -> None:
+        """Toggles display of the table of contents."""
+        self.md_console.show_table_of_contents = not self.md_console.show_table_of_contents
 
     def enable_controls(self, enable: bool = True):
         """Enable all UI controls (header, input and footer)."""
@@ -213,7 +232,7 @@ class AskAiApp(App):
     async def activate_markdown(self) -> None:
         """Activate the Markdown console."""
         await self.md_console.go(self._console_path)
-        self.md_console.set_classes("-visible")
+        self.md_console.set_class(False, "-hidden")
         self.md_console.focus()
 
     @work(thread=True)
@@ -271,11 +290,15 @@ class AskAiApp(App):
         if self.is_speak:
             self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
 
-    def _update_app_info(self, status: int, output: str) -> None:
+    def _update_app_info(self, _: int, __: str) -> None:
         """Update the application information text. This callback is required because ask_and_reply is async."""
         self.info.info_text = str(self)
         self.header.clock.debugging = self.is_debugging
         self.header.clock.speaking = self.is_speak
+
+    def _update_settings(self, _: int, __: str) -> None:
+        """Update the application settings text. This callback is required because ask_and_reply is async."""
+        self.settings.settings_text = str(configs)
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.
@@ -289,7 +312,8 @@ class AskAiApp(App):
             if verbose == "normal" or self.is_debugging:
                 self.reply(ev.args.message)
 
-    async def _refresh_console(self) -> None:
+    async def _cb_refresh_console(self) -> None:
+        """Callback to handle markdown console updates."""
         if self._re_render:
             self._re_render = False
             await self.md_console.go(self._console_path)
@@ -350,6 +374,7 @@ class AskAiApp(App):
         scheduler.start()
         recorder.setup()
         self.info.info_text = str(self)
+        self.settings.settings_text = str(configs)
         with open(self._console_path, "a", encoding=Charset.UTF_8.val) as f_console:
             f_console.write(f"---\n\n# {now()}\n\n")
             f_console.flush()

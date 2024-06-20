@@ -46,7 +46,7 @@ class MenuIcon(Widget):
         self.menu_icon = menu_icon
         self.click_cb: Callable = on_click
 
-    def on_click(self, event: Click) -> None:
+    async def on_click(self, event: Click) -> None:
         """Launch the command palette when icon is clicked."""
         event.stop()
         if self.click_cb:
@@ -121,3 +121,37 @@ class AppInfo(Static):
     async def watch_info_text(self) -> None:
         """TODO"""
         self.info.update(self.info_text)
+
+
+class AppSettings(Widget):
+    """Application Settings Widget."""
+
+    DEFAULT_CSS = """
+    AppSettings {
+      align: center middle;
+      display: block;
+      visibility: visible;
+    }
+    """
+
+    settings_text = reactive(True, repaint=True)
+
+    def __init__(self, settings: str):
+        super().__init__()
+        self.settings_text = settings
+
+    @property
+    def settings(self) -> Static:
+        """Get the Static widget."""
+        return self.query_one(Static)
+
+    def compose(self) -> ComposeResult:
+        yield Static(self.settings_text, id="settings")
+
+    async def on_mount(self) -> None:
+        """Called application is mounted."""
+        self.set_class(True, "-hidden")
+
+    async def watch_settings_text(self) -> None:
+        """TODO"""
+        self.settings.update(self.settings_text)

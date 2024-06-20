@@ -36,6 +36,13 @@ class AskAiConfigs(metaclass=Singleton):
         )
         self._recorder_devices: list[str] = settings.get_list("askai.recorder.devices")
 
+    def __str__(self):
+        # str_configs = ""
+        # for s in settings.settings.search():
+        #     str_configs += s + os.linesep
+        # return str_configs
+        return str(settings)
+
     @property
     def is_interactive(self) -> bool:
         return settings.get_bool("askai.interactive.enabled")

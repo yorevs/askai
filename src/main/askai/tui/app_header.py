@@ -36,7 +36,7 @@ class HeaderTitle(Widget):
         """Render the title and sub-title."""
         text = Text(self.text, no_wrap=True, overflow="ellipsis")
         if self.sub_text:
-            text.append(" - ")
+            text.append(f"  {AppIcons.SEPARATOR_H}  ")
             text.append(str(self.sub_text))
         return text
 
@@ -61,8 +61,8 @@ class HeaderClock(Widget):
         return Text(
             f"{AppIcons.SPEAKING_ON if self.speaking else AppIcons.SPEAKING_OFF}  "
             + f"{AppIcons.DEBUG_ON if self.debugging else AppIcons.DEBUG_OFF}"
-            + f"  {AppIcons.SEPARATOR}  "
-            + now("%a %d %b %X")
+            + f"  {AppIcons.SEPARATOR_V}  "
+            + now(f"%a %d %b  %X")
         )
 
     async def watch_speaking(self) -> None:
@@ -100,7 +100,7 @@ class Header(Widget):
 
     def compose(self):
         """Compose the Header Widget."""
-        yield MenuIcon(AppIcons.MENU.value, self._show_menu)
+        yield MenuIcon(AppIcons.SETTINGS.value, self._show_settings)
         yield MenuIcon(AppIcons.INFO.value, self._show_info)
         yield MenuIcon(AppIcons.CONSOLE.value, self._show_console)
         yield HeaderTitle()
@@ -120,13 +120,17 @@ class Header(Widget):
         self.watch(self.screen, "title", set_title)
         self.watch(self.screen, "sub_title", set_sub_title)
 
-    def _show_menu(self) -> None:
-        self.run_action("command_palette")
+    def _show_settings(self) -> None:
+        self.app.settings.set_class(False, "-hidden")
+        self.app.info.set_class(True, "-hidden")
+        self.app.md_console.set_class(True, "-hidden")
 
     def _show_info(self) -> None:
         self.app.info.set_class(False, "-hidden")
         self.app.md_console.set_class(True, "-hidden")
+        self.app.settings.set_class(True, "-hidden")
 
     def _show_console(self) -> None:
         self.app.info.set_class(True, "-hidden")
+        self.app.settings.set_class(True, "-hidden")
         self.app.activate_markdown()

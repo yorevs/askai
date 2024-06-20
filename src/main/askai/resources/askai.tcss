@@ -3,11 +3,6 @@
   visibility: hidden;
 }
 
-.-visible {
-  display: block;
-  visibility: visible;
-}
-
 Screen {
   background: #030F12;
   color: #DAF7F0;
@@ -23,10 +18,19 @@ Screen {
   padding: 0 1;
 }
 
+#settings {
+  width: auto;
+  height: auto;
+  border: solid #183236;
+  background: #030F12;
+  content-align: left middle;
+  padding: 0 1;
+}
+
 HeaderClock {
   content-align: right middle;
   dock: right;
-  width: 34;
+  width: auto;
   padding: 0 1;
 }
 
@@ -46,6 +50,8 @@ Header {
 
 MarkdownViewer {
   padding: 1 0;
+  display: block;
+  visibility: visible;
 }
 
 Input {
