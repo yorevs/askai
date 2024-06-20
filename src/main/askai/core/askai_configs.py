@@ -12,14 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
+from shutil import which
+
 from askai.__classpath__ import classpath
 from askai.core.askai_settings import settings
 from askai.language.language import Language
 from hspylib.core.enums.charset import Charset
 from hspylib.core.metaclass.singleton import Singleton
-from shutil import which
-
-import os
 
 
 class AskAiConfigs(metaclass=Singleton):
@@ -35,13 +35,6 @@ class AskAiConfigs(metaclass=Singleton):
             os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG", os.getenv("LANGUAGE", "en_US.UTF-8"))))
         )
         self._recorder_devices: list[str] = settings.get_list("askai.recorder.devices")
-
-    def __str__(self):
-        # str_configs = ""
-        # for s in settings.settings.search():
-        #     str_configs += s + os.linesep
-        # return str_configs
-        return str(settings)
 
     @property
     def is_interactive(self) -> bool:

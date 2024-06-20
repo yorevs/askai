@@ -1,16 +1,17 @@
+import atexit
+import logging as log
+from pathlib import Path
+from typing import Literal
+
 from askai.__classpath__ import classpath
 from askai.core.askai_events import AskAiEvents
 from askai.core.component.cache_service import cache
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import log_init
 from hspylib.core.tools.text_tools import ensure_endswith
-from pathlib import Path
-from typing import Literal
-
-import atexit
-import logging as log
 
 BASE_DIR: str = str(classpath.resource_path()).replace("/main/askai/", "/demo/")
 
@@ -26,7 +27,7 @@ def init_context(
 ) -> None:
     """Initialize AskAI context and startup components."""
     log_init(f"{ensure_endswith(log_name, '.log')}", level=log_level)
-    cache.read_query_history()
+    KeyboardInput.preload_history(cache.read_query_history())
     shared.create_engine(engine_name=engine_name, model_name=model_name)
     shared.create_context(context_size)
     AskAiEvents.ASKAI_BUS.events.reply.subscribe(cb_event_handler=lambda ev: display_text(ev.args.message))

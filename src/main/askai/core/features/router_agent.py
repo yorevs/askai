@@ -1,4 +1,6 @@
+import logging as log
 import os
+from types import SimpleNamespace
 
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
@@ -6,8 +8,8 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.features.toolkit import features
 from askai.core.features.rag.rag import assert_accuracy
+from askai.core.features.toolkit import features
 from askai.core.features.tools.general import final_answer
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
@@ -15,14 +17,10 @@ from askai.core.model.rag_response import RagResponse
 from askai.core.model.routing_model import RoutingModel
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from askai.exception.exceptions import InaccurateResponse
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
-from types import SimpleNamespace
-
-import logging as log
 
 
 class RouterAgent(metaclass=Singleton):

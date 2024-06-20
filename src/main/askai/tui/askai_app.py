@@ -19,24 +19,9 @@ from contextlib import redirect_stdout
 from functools import partial
 from io import StringIO
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional
 
 import nltk
-from cachetools import LRUCache
-from click import UsageError
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging
-from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
-from hspylib.core.zoned_datetime import now
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from openai import RateLimitError
-from textual import on, work
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.suggester import SuggestFromList
-from textual.widgets import Footer, Input, MarkdownViewer
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
@@ -55,7 +40,20 @@ from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery
 from askai.tui.app_header import Header
+from askai.tui.app_suggester import InputSuggester
 from askai.tui.app_widgets import AppInfo, Splash, AppSettings
+from click import UsageError
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging
+from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
+from hspylib.core.zoned_datetime import now
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from openai import RateLimitError
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.containers import ScrollableContainer
+from textual.widgets import Footer, Input, MarkdownViewer
 
 SOURCE_DIR: Path = classpath.source_path()
 
@@ -86,12 +84,12 @@ class AskAiApp(App):
     def __init__(self, quiet: bool, debug: bool, tempo: int, engine_name: str, model_name: str):
         super().__init__()
         self._session_id = now("%Y%m%d")[:8]
-        self._input_history = ["/help", "/settings", "/voices", "/debug"]
         self._question: str | None = None
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         self._console_path = Path(f"{CACHE_DIR}/askai-{self.session_id}.md")
         self._re_render = True
+        self._suggester = InputSuggester(self.load_history(), case_sensitive=False)
         if not self._console_path.exists():
             self._console_path.touch()
         # Setting configs from program args.
@@ -105,6 +103,7 @@ class AskAiApp(App):
         speak_info = str(configs.tempo) + " @" + shared.engine.configs.tts_voice
         cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, "…")
         return (
+            f"{'=' * 80} \n"
             f"     Engine: {self.engine} \n"
             f"   Language: {configs.language} \n"
             f"    WorkDir: {cur_dir} \n"
@@ -113,6 +112,7 @@ class AskAiApp(App):
             f"  Debugging: {'ON' if self.is_debugging else 'OFF'} \n"
             f"   Speaking: {'ON, tempo: ' + speak_info if self.is_speak else 'OFF'} \n"
             f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else 'OFF'} \n"
+            f"{'=' * 80}"
         )
 
     @property
@@ -173,6 +173,11 @@ class AskAiApp(App):
         return self.query_one(Input)
 
     @property
+    def suggester(self) -> Optional[InputSuggester]:
+        """Get the Input Suggester."""
+        return self._suggester
+
+    @property
     def header(self) -> Header:
         """Get the Input widget."""
         return self.query_one(Header)
@@ -187,19 +192,25 @@ class AskAiApp(App):
         """Get the Session id."""
         return self._session_id
 
+    @property
+    def app_settings(self) -> list[tuple[str, ...]]:
+        all_settings = [("Setting", "Value")]
+        for s in settings.settings.search():
+            r: tuple[str, ...] = str(s.name), str(s.value)
+            all_settings.append(r)
+        return all_settings
+
     def compose(self) -> ComposeResult:
         """Called to add widgets to the app."""
-        suggester = SuggestFromList(self._input_history, case_sensitive=False)
-        suggester.cache = LRUCache(1024)
         footer = Footer()
         footer.upper_case_keys = True
         yield Header()
         with ScrollableContainer():
-            yield AppSettings("")
+            yield AppSettings()
             yield AppInfo("")
             yield Splash(self.SPLASH_IMAGE)
             yield MarkdownViewer()
-        yield Input(placeholder=f"Message {self.engine.nickname()}", suggester=suggester)
+        yield Input(placeholder=f"Message {self.engine.nickname()}", suggester=self._suggester)
         yield footer
 
     async def on_mount(self) -> None:
@@ -228,12 +239,23 @@ class AskAiApp(App):
         if enable:
             self.line_input.focus()
 
+    def load_history(self) -> list[str]:
+        """TODO"""
+        # fmt: off
+        history = [
+            "/debug", "/devices", "/help",
+            "/settings", "/speak", "/tempo",
+            "/voices", "/forget"
+        ]
+        history.extend(cache.read_query_history())
+        # fmt: on
+        return history
+
     @work
     async def activate_markdown(self) -> None:
         """Activate the Markdown console."""
         await self.md_console.go(self._console_path)
         self.md_console.set_class(False, "-hidden")
-        self.md_console.focus()
 
     @work(thread=True)
     async def action_clear(self) -> None:
@@ -270,7 +292,10 @@ class AskAiApp(App):
         self.line_input.clear()
         self.line_input.loading = True
         self.display_text(f"{self.username}: {question}")
-        self._ask_and_reply(question)
+        if self._ask_and_reply(question):
+            await self.suggester.add_suggestion(question)
+            suggestions = await self.suggester.suggestions()
+            cache.save_query_history(suggestions)
 
     def reply(self, message: str) -> None:
         """Reply to the user with the AI response.
@@ -295,10 +320,7 @@ class AskAiApp(App):
         self.info.info_text = str(self)
         self.header.clock.debugging = self.is_debugging
         self.header.clock.speaking = self.is_speak
-
-    def _update_settings(self, _: int, __: str) -> None:
-        """Update the application settings text. This callback is required because ask_and_reply is async."""
-        self.settings.settings_text = str(configs)
+        self.settings.data = self.app_settings
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.
@@ -354,10 +376,10 @@ class AskAiApp(App):
         except TerminatingQuery:
             status = False
 
-        self.line_input.loading = False
-
         if cb_on_finish:
             cb_on_finish(status, output)
+
+        self.line_input.loading = False
 
         return status
 
@@ -369,12 +391,10 @@ class AskAiApp(App):
         askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
         nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
         cache.set_cache_enable(self.cache_enabled)
-        cache.read_query_history()
         player.start_delay()
         scheduler.start()
         recorder.setup()
         self.info.info_text = str(self)
-        self.settings.settings_text = str(configs)
         with open(self._console_path, "a", encoding=Charset.UTF_8.val) as f_console:
             f_console.write(f"---\n\n# {now()}\n\n")
             f_console.flush()

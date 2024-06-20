@@ -12,6 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+import re
+import sys
+from functools import partial
+from pathlib import Path
+from threading import Thread
+from typing import List, Optional
+
+import nltk
+import pause
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
@@ -35,7 +46,7 @@ from click import UsageError
 from clitt.core.term.cursor import cursor
 from clitt.core.term.screen import screen
 from clitt.core.term.terminal import terminal
-from functools import partial
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import is_debugging, sysout
@@ -45,16 +56,6 @@ from hspylib.modules.application.version import Version
 from hspylib.modules.eventbus.event import Event
 from langchain_core.prompts import PromptTemplate
 from openai import RateLimitError
-from pathlib import Path
-from threading import Thread
-from typing import List, Optional
-
-import logging as log
-import nltk
-import os
-import pause
-import re
-import sys
 
 
 class AskAi:
@@ -227,7 +228,7 @@ class AskAi:
             splash_thread.start()
             nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
             cache.set_cache_enable(self.cache_enabled)
-            cache.read_query_history()
+            KeyboardInput.preload_history(cache.read_query_history())
             player.start_delay()
             scheduler.start()
             recorder.setup()

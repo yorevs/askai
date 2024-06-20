@@ -12,14 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from pathlib import Path
+from typing import Optional, Tuple
+
 from askai.core.askai_settings import ASKAI_DIR
 from askai.core.support.utilities import hash_text
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.modules.cache.ttl_cache import TTLCache
-from pathlib import Path
-from typing import Optional, Tuple
 
 # AskAI cache root directory.
 CACHE_DIR: Path = Path(f"{ASKAI_DIR}/cache")
@@ -89,17 +90,15 @@ class CacheService(metaclass=Singleton):
         cls._TTL_CACHE.save(key, reply)
 
     @classmethod
-    def read_query_history(cls) -> None:
+    def read_query_history(cls) -> list[str]:
         """Read the input queries from TTL cache."""
         hist_str: str = cls._TTL_CACHE.read(cls.ASKAI_INPUT_CACHE_KEY)
-        if hist_str:
-            KeyboardInput.preload_history(hist_str.split(","))
+        return hist_str.split(",") if hist_str else []
 
     @classmethod
-    def save_query_history(cls) -> None:
+    def save_query_history(cls, history: list[str] = None) -> None:
         """Save the line input queries into the TTL cache."""
-        hist = KeyboardInput.history()
-        cls._TTL_CACHE.save(cls.ASKAI_INPUT_CACHE_KEY, ",".join(hist))
+        cls._TTL_CACHE.save(cls.ASKAI_INPUT_CACHE_KEY, ",".join(history or KeyboardInput.history()))
 
     @classmethod
     def get_audio_file(cls, text: str, voice: str = "onyx", audio_format: str = "mp3") -> Tuple[str, bool]:

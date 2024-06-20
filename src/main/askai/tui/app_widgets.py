@@ -15,14 +15,14 @@
 
 from typing import Callable, Optional
 
+from askai.tui.app_icons import AppIcons
+from rich.text import Text
 from textual.app import ComposeResult, RenderResult
 from textual.containers import Container
 from textual.events import Click
 from textual.reactive import Reactive, reactive
 from textual.widget import Widget
-from textual.widgets import Static
-
-from askai.tui.app_icons import AppIcons
+from textual.widgets import Static, DataTable
 
 
 class MenuIcon(Widget):
@@ -123,8 +123,8 @@ class AppInfo(Static):
         self.info.update(self.info_text)
 
 
-class AppSettings(Widget):
-    """Application Settings Widget."""
+class AppSettings(DataTable):
+    """Application DataTable Widget."""
 
     DEFAULT_CSS = """
     AppSettings {
@@ -134,24 +134,23 @@ class AppSettings(Widget):
     }
     """
 
-    settings_text = reactive(True, repaint=True)
+    data = reactive(True, repaint=True)
 
-    def __init__(self, settings: str):
+    def __init__(self, data: list[tuple[str, ...]] = None):
         super().__init__()
-        self.settings_text = settings
-
-    @property
-    def settings(self) -> Static:
-        """Get the Static widget."""
-        return self.query_one(Static)
-
-    def compose(self) -> ComposeResult:
-        yield Static(self.settings_text, id="settings")
+        self.data = data or list()
+        self.zebra_stripes = True
 
     async def on_mount(self) -> None:
         """Called application is mounted."""
         self.set_class(True, "-hidden")
 
-    async def watch_settings_text(self) -> None:
+    def watch_data(self) -> None:
         """TODO"""
-        self.settings.update(self.settings_text)
+        rows: list[tuple[str, ...]] = self.app.app_settings
+        if rows:
+            self.clear(True)
+            self.add_columns(*rows[0])
+            for i, row in enumerate(rows[1:], start=1):
+                label = Text(str(i), style="#B0FC38 italic")
+                self.add_row(*row, label=label)
