@@ -12,21 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import operator
-import sys
-from pathlib import Path
-from typing import Callable, Optional, TypeAlias
-
-import pause
-from clitt.core.tui.mselect.mselect import mselect
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_state, check_argument
-from hspylib.core.zoned_datetime import now_ms
-from hspylib.modules.application.exit_status import ExitStatus
-from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -35,6 +20,20 @@ from askai.core.component.scheduler import Scheduler
 from askai.core.support.utilities import display_text, seconds
 from askai.exception.exceptions import InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
+from clitt.core.tui.mselect.mselect import mselect
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_argument, check_state
+from hspylib.core.zoned_datetime import now_ms
+from hspylib.modules.application.exit_status import ExitStatus
+from pathlib import Path
+from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
+from typing import Callable, Optional, TypeAlias
+
+import logging as log
+import operator
+import pause
+import sys
 
 DeviceType: TypeAlias = tuple[int, str]
 

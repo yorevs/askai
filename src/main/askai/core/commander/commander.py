@@ -13,13 +13,13 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import click
-
 from askai.core.askai_configs import configs
 from askai.core.commander.commands.general_cmd import GeneralCmd
 from askai.core.commander.commands.settings_cmd import SettingsCmd
 from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
 from askai.core.support.text_formatter import text_formatter
+
+import click
 
 COMMANDER_HELP = """
 # AskAI Commander - HELP

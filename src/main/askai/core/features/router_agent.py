@@ -1,7 +1,3 @@
-import logging as log
-import os
-from types import SimpleNamespace
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -21,6 +17,10 @@ from hspylib.core.metaclass.singleton import Singleton
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
+from types import SimpleNamespace
+
+import logging as log
+import os
 
 
 class RouterAgent(metaclass=Singleton):

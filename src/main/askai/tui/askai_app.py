@@ -12,20 +12,10 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-import re
-from contextlib import redirect_stdout
-from functools import partial
-from io import StringIO
-from pathlib import Path
-from typing import Optional
-
-import nltk
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
-from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT, MIC_LISTENING_EVENT, \
-    DEVICE_CHANGED_EVENT
+from askai.core.askai_events import (ASKAI_BUS_NAME, AskAiEvents, DEVICE_CHANGED_EVENT, MIC_LISTENING_EVENT,
+                                     REPLY_ERROR_EVENT, REPLY_EVENT)
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.askai_settings import settings
@@ -39,24 +29,34 @@ from askai.core.features.router import router
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
-from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery, \
-    IntelligibleAudioError
+from askai.exception.exceptions import (ImpossibleQuery, InaccurateResponse, IntelligibleAudioError,
+                                        MaxInteractionsReached, TerminatingQuery)
 from askai.tui.app_header import Header
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_suggester import InputSuggester
-from askai.tui.app_widgets import AppInfo, Splash, AppSettings, AppHelp
+from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash
 from click import UsageError
+from contextlib import redirect_stdout
+from functools import partial
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import is_debugging
 from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
-from hspylib.core.zoned_datetime import now, DATE_FORMAT, TIME_FORMAT
+from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
 from hspylib.modules.application.version import Version
 from hspylib.modules.eventbus.event import Event
+from io import StringIO
 from openai import RateLimitError
+from pathlib import Path
 from textual import on, work
 from textual.app import App, ComposeResult
 from textual.containers import ScrollableContainer
 from textual.widgets import Footer, Input, MarkdownViewer
+from typing import Optional
+
+import logging as log
+import nltk
+import os
+import re
 
 SOURCE_DIR: Path = classpath.source_path()
 

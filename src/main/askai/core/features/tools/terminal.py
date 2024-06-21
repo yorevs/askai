@@ -12,8 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import re
-
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.features.rag.rag import resolve_x_refs
@@ -29,6 +27,7 @@ from typing import Tuple
 
 import logging as log
 import os
+import re
 
 
 def list_contents(folder: str, filters: str) -> str:

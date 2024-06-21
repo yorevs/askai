@@ -12,9 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-from typing import List
-
 from askai.core.component.cache_service import cache
 from askai.core.component.summarizer import summarizer
 from askai.core.support.langchain_support import lc_llm
@@ -23,8 +20,10 @@ from hspylib.core.tools.commons import sysout
 from langchain_community.document_loaders.directory import DirectoryLoader
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
+from typing import List
 from utils import init_context
+
+import os
 
 if __name__ == "__main__":
     init_context("summarizer-demo")

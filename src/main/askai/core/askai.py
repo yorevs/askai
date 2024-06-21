@@ -12,36 +12,10 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-import re
-import sys
-from functools import partial
-from pathlib import Path
-from threading import Thread
-from typing import List, Optional
-
-import nltk
-import pause
-from click import UsageError
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.term.terminal import terminal
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging, sysout
-from hspylib.core.tools.text_tools import elide_text
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from langchain_core.prompts import PromptTemplate
-from openai import RateLimitError
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
-from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT, MIC_LISTENING_EVENT, \
-    DEVICE_CHANGED_EVENT
+from askai.core.askai_events import (ASKAI_BUS_NAME, AskAiEvents, DEVICE_CHANGED_EVENT, MIC_LISTENING_EVENT,
+                                     REPLY_ERROR_EVENT, REPLY_EVENT)
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import ask_cli
@@ -57,8 +31,33 @@ from askai.core.support.chat_context import ChatContext
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
-from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery, \
-    IntelligibleAudioError
+from askai.exception.exceptions import (ImpossibleQuery, InaccurateResponse, IntelligibleAudioError,
+                                        MaxInteractionsReached, TerminatingQuery)
+from click import UsageError
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.term.terminal import terminal
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from functools import partial
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging, sysout
+from hspylib.core.tools.text_tools import elide_text
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from langchain_core.prompts import PromptTemplate
+from openai import RateLimitError
+from pathlib import Path
+from threading import Thread
+from typing import List, Optional
+
+import logging as log
+import nltk
+import os
+import pause
+import re
+import sys
 
 
 class AskAi:

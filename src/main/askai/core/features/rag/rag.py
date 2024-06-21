@@ -13,8 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -27,6 +25,8 @@ from askai.exception.exceptions import InaccurateResponse
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
+
+import logging as log
 
 
 def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse = RagResponse.MODERATE) -> None:

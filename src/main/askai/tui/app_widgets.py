@@ -12,9 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from textwrap import dedent
-from typing import Callable, Optional
-
 from askai.tui.app_icons import AppIcons
 from rich.text import Text
 from textual.app import ComposeResult, RenderResult
@@ -22,7 +19,9 @@ from textual.containers import Container
 from textual.events import Click
 from textual.reactive import Reactive, reactive
 from textual.widget import Widget
-from textual.widgets import Static, DataTable, Markdown, Collapsible
+from textual.widgets import Collapsible, DataTable, Markdown, Static
+from textwrap import dedent
+from typing import Callable, Optional
 
 
 class MenuIcon(Widget):

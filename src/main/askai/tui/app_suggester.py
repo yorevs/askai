@@ -13,9 +13,8 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from typing import Iterable, Optional
-
 from textual.suggester import Suggester
+from typing import Iterable, Optional
 
 
 class InputSuggester(Suggester):

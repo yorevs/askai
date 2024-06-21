@@ -12,16 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import re
-
 from askai.core.component.cache_service import cache
 from askai.core.component.geo_location import geo_location
 from askai.core.component.internet_service import internet
 from askai.core.model.search_result import SearchResult
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.tools.commons import sysout
-
 from utils import init_context
+
+import re
 
 if __name__ == "__main__":
     init_context("internet-demo")
