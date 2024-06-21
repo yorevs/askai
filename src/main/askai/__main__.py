@@ -15,6 +15,7 @@
 
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
+from askai.core.askai_configs import configs
 from askai.tui.askai_app import AskAiApp
 from clitt.core.term.commons import is_a_tty
 from clitt.core.tui.tui_application import TUIApplication
@@ -63,37 +64,37 @@ class Main(TUIApplication):
             .option(
                 "interactive", "i", "interactive",
                 "whether you would like to run the program in an interactive mode.",
-                nargs="?", action=ParserAction.STORE_TRUE, default=False)\
+                nargs="?", action=ParserAction.STORE_TRUE)\
             .option(
                 "quiet", "q", "quiet",
                 "whether you want touse speaking (audio in/out).",
-                nargs="?", action=ParserAction.STORE_TRUE, default=False)\
+                nargs="?", action=ParserAction.STORE_TRUE)\
             .option(
                 "debug", "d", "debug",
-                "whether you want enter debug mode.",
-                nargs="?", action=ParserAction.STORE_TRUE, default=False)\
+                "whether you want ro tun under debug mode.",
+                nargs="?", action=ParserAction.STORE_TRUE)\
+            .option(
+                "ui", "u", "ui",
+                "whether to use the new AskAI TUI (experimental).",
+                nargs="?", action=ParserAction.STORE_TRUE)\
             .option(
                 "tempo", "t", "tempo",
                 "specifies the playback and streaming speed.",
                 choices=['1', '2', '3'],
-                nargs=1, default='1')\
+                nargs="?")\
             .option(
                 "prompt", "p", "prompt",
                 "specifies the query prompt file (not useful with interactive mode).",
-                nargs=1)\
+                nargs="?")\
             .option(
                 "engine", "e", "engine",
                 "specifies which AI engine to use. If not provided, the default engine wil be used.",
-                choices=['openai', 'palm'],
-                nargs=1, default='openai')\
+                choices=["openai", "gemini"],
+                nargs="?")\
             .option(
                 "model", "m", "model",
                 "specifies which AI model to use (depends on the engine).",
-                nargs=1, default='gpt-3.5-turbo')\
-            .option(
-                "ui", "u", "ui",
-                "whether to use the new AskAI UI (experimental).",
-                nargs="?", action=ParserAction.STORE_TRUE, default=False)
+                nargs="?")
         self._with_arguments() \
             .argument("query_string", "what to ask to the AI engine", nargs="*")
         # fmt: on
@@ -101,25 +102,25 @@ class Main(TUIApplication):
     def _main(self, *params, **kwargs) -> ExitStatus:
         """Run the application with the command line arguments."""
         os.chdir(Path.home())
-        is_new_ui: bool = to_bool(self._get_argument("ui"))
+        is_new_ui: bool = to_bool(self._get_argument("ui", False))
         if not is_new_ui:
             self._askai = AskAi(
-                to_bool(self._get_argument("interactive")),
-                to_bool(self._get_argument("quiet")),
-                to_bool(self._get_argument("debug")),
-                int(self._get_argument("tempo")),
-                str(self._get_argument("prompt")),
-                str(self._get_argument("engine")),
-                str(self._get_argument("model")),
+                to_bool(self._get_argument("interactive", False)),
+                to_bool(self._get_argument("quiet", not configs.is_speak)),
+                to_bool(self._get_argument("debug", configs.is_debug)),
+                int(self._get_argument("tempo", configs.tempo)),
+                self._get_argument("prompt"),
+                self._get_argument("engine", "openai"),
+                self._get_argument("model"),
                 self._get_query_string(),
             )
         else:
             self._askai = AskAiApp(
-                to_bool(self._get_argument("quiet")),
-                to_bool(self._get_argument("debug")),
-                int(self._get_argument("tempo")),
-                str(self._get_argument("engine")),
-                str(self._get_argument("model")),
+                to_bool(self._get_argument("quiet", not configs.is_speak)),
+                to_bool(self._get_argument("debug", configs.is_debug)),
+                int(self._get_argument("tempo", configs.tempo)),
+                self._get_argument("engine", "openai"),
+                self._get_argument("model"),
             )
 
         log.info(
@@ -141,9 +142,9 @@ class Main(TUIApplication):
 
         return ExitStatus.SUCCESS
 
-    def _get_argument(self, arg_name: str) -> Optional[Any]:
+    def _get_argument(self, arg_name: str, default: Any = None) -> Optional[Any]:
         """Get a command line argument, converting to the appropriate type."""
-        if arg := self.get_arg(arg_name):
+        if arg := self.get_arg(arg_name) or default:
             if isinstance(arg, str):
                 return arg
             elif isinstance(arg, list):
@@ -154,10 +155,10 @@ class Main(TUIApplication):
                 return arg
             else:
                 raise TypeError("Argument '' has an invalid type: ''", arg, type(arg))
-        else:
-            return ""
 
-    def _get_query_string(self) -> str:
+        return None
+
+    def _get_query_string(self) -> Optional[str]:
         """Return the query_string parameter."""
         query_string: str | list[str] = self.get_arg("query_string")
         return query_string if isinstance(query_string, str) else " ".join(query_string)

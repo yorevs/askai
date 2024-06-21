@@ -49,7 +49,7 @@ class OpenAIModel(Enumeration):
 
     @staticmethod
     def of_name(model_name: str) -> "AIModel":
-        found = next((m for m in OpenAIModel.models() if m.model_name() == model_name.lower()), None)
+        found = next((m for m in OpenAIModel.models() if m.model_name() == model_name.casefold()), None)
         check_not_none(found, '"{}" name does not correspond to a valid "{}" enum', model_name, OpenAIModel.__name__)
         return found
 

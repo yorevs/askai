@@ -16,6 +16,7 @@
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.openai.openai_engine import OpenAIEngine
 from askai.core.engine.openai.openai_model import OpenAIModel
+from askai.core.model.ai_model import AIModel
 from askai.exception.exceptions import NoSuchEngineError
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_not_none
@@ -35,12 +36,13 @@ class EngineFactory(metaclass=Singleton):
         :param engine_name: the AI engine name.
         :param engine_model: the AI engine model.
         """
-        engine = engine_name.lower() if isinstance(engine_name, str) else engine_name[0].lower()
-        model = engine_model.lower() if isinstance(engine_model, str) else engine_model[0].lower()
-        match engine:
+        engine_name = engine_name[0] if isinstance(engine_name, list) else engine_name
+        model_name = engine_model[0] if isinstance(engine_model, list) else engine_model
+        match engine_name:
             case "openai":
-                cls._ACTIVE_AI_ENGINE = OpenAIEngine(OpenAIModel.of_name(model) or OpenAIModel.GPT_3_5_TURBO)
-            case "palm":
+                model: AIModel = OpenAIModel.of_name(model_name) if model_name else None
+                cls._ACTIVE_AI_ENGINE = OpenAIEngine(model or OpenAIModel.GPT_3_5_TURBO)
+            case "gemini":
                 raise NoSuchEngineError("Google 'paml' is not yet implemented!")
             case _:
                 raise NoSuchEngineError(f"Engine name: {engine_name}  model: {engine_model}")

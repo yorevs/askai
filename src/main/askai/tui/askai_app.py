@@ -224,9 +224,9 @@ class AskAiApp(App[None]):
 
     async def on_mount(self) -> None:
         """Called application is mounted."""
+        self.enable_controls(False)
         self.screen.title = f"AskAI v{Version.load(load_dir=classpath.source_path())}"
         self.screen.sub_title = self.engine.ai_model_name()
-        self.enable_controls(False)
         self.md_console.set_class(True, "-hidden")
         self.md_console.show_table_of_contents = False
         self.md_console.set_interval(0.25, self._cb_refresh_console)

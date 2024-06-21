@@ -44,7 +44,7 @@ class InputSuggester(Suggester):
 
     async def get_suggestion(self, value: str) -> Optional[str]:
         """Get a suggestion from the list."""
-        for idx, suggestion in enumerate(self._for_comparison):
+        for idx, suggestion in enumerate(sorted(self._for_comparison, key=len)):
             if suggestion.startswith(value):
                 return self._suggestions[idx]
         return None
