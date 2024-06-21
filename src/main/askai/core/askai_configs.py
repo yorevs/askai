@@ -34,7 +34,7 @@ class AskAiConfigs(metaclass=Singleton):
         self._language: Language = Language.of_locale(
             os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG", os.getenv("LANGUAGE", "en_US.UTF-8"))))
         )
-        self._recorder_devices: list[str] = settings.get_list("askai.recorder.devices")
+        self._recorder_devices: set[str] = set(map(str.strip, settings.get_list("askai.recorder.devices")))
 
     @property
     def is_interactive(self) -> bool:
@@ -121,12 +121,12 @@ class AskAiConfigs(metaclass=Singleton):
         return settings.get_bool("askai.recorder.input.device.auto.swap")
 
     @property
-    def recorder_devices(self) -> list[str]:
+    def recorder_devices(self) -> set[str]:
         return self._recorder_devices
 
     def add_device(self, device_name: str) -> None:
         if device_name not in self._recorder_devices:
-            self._recorder_devices.insert(0, device_name)
+            self._recorder_devices.add(device_name)
             settings.put("askai.recorder.devices", ", ".join(self._recorder_devices))
 
     def remove_device(self, device_name: str) -> None:

@@ -13,7 +13,19 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.core.component.audio_player import AudioPlayer
+import logging as log
+import os
+from threading import Thread
+from typing import List, Optional
+
+import langchain_openai
+import pause
+from hspylib.core.preconditions import check_not_none
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models import BaseChatModel, BaseLLM
+from openai import APIError, OpenAI
+
+from askai.core.component.audio_player import player
 from askai.core.component.cache_service import CacheService
 from askai.core.component.recorder import Recorder
 from askai.core.engine.openai.openai_configs import OpenAiConfigs
@@ -21,17 +33,6 @@ from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.model.ai_model import AIModel
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.utilities import stream_text
-from hspylib.core.preconditions import check_not_none
-from langchain_core.embeddings import Embeddings
-from langchain_core.language_models import BaseChatModel, BaseLLM
-from openai import APIError, OpenAI
-from threading import Thread
-from typing import List, Optional
-
-import langchain_openai
-import logging as log
-import os
-import pause
 
 
 class OpenAIEngine:
@@ -136,10 +137,10 @@ class OpenAIEngine:
             else:
                 log.debug(f"Audio file found in cache: '%s' at %s", text, speech_file_path)
             speak_thread = Thread(
-                daemon=True, target=AudioPlayer.INSTANCE.play_audio_file, args=(speech_file_path, self._configs.tempo)
+                daemon=True, target=player.play_audio_file, args=(speech_file_path, self._configs.tempo)
             )
             speak_thread.start()
-            pause.seconds(AudioPlayer.INSTANCE.start_delay())
+            pause.seconds(player.start_delay())
             stream_text(text, prefix)
             speak_thread.join()  # Block until the speech has finished.
 

@@ -45,7 +45,7 @@ class AskAiSettings(metaclass=Singleton):
 
     RESOURCE_DIR = str(classpath.resource_path())
 
-    _ACTUAL_VERSION: str = "0.1.0"
+    _ACTUAL_VERSION: str = "0.1.1"
 
     def __init__(self) -> None:
         self._configs = SettingsConfig(self.RESOURCE_DIR, "application.properties")
@@ -103,7 +103,7 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.max.agent.execution.time.seconds", "askai", 45)
         # Recorder
         self._settings.put("askai.recorder.devices", "askai", "")
-        self._settings.put("askai.recorder.silence.timeout.millis", "askai", 800)
+        self._settings.put("askai.recorder.silence.timeout.millis", "askai", 1200)
         self._settings.put("askai.recorder.phrase.limit.millis", "askai", 10000)
         self._settings.put("askai.recorder.noise.detection.duration.millis", "askai", 600)
         self._settings.put("askai.recorder.input.device.auto.swap", "askai", True)

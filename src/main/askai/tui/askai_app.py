@@ -24,7 +24,8 @@ from typing import Optional
 import nltk
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
-from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
+from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT, MIC_LISTENING_EVENT, \
+    DEVICE_CHANGED_EVENT
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.askai_settings import settings
@@ -323,15 +324,14 @@ class AskAiApp(App[None]):
 
     def display_text(self, markdown_text: str) -> None:
         """Send the text to the Markdown console."""
-        prev_msg: str = self._display_buffer[-1] if self._display_buffer else ''
-        if markdown_text and prev_msg != markdown_text:
-            self._display_buffer.append(markdown_text)
+        self._display_buffer.append(markdown_text)
 
     def reply(self, message: str) -> None:
         """Reply to the user with the AI response.
         :param message: The message to reply to the user.
         """
-        if message:
+        prev_msg: str = self._display_buffer[-1] if self._display_buffer else ''
+        if message and prev_msg != message:
             log.debug(message)
             self.display_text(f"{self.nickname}: {message}")
             if self.is_speak:
@@ -341,7 +341,8 @@ class AskAiApp(App[None]):
         """Reply API or system errors.
         :param message: The error message to be displayed.
         """
-        if message:
+        prev_msg: str = self._display_buffer[-1] if self._display_buffer else ''
+        if message and prev_msg != message:
             log.error(message)
             self.display_text(f"{self.nickname}: Error: {message}")
             if self.is_speak:
@@ -382,6 +383,18 @@ class AskAiApp(App[None]):
                 if ev.args.verbosity.casefold() == "normal" or self.is_debugging:
                     self.reply(message)
 
+    def _cb_mic_listening_event(self, ev: Event) -> None:
+        """Callback to handle microphone listening events."""
+        self.header.clock.listening(ev.args.listening)
+        self.reply(msg.listening())
+
+    def _cb_device_changed_event(self, ev: Event) -> None:
+        """Callback to handle audio input device changed events.
+        :param ev: The reply event.
+        """
+        self.header.clock.headphones = recorder.is_headphones()
+        self.reply(msg.device_switch(str(ev.args.device)))
+
     @work(thread=True)
     async def _ask_and_reply(self, question: str) -> bool:
         """Ask the question and provide the reply.
@@ -413,7 +426,7 @@ class AskAiApp(App[None]):
         except UsageError as err:
             self.reply_error(msg.invalid_command(err))
         except IntelligibleAudioError as err:
-            self.reply_error(msg.intelligible_error(err))
+            self.reply_error(msg.intelligible(err))
         except RateLimitError:
             self.reply_error(msg.quote_exceeded())
             status = False
@@ -432,12 +445,14 @@ class AskAiApp(App[None]):
         askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
         nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
         cache.set_cache_enable(self.cache_enabled)
-        player.start_delay()
-        scheduler.start()
         recorder.setup()
+        scheduler.start()
+        player.start_delay()
         self.action_clear(overwrite=False)
         self.reply(f"{msg.welcome(prompt.user.title())}")
         self.activate_markdown()
         self.splash.set_class(True, "-hidden")
         self.enable_controls()
+        askai_bus.subscribe(MIC_LISTENING_EVENT, self._cb_mic_listening_event)
+        askai_bus.subscribe(DEVICE_CHANGED_EVENT, self._cb_device_changed_event)
         log.info("AskAI is ready to use!")

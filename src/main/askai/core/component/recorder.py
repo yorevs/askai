@@ -14,8 +14,19 @@
 """
 import logging as log
 import operator
+import sys
 from pathlib import Path
 from typing import Callable, Optional, TypeAlias
+
+import pause
+from clitt.core.term.cursor import cursor
+from clitt.core.tui.mselect.mselect import mselect
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_state, check_argument
+from hspylib.core.zoned_datetime import now_ms
+from hspylib.modules.application.exit_status import ExitStatus
+from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
 
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
@@ -25,13 +36,6 @@ from askai.core.component.scheduler import Scheduler
 from askai.core.support.utilities import display_text, seconds
 from askai.exception.exceptions import IntelligibleAudioError, InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
-from clitt.core.term.cursor import cursor
-from clitt.core.tui.mselect.mselect import mselect
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_state, check_argument
-from hspylib.core.zoned_datetime import now_ms
-from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
 
 DeviceType: TypeAlias = tuple[int, str]
 
@@ -66,8 +70,7 @@ class Recorder(metaclass=Singleton):
         """Setup the recorder."""
         self._devices = self.get_device_list()
         log.debug("Available audio devices:\n%s", "\n".join([f"{d[0]} - {d[1]}" for d in self._devices]))
-        self._device_index = self._select_device()
-        self._input_device = self._devices[self._device_index] if self._device_index is not None else None
+        self._select_device()
 
     @staticmethod
     @Scheduler.every(2000, 5000)
@@ -113,14 +116,22 @@ class Recorder(metaclass=Singleton):
 
     def set_device(self, device: DeviceType) -> bool:
         """Test and set the specified device as current."""
-        check_argument(device is not None and isinstance(device, tuple), f"Invalid device: {device} -> {type(device)}")
+        check_argument(device and isinstance(device, tuple), f"Invalid device: {device} -> {type(device)}")
         if ret := self.test_device(device[0]):
             log.info(msg.device_switch(str(device)))
-            AskAiEvents.ASKAI_BUS.events.device_changed.emit(device)
+            AskAiEvents.ASKAI_BUS.events.device_changed.emit(device=device)
             self._input_device = device
             self._device_index = device[0]
             configs.add_device(device[1])
         return ret
+
+    def is_headphones(self) -> bool:
+        """Whether the device is set is a headphone. This is a simplistic way of detecting it, bit it has been
+        working so far."""
+        return (
+            self.device_index is not None
+            and self.device_index > 1
+        )
 
     def listen(
         self,
@@ -140,6 +151,7 @@ class Recorder(metaclass=Singleton):
                     mic_source,
                     phrase_time_limit=seconds(configs.recorder_phrase_limit_millis),
                     timeout=seconds(configs.recorder_silence_timeout_millis))
+                AskAiEvents.ASKAI_BUS.events.listening.emit(listening=False)
                 with open(audio_path, "wb") as f_rec:
                     f_rec.write(audio.get_wav_data())
                     log.debug("Voice recorded and saved as %s", audio_path)
@@ -151,15 +163,18 @@ class Recorder(metaclass=Singleton):
                         cursor.erase_line()
                     else:
                         raise InvalidRecognitionApiError(str(recognition_api or "<none>"))
-            except WaitTimeoutError:
-                err_msg: str = msg.timeout("waiting for a speech input!")
+            except WaitTimeoutError as err:
+                err_msg: str = msg.timeout(f"waiting for a speech input => '{err}'")
+                log.warning("Timed out while waiting for a speech input!")
+                AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=err_msg, erase_last=True)
+                stt_text = None
+            except UnknownValueError as err:
+                err_msg: str = msg.intelligible(f"Your speech was not intelligible => '{err}'")
                 log.warning("Timed out while waiting for a speech input!")
                 AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=err_msg, erase_last=True)
                 stt_text = None
             except AttributeError as err:
                 raise InvalidInputDevice(str(err)) from err
-            except UnknownValueError as err:
-                raise IntelligibleAudioError(str(err)) from err
             except RequestError as err:
                 raise InvalidRecognitionApiError(str(err)) from err
 
@@ -193,27 +208,27 @@ class Recorder(metaclass=Singleton):
             except UnknownValueError as err:
                 raise IntelligibleAudioError(f"Unable to detect noise => {str(err)}") from err
 
-    def _select_device(self) -> Optional[int]:
+    def _select_device(self) -> None:
         """Select device for recording."""
-        done = False
         available: list[str] = list(filter(lambda d: d, map(str.strip, configs.recorder_devices)))
-        while not done:
+        device: DeviceType | None = None
+        devices: list[DeviceType] = list(reversed(self.devices))
+        while not device:
             if available:
-                for idx, device in reversed(self.devices):
-                    if device in available and self.test_device(idx):
-                        return idx
-            idx_device: DeviceType = mselect(
-                self.devices, f"{'-=' * 40}%EOL%AskAI::Select the Input device%EOL%{'=-' * 40}%EOL%")
-            if not idx_device:
-                break
-            elif self.test_device(idx_device[0]):
-                available.append(idx_device[1])
-                configs.add_device(idx_device[1])
-                return idx_device[0]
-
-            display_text(f"%HOM%%ED2%Error:{idx_device[1]} does not support INPUTS !%NC%")
-            self._devices.remove(idx_device)
-        return None
+                for dev in devices:
+                    if dev[1] in available and self.set_device(dev):
+                        device = dev
+                        break
+            if not device:
+                device: DeviceType = mselect(
+                    devices, f"{'-=' * 40}%EOL%AskAI::Select the Audio Input device%EOL%{'=-' * 40}%EOL%")
+                if not device:
+                    sys.exit(ExitStatus.FAILED.val)
+                elif not self.set_device(device):
+                    display_text(f"%HOM%%ED2%Error: '{device[1]}' is not an Audio Input device!%NC%")
+                    devices.remove(device)
+                    device = None
+                    pause.seconds(2)
 
 
 assert (recorder := Recorder().INSTANCE) is not None

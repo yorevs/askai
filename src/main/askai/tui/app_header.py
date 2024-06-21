@@ -13,16 +13,16 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.core.askai_configs import configs
-from askai.core.component.recorder import recorder
-from askai.tui.app_icons import AppIcons
-from askai.tui.app_widgets import MenuIcon
 from hspylib.core.zoned_datetime import now
 from rich.text import Text
 from textual.app import RenderResult
 from textual.events import Mount
 from textual.reactive import reactive
 from textual.widget import Widget
+
+from askai.core.askai_configs import configs
+from askai.tui.app_icons import AppIcons
+from askai.tui.app_widgets import MenuIcon
 
 
 class HeaderTitle(Widget):
@@ -76,18 +76,10 @@ class HeaderClock(Widget):
 
     def refresh_icons(self) -> None:
         """Update the application widgets. This callback is required because ask_and_reply is async."""
-        self.headphones = self.is_headphones()
         self.debugging = self.app.is_debugging
         self.speaking = self.app.is_speak
         self.app.info.info_text = str(self.app)
         self.app.settings.data = self.app.app_settings
-
-    @staticmethod
-    def is_headphones() -> bool:
-        return (
-            recorder.device_index is not None
-            and recorder.device_index > 1
-        )
 
     async def watch_speaking(self) -> None:
         self.refresh()

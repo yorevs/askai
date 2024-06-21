@@ -75,8 +75,8 @@ class AskAiEvents(Enumeration):
         ASKAI_BUS_NAME,
         reply=FluidEvent(REPLY_EVENT, verbosity='normal', erase_last=False, cb_event_handler=None),
         reply_error=FluidEvent(REPLY_ERROR_EVENT, cb_event_handler=None),
-        listening=FluidEvent(MIC_LISTENING_EVENT, cb_event_handler=None),
-        device_changed=FluidEvent(DEVICE_CHANGED_EVENT, cb_event_handler=None),
+        listening=FluidEvent(MIC_LISTENING_EVENT, listening=True, cb_event_handler=None),
+        device_changed=FluidEvent(DEVICE_CHANGED_EVENT, device=None, cb_event_handler=None),
     )
     # fmt: on
 

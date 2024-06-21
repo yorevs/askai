@@ -40,7 +40,8 @@ from openai import RateLimitError
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
-from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT, MIC_LISTENING_EVENT
+from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT, MIC_LISTENING_EVENT, \
+    DEVICE_CHANGED_EVENT
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import ask_cli
@@ -213,13 +214,16 @@ class AskAi:
                         cursor.erase_line()
                     self.reply(message)
 
-    def _cb_mic_listening_event(self, _: Event) -> None:
-        """Callback to handle microphone listening events."""
-        self.reply(msg.listening())
+    def _cb_mic_listening_event(self, ev: Event) -> None:
+        """Callback to handle microphone listening events.
+        :param ev: The microphone listening event.
+        """
+        if ev.args.listening:
+            self.reply(msg.listening())
 
     def _cb_device_changed_event(self, ev: Event) -> None:
         """Callback to handle audio input device changed events.
-        :param ev: The reply event.
+        :param ev: The device changed event.
         """
         cursor.erase_line()
         self.reply(msg.device_switch(str(ev.args.device)))
@@ -238,23 +242,24 @@ class AskAi:
         askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
         askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
-        askai_bus.subscribe(MIC_LISTENING_EVENT, self._cb_mic_listening_event)
         if self.is_interactive:
             splash_thread: Thread = Thread(daemon=True, target=self._splash)
             splash_thread.start()
             nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
             cache.set_cache_enable(self.cache_enabled)
             KeyboardInput.preload_history(cache.load_history())
-            player.start_delay()
-            scheduler.start()
             recorder.setup()
+            scheduler.start()
+            player.start_delay()
             self._ready = True
             splash_thread.join()
             display_text(self, markdown=False)
             self.reply(msg.welcome(os.getenv("USER", "you")))
         elif self.is_speak:
-            player.start_delay()
             recorder.setup()
+            player.start_delay()
+        askai_bus.subscribe(MIC_LISTENING_EVENT, self._cb_mic_listening_event)
+        askai_bus.subscribe(DEVICE_CHANGED_EVENT, self._cb_device_changed_event)
         log.info("AskAI is ready to use!")
 
     def _prompt(self) -> None:
@@ -295,7 +300,7 @@ class AskAi:
         except UsageError as err:
             self.reply_error(msg.invalid_command(err))
         except IntelligibleAudioError as err:
-            self.reply_error(msg.intelligible_error(err))
+            self.reply_error(msg.intelligible(err))
         except RateLimitError:
             self.reply_error(msg.quote_exceeded())
             status = False
