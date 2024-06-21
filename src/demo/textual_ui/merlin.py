@@ -89,7 +89,7 @@ class Timer(Digits):
         self.tick()
 
     def tick(self) -> None:
-        """Called from `set_interval` to update the clock."""
+        """Called from `set_interval` to update the notifications."""
         if self.start_time == 0 or not self.running:
             return
         time_elapsed = timedelta(seconds=int(monotonic() - self.start_time))

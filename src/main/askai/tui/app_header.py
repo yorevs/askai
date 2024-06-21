@@ -25,85 +25,15 @@ from textual.reactive import reactive
 from textual.widget import Widget
 
 
-class HeaderTitle(Widget):
-    """Display the title / subtitle in the header."""
-
-    text = reactive(True, repaint=True)
-
-    sub_text = reactive(True, repaint=True)
-
-    def render(self) -> RenderResult:
-        """Render the title and sub-title."""
-        text = Text(self.text, no_wrap=True, overflow="ellipsis")
-        if self.sub_text:
-            text.append(f"  {AppIcons.SEPARATOR_H}  ")
-            text.append(str(self.sub_text))
-        return text
-
-
-class HeaderClock(Widget):
-    """Display a clock on the right of the header."""
-
-    speaking = reactive(True, repaint=True)
-
-    debugging = reactive(True, repaint=True)
-
-    listening = reactive(True, repaint=True)
-
-    headphones = reactive(True, repaint=True)
-
-    def __init__(self):
-        super().__init__()
-        self.speaking = configs.is_speak
-        self.debugging = configs.is_debug
-        self.listening = False
-        self.headphones = False
-
-    def _on_mount(self, _: Mount) -> None:
-        self.set_interval(1, callback=self.refresh, name="update header clock")
-        self.set_interval(0.5, callback=self.refresh_icons, name="update notification icons")
-
-    def render(self) -> RenderResult:
-        """Render the header clock."""
-        return Text(
-            f"{AppIcons.HEADPHONES if self.headphones else AppIcons.BUILT_IN_SPEAKER}  "
-            f"{AppIcons.LISTENING_ON if self.listening else AppIcons.LISTENING_OFF}  "
-            f"{AppIcons.SPEAKING_ON if self.speaking else AppIcons.SPEAKING_OFF} "
-            f"{AppIcons.DEBUG_ON if self.debugging else AppIcons.DEBUG_OFF}"
-            f"  {AppIcons.SEPARATOR_V}  "
-            + now(f"%a %d %b  %X")
-        )
-
-    def refresh_icons(self) -> None:
-        """Update the application widgets. This callback is required because ask_and_reply is async."""
-        self.headphones = recorder.is_headphones()
-        self.debugging = self.app.is_debugging
-        self.speaking = self.app.is_speak
-        self.app.info.info_text = str(self.app)
-        self.app.settings.data = self.app.app_settings
-
-    async def watch_speaking(self) -> None:
-        self.refresh()
-
-    async def watch_debugging(self) -> None:
-        self.refresh()
-
-    async def watch_listening(self) -> None:
-        self.refresh()
-
-    async def watch_headphones(self) -> None:
-        self.refresh()
-
-
 class Header(Widget):
-    """A header widget with icon and clock."""
+    """A header widget with icon and notifications."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @property
-    def clock(self):
-        return self.query_one(HeaderClock)
+    def notifications(self):
+        return self.query_one(HeaderNotifications)
 
     @property
     def screen_title(self) -> str:
@@ -127,7 +57,7 @@ class Header(Widget):
         yield MenuIcon(AppIcons.INFO.value, self._show_info)
         yield MenuIcon(AppIcons.HELP.value, self._show_help)
         yield HeaderTitle()
-        yield HeaderClock()
+        yield HeaderNotifications()
 
     def _on_mount(self, _: Mount) -> None:
         async def set_title() -> None:
@@ -137,6 +67,7 @@ class Header(Widget):
         async def set_sub_title() -> None:
             """The sub-title that this header will display."""
             self.query_one(HeaderTitle).sub_text = self.screen_sub_title
+
         self.watch(self.app, "title", set_title)
         self.watch(self.app, "sub_title", set_sub_title)
         self.watch(self.screen, "title", set_title)
@@ -169,3 +100,73 @@ class Header(Widget):
         self.app.help.set_class(True, "-hidden")
         self.app.info.set_class(True, "-hidden")
         self.app.settings.set_class(True, "-hidden")
+
+
+class HeaderTitle(Widget):
+    """Display the title / subtitle in the header."""
+
+    text = reactive(True, repaint=True)
+
+    sub_text = reactive(True, repaint=True)
+
+    def render(self) -> RenderResult:
+        """Render the title and sub-title."""
+        text = Text(self.text, no_wrap=True, overflow="ellipsis")
+        if self.sub_text:
+            text.append(f"  {AppIcons.SEPARATOR_H}  ")
+            text.append(str(self.sub_text))
+        return text
+
+
+class HeaderNotifications(Widget):
+    """Display a notification widget on the right of the header."""
+
+    speaking = reactive(True, repaint=True)
+
+    debugging = reactive(True, repaint=True)
+
+    listening = reactive(True, repaint=True)
+
+    headphones = reactive(True, repaint=True)
+
+    def __init__(self):
+        super().__init__()
+        self.speaking = configs.is_speak
+        self.debugging = configs.is_debug
+        self.listening = False
+        self.headphones = False
+
+    def _on_mount(self, _: Mount) -> None:
+        self.set_interval(1, callback=self.refresh, name="update header notifications")
+        self.set_interval(0.5, callback=self.refresh_icons, name="update notification icons")
+
+    def render(self) -> RenderResult:
+        """Render the header notifications."""
+        return Text(
+            f"{AppIcons.HEADPHONES if self.headphones else AppIcons.BUILT_IN_SPEAKER}  "
+            f"{AppIcons.LISTENING_ON if self.listening else AppIcons.LISTENING_OFF}  "
+            f"{AppIcons.SPEAKING_ON if self.speaking else AppIcons.SPEAKING_OFF} "
+            f"{AppIcons.DEBUG_ON if self.debugging else AppIcons.DEBUG_OFF}"
+            f"  {AppIcons.SEPARATOR_V}  "
+            + now(f"%a %d %b  %X")
+        )
+
+    def refresh_icons(self) -> None:
+        """Update the application widgets. This callback is required because ask_and_reply is async."""
+        self.headphones = recorder.is_headphones()
+        self.debugging = self.app.is_debugging
+        self.speaking = self.app.is_speak
+        self.app.info.info_text = str(self.app)
+        self.app.settings.data = self.app.app_settings
+
+    async def watch_speaking(self) -> None:
+        self.refresh()
+
+    async def watch_debugging(self) -> None:
+        self.refresh()
+
+    async def watch_listening(self) -> None:
+        self.refresh()
+
+    async def watch_headphones(self) -> None:
+        self.refresh()

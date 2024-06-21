@@ -38,7 +38,7 @@ class TextFormatter(metaclass=Singleton):
     RE_MD_CODE_BLOCK = r"(```.+```)"
 
     CHAT_ICONS = {
-        "": "\n˜˜  An Exception Occurred:~~ \n> ",
+        "": " Oops!\n>  An Exception Occurred: \n#### ",
         "": "\n>   *Tip:* ",
         "": "\n>   *Analysis:* ",
         "": "\n>   *Summary:* ",
@@ -46,7 +46,7 @@ class TextFormatter(metaclass=Singleton):
         "": "\n>   *Fun-Fact:* ",
         "": "\n>   *Advice:* ",
         "﬽": "\n> ﬽  *Conclusion:* ",
-        "": " Sorry, "
+        "": " `Sorry`, "
     }
 
     RE_TYPES = {
@@ -124,28 +124,3 @@ class TextFormatter(metaclass=Singleton):
 
 
 assert (text_formatter := TextFormatter().INSTANCE) is not None
-
-if __name__ == '__main__':
-    print(text_formatter.beautify("Error: this is an error"))
-    print(text_formatter.beautify("*Error*: this is an error"))
-    print(text_formatter.beautify("**Error**: this is an error"))
-    print(text_formatter.beautify("**Errors**: this is an error"))
-    print(text_formatter.beautify("Hint: this is a hint"))
-    print(text_formatter.beautify("*Hint*: this is a hint"))
-    print(text_formatter.beautify("**Hint**: this is a hint"))
-    print(text_formatter.beautify("**Hints**: this is a hint"))
-    print(text_formatter.beautify("Joke: this is a joke"))
-    print(text_formatter.beautify("*Joke*: this is a joke"))
-    print(text_formatter.beautify("**Joke**: this is a joke"))
-    print(text_formatter.beautify("**Jokes**: this is a joke"))
-    print(text_formatter.beautify("Analysis: this is an analysis"))
-    print(text_formatter.beautify("*Analysis*: this is an analysis"))
-    print(text_formatter.beautify("**Analysis**: this is an analysis"))
-    print(text_formatter.beautify("Fun Fact: this is a fun fact"))
-    print(text_formatter.beautify("Fun-Fact: this is a fun fact"))
-    print(text_formatter.beautify("*Fun Fact*: this is a fun fact"))
-    print(text_formatter.beautify("*Fun-Fact*: this is a fun fact"))
-    print(text_formatter.beautify("**Fun Fact**: this is a fun fact"))
-    print(text_formatter.beautify("**Fun-Fact**: this is a fun fact"))
-    print(text_formatter.beautify("_Fun-Fact_: this is a fun fact"))
-    print(text_formatter.beautify("__Fun  Fact__: this is a fun fact"))

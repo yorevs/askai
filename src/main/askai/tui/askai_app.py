@@ -113,7 +113,7 @@ class AskAiApp(App[None]):
             f" Microphone: {device_info or 'Undetected'} \n"
             f"  Debugging: {'ON' if self.is_debugging else 'OFF'} \n"
             f"   Speaking: {'ON, tempo: ' + speak_info if self.is_speak else 'OFF'} \n"
-            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else 'OFF'} \n"
+            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else 'OFF'}"
         )
 
     @property
@@ -275,7 +275,7 @@ class AskAiApp(App[None]):
         """Clear the output console."""
         with open(self._console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val) as f_console:
             f_console.write(
-                f"---\n\n"
+                f"{'---' + os.linesep * 2 if not overwrite else ''}"
                 f"{'# ' + now(DATE_FORMAT) + os.linesep * 2 if overwrite else ''}"
                 f"## {AppIcons.STARTED} {now(TIME_FORMAT)}\n\n"
             )
@@ -378,7 +378,7 @@ class AskAiApp(App[None]):
 
     def _cb_mic_listening_event(self, ev: Event) -> None:
         """Callback to handle microphone listening events."""
-        self.header.clock.listening = ev.args.listening
+        self.header.notifications.listening = ev.args.listening
         if ev.args.listening:
             self.reply(msg.listening())
 

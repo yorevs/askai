@@ -27,17 +27,6 @@ from typing import Callable, Optional
 class MenuIcon(Widget):
     """Display an 'icon' on the left of the header."""
 
-    DEFAULT_CSS = """
-    MenuIcon {
-      padding: 0 1;
-      width: 4;
-      content-align: center middle;
-    }
-    MenuIcon:hover {
-      background: #7FD5AD 10%;
-    }
-    """
-
     menu_icon = AppIcons.DEFAULT.value
 
     def __init__(self, menu_icon: str, on_click: Optional[Callable] = None):
@@ -59,21 +48,6 @@ class MenuIcon(Widget):
 class Splash(Container):
     """Splash widget that extends Container."""
 
-    DEFAULT_CSS = """
-    Splash {
-      content-align: center middle;
-      background: #030F12;
-      width: 100%;
-      height: 100%;
-    }
-    #splash {
-      content-align: center middle;
-      color: #7FD5AD;
-      width: 100%;
-      height: 100%;
-    }
-    """
-
     splash_image: str = Reactive("")
 
     def __init__(self, splash_image: str):
@@ -91,14 +65,6 @@ class Splash(Container):
 class AppHelp(Markdown):
     """Application Help Widget."""
 
-    DEFAULT_CSS = """
-    AppHelp {
-      align: center middle;
-      display: block;
-      visibility: visible;
-    }
-    """
-
     help_text: str
 
     def __init__(self, help_text: str):
@@ -112,27 +78,6 @@ class AppHelp(Markdown):
 
 class AppInfo(Static):
     """Application Information Widget."""
-
-    DEFAULT_CSS = """
-    AppInfo {
-      align: center middle;
-      display: block;
-      visibility: visible;
-      Collapsible {
-        color: #7FD5AD;
-      }
-    }
-    #info {
-      width: auto;
-      height: auto;
-      color: #FFFFFF;
-      border: panel #183236;
-      background: #030F12;
-      color: #7FD5AD;
-      content-align: left middle;
-      padding: 2 1 1 1;
-    }
-    """
 
     info_text = reactive(True, repaint=True)
 
@@ -158,7 +103,7 @@ class AppInfo(Static):
         with Collapsible(title="Application Information", collapsed=False):
             yield Static(self.info_text, id="info")
         with Collapsible(title="Credits", collapsed=False):
-            yield Static(self.credits)
+            yield Static(self.credits, id="credits")
 
     async def on_mount(self) -> None:
         """Called application is mounted."""
@@ -171,23 +116,6 @@ class AppInfo(Static):
 
 class AppSettings(Static):
     """Application DataTable Widget."""
-
-    DEFAULT_CSS = """
-    AppSettings {
-      align: center middle;
-      display: block;
-      visibility: visible;
-      margin: 1 1 1 1;
-    }
-    #settings {
-      margin-top: 1;
-      width: auto;
-      height: auto;
-      border: panel #183236;
-      background: #030F12;
-      content-align: center middle;
-    }
-    """
 
     data = reactive(True, repaint=True)
 
