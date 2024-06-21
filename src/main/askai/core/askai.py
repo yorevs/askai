@@ -40,7 +40,7 @@ from openai import RateLimitError
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
-from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
+from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT, MIC_LISTENING_EVENT
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import ask_cli
@@ -182,34 +182,47 @@ class AskAi:
         """Reply to the user with the AI response.
         :param message: The message to reply to the user.
         """
-        if self.is_speak:
-            self.engine.text_to_speech(message, f"{shared.nickname}: ")
-        else:
-            display_text(message, f"{shared.nickname}: ")
+        if message:
+            if self.is_speak:
+                self.engine.text_to_speech(message, f"{shared.nickname}: ")
+            else:
+                display_text(message, f"{shared.nickname}: ")
 
     def reply_error(self, message: str) -> None:
         """Reply API or system errors.
         :param message: The error message to be displayed.
         """
-        log.error(message)
-        if self.is_speak:
-            self.engine.text_to_speech(f"Error: {message}", f"{shared.nickname}: ")
-        else:
-            display_text(f"%RED%Error: {message}%NC%", f"{shared.nickname}: ")
+        if message:
+            log.error(message)
+            if self.is_speak:
+                self.engine.text_to_speech(f"Error: {message}", f"{shared.nickname}: ")
+            else:
+                display_text(f"%RED%Error: {message}%NC%", f"{shared.nickname}: ")
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.
         :param ev: The reply event.
         :param error: Whether the event is an error not not.
         """
-        if error:
-            self.reply_error(ev.args.message)
-        else:
-            verbose = ev.args.verbosity.lower()
-            if verbose == "normal" or self.is_debugging:
-                if ev.args.erase_last:
-                    cursor.erase_line()
-                self.reply(ev.args.message)
+        if message := ev.args.message:
+            if error:
+                self.reply_error(message)
+            else:
+                if ev.args.verbosity.casefold() == "normal" or self.is_debugging:
+                    if ev.args.erase_last:
+                        cursor.erase_line()
+                    self.reply(message)
+
+    def _cb_mic_listening_event(self, _: Event) -> None:
+        """Callback to handle microphone listening events."""
+        self.reply(msg.listening())
+
+    def _cb_device_changed_event(self, ev: Event) -> None:
+        """Callback to handle audio input device changed events.
+        :param ev: The reply event.
+        """
+        cursor.erase_line()
+        self.reply(msg.device_switch(str(ev.args.device)))
 
     def _splash(self) -> None:
         """Display the AskAI splash screen."""
@@ -222,9 +235,10 @@ class AskAi:
 
     def _startup(self) -> None:
         """Initialize the application."""
-        askai_bus = AskAiEvents.get_bus(ASKAI_BUS_NAME)
+        askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
         askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
+        askai_bus.subscribe(MIC_LISTENING_EVENT, self._cb_mic_listening_event)
         if self.is_interactive:
             splash_thread: Thread = Thread(daemon=True, target=self._splash)
             splash_thread.start()
@@ -239,8 +253,8 @@ class AskAi:
             display_text(self, markdown=False)
             self.reply(msg.welcome(os.getenv("USER", "you")))
         elif self.is_speak:
-            recorder.setup()
             player.start_delay()
+            recorder.setup()
         log.info("AskAI is ready to use!")
 
     def _prompt(self) -> None:
@@ -251,7 +265,7 @@ class AskAi:
                 break
             else:
                 cache.save_query_history()
-        if not query:
+        if query == '':
             self.reply(msg.goodbye())
         sysout("")
 

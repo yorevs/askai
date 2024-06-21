@@ -25,12 +25,16 @@ REPLY_EVENT: str = "askai-reply-event"
 
 REPLY_ERROR_EVENT: str = "askai-reply-error-event"
 
+MIC_LISTENING_EVENT: str = "askai-mic-listening-event"
+
+DEVICE_CHANGED_EVENT: str = "askai-input-device-changed-event"
+
 
 class AskAiEvents(Enumeration):
     """Facility class to provide easy access to AskAI events."""
 
     @staticmethod
-    class _Event:
+    class FluidEvent:
         """Provide a generic event interface."""
 
         def __init__(self, name: str, **kwargs):
@@ -39,44 +43,49 @@ class AskAiEvents(Enumeration):
                 setattr(self, key, val)
 
         def __str__(self):
-            return f"_Event-{self.name}::({', '.join(vars(self))})"
+            return f"FluidEvent-{self.name}::({', '.join(vars(self))})"
 
         def emit(self, bus_name: str, event_name: str, **kwargs) -> None:
-            pass
+            """Wrapper to the Event's emit method."""
+            ...
 
         def subscribe(self, cb_event_handler: Callable) -> None:
-            pass
+            """Wrapper to the EventBus's subscribe method."""
+            ...
 
     @staticmethod
-    class _EventBus:
+    class FluidEventBus:
         """Provide a generic event bus interface."""
 
         def __init__(self, bus_name: str, **kwargs):
             self.name = bus_name
             self.bus = EventBus.get(bus_name)
             for key, evt in kwargs.items():
-                setattr(evt, "emit", partial(emit, bus_name, evt.name, **vars(evt)))
-                setattr(evt, "subscribe", partial(self.bus.subscribe, evt.name, cb_event_handler=evt.cb_event_handler))
-            self.events = Namespace(f"AskAi-EventBus::{bus_name}", True, **kwargs)
+                fn_emit: Callable = partial(emit, bus_name, evt.name, **vars(evt))
+                fn_subscribe: Callable = partial(self.bus.subscribe, evt.name, cb_event_handler=evt.cb_event_handler)
+                setattr(evt, "emit", fn_emit)
+                setattr(evt, "subscribe", fn_subscribe)
+            self.events: Namespace = Namespace(f"FluidEventBus::{bus_name}", True, **kwargs)
 
         def __str__(self):
-            return f"_EventBus-{self.bus.name}::({self.events})"
+            return f"FluidEventBus-{self.bus.name}::({self.events})"
 
     # fmt: off
-    ASKAI_BUS = _EventBus(
+    ASKAI_BUS = FluidEventBus(
         ASKAI_BUS_NAME,
-        reply=_Event(REPLY_EVENT, verbosity='normal', erase_last=False, cb_event_handler=None),
-        reply_error=_Event(REPLY_ERROR_EVENT, cb_event_handler=None)
+        reply=FluidEvent(REPLY_EVENT, verbosity='normal', erase_last=False, cb_event_handler=None),
+        reply_error=FluidEvent(REPLY_ERROR_EVENT, cb_event_handler=None),
+        listening=FluidEvent(MIC_LISTENING_EVENT, cb_event_handler=None),
+        device_changed=FluidEvent(DEVICE_CHANGED_EVENT, cb_event_handler=None),
     )
-
     # fmt: on
 
     @staticmethod
-    def get_bus(bus_name: str) -> Optional[EventBus]:
+    def bus(bus_name: str) -> Optional[FluidEventBus]:
         """Return an eventbus instance for the given name."""
         return next((b.bus for b in AskAiEvents.values() if b.name == bus_name), None)
 
-    def __init__(self, bus: _EventBus):
+    def __init__(self, bus: FluidEventBus):
         self._bus = bus
 
     @property

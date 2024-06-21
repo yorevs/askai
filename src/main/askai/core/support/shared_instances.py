@@ -117,7 +117,7 @@ class SharedInstances(metaclass=Singleton):
                 terminal.cursor.erase_line()
                 if spoken_text := self.engine.speech_to_text():
                     display_text(f"{self.username}: {spoken_text}")
-                    ret = spoken_text
+                ret = spoken_text
 
         return ret if not ret or isinstance(ret, str) else ret.val
 

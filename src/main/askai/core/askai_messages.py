@@ -186,6 +186,10 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"Impossible to fulfill your request. Reason: {reason} !")
 
     @lru_cache(maxsize=1)
+    def timeout(self, reason: str) -> str:
+        return self.translate(f"Time out while {reason} !")
+
+    @lru_cache(maxsize=1)
     def llm_error(self, error: str) -> str:
         return self.translate(f"**LLM** failed to reply: {error} !")
 

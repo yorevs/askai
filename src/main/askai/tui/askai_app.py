@@ -323,25 +323,29 @@ class AskAiApp(App[None]):
 
     def display_text(self, markdown_text: str) -> None:
         """Send the text to the Markdown console."""
-        self._display_buffer.append(markdown_text)
+        prev_msg: str = self._display_buffer[-1] if self._display_buffer else ''
+        if markdown_text and prev_msg != markdown_text:
+            self._display_buffer.append(markdown_text)
 
     def reply(self, message: str) -> None:
         """Reply to the user with the AI response.
         :param message: The message to reply to the user.
         """
-        log.debug(message)
-        self.display_text(f"{self.nickname}: {message}")
-        if self.is_speak:
-            self.engine.text_to_speech(message, f"{self.nickname}: ")
+        if message:
+            log.debug(message)
+            self.display_text(f"{self.nickname}: {message}")
+            if self.is_speak:
+                self.engine.text_to_speech(message, f"{self.nickname}: ")
 
     def reply_error(self, message: str) -> None:
         """Reply API or system errors.
         :param message: The error message to be displayed.
         """
-        log.error(message)
-        self.display_text(f"{self.nickname}: Error: {message}")
-        if self.is_speak:
-            self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
+        if message:
+            log.error(message)
+            self.display_text(f"{self.nickname}: Error: {message}")
+            if self.is_speak:
+                self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
 
     @work(thread=True)
     async def _write_markdown(self) -> None:
@@ -371,12 +375,12 @@ class AskAiApp(App[None]):
         :param ev: The reply event.
         :param error: Whether the event is an error not not.
         """
-        if error:
-            self.reply_error(ev.args.message)
-        else:
-            verbose = ev.args.verbosity.lower()
-            if verbose == "normal" or self.is_debugging:
-                self.reply(ev.args.message)
+        if message := ev.args.message:
+            if error:
+                self.reply_error(message)
+            else:
+                if ev.args.verbosity.casefold() == "normal" or self.is_debugging:
+                    self.reply(message)
 
     @work(thread=True)
     async def _ask_and_reply(self, question: str) -> bool:
@@ -423,7 +427,7 @@ class AskAiApp(App[None]):
     @work(thread=True)
     async def _startup(self) -> None:
         """Initialize the application."""
-        askai_bus = AskAiEvents.get_bus(ASKAI_BUS_NAME)
+        askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
         askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
         nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
@@ -434,7 +438,6 @@ class AskAiApp(App[None]):
         self.action_clear(overwrite=False)
         self.reply(f"{msg.welcome(prompt.user.title())}")
         self.activate_markdown()
-        # At this point the application is ready.
         self.splash.set_class(True, "-hidden")
         self.enable_controls()
         log.info("AskAI is ready to use!")

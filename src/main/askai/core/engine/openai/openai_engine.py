@@ -119,31 +119,32 @@ class OpenAIEngine:
         :param text: The text to speech.
         :param prefix: The prefix of the streamed text.
         """
-        speech_file_path, file_exists = CacheService.get_audio_file(
-            text, self._configs.tts_voice, self._configs.tts_format
-        )
-        if not file_exists:
-            log.debug(f'Audio file "%s" not found in cache. Generating from %s.', self.nickname(), speech_file_path)
-            response = self.client.audio.speech.create(
-                input=text,
-                model=self._configs.tts_model,
-                voice=self._configs.tts_voice,
-                response_format=self._configs.tts_format,
+        if text:
+            speech_file_path, file_exists = CacheService.get_audio_file(
+                text, self._configs.tts_voice, self._configs.tts_format
             )
-            response.stream_to_file(speech_file_path)  # Save the audio file locally.
-            log.debug(f"Audio file created: '%s' at %s", text, speech_file_path)
-        else:
-            log.debug(f"Audio file found in cache: '%s' at %s", text, speech_file_path)
-        speak_thread = Thread(
-            daemon=True, target=AudioPlayer.INSTANCE.play_audio_file, args=(speech_file_path, self._configs.tempo)
-        )
-        speak_thread.start()
-        pause.seconds(AudioPlayer.INSTANCE.start_delay())
-        stream_text(text, prefix)
-        speak_thread.join()  # Block until the speech has finished.
+            if not file_exists:
+                log.debug(f'Audio file "%s" not found in cache. Generating from %s.', self.nickname(), speech_file_path)
+                response = self.client.audio.speech.create(
+                    input=text,
+                    model=self._configs.tts_model,
+                    voice=self._configs.tts_voice,
+                    response_format=self._configs.tts_format,
+                )
+                response.stream_to_file(speech_file_path)  # Save the audio file locally.
+                log.debug(f"Audio file created: '%s' at %s", text, speech_file_path)
+            else:
+                log.debug(f"Audio file found in cache: '%s' at %s", text, speech_file_path)
+            speak_thread = Thread(
+                daemon=True, target=AudioPlayer.INSTANCE.play_audio_file, args=(speech_file_path, self._configs.tempo)
+            )
+            speak_thread.start()
+            pause.seconds(AudioPlayer.INSTANCE.start_delay())
+            stream_text(text, prefix)
+            speak_thread.join()  # Block until the speech has finished.
 
     def speech_to_text(self) -> Optional[str]:
         """Transcribes audio input from the microphone into the text input language."""
         _, text = Recorder.INSTANCE.listen(language=self._configs.language)
         log.debug(f"Audio transcribed to: {text}")
-        return text.strip()
+        return text.strip() if text else None

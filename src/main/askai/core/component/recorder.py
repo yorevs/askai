@@ -70,9 +70,9 @@ class Recorder(metaclass=Singleton):
         self._input_device = self._devices[self._device_index] if self._device_index is not None else None
 
     @staticmethod
-    @Scheduler.every(2000, 10000)
+    @Scheduler.every(2000, 5000)
     def __device_watcher() -> None:
-        """Watch for device changes and swap if a new input device is found."""
+        """Watch for audio input devices being plugged/unplugged."""
         if recorder.is_auto_swap and recorder.devices:
             new_list = recorder.get_device_list()
             new_list.sort(key=operator.itemgetter(1))
@@ -112,11 +112,11 @@ class Recorder(metaclass=Singleton):
         return configs.recorder_input_device_auto_swap
 
     def set_device(self, device: DeviceType) -> bool:
-        """Set device as current."""
-        check_argument(device is not None and isinstance(device, tuple), f"Invalid device: {device}")
+        """Test and set the specified device as current."""
+        check_argument(device is not None and isinstance(device, tuple), f"Invalid device: {device} -> {type(device)}")
         if ret := self.test_device(device[0]):
             log.info(msg.device_switch(str(device)))
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.device_switch(str(device)), erase_last=True)
+            AskAiEvents.ASKAI_BUS.events.device_changed.emit(device)
             self._input_device = device
             self._device_index = device[0]
             configs.add_device(device[1])
@@ -132,19 +132,19 @@ class Recorder(metaclass=Singleton):
         :param language: the spoken language.
         """
         audio_path = Path(f"{REC_DIR}/askai-stt-{now_ms()}.wav")
-        with Microphone(device_index=self._device_index) as source:
+        with Microphone(device_index=self._device_index) as mic_source:
             try:
                 self._detect_noise()
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.listening())
+                AskAiEvents.ASKAI_BUS.events.listening.emit()
                 audio: AudioData = self._rec.listen(
-                    source,
+                    mic_source,
                     phrase_time_limit=seconds(configs.recorder_phrase_limit_millis),
                     timeout=seconds(configs.recorder_silence_timeout_millis))
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.transcribing(), erase_last=True)
                 with open(audio_path, "wb") as f_rec:
                     f_rec.write(audio.get_wav_data())
                     log.debug("Voice recorded and saved as %s", audio_path)
                     if api := getattr(self._rec, recognition_api.value):
+                        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.transcribing(), erase_last=True)
                         log.debug("Recognizing voice using %s", recognition_api)
                         assert isinstance(api, Callable)
                         stt_text = api(audio, language=language.language)
@@ -152,8 +152,10 @@ class Recorder(metaclass=Singleton):
                     else:
                         raise InvalidRecognitionApiError(str(recognition_api or "<none>"))
             except WaitTimeoutError:
-                log.warning("Timed out while waiting for a speech!")
-                stt_text = ""
+                err_msg: str = msg.timeout("waiting for a speech input!")
+                log.warning("Timed out while waiting for a speech input!")
+                AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=err_msg, erase_last=True)
+                stt_text = None
             except AttributeError as err:
                 raise InvalidInputDevice(str(err)) from err
             except UnknownValueError as err:
