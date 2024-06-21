@@ -20,7 +20,7 @@ from hspylib.core.zoned_datetime import now
 from rich.text import Text
 from textual.app import RenderResult
 from textual.events import Mount
-from textual.reactive import reactive
+from textual.reactive import reactive, Reactive
 from textual.widget import Widget
 
 
@@ -47,20 +47,28 @@ class HeaderClock(Widget):
 
     debugging = reactive(True, repaint=True)
 
+    listening = reactive(True, repaint=True)
+
+    headphones = reactive(True, repaint=True)
+
     def __init__(self):
         super().__init__()
         self.speaking = configs.is_speak
         self.debugging = configs.is_debug
+        self.listening = False
+        self.headphones = False
 
     def _on_mount(self, _: Mount) -> None:
-        self.set_interval(1, callback=self.refresh, name=f"update header clock")
+        self.set_interval(0.7, callback=self.refresh, name=f"update header clock")
 
     def render(self) -> RenderResult:
         """Render the header clock."""
         return Text(
-            f"{AppIcons.SPEAKING_ON if self.speaking else AppIcons.SPEAKING_OFF}  "
-            + f"{AppIcons.DEBUG_ON if self.debugging else AppIcons.DEBUG_OFF}"
-            + f"  {AppIcons.SEPARATOR_V}  "
+            f"{AppIcons.HEADPHONES if self.headphones else AppIcons.BUILT_IN_SPEAKER}  "
+            f"{AppIcons.LISTENING_ON if self.listening else AppIcons.LISTENING_OFF}  "
+            f"{AppIcons.SPEAKING_ON if self.speaking else AppIcons.SPEAKING_OFF} "
+            f"{AppIcons.DEBUG_ON if self.debugging else AppIcons.DEBUG_OFF}"
+            f"  {AppIcons.SEPARATOR_V}  "
             + now(f"%a %d %b  %X")
         )
 
@@ -68,6 +76,12 @@ class HeaderClock(Widget):
         self.refresh()
 
     async def watch_debugging(self) -> None:
+        self.refresh()
+
+    async def watch_listening(self) -> None:
+        self.refresh()
+
+    async def watch_headphones(self) -> None:
         self.refresh()
 
 

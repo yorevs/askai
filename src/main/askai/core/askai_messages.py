@@ -168,8 +168,8 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"summarization was not possible {'=> ' + str(err) if err else ''}!")
 
     @lru_cache(maxsize=1)
-    def intelligible(self, question: str, reason: str) -> str:
-        return self.translate(f"Your question '{question}' is unclear: '{reason}'")
+    def intelligible_error(self, reason: str) -> str:
+        return self.translate(f"Your speech was not intelligible: '{reason}'")
 
     @lru_cache(maxsize=1)
     def impossible(self, reason: str) -> str:

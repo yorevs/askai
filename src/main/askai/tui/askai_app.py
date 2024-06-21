@@ -44,14 +44,15 @@ from askai.core.askai_settings import settings
 from askai.core.commander.commander import ask_cli, COMMANDS, COMMANDER_HELP
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
-from askai.core.component.recorder import recorder
+from askai.core.component.recorder import recorder, Recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.features.router import router
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
-from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery
+from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery, \
+    IntelligibleAudioError
 from askai.tui.app_header import Header
 from askai.tui.app_suggester import InputSuggester
 from askai.tui.app_widgets import AppInfo, Splash, AppSettings, AppHelp
@@ -72,7 +73,7 @@ class AskAiApp(App):
         ("c", "clear", msg.translate(" Clear Console")),
         ("d", "debugging", msg.translate(" Toggle Debugging")),
         ("s", "speaking", msg.translate(" Toggle Speaking")),
-        ("p", "ptt", msg.translate(" Push-to-Talk")),
+        ("ctrl+l", "ptt", msg.translate(" Push-to-Talk")),
     ]
     # fmt: on
 
@@ -90,6 +91,7 @@ class AskAiApp(App):
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         self._console_path = Path(f"{CACHE_DIR}/askai-{self.session_id}.md")
         self._re_render = True
+        self._display_buffer = list()
         if not self._console_path.exists():
             self._console_path.touch()
         # Setting configs from program args.
@@ -241,6 +243,10 @@ class AskAiApp(App):
         """Navigate forwards."""
         await self.md_console.forward()
 
+    def action_toggle_table_of_contents(self) -> None:
+        """Toggles display of the table of contents."""
+        self.md_console.show_table_of_contents = not self.md_console.show_table_of_contents
+
     def check_action(self, action: str, _) -> bool | None:
         """Check if certain actions can be performed."""
         if action == "forward" and self.md_console.navigator.end:
@@ -251,10 +257,6 @@ class AskAiApp(App):
             return None
         # All other keys display as normal
         return True
-
-    def action_toggle_table_of_contents(self) -> None:
-        """Toggles display of the table of contents."""
-        self.md_console.show_table_of_contents = not self.md_console.show_table_of_contents
 
     def enable_controls(self, enable: bool = True):
         """Enable all UI controls (header, input and footer)."""
@@ -298,6 +300,23 @@ class AskAiApp(App):
         """Toggle Debugging ON/OFF."""
         self._ask_and_reply("/debug")
 
+    @work(thread=True)
+    async def action_ptt(self) -> None:
+        """Push-To-Talk STT as input method."""
+        self.header.clock.listening = True
+        self.line_input.loading = True
+        _, spoken_text = Recorder.INSTANCE.listen(
+            recognition_api=Recorder.RecognitionApi.GOOGLE, language=configs.language)
+        if spoken_text:
+            self.display_text(f"{self.username}: {spoken_text}")
+            if self._ask_and_reply(spoken_text):
+                await self.suggester.add_suggestion(spoken_text)
+                suggestions = await self.suggester.suggestions()
+                cache.save_query_history(suggestions)
+        self.header.clock.listening = False
+        self.line_input.loading = False
+        self.activate_markdown()
+
     @on(Input.Submitted)
     async def on_submit(self, submitted: Input.Submitted) -> None:
         """A coroutine to handle a input submission."""
@@ -311,14 +330,9 @@ class AskAiApp(App):
             cache.save_query_history(suggestions)
         self.activate_markdown()
 
-    @work(thread=True)
-    async def display_text(self, markdown_text: str) -> None:
+    def display_text(self, markdown_text: str) -> None:
         """Send the text to the Markdown console."""
-        with open(self._console_path, "a", encoding=Charset.UTF_8.val) as f_console:
-            final_text: str = text_formatter.beautify(f"{ensure_endswith(markdown_text, os.linesep * 2)}")
-            f_console.write(final_text)
-            f_console.flush()
-            self._re_render = True
+        self._display_buffer.append(markdown_text)
 
     def reply(self, message: str) -> None:
         """Reply to the user with the AI response.
@@ -338,8 +352,20 @@ class AskAiApp(App):
         if self.is_speak:
             self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
 
+    @work(thread=True)
+    async def _render_text(self) -> None:
+        """TODO"""
+        with open(self._console_path, "a", encoding=Charset.UTF_8.val) as f_console:
+            while len(self._display_buffer) > 0:
+                text = self._display_buffer.pop(0)
+                final_text: str = text_formatter.beautify(f"{ensure_endswith(text, os.linesep * 2)}")
+                f_console.write(final_text)
+            f_console.flush()
+            self._re_render = True
+
     def _update_widget(self) -> None:
         """Update the application widgets. This callback is required because ask_and_reply is async."""
+        self.header.clock.headphones = recorder.device_index is not None and recorder.device_index > 1
         self.header.clock.debugging = self.is_debugging
         self.header.clock.speaking = self.is_speak
         self.info.info_text = str(self)
@@ -359,6 +385,8 @@ class AskAiApp(App):
 
     async def _cb_refresh_console(self) -> None:
         """Callback to handle markdown console updates."""
+        self._update_widget()
+        self._render_text()
         if self._re_render:
             self._re_render = False
             await self.md_console.go(self._console_path)
@@ -393,13 +421,14 @@ class AskAiApp(App):
             self.reply_error(msg.unprocessable(str(err)))
         except UsageError as err:
             self.reply_error(msg.invalid_command(err))
+        except IntelligibleAudioError as err:
+            self.reply_error(msg.intelligible_error(err))
         except RateLimitError:
             self.reply_error(msg.quote_exceeded())
             status = False
         except TerminatingQuery:
             status = False
 
-        self._update_widget()
         self.line_input.loading = False
 
         return status
@@ -419,7 +448,6 @@ class AskAiApp(App):
             f_console.write(f"---\n\n# {now()}\n\n")
             f_console.flush()
         # At this point the application is ready.
-        self._update_widget()
         self.splash.set_class(True, "-hidden")
         self.reply(f"{msg.welcome(prompt.user.title())}")
         self.activate_markdown()

@@ -79,10 +79,11 @@ class TtsSttCmd(ABC):
     def device_list() -> None:
         """TODO"""
         all_devices = recorder.devices
-        str_voices = "\n".join([f"{d[0]}. {d[1]}" for d in all_devices])
+        str_devices = "\n".join([f"{d[0]}. {d[1]}" for d in all_devices])
         text_formatter.cmd_print(
-            f"Available audio input devices: \n"
-            f"\n{str_voices}\n> Hint: Type: '/devices set \\<number\\>' to select a device."
+            f"Current audio input device: {recorder.input_device} \n"
+            f"\nAvailable audio input devices: \n"
+            f"\n{str_devices}\n> Hint: Type: '/devices set \\<number\\>' to select a device."
         )
 
     @staticmethod

@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from hspylib.core.preconditions import check_state
 
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
@@ -81,7 +82,8 @@ class Recorder(metaclass=Singleton):
                     if recorder.test_device(device[0]):
                         log.info(msg.device_switch(str(device)))
                         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.device_switch(str(device)), erase_last=True)
-                        recorder._input_device = device[0]
+                        recorder._input_device = device
+                        recorder._device_index = device[0]
                         configs.add_device(device[1])
                         break
             elif len(recorder.devices) > len(new_list):
@@ -89,14 +91,15 @@ class Recorder(metaclass=Singleton):
                     if recorder.test_device(device[0]):
                         log.info(msg.device_switch(str(device)))
                         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.device_switch(str(device)), erase_last=True)
-                        recorder._input_device = device[0]
+                        recorder._input_device = device
+                        recorder._device_index = device[0]
                         break
             recorder.devices = new_list
 
     @property
     def devices(self) -> list[Tuple[int, str]]:
         """TODO"""
-        return self._devices if self._devices else []
+        return sorted(self._devices if self._devices else [], key=lambda x: x[0])
 
     @devices.setter
     def devices(self, value: list[Tuple[int, str]]) -> None:
@@ -105,7 +108,16 @@ class Recorder(metaclass=Singleton):
     @property
     def input_device(self) -> Optional[Tuple[int, str]]:
         """TODO"""
+        if self._input_device is not None:
+            check_state(isinstance(self._input_device, tuple), "Input device is not a tuple")
         return self._input_device if self._input_device else None
+
+    @property
+    def device_index(self) -> Optional[int]:
+        """TODO"""
+        if self._device_index is not None:
+            check_state(isinstance(self._device_index, int), "Device index is not an integer")
+        return self._device_index if self._device_index else None
 
     @property
     def is_auto_swap(self) -> bool:
@@ -113,7 +125,7 @@ class Recorder(metaclass=Singleton):
         return configs.recorder_input_device_auto_swap
 
     def listen(
-        self, recognition_api: RecognitionApi = RecognitionApi.OPEN_AI, language: Language = Language.EN_US
+        self, recognition_api: RecognitionApi = RecognitionApi.GOOGLE, language: Language = Language.EN_US
     ) -> Tuple[Path, Optional[str]]:
         """listen to the microphone, save the AudioData as a wav file and then, transcribe the speech.
         :param recognition_api: the API to be used to recognize the speech.

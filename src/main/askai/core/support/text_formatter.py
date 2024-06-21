@@ -55,8 +55,8 @@ class TextFormatter(metaclass=Singleton):
         "": r"[\s*_]*Hints?( ([Aa]nd|&) [Tt]ips?)?[_*-:\s]+",
         "": r"[\s*_]*Analysis[_*-:\s]+",
         "": r"[\s*_]*Summary[_*-:\s]+",
-        "": r"[\s*_]*Fun[\s-]+[Ff]acts?[_*-:\s]+",
-        "": r"[\s*_]*(Jokes?(\s+[Tt]ime)?)[_*-:\s]+",
+        "": r"[\s*_]*Fun[\s-]+[Ff]acts?[_*-:\s]+",
+        "": r"[\s*_]*(Jokes?(\s+[Tt]ime)?)[_*-:\s]+",
         "": r"[\s*_]*Advice[_*-:\s]+",
         "﬽": r"[\s*_]*Conclusion[_*-:\s]+",
     }

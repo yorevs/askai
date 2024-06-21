@@ -20,9 +20,9 @@ ScrollableContainer {
 }
 
 HeaderClock {
-  content-align: center middle;
+  content-align: right middle;
   dock: right;
-  width: 35;
+  width: auto;
   padding: 0 1;
 }
 
@@ -90,6 +90,7 @@ Input:focus {
 
 LoadingIndicator {
   color: #7FD5AD;
+  background: #030F12;
 }
 
 Footer {
