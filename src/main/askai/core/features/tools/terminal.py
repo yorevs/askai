@@ -115,7 +115,7 @@ def _execute_bash(command_line: str) -> Tuple[bool, str]:
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.executing(command_line), verbosity="debug")
         output, exit_code = Terminal.INSTANCE.shell_exec(command, shell=True)
         if exit_code == ExitStatus.SUCCESS:
-            log.info("Command succeeded.\nCODE=%s \nPATH: %s \nCMD: %s ", exit_code, os.getcwd(), command)
+            log.info("Command succeeded: \n|-CODE=%s \n|-PATH: %s \n|-CMD: %s ", exit_code, os.getcwd(), command)
             if _path_ := extract_path(command):
                 os.chdir(_path_)
                 log.info("Current directory changed to '%s'", _path_)

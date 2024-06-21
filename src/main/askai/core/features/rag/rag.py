@@ -35,32 +35,27 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse
     :param ai_response: The AI response to be analysed.
     :param pass_threshold: The threshold color to be considered as a pass.
     """
-    issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("assert"))
-    if ai_response in msg.accurate_responses:
-        return
-    elif not ai_response:
-        empty_msg = "AI provided a BAD response (empty)"
-        details = issues_prompt.format(problems=empty_msg)
-        shared.context.push("RAG", issues_prompt.format(problems=empty_msg))
-        raise InaccurateResponse(details)
+    if ai_response and ai_response not in msg.accurate_responses:
+        issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("assert"))
+        assert_template = PromptTemplate(input_variables=["datetime", "input", "response"], template=prompt.read_prompt("rag"))
+        final_prompt = assert_template.format(datetime=geo_location.datetime, input=question, response=ai_response)
+        log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
+        llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+        response: AIMessage = llm.invoke(final_prompt)
 
-    assert_template = PromptTemplate(input_variables=["datetime", "input", "response"], template=prompt.read_prompt("rag"))
-    final_prompt = assert_template.format(datetime=geo_location.datetime, input=question, response=ai_response)
-    log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
-    llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
-    response: AIMessage = llm.invoke(final_prompt)
+        if response and (output := response.content):
+            if mat := RagResponse.matches(output):
+                status, details = mat.group(1), mat.group(2)
+                log.info("Accuracy check ->  status: '%s'  reason: '%s'", status, details)
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(status, details), verbosity="debug")
+                if not RagResponse.of_status(status).passed(pass_threshold):
+                    shared.context.push("RAG", issues_prompt.format(problems=RagResponse.strip_code(output)))
+                    raise InaccurateResponse(f"AI Assistant failed to respond => '{response.content}'")
+                return
+        # At this point, the response was not Good enough
+        raise InaccurateResponse(f"AI Assistant didn't respond accurately. Response: '{response}'")
 
-    if response and (output := response.content):
-        if mat := RagResponse.matches(output):
-            status, details = mat.group(1), mat.group(2)
-            log.info("Accuracy check ->  status: '%s'  reason: '%s'", status, details)
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(status, details), verbosity="debug")
-            if not RagResponse.of_status(status).passed(pass_threshold):
-                shared.context.push("RAG", issues_prompt.format(problems=RagResponse.strip_code(output)))
-                raise InaccurateResponse(f"AI Assistant failed to respond => '{response.content}'")
-            return
-
-    raise InaccurateResponse(f"AI Assistant didn't respond accurately => '{response.content}'")
+    AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.no_output("query"))
 
 
 def resolve_x_refs(ref_name: str, context: str | None = None) -> str:

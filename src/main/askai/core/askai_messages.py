@@ -66,7 +66,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def executing(self, command_line: str) -> str:
-        return self.translate(f"> Executing: `{command_line}`…")
+        return self.translate(f"~~[DEBUG]~~ Executing: `{command_line}`…")
 
     @lru_cache(maxsize=1)
     def cmd_success(self, command_line: str) -> str:
@@ -102,7 +102,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def analysis(self, result: str) -> str:
-        return self.translate(f"> Analysis result => {result}")
+        return self.translate(f"~~[DEBUG]~~ Analysis result => {result}")
 
     @lru_cache(maxsize=1)
     def assert_acc(self, status: str, details: str) -> str:
@@ -115,23 +115,23 @@ class AskAiMessages(metaclass=Singleton):
                 cl = '*'
             case _:
                 cl = ''
-        return self.translate(f"> Accuracy result => {cl}{status}:{cl} {details}")
+        return self.translate(f"~~[DEBUG]~~ Accuracy result => {cl}{status}:{cl} {details}")
 
     @lru_cache(maxsize=1)
     def action_plan(self, plan_text: str) -> str:
-        return self.translate(f"> Action plan => {plan_text}")
+        return self.translate(f"~~[DEBUG]~~ Action plan => {plan_text}")
 
     @lru_cache(maxsize=1)
     def x_reference(self, pathname: str) -> str:
-        return self.translate(f"> Resolving X-References: `{pathname}`…")
+        return self.translate(f"~~[DEBUG]~~ Resolving X-References: `{pathname}`…")
 
     @lru_cache(maxsize=1)
     def describe_image(self, image_path: str) -> str:
-        return self.translate(f"> Describing image: `{image_path}`…")
+        return self.translate(f"~~[DEBUG]~~ Describing image: `{image_path}`…")
 
     @lru_cache(maxsize=1)
     def model_select(self, model: str) -> str:
-        return self.translate(f"> Using routing model: `{model}`")
+        return self.translate(f"~~[DEBUG]~~ Using routing model: `{model}`")
 
     @lru_cache(maxsize=1)
     def device_switch(self, device_info: str) -> str:
@@ -141,7 +141,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def no_output(self, source: str) -> str:
-        return self.translate(f"The {source} didn't return an output !")
+        return self.translate(f"The {source} didn't produce an output !")
 
     @lru_cache(maxsize=1)
     def access_grant(self) -> str:
