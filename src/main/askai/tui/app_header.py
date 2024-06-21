@@ -21,6 +21,7 @@ from textual.reactive import reactive
 from textual.widget import Widget
 
 from askai.core.askai_configs import configs
+from askai.core.component.recorder import recorder
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_widgets import MenuIcon
 
@@ -76,6 +77,7 @@ class HeaderClock(Widget):
 
     def refresh_icons(self) -> None:
         """Update the application widgets. This callback is required because ask_and_reply is async."""
+        self.headphones = recorder.is_headphones()
         self.debugging = self.app.is_debugging
         self.speaking = self.app.is_speak
         self.app.info.info_text = str(self.app)

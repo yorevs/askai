@@ -229,7 +229,7 @@ class AskAiApp(App[None]):
         self.enable_controls(False)
         self.md_console.set_class(True, "-hidden")
         self.md_console.show_table_of_contents = False
-        self.md_console.set_interval(0.4, self._cb_refresh_console)
+        self.md_console.set_interval(0.25, self._cb_refresh_console)
         self._startup()
 
     def on_markdown_viewer_navigator_updated(self) -> None:
@@ -248,7 +248,7 @@ class AskAiApp(App[None]):
         """Toggles display of the table of contents."""
         self.md_console.show_table_of_contents = not self.md_console.show_table_of_contents
 
-    def check_action(self, action: str, _) -> bool | None:
+    def check_action(self, action: str, _) -> Optional[bool]:
         """Check if certain actions can be performed."""
         if action == "forward" and self.md_console.navigator.end:
             # Disable footer link if we can't go forward
@@ -259,23 +259,19 @@ class AskAiApp(App[None]):
         # All other keys display as normal
         return True
 
-    def enable_controls(self, enable: bool = True):
+    def enable_controls(self, enable: bool = True) -> None:
         """Enable all UI controls (header, input and footer)."""
         self.header.disabled = not enable
         self.line_input.loading = not enable
         self.footer.disabled = not enable
-        if enable:
-            self.line_input.focus()
 
-    @work
-    async def activate_markdown(self) -> None:
+    def activate_markdown(self) -> None:
         """Activate the Markdown console."""
-        await self.md_console.go(self._console_path)
+        self.md_console.go(self._console_path)
         self.md_console.set_class(False, "-hidden")
         self.md_console.scroll_end(animate=False)
 
-    @work(exclusive=True)
-    async def action_clear(self, overwrite: bool = True) -> None:
+    def action_clear(self, overwrite: bool = True) -> None:
         """Clear the output console."""
         with open(self._console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val) as f_console:
             f_console.write(
@@ -295,10 +291,9 @@ class AskAiApp(App[None]):
         """Toggle Debugging ON/OFF."""
         self._ask_and_reply("/debug")
 
-    @work(thread=True)
+    @work(thread=True, exclusive=True)
     async def action_ptt(self) -> None:
         """Push-To-Talk STT as input method."""
-        self.header.clock.listening = True
         self.enable_controls(False)
         _, spoken_text = Recorder.INSTANCE.listen(
             recognition_api=Recorder.RecognitionApi.GOOGLE, language=configs.language)
@@ -308,7 +303,6 @@ class AskAiApp(App[None]):
                 await self.suggester.add_suggestion(spoken_text)
                 suggestions = await self.suggester.suggestions()
                 cache.save_query_history(suggestions)
-        self.header.clock.listening = False
         self.enable_controls()
 
     @on(Input.Submitted)
@@ -321,6 +315,28 @@ class AskAiApp(App[None]):
             await self.suggester.add_suggestion(question)
             suggestions = await self.suggester.suggestions()
             cache.save_query_history(suggestions)
+
+    async def _write_markdown(self) -> None:
+        """Write buffered text to the markdown file."""
+        if len(self._display_buffer) > 0:
+            with open(self._console_path, "a", encoding=Charset.UTF_8.val) as f_console:
+                prev_text: str | None = None
+                while len(self._display_buffer) > 0:
+                    if (text := self._display_buffer.pop(0)) == prev_text:
+                        continue
+                    prev_text = text
+                    final_text: str = text_formatter.beautify(f"{ensure_endswith(text, os.linesep * 2)}")
+                    f_console.write(final_text)
+                    f_console.flush()
+                self._re_render = True
+
+    async def _cb_refresh_console(self) -> None:
+        """Callback to handle markdown console updates."""
+        await self._write_markdown()
+        if self._re_render:
+            self._re_render = False
+            await self.md_console.go(self._console_path)
+            self.md_console.scroll_end(animate=False)
 
     def display_text(self, markdown_text: str) -> None:
         """Send the text to the Markdown console."""
@@ -348,29 +364,6 @@ class AskAiApp(App[None]):
             if self.is_speak:
                 self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
 
-    @work(thread=True)
-    async def _write_markdown(self) -> None:
-        """Write buffered text to the markdown file."""
-        if len(self._display_buffer) > 0:
-            with open(self._console_path, "a", encoding=Charset.UTF_8.val) as f_console:
-                prev_text: str | None = None
-                while len(self._display_buffer) > 0:
-                    if (text := self._display_buffer.pop(0)) == prev_text:
-                        continue
-                    prev_text = text
-                    final_text: str = text_formatter.beautify(f"{ensure_endswith(text, os.linesep * 2)}")
-                    f_console.write(final_text)
-                    f_console.flush()
-                self._re_render = True
-
-    async def _cb_refresh_console(self) -> None:
-        """Callback to handle markdown console updates."""
-        self._write_markdown()
-        if self._re_render:
-            self._re_render = False
-            await self.md_console.go(self._console_path)
-            self.md_console.scroll_end(animate=False)
-
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.
         :param ev: The reply event.
@@ -385,18 +378,18 @@ class AskAiApp(App[None]):
 
     def _cb_mic_listening_event(self, ev: Event) -> None:
         """Callback to handle microphone listening events."""
-        self.header.clock.listening(ev.args.listening)
-        self.reply(msg.listening())
+        self.header.clock.listening = ev.args.listening
+        if ev.args.listening:
+            self.reply(msg.listening())
 
     def _cb_device_changed_event(self, ev: Event) -> None:
         """Callback to handle audio input device changed events.
         :param ev: The reply event.
         """
-        self.header.clock.headphones = recorder.is_headphones()
         self.reply(msg.device_switch(str(ev.args.device)))
 
-    @work(thread=True)
-    async def _ask_and_reply(self, question: str) -> bool:
+    @work(thread=True, exclusive=True)
+    def _ask_and_reply(self, question: str) -> bool:
         """Ask the question and provide the reply.
         :param question: The question to ask to the AI engine.
         """
@@ -437,8 +430,8 @@ class AskAiApp(App[None]):
 
         return status
 
-    @work(thread=True)
-    async def _startup(self) -> None:
+    @work(thread=True, exclusive=True)
+    def _startup(self) -> None:
         """Initialize the application."""
         askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
@@ -455,4 +448,5 @@ class AskAiApp(App[None]):
         self.enable_controls()
         askai_bus.subscribe(MIC_LISTENING_EVENT, self._cb_mic_listening_event)
         askai_bus.subscribe(DEVICE_CHANGED_EVENT, self._cb_device_changed_event)
+        self.line_input.focus(False)
         log.info("AskAI is ready to use!")

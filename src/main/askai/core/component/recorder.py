@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import Callable, Optional, TypeAlias
 
 import pause
-from clitt.core.term.cursor import cursor
 from clitt.core.tui.mselect.mselect import mselect
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.singleton import Singleton
@@ -34,7 +33,7 @@ from askai.core.askai_messages import msg
 from askai.core.component.cache_service import REC_DIR
 from askai.core.component.scheduler import Scheduler
 from askai.core.support.utilities import display_text, seconds
-from askai.exception.exceptions import IntelligibleAudioError, InvalidInputDevice, InvalidRecognitionApiError
+from askai.exception.exceptions import InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
 
 DeviceType: TypeAlias = tuple[int, str]
@@ -73,7 +72,7 @@ class Recorder(metaclass=Singleton):
         self._select_device()
 
     @staticmethod
-    @Scheduler.every(2000, 5000)
+    @Scheduler.every(3000, 5000)
     def __device_watcher() -> None:
         """Watch for audio input devices being plugged/unplugged."""
         if recorder.is_auto_swap and recorder.devices:
@@ -102,13 +101,13 @@ class Recorder(metaclass=Singleton):
     def input_device(self) -> Optional[DeviceType]:
         if self._input_device is not None:
             check_state(isinstance(self._input_device, tuple), "Input device is not a DeviceType")
-        return self._input_device if self._input_device else None
+        return self._input_device
 
     @property
     def device_index(self) -> Optional[int]:
         if self._device_index is not None:
             check_state(isinstance(self._device_index, int), "Device index is not a number")
-        return self._device_index if self._device_index else None
+        return self._device_index
 
     @property
     def is_auto_swap(self) -> bool:
@@ -129,8 +128,8 @@ class Recorder(metaclass=Singleton):
         """Whether the device is set is a headphone. This is a simplistic way of detecting it, bit it has been
         working so far."""
         return (
-            self.device_index is not None
-            and self.device_index > 1
+            self.input_device is not None
+            and self.input_device[0] > 1
         )
 
     def listen(
@@ -151,34 +150,39 @@ class Recorder(metaclass=Singleton):
                     mic_source,
                     phrase_time_limit=seconds(configs.recorder_phrase_limit_millis),
                     timeout=seconds(configs.recorder_silence_timeout_millis))
-                AskAiEvents.ASKAI_BUS.events.listening.emit(listening=False)
-                with open(audio_path, "wb") as f_rec:
-                    f_rec.write(audio.get_wav_data())
-                    log.debug("Voice recorded and saved as %s", audio_path)
-                    if api := getattr(self._rec, recognition_api.value):
-                        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.transcribing(), erase_last=True)
-                        log.debug("Recognizing voice using %s", recognition_api)
-                        assert isinstance(api, Callable)
-                        stt_text = api(audio, language=language.language)
-                        cursor.erase_line()
-                    else:
-                        raise InvalidRecognitionApiError(str(recognition_api or "<none>"))
+                stt_text = self._write_audio_file(audio, audio_path, language, recognition_api)
             except WaitTimeoutError as err:
                 err_msg: str = msg.timeout(f"waiting for a speech input => '{err}'")
                 log.warning("Timed out while waiting for a speech input!")
                 AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=err_msg, erase_last=True)
                 stt_text = None
             except UnknownValueError as err:
-                err_msg: str = msg.intelligible(f"Your speech was not intelligible => '{err}'")
-                log.warning("Timed out while waiting for a speech input!")
+                err_msg: str = msg.intelligible(err)
+                log.warning("Speech was not intelligible!")
                 AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=err_msg, erase_last=True)
                 stt_text = None
             except AttributeError as err:
                 raise InvalidInputDevice(str(err)) from err
             except RequestError as err:
                 raise InvalidRecognitionApiError(str(err)) from err
+            finally:
+                AskAiEvents.ASKAI_BUS.events.listening.emit(listening=False)
 
         return audio_path, stt_text
+
+    def _write_audio_file(self, audio, audio_path, language, recognition_api) -> Optional[str]:
+        """Write the audio file into disk."""
+        with open(audio_path, "wb") as f_rec:
+            f_rec.write(audio.get_wav_data())
+            log.debug("Voice recorded and saved as %s", audio_path)
+            if api := getattr(self._rec, recognition_api.value):
+                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.transcribing(), erase_last=True)
+                log.debug("Recognizing voice using %s", recognition_api)
+                assert isinstance(api, Callable)
+                return api(audio, language=language.language)
+            else:
+                raise InvalidRecognitionApiError(str(recognition_api or "<none>"))
+        return None
 
     def test_device(self, idx: int) -> bool:
         """Test whether the input device specified by index can be used as an STT input.
@@ -206,7 +210,9 @@ class Recorder(metaclass=Singleton):
                 duration = seconds(configs.recorder_noise_detection_duration_millis)
                 self._rec.adjust_for_ambient_noise(source, duration=duration)
             except UnknownValueError as err:
-                raise IntelligibleAudioError(f"Unable to detect noise => {str(err)}") from err
+                err_msg: str = msg.intelligible(f"Unable to detect noise level => '{err}'")
+                log.warning("Timed out while waiting for a speech input!")
+                AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=err_msg, erase_last=True)
 
     def _select_device(self) -> None:
         """Select device for recording."""

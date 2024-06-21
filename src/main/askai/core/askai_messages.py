@@ -179,11 +179,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def intelligible(self, reason: str) -> str:
-        return self.translate(f"Your speech was not intelligible: '{reason}'")
+        return self.translate(f"Your speech was not intelligible => '{reason}' !")
 
     @lru_cache(maxsize=1)
     def impossible(self, reason: str) -> str:
-        return self.translate(f"Impossible to fulfill your request. Reason: {reason} !")
+        return self.translate(f"Impossible to fulfill your request => `{reason}` !")
 
     @lru_cache(maxsize=1)
     def timeout(self, reason: str) -> str:
