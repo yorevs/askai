@@ -23,6 +23,21 @@ from typing import List, Optional
 
 import nltk
 import pause
+from click import UsageError
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.term.terminal import terminal
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging, sysout
+from hspylib.core.tools.text_tools import elide_text
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from langchain_core.prompts import PromptTemplate
+from openai import RateLimitError
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
@@ -41,21 +56,8 @@ from askai.core.support.chat_context import ChatContext
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
-from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery
-from click import UsageError
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.term.terminal import terminal
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging, sysout
-from hspylib.core.tools.text_tools import elide_text
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from langchain_core.prompts import PromptTemplate
-from openai import RateLimitError
+from askai.exception.exceptions import ImpossibleQuery, InaccurateResponse, MaxInteractionsReached, TerminatingQuery, \
+    IntelligibleAudioError
 
 
 class AskAi:
@@ -228,7 +230,7 @@ class AskAi:
             splash_thread.start()
             nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
             cache.set_cache_enable(self.cache_enabled)
-            KeyboardInput.preload_history(cache.read_query_history())
+            KeyboardInput.preload_history(cache.load_history())
             player.start_delay()
             scheduler.start()
             recorder.setup()
@@ -278,6 +280,8 @@ class AskAi:
             self.reply_error(msg.unprocessable(str(err)))
         except UsageError as err:
             self.reply_error(msg.invalid_command(err))
+        except IntelligibleAudioError as err:
+            self.reply_error(msg.intelligible_error(err))
         except RateLimitError:
             self.reply_error(msg.quote_exceeded())
             status = False

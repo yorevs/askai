@@ -12,18 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
-
+from textwrap import dedent
 from typing import Callable, Optional
 
+from askai.tui.app_icons import AppIcons
 from rich.text import Text
 from textual.app import ComposeResult, RenderResult
 from textual.containers import Container
 from textual.events import Click
 from textual.reactive import Reactive, reactive
 from textual.widget import Widget
-from textual.widgets import Static, DataTable
-
-from askai.tui.app_icons import AppIcons
+from textual.widgets import Static, DataTable, Markdown, Collapsible
 
 
 class MenuIcon(Widget):
@@ -90,7 +89,7 @@ class Splash(Container):
         self.set_class(False, "-hidden")
 
 
-class AppHelp(Static):
+class AppHelp(Markdown):
     """Application Help Widget."""
 
     DEFAULT_CSS = """
@@ -99,25 +98,13 @@ class AppHelp(Static):
       display: block;
       visibility: visible;
     }
-    #help {
-      color: #FFFFFF;
-      width: auto;
-      height: auto;
-      border: panel #183236;
-      background: #030F12;
-      color: #7FD5AD;
-      content-align: left middle;
-    }
     """
 
     help_text: str
 
     def __init__(self, help_text: str):
         super().__init__()
-        self.help_text = help_text
-
-    def compose(self) -> ComposeResult:
-        yield Static(self.help_text, id="help")
+        self.update(help_text)
 
     async def on_mount(self) -> None:
         """Called application is mounted."""
@@ -132,19 +119,32 @@ class AppInfo(Static):
       align: center middle;
       display: block;
       visibility: visible;
+      Collapsible {
+        color: #7FD5AD;
+      }
     }
     #info {
-      color: #FFFFFF;
       width: auto;
       height: auto;
+      color: #FFFFFF;
       border: panel #183236;
       background: #030F12;
       color: #7FD5AD;
       content-align: left middle;
+      padding: 2 1 1 1;
     }
     """
 
     info_text = reactive(True, repaint=True)
+
+    credits: str = dedent(
+        """
+          Author:   Hugo Saporetti Junior
+          GitHub:   https://github.com/yorevs/askai
+        LinkedIn:   https://www.linkedin.com/in/yorevs/
+
+          Thanks for using AskAI!
+        """)
 
     def __init__(self, app_info: str):
         super().__init__()
@@ -153,10 +153,13 @@ class AppInfo(Static):
     @property
     def info(self) -> Static:
         """Get the Static widget."""
-        return self.query_one(Static)
+        return self.query_one("#info")
 
     def compose(self) -> ComposeResult:
-        yield Static(self.info_text, id="info")
+        with Collapsible(title="Application Information", collapsed=False):
+            yield Static(self.info_text, id="info")
+        with Collapsible(title="Credits", collapsed=False):
+            yield Static(self.credits)
 
     async def on_mount(self) -> None:
         """Called application is mounted."""
@@ -167,7 +170,7 @@ class AppInfo(Static):
         self.info.update(self.info_text)
 
 
-class AppSettings(DataTable):
+class AppSettings(Static):
     """Application DataTable Widget."""
 
     DEFAULT_CSS = """
@@ -178,9 +181,10 @@ class AppSettings(DataTable):
       margin: 1 1 1 1;
     }
     #settings {
+      margin-top: 1;
       width: auto;
       height: auto;
-      border: solid #183236;
+      border: panel #183236;
       background: #030F12;
       content-align: center middle;
     }
@@ -190,20 +194,23 @@ class AppSettings(DataTable):
 
     def __init__(self, data: list[tuple[str, ...]] = None):
         super().__init__()
+        self.table = DataTable(id="settings")
         self.data = data or list()
         self.zebra_stripes = True
+
+    def compose(self) -> ComposeResult:
+        yield self.table
 
     async def on_mount(self) -> None:
         """Called application is mounted."""
         self.set_class(True, "-hidden")
 
     def watch_data(self) -> None:
-        """TODO"""
         rows: list[tuple[str, ...]] = self.app.app_settings
         if rows:
-            self.clear(True)
-            self.add_columns(*rows[0])
+            self.table.clear(True)
+            self.table.add_columns(*rows[0])
             for i, row in enumerate(rows[1:], start=1):
                 label = Text(str(i), style="#B0FC38 italic")
-                self.add_row(*row, label=label)
+                self.table.add_row(*row, label=label)
             self.refresh()

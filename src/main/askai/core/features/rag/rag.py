@@ -13,6 +13,8 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import logging as log
+
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -25,8 +27,6 @@ from askai.exception.exceptions import InaccurateResponse
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
-
-import logging as log
 
 
 def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse = RagResponse.MODERATE) -> None:
@@ -54,7 +54,7 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse
         if mat := RagResponse.matches(output):
             status, details = mat.group(1), mat.group(2)
             log.info("Accuracy check ->  status: '%s'  reason: '%s'", status, details)
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(output), verbosity="debug")
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(status, details), verbosity="debug")
             if not RagResponse.of_status(status).passed(pass_threshold):
                 shared.context.push("RAG", issues_prompt.format(problems=RagResponse.strip_code(output)))
                 raise InaccurateResponse(f"AI Assistant failed to respond => '{response.content}'")

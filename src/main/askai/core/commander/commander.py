@@ -13,49 +13,42 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import click
+
 from askai.core.askai_configs import configs
 from askai.core.commander.commands.general_cmd import GeneralCmd
 from askai.core.commander.commands.settings_cmd import SettingsCmd
 from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
 from askai.core.support.text_formatter import text_formatter
 
-import click
-
 COMMANDER_HELP = """
 # AskAI Commander - HELP
 
+---
+
 > Commands:
 
-```
-  `/help`                                   : Show this help message and exit.
-  `/debug`                                  : Toggle debugging ON/OFF.
-  `/speak`                                  : Toggle speaking ON/OFF.
-  `/forget   [CONTEXT]`                     : Forget a specific or `ALL' chat context.
-  `/devices  [set <index>]`                 : List/set the audio input devices.
-  `/settings [[get|set] <setting>]|reset]`  : List/get/set/reset settings.
-  `/tempo    [set <1..3>]`                  : List/set speech-to-text tempo.
-  `/voices   [<set|play> <voice>]`          : List/set/play speech-to-text voices.
-```
+|  Command  | Description                                   |
+| --------- | --------------------------------------------- |
+| /help     | **Show this help message and exit.**          |
+| /debug    | **Toggle debugging ON/OFF.**                  |
+| /speak    | **Toggle speaking ON/OFF.**                   |
+| /forget   | **Forget a specific or `ALL' chat context.**  |
+| /devices  | **List/set the audio input devices.**         |
+| /settings | **List/get/set/reset settings.**              |
+| /tempo    | **List/set speech-to-text tempo.**            |
+| /voices   | **List/set/play speech-to-text voices.**      |
+
+---
 
 > Input Key-Bindings:
 
-```
-  `Ctrl+L`              : Push-To-Talk.
-  `Ctrl+R`              : Reset the input field.
-  `Ctrl+F`              : Forget the input history.
-```
+| Key      | Action                         |
+| -------- | ------------------------------ |
+| Ctrl+L   | **Push-To-Talk.**              |
+| Ctrl+R   | **Reset the input field.**     |
+| Ctrl+F   | **Forget the input history.**  |
 """
-
-COMMANDS = [
-    "/debug",
-    "/devices",
-    "/help",
-    "/settings",
-    "/speak",
-    "/tempo",
-    "/voices",
-    "/forget"
-]
 
 
 @click.group()

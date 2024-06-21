@@ -12,10 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from functools import cached_property, lru_cache
+
 from askai.core.askai_configs import configs
 from askai.language.argos_translator import ArgosTranslator
 from askai.language.language import Language
-from functools import cached_property, lru_cache
 from hspylib.core.metaclass.singleton import Singleton
 
 
@@ -65,7 +66,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def executing(self, command_line: str) -> str:
-        return self.translate(f"> Executing `{command_line}`…")
+        return self.translate(f"> Executing: `{command_line}`…")
 
     @lru_cache(maxsize=1)
     def cmd_success(self, command_line: str) -> str:
@@ -81,7 +82,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def summarizing(self, path: str) -> str:
-        return self.translate(f"Summarizing docs at:'{path}' …")
+        return self.translate(f"Summarizing docs at:'{path}'…")
 
     @lru_cache(maxsize=1)
     def enter_qna(self) -> str:
@@ -101,23 +102,32 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def analysis(self, result: str) -> str:
-        return self.translate(f"> Analysis result: `{result}`")
+        return self.translate(f"> Analysis result => {result}")
 
     @lru_cache(maxsize=1)
-    def assert_acc(self, result: str) -> str:
-        return self.translate(f"> Accuracy result: {result}")
+    def assert_acc(self, status: str, details: str) -> str:
+        match status.casefold():
+            case 'red':
+                cl = '~~'
+            case 'yellow':
+                cl = '`'
+            case 'green':
+                cl = '*'
+            case _:
+                cl = ''
+        return self.translate(f"> Accuracy result => {cl}{status}:{cl} {details}")
 
     @lru_cache(maxsize=1)
     def action_plan(self, plan_text: str) -> str:
-        return self.translate(f"> Action plan: {plan_text}")
+        return self.translate(f"> Action plan => {plan_text}")
 
     @lru_cache(maxsize=1)
     def x_reference(self, pathname: str) -> str:
-        return self.translate(f"> Resolving X-References: `{pathname}` …")
+        return self.translate(f"> Resolving X-References: `{pathname}`…")
 
     @lru_cache(maxsize=1)
     def describe_image(self, image_path: str) -> str:
-        return self.translate(f"> Describing image: `{image_path}` …")
+        return self.translate(f"> Describing image: `{image_path}`…")
 
     @lru_cache(maxsize=1)
     def model_select(self, model: str) -> str:
@@ -135,7 +145,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def access_grant(self) -> str:
-        return self.translate("Do you approve executing this command on you terminal (**yes/[no]**)?")
+        return self.translate("Do you approve executing this command on you terminal (~~yes/[no]~~)?")
 
     # Failures
 
@@ -153,11 +163,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def cmd_no_exist(self, command: str) -> str:
-        return self.translate(f"Command `{command}' does not exist !")
+        return self.translate(f"Command: `{command}' does not exist !")
 
     @lru_cache(maxsize=1)
     def cmd_failed(self, cmd_line: str) -> str:
-        return self.translate(f"Command `{cmd_line}' failed to execute !")
+        return self.translate(f"Command: `{cmd_line}' failed to execute !")
 
     @lru_cache(maxsize=1)
     def missing_package(self, err: ImportError) -> str:
@@ -165,7 +175,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def summary_not_possible(self, err: BaseException = None) -> str:
-        return self.translate(f"summarization was not possible {'=> ' + str(err) if err else ''}!")
+        return self.translate(f"Summarization was not possible {'=> ' + str(err) if err else ''}!")
 
     @lru_cache(maxsize=1)
     def intelligible_error(self, reason: str) -> str:
@@ -177,11 +187,11 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def llm_error(self, error: str) -> str:
-        return self.translate(f"'LLM' failed to reply: {error} !")
+        return self.translate(f"**LLM** failed to reply: {error} !")
 
     @lru_cache(maxsize=1)
     def fail_to_search(self, error: str) -> str:
-        return self.translate(f"'InternetSearch' failed: {error} !")
+        return self.translate(f"'Internet Search' failed: {error} !")
 
     @lru_cache(maxsize=1)
     def too_many_actions(self) -> str:

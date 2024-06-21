@@ -48,7 +48,7 @@ MarkdownViewer {
 
 Markdown {
   .em {
-    color: #52be37;
+    color: green;
     text-style: bold;
   }
   .strong {
@@ -56,7 +56,11 @@ Markdown {
     text-style: bold;
   }
   .code_inline {
-    color: #8df9fd;
+    color: cyan;
+    text-style: bold;
+  }
+  .s {
+    color: red;
     text-style: bold;
   }
 }
@@ -67,6 +71,7 @@ MarkdownTableOfContents {
   border: solid #183236;
   box-sizing: content-box;
 }
+
 MarkdownTableOfContents > Tree {
   background: #051416;
   padding: 1;

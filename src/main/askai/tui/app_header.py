@@ -14,13 +14,14 @@
 """
 
 from askai.core.askai_configs import configs
+from askai.core.component.recorder import recorder
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_widgets import MenuIcon
 from hspylib.core.zoned_datetime import now
 from rich.text import Text
 from textual.app import RenderResult
 from textual.events import Mount
-from textual.reactive import reactive, Reactive
+from textual.reactive import reactive
 from textual.widget import Widget
 
 
@@ -59,7 +60,8 @@ class HeaderClock(Widget):
         self.headphones = False
 
     def _on_mount(self, _: Mount) -> None:
-        self.set_interval(0.7, callback=self.refresh, name=f"update header clock")
+        self.set_interval(1, callback=self.refresh, name="update header clock")
+        self.set_interval(0.5, callback=self.refresh_icons, name="update notification icons")
 
     def render(self) -> RenderResult:
         """Render the header clock."""
@@ -70,6 +72,21 @@ class HeaderClock(Widget):
             f"{AppIcons.DEBUG_ON if self.debugging else AppIcons.DEBUG_OFF}"
             f"  {AppIcons.SEPARATOR_V}  "
             + now(f"%a %d %b  %X")
+        )
+
+    def refresh_icons(self) -> None:
+        """Update the application widgets. This callback is required because ask_and_reply is async."""
+        self.headphones = self.is_headphones()
+        self.debugging = self.app.is_debugging
+        self.speaking = self.app.is_speak
+        self.app.info.info_text = str(self.app)
+        self.app.settings.data = self.app.app_settings
+
+    @staticmethod
+    def is_headphones() -> bool:
+        return (
+            recorder.device_index is not None
+            and recorder.device_index > 1
         )
 
     async def watch_speaking(self) -> None:
@@ -111,7 +128,7 @@ class Header(Widget):
 
     def compose(self):
         """Compose the Header Widget."""
-        yield MenuIcon(AppIcons.MENU.value, self.app.action_toggle_table_of_contents)
+        yield MenuIcon(AppIcons.TOC.value, self.app.action_toggle_table_of_contents)
         yield MenuIcon(AppIcons.CONSOLE.value, self._show_console)
         yield MenuIcon(AppIcons.SETTINGS.value, self._show_settings)
         yield MenuIcon(AppIcons.INFO.value, self._show_info)
@@ -127,7 +144,6 @@ class Header(Widget):
         async def set_sub_title() -> None:
             """The sub-title that this header will display."""
             self.query_one(HeaderTitle).sub_text = self.screen_sub_title
-
         self.watch(self.app, "title", set_title)
         self.watch(self.app, "sub_title", set_sub_title)
         self.watch(self.screen, "title", set_title)
