@@ -93,9 +93,7 @@ class TtsSttCmd(ABC):
         if name.isdecimal() and 0 <= int(name) <= len(all_devices):
             name = all_devices[int(name)][1]
         if device := next((dev for dev in all_devices if dev[1] == name), None):
-            if recorder.test_device(device[0]):
-                recorder._input_device = device[0]
-                configs.add_device(device[1])
+            if recorder.set_device(device):
                 text_formatter.cmd_print(f"`Text-To-Speech` device changed to %GREEN%{device[1]}%NC%")
             else:
                 text_formatter.cmd_print(f"%RED%Device: '{name}' failed to initialize!%NC%")

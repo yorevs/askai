@@ -13,7 +13,7 @@ pause==0.3
 requests==2.31.0
 argostranslate==1.9.1
 protobuf==4.22.1
-torch==2.2.2
+torch==2.2.0
 stanza==1.1.1
 soundfile==0.12.1
 urllib3==1.26.19
