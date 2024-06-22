@@ -10,14 +10,15 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.exception.exceptions import TokenLengthExceeded
+import os
 from collections import defaultdict, deque, namedtuple
 from functools import partial, reduce
-from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from typing import Any, Literal, Optional, TypeAlias
 
-import os
+from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+
+from askai.exception.exceptions import TokenLengthExceeded
 
 ChatRoles: TypeAlias = Literal["system", "human", "assistant"]
 
@@ -45,19 +46,32 @@ class ChatContext:
     def __getitem__(self, key) -> deque[ContextEntry]:
         return self._store[key]
 
+    def __iter__(self):
+        return zip(self._store.keys().__iter__(), self._store.values().__iter__())
+
+    def __len__(self):
+        return self._store.__len__()
+
     @property
     def max_context_size(self) -> int:
         return self._max_context_size
+
+    @property
+    def token_limit(self) -> int:
+        return self._token_limit
 
     def push(self, key: str, content: Any, role: ChatRoles = "human") -> ContextRaw:
         """Push a context message to the chat with the provided role."""
         entry = ContextEntry(role, str(content))
         ctx = self._store[key]
-        token_length = reduce(lambda total, e: total + len(e.content), ctx, 0) if len(ctx) > 0 else 0
-        if (token_length := token_length + len(content)) > self._token_limit:
+        if (token_length := (self.context_length(key)) + len(content)) > self._token_limit:
             raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
         ctx.append(entry)
         return self.get(key)
+
+    def context_length(self, key: str):
+        ctx = self._store[key]
+        return reduce(lambda total, e: total + len(e.content), ctx, 0) if len(ctx) > 0 else 0
 
     def set(self, key: str, content: Any, role: ChatRoles = "human") -> ContextRaw:
         """Set the context to the chat with the provided role."""
@@ -102,28 +116,17 @@ class ChatContext:
 
     def clear(self, *keys: str) -> int:
         """Clear the all the chat context specified by key."""
-        for key in keys:
-            if self._store[key]:
-                del self._store[key]
-        return len(self._store)
+        count = 0
+        contexts = list(keys or self._store.keys())
+        while contexts and (key := contexts.pop()):
+            del self._store[key]
+            count += 1
+        return count
 
-    def forget(self) -> None:
+    def forget(self, *keys: str) -> None:
         """Forget all entries pushed to the chat context."""
-        del self._store
-        self._store = defaultdict(list)
+        self.clear(*keys)
 
     def size(self, key: str) -> int:
         """Return the amount of entries a context specified by key have."""
         return len(self._store[key])
-
-
-if __name__ == "__main__":
-    c = ChatContext(1000, 5)
-    c.push("TESTE", "1 What is the size of the moon?")
-    c.push("TESTE", "2 What is the size of the moon?", "assistant")
-    c.push("TESTE", "3 Who are you?")
-    c.push("TESTE", "4 I'm Taius, you digital assistant", "assistant")
-    c.push("TESTE", "5 I'm Taius, you digital assistant", "assistant")
-    c.push("TESTE", "6 I'm Taius, you digital assistant", "assistant")
-    c.push("TESTE", "7 I'm Taius, you digital assistant", "assistant")
-    print(c.flat("TESTE"))

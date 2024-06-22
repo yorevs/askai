@@ -16,7 +16,7 @@
 import click
 
 from askai.core.askai_configs import configs
-from askai.core.commander.commands.general_cmd import GeneralCmd
+from askai.core.commander.commands.history_cmd import HistoryCmd
 from askai.core.commander.commands.settings_cmd import SettingsCmd
 from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
 from askai.core.support.text_formatter import text_formatter
@@ -31,7 +31,7 @@ COMMANDER_HELP = """
 | /help     | **Show this help message and exit.**          |
 | /debug    | **Toggle debugging ON/OFF.**                  |
 | /speak    | **Toggle speaking ON/OFF.**                   |
-| /forget   | **Forget a specific or `ALL' chat context.**  |
+| /context  | **List/forget the current context window.**   |
 | /devices  | **List/set the audio input devices.**         |
 | /settings | **List/get/set/reset settings.**              |
 | /tempo    | **List/set speech-to-text tempo.**            |
@@ -148,9 +148,15 @@ def speak() -> None:
 
 
 @ask_cli.command()
-@click.argument("context", default="")
-def forget(context: str | None = None) -> None:
-    """Forget a specific or all chat context.
-    :param context The context to reset.
+@click.argument("operation", default="list")
+@click.argument("name", default="ALL")
+def context(operation: str, name: str | int | None = None) -> None:
+    """Manage the chat context.
+    :param operation The operation to manage contexts.
+    :param name The context name.
     """
-    GeneralCmd.forget(context)
+    match operation:
+        case "forget":
+            HistoryCmd.forget(name)
+        case "list":
+            HistoryCmd.list()
