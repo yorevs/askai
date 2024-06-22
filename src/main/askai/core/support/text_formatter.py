@@ -10,6 +10,11 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import os
+import re
+from textwrap import dedent
+from typing import Any
+
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
 from hspylib.modules.cli.vt100.vt_code import VtCode
@@ -17,11 +22,6 @@ from hspylib.modules.cli.vt100.vt_color import VtColor
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.text import Text
-from textwrap import dedent
-from typing import Any
-
-import os
-import re
 
 
 class TextFormatter(metaclass=Singleton):
@@ -38,7 +38,7 @@ class TextFormatter(metaclass=Singleton):
     RE_MD_CODE_BLOCK = r"(```.+```)"
 
     CHAT_ICONS = {
-        "": " Oops!\n>  An Exception Occurred: \n#### ",
+        "": " Oops!\n>  An Exception Occurred: \n####  ",
         "": "\n>   *Tip:* ",
         "": "\n>   *Analysis:* ",
         "": "\n>   *Summary:* ",
@@ -46,7 +46,6 @@ class TextFormatter(metaclass=Singleton):
         "": "\n>   *Fun-Fact:* ",
         "": "\n>   *Advice:* ",
         "﬽": "\n> ﬽  *Conclusion:* ",
-        "": " `Sorry`, "
     }
 
     RE_TYPES = {
@@ -58,7 +57,6 @@ class TextFormatter(metaclass=Singleton):
         "": r"[\s*_]*Summary[_*-:\s]+",
         "": r"[\s*_]*Fun[\s-]+[Ff]acts?[_*-:\s]+",
         "": r"[\s*_]*(Jokes?(\s+[Tt]ime)?)[_*-:\s]+",
-        "": r"[\s*_]*Sorry[,_*-:\s]+",
         "": r"[\s*_]*Advice[_*-:\s]+",
         "﬽": r"[\s*_]*Conclusion[_*-:\s]+",
     }
@@ -68,7 +66,7 @@ class TextFormatter(metaclass=Singleton):
         """Ensure text starts and ends with a lien separator.
         :param text: The text to be formatted.
         """
-        return ensure_endswith(ensure_startswith(text.strip(), os.linesep), os.linesep * 2)
+        return ensure_endswith(ensure_startswith(text, os.linesep), os.linesep * 2)
 
     def __init__(self):
         self._console: Console = Console()
@@ -90,7 +88,6 @@ class TextFormatter(metaclass=Singleton):
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
-        text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
         text = re.sub(self.RE_TYPES['﬽'], self.CHAT_ICONS['﬽'], text)
         # Improve links
@@ -106,21 +103,25 @@ class TextFormatter(metaclass=Singleton):
         """Display a markdown formatted text.
         :param text: The text to be displayed.
         """
-        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text).strip()))
+        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text)))
         self.console.print(Markdown(colorized))
 
     def display_text(self, text: str) -> None:
         """Display a vt100 formatted text.
         :param text: The text to be displayed.
         """
-        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text).strip()))
+        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text)))
         self.console.print(Text.from_ansi(colorized))
 
     def cmd_print(self, text: str):
         """Display an AskAI commander text.
         :param text: The text to be displayed.
         """
-        self.display_markdown(f"%ORANGE%  Commander%NC%: {self.beautify(text).strip()}")
+        self.display_markdown(f"%ORANGE%  Commander%NC%: {self.beautify(text)}")
 
 
 assert (text_formatter := TextFormatter().INSTANCE) is not None
+
+
+if __name__ == '__main__':
+    text_formatter.display_markdown(" Oops!\n>  An Exception Occurred: \n#### &nbsp;")

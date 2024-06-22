@@ -12,10 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from functools import cached_property, lru_cache
+
 from askai.core.askai_configs import configs
 from askai.language.argos_translator import ArgosTranslator
 from askai.language.language import Language
-from functools import cached_property, lru_cache
 from hspylib.core.metaclass.singleton import Singleton
 
 
@@ -133,8 +134,12 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"~~[DEBUG]~~ Using routing model: `{model}`")
 
     @lru_cache(maxsize=1)
+    def task(self, task: str) -> str:
+        return self.translate(f"~~[DEBUG]~~ > `{task}`")
+
+    @lru_cache(maxsize=1)
     def device_switch(self, device_info: str) -> str:
-        return self.translate(f"\nSwitching to Audio Input device: `{device_info.strip()}`\n")
+        return self.translate(f"\nSwitching to Audio Input device: `{device_info}`\n")
 
     # Warnings and alerts
 

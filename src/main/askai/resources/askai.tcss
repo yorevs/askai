@@ -145,7 +145,7 @@ MarkdownTableOfContents > Tree {
 
 MarkdownH1 {
   background: $panel;
-  border: heavy #7FD5AD 70%;
+  border: round #7FD5AD 70%;
 }
 
 MarkdownH4 {
@@ -180,13 +180,13 @@ MarkdownBullet {
 Input {
   background: #051416;
   padding: 0 1;
-  border: solid #183236;
+  border: round #183236;
   width: 100%;
   height: 3;
 }
 
 Input:focus {
-  border: solid #7FD5AD;
+  border: round #7FD5AD;
 }
 
 LoadingIndicator {

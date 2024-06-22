@@ -15,6 +15,7 @@
 from textwrap import dedent
 from typing import Callable, Optional
 
+from askai.tui.app_icons import AppIcons
 from rich.text import Text
 from textual.app import ComposeResult, RenderResult
 from textual.containers import Container
@@ -22,8 +23,6 @@ from textual.events import Click
 from textual.reactive import Reactive
 from textual.widget import Widget
 from textual.widgets import Collapsible, DataTable, Markdown, Static
-
-from askai.tui.app_icons import AppIcons
 
 
 class MenuIcon(Widget):
@@ -86,12 +85,13 @@ class AppInfo(Static):
 
     info_text = Reactive("")
     credits: str = dedent(
-        """
+        f"""
           Author:   Hugo Saporetti Junior
           GitHub:   https://github.com/yorevs/askai
         LinkedIn:   https://www.linkedin.com/in/yorevs/
-
-          Thanks for using AskAI!
+            Demo:   https://www.youtube.com/watch?v=ZlVOisiUEvs&t=69s
+        {'-' * 80}
+          Thanks for using AskAI 
         """)
 
     def __init__(self, app_info: str):

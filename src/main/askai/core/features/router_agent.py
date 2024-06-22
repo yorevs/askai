@@ -1,3 +1,7 @@
+import logging as log
+import os
+from types import SimpleNamespace
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -17,10 +21,6 @@ from hspylib.core.metaclass.singleton import Singleton
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
-from types import SimpleNamespace
-
-import logging as log
-import os
 
 
 class RouterAgent(metaclass=Singleton):
@@ -85,7 +85,7 @@ class RouterAgent(metaclass=Singleton):
                 if hasattr(action, 'path') and action.path.upper() not in ['N/A', 'NONE'] \
                 else ''
             task = f"Task: {action.task}  {path_str}"
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {task}", verbosity="debug")
+            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.task(task), verbosity="debug")
             if (response := self.lc_agent.invoke({"input": task})) and (output := response["output"]):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
                 assert_accuracy(task, output, RagResponse.MODERATE)

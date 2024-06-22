@@ -22,19 +22,6 @@ from pathlib import Path
 from typing import Optional
 
 import nltk
-from click import UsageError
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging
-from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
-from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from openai import RateLimitError
-from textual import on, work
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.widgets import Footer, Input, MarkdownViewer
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import (ASKAI_BUS_NAME, AskAiEvents, DEVICE_CHANGED_EVENT, MIC_LISTENING_EVENT,
@@ -57,6 +44,18 @@ from askai.tui.app_header import Header
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_suggester import InputSuggester
 from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash
+from click import UsageError
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging
+from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
+from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from openai import RateLimitError
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.containers import ScrollableContainer
+from textual.widgets import Footer, Input, MarkdownViewer
 
 SOURCE_DIR: Path = classpath.source_path()
 
@@ -107,14 +106,16 @@ class AskAiApp(App[None]):
         speak_info = str(configs.tempo) + " @" + shared.engine.configs.tts_voice
         cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, "…")
         return (
-            f"     Engine: {self.engine} \n"
-            f"   Language: {configs.language} \n"
-            f"    WorkDir: {cur_dir} \n"
-            f"{'-' * 80} \n"
-            f" Microphone: {device_info or 'Undetected'} \n"
-            f"  Debugging: {'ON' if self.is_debugging else 'OFF'} \n"
-            f"   Speaking: {'ON, tempo: ' + speak_info if self.is_speak else 'OFF'} \n"
-            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else 'OFF'}"
+            "\n"
+            f"     Engine: {self.engine}\n"
+            f"   Language: {configs.language}\n"
+            f"    WorkDir: {cur_dir}\n"
+            f"{'-' * 80}\n"
+            f" Microphone: {device_info or 'Undetected'}\n"
+            f"  Debugging: {'ON' if self.is_debugging else 'OFF'}\n"
+            f"   Speaking: {'ON, tempo: ' + speak_info if self.is_speak else 'OFF'}\n"
+            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else 'OFF'} "
+            "\n"
         )
 
     @property

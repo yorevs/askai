@@ -13,8 +13,9 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from textual.suggester import Suggester
 from typing import Iterable, Optional
+
+from textual.suggester import Suggester
 
 
 class InputSuggester(Suggester):
@@ -24,7 +25,7 @@ class InputSuggester(Suggester):
         self, suggestions: Iterable[str], *, case_sensitive: bool = True
     ) -> None:
         super().__init__(use_cache=False, case_sensitive=case_sensitive)
-        self._suggestions: list[str] = list(suggestions)
+        self._suggestions: list[str] = sorted(set(suggestions), key=len)
         self._for_comparison: list[str] = list(
             self._suggestions
             if self.case_sensitive
@@ -43,7 +44,7 @@ class InputSuggester(Suggester):
 
     async def get_suggestion(self, value: str) -> Optional[str]:
         """Get a suggestion from the list."""
-        for idx, suggestion in enumerate(sorted(self._for_comparison, key=len)):
+        for idx, suggestion in enumerate(self._for_comparison):
             if suggestion.startswith(value):
                 return self._suggestions[idx]
         return None
