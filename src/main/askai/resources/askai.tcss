@@ -20,6 +20,13 @@ Splash {
   height: 100%;
 }
 
+Tooltip {
+  border: round $panel;
+  background: $panel 70%;
+  color: #FFD478;
+  padding: 0;
+}
+
 AppHelp, AppInfo, AppSettings {
   align: center middle;
   display: block;
@@ -39,6 +46,7 @@ AppInfo {
   background: #030F12;
   color: #7FD5AD;
   content-align: left middle;
+  padding: 0 1 0 1;
 }
 
 AppSettings {
@@ -49,7 +57,7 @@ AppSettings {
   margin-top: 1;
   width: auto;
   height: auto;
-  border: panel #183236;
+  border: $panel #183236;
   background: #030F12;
   content-align: center middle;
 }
@@ -83,11 +91,11 @@ HeaderNotifications {
   content-align: right middle;
   dock: right;
   width: auto;
-  padding: 0 1;
+  padding: 0 1 0 0;
 }
 
 MenuIcon {
-  padding: 0 1;
+  padding: 0 1 0 0;
   width: 4;
   content-align: center middle;
 }

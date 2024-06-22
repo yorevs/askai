@@ -12,17 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from hspylib.core.zoned_datetime import now
+from rich.text import Text
+from textual.app import RenderResult
+from textual.events import Mount
+from textual.reactive import Reactive
+from textual.widget import Widget
 
 from askai.core.askai_configs import configs
 from askai.core.component.recorder import recorder
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_widgets import MenuIcon
-from hspylib.core.zoned_datetime import now
-from rich.text import Text
-from textual.app import RenderResult
-from textual.events import Mount
-from textual.reactive import reactive
-from textual.widget import Widget
 
 
 class Header(Widget):
@@ -51,11 +51,11 @@ class Header(Widget):
 
     def compose(self):
         """Compose the Header Widget."""
-        yield MenuIcon(AppIcons.TOC.value, self.app.action_toggle_table_of_contents)
-        yield MenuIcon(AppIcons.CONSOLE.value, self._show_console)
-        yield MenuIcon(AppIcons.SETTINGS.value, self._show_settings)
-        yield MenuIcon(AppIcons.INFO.value, self._show_info)
-        yield MenuIcon(AppIcons.HELP.value, self._show_help)
+        yield MenuIcon(AppIcons.TOC.value, "Show/Hide Table of Contents", self.app.action_toggle_table_of_contents)
+        yield MenuIcon(AppIcons.CONSOLE.value, "Show console", self._show_console)
+        yield MenuIcon(AppIcons.SETTINGS.value, "Show settings", self._show_settings)
+        yield MenuIcon(AppIcons.INFO.value, "Show application information", self._show_info)
+        yield MenuIcon(AppIcons.HELP.value, "Show application help", self._show_help)
         yield HeaderTitle()
         yield HeaderNotifications()
 
@@ -105,9 +105,8 @@ class Header(Widget):
 class HeaderTitle(Widget):
     """Display the title / subtitle in the header."""
 
-    text = reactive(True, repaint=True)
-
-    sub_text = reactive(True, repaint=True)
+    text = Reactive("")
+    sub_text = Reactive("")
 
     def render(self) -> RenderResult:
         """Render the title and sub-title."""
@@ -121,24 +120,17 @@ class HeaderTitle(Widget):
 class HeaderNotifications(Widget):
     """Display a notification widget on the right of the header."""
 
-    speaking = reactive(True, repaint=True)
-
-    debugging = reactive(True, repaint=True)
-
-    listening = reactive(True, repaint=True)
-
-    headphones = reactive(True, repaint=True)
+    speaking = Reactive(configs.is_speak)
+    debugging = Reactive(configs.is_debug)
+    listening = Reactive(False)
+    headphones = Reactive(False)
 
     def __init__(self):
         super().__init__()
-        self.speaking = configs.is_speak
-        self.debugging = configs.is_debug
-        self.listening = False
-        self.headphones = False
 
     def _on_mount(self, _: Mount) -> None:
-        self.set_interval(1, callback=self.refresh, name="update header notifications")
-        self.set_interval(0.5, callback=self.refresh_icons, name="update notification icons")
+        self.set_interval(1, callback=self.refresh, name="update clock")
+        self.set_interval(0.5, callback=self.refresh_icons, name="update icons")
 
     def render(self) -> RenderResult:
         """Render the header notifications."""
@@ -146,9 +138,8 @@ class HeaderNotifications(Widget):
             f"{AppIcons.HEADPHONES if self.headphones else AppIcons.BUILT_IN_SPEAKER}  "
             f"{AppIcons.LISTENING_ON if self.listening else AppIcons.LISTENING_OFF}  "
             f"{AppIcons.SPEAKING_ON if self.speaking else AppIcons.SPEAKING_OFF} "
-            f"{AppIcons.DEBUG_ON if self.debugging else AppIcons.DEBUG_OFF}"
-            f"  {AppIcons.SEPARATOR_V}  "
-            + now(f"%a %d %b  %X")
+            f"{AppIcons.DEBUG_ON if self.debugging else AppIcons.DEBUG_OFF}  "
+            f"{AppIcons.SEPARATOR_V} {now(f'%a %d %b  %X')}"
         )
 
     def refresh_icons(self) -> None:

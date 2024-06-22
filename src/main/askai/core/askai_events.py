@@ -14,10 +14,11 @@
 """
 
 from functools import partial
+from typing import Callable, Optional
+
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.namespace import Namespace
 from hspylib.modules.eventbus.eventbus import emit, EventBus
-from typing import Callable, Optional
 
 ASKAI_BUS_NAME: str = "askai-reply-bus"
 

@@ -12,6 +12,29 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+import re
+from contextlib import redirect_stdout
+from functools import partial
+from io import StringIO
+from pathlib import Path
+from typing import Optional
+
+import nltk
+from click import UsageError
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging
+from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
+from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from openai import RateLimitError
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.containers import ScrollableContainer
+from textual.widgets import Footer, Input, MarkdownViewer
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import (ASKAI_BUS_NAME, AskAiEvents, DEVICE_CHANGED_EVENT, MIC_LISTENING_EVENT,
@@ -29,34 +52,11 @@ from askai.core.features.router import router
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
-from askai.exception.exceptions import (ImpossibleQuery, InaccurateResponse, IntelligibleAudioError,
-                                        MaxInteractionsReached, TerminatingQuery)
+from askai.exception.exceptions import *
 from askai.tui.app_header import Header
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_suggester import InputSuggester
 from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash
-from click import UsageError
-from contextlib import redirect_stdout
-from functools import partial
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging
-from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
-from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from io import StringIO
-from openai import RateLimitError
-from pathlib import Path
-from textual import on, work
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.widgets import Footer, Input, MarkdownViewer
-from typing import Optional
-
-import logging as log
-import nltk
-import os
-import re
 
 SOURCE_DIR: Path = classpath.source_path()
 
@@ -99,6 +99,7 @@ class AskAiApp(App[None]):
         configs.is_speak = not quiet
         configs.is_debug = is_debugging() or debug
         configs.tempo = tempo
+        self._startup()
 
     def __str__(self) -> str:
         device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
@@ -200,9 +201,9 @@ class AskAiApp(App[None]):
 
     @property
     def app_settings(self) -> list[tuple[str, ...]]:
-        all_settings = [("Setting", "Value")]
+        all_settings = [("UUID", "Setting", "Value")]
         for s in settings.settings.search():
-            r: tuple[str, ...] = str(s.name), str(s.value)
+            r: tuple[str, ...] = str(s.identity["uuid"]), str(s.name), str(s.value)
             all_settings.append(r)
         return all_settings
 
@@ -229,8 +230,8 @@ class AskAiApp(App[None]):
         self.screen.sub_title = self.engine.ai_model_name()
         self.md_console.set_class(True, "-hidden")
         self.md_console.show_table_of_contents = False
+        self._setup()
         self.md_console.set_interval(0.25, self._cb_refresh_console)
-        self._startup()
 
     def on_markdown_viewer_navigator_updated(self) -> None:
         """Refresh bindings for forward / back when the document changes."""
@@ -430,7 +431,6 @@ class AskAiApp(App[None]):
 
         return status
 
-    @work(thread=True, exclusive=True)
     def _startup(self) -> None:
         """Initialize the application."""
         askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
@@ -440,13 +440,17 @@ class AskAiApp(App[None]):
         cache.set_cache_enable(self.cache_enabled)
         recorder.setup()
         scheduler.start()
-        player.start_delay()
-        self.action_clear(overwrite=False)
-        self.reply(f"{msg.welcome(prompt.user.title())}")
-        self.activate_markdown()
-        self.splash.set_class(True, "-hidden")
-        self.enable_controls()
         askai_bus.subscribe(MIC_LISTENING_EVENT, self._cb_mic_listening_event)
         askai_bus.subscribe(DEVICE_CHANGED_EVENT, self._cb_device_changed_event)
-        self.line_input.focus(False)
         log.info("AskAI is ready to use!")
+
+    @work(thread=True, exclusive=True)
+    def _setup(self) -> None:
+        """TODO"""
+        player.start_delay()
+        self.splash.set_class(True, "-hidden")
+        self.activate_markdown()
+        self.action_clear(overwrite=False)
+        self.enable_controls()
+        self.reply(f"{msg.welcome(prompt.user.title())}")
+        self.line_input.focus(False)

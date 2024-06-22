@@ -1,5 +1,5 @@
-from textual_ui.app import App, ComposeResult
-from textual_ui.widgets import Button
+from textual.app import App, ComposeResult
+from textual.widgets import Button
 
 TEXT = """I must not fear.
 Fear is the mind-killer.

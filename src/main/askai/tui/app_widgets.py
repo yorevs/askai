@@ -12,36 +12,43 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.tui.app_icons import AppIcons
+from textwrap import dedent
+from typing import Callable, Optional
+
 from rich.text import Text
 from textual.app import ComposeResult, RenderResult
 from textual.containers import Container
 from textual.events import Click
-from textual.reactive import Reactive, reactive
+from textual.reactive import Reactive
 from textual.widget import Widget
 from textual.widgets import Collapsible, DataTable, Markdown, Static
-from textwrap import dedent
-from typing import Callable, Optional
+
+from askai.tui.app_icons import AppIcons
 
 
 class MenuIcon(Widget):
     """Display an 'icon' on the left of the header."""
 
-    menu_icon = AppIcons.DEFAULT.value
+    menu_icon = Reactive("")
 
-    def __init__(self, menu_icon: str, on_click: Optional[Callable] = None):
-        super().__init__()
+    def __init__(
+        self,
+        menu_icon: str = AppIcons.DEFAULT.value,
+        tooltip: str = None,
+        on_click: Optional[Callable] = None,
+        **kwargs
+    ):
+        super().__init__(**kwargs)
         self.menu_icon = menu_icon
         self.click_cb: Callable = on_click
+        self.tooltip: str = tooltip
 
     async def on_click(self, event: Click) -> None:
-        """Launch the command palette when icon is clicked."""
         event.stop()
         if self.click_cb:
             self.click_cb()
 
     def render(self) -> RenderResult:
-        """Render the header icon."""
         return self.menu_icon
 
 
@@ -58,7 +65,6 @@ class Splash(Container):
         yield Static(self.splash_image, id="splash")
 
     async def on_mount(self) -> None:
-        """Called application is mounted."""
         self.set_class(False, "-hidden")
 
 
@@ -72,15 +78,13 @@ class AppHelp(Markdown):
         self.update(help_text)
 
     async def on_mount(self) -> None:
-        """Called application is mounted."""
         self.set_class(True, "-hidden")
 
 
 class AppInfo(Static):
     """Application Information Widget."""
 
-    info_text = reactive(True, repaint=True)
-
+    info_text = Reactive("")
     credits: str = dedent(
         """
           Author:   Hugo Saporetti Junior
@@ -96,7 +100,6 @@ class AppInfo(Static):
 
     @property
     def info(self) -> Static:
-        """Get the Static widget."""
         return self.query_one("#info")
 
     def compose(self) -> ComposeResult:
@@ -106,18 +109,16 @@ class AppInfo(Static):
             yield Static(self.credits, id="credits")
 
     async def on_mount(self) -> None:
-        """Called application is mounted."""
         self.set_class(True, "-hidden")
 
     async def watch_info_text(self) -> None:
-        """TODO"""
         self.info.update(self.info_text)
 
 
 class AppSettings(Static):
     """Application DataTable Widget."""
 
-    data = reactive(True, repaint=True)
+    data = Reactive("")
 
     def __init__(self, data: list[tuple[str, ...]] = None):
         super().__init__()
@@ -129,15 +130,13 @@ class AppSettings(Static):
         yield self.table
 
     async def on_mount(self) -> None:
-        """Called application is mounted."""
         self.set_class(True, "-hidden")
 
     def watch_data(self) -> None:
-        rows: list[tuple[str, ...]] = self.app.app_settings
-        if rows:
+        if self.data:
             self.table.clear(True)
-            self.table.add_columns(*rows[0])
-            for i, row in enumerate(rows[1:], start=1):
+            self.table.add_columns(*self.data[0][1:])
+            for i, row in enumerate(self.data[1:], start=1):
                 label = Text(str(i), style="#B0FC38 italic")
-                self.table.add_row(*row, label=label)
+                self.table.add_row(*row[1:], key=row[0], label=label)
             self.refresh()
