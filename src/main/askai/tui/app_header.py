@@ -12,17 +12,16 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from askai.core.askai_configs import configs
+from askai.core.component.recorder import recorder
+from askai.tui.app_icons import AppIcons
+from askai.tui.app_widgets import MenuIcon
 from hspylib.core.zoned_datetime import now
 from rich.text import Text
 from textual.app import RenderResult
 from textual.events import Mount
 from textual.reactive import Reactive
 from textual.widget import Widget
-
-from askai.core.askai_configs import configs
-from askai.core.component.recorder import recorder
-from askai.tui.app_icons import AppIcons
-from askai.tui.app_widgets import MenuIcon
 
 
 class Header(Widget):

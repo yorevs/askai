@@ -12,14 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.askai_settings import ASKAI_DIR
-from askai.core.support.utilities import COMMANDS, hash_text
+
+from pathlib import Path
+from typing import Optional, Tuple
+
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.modules.cache.ttl_cache import TTLCache
-from pathlib import Path
-from typing import Optional, Tuple
+
+from askai.core.askai_settings import ASKAI_DIR
+from askai.core.support.utilities import hash_text
 
 # AskAI cache root directory.
 CACHE_DIR: Path = Path(f"{ASKAI_DIR}/cache")
@@ -111,11 +114,12 @@ class CacheService(metaclass=Singleton):
         return audio_file_path, file_is_not_empty(audio_file_path)
 
     @classmethod
-    def load_history(cls) -> list[str]:
+    def load_history(cls, predefined: list[str] = None) -> list[str]:
         """Load the suggester with user input history."""
         # fmt: off
         history = cls.read_query_history()
-        history.extend(list(filter(lambda c: c not in history, COMMANDS)))
+        if predefined:
+            history.extend(list(filter(lambda c: c not in history, predefined)))
         # fmt: on
         return history
 

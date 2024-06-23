@@ -14,6 +14,7 @@
 """
 
 import click
+from click import Command, Group
 
 from askai.core.askai_configs import configs
 from askai.core.commander.commands.history_cmd import HistoryCmd
@@ -32,6 +33,7 @@ COMMANDER_HELP = """
 | /debug    | **Toggle debugging ON/OFF.**                  |
 | /speak    | **Toggle speaking ON/OFF.**                   |
 | /context  | **List/forget the current context window.**   |
+| /history  | **List/forget the input history.**            |
 | /devices  | **List/set the audio input devices.**         |
 | /settings | **List/get/set/reset settings.**              |
 | /tempo    | **List/set speech-to-text tempo.**            |
@@ -39,7 +41,7 @@ COMMANDER_HELP = """
 
 ---
 
-> Input Key-Bindings:
+> CLI-Input Key-Bindings:
 
 | Key      | Action                         |
 | -------- | ------------------------------ |
@@ -48,10 +50,21 @@ COMMANDER_HELP = """
 | Ctrl+F   | **Forget the input history.**  |
 """
 
+__module__ = locals()
+
+
+def commands() -> list[str]:
+    """Return the list of all commander commands."""
+    all_commands: set[str] = set()
+    for name, obj in __module__.items():
+        if obj and isinstance(obj, Command) and not isinstance(obj, Group):
+            all_commands.add(f"/{name}")
+    return sorted(all_commands, reverse=True)
+
 
 @click.group()
 @click.pass_context
-def ask_cli(ctx) -> None:
+def ask_cli(_) -> None:
     """TODO"""
     pass
 
@@ -150,13 +163,30 @@ def speak() -> None:
 @ask_cli.command()
 @click.argument("operation", default="list")
 @click.argument("name", default="ALL")
-def context(operation: str, name: str | int | None = None) -> None:
+def context(operation: str, name: str | None = None) -> None:
     """Manage the chat context.
     :param operation The operation to manage contexts.
     :param name The context name.
     """
     match operation:
         case "forget":
-            HistoryCmd.forget(name)
+            HistoryCmd.context_forget(name)
         case "list":
-            HistoryCmd.list()
+            HistoryCmd.context_list()
+
+
+@ask_cli.command()
+@click.argument("operation", default="list")
+def history(operation: str) -> None:
+    """Manage the input history.
+    :param operation The operation to manage history.
+    """
+    match operation:
+        case "forget":
+            HistoryCmd.history_forget()
+        case "list":
+            HistoryCmd.history_list()
+
+
+if __name__ == '__main__':
+    print(commands())

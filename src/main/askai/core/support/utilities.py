@@ -12,36 +12,26 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.support.presets import Presets
-from askai.core.support.text_formatter import text_formatter
-from askai.language.language import Language
+import hashlib
+import mimetypes
+import os
+import re
+import sys
+from os.path import basename, dirname
+from pathlib import Path
+from typing import Any, Optional, Tuple
+
+import pause
 from clitt.core.term.cursor import Cursor
 from hspylib.core.enums.charset import Charset
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
 from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
 from hspylib.modules.cli.vt100.vt_color import VtColor
-from os.path import basename, dirname
-from pathlib import Path
-from typing import Any, Optional, Tuple
 
-import hashlib
-import mimetypes
-import os
-import pause
-import re
-import sys
-
-COMMANDS = [
-    "/debug",
-    "/devices",
-    "/help",
-    "/settings",
-    "/speak",
-    "/tempo",
-    "/voices",
-    "/forget"
-]
+from askai.core.support.presets import Presets
+from askai.core.support.text_formatter import text_formatter
+from askai.language.language import Language
 
 
 def read_stdin() -> Optional[str]:

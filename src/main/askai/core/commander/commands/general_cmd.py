@@ -13,11 +13,9 @@
    Copyright (c) 2024, HomeSetup
 """
 from abc import ABC
-
+from askai.core.support.text_formatter import text_formatter
 from clitt.core.term.terminal import Terminal
 from hspylib.modules.application.exit_status import ExitStatus
-
-from askai.core.support.text_formatter import text_formatter
 
 
 class GeneralCmd(ABC):

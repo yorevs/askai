@@ -22,6 +22,19 @@ from pathlib import Path
 from typing import Optional
 
 import nltk
+from click import UsageError
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging
+from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
+from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from openai import RateLimitError
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.containers import ScrollableContainer
+from textual.widgets import Footer, Input, MarkdownViewer
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import (ASKAI_BUS_NAME, AskAiEvents, DEVICE_CHANGED_EVENT, MIC_LISTENING_EVENT,
@@ -29,7 +42,7 @@ from askai.core.askai_events import (ASKAI_BUS_NAME, AskAiEvents, DEVICE_CHANGED
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.askai_settings import settings
-from askai.core.commander.commander import ask_cli, COMMANDER_HELP
+from askai.core.commander.commander import ask_cli, COMMANDER_HELP, commands
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder, Recorder
@@ -44,18 +57,6 @@ from askai.tui.app_header import Header
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_suggester import InputSuggester
 from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash
-from click import UsageError
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging
-from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
-from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from openai import RateLimitError
-from textual import on, work
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.widgets import Footer, Input, MarkdownViewer
 
 SOURCE_DIR: Path = classpath.source_path()
 
@@ -210,7 +211,7 @@ class AskAiApp(App[None]):
 
     def compose(self) -> ComposeResult:
         """Called to add widgets to the app."""
-        suggester = InputSuggester(cache.load_history(), case_sensitive=False)
+        suggester = InputSuggester(cache.load_history(commands()), case_sensitive=False)
         footer = Footer()
         footer.upper_case_keys = True
         footer.ctrl_to_caret = True
