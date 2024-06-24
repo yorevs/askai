@@ -42,7 +42,7 @@ from askai.core.askai_events import (ASKAI_BUS_NAME, AskAiEvents, DEVICE_CHANGED
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.askai_settings import settings
-from askai.core.commander.commander import ask_cli, COMMANDER_HELP
+from askai.core.commander.commander import ask_cli, commander_help
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder, Recorder
@@ -220,7 +220,7 @@ class AskAiApp(App[None]):
             yield AppSettings()
             yield AppInfo("")
             yield Splash(self.SPLASH_IMAGE)
-            yield AppHelp(COMMANDER_HELP)
+            yield AppHelp(commander_help())
             yield MarkdownViewer()
         yield Input(placeholder=f"Message {self.engine.nickname()}", suggester=suggester)
         yield footer

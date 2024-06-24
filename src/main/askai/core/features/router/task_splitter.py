@@ -86,27 +86,26 @@ class TaskSplitter(metaclass=Singleton):
             ]
         )
 
-    def process(self, query: str) -> Optional[str]:
-        """Process the user query and retrieve the final response.
-        :param query: The user query to complete.
+    def process(self, question: str) -> Optional[str]:
+        """Process the user question to retrieve the final response.
+        :param question: The user question to process.
         """
 
-        shared.context.forget("RAG")
-        model: ModelResult = selector.select_model(query)
+        shared.context.forget("RAG")  # Forget any RAG that was done before.
+        model: ModelResult = selector.select_model(question)
 
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow RAG retries."""
-            log.info("Router::[QUESTION] '%s'", query)
+            log.info("Router::[QUESTION] '%s'", question)
             runnable = self.template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
             runnable = RunnableWithMessageHistory(
-                runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
-            )
-            if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
+                runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history")
+            if response := runnable.invoke({"input": question}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
-                plan: ActionPlan = ActionPlan.create(query, response, model)
+                plan: ActionPlan = ActionPlan.create(question, response, model)
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {plan}", verbosity="debug")
-                output = agent.invoke(query, plan)
+                output = agent.invoke(question, plan)
             else:
                 # Most of the times, this indicates a failure.
                 output = response

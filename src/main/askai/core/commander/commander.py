@@ -12,6 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
+from string import Template
 
 import click
 from click import Command, Group
@@ -22,33 +24,22 @@ from askai.core.commander.commands.settings_cmd import SettingsCmd
 from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
 from askai.core.support.text_formatter import text_formatter
 
-COMMANDER_HELP = """
+COMMANDER_HELP_TPL = Template("""
 # AskAI Commander - HELP
 
 > Commands:
 
-|  Command  | Description                                   |
-| --------- | --------------------------------------------- |
-| /help     | **Show this help message and exit.**          |
-| /debug    | **Toggle debugging ON/OFF.**                  |
-| /speak    | **Toggle speaking ON/OFF.**                   |
-| /context  | **List/forget the current context window.**   |
-| /history  | **List/forget the input history.**            |
-| /devices  | **List/set the audio input devices.**         |
-| /settings | **List/get/set/reset settings.**              |
-| /tempo    | **List/set speech-to-text tempo.**            |
-| /voices   | **List/set/play speech-to-text voices.**      |
-
+${commands}
 ---
 
 > CLI-Input Key-Bindings:
 
-| Key      | Action                         |
-| -------- | ------------------------------ |
-| Ctrl+L   | **Push-To-Talk.**              |
-| Ctrl+R   | **Reset the input field.**     |
-| Ctrl+F   | **Forget the input history.**  |
-"""
+| Key      | Action                        |
+| -------- | ----------------------------- |
+| *Ctrl+L* | **Push-To-Talk.**             |
+| *Ctrl+R* | **Reset the input field.**    |
+| *Ctrl+F* | **Forget the input history.** |
+""")
 
 __module__ = locals()
 
@@ -62,17 +53,89 @@ def commands() -> list[str]:
     return sorted(all_commands, reverse=True)
 
 
+def commander_help() -> str:
+    """Return the commander help string."""
+    helpstr: str = ""
+    for cmd, obj in __module__.items():
+        if obj and isinstance(obj, Command) and not isinstance(obj, Group):
+            cmd_doc: str = f"{obj.__doc__.split(os.linesep, 1)[0]}**"
+            helpstr += f"| /{'*' + cmd + '*':<8} | **{cmd_doc:<43} |\n"
+    h_str: str = f"| {'**Command**':<9} | {'**Description**':<45} |\n"
+    h_str += f"| {'-' * 9} | {'-' * 45} |\n"
+    return COMMANDER_HELP_TPL.substitute(commands=f"{h_str}{helpstr}")
+
+
 @click.group()
 @click.pass_context
 def ask_cli(_) -> None:
-    """TODO"""
+    """AskAI commands group."""
     pass
 
 
 @ask_cli.command()
 def help() -> None:
-    """Display this help and exit."""
-    text_formatter.cmd_print(COMMANDER_HELP)
+    """Show this help message and exit."""
+    text_formatter.cmd_print(commander_help())
+
+
+@ask_cli.command()
+def debug() -> None:
+    """Toggle debug mode ON/OFF."""
+    configs.is_debug = not configs.is_debug
+    text_formatter.cmd_print(f"`Debugging` is {'%GREEN%ON' if configs.is_debug else '%RED%OFF'}%NC%")
+
+
+@ask_cli.command()
+def speak() -> None:
+    """Toggle speak mode ON/OFF."""
+    configs.is_speak = not configs.is_speak
+    text_formatter.cmd_print(f"`Speech-To-Text` is {'%GREEN%ON' if configs.is_speak else '%RED%OFF'}%NC%")
+
+
+@ask_cli.command()
+@click.argument("operation", default="list")
+@click.argument("name", default="ALL")
+def context(operation: str, name: str | None = None) -> None:
+    """List/forget the current context window.
+    :param operation The operation to manage contexts.
+    :param name The context name.
+    """
+    match operation:
+        case "forget":
+            HistoryCmd.context_forget(name)
+        case "list":
+            HistoryCmd.context_list()
+
+
+@ask_cli.command()
+@click.argument("operation", default="list")
+def history(operation: str) -> None:
+    """List/forget the input history.
+    :param operation The operation to manage history.
+    """
+    match operation:
+        case "forget":
+            HistoryCmd.history_forget()
+        case "list":
+            HistoryCmd.history_list()
+
+
+@ask_cli.command()
+@click.argument("operation", default="list")
+@click.argument("name", default="")
+def devices(operation: str, name: str | None = None) -> None:
+    """List/set the audio input devices.
+    :param operation The operation to manage devices.
+    :param name The device name to set.
+    """
+    match operation:
+        case "list":
+            TtsSttCmd.device_list()
+        case "set":
+            TtsSttCmd.device_set(name)
+        case _:
+            err = str(click.BadParameter(f"Invalid settings operation: '{operation}'"))
+            text_formatter.cmd_print(f"%RED%{err}%NC%")
 
 
 @ask_cli.command()
@@ -80,7 +143,7 @@ def help() -> None:
 @click.argument("name", default="")
 @click.argument("value", default="")
 def settings(operation: str, name: str | None = None, value: str | None = None) -> None:
-    """Manage AskAI settings.
+    """List/get/set/reset AskAI settings.
     :param operation The operation to manage settings.
     :param name The settings key to operate.
     :param value The settings value to be set.
@@ -100,28 +163,19 @@ def settings(operation: str, name: str | None = None, value: str | None = None) 
 
 
 @ask_cli.command()
-@click.argument("operation", default="list")
-@click.argument("name", default="")
-def devices(operation: str, name: str | None = None) -> None:
-    """Manage the Audio Input devices.
-    :param operation The operation to manage devices.
-    :param name The device name to set.
+@click.argument("speed", type=click.INT, default=1)
+def tempo(speed: int | None = None) -> None:
+    """List/set speech-to-text tempo.
+    :param speed The tempo to set.
     """
-    match operation:
-        case "list":
-            TtsSttCmd.device_list()
-        case "set":
-            TtsSttCmd.device_set(name)
-        case _:
-            err = str(click.BadParameter(f"Invalid settings operation: '{operation}'"))
-            text_formatter.cmd_print(f"%RED%{err}%NC%")
+    TtsSttCmd.tempo(speed)
 
 
 @ask_cli.command()
 @click.argument("operation", default="list")
 @click.argument("name", default="onyx")
 def voices(operation: str, name: str | int | None = None) -> None:
-    """Manage the Text-To-Speech voices.
+    """List/set/play speech-to-text voices.
     :param operation The operation to manage voices.
     :param name The voice name.
     """
@@ -137,52 +191,5 @@ def voices(operation: str, name: str | int | None = None) -> None:
             text_formatter.cmd_print(f"%RED%{err}%NC%")
 
 
-@ask_cli.command()
-@click.argument("speed", type=click.INT, default=1)
-def tempo(speed: int | None = None) -> None:
-    """Adjust the Text-To-Speech tempo.
-    :param speed The tempo to set.
-    """
-    TtsSttCmd.tempo(speed)
-
-
-@ask_cli.command()
-def debug() -> None:
-    """Toggle debugging ON/OFF."""
-    configs.is_debug = not configs.is_debug
-    text_formatter.cmd_print(f"`Debugging` is {'%GREEN%ON' if configs.is_debug else '%RED%OFF'}%NC%")
-
-
-@ask_cli.command()
-def speak() -> None:
-    """Toggle speaking ON/OFF."""
-    configs.is_speak = not configs.is_speak
-    text_formatter.cmd_print(f"`Speech-To-Text` is {'%GREEN%ON' if configs.is_speak else '%RED%OFF'}%NC%")
-
-
-@ask_cli.command()
-@click.argument("operation", default="list")
-@click.argument("name", default="ALL")
-def context(operation: str, name: str | None = None) -> None:
-    """Manage the chat context.
-    :param operation The operation to manage contexts.
-    :param name The context name.
-    """
-    match operation:
-        case "forget":
-            HistoryCmd.context_forget(name)
-        case "list":
-            HistoryCmd.context_list()
-
-
-@ask_cli.command()
-@click.argument("operation", default="list")
-def history(operation: str) -> None:
-    """Manage the input history.
-    :param operation The operation to manage history.
-    """
-    match operation:
-        case "forget":
-            HistoryCmd.history_forget()
-        case "list":
-            HistoryCmd.history_list()
+if __name__ == '__main__':
+    print(commander_help())
