@@ -19,6 +19,7 @@ from functools import lru_cache
 @dataclass
 class ModelResult:
     """Keep track of the model select responses."""
+
     mid: str = None
     goal: str = None
     reason: str = None

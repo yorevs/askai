@@ -15,9 +15,9 @@ __all__ = [
     'commander', 
     'component', 
     'engine', 
+    'enums', 
     'features', 
     'model', 
-    'support', 
-    'tui'
+    'support'
 ]
 __version__ = '1.0.8'

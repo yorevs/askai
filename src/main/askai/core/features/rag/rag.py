@@ -18,7 +18,7 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.model.rag_response import RagResponse
+from askai.core.enums.rag_response import RagResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse

@@ -48,7 +48,7 @@ from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder, Recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
-from askai.core.features.router import router
+from askai.core.features.router.task_splitter import splitter
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
@@ -411,7 +411,7 @@ class AskAiApp(App[None]):
             elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
                 self.reply(message=msg.wait())
-                if output := router.process(question):
+                if output := splitter.process(question):
                     self.reply(output)
             else:
                 log.debug("Reply found for '%s' in cache.", question)

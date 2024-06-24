@@ -9,6 +9,7 @@ __all__ = [
     'chat_context', 
     'langchain_support', 
     'object_mapper', 
+    'platform', 
     'presets', 
     'shared_instances', 
     'text_formatter', 

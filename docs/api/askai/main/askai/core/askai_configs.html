@@ -70,13 +70,25 @@
                                 <a class="variable" href="#AskAiConfigs.max_iteractions">max_iteractions</a>
                         </li>
                         <li>
-                                <a class="variable" href="#AskAiConfigs.max_context_size">max_context_size</a>
+                                <a class="variable" href="#AskAiConfigs.max_short_memory_size">max_short_memory_size</a>
                         </li>
                         <li>
                                 <a class="variable" href="#AskAiConfigs.max_router_retries">max_router_retries</a>
                         </li>
                         <li>
                                 <a class="variable" href="#AskAiConfigs.max_agent_execution_time_seconds">max_agent_execution_time_seconds</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AskAiConfigs.recorder_phrase_limit_millis">recorder_phrase_limit_millis</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AskAiConfigs.recorder_silence_timeout_millis">recorder_silence_timeout_millis</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AskAiConfigs.recorder_noise_detection_duration_millis">recorder_noise_detection_duration_millis</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AskAiConfigs.recorder_input_device_auto_swap">recorder_input_device_auto_swap</a>
                         </li>
                         <li>
                                 <a class="variable" href="#AskAiConfigs.recorder_devices">recorder_devices</a>
@@ -135,14 +147,14 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>
 </span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">   Copyright (c) 2024, HomeSetup</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="kn">import</span> <span class="nn">os</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">which</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a>
-</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="kn">from</span> <span class="nn">askai.__classpath__</span> <span class="kn">import</span> <span class="n">classpath</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="kn">from</span> <span class="nn">askai.core.askai_settings</span> <span class="kn">import</span> <span class="n">settings</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="kn">from</span> <span class="nn">askai.language.language</span> <span class="kn">import</span> <span class="n">Language</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="kn">from</span> <span class="nn">hspylib.core.enums.charset</span> <span class="kn">import</span> <span class="n">Charset</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="kn">from</span> <span class="nn">hspylib.core.metaclass.singleton</span> <span class="kn">import</span> <span class="n">Singleton</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="kn">from</span> <span class="nn">askai.__classpath__</span> <span class="kn">import</span> <span class="n">classpath</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="kn">from</span> <span class="nn">askai.core.askai_settings</span> <span class="kn">import</span> <span class="n">settings</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="kn">from</span> <span class="nn">askai.language.language</span> <span class="kn">import</span> <span class="n">Language</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="kn">from</span> <span class="nn">hspylib.core.enums.charset</span> <span class="kn">import</span> <span class="n">Charset</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="kn">from</span> <span class="nn">hspylib.core.metaclass.singleton</span> <span class="kn">import</span> <span class="n">Singleton</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">which</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>
+</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="kn">import</span> <span class="nn">os</span>
 </span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>
 </span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>
 </span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a><span class="k">class</span> <span class="nc">AskAiConfigs</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">Singleton</span><span class="p">):</span>
@@ -157,7 +169,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_language</span><span class="p">:</span> <span class="n">Language</span> <span class="o">=</span> <span class="n">Language</span><span class="o">.</span><span class="n">of_locale</span><span class="p">(</span>
 </span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>            <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LC_ALL&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LC_TYPE&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LANG&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LANGUAGE&quot;</span><span class="p">,</span> <span class="s2">&quot;en_US.UTF-8&quot;</span><span class="p">))))</span>
 </span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>        <span class="p">)</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_list</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">)</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">strip</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_list</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">)))</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>    <span class="nd">@property</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>    <span class="k">def</span> <span class="nf">is_interactive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -193,11 +205,11 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>
 </span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>    <span class="nd">@property</span>
 </span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>    <span class="k">def</span> <span class="nf">tempo</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.speech.tempo&quot;</span><span class="p">)</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.text.to.speech.tempo&quot;</span><span class="p">)</span>
 </span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>
 </span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>    <span class="nd">@tempo</span><span class="o">.</span><span class="n">setter</span>
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>    <span class="k">def</span> <span class="nf">tempo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.speech.tempo&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.text.to.speech.tempo&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>
 </span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    <span class="nd">@property</span>
 </span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Language</span><span class="p">:</span>
@@ -213,34 +225,52 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>
 </span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="nd">@property</span>
 </span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>    <span class="k">def</span> <span class="nf">max_iteractions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.iteractions&quot;</span><span class="p">)</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.router.iteractions&quot;</span><span class="p">)</span>
 </span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>
 </span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>    <span class="nd">@property</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>    <span class="k">def</span> <span class="nf">max_context_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.context.size&quot;</span><span class="p">)</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>    <span class="k">def</span> <span class="nf">max_short_memory_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.short.memory.size&quot;</span><span class="p">)</span>
 </span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>
 </span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>    <span class="nd">@property</span>
 </span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>    <span class="k">def</span> <span class="nf">max_router_retries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.router.retries&quot;</span><span class="p">)</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.agent.retries&quot;</span><span class="p">)</span>
 </span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>
 </span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>    <span class="nd">@property</span>
 </span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>    <span class="k">def</span> <span class="nf">max_agent_execution_time_seconds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 </span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.agent.execution.time.seconds&quot;</span><span class="p">)</span>
 </span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>
 </span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>    <span class="nd">@property</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>    <span class="k">def</span> <span class="nf">recorder_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>    <span class="k">def</span> <span class="nf">recorder_phrase_limit_millis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.recorder.phrase.limit.millis&quot;</span><span class="p">)</span>
 </span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>    <span class="k">def</span> <span class="nf">add_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">device_name</span><span class="p">)</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">))</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>    <span class="nd">@property</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>    <span class="k">def</span> <span class="nf">recorder_silence_timeout_millis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.recorder.silence.timeout.millis&quot;</span><span class="p">)</span>
 </span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>
-</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>    <span class="k">def</span> <span class="nf">remove_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">device_name</span><span class="p">)</span>
-</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">))</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>    <span class="nd">@property</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>    <span class="k">def</span> <span class="nf">recorder_noise_detection_duration_millis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.recorder.noise.detection.duration.millis&quot;</span><span class="p">)</span>
 </span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="k">assert</span> <span class="p">(</span><span class="n">configs</span> <span class="o">:=</span> <span class="n">AskAiConfigs</span><span class="p">()</span><span class="o">.</span><span class="n">INSTANCE</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>    <span class="nd">@property</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>    <span class="k">def</span> <span class="nf">recorder_input_device_auto_swap</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_bool</span><span class="p">(</span><span class="s2">&quot;askai.recorder.input.device.auto.swap&quot;</span><span class="p">)</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>    <span class="nd">@property</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>    <span class="k">def</span> <span class="nf">recorder_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>    <span class="k">def</span> <span class="nf">add_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>        <span class="k">if</span> <span class="n">device_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">:</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">device_name</span><span class="p">)</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>            <span class="n">settings</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">))</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>    <span class="k">def</span> <span class="nf">remove_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>        <span class="k">if</span> <span class="n">device_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">:</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">device_name</span><span class="p">)</span>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>            <span class="n">settings</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">))</span>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="k">assert</span> <span class="p">(</span><span class="n">configs</span> <span class="o">:=</span> <span class="n">AskAiConfigs</span><span class="p">()</span><span class="o">.</span><span class="n">INSTANCE</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -268,7 +298,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </span><span id="AskAiConfigs-35"><a href="#AskAiConfigs-35"><span class="linenos"> 35</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_language</span><span class="p">:</span> <span class="n">Language</span> <span class="o">=</span> <span class="n">Language</span><span class="o">.</span><span class="n">of_locale</span><span class="p">(</span>
 </span><span id="AskAiConfigs-36"><a href="#AskAiConfigs-36"><span class="linenos"> 36</span></a>            <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LC_ALL&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LC_TYPE&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LANG&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LANGUAGE&quot;</span><span class="p">,</span> <span class="s2">&quot;en_US.UTF-8&quot;</span><span class="p">))))</span>
 </span><span id="AskAiConfigs-37"><a href="#AskAiConfigs-37"><span class="linenos"> 37</span></a>        <span class="p">)</span>
-</span><span id="AskAiConfigs-38"><a href="#AskAiConfigs-38"><span class="linenos"> 38</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_list</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">)</span>
+</span><span id="AskAiConfigs-38"><a href="#AskAiConfigs-38"><span class="linenos"> 38</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">strip</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_list</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">)))</span>
 </span><span id="AskAiConfigs-39"><a href="#AskAiConfigs-39"><span class="linenos"> 39</span></a>
 </span><span id="AskAiConfigs-40"><a href="#AskAiConfigs-40"><span class="linenos"> 40</span></a>    <span class="nd">@property</span>
 </span><span id="AskAiConfigs-41"><a href="#AskAiConfigs-41"><span class="linenos"> 41</span></a>    <span class="k">def</span> <span class="nf">is_interactive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -304,11 +334,11 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </span><span id="AskAiConfigs-71"><a href="#AskAiConfigs-71"><span class="linenos"> 71</span></a>
 </span><span id="AskAiConfigs-72"><a href="#AskAiConfigs-72"><span class="linenos"> 72</span></a>    <span class="nd">@property</span>
 </span><span id="AskAiConfigs-73"><a href="#AskAiConfigs-73"><span class="linenos"> 73</span></a>    <span class="k">def</span> <span class="nf">tempo</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="AskAiConfigs-74"><a href="#AskAiConfigs-74"><span class="linenos"> 74</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.speech.tempo&quot;</span><span class="p">)</span>
+</span><span id="AskAiConfigs-74"><a href="#AskAiConfigs-74"><span class="linenos"> 74</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.text.to.speech.tempo&quot;</span><span class="p">)</span>
 </span><span id="AskAiConfigs-75"><a href="#AskAiConfigs-75"><span class="linenos"> 75</span></a>
 </span><span id="AskAiConfigs-76"><a href="#AskAiConfigs-76"><span class="linenos"> 76</span></a>    <span class="nd">@tempo</span><span class="o">.</span><span class="n">setter</span>
 </span><span id="AskAiConfigs-77"><a href="#AskAiConfigs-77"><span class="linenos"> 77</span></a>    <span class="k">def</span> <span class="nf">tempo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="AskAiConfigs-78"><a href="#AskAiConfigs-78"><span class="linenos"> 78</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.speech.tempo&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</span><span id="AskAiConfigs-78"><a href="#AskAiConfigs-78"><span class="linenos"> 78</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.text.to.speech.tempo&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 </span><span id="AskAiConfigs-79"><a href="#AskAiConfigs-79"><span class="linenos"> 79</span></a>
 </span><span id="AskAiConfigs-80"><a href="#AskAiConfigs-80"><span class="linenos"> 80</span></a>    <span class="nd">@property</span>
 </span><span id="AskAiConfigs-81"><a href="#AskAiConfigs-81"><span class="linenos"> 81</span></a>    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Language</span><span class="p">:</span>
@@ -324,31 +354,49 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </span><span id="AskAiConfigs-91"><a href="#AskAiConfigs-91"><span class="linenos"> 91</span></a>
 </span><span id="AskAiConfigs-92"><a href="#AskAiConfigs-92"><span class="linenos"> 92</span></a>    <span class="nd">@property</span>
 </span><span id="AskAiConfigs-93"><a href="#AskAiConfigs-93"><span class="linenos"> 93</span></a>    <span class="k">def</span> <span class="nf">max_iteractions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="AskAiConfigs-94"><a href="#AskAiConfigs-94"><span class="linenos"> 94</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.iteractions&quot;</span><span class="p">)</span>
+</span><span id="AskAiConfigs-94"><a href="#AskAiConfigs-94"><span class="linenos"> 94</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.router.iteractions&quot;</span><span class="p">)</span>
 </span><span id="AskAiConfigs-95"><a href="#AskAiConfigs-95"><span class="linenos"> 95</span></a>
 </span><span id="AskAiConfigs-96"><a href="#AskAiConfigs-96"><span class="linenos"> 96</span></a>    <span class="nd">@property</span>
-</span><span id="AskAiConfigs-97"><a href="#AskAiConfigs-97"><span class="linenos"> 97</span></a>    <span class="k">def</span> <span class="nf">max_context_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="AskAiConfigs-98"><a href="#AskAiConfigs-98"><span class="linenos"> 98</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.context.size&quot;</span><span class="p">)</span>
+</span><span id="AskAiConfigs-97"><a href="#AskAiConfigs-97"><span class="linenos"> 97</span></a>    <span class="k">def</span> <span class="nf">max_short_memory_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="AskAiConfigs-98"><a href="#AskAiConfigs-98"><span class="linenos"> 98</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.short.memory.size&quot;</span><span class="p">)</span>
 </span><span id="AskAiConfigs-99"><a href="#AskAiConfigs-99"><span class="linenos"> 99</span></a>
 </span><span id="AskAiConfigs-100"><a href="#AskAiConfigs-100"><span class="linenos">100</span></a>    <span class="nd">@property</span>
 </span><span id="AskAiConfigs-101"><a href="#AskAiConfigs-101"><span class="linenos">101</span></a>    <span class="k">def</span> <span class="nf">max_router_retries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="AskAiConfigs-102"><a href="#AskAiConfigs-102"><span class="linenos">102</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.router.retries&quot;</span><span class="p">)</span>
+</span><span id="AskAiConfigs-102"><a href="#AskAiConfigs-102"><span class="linenos">102</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.agent.retries&quot;</span><span class="p">)</span>
 </span><span id="AskAiConfigs-103"><a href="#AskAiConfigs-103"><span class="linenos">103</span></a>
 </span><span id="AskAiConfigs-104"><a href="#AskAiConfigs-104"><span class="linenos">104</span></a>    <span class="nd">@property</span>
 </span><span id="AskAiConfigs-105"><a href="#AskAiConfigs-105"><span class="linenos">105</span></a>    <span class="k">def</span> <span class="nf">max_agent_execution_time_seconds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 </span><span id="AskAiConfigs-106"><a href="#AskAiConfigs-106"><span class="linenos">106</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.agent.execution.time.seconds&quot;</span><span class="p">)</span>
 </span><span id="AskAiConfigs-107"><a href="#AskAiConfigs-107"><span class="linenos">107</span></a>
 </span><span id="AskAiConfigs-108"><a href="#AskAiConfigs-108"><span class="linenos">108</span></a>    <span class="nd">@property</span>
-</span><span id="AskAiConfigs-109"><a href="#AskAiConfigs-109"><span class="linenos">109</span></a>    <span class="k">def</span> <span class="nf">recorder_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="AskAiConfigs-110"><a href="#AskAiConfigs-110"><span class="linenos">110</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span>
+</span><span id="AskAiConfigs-109"><a href="#AskAiConfigs-109"><span class="linenos">109</span></a>    <span class="k">def</span> <span class="nf">recorder_phrase_limit_millis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="AskAiConfigs-110"><a href="#AskAiConfigs-110"><span class="linenos">110</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.recorder.phrase.limit.millis&quot;</span><span class="p">)</span>
 </span><span id="AskAiConfigs-111"><a href="#AskAiConfigs-111"><span class="linenos">111</span></a>
-</span><span id="AskAiConfigs-112"><a href="#AskAiConfigs-112"><span class="linenos">112</span></a>    <span class="k">def</span> <span class="nf">add_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="AskAiConfigs-113"><a href="#AskAiConfigs-113"><span class="linenos">113</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">device_name</span><span class="p">)</span>
-</span><span id="AskAiConfigs-114"><a href="#AskAiConfigs-114"><span class="linenos">114</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">))</span>
+</span><span id="AskAiConfigs-112"><a href="#AskAiConfigs-112"><span class="linenos">112</span></a>    <span class="nd">@property</span>
+</span><span id="AskAiConfigs-113"><a href="#AskAiConfigs-113"><span class="linenos">113</span></a>    <span class="k">def</span> <span class="nf">recorder_silence_timeout_millis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="AskAiConfigs-114"><a href="#AskAiConfigs-114"><span class="linenos">114</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.recorder.silence.timeout.millis&quot;</span><span class="p">)</span>
 </span><span id="AskAiConfigs-115"><a href="#AskAiConfigs-115"><span class="linenos">115</span></a>
-</span><span id="AskAiConfigs-116"><a href="#AskAiConfigs-116"><span class="linenos">116</span></a>    <span class="k">def</span> <span class="nf">remove_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="AskAiConfigs-117"><a href="#AskAiConfigs-117"><span class="linenos">117</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">device_name</span><span class="p">)</span>
-</span><span id="AskAiConfigs-118"><a href="#AskAiConfigs-118"><span class="linenos">118</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">))</span>
+</span><span id="AskAiConfigs-116"><a href="#AskAiConfigs-116"><span class="linenos">116</span></a>    <span class="nd">@property</span>
+</span><span id="AskAiConfigs-117"><a href="#AskAiConfigs-117"><span class="linenos">117</span></a>    <span class="k">def</span> <span class="nf">recorder_noise_detection_duration_millis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="AskAiConfigs-118"><a href="#AskAiConfigs-118"><span class="linenos">118</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.recorder.noise.detection.duration.millis&quot;</span><span class="p">)</span>
+</span><span id="AskAiConfigs-119"><a href="#AskAiConfigs-119"><span class="linenos">119</span></a>
+</span><span id="AskAiConfigs-120"><a href="#AskAiConfigs-120"><span class="linenos">120</span></a>    <span class="nd">@property</span>
+</span><span id="AskAiConfigs-121"><a href="#AskAiConfigs-121"><span class="linenos">121</span></a>    <span class="k">def</span> <span class="nf">recorder_input_device_auto_swap</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="AskAiConfigs-122"><a href="#AskAiConfigs-122"><span class="linenos">122</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_bool</span><span class="p">(</span><span class="s2">&quot;askai.recorder.input.device.auto.swap&quot;</span><span class="p">)</span>
+</span><span id="AskAiConfigs-123"><a href="#AskAiConfigs-123"><span class="linenos">123</span></a>
+</span><span id="AskAiConfigs-124"><a href="#AskAiConfigs-124"><span class="linenos">124</span></a>    <span class="nd">@property</span>
+</span><span id="AskAiConfigs-125"><a href="#AskAiConfigs-125"><span class="linenos">125</span></a>    <span class="k">def</span> <span class="nf">recorder_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="AskAiConfigs-126"><a href="#AskAiConfigs-126"><span class="linenos">126</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span>
+</span><span id="AskAiConfigs-127"><a href="#AskAiConfigs-127"><span class="linenos">127</span></a>
+</span><span id="AskAiConfigs-128"><a href="#AskAiConfigs-128"><span class="linenos">128</span></a>    <span class="k">def</span> <span class="nf">add_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="AskAiConfigs-129"><a href="#AskAiConfigs-129"><span class="linenos">129</span></a>        <span class="k">if</span> <span class="n">device_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">:</span>
+</span><span id="AskAiConfigs-130"><a href="#AskAiConfigs-130"><span class="linenos">130</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">device_name</span><span class="p">)</span>
+</span><span id="AskAiConfigs-131"><a href="#AskAiConfigs-131"><span class="linenos">131</span></a>            <span class="n">settings</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">))</span>
+</span><span id="AskAiConfigs-132"><a href="#AskAiConfigs-132"><span class="linenos">132</span></a>
+</span><span id="AskAiConfigs-133"><a href="#AskAiConfigs-133"><span class="linenos">133</span></a>    <span class="k">def</span> <span class="nf">remove_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="AskAiConfigs-134"><a href="#AskAiConfigs-134"><span class="linenos">134</span></a>        <span class="k">if</span> <span class="n">device_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">:</span>
+</span><span id="AskAiConfigs-135"><a href="#AskAiConfigs-135"><span class="linenos">135</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">device_name</span><span class="p">)</span>
+</span><span id="AskAiConfigs-136"><a href="#AskAiConfigs-136"><span class="linenos">136</span></a>            <span class="n">settings</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">))</span>
 </span></pre></div>
 
 
@@ -401,7 +449,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
                             <div id="AskAiConfigs.RESOURCE_DIR" class="classattr">
                                 <div class="attr variable">
             <span class="name">RESOURCE_DIR</span>        =
-<span class="default_value">&#39;/Users/hugo/GIT-Repository/GitHub/Python/askai/src/main/askai/resources&#39;</span>
+<span class="default_value">&#39;/Users/hjunior/GIT-Repository/GitHub/askai/src/main/askai/resources&#39;</span>
 
         
     </div>
@@ -493,7 +541,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
     <a class="headerlink" href="#AskAiConfigs.tempo"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.tempo-72"><a href="#AskAiConfigs.tempo-72"><span class="linenos">72</span></a>    <span class="nd">@property</span>
 </span><span id="AskAiConfigs.tempo-73"><a href="#AskAiConfigs.tempo-73"><span class="linenos">73</span></a>    <span class="k">def</span> <span class="nf">tempo</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="AskAiConfigs.tempo-74"><a href="#AskAiConfigs.tempo-74"><span class="linenos">74</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.speech.tempo&quot;</span><span class="p">)</span>
+</span><span id="AskAiConfigs.tempo-74"><a href="#AskAiConfigs.tempo-74"><span class="linenos">74</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.text.to.speech.tempo&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -565,25 +613,25 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
     <a class="headerlink" href="#AskAiConfigs.max_iteractions"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.max_iteractions-92"><a href="#AskAiConfigs.max_iteractions-92"><span class="linenos">92</span></a>    <span class="nd">@property</span>
 </span><span id="AskAiConfigs.max_iteractions-93"><a href="#AskAiConfigs.max_iteractions-93"><span class="linenos">93</span></a>    <span class="k">def</span> <span class="nf">max_iteractions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="AskAiConfigs.max_iteractions-94"><a href="#AskAiConfigs.max_iteractions-94"><span class="linenos">94</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.iteractions&quot;</span><span class="p">)</span>
+</span><span id="AskAiConfigs.max_iteractions-94"><a href="#AskAiConfigs.max_iteractions-94"><span class="linenos">94</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.router.iteractions&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
     
 
                             </div>
-                            <div id="AskAiConfigs.max_context_size" class="classattr">
-                                        <input id="AskAiConfigs.max_context_size-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                            <div id="AskAiConfigs.max_short_memory_size" class="classattr">
+                                        <input id="AskAiConfigs.max_short_memory_size-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr variable">
-            <span class="name">max_context_size</span><span class="annotation">: int</span>
+            <span class="name">max_short_memory_size</span><span class="annotation">: int</span>
 
-                <label class="view-source-button" for="AskAiConfigs.max_context_size-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="AskAiConfigs.max_short_memory_size-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#AskAiConfigs.max_context_size"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.max_context_size-96"><a href="#AskAiConfigs.max_context_size-96"><span class="linenos">96</span></a>    <span class="nd">@property</span>
-</span><span id="AskAiConfigs.max_context_size-97"><a href="#AskAiConfigs.max_context_size-97"><span class="linenos">97</span></a>    <span class="k">def</span> <span class="nf">max_context_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="AskAiConfigs.max_context_size-98"><a href="#AskAiConfigs.max_context_size-98"><span class="linenos">98</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.context.size&quot;</span><span class="p">)</span>
+    <a class="headerlink" href="#AskAiConfigs.max_short_memory_size"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.max_short_memory_size-96"><a href="#AskAiConfigs.max_short_memory_size-96"><span class="linenos">96</span></a>    <span class="nd">@property</span>
+</span><span id="AskAiConfigs.max_short_memory_size-97"><a href="#AskAiConfigs.max_short_memory_size-97"><span class="linenos">97</span></a>    <span class="k">def</span> <span class="nf">max_short_memory_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="AskAiConfigs.max_short_memory_size-98"><a href="#AskAiConfigs.max_short_memory_size-98"><span class="linenos">98</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.short.memory.size&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -601,7 +649,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
     <a class="headerlink" href="#AskAiConfigs.max_router_retries"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.max_router_retries-100"><a href="#AskAiConfigs.max_router_retries-100"><span class="linenos">100</span></a>    <span class="nd">@property</span>
 </span><span id="AskAiConfigs.max_router_retries-101"><a href="#AskAiConfigs.max_router_retries-101"><span class="linenos">101</span></a>    <span class="k">def</span> <span class="nf">max_router_retries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="AskAiConfigs.max_router_retries-102"><a href="#AskAiConfigs.max_router_retries-102"><span class="linenos">102</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.router.retries&quot;</span><span class="p">)</span>
+</span><span id="AskAiConfigs.max_router_retries-102"><a href="#AskAiConfigs.max_router_retries-102"><span class="linenos">102</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.max.agent.retries&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -626,18 +674,90 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
     
 
                             </div>
+                            <div id="AskAiConfigs.recorder_phrase_limit_millis" class="classattr">
+                                        <input id="AskAiConfigs.recorder_phrase_limit_millis-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
+            <span class="name">recorder_phrase_limit_millis</span><span class="annotation">: int</span>
+
+                <label class="view-source-button" for="AskAiConfigs.recorder_phrase_limit_millis-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#AskAiConfigs.recorder_phrase_limit_millis"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.recorder_phrase_limit_millis-108"><a href="#AskAiConfigs.recorder_phrase_limit_millis-108"><span class="linenos">108</span></a>    <span class="nd">@property</span>
+</span><span id="AskAiConfigs.recorder_phrase_limit_millis-109"><a href="#AskAiConfigs.recorder_phrase_limit_millis-109"><span class="linenos">109</span></a>    <span class="k">def</span> <span class="nf">recorder_phrase_limit_millis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="AskAiConfigs.recorder_phrase_limit_millis-110"><a href="#AskAiConfigs.recorder_phrase_limit_millis-110"><span class="linenos">110</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.recorder.phrase.limit.millis&quot;</span><span class="p">)</span>
+</span></pre></div>
+
+
+    
+
+                            </div>
+                            <div id="AskAiConfigs.recorder_silence_timeout_millis" class="classattr">
+                                        <input id="AskAiConfigs.recorder_silence_timeout_millis-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
+            <span class="name">recorder_silence_timeout_millis</span><span class="annotation">: int</span>
+
+                <label class="view-source-button" for="AskAiConfigs.recorder_silence_timeout_millis-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#AskAiConfigs.recorder_silence_timeout_millis"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.recorder_silence_timeout_millis-112"><a href="#AskAiConfigs.recorder_silence_timeout_millis-112"><span class="linenos">112</span></a>    <span class="nd">@property</span>
+</span><span id="AskAiConfigs.recorder_silence_timeout_millis-113"><a href="#AskAiConfigs.recorder_silence_timeout_millis-113"><span class="linenos">113</span></a>    <span class="k">def</span> <span class="nf">recorder_silence_timeout_millis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="AskAiConfigs.recorder_silence_timeout_millis-114"><a href="#AskAiConfigs.recorder_silence_timeout_millis-114"><span class="linenos">114</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.recorder.silence.timeout.millis&quot;</span><span class="p">)</span>
+</span></pre></div>
+
+
+    
+
+                            </div>
+                            <div id="AskAiConfigs.recorder_noise_detection_duration_millis" class="classattr">
+                                        <input id="AskAiConfigs.recorder_noise_detection_duration_millis-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
+            <span class="name">recorder_noise_detection_duration_millis</span><span class="annotation">: int</span>
+
+                <label class="view-source-button" for="AskAiConfigs.recorder_noise_detection_duration_millis-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#AskAiConfigs.recorder_noise_detection_duration_millis"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.recorder_noise_detection_duration_millis-116"><a href="#AskAiConfigs.recorder_noise_detection_duration_millis-116"><span class="linenos">116</span></a>    <span class="nd">@property</span>
+</span><span id="AskAiConfigs.recorder_noise_detection_duration_millis-117"><a href="#AskAiConfigs.recorder_noise_detection_duration_millis-117"><span class="linenos">117</span></a>    <span class="k">def</span> <span class="nf">recorder_noise_detection_duration_millis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="AskAiConfigs.recorder_noise_detection_duration_millis-118"><a href="#AskAiConfigs.recorder_noise_detection_duration_millis-118"><span class="linenos">118</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&quot;askai.recorder.noise.detection.duration.millis&quot;</span><span class="p">)</span>
+</span></pre></div>
+
+
+    
+
+                            </div>
+                            <div id="AskAiConfigs.recorder_input_device_auto_swap" class="classattr">
+                                        <input id="AskAiConfigs.recorder_input_device_auto_swap-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
+            <span class="name">recorder_input_device_auto_swap</span><span class="annotation">: bool</span>
+
+                <label class="view-source-button" for="AskAiConfigs.recorder_input_device_auto_swap-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#AskAiConfigs.recorder_input_device_auto_swap"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.recorder_input_device_auto_swap-120"><a href="#AskAiConfigs.recorder_input_device_auto_swap-120"><span class="linenos">120</span></a>    <span class="nd">@property</span>
+</span><span id="AskAiConfigs.recorder_input_device_auto_swap-121"><a href="#AskAiConfigs.recorder_input_device_auto_swap-121"><span class="linenos">121</span></a>    <span class="k">def</span> <span class="nf">recorder_input_device_auto_swap</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="AskAiConfigs.recorder_input_device_auto_swap-122"><a href="#AskAiConfigs.recorder_input_device_auto_swap-122"><span class="linenos">122</span></a>        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_bool</span><span class="p">(</span><span class="s2">&quot;askai.recorder.input.device.auto.swap&quot;</span><span class="p">)</span>
+</span></pre></div>
+
+
+    
+
+                            </div>
                             <div id="AskAiConfigs.recorder_devices" class="classattr">
                                         <input id="AskAiConfigs.recorder_devices-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr variable">
-            <span class="name">recorder_devices</span><span class="annotation">: list[str]</span>
+            <span class="name">recorder_devices</span><span class="annotation">: set[str]</span>
 
                 <label class="view-source-button" for="AskAiConfigs.recorder_devices-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#AskAiConfigs.recorder_devices"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.recorder_devices-108"><a href="#AskAiConfigs.recorder_devices-108"><span class="linenos">108</span></a>    <span class="nd">@property</span>
-</span><span id="AskAiConfigs.recorder_devices-109"><a href="#AskAiConfigs.recorder_devices-109"><span class="linenos">109</span></a>    <span class="k">def</span> <span class="nf">recorder_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="AskAiConfigs.recorder_devices-110"><a href="#AskAiConfigs.recorder_devices-110"><span class="linenos">110</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.recorder_devices-124"><a href="#AskAiConfigs.recorder_devices-124"><span class="linenos">124</span></a>    <span class="nd">@property</span>
+</span><span id="AskAiConfigs.recorder_devices-125"><a href="#AskAiConfigs.recorder_devices-125"><span class="linenos">125</span></a>    <span class="k">def</span> <span class="nf">recorder_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="AskAiConfigs.recorder_devices-126"><a href="#AskAiConfigs.recorder_devices-126"><span class="linenos">126</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span>
 </span></pre></div>
 
 
@@ -655,9 +775,10 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 
     </div>
     <a class="headerlink" href="#AskAiConfigs.add_device"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.add_device-112"><a href="#AskAiConfigs.add_device-112"><span class="linenos">112</span></a>    <span class="k">def</span> <span class="nf">add_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="AskAiConfigs.add_device-113"><a href="#AskAiConfigs.add_device-113"><span class="linenos">113</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">device_name</span><span class="p">)</span>
-</span><span id="AskAiConfigs.add_device-114"><a href="#AskAiConfigs.add_device-114"><span class="linenos">114</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">))</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.add_device-128"><a href="#AskAiConfigs.add_device-128"><span class="linenos">128</span></a>    <span class="k">def</span> <span class="nf">add_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="AskAiConfigs.add_device-129"><a href="#AskAiConfigs.add_device-129"><span class="linenos">129</span></a>        <span class="k">if</span> <span class="n">device_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">:</span>
+</span><span id="AskAiConfigs.add_device-130"><a href="#AskAiConfigs.add_device-130"><span class="linenos">130</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">device_name</span><span class="p">)</span>
+</span><span id="AskAiConfigs.add_device-131"><a href="#AskAiConfigs.add_device-131"><span class="linenos">131</span></a>            <span class="n">settings</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">))</span>
 </span></pre></div>
 
 
@@ -675,9 +796,10 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 
     </div>
     <a class="headerlink" href="#AskAiConfigs.remove_device"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.remove_device-116"><a href="#AskAiConfigs.remove_device-116"><span class="linenos">116</span></a>    <span class="k">def</span> <span class="nf">remove_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="AskAiConfigs.remove_device-117"><a href="#AskAiConfigs.remove_device-117"><span class="linenos">117</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">device_name</span><span class="p">)</span>
-</span><span id="AskAiConfigs.remove_device-118"><a href="#AskAiConfigs.remove_device-118"><span class="linenos">118</span></a>        <span class="n">settings</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">))</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiConfigs.remove_device-133"><a href="#AskAiConfigs.remove_device-133"><span class="linenos">133</span></a>    <span class="k">def</span> <span class="nf">remove_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="AskAiConfigs.remove_device-134"><a href="#AskAiConfigs.remove_device-134"><span class="linenos">134</span></a>        <span class="k">if</span> <span class="n">device_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">:</span>
+</span><span id="AskAiConfigs.remove_device-135"><a href="#AskAiConfigs.remove_device-135"><span class="linenos">135</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">device_name</span><span class="p">)</span>
+</span><span id="AskAiConfigs.remove_device-136"><a href="#AskAiConfigs.remove_device-136"><span class="linenos">136</span></a>            <span class="n">settings</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;askai.recorder.devices&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recorder_devices</span><span class="p">))</span>
 </span></pre></div>
 
 

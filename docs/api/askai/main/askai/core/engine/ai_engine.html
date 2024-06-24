@@ -69,6 +69,9 @@
                         <li>
                                 <a class="function" href="#AIEngine.speech_to_text">speech_to_text</a>
                         </li>
+                        <li>
+                                <a class="function" href="#AIEngine.voices">voices</a>
+                        </li>
                 </ul>
 
             </li>
@@ -181,6 +184,9 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
 </span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>    <span class="k">def</span> <span class="nf">speech_to_text</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Transcribes audio input from the microphone into the text input language.&quot;&quot;&quot;</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>        <span class="o">...</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>
+</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>    <span class="k">def</span> <span class="nf">voices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the available model voices for speech to text.&quot;&quot;&quot;</span>
 </span></pre></div>
 
 
@@ -254,6 +260,9 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
 </span><span id="AIEngine-77"><a href="#AIEngine-77"><span class="linenos">77</span></a>    <span class="k">def</span> <span class="nf">speech_to_text</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="AIEngine-78"><a href="#AIEngine-78"><span class="linenos">78</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Transcribes audio input from the microphone into the text input language.&quot;&quot;&quot;</span>
 </span><span id="AIEngine-79"><a href="#AIEngine-79"><span class="linenos">79</span></a>        <span class="o">...</span>
+</span><span id="AIEngine-80"><a href="#AIEngine-80"><span class="linenos">80</span></a>
+</span><span id="AIEngine-81"><a href="#AIEngine-81"><span class="linenos">81</span></a>    <span class="k">def</span> <span class="nf">voices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="AIEngine-82"><a href="#AIEngine-82"><span class="linenos">82</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the available model voices for speech to text.&quot;&quot;&quot;</span>
 </span></pre></div>
 
 
@@ -582,6 +591,27 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
 
 
             <div class="docstring"><p>Transcribes audio input from the microphone into the text input language.</p>
+</div>
+
+
+                            </div>
+                            <div id="AIEngine.voices" class="classattr">
+                                        <input id="AIEngine.voices-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">voices</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+                <label class="view-source-button" for="AIEngine.voices-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#AIEngine.voices"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AIEngine.voices-81"><a href="#AIEngine.voices-81"><span class="linenos">81</span></a>    <span class="k">def</span> <span class="nf">voices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="AIEngine.voices-82"><a href="#AIEngine.voices-82"><span class="linenos">82</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the available model voices for speech to text.&quot;&quot;&quot;</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Return the available model voices for speech to text.</p>
 </div>
 
 

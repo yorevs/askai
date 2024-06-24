@@ -37,22 +37,22 @@
                                 <a class="variable" href="#Temperature.COLDEST">COLDEST</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Temperature.DATA_ANALYSIS">DATA_ANALYSIS</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Temperature.CODE_GENERATION">CODE_GENERATION</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Temperature.CREATIVE_WRITING">CREATIVE_WRITING</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Temperature.CHATBOT_RESPONSES">CHATBOT_RESPONSES</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Temperature.CODE_COMMENT_GENERATION">CODE_COMMENT_GENERATION</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Temperature.DATA_ANALYSIS">DATA_ANALYSIS</a>
+                                <a class="variable" href="#Temperature.CHATBOT_RESPONSES">CHATBOT_RESPONSES</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Temperature.EXPLORATORY_CODE_WRITING">EXPLORATORY_CODE_WRITING</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Temperature.CREATIVE_WRITING">CREATIVE_WRITING</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Temperature.HOTTEST">HOTTEST</a>
@@ -134,29 +134,29 @@ main<wbr>.<a href="./../../../../askai.html">askai</a><wbr>.<a href="./../../../
 </span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
 </span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="c1"># fmt: off</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="n">COLDEST</span>                     <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="n">COLDEST</span>                     <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="c1"># Generates code that adheres to established patterns and conventions. Output is more deterministic and focused.</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="c1"># Useful for generating syntactically correct code.</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="n">CODE_GENERATION</span>             <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="c1"># Generates data analysis scripts that are more likely to be correct and efficient. Output is more deterministic</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="c1"># and focused.</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="n">DATA_ANALYSIS</span>               <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span>
 </span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>    <span class="c1"># Generates creative and diverse text for storytelling. Output is more exploratory and less constrained by patterns.</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>    <span class="n">CREATIVE_WRITING</span>            <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>    <span class="c1"># Generates conversational responses that balance coherence and diversity. Output is more natural and engaging.</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="n">CHATBOT_RESPONSES</span>           <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>    <span class="c1"># Generates code comments that are more likely to be concise and relevant. Output is more deterministic</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>    <span class="c1"># and adheres to conventions.</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>    <span class="n">CODE_COMMENT_GENERATION</span>     <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>    <span class="c1"># Generates data analysis scripts that are more likely to be correct and efficient. Output is more deterministic</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>    <span class="c1"># and focused.</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="n">DATA_ANALYSIS</span>               <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>    <span class="c1"># Generates code that explores alternative solutions and creative approaches. Output is less constrained by</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>    <span class="c1"># established patterns.</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>    <span class="n">EXPLORATORY_CODE_WRITING</span>    <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>    <span class="c1"># Generates code that adheres to established patterns and conventions. Output is more deterministic and focused.</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>    <span class="c1"># Useful for generating syntactically correct code.</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>    <span class="n">CODE_GENERATION</span>             <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="c1"># Generates code comments that are more likely to be concise and relevant. Output is more deterministic</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>    <span class="c1"># and adheres to conventions.</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>    <span class="n">CODE_COMMENT_GENERATION</span>     <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>    <span class="c1"># Generates conversational responses that balance coherence and diversity. Output is more natural and engaging.</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>    <span class="n">CHATBOT_RESPONSES</span>           <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>    <span class="c1"># Generates code that explores alternative solutions and creative approaches. Output is less constrained by</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="c1"># established patterns.</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    <span class="n">EXPLORATORY_CODE_WRITING</span>    <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>    <span class="c1"># Generates creative and diverse text for storytelling. Output is more exploratory and less constrained by patterns.</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>    <span class="n">CREATIVE_WRITING</span>            <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span>
 </span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>
 </span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>    <span class="n">HOTTEST</span>                     <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span>
 </span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>
@@ -203,29 +203,29 @@ main<wbr>.<a href="./../../../../askai.html">askai</a><wbr>.<a href="./../../../
 </span><span id="Temperature-36"><a href="#Temperature-36"><span class="linenos">36</span></a>
 </span><span id="Temperature-37"><a href="#Temperature-37"><span class="linenos">37</span></a>    <span class="c1"># fmt: off</span>
 </span><span id="Temperature-38"><a href="#Temperature-38"><span class="linenos">38</span></a>
-</span><span id="Temperature-39"><a href="#Temperature-39"><span class="linenos">39</span></a>    <span class="n">COLDEST</span>                     <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+</span><span id="Temperature-39"><a href="#Temperature-39"><span class="linenos">39</span></a>    <span class="n">COLDEST</span>                     <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.</span>
 </span><span id="Temperature-40"><a href="#Temperature-40"><span class="linenos">40</span></a>
-</span><span id="Temperature-41"><a href="#Temperature-41"><span class="linenos">41</span></a>    <span class="c1"># Generates code that adheres to established patterns and conventions. Output is more deterministic and focused.</span>
-</span><span id="Temperature-42"><a href="#Temperature-42"><span class="linenos">42</span></a>    <span class="c1"># Useful for generating syntactically correct code.</span>
-</span><span id="Temperature-43"><a href="#Temperature-43"><span class="linenos">43</span></a>    <span class="n">CODE_GENERATION</span>             <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span>
+</span><span id="Temperature-41"><a href="#Temperature-41"><span class="linenos">41</span></a>    <span class="c1"># Generates data analysis scripts that are more likely to be correct and efficient. Output is more deterministic</span>
+</span><span id="Temperature-42"><a href="#Temperature-42"><span class="linenos">42</span></a>    <span class="c1"># and focused.</span>
+</span><span id="Temperature-43"><a href="#Temperature-43"><span class="linenos">43</span></a>    <span class="n">DATA_ANALYSIS</span>               <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span>
 </span><span id="Temperature-44"><a href="#Temperature-44"><span class="linenos">44</span></a>
-</span><span id="Temperature-45"><a href="#Temperature-45"><span class="linenos">45</span></a>    <span class="c1"># Generates creative and diverse text for storytelling. Output is more exploratory and less constrained by patterns.</span>
-</span><span id="Temperature-46"><a href="#Temperature-46"><span class="linenos">46</span></a>    <span class="n">CREATIVE_WRITING</span>            <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span>
-</span><span id="Temperature-47"><a href="#Temperature-47"><span class="linenos">47</span></a>
-</span><span id="Temperature-48"><a href="#Temperature-48"><span class="linenos">48</span></a>    <span class="c1"># Generates conversational responses that balance coherence and diversity. Output is more natural and engaging.</span>
-</span><span id="Temperature-49"><a href="#Temperature-49"><span class="linenos">49</span></a>    <span class="n">CHATBOT_RESPONSES</span>           <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span>
-</span><span id="Temperature-50"><a href="#Temperature-50"><span class="linenos">50</span></a>
-</span><span id="Temperature-51"><a href="#Temperature-51"><span class="linenos">51</span></a>    <span class="c1"># Generates code comments that are more likely to be concise and relevant. Output is more deterministic</span>
-</span><span id="Temperature-52"><a href="#Temperature-52"><span class="linenos">52</span></a>    <span class="c1"># and adheres to conventions.</span>
-</span><span id="Temperature-53"><a href="#Temperature-53"><span class="linenos">53</span></a>    <span class="n">CODE_COMMENT_GENERATION</span>     <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span>
-</span><span id="Temperature-54"><a href="#Temperature-54"><span class="linenos">54</span></a>
-</span><span id="Temperature-55"><a href="#Temperature-55"><span class="linenos">55</span></a>    <span class="c1"># Generates data analysis scripts that are more likely to be correct and efficient. Output is more deterministic</span>
-</span><span id="Temperature-56"><a href="#Temperature-56"><span class="linenos">56</span></a>    <span class="c1"># and focused.</span>
-</span><span id="Temperature-57"><a href="#Temperature-57"><span class="linenos">57</span></a>    <span class="n">DATA_ANALYSIS</span>               <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span>
-</span><span id="Temperature-58"><a href="#Temperature-58"><span class="linenos">58</span></a>
-</span><span id="Temperature-59"><a href="#Temperature-59"><span class="linenos">59</span></a>    <span class="c1"># Generates code that explores alternative solutions and creative approaches. Output is less constrained by</span>
-</span><span id="Temperature-60"><a href="#Temperature-60"><span class="linenos">60</span></a>    <span class="c1"># established patterns.</span>
-</span><span id="Temperature-61"><a href="#Temperature-61"><span class="linenos">61</span></a>    <span class="n">EXPLORATORY_CODE_WRITING</span>    <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span>
+</span><span id="Temperature-45"><a href="#Temperature-45"><span class="linenos">45</span></a>    <span class="c1"># Generates code that adheres to established patterns and conventions. Output is more deterministic and focused.</span>
+</span><span id="Temperature-46"><a href="#Temperature-46"><span class="linenos">46</span></a>    <span class="c1"># Useful for generating syntactically correct code.</span>
+</span><span id="Temperature-47"><a href="#Temperature-47"><span class="linenos">47</span></a>    <span class="n">CODE_GENERATION</span>             <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span>
+</span><span id="Temperature-48"><a href="#Temperature-48"><span class="linenos">48</span></a>
+</span><span id="Temperature-49"><a href="#Temperature-49"><span class="linenos">49</span></a>    <span class="c1"># Generates code comments that are more likely to be concise and relevant. Output is more deterministic</span>
+</span><span id="Temperature-50"><a href="#Temperature-50"><span class="linenos">50</span></a>    <span class="c1"># and adheres to conventions.</span>
+</span><span id="Temperature-51"><a href="#Temperature-51"><span class="linenos">51</span></a>    <span class="n">CODE_COMMENT_GENERATION</span>     <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span>
+</span><span id="Temperature-52"><a href="#Temperature-52"><span class="linenos">52</span></a>
+</span><span id="Temperature-53"><a href="#Temperature-53"><span class="linenos">53</span></a>    <span class="c1"># Generates conversational responses that balance coherence and diversity. Output is more natural and engaging.</span>
+</span><span id="Temperature-54"><a href="#Temperature-54"><span class="linenos">54</span></a>    <span class="n">CHATBOT_RESPONSES</span>           <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span>
+</span><span id="Temperature-55"><a href="#Temperature-55"><span class="linenos">55</span></a>
+</span><span id="Temperature-56"><a href="#Temperature-56"><span class="linenos">56</span></a>    <span class="c1"># Generates code that explores alternative solutions and creative approaches. Output is less constrained by</span>
+</span><span id="Temperature-57"><a href="#Temperature-57"><span class="linenos">57</span></a>    <span class="c1"># established patterns.</span>
+</span><span id="Temperature-58"><a href="#Temperature-58"><span class="linenos">58</span></a>    <span class="n">EXPLORATORY_CODE_WRITING</span>    <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span>
+</span><span id="Temperature-59"><a href="#Temperature-59"><span class="linenos">59</span></a>
+</span><span id="Temperature-60"><a href="#Temperature-60"><span class="linenos">60</span></a>    <span class="c1"># Generates creative and diverse text for storytelling. Output is more exploratory and less constrained by patterns.</span>
+</span><span id="Temperature-61"><a href="#Temperature-61"><span class="linenos">61</span></a>    <span class="n">CREATIVE_WRITING</span>            <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span>
 </span><span id="Temperature-62"><a href="#Temperature-62"><span class="linenos">62</span></a>
 </span><span id="Temperature-63"><a href="#Temperature-63"><span class="linenos">63</span></a>    <span class="n">HOTTEST</span>                     <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span>
 </span><span id="Temperature-64"><a href="#Temperature-64"><span class="linenos">64</span></a>
@@ -270,38 +270,26 @@ content, or seeking fresh perspectives on a topic.</p></li>
     
 
                             </div>
+                            <div id="Temperature.DATA_ANALYSIS" class="classattr">
+                                <div class="attr variable">
+            <span class="name">DATA_ANALYSIS</span>        =
+<span class="default_value">DATA_ANALYSIS</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Temperature.DATA_ANALYSIS"></a>
+    
+    
+
+                            </div>
                             <div id="Temperature.CODE_GENERATION" class="classattr">
                                 <div class="attr variable">
             <span class="name">CODE_GENERATION</span>        =
-<span class="default_value">CODE_GENERATION</span>
+<span class="default_value">DATA_ANALYSIS</span>
 
         
     </div>
     <a class="headerlink" href="#Temperature.CODE_GENERATION"></a>
-    
-    
-
-                            </div>
-                            <div id="Temperature.CREATIVE_WRITING" class="classattr">
-                                <div class="attr variable">
-            <span class="name">CREATIVE_WRITING</span>        =
-<span class="default_value">CREATIVE_WRITING</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Temperature.CREATIVE_WRITING"></a>
-    
-    
-
-                            </div>
-                            <div id="Temperature.CHATBOT_RESPONSES" class="classattr">
-                                <div class="attr variable">
-            <span class="name">CHATBOT_RESPONSES</span>        =
-<span class="default_value">CHATBOT_RESPONSES</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Temperature.CHATBOT_RESPONSES"></a>
     
     
 
@@ -318,14 +306,14 @@ content, or seeking fresh perspectives on a topic.</p></li>
     
 
                             </div>
-                            <div id="Temperature.DATA_ANALYSIS" class="classattr">
+                            <div id="Temperature.CHATBOT_RESPONSES" class="classattr">
                                 <div class="attr variable">
-            <span class="name">DATA_ANALYSIS</span>        =
-<span class="default_value">CODE_GENERATION</span>
+            <span class="name">CHATBOT_RESPONSES</span>        =
+<span class="default_value">CHATBOT_RESPONSES</span>
 
         
     </div>
-    <a class="headerlink" href="#Temperature.DATA_ANALYSIS"></a>
+    <a class="headerlink" href="#Temperature.CHATBOT_RESPONSES"></a>
     
     
 
@@ -338,6 +326,18 @@ content, or seeking fresh perspectives on a topic.</p></li>
         
     </div>
     <a class="headerlink" href="#Temperature.EXPLORATORY_CODE_WRITING"></a>
+    
+    
+
+                            </div>
+                            <div id="Temperature.CREATIVE_WRITING" class="classattr">
+                                <div class="attr variable">
+            <span class="name">CREATIVE_WRITING</span>        =
+<span class="default_value">CREATIVE_WRITING</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Temperature.CREATIVE_WRITING"></a>
     
     
 

@@ -60,6 +60,9 @@
                         <li>
                                 <a class="function" href="#AskAiPrompt.hub">hub</a>
                         </li>
+                        <li>
+                                <a class="function" href="#AskAiPrompt.append_path">append_path</a>
+                        </li>
                 </ul>
 
             </li>
@@ -110,7 +113,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="kn">from</span> <span class="nn">askai.__classpath__</span> <span class="kn">import</span> <span class="n">classpath</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="kn">from</span> <span class="nn">askai.core.askai_configs</span> <span class="kn">import</span> <span class="n">configs</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="kn">from</span> <span class="nn">askai.core.model.terminal_command</span> <span class="kn">import</span> <span class="n">get_os</span><span class="p">,</span> <span class="n">get_shell</span><span class="p">,</span> <span class="n">get_user</span><span class="p">,</span> <span class="n">SupportedPlatforms</span><span class="p">,</span> <span class="n">SupportedShells</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="kn">from</span> <span class="nn">askai.core.support.platform</span> <span class="kn">import</span> <span class="n">get_os</span><span class="p">,</span> <span class="n">get_shell</span><span class="p">,</span> <span class="n">get_user</span><span class="p">,</span> <span class="n">SupportedPlatforms</span><span class="p">,</span> <span class="n">SupportedShells</span>
 </span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="kn">from</span> <span class="nn">askai.core.support.utilities</span> <span class="kn">import</span> <span class="n">read_resource</span>
 </span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
 </span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="kn">from</span> <span class="nn">hspylib.core.metaclass.singleton</span> <span class="kn">import</span> <span class="n">Singleton</span>
@@ -124,7 +127,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="n">INSTANCE</span><span class="p">:</span> <span class="s2">&quot;AskAiPrompt&quot;</span>
 </span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
 </span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="c1"># AI Prompts directory.</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="n">PROMPT_DIR</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">classpath</span><span class="o">.</span><span class="n">resource_path</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;/assets/prompts&quot;</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="n">PROMPT_DIR</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">classpath</span><span class="o">.</span><span class="n">resource_path</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;/prompts&quot;</span>
 </span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>
 </span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_shell</span><span class="p">:</span> <span class="n">SupportedShells</span> <span class="o">=</span> <span class="n">get_shell</span><span class="p">()</span>
@@ -156,8 +159,12 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Read a prompt from LangChain hub.&quot;&quot;&quot;</span>
 </span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>        <span class="k">return</span> <span class="n">hub</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="n">owner_repo_commit</span><span class="p">)</span>
 </span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a><span class="k">assert</span> <span class="p">(</span><span class="n">prompt</span> <span class="o">:=</span> <span class="n">AskAiPrompt</span><span class="p">()</span><span class="o">.</span><span class="n">INSTANCE</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>    <span class="k">def</span> <span class="nf">append_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the PROMPT_DIR with the extra path appended.&quot;&quot;&quot;</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">PROMPT_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a><span class="k">assert</span> <span class="p">(</span><span class="n">prompt</span> <span class="o">:=</span> <span class="n">AskAiPrompt</span><span class="p">()</span><span class="o">.</span><span class="n">INSTANCE</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -179,7 +186,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </span><span id="AskAiPrompt-29"><a href="#AskAiPrompt-29"><span class="linenos">29</span></a>    <span class="n">INSTANCE</span><span class="p">:</span> <span class="s2">&quot;AskAiPrompt&quot;</span>
 </span><span id="AskAiPrompt-30"><a href="#AskAiPrompt-30"><span class="linenos">30</span></a>
 </span><span id="AskAiPrompt-31"><a href="#AskAiPrompt-31"><span class="linenos">31</span></a>    <span class="c1"># AI Prompts directory.</span>
-</span><span id="AskAiPrompt-32"><a href="#AskAiPrompt-32"><span class="linenos">32</span></a>    <span class="n">PROMPT_DIR</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">classpath</span><span class="o">.</span><span class="n">resource_path</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;/assets/prompts&quot;</span>
+</span><span id="AskAiPrompt-32"><a href="#AskAiPrompt-32"><span class="linenos">32</span></a>    <span class="n">PROMPT_DIR</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">classpath</span><span class="o">.</span><span class="n">resource_path</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;/prompts&quot;</span>
 </span><span id="AskAiPrompt-33"><a href="#AskAiPrompt-33"><span class="linenos">33</span></a>
 </span><span id="AskAiPrompt-34"><a href="#AskAiPrompt-34"><span class="linenos">34</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="AskAiPrompt-35"><a href="#AskAiPrompt-35"><span class="linenos">35</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_shell</span><span class="p">:</span> <span class="n">SupportedShells</span> <span class="o">=</span> <span class="n">get_shell</span><span class="p">()</span>
@@ -210,6 +217,10 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </span><span id="AskAiPrompt-60"><a href="#AskAiPrompt-60"><span class="linenos">60</span></a>    <span class="k">def</span> <span class="nf">hub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner_repo_commit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ChatPromptTemplate</span><span class="p">:</span>
 </span><span id="AskAiPrompt-61"><a href="#AskAiPrompt-61"><span class="linenos">61</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Read a prompt from LangChain hub.&quot;&quot;&quot;</span>
 </span><span id="AskAiPrompt-62"><a href="#AskAiPrompt-62"><span class="linenos">62</span></a>        <span class="k">return</span> <span class="n">hub</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="n">owner_repo_commit</span><span class="p">)</span>
+</span><span id="AskAiPrompt-63"><a href="#AskAiPrompt-63"><span class="linenos">63</span></a>
+</span><span id="AskAiPrompt-64"><a href="#AskAiPrompt-64"><span class="linenos">64</span></a>    <span class="k">def</span> <span class="nf">append_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="AskAiPrompt-65"><a href="#AskAiPrompt-65"><span class="linenos">65</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the PROMPT_DIR with the extra path appended.&quot;&quot;&quot;</span>
+</span><span id="AskAiPrompt-66"><a href="#AskAiPrompt-66"><span class="linenos">66</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">PROMPT_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span>
 </span></pre></div>
 
 
@@ -262,7 +273,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
                             <div id="AskAiPrompt.PROMPT_DIR" class="classattr">
                                 <div class="attr variable">
             <span class="name">PROMPT_DIR</span>        =
-<span class="default_value">&#39;/Users/hugo/GIT-Repository/GitHub/Python/askai/src/main/askai/resources/assets/prompts&#39;</span>
+<span class="default_value">&#39;/Users/hjunior/GIT-Repository/GitHub/askai/src/main/askai/resources/prompts&#39;</span>
 
         
     </div>
@@ -385,6 +396,28 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 
 
             <div class="docstring"><p>Read a prompt from LangChain hub.</p>
+</div>
+
+
+                            </div>
+                            <div id="AskAiPrompt.append_path" class="classattr">
+                                        <input id="AskAiPrompt.append_path-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">append_path</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">path</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+                <label class="view-source-button" for="AskAiPrompt.append_path-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#AskAiPrompt.append_path"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiPrompt.append_path-64"><a href="#AskAiPrompt.append_path-64"><span class="linenos">64</span></a>    <span class="k">def</span> <span class="nf">append_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="AskAiPrompt.append_path-65"><a href="#AskAiPrompt.append_path-65"><span class="linenos">65</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the PROMPT_DIR with the extra path appended.&quot;&quot;&quot;</span>
+</span><span id="AskAiPrompt.append_path-66"><a href="#AskAiPrompt.append_path-66"><span class="linenos">66</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">PROMPT_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Return the PROMPT_DIR with the extra path appended.</p>
 </div>
 
 

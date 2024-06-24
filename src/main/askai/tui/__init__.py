@@ -2,13 +2,14 @@
 #
 # "askai" v1.0.8
 #
-# Package: main.askai.core.tui
+# Package: main.askai.tui
 """Package initialization."""
 
 __all__ = [
-    'app_icons',
-    'app_widgets',
-    'askai_app',
-    'app_header.py'
+    'app_header', 
+    'app_icons', 
+    'app_suggester', 
+    'app_widgets', 
+    'askai_app'
 ]
 __version__ = '1.0.8'

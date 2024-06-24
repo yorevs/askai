@@ -40,13 +40,25 @@
                     <a class="variable" href="#REPLY_ERROR_EVENT">REPLY_ERROR_EVENT</a>
             </li>
             <li>
+                    <a class="variable" href="#MIC_LISTENING_EVENT">MIC_LISTENING_EVENT</a>
+            </li>
+            <li>
+                    <a class="variable" href="#DEVICE_CHANGED_EVENT">DEVICE_CHANGED_EVENT</a>
+            </li>
+            <li>
                     <a class="class" href="#AskAiEvents">AskAiEvents</a>
                             <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#AskAiEvents.FluidEvent">FluidEvent</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AskAiEvents.FluidEventBus">FluidEventBus</a>
+                        </li>
                         <li>
                                 <a class="variable" href="#AskAiEvents.ASKAI_BUS">ASKAI_BUS</a>
                         </li>
                         <li>
-                                <a class="function" href="#AskAiEvents.get_bus">get_bus</a>
+                                <a class="function" href="#AskAiEvents.bus">bus</a>
                         </li>
                         <li>
                                 <a class="variable" href="#AskAiEvents.events">events</a>
@@ -104,7 +116,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="kn">from</span> <span class="nn">hspylib.core.enums.enumeration</span> <span class="kn">import</span> <span class="n">Enumeration</span>
 </span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="kn">from</span> <span class="nn">hspylib.core.namespace</span> <span class="kn">import</span> <span class="n">Namespace</span>
 </span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="kn">from</span> <span class="nn">hspylib.modules.eventbus.eventbus</span> <span class="kn">import</span> <span class="n">emit</span><span class="p">,</span> <span class="n">EventBus</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
 </span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
 </span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="n">ASKAI_BUS_NAME</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;askai-reply-bus&quot;</span>
 </span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>
@@ -112,59 +124,72 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
 </span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="n">REPLY_ERROR_EVENT</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;askai-reply-error-event&quot;</span>
 </span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="k">class</span> <span class="nc">AskAiEvents</span><span class="p">(</span><span class="n">Enumeration</span><span class="p">):</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Facility class to provide easy access to AskAI events.&quot;&quot;&quot;</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="n">MIC_LISTENING_EVENT</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;askai-mic-listening-event&quot;</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="n">DEVICE_CHANGED_EVENT</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;askai-input-device-changed-event&quot;</span>
 </span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="k">class</span> <span class="nc">_Event</span><span class="p">:</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide a generic event interface.&quot;&quot;&quot;</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="k">class</span> <span class="nc">AskAiEvents</span><span class="p">(</span><span class="n">Enumeration</span><span class="p">):</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Facility class to provide easy access to AskAI events.&quot;&quot;&quot;</span>
 </span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;_Event-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">::(</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span><span class="si">}</span><span class="s2">)&quot;</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>        <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>            <span class="k">pass</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="k">class</span> <span class="nc">_EventBus</span><span class="p">:</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide a generic event bus interface.&quot;&quot;&quot;</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">bus_name</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">bus</span> <span class="o">=</span> <span class="n">EventBus</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bus_name</span><span class="p">)</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">evt</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>                <span class="nb">setattr</span><span class="p">(</span><span class="n">evt</span><span class="p">,</span> <span class="s2">&quot;emit&quot;</span><span class="p">,</span> <span class="n">partial</span><span class="p">(</span><span class="n">emit</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="nb">vars</span><span class="p">(</span><span class="n">evt</span><span class="p">)))</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;AskAi-EventBus::</span><span class="si">{</span><span class="n">bus_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;_EventBus-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">::(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="si">}</span><span class="s2">)&quot;</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>    <span class="c1"># fmt: off</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>    <span class="n">ASKAI_BUS</span> <span class="o">=</span> <span class="n">_EventBus</span><span class="p">(</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>        <span class="n">ASKAI_BUS_NAME</span><span class="p">,</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>        <span class="n">reply</span><span class="o">=</span><span class="n">_Event</span><span class="p">(</span><span class="n">REPLY_EVENT</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="n">erase_last</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>        <span class="n">reply_error</span><span class="o">=</span><span class="n">_Event</span><span class="p">(</span><span class="n">REPLY_ERROR_EVENT</span><span class="p">)</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>    <span class="p">)</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>    <span class="c1"># fmt: on</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="k">class</span> <span class="nc">FluidEvent</span><span class="p">:</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide a generic event interface.&quot;&quot;&quot;</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FluidEvent-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">::(</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span><span class="si">}</span><span class="s2">)&quot;</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>        <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;Wrapper to the Event&#39;s emit method.&quot;&quot;&quot;</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>            <span class="o">...</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>        <span class="k">def</span> <span class="nf">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cb_event_handler</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;Wrapper to the EventBus&#39;s subscribe method.&quot;&quot;&quot;</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>            <span class="o">...</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    <span class="k">class</span> <span class="nc">FluidEventBus</span><span class="p">:</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide a generic event bus interface.&quot;&quot;&quot;</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">bus_name</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">bus</span> <span class="o">=</span> <span class="n">EventBus</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bus_name</span><span class="p">)</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">evt</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>                <span class="n">fn_emit</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">emit</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="nb">vars</span><span class="p">(</span><span class="n">evt</span><span class="p">))</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>                <span class="n">fn_subscribe</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">subscribe</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">cb_event_handler</span><span class="o">=</span><span class="n">evt</span><span class="o">.</span><span class="n">cb_event_handler</span><span class="p">)</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>                <span class="nb">setattr</span><span class="p">(</span><span class="n">evt</span><span class="p">,</span> <span class="s2">&quot;emit&quot;</span><span class="p">,</span> <span class="n">fn_emit</span><span class="p">)</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>                <span class="nb">setattr</span><span class="p">(</span><span class="n">evt</span><span class="p">,</span> <span class="s2">&quot;subscribe&quot;</span><span class="p">,</span> <span class="n">fn_subscribe</span><span class="p">)</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">:</span> <span class="n">Namespace</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FluidEventBus::</span><span class="si">{</span><span class="n">bus_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>    <span class="k">def</span> <span class="nf">get_bus</span><span class="p">(</span><span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">EventBus</span><span class="p">]:</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an eventbus instance for the given name.&quot;&quot;&quot;</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>        <span class="k">return</span> <span class="nb">next</span><span class="p">((</span><span class="n">b</span><span class="o">.</span><span class="n">bus</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">AskAiEvents</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">bus_name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>
-</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus</span><span class="p">:</span> <span class="n">_EventBus</span><span class="p">):</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_bus</span> <span class="o">=</span> <span class="n">bus</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>
-</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>    <span class="nd">@property</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>    <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Namespace</span><span class="p">:</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">events</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FluidEventBus-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">::(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="si">}</span><span class="s2">)&quot;</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>
+</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>    <span class="c1"># fmt: off</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>    <span class="n">ASKAI_BUS</span> <span class="o">=</span> <span class="n">FluidEventBus</span><span class="p">(</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>        <span class="n">ASKAI_BUS_NAME</span><span class="p">,</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>        <span class="n">reply</span><span class="o">=</span><span class="n">FluidEvent</span><span class="p">(</span><span class="n">REPLY_EVENT</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="n">erase_last</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cb_event_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>        <span class="n">reply_error</span><span class="o">=</span><span class="n">FluidEvent</span><span class="p">(</span><span class="n">REPLY_ERROR_EVENT</span><span class="p">,</span> <span class="n">cb_event_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>        <span class="n">listening</span><span class="o">=</span><span class="n">FluidEvent</span><span class="p">(</span><span class="n">MIC_LISTENING_EVENT</span><span class="p">,</span> <span class="n">listening</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cb_event_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>        <span class="n">device_changed</span><span class="o">=</span><span class="n">FluidEvent</span><span class="p">(</span><span class="n">DEVICE_CHANGED_EVENT</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cb_event_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>    <span class="p">)</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>    <span class="c1"># fmt: on</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>
+</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a>    <span class="k">def</span> <span class="nf">bus</span><span class="p">(</span><span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FluidEventBus</span><span class="p">]:</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an eventbus instance for the given name.&quot;&quot;&quot;</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a>        <span class="k">return</span> <span class="nb">next</span><span class="p">((</span><span class="n">b</span><span class="o">.</span><span class="n">bus</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">AskAiEvents</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">bus_name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a>
+</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus</span><span class="p">:</span> <span class="n">FluidEventBus</span><span class="p">):</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_bus</span> <span class="o">=</span> <span class="n">bus</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a>
+</span><span id="L-91"><a href="#L-91"><span class="linenos">91</span></a>    <span class="nd">@property</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos">92</span></a>    <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Namespace</span><span class="p">:</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos">93</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">events</span>
 </span></pre></div>
 
 
@@ -205,6 +230,30 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
     
 
                 </section>
+                <section id="MIC_LISTENING_EVENT">
+                    <div class="attr variable">
+            <span class="name">MIC_LISTENING_EVENT</span><span class="annotation">: str</span>        =
+<span class="default_value">&#39;askai-mic-listening-event&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#MIC_LISTENING_EVENT"></a>
+    
+    
+
+                </section>
+                <section id="DEVICE_CHANGED_EVENT">
+                    <div class="attr variable">
+            <span class="name">DEVICE_CHANGED_EVENT</span><span class="annotation">: str</span>        =
+<span class="default_value">&#39;askai-input-device-changed-event&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DEVICE_CHANGED_EVENT"></a>
+    
+    
+
+                </section>
                 <section id="AskAiEvents">
                             <input id="AskAiEvents-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
@@ -216,58 +265,67 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 
     </div>
     <a class="headerlink" href="#AskAiEvents"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiEvents-30"><a href="#AskAiEvents-30"><span class="linenos">30</span></a><span class="k">class</span> <span class="nc">AskAiEvents</span><span class="p">(</span><span class="n">Enumeration</span><span class="p">):</span>
-</span><span id="AskAiEvents-31"><a href="#AskAiEvents-31"><span class="linenos">31</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Facility class to provide easy access to AskAI events.&quot;&quot;&quot;</span>
-</span><span id="AskAiEvents-32"><a href="#AskAiEvents-32"><span class="linenos">32</span></a>
-</span><span id="AskAiEvents-33"><a href="#AskAiEvents-33"><span class="linenos">33</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="AskAiEvents-34"><a href="#AskAiEvents-34"><span class="linenos">34</span></a>    <span class="k">class</span> <span class="nc">_Event</span><span class="p">:</span>
-</span><span id="AskAiEvents-35"><a href="#AskAiEvents-35"><span class="linenos">35</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide a generic event interface.&quot;&quot;&quot;</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiEvents-34"><a href="#AskAiEvents-34"><span class="linenos">34</span></a><span class="k">class</span> <span class="nc">AskAiEvents</span><span class="p">(</span><span class="n">Enumeration</span><span class="p">):</span>
+</span><span id="AskAiEvents-35"><a href="#AskAiEvents-35"><span class="linenos">35</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Facility class to provide easy access to AskAI events.&quot;&quot;&quot;</span>
 </span><span id="AskAiEvents-36"><a href="#AskAiEvents-36"><span class="linenos">36</span></a>
-</span><span id="AskAiEvents-37"><a href="#AskAiEvents-37"><span class="linenos">37</span></a>        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="AskAiEvents-38"><a href="#AskAiEvents-38"><span class="linenos">38</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-</span><span id="AskAiEvents-39"><a href="#AskAiEvents-39"><span class="linenos">39</span></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-</span><span id="AskAiEvents-40"><a href="#AskAiEvents-40"><span class="linenos">40</span></a>                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
-</span><span id="AskAiEvents-41"><a href="#AskAiEvents-41"><span class="linenos">41</span></a>
-</span><span id="AskAiEvents-42"><a href="#AskAiEvents-42"><span class="linenos">42</span></a>        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="AskAiEvents-43"><a href="#AskAiEvents-43"><span class="linenos">43</span></a>            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;_Event-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">::(</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span><span class="si">}</span><span class="s2">)&quot;</span>
-</span><span id="AskAiEvents-44"><a href="#AskAiEvents-44"><span class="linenos">44</span></a>
-</span><span id="AskAiEvents-45"><a href="#AskAiEvents-45"><span class="linenos">45</span></a>        <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="AskAiEvents-46"><a href="#AskAiEvents-46"><span class="linenos">46</span></a>            <span class="k">pass</span>
-</span><span id="AskAiEvents-47"><a href="#AskAiEvents-47"><span class="linenos">47</span></a>
-</span><span id="AskAiEvents-48"><a href="#AskAiEvents-48"><span class="linenos">48</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="AskAiEvents-49"><a href="#AskAiEvents-49"><span class="linenos">49</span></a>    <span class="k">class</span> <span class="nc">_EventBus</span><span class="p">:</span>
-</span><span id="AskAiEvents-50"><a href="#AskAiEvents-50"><span class="linenos">50</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide a generic event bus interface.&quot;&quot;&quot;</span>
-</span><span id="AskAiEvents-51"><a href="#AskAiEvents-51"><span class="linenos">51</span></a>
-</span><span id="AskAiEvents-52"><a href="#AskAiEvents-52"><span class="linenos">52</span></a>        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="AskAiEvents-53"><a href="#AskAiEvents-53"><span class="linenos">53</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">bus_name</span>
-</span><span id="AskAiEvents-54"><a href="#AskAiEvents-54"><span class="linenos">54</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">bus</span> <span class="o">=</span> <span class="n">EventBus</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bus_name</span><span class="p">)</span>
-</span><span id="AskAiEvents-55"><a href="#AskAiEvents-55"><span class="linenos">55</span></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">evt</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-</span><span id="AskAiEvents-56"><a href="#AskAiEvents-56"><span class="linenos">56</span></a>                <span class="nb">setattr</span><span class="p">(</span><span class="n">evt</span><span class="p">,</span> <span class="s2">&quot;emit&quot;</span><span class="p">,</span> <span class="n">partial</span><span class="p">(</span><span class="n">emit</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="nb">vars</span><span class="p">(</span><span class="n">evt</span><span class="p">)))</span>
-</span><span id="AskAiEvents-57"><a href="#AskAiEvents-57"><span class="linenos">57</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;AskAi-EventBus::</span><span class="si">{</span><span class="n">bus_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="AskAiEvents-58"><a href="#AskAiEvents-58"><span class="linenos">58</span></a>
-</span><span id="AskAiEvents-59"><a href="#AskAiEvents-59"><span class="linenos">59</span></a>        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="AskAiEvents-60"><a href="#AskAiEvents-60"><span class="linenos">60</span></a>            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;_EventBus-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">::(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="si">}</span><span class="s2">)&quot;</span>
-</span><span id="AskAiEvents-61"><a href="#AskAiEvents-61"><span class="linenos">61</span></a>
-</span><span id="AskAiEvents-62"><a href="#AskAiEvents-62"><span class="linenos">62</span></a>    <span class="c1"># fmt: off</span>
-</span><span id="AskAiEvents-63"><a href="#AskAiEvents-63"><span class="linenos">63</span></a>    <span class="n">ASKAI_BUS</span> <span class="o">=</span> <span class="n">_EventBus</span><span class="p">(</span>
-</span><span id="AskAiEvents-64"><a href="#AskAiEvents-64"><span class="linenos">64</span></a>        <span class="n">ASKAI_BUS_NAME</span><span class="p">,</span>
-</span><span id="AskAiEvents-65"><a href="#AskAiEvents-65"><span class="linenos">65</span></a>        <span class="n">reply</span><span class="o">=</span><span class="n">_Event</span><span class="p">(</span><span class="n">REPLY_EVENT</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="n">erase_last</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-</span><span id="AskAiEvents-66"><a href="#AskAiEvents-66"><span class="linenos">66</span></a>        <span class="n">reply_error</span><span class="o">=</span><span class="n">_Event</span><span class="p">(</span><span class="n">REPLY_ERROR_EVENT</span><span class="p">)</span>
-</span><span id="AskAiEvents-67"><a href="#AskAiEvents-67"><span class="linenos">67</span></a>    <span class="p">)</span>
-</span><span id="AskAiEvents-68"><a href="#AskAiEvents-68"><span class="linenos">68</span></a>
-</span><span id="AskAiEvents-69"><a href="#AskAiEvents-69"><span class="linenos">69</span></a>    <span class="c1"># fmt: on</span>
+</span><span id="AskAiEvents-37"><a href="#AskAiEvents-37"><span class="linenos">37</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="AskAiEvents-38"><a href="#AskAiEvents-38"><span class="linenos">38</span></a>    <span class="k">class</span> <span class="nc">FluidEvent</span><span class="p">:</span>
+</span><span id="AskAiEvents-39"><a href="#AskAiEvents-39"><span class="linenos">39</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide a generic event interface.&quot;&quot;&quot;</span>
+</span><span id="AskAiEvents-40"><a href="#AskAiEvents-40"><span class="linenos">40</span></a>
+</span><span id="AskAiEvents-41"><a href="#AskAiEvents-41"><span class="linenos">41</span></a>        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="AskAiEvents-42"><a href="#AskAiEvents-42"><span class="linenos">42</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+</span><span id="AskAiEvents-43"><a href="#AskAiEvents-43"><span class="linenos">43</span></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="AskAiEvents-44"><a href="#AskAiEvents-44"><span class="linenos">44</span></a>                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+</span><span id="AskAiEvents-45"><a href="#AskAiEvents-45"><span class="linenos">45</span></a>
+</span><span id="AskAiEvents-46"><a href="#AskAiEvents-46"><span class="linenos">46</span></a>        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="AskAiEvents-47"><a href="#AskAiEvents-47"><span class="linenos">47</span></a>            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FluidEvent-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">::(</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span><span class="si">}</span><span class="s2">)&quot;</span>
+</span><span id="AskAiEvents-48"><a href="#AskAiEvents-48"><span class="linenos">48</span></a>
+</span><span id="AskAiEvents-49"><a href="#AskAiEvents-49"><span class="linenos">49</span></a>        <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="AskAiEvents-50"><a href="#AskAiEvents-50"><span class="linenos">50</span></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;Wrapper to the Event&#39;s emit method.&quot;&quot;&quot;</span>
+</span><span id="AskAiEvents-51"><a href="#AskAiEvents-51"><span class="linenos">51</span></a>            <span class="o">...</span>
+</span><span id="AskAiEvents-52"><a href="#AskAiEvents-52"><span class="linenos">52</span></a>
+</span><span id="AskAiEvents-53"><a href="#AskAiEvents-53"><span class="linenos">53</span></a>        <span class="k">def</span> <span class="nf">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cb_event_handler</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="AskAiEvents-54"><a href="#AskAiEvents-54"><span class="linenos">54</span></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;Wrapper to the EventBus&#39;s subscribe method.&quot;&quot;&quot;</span>
+</span><span id="AskAiEvents-55"><a href="#AskAiEvents-55"><span class="linenos">55</span></a>            <span class="o">...</span>
+</span><span id="AskAiEvents-56"><a href="#AskAiEvents-56"><span class="linenos">56</span></a>
+</span><span id="AskAiEvents-57"><a href="#AskAiEvents-57"><span class="linenos">57</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="AskAiEvents-58"><a href="#AskAiEvents-58"><span class="linenos">58</span></a>    <span class="k">class</span> <span class="nc">FluidEventBus</span><span class="p">:</span>
+</span><span id="AskAiEvents-59"><a href="#AskAiEvents-59"><span class="linenos">59</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide a generic event bus interface.&quot;&quot;&quot;</span>
+</span><span id="AskAiEvents-60"><a href="#AskAiEvents-60"><span class="linenos">60</span></a>
+</span><span id="AskAiEvents-61"><a href="#AskAiEvents-61"><span class="linenos">61</span></a>        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="AskAiEvents-62"><a href="#AskAiEvents-62"><span class="linenos">62</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">bus_name</span>
+</span><span id="AskAiEvents-63"><a href="#AskAiEvents-63"><span class="linenos">63</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">bus</span> <span class="o">=</span> <span class="n">EventBus</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bus_name</span><span class="p">)</span>
+</span><span id="AskAiEvents-64"><a href="#AskAiEvents-64"><span class="linenos">64</span></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">evt</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="AskAiEvents-65"><a href="#AskAiEvents-65"><span class="linenos">65</span></a>                <span class="n">fn_emit</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">emit</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="nb">vars</span><span class="p">(</span><span class="n">evt</span><span class="p">))</span>
+</span><span id="AskAiEvents-66"><a href="#AskAiEvents-66"><span class="linenos">66</span></a>                <span class="n">fn_subscribe</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">subscribe</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">cb_event_handler</span><span class="o">=</span><span class="n">evt</span><span class="o">.</span><span class="n">cb_event_handler</span><span class="p">)</span>
+</span><span id="AskAiEvents-67"><a href="#AskAiEvents-67"><span class="linenos">67</span></a>                <span class="nb">setattr</span><span class="p">(</span><span class="n">evt</span><span class="p">,</span> <span class="s2">&quot;emit&quot;</span><span class="p">,</span> <span class="n">fn_emit</span><span class="p">)</span>
+</span><span id="AskAiEvents-68"><a href="#AskAiEvents-68"><span class="linenos">68</span></a>                <span class="nb">setattr</span><span class="p">(</span><span class="n">evt</span><span class="p">,</span> <span class="s2">&quot;subscribe&quot;</span><span class="p">,</span> <span class="n">fn_subscribe</span><span class="p">)</span>
+</span><span id="AskAiEvents-69"><a href="#AskAiEvents-69"><span class="linenos">69</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">:</span> <span class="n">Namespace</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FluidEventBus::</span><span class="si">{</span><span class="n">bus_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span><span id="AskAiEvents-70"><a href="#AskAiEvents-70"><span class="linenos">70</span></a>
-</span><span id="AskAiEvents-71"><a href="#AskAiEvents-71"><span class="linenos">71</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="AskAiEvents-72"><a href="#AskAiEvents-72"><span class="linenos">72</span></a>    <span class="k">def</span> <span class="nf">get_bus</span><span class="p">(</span><span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">EventBus</span><span class="p">]:</span>
-</span><span id="AskAiEvents-73"><a href="#AskAiEvents-73"><span class="linenos">73</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an eventbus instance for the given name.&quot;&quot;&quot;</span>
-</span><span id="AskAiEvents-74"><a href="#AskAiEvents-74"><span class="linenos">74</span></a>        <span class="k">return</span> <span class="nb">next</span><span class="p">((</span><span class="n">b</span><span class="o">.</span><span class="n">bus</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">AskAiEvents</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">bus_name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
-</span><span id="AskAiEvents-75"><a href="#AskAiEvents-75"><span class="linenos">75</span></a>
-</span><span id="AskAiEvents-76"><a href="#AskAiEvents-76"><span class="linenos">76</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus</span><span class="p">:</span> <span class="n">_EventBus</span><span class="p">):</span>
-</span><span id="AskAiEvents-77"><a href="#AskAiEvents-77"><span class="linenos">77</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_bus</span> <span class="o">=</span> <span class="n">bus</span>
-</span><span id="AskAiEvents-78"><a href="#AskAiEvents-78"><span class="linenos">78</span></a>
-</span><span id="AskAiEvents-79"><a href="#AskAiEvents-79"><span class="linenos">79</span></a>    <span class="nd">@property</span>
-</span><span id="AskAiEvents-80"><a href="#AskAiEvents-80"><span class="linenos">80</span></a>    <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Namespace</span><span class="p">:</span>
-</span><span id="AskAiEvents-81"><a href="#AskAiEvents-81"><span class="linenos">81</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">events</span>
+</span><span id="AskAiEvents-71"><a href="#AskAiEvents-71"><span class="linenos">71</span></a>        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="AskAiEvents-72"><a href="#AskAiEvents-72"><span class="linenos">72</span></a>            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FluidEventBus-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">::(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="si">}</span><span class="s2">)&quot;</span>
+</span><span id="AskAiEvents-73"><a href="#AskAiEvents-73"><span class="linenos">73</span></a>
+</span><span id="AskAiEvents-74"><a href="#AskAiEvents-74"><span class="linenos">74</span></a>    <span class="c1"># fmt: off</span>
+</span><span id="AskAiEvents-75"><a href="#AskAiEvents-75"><span class="linenos">75</span></a>    <span class="n">ASKAI_BUS</span> <span class="o">=</span> <span class="n">FluidEventBus</span><span class="p">(</span>
+</span><span id="AskAiEvents-76"><a href="#AskAiEvents-76"><span class="linenos">76</span></a>        <span class="n">ASKAI_BUS_NAME</span><span class="p">,</span>
+</span><span id="AskAiEvents-77"><a href="#AskAiEvents-77"><span class="linenos">77</span></a>        <span class="n">reply</span><span class="o">=</span><span class="n">FluidEvent</span><span class="p">(</span><span class="n">REPLY_EVENT</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="n">erase_last</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cb_event_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+</span><span id="AskAiEvents-78"><a href="#AskAiEvents-78"><span class="linenos">78</span></a>        <span class="n">reply_error</span><span class="o">=</span><span class="n">FluidEvent</span><span class="p">(</span><span class="n">REPLY_ERROR_EVENT</span><span class="p">,</span> <span class="n">cb_event_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+</span><span id="AskAiEvents-79"><a href="#AskAiEvents-79"><span class="linenos">79</span></a>        <span class="n">listening</span><span class="o">=</span><span class="n">FluidEvent</span><span class="p">(</span><span class="n">MIC_LISTENING_EVENT</span><span class="p">,</span> <span class="n">listening</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cb_event_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+</span><span id="AskAiEvents-80"><a href="#AskAiEvents-80"><span class="linenos">80</span></a>        <span class="n">device_changed</span><span class="o">=</span><span class="n">FluidEvent</span><span class="p">(</span><span class="n">DEVICE_CHANGED_EVENT</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cb_event_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+</span><span id="AskAiEvents-81"><a href="#AskAiEvents-81"><span class="linenos">81</span></a>    <span class="p">)</span>
+</span><span id="AskAiEvents-82"><a href="#AskAiEvents-82"><span class="linenos">82</span></a>    <span class="c1"># fmt: on</span>
+</span><span id="AskAiEvents-83"><a href="#AskAiEvents-83"><span class="linenos">83</span></a>
+</span><span id="AskAiEvents-84"><a href="#AskAiEvents-84"><span class="linenos">84</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="AskAiEvents-85"><a href="#AskAiEvents-85"><span class="linenos">85</span></a>    <span class="k">def</span> <span class="nf">bus</span><span class="p">(</span><span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FluidEventBus</span><span class="p">]:</span>
+</span><span id="AskAiEvents-86"><a href="#AskAiEvents-86"><span class="linenos">86</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an eventbus instance for the given name.&quot;&quot;&quot;</span>
+</span><span id="AskAiEvents-87"><a href="#AskAiEvents-87"><span class="linenos">87</span></a>        <span class="k">return</span> <span class="nb">next</span><span class="p">((</span><span class="n">b</span><span class="o">.</span><span class="n">bus</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">AskAiEvents</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">bus_name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="AskAiEvents-88"><a href="#AskAiEvents-88"><span class="linenos">88</span></a>
+</span><span id="AskAiEvents-89"><a href="#AskAiEvents-89"><span class="linenos">89</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus</span><span class="p">:</span> <span class="n">FluidEventBus</span><span class="p">):</span>
+</span><span id="AskAiEvents-90"><a href="#AskAiEvents-90"><span class="linenos">90</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_bus</span> <span class="o">=</span> <span class="n">bus</span>
+</span><span id="AskAiEvents-91"><a href="#AskAiEvents-91"><span class="linenos">91</span></a>
+</span><span id="AskAiEvents-92"><a href="#AskAiEvents-92"><span class="linenos">92</span></a>    <span class="nd">@property</span>
+</span><span id="AskAiEvents-93"><a href="#AskAiEvents-93"><span class="linenos">93</span></a>    <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Namespace</span><span class="p">:</span>
+</span><span id="AskAiEvents-94"><a href="#AskAiEvents-94"><span class="linenos">94</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">events</span>
 </span></pre></div>
 
 
@@ -275,6 +333,81 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 </div>
 
 
+                            <div id="AskAiEvents.FluidEvent" class="classattr">
+                                        <input id="AskAiEvents.FluidEvent-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+                    <div class="decorator">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">FluidEvent</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">name</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="AskAiEvents.FluidEvent-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#AskAiEvents.FluidEvent"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiEvents.FluidEvent-37"><a href="#AskAiEvents.FluidEvent-37"><span class="linenos">37</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="AskAiEvents.FluidEvent-38"><a href="#AskAiEvents.FluidEvent-38"><span class="linenos">38</span></a>    <span class="k">class</span> <span class="nc">FluidEvent</span><span class="p">:</span>
+</span><span id="AskAiEvents.FluidEvent-39"><a href="#AskAiEvents.FluidEvent-39"><span class="linenos">39</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide a generic event interface.&quot;&quot;&quot;</span>
+</span><span id="AskAiEvents.FluidEvent-40"><a href="#AskAiEvents.FluidEvent-40"><span class="linenos">40</span></a>
+</span><span id="AskAiEvents.FluidEvent-41"><a href="#AskAiEvents.FluidEvent-41"><span class="linenos">41</span></a>        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="AskAiEvents.FluidEvent-42"><a href="#AskAiEvents.FluidEvent-42"><span class="linenos">42</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+</span><span id="AskAiEvents.FluidEvent-43"><a href="#AskAiEvents.FluidEvent-43"><span class="linenos">43</span></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="AskAiEvents.FluidEvent-44"><a href="#AskAiEvents.FluidEvent-44"><span class="linenos">44</span></a>                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+</span><span id="AskAiEvents.FluidEvent-45"><a href="#AskAiEvents.FluidEvent-45"><span class="linenos">45</span></a>
+</span><span id="AskAiEvents.FluidEvent-46"><a href="#AskAiEvents.FluidEvent-46"><span class="linenos">46</span></a>        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="AskAiEvents.FluidEvent-47"><a href="#AskAiEvents.FluidEvent-47"><span class="linenos">47</span></a>            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FluidEvent-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">::(</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span><span class="si">}</span><span class="s2">)&quot;</span>
+</span><span id="AskAiEvents.FluidEvent-48"><a href="#AskAiEvents.FluidEvent-48"><span class="linenos">48</span></a>
+</span><span id="AskAiEvents.FluidEvent-49"><a href="#AskAiEvents.FluidEvent-49"><span class="linenos">49</span></a>        <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="AskAiEvents.FluidEvent-50"><a href="#AskAiEvents.FluidEvent-50"><span class="linenos">50</span></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;Wrapper to the Event&#39;s emit method.&quot;&quot;&quot;</span>
+</span><span id="AskAiEvents.FluidEvent-51"><a href="#AskAiEvents.FluidEvent-51"><span class="linenos">51</span></a>            <span class="o">...</span>
+</span><span id="AskAiEvents.FluidEvent-52"><a href="#AskAiEvents.FluidEvent-52"><span class="linenos">52</span></a>
+</span><span id="AskAiEvents.FluidEvent-53"><a href="#AskAiEvents.FluidEvent-53"><span class="linenos">53</span></a>        <span class="k">def</span> <span class="nf">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cb_event_handler</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="AskAiEvents.FluidEvent-54"><a href="#AskAiEvents.FluidEvent-54"><span class="linenos">54</span></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;Wrapper to the EventBus&#39;s subscribe method.&quot;&quot;&quot;</span>
+</span><span id="AskAiEvents.FluidEvent-55"><a href="#AskAiEvents.FluidEvent-55"><span class="linenos">55</span></a>            <span class="o">...</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Provide a generic event interface.</p>
+</div>
+
+
+                            </div>
+                            <div id="AskAiEvents.FluidEventBus" class="classattr">
+                                        <input id="AskAiEvents.FluidEventBus-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+                    <div class="decorator">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">FluidEventBus</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="AskAiEvents.FluidEventBus-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#AskAiEvents.FluidEventBus"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiEvents.FluidEventBus-57"><a href="#AskAiEvents.FluidEventBus-57"><span class="linenos">57</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="AskAiEvents.FluidEventBus-58"><a href="#AskAiEvents.FluidEventBus-58"><span class="linenos">58</span></a>    <span class="k">class</span> <span class="nc">FluidEventBus</span><span class="p">:</span>
+</span><span id="AskAiEvents.FluidEventBus-59"><a href="#AskAiEvents.FluidEventBus-59"><span class="linenos">59</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide a generic event bus interface.&quot;&quot;&quot;</span>
+</span><span id="AskAiEvents.FluidEventBus-60"><a href="#AskAiEvents.FluidEventBus-60"><span class="linenos">60</span></a>
+</span><span id="AskAiEvents.FluidEventBus-61"><a href="#AskAiEvents.FluidEventBus-61"><span class="linenos">61</span></a>        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="AskAiEvents.FluidEventBus-62"><a href="#AskAiEvents.FluidEventBus-62"><span class="linenos">62</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">bus_name</span>
+</span><span id="AskAiEvents.FluidEventBus-63"><a href="#AskAiEvents.FluidEventBus-63"><span class="linenos">63</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">bus</span> <span class="o">=</span> <span class="n">EventBus</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bus_name</span><span class="p">)</span>
+</span><span id="AskAiEvents.FluidEventBus-64"><a href="#AskAiEvents.FluidEventBus-64"><span class="linenos">64</span></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">evt</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="AskAiEvents.FluidEventBus-65"><a href="#AskAiEvents.FluidEventBus-65"><span class="linenos">65</span></a>                <span class="n">fn_emit</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">emit</span><span class="p">,</span> <span class="n">bus_name</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="nb">vars</span><span class="p">(</span><span class="n">evt</span><span class="p">))</span>
+</span><span id="AskAiEvents.FluidEventBus-66"><a href="#AskAiEvents.FluidEventBus-66"><span class="linenos">66</span></a>                <span class="n">fn_subscribe</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">subscribe</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">cb_event_handler</span><span class="o">=</span><span class="n">evt</span><span class="o">.</span><span class="n">cb_event_handler</span><span class="p">)</span>
+</span><span id="AskAiEvents.FluidEventBus-67"><a href="#AskAiEvents.FluidEventBus-67"><span class="linenos">67</span></a>                <span class="nb">setattr</span><span class="p">(</span><span class="n">evt</span><span class="p">,</span> <span class="s2">&quot;emit&quot;</span><span class="p">,</span> <span class="n">fn_emit</span><span class="p">)</span>
+</span><span id="AskAiEvents.FluidEventBus-68"><a href="#AskAiEvents.FluidEventBus-68"><span class="linenos">68</span></a>                <span class="nb">setattr</span><span class="p">(</span><span class="n">evt</span><span class="p">,</span> <span class="s2">&quot;subscribe&quot;</span><span class="p">,</span> <span class="n">fn_subscribe</span><span class="p">)</span>
+</span><span id="AskAiEvents.FluidEventBus-69"><a href="#AskAiEvents.FluidEventBus-69"><span class="linenos">69</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">:</span> <span class="n">Namespace</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FluidEventBus::</span><span class="si">{</span><span class="n">bus_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="AskAiEvents.FluidEventBus-70"><a href="#AskAiEvents.FluidEventBus-70"><span class="linenos">70</span></a>
+</span><span id="AskAiEvents.FluidEventBus-71"><a href="#AskAiEvents.FluidEventBus-71"><span class="linenos">71</span></a>        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="AskAiEvents.FluidEventBus-72"><a href="#AskAiEvents.FluidEventBus-72"><span class="linenos">72</span></a>            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FluidEventBus-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">::(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="si">}</span><span class="s2">)&quot;</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Provide a generic event bus interface.</p>
+</div>
+
+
+                            </div>
                             <div id="AskAiEvents.ASKAI_BUS" class="classattr">
                                 <div class="attr variable">
             <span class="name">ASKAI_BUS</span>        =
@@ -287,22 +420,22 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
     
 
                             </div>
-                            <div id="AskAiEvents.get_bus" class="classattr">
-                                        <input id="AskAiEvents.get_bus-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                            <div id="AskAiEvents.bus" class="classattr">
+                                        <input id="AskAiEvents.bus-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
                     <div class="decorator">@staticmethod</div>
 
         <span class="def">def</span>
-        <span class="name">get_bus</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="n">hspylib</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">eventbus</span><span class="o">.</span><span class="n">eventbus</span><span class="o">.</span><span class="n">EventBus</span><span class="p">]</span>:</span></span>
+        <span class="name">bus</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> Optional[&lt;staticmethod(&lt;class &#x27;<a href="#AskAiEvents.FluidEventBus">AskAiEvents.FluidEventBus</a>&#x27;&gt;)&gt;]:</span></span>
 
-                <label class="view-source-button" for="AskAiEvents.get_bus-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="AskAiEvents.bus-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#AskAiEvents.get_bus"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiEvents.get_bus-71"><a href="#AskAiEvents.get_bus-71"><span class="linenos">71</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="AskAiEvents.get_bus-72"><a href="#AskAiEvents.get_bus-72"><span class="linenos">72</span></a>    <span class="k">def</span> <span class="nf">get_bus</span><span class="p">(</span><span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">EventBus</span><span class="p">]:</span>
-</span><span id="AskAiEvents.get_bus-73"><a href="#AskAiEvents.get_bus-73"><span class="linenos">73</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an eventbus instance for the given name.&quot;&quot;&quot;</span>
-</span><span id="AskAiEvents.get_bus-74"><a href="#AskAiEvents.get_bus-74"><span class="linenos">74</span></a>        <span class="k">return</span> <span class="nb">next</span><span class="p">((</span><span class="n">b</span><span class="o">.</span><span class="n">bus</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">AskAiEvents</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">bus_name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+    <a class="headerlink" href="#AskAiEvents.bus"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiEvents.bus-84"><a href="#AskAiEvents.bus-84"><span class="linenos">84</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="AskAiEvents.bus-85"><a href="#AskAiEvents.bus-85"><span class="linenos">85</span></a>    <span class="k">def</span> <span class="nf">bus</span><span class="p">(</span><span class="n">bus_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FluidEventBus</span><span class="p">]:</span>
+</span><span id="AskAiEvents.bus-86"><a href="#AskAiEvents.bus-86"><span class="linenos">86</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an eventbus instance for the given name.&quot;&quot;&quot;</span>
+</span><span id="AskAiEvents.bus-87"><a href="#AskAiEvents.bus-87"><span class="linenos">87</span></a>        <span class="k">return</span> <span class="nb">next</span><span class="p">((</span><span class="n">b</span><span class="o">.</span><span class="n">bus</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">AskAiEvents</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">bus_name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -320,9 +453,9 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../core.html">c
 
     </div>
     <a class="headerlink" href="#AskAiEvents.events"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiEvents.events-79"><a href="#AskAiEvents.events-79"><span class="linenos">79</span></a>    <span class="nd">@property</span>
-</span><span id="AskAiEvents.events-80"><a href="#AskAiEvents.events-80"><span class="linenos">80</span></a>    <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Namespace</span><span class="p">:</span>
-</span><span id="AskAiEvents.events-81"><a href="#AskAiEvents.events-81"><span class="linenos">81</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">events</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AskAiEvents.events-92"><a href="#AskAiEvents.events-92"><span class="linenos">92</span></a>    <span class="nd">@property</span>
+</span><span id="AskAiEvents.events-93"><a href="#AskAiEvents.events-93"><span class="linenos">93</span></a>    <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Namespace</span><span class="p">:</span>
+</span><span id="AskAiEvents.events-94"><a href="#AskAiEvents.events-94"><span class="linenos">94</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">events</span>
 </span></pre></div>
 
 

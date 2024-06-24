@@ -52,7 +52,7 @@ from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.features.router import router
+from askai.core.features.router.task_splitter import splitter
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
@@ -288,7 +288,7 @@ class AskAi:
             elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.wait())
-                if output := router.process(question):
+                if output := splitter.process(question):
                     self.reply(output)
             else:
                 log.debug("Reply found for '%s' in cache.", question)

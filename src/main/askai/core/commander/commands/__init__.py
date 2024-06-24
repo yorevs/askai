@@ -7,6 +7,7 @@
 
 __all__ = [
     'general_cmd', 
+    'history_cmd', 
     'settings_cmd', 
     'tts_stt_cmd'
 ]

@@ -56,7 +56,6 @@ class Summarizer(metaclass=Singleton):
         self._retriever = None
         self._folder = None
         self._glob = None
-        self._chat_history = None
         self._text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
 
     @property
@@ -87,6 +86,10 @@ class Summarizer(metaclass=Singleton):
     @property
     def text_splitter(self) -> TextSplitter:
         return self._text_splitter
+
+    @property
+    def retriever(self) -> RetrievalQA:
+        return self._retriever
 
     @lru_cache
     def generate(self, folder: str | Path, glob: str) -> bool:
@@ -126,7 +129,7 @@ class Summarizer(metaclass=Singleton):
         """Answer questions about the summarized content.
         :param queries: The queries to ask the AI engine.
         """
-        if queries and self._retriever is not None:
+        if queries and self.retriever is not None:
             results: List[SummaryResult] = []
             for query in queries:
                 if result := self._query_one(query):
@@ -139,7 +142,7 @@ class Summarizer(metaclass=Singleton):
         """Query the AI about a given query based on the summarized content.
         :param query: The query to ask the AI engine.
         """
-        if query and (result := self._retriever.invoke({"query": query})):
+        if query and (result := self.retriever.invoke({"query": query})):
             return SummaryResult(self._folder, self._glob, *self._extract_result(result))
         return None
 

@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat
 
 def year = new SimpleDateFormat("yyyy").format(new Date())
 def curDate = new SimpleDateFormat("EEE, d MMM yyyy").format(new Date())
-def apiSrcDir = "${sourceRoot}/main/${project.name}"
+def apiSrcDir = "${sourceRoot}/main/${project.name.toLowerCase()}"
 
 ext {
   apiDocsDir = "${project.projectDir}/docs/api"

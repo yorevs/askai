@@ -8,6 +8,7 @@
 __all__ = [
     'core', 
     'exception', 
-    'language'
+    'language', 
+    'tui'
 ]
 __version__ = '1.0.8'
