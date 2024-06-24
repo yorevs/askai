@@ -18,7 +18,6 @@ from abc import ABC
 from textwrap import indent
 
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.core.tools.commons import sysout
 
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
@@ -48,7 +47,7 @@ class HistoryCmd(ABC):
                 )
             display_text(f"> Hint: Type: '/context forget [context] to forget a it.")
         else:
-            sysout(f"\n%YELLOW%-=- Context is empty! -=-%NC%\n")
+            text_formatter.cmd_print(f"%YELLOW% Context is empty %NC%")
 
     @staticmethod
     def context_forget(context: str | None = None) -> None:

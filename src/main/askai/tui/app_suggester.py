@@ -12,19 +12,24 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from typing import Optional
 
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from textual.suggester import Suggester
-from typing import Iterable, Optional
+
+from askai.core.commander.commander import commands
+from askai.core.component.cache_service import cache
 
 
 class InputSuggester(Suggester):
     """Implement a list-based Input suggester."""
 
     def __init__(
-        self, suggestions: Iterable[str], *, case_sensitive: bool = True
+        self, *, case_sensitive: bool = True
     ) -> None:
         super().__init__(use_cache=False, case_sensitive=case_sensitive)
-        self._suggestions: list[str] = sorted(set(suggestions), key=len)
+        KeyboardInput.preload_history(cache.load_history(commands()))
+        self._suggestions: list[str] = KeyboardInput.history()
         self._for_comparison: list[str] = list(
             self._suggestions
             if self.case_sensitive

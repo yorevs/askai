@@ -186,7 +186,3 @@ def history(operation: str) -> None:
             HistoryCmd.history_forget()
         case "list":
             HistoryCmd.history_list()
-
-
-if __name__ == '__main__':
-    print(commands())
