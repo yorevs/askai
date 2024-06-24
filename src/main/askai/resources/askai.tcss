@@ -4,7 +4,7 @@
 }
 
 Screen {
-  background: black;
+  background: #051416;
 }
 
 Splash {
@@ -22,7 +22,7 @@ Splash {
 
 Tooltip {
   border: round $panel;
-  background: $panel 70%;
+  background: $panel 60%;
   color: #FFD478;
   padding: 0;
 }
@@ -109,6 +109,8 @@ MarkdownViewer {
   padding: 0;
   display: block;
   visibility: visible;
+  border: inner #051416;
+  background: #051416 30%;
 }
 
 Markdown {
@@ -132,8 +134,8 @@ Markdown {
 
 MarkdownTableOfContents {
   width: auto;
-  background: #051416;
-  border: solid #183236;
+  background: #051416 70%;
+  border: round #183236;
   box-sizing: content-box;
 }
 

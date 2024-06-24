@@ -12,6 +12,18 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+from pathlib import Path
+from textwrap import dedent
+from typing import Any, Optional, Type, TypeAlias
+
+import PIL
+from hspylib.core.exception.exceptions import InvalidArgumentError
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from retry import retry
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_prompt import prompt
@@ -25,17 +37,6 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
-from hspylib.core.exception.exceptions import InvalidArgumentError
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from pathlib import Path
-from retry import retry
-from textwrap import dedent
-from typing import Any, Optional, Type, TypeAlias
-
-import logging as log
-import PIL
 
 AgentResponse: TypeAlias = dict[str, Any]
 

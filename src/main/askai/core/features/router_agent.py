@@ -1,3 +1,12 @@
+import logging as log
+import os
+from types import SimpleNamespace
+
+from hspylib.core.metaclass.singleton import Singleton
+from langchain.agents import AgentExecutor, create_structured_chat_agent
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import Runnable
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents
 from askai.core.askai_messages import msg
@@ -13,14 +22,6 @@ from askai.core.model.rag_response import RagResponse
 from askai.core.model.routing_model import RoutingModel
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from hspylib.core.metaclass.singleton import Singleton
-from langchain.agents import AgentExecutor, create_structured_chat_agent
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import Runnable
-from types import SimpleNamespace
-
-import logging as log
-import os
 
 
 class RouterAgent(metaclass=Singleton):
@@ -75,12 +76,13 @@ class RouterAgent(metaclass=Singleton):
         :param query: The user question.
         :param plan: The AI action plan.
         """
+        shared.context.push("HISTORY", query)
         output: str = ""
         AskAiEvents.ASKAI_BUS.events.reply.emit(message=plan.thoughts.speak)
         tasks: list[SimpleNamespace] = plan.tasks
         result_log: list[str] = []
 
-        for idx, action in enumerate(tasks):
+        for idx, action in enumerate(tasks, start=1):
             path_str: str = 'Path: ' + action.path \
                 if hasattr(action, 'path') and action.path.upper() not in ['N/A', 'NONE'] \
                 else ''
@@ -89,11 +91,11 @@ class RouterAgent(metaclass=Singleton):
             if (response := self.lc_agent.invoke({"input": task})) and (output := response["output"]):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
                 assert_accuracy(task, output, RagResponse.MODERATE)
-                shared.context.push("HISTORY", task)
+                shared.context.push("HISTORY", task, "assistant")
                 shared.context.push("HISTORY", output, "assistant")
                 shared.memory.save_context({"input": task}, {"output": output})
                 result_log.append(output)
-                if idx + 1 < len(tasks):  # Print intermediary steps.
+                if idx < len(tasks):  # Print intermediary steps.
                     AskAiEvents.ASKAI_BUS.events.reply.emit(message=output)
                 continue
 
