@@ -53,7 +53,7 @@ class Header(Widget):
 
     def compose(self):
         """Compose the Header Widget."""
-        yield MenuIcon(AppIcons.TOC.value, "Show/Hide Table of Contents", self.app.action_toggle_table_of_contents)
+        yield MenuIcon(AppIcons.TOC.value, "Show/Hide Table of Contents", self._show_toc)
         yield MenuIcon(AppIcons.CONSOLE.value, "Show console", self._show_console)
         yield MenuIcon(AppIcons.SETTINGS.value, "Show settings", self._show_settings)
         yield MenuIcon(AppIcons.INFO.value, "Show application information", self._show_info)
@@ -102,6 +102,11 @@ class Header(Widget):
         self.app.help.set_class(True, "-hidden")
         self.app.info.set_class(True, "-hidden")
         self.app.settings.set_class(True, "-hidden")
+
+    def _show_toc(self) -> None:
+        """Handle the header menu 'toc' clicks."""
+        self.app.action_toggle_table_of_contents()
+        self._show_console()
 
 
 class HeaderTitle(Widget):

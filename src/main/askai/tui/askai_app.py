@@ -276,7 +276,7 @@ class AskAiApp(App[None]):
 
     def action_clear(self, overwrite: bool = True) -> None:
         """Clear the output console."""
-        is_new: bool = not file_is_not_empty(str(self._console_path))
+        is_new: bool = not file_is_not_empty(str(self._console_path)) or overwrite
         with open(self._console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val) as f_console:
             f_console.write(
                 f"{'---' + os.linesep * 2 if not is_new else ''}"
