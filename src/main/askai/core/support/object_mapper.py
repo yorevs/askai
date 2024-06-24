@@ -1,6 +1,9 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.component
+   @package: askai.core.support
       @file: object_mapper.py
    @created: Fri, 28 Feb 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"

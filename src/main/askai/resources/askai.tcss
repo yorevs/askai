@@ -37,15 +37,16 @@ AppHelp, AppInfo, AppSettings {
 AppInfo {
   Collapsible {
     color: #7FD5AD;
+    background: #051416;
   }
 }
 
 #info, #credits {
   width: auto;
   height: auto;
-  border: solid #183236;
-  background: #030F12;
+  border: panel #183236;
   color: #7FD5AD;
+  background: #010607;
   content-align: left middle;
   padding: 0 1 0 1;
 }
@@ -110,7 +111,7 @@ MarkdownViewer {
   padding: 0;
   display: block;
   visibility: visible;
-  border: inner #051416;
+  border: round #183236;
   background: #010607;
 }
 
@@ -188,7 +189,7 @@ Input {
   height: 3;
 }
 
-Input:focus {
+Input:focus, MarkdownViewer:focus, MarkdownTableOfContents:focus {
   border: round #7FD5AD;
 }
 

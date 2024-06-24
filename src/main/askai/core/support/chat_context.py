@@ -65,7 +65,8 @@ class ChatContext:
         ctx = self._store[key]
         if (token_length := (self.context_length(key)) + len(content)) > self._token_limit:
             raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
-        ctx.append(entry)
+        if entry not in ctx:
+            ctx.append(entry)
         return self.get(key)
 
     def context_length(self, key: str):
@@ -118,8 +119,9 @@ class ChatContext:
         count = 0
         contexts = list(keys or self._store.keys())
         while contexts and (key := contexts.pop()):
-            del self._store[key]
-            count += 1
+            if key in self._store:
+                del self._store[key]
+                count += 1
         return count
 
     def forget(self, *keys: str) -> None:

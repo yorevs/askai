@@ -49,11 +49,7 @@ class Router(metaclass=Singleton):
 
     HUMAN_PROMPT: str = dedent(
         """
-        (reminder to respond in a strict JSON no matter what).
-        ---
-        Human Question: "{input}"
-
-        Answer:
+        My Question: "{input}"
         """
     )
 
@@ -118,6 +114,7 @@ class Router(metaclass=Singleton):
         :param query: The user query to complete.
         """
 
+        shared.context.forget("RAG")
         model: ModelResult = self._select_model(query)
 
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
