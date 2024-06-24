@@ -24,7 +24,7 @@ from typing import Optional
 import nltk
 from click import UsageError
 from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging
+from hspylib.core.tools.commons import is_debugging, file_is_not_empty
 from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
 from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
 from hspylib.modules.application.version import Version
@@ -276,10 +276,11 @@ class AskAiApp(App[None]):
 
     def action_clear(self, overwrite: bool = True) -> None:
         """Clear the output console."""
+        is_new: bool = not file_is_not_empty(str(self._console_path))
         with open(self._console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val) as f_console:
             f_console.write(
-                f"{'---' + os.linesep * 2 if not overwrite else ''}"
-                f"{'# ' + now(DATE_FORMAT) + os.linesep * 2 if overwrite else ''}"
+                f"{'---' + os.linesep * 2 if not is_new else ''}"
+                f"{'# ' + now(DATE_FORMAT) + os.linesep * 2 if is_new else ''}"
                 f"## {AppIcons.STARTED} {now(TIME_FORMAT)}\n\n"
             )
             f_console.flush()

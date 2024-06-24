@@ -12,8 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from textwrap import dedent
+
 from askai.core.askai_configs import configs
 from askai.core.component.recorder import recorder
+from askai.core.support.shared_instances import shared
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_widgets import MenuIcon
 from hspylib.core.zoned_datetime import now
@@ -126,6 +129,18 @@ class HeaderNotifications(Widget):
 
     def __init__(self):
         super().__init__()
+        self.tooltip = str(self)
+
+    def __str__(self):
+        device_info: str = f"{recorder.input_device[1]}" if recorder.input_device else "-"
+        voice: str = shared.engine.configs.tts_voice
+        return dedent(
+            f"""
+            Debugging: {'' if self.debugging else ''}
+            Listening: {'' if self.listening else ''}
+             Speaking: {'   ' + voice if self.speaking else ''}
+             Audio In: {device_info}
+            """).strip()
 
     def _on_mount(self, _: Mount) -> None:
         self.set_interval(1, callback=self.refresh, name="update clock")
@@ -138,7 +153,8 @@ class HeaderNotifications(Widget):
             f"{AppIcons.LISTENING_ON if self.listening else AppIcons.LISTENING_OFF}  "
             f"{AppIcons.SPEAKING_ON if self.speaking else AppIcons.SPEAKING_OFF} "
             f"{AppIcons.DEBUG_ON if self.debugging else AppIcons.DEBUG_OFF}  "
-            f"{AppIcons.SEPARATOR_V} {now(f'%a %d %b  %X')}"
+            f"{AppIcons.SEPARATOR_V} {now(f'%a %d %b %X')}"
+            , no_wrap=True, overflow="ellipsis"
         )
 
     def refresh_icons(self) -> None:
@@ -148,6 +164,7 @@ class HeaderNotifications(Widget):
         self.speaking = self.app.is_speak
         self.app.info.info_text = str(self.app)
         self.app.settings.data = self.app.app_settings
+        self.tooltip = str(self)
 
     async def watch_speaking(self) -> None:
         self.refresh()

@@ -11,6 +11,7 @@ Splash {
   content-align: center middle;
   width: 100%;
   height: 100%;
+  background: #010607;
 }
 
 #splash {
@@ -21,7 +22,7 @@ Splash {
 }
 
 Tooltip {
-  border: round $panel;
+  border: round #7FD5AD;
   background: $panel 60%;
   color: #FFD478;
   padding: 0;
@@ -110,7 +111,7 @@ MarkdownViewer {
   display: block;
   visibility: visible;
   border: inner #051416;
-  background: #051416 30%;
+  background: #010607;
 }
 
 Markdown {
@@ -134,7 +135,7 @@ Markdown {
 
 MarkdownTableOfContents {
   width: auto;
-  background: #051416 70%;
+  background: #051416;
   border: round #183236;
   box-sizing: content-box;
 }
