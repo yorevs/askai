@@ -15,18 +15,29 @@
 
 from hspylib.core.enums.enumeration import Enumeration
 
+from askai.core.features.router.ai_processor import AIProcessor
+from askai.core.features.router.procs.task_splitter import splitter
+
 
 class RouterMode(Enumeration):
     """The available router modes used to provide an answer to the user."""
 
     # fmt: on
 
-    TASK_SPLIT          = 'TaskSplitter'
+    TASK_SPLIT          = 'Task Splitter', splitter
 
-    QNA                 = 'QuestionsAndAnswers'
+    QNA                 = 'Questions and Answers', None
 
-    CUSTOM_PROMPT       = 'Custom Prompts'
+    CUSTOM_PROMPT       = 'Custom Prompts', None
 
-    NON_INTERACTIVE     = 'Non-Interactive'
+    NON_INTERACTIVE     = 'Non-Interactive', None
 
     # fmt: off
+
+    @property
+    def mode(self) -> str:
+        return self.value()[0]
+
+    @property
+    def processor(self) -> AIProcessor:
+        return self.value()[1]

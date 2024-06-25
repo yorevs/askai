@@ -19,7 +19,7 @@ import sys
 from functools import partial
 from pathlib import Path
 from threading import Thread
-from typing import List, Optional
+from typing import List, Optional, TypeAlias
 
 import nltk
 import pause
@@ -28,14 +28,12 @@ from clitt.core.term.cursor import cursor
 from clitt.core.term.screen import screen
 from clitt.core.term.terminal import terminal
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.core.config.path_object import PathObject
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import is_debugging, sysout
 from hspylib.core.tools.text_tools import elide_text
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
 from hspylib.modules.eventbus.event import Event
-from langchain_core.prompts import PromptTemplate
 from openai import RateLimitError
 
 from askai.__classpath__ import classpath
@@ -43,7 +41,6 @@ from askai.core.askai_configs import configs
 from askai.core.askai_events import (ASKAI_BUS_NAME, AskAiEvents, DEVICE_CHANGED_EVENT, MIC_LISTENING_EVENT,
                                      REPLY_ERROR_EVENT, REPLY_EVENT)
 from askai.core.askai_messages import msg
-from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import ask_cli, commands
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
@@ -51,14 +48,15 @@ from askai.core.component.geo_location import geo_location
 from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
-from askai.core.engine.openai.temperature import Temperature
-from askai.core.features.router.task_splitter import splitter
+from askai.core.features.router.procs.free_form import free_form
+from askai.core.features.router.procs.task_splitter import splitter
 from askai.core.support.chat_context import ChatContext
-from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
-from askai.exception.exceptions import (ImpossibleQuery, InaccurateResponse, IntelligibleAudioError,
-                                        MaxInteractionsReached, TerminatingQuery)
+from askai.exception.exceptions import *
+
+
+QueryString: TypeAlias = str | List[str] | None
 
 
 class AskAi:
@@ -82,15 +80,13 @@ class AskAi:
         query_prompt: str,
         engine_name: str,
         model_name: str,
-        query: str | List[str],
+        query_string: QueryString,
     ):
         self._interactive: bool = interactive
         self._ready: bool = False
         self._processing: Optional[bool] = None
-        self._query_string: str | None = None
-        self._question: str | None = None
+        self._query_string: QueryString = query_string
         self._query_prompt: str | None = query_prompt
-        self._get_query_string(query)
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         # Setting configs from program args.
@@ -133,14 +129,6 @@ class AskAi:
         return configs.is_cache
 
     @property
-    def query_string(self) -> str:
-        return self._query_string
-
-    @property
-    def question(self) -> str:
-        return self._question
-
-    @property
     def is_interactive(self) -> bool:
         return self._interactive
 
@@ -169,13 +157,10 @@ class AskAi:
         self._startup()
         if self.is_interactive:
             self._prompt()
-        elif self.query_string:
-            # Non-Interactive mode
-            llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
-            display_text(self.question, f"{shared.username}: ")
-            if output := llm.invoke(self.query_string):
-                self.reply(output.content)
-                cache.save_query_history()
+        elif self._query_string:
+            free_form.process(
+                self._query_string if isinstance(self._query_string, str) else ' '.join(self._query_string),
+                context=read_stdin(), query_prompt=self._query_prompt)
         else:
             display_text(f"Error: {msg.no_query_string()}")
 
@@ -264,6 +249,7 @@ class AskAi:
 
     def _prompt(self) -> None:
         """Prompt for user interaction."""
+        os.chdir(Path.home())
         while query := shared.input_text(f"{shared.username}: ", f"Message {self.engine.nickname()}"):
             if not self._ask_and_reply(query):
                 query = None
@@ -308,23 +294,3 @@ class AskAi:
             status = False
 
         return status
-
-    def _get_query_string(self, query_arg: str | list[str]) -> None:
-        """Retrieve the proper query string used in the non interactive mode.
-        :param query_arg: The query argument provided by the command line.
-        """
-        if query_arg:
-            query: str = str(" ".join(query_arg) if isinstance(query_arg, list) else query_arg)
-            self._question = query
-            dir_name, file_name = PathObject.split(
-                self._query_prompt or f"{prompt.PROMPT_DIR}/taius/taius-non-interactive")
-            if not self._interactive:
-                stdin_args = read_stdin()
-                template = PromptTemplate(
-                    input_variables=["context", "question"], template=prompt.read_prompt(file_name, dir_name)
-                )
-                final_prompt = template.format(context=stdin_args, question=self._question)
-                self._query_string = final_prompt if query else stdin_args
-                self._question = self._question or self._query_string
-            else:
-                self._query_string = query

@@ -6,9 +6,10 @@
 """Package initialization."""
 
 __all__ = [
+    'ai_processor', 
     'model_selector', 
+    'procs', 
     'task_agent', 
-    'task_splitter', 
     'task_toolkit', 
     'tools'
 ]

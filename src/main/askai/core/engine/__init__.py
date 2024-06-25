@@ -7,6 +7,8 @@
 
 __all__ = [
     'ai_engine', 
+    'ai_model', 
+    'ai_reply', 
     'engine_factory', 
     'openai'
 ]

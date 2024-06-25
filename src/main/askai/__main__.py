@@ -13,10 +13,11 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.__classpath__ import classpath
-from askai.core.askai import AskAi
-from askai.core.askai_configs import configs
-from askai.tui.askai_app import AskAiApp
+import logging as log
+import sys
+from textwrap import dedent
+from typing import Any, Optional
+
 from clitt.core.term.commons import is_a_tty
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
@@ -26,13 +27,11 @@ from hspylib.core.zoned_datetime import now
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
-from pathlib import Path
-from textwrap import dedent
-from typing import Any, Optional
 
-import logging as log
-import os
-import sys
+from askai.__classpath__ import classpath
+from askai.core.askai import AskAi
+from askai.core.askai_configs import configs
+from askai.tui.askai_app import AskAiApp
 
 if not is_a_tty():
     log.getLogger().setLevel(log.ERROR)
@@ -101,7 +100,6 @@ class Main(TUIApplication):
 
     def _main(self, *params, **kwargs) -> ExitStatus:
         """Run the application with the command line arguments."""
-        os.chdir(Path.home())
         is_new_ui: bool = to_bool(self._get_argument("ui", False))
         if not is_new_ui:
             self._askai = AskAi(

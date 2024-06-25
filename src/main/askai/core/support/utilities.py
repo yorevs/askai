@@ -126,6 +126,20 @@ def stream_text(text: Any, prefix: Any = "", tempo: int = 1, language: Language 
     sysout("%NC%")
 
 
+def find_file(pathname: str | None) -> Optional[Path]:
+    """TODO"""
+
+    prompt_path: Path = Path(pathname) if pathname else None
+    if prompt_path and not prompt_path.exists():
+        prompt_path = Path(os.path.expandvars(os.path.expanduser(pathname)))
+        if not prompt_path.exists():
+            prompt_path = Path(os.path.join(os.getcwd(), pathname))
+            if not prompt_path.exists():
+                prompt_path = Path(os.path.expandvars(os.path.join("${HOME}", pathname)))
+
+    return prompt_path if prompt_path.exists() else None
+
+
 def read_resource(base_dir: str, filename: str, file_ext: str = ".txt") -> str:
     """Read the prompt template specified by the filename.
     :param base_dir: The base directory, relative to the resources folder.

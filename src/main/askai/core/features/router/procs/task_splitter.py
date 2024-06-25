@@ -69,7 +69,7 @@ class TaskSplitter(metaclass=Singleton):
 
     @property
     def template(self) -> ChatPromptTemplate:
-        """Retrieve the Router Template."""
+        """Retrieve the processor Template."""
 
         rag: str = str(shared.context.flat("RAG"))
         template = PromptTemplate(
@@ -89,8 +89,8 @@ class TaskSplitter(metaclass=Singleton):
             ]
         )
 
-    def process(self, question: str) -> Optional[str]:
-        """Process the user question to retrieve the final response.
+    def process(self, question: str, **kwargs) -> Optional[str]:
+        """Process the user question by splitting complex tasks into smaller single actionable tasks.
         :param question: The user question to process.
         """
 

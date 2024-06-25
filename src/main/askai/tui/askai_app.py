@@ -45,10 +45,10 @@ from askai.core.askai_settings import settings
 from askai.core.commander.commander import ask_cli, commander_help
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
-from askai.core.component.recorder import recorder, Recorder
+from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
-from askai.core.features.router.task_splitter import splitter
+from askai.core.features.router.procs.task_splitter import splitter
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
@@ -436,6 +436,7 @@ class AskAiApp(App[None]):
 
     def _startup(self) -> None:
         """Initialize the application."""
+        os.chdir(Path.home())
         askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
         askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
