@@ -299,9 +299,7 @@ class AskAiApp(App[None]):
     async def action_ptt(self) -> None:
         """Push-To-Talk STT as input method."""
         self.enable_controls(False)
-        _, spoken_text = Recorder.INSTANCE.listen(
-            recognition_api=Recorder.RecognitionApi.GOOGLE, language=configs.language)
-        if spoken_text:
+        if spoken_text := self.engine.speech_to_text():
             self.display_text(f"{self.username}: {spoken_text}")
             if self._ask_and_reply(spoken_text):
                 await self.suggester.add_suggestion(spoken_text)
@@ -381,14 +379,16 @@ class AskAiApp(App[None]):
                     self.reply(message)
 
     def _cb_mic_listening_event(self, ev: Event) -> None:
-        """Callback to handle microphone listening events."""
+        """Callback to handle microphone listening events.
+        :param ev: The microphone listening event.
+        """
         self.header.notifications.listening = ev.args.listening
         if ev.args.listening:
             self.reply(msg.listening())
 
     def _cb_device_changed_event(self, ev: Event) -> None:
         """Callback to handle audio input device changed events.
-        :param ev: The reply event.
+        :param ev: The device changed event.
         """
         self.reply(msg.device_switch(str(ev.args.device)))
 

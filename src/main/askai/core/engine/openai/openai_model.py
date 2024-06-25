@@ -12,7 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.model.ai_model import AIModel
+from askai.core.engine.ai_model import AIModel
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.preconditions import check_not_none
 from typing import List

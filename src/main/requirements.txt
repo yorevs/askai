@@ -24,6 +24,7 @@ SpeechRecognition==3.10.1
 soundfile==0.12.1
 protobuf==4.22.1
 torch==2.2.0
+tqdm==4.66.4
 torchvision==0.17.0
 stanza==1.1.1
 unstructured==0.12.4

@@ -12,8 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.model.ai_model import AIModel
-from askai.core.model.ai_reply import AIReply
+from askai.core.engine.ai_model import AIModel
+from askai.core.engine.ai_reply import AIReply
 from langchain_core.language_models import BaseChatModel, BaseLLM
 from typing import Any, List, Optional, Protocol
 
