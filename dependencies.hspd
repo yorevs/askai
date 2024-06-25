@@ -15,14 +15,14 @@ package: hspylib-setman, version: 0.10.35, mode: ge
 
 /* Application dependencies */
 
-package: langchain, version: 0.1.20, mode: eq
-package: langchain-openai, version: 0.1.7, mode: eq
-package: langchain-community, version: 0.0.38, mode: eq
-package: langchain-google-community, version: 1.0.4, mode: eq
-package: langchainhub, version: 0.1.15, mode: eq
+package: langchain, version: 0.2.5, mode: eq
+package: langchain-openai, version: 0.1.9, mode: eq
+package: langchain-community, version: 0.2.5, mode: eq
+package: langchain-google-community, version: 1.0.6, mode: eq
+package: langchainhub, version: 0.1.20, mode: eq
 package: openai-whisper, version: 20231117, mode: eq
 package: openai, version: 1.35.3, mode: eq
-package: google-api-python-client, version: 2.122.0, mode: eq
+package: google-api-python-client, version: 2.134.0, mode: eq
 package: fake_useragent, version: 1.5.1, mode: eq
 package: rich, version: 13.7.1, mode: eq
 package: textual, version: 0.70.0, mode: eq
@@ -32,7 +32,7 @@ package: requests, version: 2.31.0, mode: eq
 package: urllib3, version: 1.26.19, mode: eq
 package: argostranslate, version: 1.9.1, mode: eq
 package: PyAudio, version: 0.2.14, mode: eq
-package: SpeechRecognition, version: 3.10.1, mode: eq
+package: SpeechRecognition, version: 3.10.4, mode: eq
 package: soundfile, version: 0.12.1, mode: eq
 package: protobuf, version: 4.22.1, mode: eq
 package: torch, version: 2.2.0, mode: eq
