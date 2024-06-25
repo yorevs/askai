@@ -126,16 +126,15 @@ def stream_text(text: Any, prefix: Any = "", tempo: int = 1, language: Language 
     sysout("%NC%")
 
 
-def find_file(pathname: str | None) -> Optional[Path]:
-    """TODO"""
-
-    prompt_path: Path = Path(pathname) if pathname else None
+def find_file(filename: str | None) -> Optional[Path]:
+    """Find the specified file, specified by name, from the most common locations."""
+    prompt_path: Path = Path(filename) if filename else None
     if prompt_path and not prompt_path.exists():
-        prompt_path = Path(os.path.expandvars(os.path.expanduser(pathname)))
+        prompt_path = Path(os.path.expandvars(os.path.expanduser(filename)))
         if not prompt_path.exists():
-            prompt_path = Path(os.path.join(os.getcwd(), pathname))
+            prompt_path = Path(os.path.join(os.getcwd(), filename))
             if not prompt_path.exists():
-                prompt_path = Path(os.path.expandvars(os.path.join("${HOME}", pathname)))
+                prompt_path = Path(os.path.expandvars(os.path.join("${HOME}", filename)))
 
     return prompt_path if prompt_path.exists() else None
 

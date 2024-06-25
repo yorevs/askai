@@ -12,10 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from typing import Optional
 
 from hspylib.core.enums.enumeration import Enumeration
 
 from askai.core.features.router.ai_processor import AIProcessor
+
+from askai.core.features.router.procs.free_form import free_form
+from askai.core.features.router.procs.qna import qna
 from askai.core.features.router.procs.task_splitter import splitter
 
 
@@ -26,11 +30,9 @@ class RouterMode(Enumeration):
 
     TASK_SPLIT          = 'Task Splitter', splitter
 
-    QNA                 = 'Questions and Answers', None
+    QNA                 = 'Questions and Answers', qna
 
-    CUSTOM_PROMPT       = 'Custom Prompts', None
-
-    NON_INTERACTIVE     = 'Non-Interactive', None
+    NON_INTERACTIVE     = 'Non-Interactive', free_form
 
     # fmt: off
 
@@ -41,3 +43,7 @@ class RouterMode(Enumeration):
     @property
     def processor(self) -> AIProcessor:
         return self.value()[1]
+
+    def process(self, question: str, **kwargs) -> Optional[str]:
+        """TODO"""
+        return self.processor.process(question, **kwargs)

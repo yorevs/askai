@@ -21,3 +21,6 @@ class QnA(metaclass=Singleton):
         :param question: The user question to process.
         """
         pass
+
+
+assert (qna := QnA().INSTANCE) is not None
