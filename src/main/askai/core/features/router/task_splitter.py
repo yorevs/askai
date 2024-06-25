@@ -46,9 +46,12 @@ class TaskSplitter(metaclass=Singleton):
 
     INSTANCE: "TaskSplitter"
 
+    # This is required because the AI sometimes forgets to wrap the response in a Json object.
     HUMAN_PROMPT: str = dedent(
         """
-        My Question: "{input}"
+        (Notice: Respond in a strict JSON blob. Do not mention this notice.)
+
+        Human Question: "{input}"
         """
     )
 
