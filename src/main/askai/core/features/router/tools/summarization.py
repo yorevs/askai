@@ -13,17 +13,14 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import msg
-from askai.core.component.summarizer import summarizer
-from askai.core.support.shared_instances import shared
-from askai.core.support.utilities import display_text
-from askai.exception.exceptions import DocumentsNotFound
-from hspylib.core.tools.text_tools import ensure_startswith
+import logging as log
 from typing import Optional
 
-import logging as log
-import os
+from hspylib.core.tools.text_tools import ensure_startswith
+
+from askai.core.askai_messages import msg
+from askai.core.component.summarizer import summarizer
+from askai.exception.exceptions import DocumentsNotFound
 
 
 def summarize(base_folder: str, glob: str) -> Optional[str]:
@@ -40,33 +37,12 @@ def summarize(base_folder: str, glob: str) -> Optional[str]:
             summarizer.folder = base_folder
             summarizer.glob = glob
             log.info("Reusing persisted summarized content: '%s/%s'", base_folder, glob)
-        output = _qna()
+        output = (
+            f"{msg.enter_qna()} \n"
+            f"```\nContent:  {summarizer.sum_path} \n```\n"
+            f"`{msg.press_esc_enter()}` \n\n"
+            f"> {msg.qna_welcome()}")
     except (FileNotFoundError, ValueError, DocumentsNotFound) as err:
         output = msg.summary_not_possible(err)
 
-    return output
-
-
-def _qna() -> str:
-    """Questions and Answers about the summarized content."""
-    display_text(
-        f"# {msg.enter_qna()} %EOL%" f"> Content:  {summarizer.sum_path} %EOL%%EOL%" f"`{msg.press_esc_enter()}` %EOL%"
-    )
-    AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.qna_welcome())
-    while question := shared.input_text(f"{shared.username}: %GREEN%", f"Ask about the summarized content"):
-        if not (output := _ask_and_reply(question)):
-            break
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"{output}")
-    display_text(f"# {msg.leave_qna()} %EOL%")
-
-    return msg.welcome_back()
-
-
-def _ask_and_reply(query: str) -> Optional[str]:
-    """Query the summarized for questions related to the summarized content.
-    :param query: the question to be asked to the AI.
-    """
-    output = None
-    if results := summarizer.query_one(query):
-        output = os.linesep.join([r.answer for r in results]).strip()
     return output

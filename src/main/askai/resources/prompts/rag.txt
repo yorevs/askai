@@ -21,6 +21,8 @@ Known Good ('Green') Responses:
 
 - Responses explicitly explaining about the lack of information available should be considered 'Good'; unless you are sure otherwise.
 
+- Regardless of the user's question, if the AI response includes the phrase "You have entered the Summarization Q & A", classify it as 'Green' since this represents a good response.
+
 - Return a classification of 'Green' immediately if applicable, without applying further guidelines.
 
 
@@ -32,7 +34,7 @@ Known Bad ('Red') Responses:
 
 - Upon receiving the following message: "Invalid or incomplete response", classify it as 'Red' since the agent failed to perform his action.
 
-- Acknowledging or mentioning previous responses and stating the intention of accomplishment, are considered unhelpful, therefore, classified as 'Red'.
+- Acknowledging or mentioning previous responses, indicating or stating the intention of accomplishment, are considered unhelpful, therefore, classified as 'Red'.
 
 - Check whether the response is coherent with the question. Ensure that the answer is unbiased and does not rely on stereotypes. Classify any detected AI hallucinations as 'Red'.
 

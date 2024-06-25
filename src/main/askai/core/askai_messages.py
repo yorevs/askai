@@ -85,15 +85,15 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def enter_qna(self) -> str:
-        return self.translate("You have entered the Summarization Q & A")
+        return self.translate("You have *entered* the **Summarization Q & A**")
 
     @lru_cache(maxsize=1)
     def leave_qna(self) -> str:
-        return self.translate("You have left the Summarization Q & A")
+        return self.translate("You have *left* the **Summarization Q & A**")
 
     @lru_cache(maxsize=1)
     def qna_welcome(self) -> str:
-        return self.translate("What specific information are you seeking about the content ?")
+        return self.translate("  What specific information are you seeking about this content ?")
 
     @lru_cache(maxsize=1)
     def press_esc_enter(self) -> str:
