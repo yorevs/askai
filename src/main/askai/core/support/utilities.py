@@ -134,9 +134,8 @@ def find_file(filename: str | None) -> Optional[Path]:
         if not prompt_path.exists():
             prompt_path = Path(os.path.join(os.getcwd(), filename))
             if not prompt_path.exists():
-                prompt_path = Path(os.path.expandvars(os.path.join("${HOME}", filename)))
-
-    return prompt_path if prompt_path.exists() else None
+                prompt_path = Path(os.path.join(Path.home(), filename))
+    return prompt_path if prompt_path and prompt_path.exists() else None
 
 
 def read_resource(base_dir: str, filename: str, file_ext: str = ".txt") -> str:

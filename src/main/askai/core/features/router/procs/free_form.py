@@ -23,6 +23,7 @@ class FreeForm(metaclass=Singleton):
         """Process the user question to retrieve the final response.
         :param question: The user question to process.
         """
+        output = None
         context: str | None = kwargs["context"] if "context" in kwargs else "No context has been provided"
         query_prompt: str | None = find_file(kwargs["query_prompt"]) if "query_prompt" in kwargs else None
 
@@ -32,8 +33,7 @@ class FreeForm(metaclass=Singleton):
         final_prompt: str =  template.format(context=context, question=question)
         llm = lc_llm.create_chat_model(Temperature.CREATIVE_WRITING.temp)
 
-        if output := llm.invoke(final_prompt):
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=output.content)
+        if (response := llm.invoke(final_prompt)) and (output := response.content):
             cache.save_query_history()
 
         return output

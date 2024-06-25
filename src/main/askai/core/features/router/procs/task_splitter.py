@@ -13,6 +13,7 @@
    Copyright (c) 2024, HomeSetup
 """
 import logging as log
+import os
 from pathlib import Path
 from textwrap import dedent
 from typing import Any, Optional, Type, TypeAlias
@@ -89,11 +90,12 @@ class TaskSplitter(metaclass=Singleton):
             ]
         )
 
-    def process(self, question: str, **kwargs) -> Optional[str]:
+    def process(self, question: str, **_) -> Optional[str]:
         """Process the user question by splitting complex tasks into smaller single actionable tasks.
         :param question: The user question to process.
         """
 
+        os.chdir(Path.home())
         shared.context.forget("RAG")  # Forget any RAG that was done before.
         model: ModelResult = selector.select_model(question)
 

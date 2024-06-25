@@ -38,11 +38,11 @@ class RouterMode(Enumeration):
 
     @property
     def mode(self) -> str:
-        return self.value()[0]
+        return self.value[0]
 
     @property
     def processor(self) -> AIProcessor:
-        return self.value()[1]
+        return self.value[1]
 
     def process(self, question: str, **kwargs) -> Optional[str]:
         """TODO"""

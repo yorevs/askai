@@ -48,13 +48,12 @@ from askai.core.component.geo_location import geo_location
 from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
-from askai.core.features.router.procs.free_form import free_form
-from askai.core.features.router.procs.task_splitter import splitter
+from askai.core.enums.router_mode import RouterMode
+from askai.core.features.router.ai_processor import AIProcessor
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
 from askai.exception.exceptions import *
-
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -85,10 +84,12 @@ class AskAi:
         self._interactive: bool = interactive
         self._ready: bool = False
         self._processing: Optional[bool] = None
-        self._query_string: QueryString = query_string
+        self._query_string: QueryString = query_string if isinstance(query_string, str) else ' '.join(query_string)
         self._query_prompt: str | None = query_prompt
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
+        self._mode: RouterMode = RouterMode.TASK_SPLIT if interactive else RouterMode.NON_INTERACTIVE
+
         # Setting configs from program args.
         configs.is_speak = not quiet
         configs.is_debug = is_debugging() or debug
@@ -125,6 +126,10 @@ class AskAi:
         return self._context
 
     @property
+    def mode(self) -> RouterMode:
+        return self._mode
+
+    @property
     def cache_enabled(self) -> bool:
         return configs.is_cache
 
@@ -155,14 +160,7 @@ class AskAi:
     def run(self) -> None:
         """Run the program."""
         self._startup()
-        if self.is_interactive:
-            self._prompt()
-        elif self._query_string:
-            free_form.process(
-                self._query_string if isinstance(self._query_string, str) else ' '.join(self._query_string),
-                context=read_stdin(), query_prompt=self._query_prompt)
-        else:
-            display_text(f"Error: {msg.no_query_string()}")
+        self._prompt()
 
     def reply(self, message: str) -> None:
         """Reply to the user with the AI response.
@@ -249,22 +247,28 @@ class AskAi:
 
     def _prompt(self) -> None:
         """Prompt for user interaction."""
-        os.chdir(Path.home())
-        while query := shared.input_text(f"{shared.username}: ", f"Message {self.engine.nickname()}"):
+        while query := (self._query_string or self._input()):
             if not self._ask_and_reply(query):
                 query = None
                 break
             else:
                 cache.save_query_history()
+                if not self.is_interactive:
+                    break
         if query == '':
             self.reply(msg.goodbye())
         sysout("")
+
+    def _input(self) -> Optional[str]:
+        """Read the input from stdin."""
+        return shared.input_text(f"{shared.username}: ", f"Message {self.engine.nickname()}")
 
     def _ask_and_reply(self, question: str) -> bool:
         """Ask the question and provide the reply.
         :param question: The question to ask to the AI engine.
         """
         status = True
+        processor: AIProcessor = self.mode
         try:
             if command := re.search(self.RE_ASKAI_CMD, question):
                 args: list[str] = list(
@@ -274,7 +278,8 @@ class AskAi:
             elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
                 AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.wait())
-                if output := splitter.process(question):
+                output = processor.process(question, context=read_stdin(), query_prompt=self._query_prompt)
+                if output or msg.no_output("processor"):
                     self.reply(output)
             else:
                 log.debug("Reply found for '%s' in cache.", question)
