@@ -29,6 +29,8 @@ MIC_LISTENING_EVENT: str = "askai-mic-listening-event"
 
 DEVICE_CHANGED_EVENT: str = "askai-input-device-changed-event"
 
+MODE_CHANGED_EVENT: str = "askai-routing-mode-changed-event"
+
 
 class AskAiEvents(Enumeration):
     """Facility class to provide easy access to AskAI events."""
@@ -77,6 +79,7 @@ class AskAiEvents(Enumeration):
         reply_error=FluidEvent(REPLY_ERROR_EVENT, cb_event_handler=None),
         listening=FluidEvent(MIC_LISTENING_EVENT, listening=True, cb_event_handler=None),
         device_changed=FluidEvent(DEVICE_CHANGED_EVENT, device=None, cb_event_handler=None),
+        mode_changed=FluidEvent(MODE_CHANGED_EVENT, mode=None, sum_path=None, glob=None, cb_event_handler=None),
     )
     # fmt: on
 

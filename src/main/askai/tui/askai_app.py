@@ -38,7 +38,7 @@ from textual.widgets import Footer, Input, MarkdownViewer
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import (ASKAI_BUS_NAME, AskAiEvents, DEVICE_CHANGED_EVENT, MIC_LISTENING_EVENT,
-                                     REPLY_ERROR_EVENT, REPLY_EVENT)
+                                     REPLY_ERROR_EVENT, REPLY_EVENT, MODE_CHANGED_EVENT)
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.askai_settings import settings
@@ -48,6 +48,8 @@ from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
+from askai.core.enums.router_mode import RouterMode
+from askai.core.features.router.ai_processor import AIProcessor
 from askai.core.features.router.procs.task_splitter import splitter
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
@@ -90,6 +92,7 @@ class AskAiApp(App[None]):
         self._question: str | None = None
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
+        self._mode: RouterMode = RouterMode.DEFAULT
         self._console_path = Path(f"{CACHE_DIR}/askai-{self.session_id}.md")
         self._re_render = True
         self._display_buffer = list()
@@ -130,6 +133,10 @@ class AskAiApp(App[None]):
     @property
     def context(self) -> ChatContext:
         return self._context
+
+    @property
+    def mode(self) -> RouterMode:
+        return self._mode
 
     @property
     def cache_enabled(self) -> bool:
@@ -396,12 +403,25 @@ class AskAiApp(App[None]):
         """
         self.reply(msg.device_switch(str(ev.args.device)))
 
+    def _cb_mode_changed_event(self, ev: Event) -> None:
+        """Callback to handle mode changed events.
+        :param ev: The mode changed event.
+        """
+        self._mode: RouterMode = RouterMode.value_of(ev.args.mode)
+        if not self._mode.is_default:
+            self.reply(
+                f"{msg.enter_qna()} \n"
+                f"```\nContext:  {ev.args.sum_path},   {ev.args.glob} \n```\n"
+                f"`{msg.press_esc_enter()}` \n\n"
+                f"> {msg.qna_welcome()}")
+
     @work(thread=True, exclusive=True)
     def _ask_and_reply(self, question: str) -> bool:
         """Ask the question to the AI, and provide the reply.
         :param question: The question to ask to the AI engine.
         """
         status = True
+        processor: AIProcessor = self.mode
         self.enable_controls(False)
 
         try:
@@ -416,7 +436,7 @@ class AskAiApp(App[None]):
             elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
                 self.reply(msg.wait())
-                if output := splitter.process(question):
+                if output := processor.process(question):
                     self.reply(output)
             else:
                 log.debug("Reply found for '%s' in cache.", question)
@@ -451,6 +471,7 @@ class AskAiApp(App[None]):
         scheduler.start()
         askai_bus.subscribe(MIC_LISTENING_EVENT, self._cb_mic_listening_event)
         askai_bus.subscribe(DEVICE_CHANGED_EVENT, self._cb_device_changed_event)
+        askai_bus.subscribe(MODE_CHANGED_EVENT, self._cb_mode_changed_event)
         log.info("AskAI is ready to use!")
 
     @work(thread=True, exclusive=True)

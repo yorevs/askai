@@ -84,6 +84,10 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate(f"Summarizing docs at:'{path}'…")
 
     @lru_cache(maxsize=1)
+    def summary_succeeded(self, path: str, glob: str) -> str:
+        return self.translate(f"Summarization of docs at: **{path}/{glob}** succeeded !")
+
+    @lru_cache(maxsize=1)
     def enter_qna(self) -> str:
         return self.translate("You have *entered* the **Summarization Q & A**")
 
@@ -97,7 +101,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=1)
     def press_esc_enter(self) -> str:
-        return self.translate("Press [Esc or Enter] to leave")
+        return self.translate("Type [exit] to exit Q & A mode")
 
     @lru_cache(maxsize=1)
     def analysis(self, result: str) -> str:

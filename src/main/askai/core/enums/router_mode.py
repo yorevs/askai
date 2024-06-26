@@ -16,8 +16,8 @@ from typing import Optional
 
 from hspylib.core.enums.enumeration import Enumeration
 
+from askai.core.askai_configs import configs
 from askai.core.features.router.ai_processor import AIProcessor
-
 from askai.core.features.router.procs.free_form import free_form
 from askai.core.features.router.procs.qna import qna
 from askai.core.features.router.procs.task_splitter import splitter
@@ -34,7 +34,12 @@ class RouterMode(Enumeration):
 
     NON_INTERACTIVE     = 'Non-Interactive', free_form
 
+    DEFAULT             = 'Task Splitter', splitter if configs.is_interactive else 'Non-Interactive', free_form
+
     # fmt: off
+
+    def __str__(self):
+        return self.value[0]
 
     @property
     def mode(self) -> str:
@@ -43,6 +48,10 @@ class RouterMode(Enumeration):
     @property
     def processor(self) -> AIProcessor:
         return self.value[1]
+
+    @property
+    def is_default(self) -> bool:
+        return self == RouterMode.DEFAULT
 
     def process(self, question: str, **kwargs) -> Optional[str]:
         """TODO"""

@@ -1,9 +1,12 @@
 from typing import Optional
 
 from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_state
 
+from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.summarizer import summarizer
+from askai.core.model.summary_result import SummaryResult
 
 
 class QnA(metaclass=Singleton):
@@ -15,10 +18,13 @@ class QnA(metaclass=Singleton):
         """Process the user question against a summarized context to retrieve answers.
         :param question: The user question to process.
         """
-        if not (output := summarizer.query(question)):
-            output = (
-                f"# {msg.leave_qna()} \n"
-                + msg.welcome_back())
+        if question.casefold() == "exit" or not (response := summarizer.query(question)):
+            events.mode_changed.emit(mode="DEFAULT")
+            output = msg.leave_qna()
+        else:
+            check_state(isinstance(response[0], SummaryResult))
+            output = response[0].answer
+
         return output
 
 

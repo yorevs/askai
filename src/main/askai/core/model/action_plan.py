@@ -79,14 +79,14 @@ class ActionPlan:
         return plan
 
     def __str__(self):
-        sub_goals: str = "  ".join(f"{i + 1}. {g}" for i, g in enumerate(self.sub_goals))
-        tasks: str = ".  ".join([f"{i + 1}. {a.task}" for i, a in enumerate(self.tasks)])
+        sub_goals: str = "  ".join(f"{i + 1}. {g}" for i, g in enumerate(self.sub_goals)) if self.sub_goals else "N/A"
+        tasks: str = ".  ".join([f"{i + 1}. {a.task}" for i, a in enumerate(self.tasks)]) if self.tasks else "N/A"
         return (
             f"`Question:` {self.question}  "
             f"`Reasoning:` {self.reasoning}  "
-            f"`Observations:` {self.thoughts.observations}  "
-            f"`Criticism:` {self.thoughts.criticism}  "
-            f"`Speak:` {self.thoughts.speak}  "
+            f"`Observations:` {self.thoughts.observations if self.thoughts else 'N/A'}  "
+            f"`Criticism:` {self.thoughts.criticism if self.thoughts else 'N/A'}  "
+            f"`Speak:` {self.thoughts.speak if self.thoughts else 'N/A'}  "
             f"`Sub-Goals:` [{sub_goals}]  "
             f"`Tasks:` [{tasks}]  ."
         )

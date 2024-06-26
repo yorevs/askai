@@ -39,7 +39,7 @@ from openai import RateLimitError
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import (ASKAI_BUS_NAME, AskAiEvents, DEVICE_CHANGED_EVENT, MIC_LISTENING_EVENT,
-                                     REPLY_ERROR_EVENT, REPLY_EVENT)
+                                     REPLY_ERROR_EVENT, REPLY_EVENT, MODE_CHANGED_EVENT)
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import ask_cli, commands
@@ -89,7 +89,7 @@ class AskAi:
         self._query_prompt: str | None = query_prompt
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
-        self._mode: RouterMode = RouterMode.TASK_SPLIT if interactive else RouterMode.NON_INTERACTIVE
+        self._mode: RouterMode = RouterMode.DEFAULT
 
         # Save setting configs from program arguments to remember later.
         configs.is_speak = not quiet
@@ -231,6 +231,18 @@ class AskAi:
         cursor.erase_line()
         self.reply(msg.device_switch(str(ev.args.device)))
 
+    def _cb_mode_changed_event(self, ev: Event) -> None:
+        """Callback to handle mode changed events.
+        :param ev: The mode changed event.
+        """
+        self._mode: RouterMode = RouterMode.value_of(ev.args.mode)
+        if not self._mode.is_default:
+            self.reply(
+                f"{msg.enter_qna()} \n"
+                f"```\nContext:  {ev.args.sum_path},   {ev.args.glob} \n```\n"
+                f"`{msg.press_esc_enter()}` \n\n"
+                f"> {msg.qna_welcome()}")
+
     def _splash(self) -> None:
         """Display the AskAI splash screen."""
         splash_interval = 250
@@ -263,6 +275,7 @@ class AskAi:
             player.start_delay()
         askai_bus.subscribe(MIC_LISTENING_EVENT, self._cb_mic_listening_event)
         askai_bus.subscribe(DEVICE_CHANGED_EVENT, self._cb_device_changed_event)
+        askai_bus.subscribe(MODE_CHANGED_EVENT, self._cb_mode_changed_event)
         log.info("AskAI is ready to use!")
 
     def _ask_and_reply(self, question: str) -> tuple[bool, Optional[str]]:

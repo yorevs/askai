@@ -48,12 +48,6 @@ class Summarizer(metaclass=Singleton):
         answer = result["result"] if "result" in result else result["answer"]
         return question, answer
 
-    @staticmethod
-    def exists(folder: str | Path, glob: str) -> bool:
-        """Return whether or not the summary already exists."""
-        summary_hash = hash_text(f"{ensure_endswith(folder, '/')}{glob}")
-        return Path(f"{PERSIST_DIR}/{summary_hash}").exists()
-
     def __init__(self):
         self._retriever = None
         self._folder = None
@@ -127,7 +121,11 @@ class Summarizer(metaclass=Singleton):
 
         return False
 
-    @lru_cache
+    def exists(self, folder: str | Path, glob: str) -> bool:
+        """Return whether or not the summary already exists."""
+        summary_hash = hash_text(f"{ensure_endswith(folder, '/')}{glob}")
+        return self._retriever is not None and Path(f"{PERSIST_DIR}/{summary_hash}").exists()
+
     def query(self, *queries: str) -> Optional[List[SummaryResult]]:
         """Answer questions about the summarized content.
         :param queries: The queries to ask the AI engine.
@@ -140,7 +138,6 @@ class Summarizer(metaclass=Singleton):
             return results
         return None
 
-    @lru_cache
     def _invoke(self, query: str) -> Optional[SummaryResult]:
         """Query the AI about a given query based on the summarized content.
         :param query: The query to ask the AI engine.

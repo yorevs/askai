@@ -14,16 +14,16 @@
 """
 
 import logging as log
-from typing import Optional
 
 from hspylib.core.tools.text_tools import ensure_startswith
 
+from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.summarizer import summarizer
 from askai.exception.exceptions import DocumentsNotFound
 
 
-def summarize(base_folder: str, glob: str) -> Optional[str]:
+def summarize(base_folder: str, glob: str) -> str:
     """Summarize files and folders.
     :param base_folder: The base folder to be summarized.
     :param glob: The glob to match the files to be summarized.
@@ -37,11 +37,8 @@ def summarize(base_folder: str, glob: str) -> Optional[str]:
             summarizer.folder = base_folder
             summarizer.glob = glob
             log.info("Reusing persisted summarized content: '%s/%s'", base_folder, glob)
-        output = (
-            f"{msg.enter_qna()} \n"
-            f"```\nContent:  {summarizer.sum_path} \n```\n"
-            f"`{msg.press_esc_enter()}` \n\n"
-            f"> {msg.qna_welcome()}")
+        events.mode_changed.emit(mode="QNA", sum_path=base_folder, glob=glob)
+        output = msg.summary_succeeded(base_folder, glob)
     except (FileNotFoundError, ValueError, DocumentsNotFound) as err:
         output = msg.summary_not_possible(err)
 

@@ -21,7 +21,7 @@ Known Good ('Green') Responses:
 
 - Responses explicitly explaining about the lack of information available should be considered 'Good'; unless you are sure otherwise.
 
-- Regardless of the user's question, if the AI response includes the phrase "You have entered the Summarization Q & A", classify it as 'Green' since this represents a good response.
+- Regardless of the user's question, if the AI response includes the phrase "Summarization of docs at: '<path/glob>' succeeded !", classify it as 'Green' since this represents a good response.
 
 - Return a classification of 'Green' immediately if applicable, without applying further guidelines.
 
