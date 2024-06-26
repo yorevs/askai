@@ -4,7 +4,6 @@ from hspylib.core.metaclass.singleton import Singleton
 
 from askai.core.askai_messages import msg
 from askai.core.component.summarizer import summarizer
-from askai.core.support.utilities import display_text
 
 
 class QnA(metaclass=Singleton):
@@ -16,9 +15,10 @@ class QnA(metaclass=Singleton):
         """Process the user question against a summarized context to retrieve answers.
         :param question: The user question to process.
         """
-        if not (output := summarizer.query_one(question)):
-            display_text(f"# {msg.leave_qna()} %EOL%")
-            output = msg.welcome_back()
+        if not (output := summarizer.query(question)):
+            output = (
+                f"# {msg.leave_qna()} \n"
+                + msg.welcome_back())
         return output
 
 

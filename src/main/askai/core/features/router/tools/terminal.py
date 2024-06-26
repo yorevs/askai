@@ -12,22 +12,23 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import msg
-from askai.core.features.rag.rag import resolve_x_refs
-from askai.core.support.shared_instances import shared
-from askai.core.support.utilities import extract_path, media_type_of
-from clitt.core.term.terminal import Terminal
+import logging as log
+import os
+import re
 from functools import partial
-from hspylib.core.config.path_object import PathObject
-from hspylib.modules.application.exit_status import ExitStatus
 from os.path import expandvars
 from shutil import which
 from typing import Tuple
 
-import logging as log
-import os
-import re
+from clitt.core.term.terminal import Terminal
+from hspylib.core.config.path_object import PathObject
+from hspylib.modules.application.exit_status import ExitStatus
+
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
+from askai.core.features.rag.rag import resolve_x_refs
+from askai.core.support.shared_instances import shared
+from askai.core.support.utilities import extract_path, media_type_of
 
 
 def list_contents(folder: str, filters: str) -> str:
@@ -111,7 +112,7 @@ def _execute_bash(command_line: str) -> Tuple[bool, str]:
     if (command := command_line.split(" ")[0].strip()) and which(command):
         command = expandvars(command_line.replace("~/", f"{os.getenv('HOME')}/").strip())
         log.info("Executing command `%s'", command)
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.executing(command_line), verbosity="debug")
+        events.reply.emit(message=msg.executing(command_line), verbosity="debug")
         output, exit_code = Terminal.INSTANCE.shell_exec(command, shell=True)
         if exit_code == ExitStatus.SUCCESS:
             log.info("Command succeeded: \n|-CODE=%s \n|-PATH: %s \n|-CMD: %s ", exit_code, os.getcwd(), command)

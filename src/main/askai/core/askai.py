@@ -41,6 +41,7 @@ from askai.core.askai_configs import configs
 from askai.core.askai_events import (ASKAI_BUS_NAME, AskAiEvents, DEVICE_CHANGED_EVENT, MIC_LISTENING_EVENT,
                                      REPLY_ERROR_EVENT, REPLY_EVENT)
 from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import ask_cli, commands
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
@@ -104,14 +105,15 @@ class AskAi:
         device_info += f", AUTO-SWAP {'ON' if recorder.is_auto_swap else '%RED%OFF'}"
         dtm = f" {geo_location.datetime} "
         speak_info = str(configs.tempo) + " @" + shared.engine.configs.tts_voice
-        cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, "…")
+        cur_dir = elide_text(str(Path(os.getcwd()).absolute()), 67, "…")
         return (
             f"%GREEN%"
             f"AskAI v{Version.load(load_dir=classpath.source_path())} %EOL%"
             f"{dtm.center(80, '=')} %EOL%"
-            f"     Engine: {self.engine} %EOL%"
             f"   Language: {configs.language} %EOL%"
-            f"    WorkDir: {cur_dir} %EOL%"
+            f"     Engine: {self.engine} %EOL%"
+            f"        Dir: {cur_dir} %EOL%"
+            f"         OS: {prompt.os_type}/{prompt.shell} %EOL%"
             f"{'-' * 80} %EOL%"
             f" Microphone: {device_info or '%RED%Undetected'} %GREEN%%EOL%"
             f"  Debugging: {'ON' if self.is_debugging else '%RED%OFF'} %GREEN%%EOL%"
@@ -164,10 +166,10 @@ class AskAi:
         """Run the application."""
         while query := (self._query_string or self._input()):
             status, output = self._ask_and_reply(query)
-            if not (status and output):
+            if not status:
                 query = None
                 break
-            else:
+            elif output:
                 cache.save_reply(query, output)
                 cache.save_query_history()
                 if not self.is_interactive:
@@ -277,7 +279,7 @@ class AskAi:
                 ask_cli(args, standalone_mode=False)
             elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.wait())
+                self.reply(msg.wait())
                 output = processor.process(question, context=read_stdin(), query_prompt=self._query_prompt)
                 if output or msg.no_output("processor"):
                     self.reply(output)

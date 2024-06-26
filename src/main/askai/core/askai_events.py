@@ -91,3 +91,6 @@ class AskAiEvents(Enumeration):
     @property
     def events(self) -> Namespace:
         return self.value.events
+
+
+events: Namespace = AskAiEvents.ASKAI_BUS.events

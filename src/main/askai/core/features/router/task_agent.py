@@ -8,18 +8,17 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
 
 from askai.core.askai_configs import configs
-from askai.core.askai_events import AskAiEvents
+from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.component.cache_service import cache
 from askai.core.engine.openai.temperature import Temperature
+from askai.core.enums.rag_response import RagResponse
+from askai.core.enums.routing_model import RoutingModel
 from askai.core.features.rag.rag import assert_accuracy
 from askai.core.features.router.task_toolkit import features
 from askai.core.features.router.tools.general import final_answer
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
-from askai.core.enums.rag_response import RagResponse
-from askai.core.enums.routing_model import RoutingModel
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 
@@ -43,7 +42,7 @@ class TaskAgent(metaclass=Singleton):
         output: str = msg.translate(response)
         if model_result:
             model: RoutingModel = RoutingModel.of_model(model_result.mid)
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.model_select(str(model)), verbosity="debug")
+            events.reply.emit(message=msg.model_select(str(model)), verbosity="debug")
             match model, configs.is_speak:
                 case RoutingModel.TERMINAL_COMMAND, True:
                     output = final_answer(query, persona_prompt=f"taius-stt", response=response)
@@ -76,7 +75,7 @@ class TaskAgent(metaclass=Singleton):
         """
         shared.context.push("HISTORY", query)
         output: str = ""
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=plan.thoughts.speak)
+        events.reply.emit(message=plan.thoughts.speak)
         tasks: list[SimpleNamespace] = plan.tasks
         result_log: list[str] = []
 
@@ -85,7 +84,7 @@ class TaskAgent(metaclass=Singleton):
                 if hasattr(action, 'path') and action.path.upper() not in ['N/A', 'NONE'] \
                 else ''
             task = f"Task: {action.task}  {path_str}"
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.task(task), verbosity="debug")
+            events.reply.emit(message=msg.task(task), verbosity="debug")
             if (response := self.lc_agent.invoke({"input": task})) and (output := response["output"]):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
                 assert_accuracy(task, output, RagResponse.MODERATE)
@@ -94,7 +93,7 @@ class TaskAgent(metaclass=Singleton):
                 shared.memory.save_context({"input": task}, {"output": output})
                 result_log.append(output)
                 if idx < len(tasks):  # Print intermediary steps.
-                    AskAiEvents.ASKAI_BUS.events.reply.emit(message=output)
+                    events.reply.emit(message=output)
                 continue
 
         assert_accuracy(query, os.linesep.join(result_log), RagResponse.GOOD)

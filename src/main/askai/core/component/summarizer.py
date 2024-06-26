@@ -12,14 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.askai_events import AskAiEvents
-from askai.core.askai_messages import msg
-from askai.core.component.cache_service import PERSIST_DIR
-from askai.core.model.summary_result import SummaryResult
-from askai.core.support.langchain_support import lc_llm
-from askai.core.support.utilities import hash_text
-from askai.exception.exceptions import DocumentsNotFound
+import logging as log
 from functools import lru_cache
+from pathlib import Path
+from typing import List, Optional, Tuple
+
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import ensure_endswith
@@ -28,10 +25,15 @@ from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter, TextSplitter
-from pathlib import Path
-from typing import List, Optional, Tuple
 
-import logging as log
+from askai.core.askai_configs import configs
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
+from askai.core.component.cache_service import PERSIST_DIR
+from askai.core.model.summary_result import SummaryResult
+from askai.core.support.langchain_support import lc_llm
+from askai.core.support.utilities import hash_text
+from askai.exception.exceptions import DocumentsNotFound
 
 
 class Summarizer(metaclass=Singleton):
@@ -56,7 +58,8 @@ class Summarizer(metaclass=Singleton):
         self._retriever = None
         self._folder = None
         self._glob = None
-        self._text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        self._text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap)
 
     @property
     def persist_dir(self) -> Path:
@@ -99,7 +102,7 @@ class Summarizer(metaclass=Singleton):
         """
         self._folder = str(PathObject.of(folder))
         self._glob: str = glob.strip()
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.summarizing(self.sum_path))
+        events.reply.emit(message=msg.summarizing(self.sum_path))
         embeddings = lc_llm.create_embeddings()
 
         try:
@@ -120,7 +123,7 @@ class Summarizer(metaclass=Singleton):
             return True
         except ImportError as err:
             log.error("Unable to summarize '%s' => %s", self.sum_path, err)
-            AskAiEvents.ASKAI_BUS.events.reply_error.emit(message=msg.missing_package(err))
+            events.reply_error.emit(message=msg.missing_package(err))
 
         return False
 
@@ -132,13 +135,13 @@ class Summarizer(metaclass=Singleton):
         if queries and self.retriever is not None:
             results: List[SummaryResult] = []
             for query in queries:
-                if result := self._query_one(query):
+                if result := self._invoke(query):
                     results.append(result)
             return results
         return None
 
     @lru_cache
-    def _query_one(self, query: str) -> Optional[SummaryResult]:
+    def _invoke(self, query: str) -> Optional[SummaryResult]:
         """Query the AI about a given query based on the summarized content.
         :param query: The query to ask the AI engine.
         """

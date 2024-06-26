@@ -9,7 +9,7 @@ from hspylib.core.tools.commons import log_init
 from hspylib.core.tools.text_tools import ensure_endswith
 
 from askai.__classpath__ import classpath
-from askai.core.askai_events import AskAiEvents
+from askai.core.askai_events import events
 from askai.core.commander.commander import commands
 from askai.core.component.cache_service import cache
 from askai.core.support.shared_instances import shared
@@ -32,7 +32,7 @@ def init_context(
     KeyboardInput.preload_history(cache.load_history(commands()))
     shared.create_engine(engine_name=engine_name, model_name=model_name)
     shared.create_context(context_size)
-    AskAiEvents.ASKAI_BUS.events.reply.subscribe(cb_event_handler=lambda ev: display_text(ev.args.message))
+    events.reply.subscribe(cb_event_handler=lambda ev: display_text(ev.args.message))
     atexit.register(cache.save_query_history)
 
 

@@ -1,4 +1,4 @@
-from askai.core.askai_events import AskAiEvents
+from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.features.rag.rag import resolve_x_refs
 from askai.core.support.shared_instances import shared
@@ -22,7 +22,7 @@ def image_captioner(path_name: str) -> Optional[str]:
                 posix_path: PathObject = x_ref_path if x_ref_path.exists else posix_path
 
     if posix_path.exists:
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.describe_image(str(posix_path)))
+        events.reply.emit(message=msg.describe_image(str(posix_path)))
         # specify model to be used
         hf_model = "Salesforce/blip-image-captioning-large"
         # use GPU if it's available

@@ -26,7 +26,7 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from retry import retry
 
 from askai.core.askai_configs import configs
-from askai.core.askai_events import AskAiEvents
+from askai.core.askai_events import events
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
@@ -109,7 +109,7 @@ class TaskSplitter(metaclass=Singleton):
             if response := runnable.invoke({"input": question}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
                 plan: ActionPlan = ActionPlan.create(question, response, model)
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=f"> {plan}", verbosity="debug")
+                events.reply.emit(message=f"> {plan}", verbosity="debug")
                 output = agent.invoke(question, plan)
             else:
                 # Most of the times, this indicates a failure.

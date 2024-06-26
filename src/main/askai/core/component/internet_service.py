@@ -12,7 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.askai_events import AskAiEvents
+from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
@@ -83,7 +83,7 @@ class InternetService(metaclass=Singleton):
         Google search operators: https://ahrefs.com/blog/google-advanced-search-operators/
         :param search: The AI search parameters.
         """
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.searching())
+        events.reply.emit(message=msg.searching())
         search.sites = search.sites if len(search.sites) > 0 else ["google.com", "bing.com"]
         try:
             query = self._build_google_query(search).strip()
@@ -104,7 +104,7 @@ class InternetService(metaclass=Singleton):
         """Scrap a web page and summarize it's contents.
         :param search: The AI search parameters.
         """
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.scrapping())
+        events.reply.emit(message=msg.scrapping())
         if len(search.sites) > 0:
             log.info("Scrapping sites: '%s'", str(", ".join(search.sites)))
             loader = WebBaseLoader(

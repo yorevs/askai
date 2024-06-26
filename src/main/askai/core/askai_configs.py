@@ -94,6 +94,14 @@ class AskAiConfigs(metaclass=Singleton):
         settings.get_int("askai.text.to.speech.tempo", value)
 
     @property
+    def chunk_size(self) -> int:
+        return settings.get_int("askai.text.splitter.chunk.size")
+
+    @property
+    def chunk_overlap(self) -> int:
+        return settings.get_int("askai.text.splitter.chunk.overlap")
+
+    @property
     def language(self) -> Language:
         return self._language
 

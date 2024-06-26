@@ -56,11 +56,11 @@ AppSettings {
 }
 
 #settings {
-  margin-top: 1;
   width: auto;
   height: auto;
-  border: $panel #183236;
+  border: panel #183236;
   background: #030F12;
+  padding: 1 1 1 1;
   content-align: center middle;
 }
 

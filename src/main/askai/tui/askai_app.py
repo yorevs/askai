@@ -108,12 +108,13 @@ class AskAiApp(App[None]):
         device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
         device_info += f", AUTO-SWAP {'ON' if recorder.is_auto_swap else 'OFF'}"
         speak_info = str(configs.tempo) + " @" + shared.engine.configs.tts_voice
-        cur_dir = elide_text(str(Path(os.curdir).absolute()), 67, "…")
+        cur_dir = elide_text(str(Path(os.getcwd()).absolute()), 67, "…")
         return (
             "\n"
-            f"     Engine: {self.engine}\n"
             f"   Language: {configs.language}\n"
-            f"    WorkDir: {cur_dir}\n"
+            f"     Engine: {self.engine}\n"
+            f"        Dir: {cur_dir}\n"
+            f"         OS: {prompt.os_type.title()} - {prompt.shell.title()} \n"
             f"{'-' * 80}\n"
             f" Microphone: {device_info or 'Undetected'}\n"
             f"  Debugging: {'ON' if self.is_debugging else 'OFF'}\n"
@@ -414,7 +415,7 @@ class AskAiApp(App[None]):
                         self.display_text(f"\n```bash\n{strip_escapes(output)}\n```")
             elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
-                self.reply(message=msg.wait())
+                self.reply(msg.wait())
                 if output := splitter.process(question):
                     self.reply(output)
             else:

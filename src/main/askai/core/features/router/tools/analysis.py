@@ -12,8 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
-
-from askai.core.askai_events import AskAiEvents
+from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
@@ -47,6 +46,6 @@ def query_output(query: str, context: str = None) -> str:
         log.info("Analysis::[QUERY] '%s'  context=%s", query, context)
         if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
             output = response.content
-            AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.analysis(output), verbosity="debug")
+            events.reply.emit(message=msg.analysis(output), verbosity="debug")
 
     return ensure_ln(output or msg.translate("Sorry, I don't know."))

@@ -121,9 +121,8 @@ class AppSettings(Static):
 
     def __init__(self, data: list[tuple[str, ...]] = None):
         super().__init__()
-        self.table = DataTable(id="settings")
+        self.table = DataTable(zebra_stripes=True, id="settings")
         self.data = data or list()
-        self.zebra_stripes = True
 
     def compose(self) -> ComposeResult:
         yield self.table

@@ -13,7 +13,13 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.core.askai_events import AskAiEvents
+import logging as log
+
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
+from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
@@ -22,11 +28,6 @@ from askai.core.enums.rag_response import RagResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables.history import RunnableWithMessageHistory
-
-import logging as log
 
 
 def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse = RagResponse.MODERATE) -> None:
@@ -47,7 +48,7 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse
             if mat := RagResponse.matches(output):
                 status, details = mat.group(1), mat.group(2)
                 log.info("Accuracy check ->  status: '%s'  reason: '%s'", status, details)
-                AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.assert_acc(status, details), verbosity="debug")
+                events.reply.emit(message=msg.assert_acc(status, details), verbosity="debug")
                 if not RagResponse.of_status(status).passed(pass_threshold):
                     shared.context.push("RAG", issues_prompt.format(problems=RagResponse.strip_code(output)))
                     raise InaccurateResponse(f"AI Assistant failed to respond => '{response.content}'")
@@ -55,7 +56,7 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse
         # At this point, the response was not Good enough
         raise InaccurateResponse(f"AI Assistant didn't respond accurately. Response: '{response}'")
 
-    AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.no_output("query"))
+    events.reply.emit(message=msg.no_output("query"))
 
 
 def resolve_x_refs(ref_name: str, context: str | None = None) -> str:
@@ -77,7 +78,7 @@ def resolve_x_refs(ref_name: str, context: str | None = None) -> str:
             runnable, shared.context.flat, input_messages_key="pathname", history_messages_key="context"
         )
         log.info("Analysis::[QUERY] '%s'  context=%s", ref_name, context)
-        AskAiEvents.ASKAI_BUS.events.reply.emit(message=msg.x_reference(ref_name), verbosity="debug")
+        events.reply.emit(message=msg.x_reference(ref_name), verbosity="debug")
         response = runnable.invoke({"pathname": ref_name}, config={"configurable": {"session_id": "HISTORY"}})
         if response and (output := response.content) and shared.UNCERTAIN_ID != output:
             output = response.content
