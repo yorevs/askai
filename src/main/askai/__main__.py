@@ -108,8 +108,8 @@ class Main(TUIApplication):
                 to_bool(self._get_argument("debug", configs.is_debug)),
                 int(self._get_argument("tempo", configs.tempo)),
                 self._get_argument("prompt"),
-                self._get_argument("engine", "openai"),
-                self._get_argument("model"),
+                self._get_argument("engine", configs.engine),
+                self._get_argument("model", configs.model),
                 self._get_query_string(),
             )
         else:
@@ -117,8 +117,8 @@ class Main(TUIApplication):
                 to_bool(self._get_argument("quiet", not configs.is_speak)),
                 to_bool(self._get_argument("debug", configs.is_debug)),
                 int(self._get_argument("tempo", configs.tempo)),
-                self._get_argument("engine", "openai"),
-                self._get_argument("model"),
+                self._get_argument("engine", configs.engine),
+                self._get_argument("model", configs.model),
             )
 
         log.info(

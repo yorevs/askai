@@ -95,10 +95,13 @@ class AskAiApp(App[None]):
         self._display_buffer = list()
         if not self._console_path.exists():
             self._console_path.touch()
-        # Setting configs from program args.
+
+        # Save setting configs from program arguments to remember later.
         configs.is_speak = not quiet
         configs.is_debug = is_debugging() or debug
         configs.tempo = tempo
+        configs.engine = engine_name
+        configs.model = model_name
         self._startup()
 
     def __str__(self) -> str:
@@ -332,14 +335,6 @@ class AskAiApp(App[None]):
                     f_console.flush()
                 self._re_render = True
 
-    async def _cb_refresh_console(self) -> None:
-        """Callback to handle markdown console updates."""
-        await self._write_markdown()
-        if self._re_render:
-            self._re_render = False
-            await self.md_console.go(self._console_path)
-            self.md_console.scroll_end(animate=False)
-
     def display_text(self, markdown_text: str) -> None:
         """Send the text to the Markdown console."""
         self._display_buffer.append(markdown_text)
@@ -365,6 +360,14 @@ class AskAiApp(App[None]):
             self.display_text(f"{self.nickname}: Error: {message}")
             if self.is_speak:
                 self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
+
+    async def _cb_refresh_console(self) -> None:
+        """Callback to handle markdown console updates."""
+        await self._write_markdown()
+        if self._re_render:
+            self._re_render = False
+            await self.md_console.go(self._console_path)
+            self.md_console.scroll_end(animate=False)
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.
@@ -394,11 +397,12 @@ class AskAiApp(App[None]):
 
     @work(thread=True, exclusive=True)
     def _ask_and_reply(self, question: str) -> bool:
-        """Ask the question and provide the reply.
+        """Ask the question to the AI, and provide the reply.
         :param question: The question to ask to the AI engine.
         """
         status = True
         self.enable_controls(False)
+
         try:
             if command := re.search(self.RE_ASKAI_CMD, question):
                 with StringIO() as buf, redirect_stdout(buf):
@@ -450,7 +454,7 @@ class AskAiApp(App[None]):
 
     @work(thread=True, exclusive=True)
     def _setup(self) -> None:
-        """TODO"""
+        """Setup the TUI controls."""
         player.start_delay()
         self.splash.set_class(True, "-hidden")
         self.activate_markdown()

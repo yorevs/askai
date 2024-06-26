@@ -34,7 +34,7 @@ ${commands}
 
 > CLI-Input Key-Bindings:
 
-| Key      | Action                        |
+| **Key**  | **Action**                    |
 | -------- | ----------------------------- |
 | *Ctrl+L* | **Push-To-Talk.**             |
 | *Ctrl+R* | **Reset the input field.**    |

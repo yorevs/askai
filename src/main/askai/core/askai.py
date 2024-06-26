@@ -90,11 +90,14 @@ class AskAi:
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         self._mode: RouterMode = RouterMode.TASK_SPLIT if interactive else RouterMode.NON_INTERACTIVE
 
-        # Setting configs from program args.
+        # Save setting configs from program arguments to remember later.
         configs.is_speak = not quiet
         configs.is_debug = is_debugging() or debug
         configs.tempo = tempo
         configs.is_interactive = interactive
+        configs.engine = engine_name
+        configs.model = model_name
+        self._startup()
 
     def __str__(self) -> str:
         device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
@@ -146,11 +149,11 @@ class AskAi:
         return configs.is_speak
 
     @property
-    def is_processing(self) -> bool:
+    def loading(self) -> bool:
         return self._processing
 
-    @is_processing.setter
-    def is_processing(self, processing: bool) -> None:
+    @loading.setter
+    def loading(self, processing: bool) -> None:
         if processing:
             self.reply(msg.wait())
         elif not processing and self._processing is not None and processing != self._processing:
@@ -158,9 +161,20 @@ class AskAi:
         self._processing = processing
 
     def run(self) -> None:
-        """Run the program."""
-        self._startup()
-        self._prompt()
+        """Run the application."""
+        while query := (self._query_string or self._input()):
+            status, output = self._ask_and_reply(query)
+            if not (status and output):
+                query = None
+                break
+            else:
+                cache.save_reply(query, output)
+                cache.save_query_history()
+                if not self.is_interactive:
+                    break
+        if query == '':
+            self.reply(msg.goodbye())
+        sysout("%NC%")
 
     def reply(self, message: str) -> None:
         """Reply to the user with the AI response.
@@ -182,6 +196,10 @@ class AskAi:
                 self.engine.text_to_speech(f"Error: {message}", f"{shared.nickname}: ")
             else:
                 display_text(f"%RED%Error: {message}%NC%", f"{shared.nickname}: ")
+
+    def _input(self) -> Optional[str]:
+        """Read the user input from stdin."""
+        return shared.input_text(f"{shared.username}: ", f"Message {self.engine.nickname()}")
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.
@@ -245,29 +263,11 @@ class AskAi:
         askai_bus.subscribe(DEVICE_CHANGED_EVENT, self._cb_device_changed_event)
         log.info("AskAI is ready to use!")
 
-    def _prompt(self) -> None:
-        """Prompt for user interaction."""
-        while query := (self._query_string or self._input()):
-            if not self._ask_and_reply(query):
-                query = None
-                break
-            else:
-                cache.save_query_history()
-                if not self.is_interactive:
-                    break
-        if query == '':
-            self.reply(msg.goodbye())
-        sysout("")
-
-    def _input(self) -> Optional[str]:
-        """Read the input from stdin."""
-        return shared.input_text(f"{shared.username}: ", f"Message {self.engine.nickname()}")
-
-    def _ask_and_reply(self, question: str) -> bool:
-        """Ask the question and provide the reply.
+    def _ask_and_reply(self, question: str) -> tuple[bool, Optional[str]]:
+        """Ask the question to the AI, and provide the reply.
         :param question: The question to ask to the AI engine.
         """
-        status = True
+        status, output = True, None
         processor: AIProcessor = self.mode
         try:
             if command := re.search(self.RE_ASKAI_CMD, question):
@@ -298,4 +298,4 @@ class AskAi:
         except TerminatingQuery:
             status = False
 
-        return status
+        return status, output

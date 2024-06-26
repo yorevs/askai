@@ -19,7 +19,7 @@ Step 5. Open, Read, or Save required resources (files, folders, etc) using their
 Step 6. Extract relevant information from the files or output (content, date and time, order, etc).
 Step 7. Analyze data and provide direct instructions without explaining its purpose.
 Step 8. Separate tasks clearly, avoiding the use of conjunctions like 'and', 'or' and implicit multi-step processes within a single task.
-Step 9. Follow this workflow to guide you in breaking down the tasks: "<Find, Locate, Access, List or Navigate> -> <Open, Read, Save or Generate> -> <Identify, Extract> -> <Operate or Calculate> -> <Analyze or Display>". Actions within the same action group, must not be repeated, as they will produce the same result.
+Step 9. Follow this workflow to guide you in breaking down the tasks: "<Find, Locate, Access, List, Summarize or Navigate> -> <Open, Read, Save or Generate> -> <Identify, Extract> -> <Operate or Calculate> -> <Analyze or Display>". Actions within the same action group, must not be repeated, as they will produce the same result.
 
 
 Task Requirements:

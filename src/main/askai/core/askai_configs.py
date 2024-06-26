@@ -12,14 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
+from shutil import which
+
+from hspylib.core.enums.charset import Charset
+from hspylib.core.metaclass.singleton import Singleton
+
 from askai.__classpath__ import classpath
 from askai.core.askai_settings import settings
 from askai.language.language import Language
-from hspylib.core.enums.charset import Charset
-from hspylib.core.metaclass.singleton import Singleton
-from shutil import which
-
-import os
 
 
 class AskAiConfigs(metaclass=Singleton):
@@ -35,6 +36,22 @@ class AskAiConfigs(metaclass=Singleton):
             os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG", os.getenv("LANGUAGE", "en_US.UTF-8"))))
         )
         self._recorder_devices: set[str] = set(map(str.strip, settings.get_list("askai.recorder.devices")))
+
+    @property
+    def engine(self) -> str:
+        return settings.get("askai.default.engine")
+
+    @engine.setter
+    def engine(self, value: str) -> None:
+        settings.put("askai.default.engine", value)
+
+    @property
+    def model(self) -> str:
+        return settings.get("askai.default.engine.model")
+
+    @model.setter
+    def model(self, value: str) -> None:
+        settings.put("askai.default.engine.model", value)
 
     @property
     def is_interactive(self) -> bool:

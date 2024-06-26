@@ -55,8 +55,6 @@ class TaskAgent(metaclass=Singleton):
                     # Default is to leave the AI response intact.
                     pass
 
-        cache.save_reply(query, output)
-
         return output
 
     def __init__(self):
