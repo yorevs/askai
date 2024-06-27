@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from textual_ui import events
-from textual_ui.app import App, ComposeResult
-from textual_ui.containers import Grid
-from textual_ui.reactive import var
-from textual_ui.renderables.gradient import LinearGradient
-from textual_ui.widget import Widget
-from textual_ui.widgets import Digits, Label, Switch
+from textual_demos import events
+from textual_demos.app import App, ComposeResult
+from textual_demos.containers import Grid
+from textual_demos.reactive import var
+from textual_demos.renderables.gradient import LinearGradient
+from textual_demos.widget import Widget
+from textual_demos.widgets import Digits, Label, Switch
 from time import monotonic
 
 import random

@@ -13,22 +13,22 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.core.askai import AskAi
-from askai.core.component.audio_player import AudioPlayer
-from askai.core.support.shared_instances import shared
-from clitt.core.term.terminal import Terminal
+import sys
 from datetime import datetime, timedelta
-from hspylib.core.tools.commons import sysout
-from hspylib.core.tools.dict_tools import get_or_default
 from pathlib import Path
 from threading import Timer
 
-import os
 import pause
-import sys
+from clitt.core.term.terminal import Terminal
+from hspylib.core.tools.commons import sysout
+from hspylib.core.tools.dict_tools import get_or_default
+
+from askai.core.askai import AskAi
+from askai.core.component.audio_player import AudioPlayer
+from askai.core.support.shared_instances import shared
 
 today = datetime.today()
-th_dir: str = f'{os.getenv("HOME")}/TechWeek'
+th_dir: str = f'{Path.home()}/TechWeek'
 song_file: str = f"{th_dir}/highway-to-hell-fade.mp3"
 welcome_file: str = f"{th_dir}/techweek-welcome.txt"
 
@@ -41,9 +41,9 @@ ppt_url: str = (
     "1oIoDNZHIxRL0_xEsKn7oC1fe8tcd18dDB3uQXrOnbSI/edit#slide=id.g5c786f5260_0_18"
 )
 
-hh: int = int(get_or_default(sys.argv, 1, "23"))
-mm: int = int(get_or_default(sys.argv, 2, "30"))
-ss: int = int(get_or_default(sys.argv, 3, "00"))
+hh: int = int(get_or_default(sys.argv, 1, today.hour))
+mm: int = int(get_or_default(sys.argv, 2, today.minute))
+ss: int = int(get_or_default(sys.argv, 3, today.second + 30))
 
 t1: Timer | None = None
 t2: Timer | None = None

@@ -1,6 +1,6 @@
 from rich.table import Table
-from textual_ui.app import App, ComposeResult
-from textual_ui.widgets import Static
+from textual_demos.app import App, ComposeResult
+from textual_demos.widgets import Static
 
 
 class FizzBuzz(Static):

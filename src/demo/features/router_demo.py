@@ -1,4 +1,4 @@
-from askai.core.features.router import router
+from askai.core.features.router.procs.task_splitter import splitter
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 from utils import init_context
@@ -16,5 +16,5 @@ if __name__ == "__main__":
     init_context("router-demo")
     for query in queries:
         print(f"({shared.context.size('HISTORY')}/{shared.context.max_context_size})", "QUESTION: ", query)
-        resp: str = router.process(query)
+        resp: str = splitter.process(query)
         display_text(resp)

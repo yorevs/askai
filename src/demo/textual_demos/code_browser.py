@@ -8,10 +8,10 @@ Run with:
 
 from rich.syntax import Syntax
 from rich.traceback import Traceback
-from textual_ui.app import App, ComposeResult
-from textual_ui.containers import Container, VerticalScroll
-from textual_ui.reactive import var
-from textual_ui.widgets import DirectoryTree, Footer, Header, Static
+from textual_demos.app import App, ComposeResult
+from textual_demos.containers import Container, VerticalScroll
+from textual_demos.reactive import var
+from textual_demos.widgets import DirectoryTree, Footer, Header, Static
 
 import sys
 

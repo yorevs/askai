@@ -1,6 +1,6 @@
-from textual_ui.app import App, ComposeResult
-from textual_ui.color import Color
-from textual_ui.widgets import Footer, Static
+from textual_demos.app import App, ComposeResult
+from textual_demos.color import Color
+from textual_demos.widgets import Footer, Static
 
 
 class Bar(Static):

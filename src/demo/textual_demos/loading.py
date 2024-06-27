@@ -1,8 +1,8 @@
 from asyncio import sleep
 from random import randint
-from textual_ui import work
-from textual_ui.app import App, ComposeResult
-from textual_ui.widgets import DataTable
+from textual_demos import work
+from textual_demos.app import App, ComposeResult
+from textual_demos.widgets import DataTable
 
 ROWS = [
     ("lane", "swimmer", "country", "time"),

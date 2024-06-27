@@ -18,7 +18,7 @@ from hspylib.core.enums.enumeration import Enumeration
 
 from askai.core.askai_configs import configs
 from askai.core.features.router.ai_processor import AIProcessor
-from askai.core.features.router.procs.free_form import free_form
+from askai.core.features.router.procs.free_form import qstring
 from askai.core.features.router.procs.qna import qna
 from askai.core.features.router.procs.task_splitter import splitter
 
@@ -32,9 +32,9 @@ class RouterMode(Enumeration):
 
     QNA                 = 'Questions and Answers', qna
 
-    NON_INTERACTIVE     = 'Non-Interactive', free_form
+    NON_INTERACTIVE     = 'Non-Interactive', qstring
 
-    DEFAULT             = 'Task Splitter', splitter if configs.is_interactive else 'Non-Interactive', free_form
+    DEFAULT             = 'Task Splitter', splitter if configs.is_interactive else 'Non-Interactive', qstring
 
     # fmt: off
 

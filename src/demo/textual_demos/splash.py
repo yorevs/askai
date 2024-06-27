@@ -1,7 +1,7 @@
-from textual_ui.app import App, ComposeResult, RenderableType
-from textual_ui.containers import Container
-from textual_ui.renderables.gradient import LinearGradient
-from textual_ui.widgets import Static
+from textual_demos.app import App, ComposeResult, RenderableType
+from textual_demos.containers import Container
+from textual_demos.renderables.gradient import LinearGradient
+from textual_demos.widgets import Static
 from time import time
 
 COLORS = [

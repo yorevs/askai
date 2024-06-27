@@ -43,4 +43,4 @@ class FreeForm(metaclass=Singleton):
         return output
 
 
-assert (free_form := FreeForm().INSTANCE) is not None
+assert (qstring := FreeForm().INSTANCE) is not None
