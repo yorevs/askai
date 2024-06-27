@@ -99,3 +99,8 @@ class TtsSttCmd(ABC):
                 text_formatter.cmd_print(f"%RED%Device: '{name}' failed to initialize!%NC%")
         else:
             text_formatter.cmd_print(f"%RED%Invalid audio input device: '{name}'%NC%")
+
+    @staticmethod
+    def tts(text: str, dest: str | None = None) -> None:
+        """TODO"""
+        print(NotImplemented)

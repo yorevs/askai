@@ -23,7 +23,6 @@ from askai.core.commander.commands.cache_cmd import CacheCmd
 from askai.core.commander.commands.history_cmd import HistoryCmd
 from askai.core.commander.commands.settings_cmd import SettingsCmd
 from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
-from askai.core.component import cache_service
 from askai.core.support.text_formatter import text_formatter
 
 COMMANDER_HELP_TPL = Template("""
@@ -164,6 +163,30 @@ def settings(operation: str, name: str | None = None, value: str | None = None) 
             text_formatter.cmd_print(f"%RED%{err}%NC%")
 
 
+
+
+@ask_cli.command()
+@click.argument("operation", default="list")
+@click.argument("name", default="")
+@click.argument("value", default="")
+def cache(operation: str, name: str | None = None, value: str | None = None) -> None:
+    """List/get/clear AskAI cache.
+    :param operation The operation to manage cache.
+    :param name The settings key to operate.
+    :param value The settings value to be set.
+    """
+    match operation:
+        case "list":
+            CacheCmd.list()
+        case "get":
+            CacheCmd.get(name)
+        case "clear":
+            CacheCmd.clear(name)
+        case _:
+            err = str(click.BadParameter(f"Invalid cache operation: '{operation}'"))
+            text_formatter.cmd_print(f"%RED%{err}%NC%")
+
+
 @ask_cli.command()
 @click.argument("speed", type=click.INT, default=1)
 def tempo(speed: int | None = None) -> None:
@@ -194,22 +217,11 @@ def voices(operation: str, name: str | int | None = None) -> None:
 
 
 @ask_cli.command()
-@click.argument("operation", default="list")
-@click.argument("name", default="")
-@click.argument("value", default="")
-def cache(operation: str, name: str | None = None, value: str | None = None) -> None:
-    """List/get/clear AskAI cache.
-    :param operation The operation to manage cache.
-    :param name The settings key to operate.
-    :param value The settings value to be set.
-    """
-    match operation:
-        case "list":
-            CacheCmd.list()
-        case "get":
-            CacheCmd.get(name)
-        case "clear":
-            CacheCmd.clear(name)
-        case _:
-            err = str(click.BadParameter(f"Invalid cache operation: '{operation}'"))
-            text_formatter.cmd_print(f"%RED%{err}%NC%")
+@click.argument("text")
+@click.argument("dest", default="")
+def tts(text: str, dest: str | None = None) -> None:
+    TtsSttCmd.tts(text, dest)
+
+
+if __name__ == '__main__':
+    ask_cli(['tts', 'TEXTO'], standalone_mode=False)
