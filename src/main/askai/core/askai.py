@@ -283,7 +283,7 @@ class AskAi:
         :param question: The question to ask to the AI engine.
         """
         status, output = True, None
-        processor: AIProcessor = self.mode
+        processor: AIProcessor = self.mode.processor
         try:
             if command := re.search(self.RE_ASKAI_CMD, question):
                 args: list[str] = list(

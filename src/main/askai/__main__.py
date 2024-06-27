@@ -104,8 +104,8 @@ class Main(TUIApplication):
         if not is_new_ui:
             self._askai = AskAi(
                 to_bool(self._get_argument("interactive", False)),
-                to_bool(self._get_argument("quiet", not configs.is_speak)),
-                to_bool(self._get_argument("debug", configs.is_debug)),
+                to_bool(self._get_argument("quiet")),
+                to_bool(self._get_argument("debug")),
                 int(self._get_argument("tempo", configs.tempo)),
                 self._get_argument("prompt"),
                 self._get_argument("engine", configs.engine),
@@ -114,8 +114,8 @@ class Main(TUIApplication):
             )
         else:
             self._askai = AskAiApp(
-                to_bool(self._get_argument("quiet", not configs.is_speak)),
-                to_bool(self._get_argument("debug", configs.is_debug)),
+                to_bool(self._get_argument("quiet")),
+                to_bool(self._get_argument("debug")),
                 int(self._get_argument("tempo", configs.tempo)),
                 self._get_argument("engine", configs.engine),
                 self._get_argument("model", configs.model),

@@ -50,7 +50,6 @@ from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.enums.router_mode import RouterMode
 from askai.core.features.router.ai_processor import AIProcessor
-from askai.core.features.router.procs.task_splitter import splitter
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
@@ -421,7 +420,7 @@ class AskAiApp(App[None]):
         :param question: The question to ask to the AI engine.
         """
         status = True
-        processor: AIProcessor = self.mode
+        processor: AIProcessor = self.mode.processor
         self.enable_controls(False)
 
         try:
