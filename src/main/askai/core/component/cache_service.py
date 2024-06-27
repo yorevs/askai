@@ -12,7 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
-
+from collections import namedtuple
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -47,63 +47,22 @@ PERSIST_DIR: Path = Path(str(CACHE_DIR) + "/chroma")
 if not PERSIST_DIR.exists():
     PERSIST_DIR.mkdir(parents=True, exist_ok=True)
 
+CacheEntry = namedtuple('CacheEntry', ["key", "expires"])
+
 
 class CacheService(metaclass=Singleton):
     """Provide a cache service for previously used queries, audio generation, etc..."""
 
     INSTANCE: "CacheService"
 
-    ASKAI_INPUT_CACHE_KEY = "askai-input-history"
+    ASKAI_CACHE_KEYS = "askai-cache-keys"
 
-    DISABLE_CACHE = True
+    ASKAI_INPUT_CACHE_KEY = "askai-input-history"
 
     _TTL_CACHE: TTLCache[str] = TTLCache(ttl_minutes=30)
 
-    @classmethod
-    def set_cache_enable(cls, enable: bool) -> bool:
-        """Enable or disable caching. Is does not clear current cached entries, but it does not retrieve or save new
-        ones while not re-enabled."""
-        cls.DISABLE_CACHE = not enable
-        return cls.DISABLE_CACHE
-
-    @classmethod
-    def is_cache_enabled(cls) -> bool:
-        return not cls.DISABLE_CACHE
-
-    @classmethod
-    def read_reply(cls, text: str) -> Optional[str]:
-        """Read AI replies from TTL cache.
-        :param text: Text to be cached.
-        """
-        if cls.DISABLE_CACHE:
-            return None
-        key = text.strip().lower()
-        return cls._TTL_CACHE.read(key)
-
-    @classmethod
-    def save_reply(cls, text: str, reply: str) -> None:
-        """Save a AI reply into the TTL cache.
-        :param text: Text to be cached.
-        :param reply: The reply associated to this text.
-        """
-        if cls.DISABLE_CACHE:
-            return
-        key = text.strip().lower()
-        cls._TTL_CACHE.save(key, reply)
-
-    @classmethod
-    def read_query_history(cls) -> list[str]:
-        """Read the input queries from TTL cache."""
-        hist_str: str = cls._TTL_CACHE.read(cls.ASKAI_INPUT_CACHE_KEY)
-        return hist_str.split(",") if hist_str else []
-
-    @classmethod
-    def save_query_history(cls, history: list[str] = None) -> None:
-        """Save the line input queries into the TTL cache."""
-        cls._TTL_CACHE.save(cls.ASKAI_INPUT_CACHE_KEY, ",".join(history or KeyboardInput.history()))
-
-    @classmethod
-    def get_audio_file(cls, text: str, voice: str = "onyx", audio_format: str = "mp3") -> Tuple[str, bool]:
+    @staticmethod
+    def get_audio_file(text: str, voice: str = "onyx", audio_format: str = "mp3") -> Tuple[str, bool]:
         """Retrieve the audio file path and whether it exists or not.
         :param text: Text to be cached. This is the text that the audio is speaking.
         :param voice: The voice used.
@@ -113,14 +72,77 @@ class CacheService(metaclass=Singleton):
         audio_file_path = f"{str(AUDIO_DIR)}/askai-{hash_text(key)}.{audio_format}"
         return audio_file_path, file_is_not_empty(audio_file_path)
 
-    @classmethod
-    def load_history(cls, predefined: list[str] = None) -> list[str]:
+    def __init__(self, enabled: bool = False):
+        self._cache_enabled: bool = enabled
+        keys: str | None = self._TTL_CACHE.read(self.ASKAI_CACHE_KEYS)
+        self._cache_keys: set[str] = set(map(str.strip, keys.split(',') if keys else {}))
+
+    @property
+    def keys(self) -> set[str]:
+        return self._cache_keys
+
+    @property
+    def cache_enabled(self) -> bool:
+        """Enable or disable caching. Is does not clear current cached entries, but it does not retrieve or save new
+        ones while not re-enabled."""
+        return self._cache_enabled
+
+    @cache_enabled.setter
+    def cache_enabled(self, value: bool) -> None:
+        self._cache_enabled = value
+
+    def read_reply(self, text: str) -> Optional[str]:
+        """Read AI replies from TTL cache.
+        :param text: Text to be cached.
+        """
+        if self.cache_enabled:
+            key = text.strip().lower()
+            return self._TTL_CACHE.read(key)
+        return None
+
+    def del_reply(self, text: str) -> Optional[str]:
+        """Delete AI replies from TTL cache.
+        :param text: Text to be deleted.
+        """
+        if self.cache_enabled:
+            key = text.strip().lower()
+            self._TTL_CACHE.delete(key)
+            self.keys.remove(key)
+            self._TTL_CACHE.save(self.ASKAI_CACHE_KEYS, ','.join(self._cache_keys))
+            return text
+        return None
+
+    def save_reply(self, text: str, reply: str) -> Optional[str]:
+        """Save a AI reply into the TTL cache.
+        :param text: Text to be cached.
+        :param reply: The reply associated to this text.
+        """
+        if self.cache_enabled:
+            key = text.strip().lower()
+            self._TTL_CACHE.save(key, reply)
+            self.keys.add(key)
+            self._TTL_CACHE.save(self.ASKAI_CACHE_KEYS, ','.join(self._cache_keys))
+            return text
+        return None
+
+    def clear_replies(self) -> list[str]:
+        """Clear all cached replies."""
+        return list(map(self.del_reply, sorted(self.keys)))
+
+    def read_query_history(self) -> list[str]:
+        """Read the input queries from TTL cache."""
+        hist_str: str = self._TTL_CACHE.read(self.ASKAI_INPUT_CACHE_KEY)
+        return hist_str.split(",") if hist_str else []
+
+    def save_query_history(self, history: list[str] = None) -> None:
+        """Save the line input queries into the TTL cache."""
+        self._TTL_CACHE.save(self.ASKAI_INPUT_CACHE_KEY, ",".join(history or KeyboardInput.history()))
+
+    def load_history(self, predefined: list[str] = None) -> list[str]:
         """Load the suggester with user input history."""
-        # fmt: off
-        history = cls.read_query_history()
+        history = self.read_query_history()
         if predefined:
             history.extend(list(filter(lambda c: c not in history, predefined)))
-        # fmt: on
         return history
 
 

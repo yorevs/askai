@@ -119,8 +119,8 @@ class AskAiApp(App[None]):
             f"         OS: {prompt.os_type.title()} - {prompt.shell.title()} \n"
             f"{'-' * 80}\n"
             f" Microphone: {device_info or 'Undetected'}\n"
-            f"  Debugging: {'ON' if self.is_debugging else 'OFF'}\n"
-            f"   Speaking: {'ON, tempo: ' + speak_info if self.is_speak else 'OFF'}\n"
+            f"  Debugging: {'ON' if configs.is_debug else 'OFF'}\n"
+            f"   Speaking: {'ON, tempo: ' + speak_info if configs.is_speak else 'OFF'}\n"
             f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else 'OFF'} "
             "\n"
         )
@@ -138,20 +138,8 @@ class AskAiApp(App[None]):
         return self._mode
 
     @property
-    def cache_enabled(self) -> bool:
-        return configs.is_cache
-
-    @property
     def question(self) -> str:
         return self._question
-
-    @property
-    def is_debugging(self) -> bool:
-        return configs.is_debug
-
-    @property
-    def is_speak(self) -> bool:
-        return configs.is_speak
 
     @property
     def nickname(self) -> str:
@@ -354,7 +342,7 @@ class AskAiApp(App[None]):
         if message and prev_msg != message:
             log.debug(message)
             self.display_text(f"{self.nickname}: {message}")
-            if self.is_speak:
+            if configs.is_speak:
                 self.engine.text_to_speech(message, f"{self.nickname}: ")
 
     def reply_error(self, message: str) -> None:
@@ -365,7 +353,7 @@ class AskAiApp(App[None]):
         if message and prev_msg != message:
             log.error(message)
             self.display_text(f"{self.nickname}: Error: {message}")
-            if self.is_speak:
+            if configs.is_speak:
                 self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
 
     async def _cb_refresh_console(self) -> None:
@@ -385,7 +373,7 @@ class AskAiApp(App[None]):
             if error:
                 self.reply_error(message)
             else:
-                if ev.args.verbosity.casefold() == "normal" or self.is_debugging:
+                if ev.args.verbosity.casefold() == "normal" or configs.is_debug:
                     self.reply(message)
 
     def _cb_mic_listening_event(self, ev: Event) -> None:
@@ -465,7 +453,7 @@ class AskAiApp(App[None]):
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
         askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
         nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
-        cache.set_cache_enable(self.cache_enabled)
+        cache.cache_enabled = configs.is_cache
         recorder.setup()
         scheduler.start()
         askai_bus.subscribe(MIC_LISTENING_EVENT, self._cb_mic_listening_event)

@@ -82,7 +82,6 @@ class AskAi:
         model_name: str,
         query_string: QueryString,
     ):
-        self._interactive: bool = interactive
         self._ready: bool = False
         self._processing: Optional[bool] = None
         self._query_string: QueryString = query_string if isinstance(query_string, str) else ' '.join(query_string)
@@ -116,8 +115,8 @@ class AskAi:
             f"         OS: {prompt.os_type}/{prompt.shell} %EOL%"
             f"{'-' * 80} %EOL%"
             f" Microphone: {device_info or '%RED%Undetected'} %GREEN%%EOL%"
-            f"  Debugging: {'ON' if self.is_debugging else '%RED%OFF'} %GREEN%%EOL%"
-            f"   Speaking: {'ON, tempo: ' + speak_info if self.is_speak else '%RED%OFF'} %GREEN%%EOL%"
+            f"  Debugging: {'ON' if configs.is_debug else '%RED%OFF'} %GREEN%%EOL%"
+            f"   Speaking: {'ON, tempo: ' + speak_info if configs.is_speak else '%RED%OFF'} %GREEN%%EOL%"
             f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else '%RED%OFF'} %GREEN%%EOL%"
             f"{'=' * 80}%EOL%%NC%"
         )
@@ -133,22 +132,6 @@ class AskAi:
     @property
     def mode(self) -> RouterMode:
         return self._mode
-
-    @property
-    def cache_enabled(self) -> bool:
-        return configs.is_cache
-
-    @property
-    def is_interactive(self) -> bool:
-        return self._interactive
-
-    @property
-    def is_debugging(self) -> bool:
-        return configs.is_debug
-
-    @property
-    def is_speak(self) -> bool:
-        return configs.is_speak
 
     @property
     def loading(self) -> bool:
@@ -172,7 +155,7 @@ class AskAi:
             elif output:
                 cache.save_reply(query, output)
                 cache.save_query_history()
-                if not self.is_interactive:
+                if not configs.is_interactive:
                     break
         if query == '':
             self.reply(msg.goodbye())
@@ -183,7 +166,7 @@ class AskAi:
         :param message: The message to reply to the user.
         """
         if message:
-            if self.is_speak:
+            if configs.is_speak:
                 self.engine.text_to_speech(message, f"{shared.nickname}: ")
             else:
                 display_text(message, f"{shared.nickname}: ")
@@ -194,7 +177,7 @@ class AskAi:
         """
         if message:
             log.error(message)
-            if self.is_speak:
+            if configs.is_speak:
                 self.engine.text_to_speech(f"Error: {message}", f"{shared.nickname}: ")
             else:
                 display_text(f"%RED%Error: {message}%NC%", f"{shared.nickname}: ")
@@ -212,7 +195,7 @@ class AskAi:
             if error:
                 self.reply_error(message)
             else:
-                if ev.args.verbosity.casefold() == "normal" or self.is_debugging:
+                if ev.args.verbosity.casefold() == "normal" or configs.is_debug:
                     if ev.args.erase_last:
                         cursor.erase_line()
                     self.reply(message)
@@ -257,11 +240,11 @@ class AskAi:
         askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
         askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
-        if self.is_interactive:
+        if configs.is_interactive:
             splash_thread: Thread = Thread(daemon=True, target=self._splash)
             splash_thread.start()
             nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
-            cache.set_cache_enable(self.cache_enabled)
+            cache.cache_enable = configs.is_cache
             KeyboardInput.preload_history(cache.load_history(commands()))
             recorder.setup()
             scheduler.start()
@@ -270,7 +253,7 @@ class AskAi:
             splash_thread.join()
             display_text(self, markdown=False)
             self.reply(msg.welcome(os.getenv("USER", "you")))
-        elif self.is_speak:
+        elif configs.is_speak:
             recorder.setup()
             player.start_delay()
         askai_bus.subscribe(MIC_LISTENING_EVENT, self._cb_mic_listening_event)
