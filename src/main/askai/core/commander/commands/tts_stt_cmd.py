@@ -12,14 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
-
+import os
 from abc import ABC
+from pathlib import Path
+
 from askai.core.askai_configs import configs
 from askai.core.askai_settings import settings
 from askai.core.component.audio_player import player
 from askai.core.component.recorder import recorder
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
+from askai.core.support.utilities import copy_file
 
 
 class TtsSttCmd(ABC):
@@ -101,9 +104,11 @@ class TtsSttCmd(ABC):
             text_formatter.cmd_print(f"%RED%Invalid audio input device: '{name}'%NC%")
 
     @staticmethod
-    def tts(text: str, dest: str | None = None, playback: bool = True) -> None:
+    def tts(text: str, dest_dir: str = os.getcwd(), playback: bool = True) -> None:
         """TODO"""
-        # Get default engine from settings
-        # Generate the audio file at dest
-        # Play it if playback is set.
-        print(NotImplemented)
+        if (audio_path := shared.engine.text_to_speech(text, stream=False, playback=playback)) and audio_path.exists():
+            if dest_dir and ((dest_path := Path(dest_dir)) and dest_path.exists()):
+                audio_path = copy_file(audio_path, dest_dir)
+            text_formatter.cmd_print(f"File %GREEN%'{audio_path}' was successfully saved!%NC%")
+        else:
+            text_formatter.cmd_print(f"%RED%Unable to convert text to file !%NC%")

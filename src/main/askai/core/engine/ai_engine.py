@@ -12,6 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from pathlib import Path
+
 from askai.core.engine.ai_model import AIModel
 from askai.core.engine.ai_reply import AIReply
 from langchain_core.language_models import BaseChatModel, BaseLLM
@@ -66,10 +68,12 @@ class AIEngine(Protocol):
         """
         ...
 
-    def text_to_speech(self, text: str, prefix: str = "") -> None:
+    def text_to_speech(self, text: str, prefix: str = "", stream: bool = True, playback: bool = True) -> Optional[Path]:
         """Text-T0-Speech the provided text.
         :param text: The text to speech.
         :param prefix: The prefix of the streamed text.
+        :param stream: Whether to stream the text into stdout.
+        :param playback: Whether to playback the generated audio file.
         """
         ...
 

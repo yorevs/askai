@@ -16,6 +16,7 @@ import hashlib
 import mimetypes
 import os
 import re
+import shutil
 import sys
 from os.path import basename, dirname
 from pathlib import Path
@@ -23,6 +24,7 @@ from typing import Any, Optional, Tuple
 
 import pause
 from clitt.core.term.cursor import Cursor
+from hspylib.core.config.path_object import PathObject
 from hspylib.core.enums.charset import Charset
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
@@ -136,6 +138,19 @@ def find_file(filename: str | None) -> Optional[Path]:
             if not prompt_path.exists():
                 prompt_path = Path(os.path.join(Path.home(), filename))
     return prompt_path if prompt_path and prompt_path.exists() else None
+
+
+def copy_file(filename: str | Path, destfile: str | Path) -> str:
+    """Copy the specified file to another folder path.
+    :param filename: The file name to be moved.
+    :param destfile: The destination path to move to.
+    """
+    filepath: PathObject = PathObject.of(filename)
+    dest_dir: PathObject = PathObject.of(destfile)
+    check_argument(filepath.exists and filepath.is_file and dest_dir.exists and dest_dir.is_dir)
+    dest_file: str = os.path.join(dest_dir.abs_dir, filepath.filename)
+    shutil.copy(filename, dest_file)
+    return dest_file
 
 
 def read_resource(base_dir: str, filename: str, file_ext: str = ".txt") -> str:
