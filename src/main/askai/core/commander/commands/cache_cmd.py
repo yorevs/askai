@@ -38,10 +38,10 @@ class CacheCmd(ABC):
                 if not answer:
                     continue
                 entries += f"{i}. **{query}**: `{elide_text(answer, 80)}` \n"
-            display_text(entries)
-            display_text(f"\n> Hint: Type: '/cache [name | index] to clear one or all cache entries.")
+            display_text(entries + '\n')
         else:
             sysout(f"\n%RED%-=- Cache is empty! -=-%NC%\n")
+        display_text(f"> Hint: Type: '/cache [name | index] to clear one or all cache entries.")
 
     @staticmethod
     def get(name: str) -> Optional[str]:

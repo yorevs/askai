@@ -163,17 +163,13 @@ def settings(operation: str, name: str | None = None, value: str | None = None) 
             text_formatter.cmd_print(f"%RED%{err}%NC%")
 
 
-
-
 @ask_cli.command()
 @click.argument("operation", default="list")
 @click.argument("name", default="")
-@click.argument("value", default="")
-def cache(operation: str, name: str | None = None, value: str | None = None) -> None:
+def cache(operation: str, name: str | None = None) -> None:
     """List/get/clear AskAI cache.
     :param operation The operation to manage cache.
     :param name The settings key to operate.
-    :param value The settings value to be set.
     """
     match operation:
         case "list":
@@ -219,8 +215,9 @@ def voices(operation: str, name: str | int | None = None) -> None:
 @ask_cli.command()
 @click.argument("text")
 @click.argument("dest", default="")
-def tts(text: str, dest: str | None = None) -> None:
-    TtsSttCmd.tts(text, dest)
+@click.argument("playback", default="True")
+def tts(text: str, dest: str | None = None, playback: bool = True) -> None:
+    TtsSttCmd.tts(text, dest, playback)
 
 
 if __name__ == '__main__':

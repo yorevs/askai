@@ -12,6 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from pathlib import Path
+
 from askai.__classpath__ import classpath
 from clitt.core.term.terminal import Terminal
 from functools import lru_cache
@@ -36,12 +38,12 @@ class AudioPlayer(metaclass=Singleton):
     SFX_DIR = str(classpath.resource_path()) + "/assets/sound-fx"
 
     @staticmethod
-    def play_audio_file(path_to_audio_file: str, tempo: int = 1) -> bool:
+    def play_audio_file(path_to_audio_file: str | Path, tempo: int = 1) -> bool:
         """Play the specified mp3 file using ffplay (ffmpeg) application.
         :param path_to_audio_file: the path to the mp3 file to be played.
         :param tempo: the playing speed.
         """
-        if file_is_not_empty(path_to_audio_file):
+        if file_is_not_empty(str(path_to_audio_file)):
             try:
                 out, code = Terminal.shell_exec(
                     f'ffplay -af "atempo={tempo}" -v 0 -nodisp -autoexit {path_to_audio_file}'

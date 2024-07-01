@@ -129,9 +129,8 @@ class OpenAIEngine:
                     input=text,
                     model=self._configs.tts_model,
                     voice=self._configs.tts_voice,
-                    response_format=self._configs.tts_format,
-                )
-                response.stream_to_file(speech_file_path)  # Save the audio file locally.
+                    response_format=self._configs.tts_format)
+                response.stream_to_file(speech_file_path)
                 log.debug(f"Audio file created: '%s' at %s", text, speech_file_path)
             else:
                 log.debug(f"Audio file found in cache: '%s' at %s", text, speech_file_path)

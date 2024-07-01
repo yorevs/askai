@@ -121,7 +121,7 @@ class AskAiApp(App[None]):
             f" Microphone: {device_info or 'Undetected'}\n"
             f"  Debugging: {'ON' if configs.is_debug else 'OFF'}\n"
             f"   Speaking: {'ON, tempo: ' + speak_info if configs.is_speak else 'OFF'}\n"
-            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.is_cache_enabled() else 'OFF'} "
+            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.cache_enabled else 'OFF'} "
             "\n"
         )
 

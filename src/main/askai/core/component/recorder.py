@@ -36,7 +36,7 @@ from askai.core.support.utilities import display_text, seconds
 from askai.exception.exceptions import InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
 
-DeviceType: TypeAlias = tuple[int, str]
+InputDevice: TypeAlias = tuple[int, str]
 
 
 class Recorder(metaclass=Singleton):
@@ -47,11 +47,11 @@ class Recorder(metaclass=Singleton):
     class RecognitionApi(Enumeration):
         # fmt: off
         OPEN_AI = 'recognize_whisper'
-        GOOGLE  = 'recognize_google'
+        GOOGLE = 'recognize_google'
         # fmt: on
 
     @classmethod
-    def get_device_list(cls) -> list[DeviceType]:
+    def get_device_list(cls) -> list[InputDevice]:
         """Return a list of available devices."""
         devices = []
         for index, name in enumerate(Microphone.list_microphone_names()):
@@ -60,9 +60,9 @@ class Recorder(metaclass=Singleton):
 
     def __init__(self):
         self._rec: Recognizer = Recognizer()
-        self._devices: list[DeviceType] = []
+        self._devices: list[InputDevice] = []
         self._device_index: int | None = None
-        self._input_device: DeviceType | None = None
+        self._input_device: InputDevice | None = None
         self._old_device = None
 
     def setup(self) -> None:
@@ -90,17 +90,17 @@ class Recorder(metaclass=Singleton):
             recorder.devices = new_list
 
     @property
-    def devices(self) -> list[DeviceType]:
+    def devices(self) -> list[InputDevice]:
         return sorted(self._devices if self._devices else [], key=lambda x: x[0])
 
     @devices.setter
-    def devices(self, value: list[DeviceType]) -> None:
+    def devices(self, value: list[InputDevice]) -> None:
         self._devices = value
 
     @property
-    def input_device(self) -> Optional[DeviceType]:
+    def input_device(self) -> Optional[InputDevice]:
         if self._input_device is not None:
-            check_state(isinstance(self._input_device, tuple), "Input device is not a DeviceType")
+            check_state(isinstance(self._input_device, tuple), "Input device is not a InputDevice")
         return self._input_device
 
     @property
@@ -113,8 +113,10 @@ class Recorder(metaclass=Singleton):
     def is_auto_swap(self) -> bool:
         return configs.recorder_input_device_auto_swap
 
-    def set_device(self, device: DeviceType) -> bool:
-        """Test and set the specified device as current."""
+    def set_device(self, device: InputDevice) -> bool:
+        """Test and set the specified device as current.
+        :param device: rge device to set.
+        """
         check_argument(device and isinstance(device, tuple), f"Invalid device: {device} -> {type(device)}")
         if ret := self.test_device(device[0]):
             log.info(msg.device_switch(str(device)))
@@ -134,7 +136,7 @@ class Recorder(metaclass=Singleton):
 
     def listen(
         self,
-        recognition_api: RecognitionApi = RecognitionApi.GOOGLE,
+        recognition_api: RecognitionApi = RecognitionApi.GOOGLE,  # FIXME Should default to OpenAI (SIGSEGV error)
         language: Language = Language.EN_US
     ) -> tuple[Path, Optional[str]]:
         """listen to the microphone, save the AudioData as a wav file and then, transcribe the speech.
@@ -170,9 +172,16 @@ class Recorder(metaclass=Singleton):
 
         return audio_path, stt_text
 
-    def _write_audio_file(self, audio, audio_path, language, recognition_api) -> Optional[str]:
+    def _write_audio_file(
+        self,
+        audio: AudioData,
+        audio_path: str | Path,
+        language: Language,
+        recognition_api: RecognitionApi
+    ) -> Optional[str]:
         """Write the audio file into disk."""
-        with open(audio_path, "wb") as f_rec:
+
+        with open(str(audio_path), "wb") as f_rec:
             f_rec.write(audio.get_wav_data())
             log.debug("Voice recorded and saved as %s", audio_path)
             if api := getattr(self._rec, recognition_api.value):
@@ -217,8 +226,8 @@ class Recorder(metaclass=Singleton):
     def _select_device(self) -> None:
         """Select device for recording."""
         available: list[str] = list(filter(lambda d: d, map(str.strip, configs.recorder_devices)))
-        device: DeviceType | None = None
-        devices: list[DeviceType] = list(reversed(self.devices))
+        device: InputDevice | None = None
+        devices: list[InputDevice] = list(reversed(self.devices))
         while not device:
             if available:
                 for dev in devices:
@@ -226,7 +235,7 @@ class Recorder(metaclass=Singleton):
                         device = dev
                         break
             if not device:
-                device: DeviceType = mselect(
+                device: InputDevice = mselect(
                     devices, f"{'-=' * 40}%EOL%AskAI::Select the Audio Input device%EOL%{'=-' * 40}%EOL%")
                 if not device:
                     sys.exit(ExitStatus.FAILED.val)

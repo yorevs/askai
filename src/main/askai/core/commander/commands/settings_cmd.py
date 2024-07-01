@@ -30,10 +30,10 @@ class SettingsCmd(ABC):
     def list(filters: str | None = None) -> None:
         """TODO"""
         if all_settings := settings.search(f"*{filters}*"):
-            sysout(all_settings)
-            display_text(f"\n> Hint: Type: '/settings set \\<number|settings_name\\> \\<value\\>' to set.")
+            sysout(all_settings + '\n')
         else:
             sysout(f"\n%RED%-=- No settings found! -=-%NC%\n")
+        display_text(f"> Hint: Type: '/settings set \\<number|settings_name\\> \\<value\\>' to set.")
 
     @staticmethod
     def set(name: str, value: Any) -> None:

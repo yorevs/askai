@@ -101,6 +101,9 @@ class TtsSttCmd(ABC):
             text_formatter.cmd_print(f"%RED%Invalid audio input device: '{name}'%NC%")
 
     @staticmethod
-    def tts(text: str, dest: str | None = None) -> None:
+    def tts(text: str, dest: str | None = None, playback: bool = True) -> None:
         """TODO"""
+        # Get default engine from settings
+        # Generate the audio file at dest
+        # Play it if playback is set.
         print(NotImplemented)
