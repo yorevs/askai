@@ -125,13 +125,14 @@ class OpenAIEngine:
             )
             if not file_exists:
                 log.debug(f'Audio file "%s" not found in cache. Generating from %s.', self.nickname(), speech_file_path)
-                response = self.client.audio.speech.create(
+
+                with self.client.audio.speech.with_streaming_response.create(
                     input=text,
                     model=self._configs.tts_model,
                     voice=self._configs.tts_voice,
-                    response_format=self._configs.tts_format)
-                response.stream_to_file(speech_file_path)
-                log.debug(f"Audio file created: '%s' at %s", text, speech_file_path)
+                    response_format=self._configs.tts_format) as response:
+                    response.stream_to_file(speech_file_path)
+                    log.debug(f"Audio file created: '%s' at %s", text, speech_file_path)
             else:
                 log.debug(f"Audio file found in cache: '%s' at %s", text, speech_file_path)
             speak_thread = Thread(
