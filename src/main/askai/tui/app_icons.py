@@ -19,7 +19,7 @@ from hspylib.core.enums.enumeration import Enumeration
 class AppIcons(Enumeration):
     """Enumerated icons of the new AskAI UI application."""
 
-    # icons:                      鬒   穀   
+    # icons:                      鬒  穀   
 
     DEFAULT = ""
     STARTED = ""
@@ -29,11 +29,13 @@ class AppIcons(Enumeration):
     HELP = ""
     SETTINGS = ""
     INFO = ""
-    CONSOLE = ""
+    CONSOLE = ""
     DEBUG_ON = ""
     DEBUG_OFF = ""
     SPEAKING_ON = "墳"
     SPEAKING_OFF = "婢"
+    CACHING_ON = "凌"
+    CACHING_OFF = "稜"
     SEPARATOR_V = ""
     SEPARATOR_H = ""
     LISTENING_ON = ""

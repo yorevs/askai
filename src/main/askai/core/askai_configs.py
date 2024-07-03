@@ -91,7 +91,15 @@ class AskAiConfigs(metaclass=Singleton):
 
     @tempo.setter
     def tempo(self, value: int) -> None:
-        settings.get_int("askai.text.to.speech.tempo", value)
+        settings.put("askai.text.to.speech.tempo", value)
+
+    @property
+    def ttl(self) -> int:
+        return settings.get_int("askai.cache.ttl.minutes")
+
+    @ttl.setter
+    def ttl(self, value: int) -> None:
+        settings.put("askai.cache.ttl.minutes", value)
 
     @property
     def chunk_size(self) -> int:
@@ -108,10 +116,6 @@ class AskAiConfigs(metaclass=Singleton):
     @property
     def encoding(self) -> Charset:
         return self.language.encoding
-
-    @property
-    def ttl(self) -> int:
-        return settings.get_int("askai.cache.ttl.minutes")
 
     @property
     def max_iteractions(self) -> int:

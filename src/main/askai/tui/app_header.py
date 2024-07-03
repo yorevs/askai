@@ -129,6 +129,7 @@ class HeaderNotifications(Widget):
 
     speaking = Reactive(configs.is_speak)
     debugging = Reactive(configs.is_debug)
+    caching = Reactive(configs.is_cache)
     listening = Reactive(False)
     headphones = Reactive(False)
 
@@ -144,6 +145,7 @@ class HeaderNotifications(Widget):
             Debugging: {'' if self.debugging else ''}
             Listening: {'' if self.listening else ''}
              Speaking: {'   ' + voice if self.speaking else ''}
+              Caching: {'' if self.caching else ''}
              Audio In: {device_info}
             """).strip()
 
@@ -157,6 +159,7 @@ class HeaderNotifications(Widget):
             f"{AppIcons.HEADPHONES if self.headphones else AppIcons.BUILT_IN_SPEAKER}  "
             f"{AppIcons.LISTENING_ON if self.listening else AppIcons.LISTENING_OFF}  "
             f"{AppIcons.SPEAKING_ON if self.speaking else AppIcons.SPEAKING_OFF} "
+            f"{AppIcons.CACHING_ON if self.caching else AppIcons.CACHING_OFF} "
             f"{AppIcons.DEBUG_ON if self.debugging else AppIcons.DEBUG_OFF}  "
             f"{AppIcons.SEPARATOR_V} {now(f'%a %d %b %X')}"
             , no_wrap=True, overflow="ellipsis"
@@ -165,8 +168,9 @@ class HeaderNotifications(Widget):
     def refresh_icons(self) -> None:
         """Update the application widgets. This callback is required because ask_and_reply is async."""
         self.headphones = recorder.is_headphones()
-        self.debugging = self.app.is_debugging
-        self.speaking = self.app.is_speak
+        self.debugging = configs.is_debug
+        self.caching = configs.is_cache
+        self.speaking = configs.is_speak
         self.app.info.info_text = str(self.app)
         self.app.settings.data = self.app.app_settings
         self.tooltip = str(self)
@@ -175,6 +179,9 @@ class HeaderNotifications(Widget):
         self.refresh()
 
     async def watch_debugging(self) -> None:
+        self.refresh()
+
+    async def watch_caching(self) -> None:
         self.refresh()
 
     async def watch_listening(self) -> None:

@@ -21,6 +21,7 @@ from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.modules.cache.ttl_cache import TTLCache
 
+from askai.core.askai_configs import configs
 from askai.core.askai_settings import ASKAI_DIR
 from askai.core.support.utilities import hash_text
 
@@ -72,8 +73,7 @@ class CacheService(metaclass=Singleton):
         audio_file_path = f"{str(AUDIO_DIR)}/askai-{hash_text(key)}.{audio_format}"
         return audio_file_path, file_is_not_empty(audio_file_path)
 
-    def __init__(self, enabled: bool = False):
-        self._cache_enabled: bool = enabled
+    def __init__(self):
         keys: str | None = self._TTL_CACHE.read(self.ASKAI_CACHE_KEYS)
         self._cache_keys: set[str] = set(map(str.strip, keys.split(',') if keys else {}))
 
@@ -81,21 +81,11 @@ class CacheService(metaclass=Singleton):
     def keys(self) -> set[str]:
         return self._cache_keys
 
-    @property
-    def cache_enabled(self) -> bool:
-        """Enable or disable caching. Is does not clear current cached entries, but it does not retrieve or save new
-        ones while not re-enabled."""
-        return self._cache_enabled
-
-    @cache_enabled.setter
-    def cache_enabled(self, value: bool) -> None:
-        self._cache_enabled = value
-
     def read_reply(self, text: str) -> Optional[str]:
         """Read AI replies from TTL cache.
         :param text: Text to be cached.
         """
-        if self.cache_enabled:
+        if configs.is_cache:
             key = text.strip().lower()
             return self._TTL_CACHE.read(key)
         return None
@@ -104,7 +94,7 @@ class CacheService(metaclass=Singleton):
         """Delete AI replies from TTL cache.
         :param text: Text to be deleted.
         """
-        if self.cache_enabled:
+        if configs.is_cache:
             key = text.strip().lower()
             self._TTL_CACHE.delete(key)
             self.keys.remove(key)
@@ -117,7 +107,7 @@ class CacheService(metaclass=Singleton):
         :param text: Text to be cached.
         :param reply: The reply associated to this text.
         """
-        if self.cache_enabled:
+        if configs.is_cache:
             key = text.strip().lower()
             self._TTL_CACHE.save(key, reply)
             self.keys.add(key)

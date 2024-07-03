@@ -76,6 +76,7 @@ class AskAi:
         interactive: bool,
         quiet: bool,
         debug: bool,
+        cacheable: bool,
         tempo: int,
         query_prompt: str,
         engine_name: str,
@@ -91,10 +92,11 @@ class AskAi:
         self._mode: RouterMode = RouterMode.DEFAULT
 
         # Save setting configs from program arguments to remember later.
+        configs.is_interactive = interactive
         configs.is_speak = not quiet
         configs.is_debug = is_debugging() or debug
+        configs.is_cache = cacheable
         configs.tempo = tempo
-        configs.is_interactive = interactive
         configs.engine = engine_name
         configs.model = model_name
         self._startup()
@@ -117,7 +119,7 @@ class AskAi:
             f" Microphone: {device_info or '%RED%Undetected'} %GREEN%%EOL%"
             f"  Debugging: {'ON' if configs.is_debug else '%RED%OFF'} %GREEN%%EOL%"
             f"   Speaking: {'ON, tempo: ' + speak_info if configs.is_speak else '%RED%OFF'} %GREEN%%EOL%"
-            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.cache_enabled else '%RED%OFF'} %GREEN%%EOL%"
+            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if configs.is_cache else '%RED%OFF'} %GREEN%%EOL%"
             f"{'=' * 80}%EOL%%NC%"
         )
 

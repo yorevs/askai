@@ -20,6 +20,7 @@ from string import Template
 import click
 from click import Command, Group
 from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import sysout, to_bool
 
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -158,7 +159,7 @@ def devices(operation: str, name: str | None = None) -> None:
             TtsSttCmd.device_set(name)
         case _:
             err = str(click.BadParameter(f"Invalid settings operation: '{operation}'"))
-            text_formatter.cmd_print(f"%RED%{err}%NC%")
+            text_formatter.cmd_print(f"Error: {err}")
 
 
 @ask_cli.command()
@@ -182,27 +183,60 @@ def settings(operation: str, name: str | None = None, value: str | None = None) 
             SettingsCmd.reset()
         case _:
             err = str(click.BadParameter(f"Invalid settings operation: '{operation}'"))
-            text_formatter.cmd_print(f"%RED%{err}%NC%")
+            text_formatter.cmd_print(f"Error: {err}")
 
 
 @ask_cli.command()
 @click.argument("operation", default="list")
-@click.argument("name", default="")
-def cache(operation: str, name: str | None = None) -> None:
-    """List/get/clear/cleanup AskAI cache.
+@click.argument("args", nargs=-1)
+def cache(operation: str, args: tuple[str, ...]) -> None:
+    """List/get/clear/files AskAI TTL cache and files.
     :param operation The operation to manage cache.
-    :param name The settings key to operate.
+    :param args The operation arguments operate.
     """
     match operation:
         case "list":
             CacheCmd.list()
         case "get":
-            CacheCmd.get(name)
+            if not args:
+                err: str = str(
+                    click.MissingParameter(f"Argument 'name' is required. Usage /cache get \\<name\\>"))
+                text_formatter.cmd_print(f"Error: {err}")
+            else:
+                set(map(sysout, map(CacheCmd.get, args)))
         case "clear":
-            CacheCmd.clear(name)
+            if args and (invalid := next((a for a in args if not isinstance(a, str | int)), None)):
+                err: str = str(
+                    click.BadParameter(f"Invalid argument: '{invalid}'"))
+                text_formatter.cmd_print(f"Error: {err}")
+            elif args:
+                set(map(CacheCmd.clear, args))
+            else:
+                CacheCmd.clear()
+        case "files":
+            CacheCmd.files('cleanup' in args, *args)
+        case "enable":
+            if not args:
+                err: str = str(
+                    click.MissingParameter(f"Argument 'enable' is missing. Usage /cache enable \\<0|1\\>"))
+                text_formatter.cmd_print(f"Error: {err}")
+            else:
+                configs.is_cache = to_bool(args[0])
+                text_formatter.cmd_print(f"Caching has been *{'en' if configs.is_cache else 'dis'}abled* !")
+        case "ttl":
+            if not args:
+                text_formatter.cmd_print(f"Cache TTL is set to *{configs.ttl} minutes* !")
+            elif not args[0].isdigit():
+                err: str = str(
+                    click.MissingParameter(f"Argument 'minutes' is invalid. Usage /cache ttl \\<minutes\\>"))
+                text_formatter.cmd_print(f"Error: {err}")
+            else:
+                configs.ttl = int(args[0])
+                text_formatter.cmd_print(f"Cache TTL was set to *{args[0]} minutes* !")
         case _:
-            err = str(click.BadParameter(f"Invalid cache operation: '{operation}'"))
-            text_formatter.cmd_print(f"%RED%{err}%NC%")
+            err: str = str(
+                click.BadParameter(f"Invalid cache operation: '{operation}'"))
+            text_formatter.cmd_print(f"Error: {err}")
 
 
 @ask_cli.command()
@@ -248,3 +282,16 @@ def tts(text: str, dest_dir: str | None = None, playback: bool = True) -> None:
     if (text_path := Path(text)).exists and text_path.is_file():
         text: str = text_path.read_text(encoding=Charset.UTF_8.val)
     TtsSttCmd.tts(text.strip(), dirname(dest_dir), playback)
+
+
+if __name__ == '__main__':
+    ask_cli(['cache', 'enable', 'True'], standalone_mode=False)
+    # cache_service.cache.save_reply('log', "Log message")
+    # cache_service.cache.save_reply('audio', "Audio message")
+    # ask_cli(['cache'], standalone_mode=False)
+    # ask_cli(['cache', 'get', 'log', 'audio'], standalone_mode=False)
+    # ask_cli(['cache', 'clear'], standalone_mode=False)
+    # ask_cli(['cache', 'clear', 'log', 'audio'], standalone_mode=False)
+    # ask_cli(['cache', 'files'], standalone_mode=False)
+    # ask_cli(['cache', 'files', 'cleanup', 'askai'], standalone_mode=False)
+    # ask_cli(['cache', 'files', 'cleanup', 'recordings'], standalone_mode=False)

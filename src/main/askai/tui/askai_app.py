@@ -85,7 +85,7 @@ class AskAiApp(App[None]):
 
     RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"
 
-    def __init__(self, quiet: bool, debug: bool, tempo: int, engine_name: str, model_name: str):
+    def __init__(self, quiet: bool, debug: bool, cacheable: bool, tempo: int, engine_name: str, model_name: str):
         super().__init__()
         self._session_id = now("%Y%m%d")[:8]
         self._question: str | None = None
@@ -99,8 +99,10 @@ class AskAiApp(App[None]):
             self._console_path.touch()
 
         # Save setting configs from program arguments to remember later.
+        configs.is_interactive = True
         configs.is_speak = not quiet
         configs.is_debug = is_debugging() or debug
+        configs.is_cache = cacheable
         configs.tempo = tempo
         configs.engine = engine_name
         configs.model = model_name
@@ -121,7 +123,7 @@ class AskAiApp(App[None]):
             f" Microphone: {device_info or 'Undetected'}\n"
             f"  Debugging: {'ON' if configs.is_debug else 'OFF'}\n"
             f"   Speaking: {'ON, tempo: ' + speak_info if configs.is_speak else 'OFF'}\n"
-            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if cache.cache_enabled else 'OFF'} "
+            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if configs.is_cache else 'OFF'} "
             "\n"
         )
 
@@ -358,6 +360,8 @@ class AskAiApp(App[None]):
 
     async def _cb_refresh_console(self) -> None:
         """Callback to handle markdown console updates."""
+        if not self._console_path.exists():
+            self.action_clear()
         await self._write_markdown()
         if self._re_render:
             self._re_render = False
@@ -453,7 +457,6 @@ class AskAiApp(App[None]):
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
         askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
         nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
-        cache.cache_enabled = configs.is_cache
         recorder.setup()
         scheduler.start()
         askai_bus.subscribe(MIC_LISTENING_EVENT, self._cb_mic_listening_event)

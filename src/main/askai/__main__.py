@@ -66,12 +66,16 @@ class Main(TUIApplication):
                 nargs="?", action=ParserAction.STORE_TRUE)\
             .option(
                 "quiet", "q", "quiet",
-                "whether you want touse speaking (audio in/out).",
+                "whether you want to use speaking (audio in/out).",
                 nargs="?", action=ParserAction.STORE_TRUE)\
             .option(
                 "debug", "d", "debug",
-                "whether you want ro tun under debug mode.",
-                nargs="?", action=ParserAction.STORE_TRUE)\
+                "whether you want to run under debug mode.",
+                nargs="?", action=ParserAction.STORE_TRUE) \
+            .option(
+                "cache", "c", "cache",
+                "whether you want to cache AI replies.",
+                nargs="?", action=ParserAction.STORE_TRUE) \
             .option(
                 "ui", "u", "ui",
                 "whether to use the new AskAI TUI (experimental).",
@@ -106,6 +110,7 @@ class Main(TUIApplication):
                 to_bool(self._get_argument("interactive", False)),
                 to_bool(self._get_argument("quiet")),
                 to_bool(self._get_argument("debug")),
+                to_bool(self._get_argument("cache", configs.is_cache)),
                 int(self._get_argument("tempo", configs.tempo)),
                 self._get_argument("prompt"),
                 self._get_argument("engine", configs.engine),
@@ -116,6 +121,7 @@ class Main(TUIApplication):
             self._askai = AskAiApp(
                 to_bool(self._get_argument("quiet")),
                 to_bool(self._get_argument("debug")),
+                to_bool(self._get_argument("cache", configs.is_cache)),
                 int(self._get_argument("tempo", configs.tempo)),
                 self._get_argument("engine", configs.engine),
                 self._get_argument("model", configs.model),
