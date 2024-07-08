@@ -40,11 +40,15 @@ class RouterMode(Enumeration):
     def default() -> 'RouterMode':
         return RouterMode.TASK_SPLIT if configs.is_interactive else RouterMode.NON_INTERACTIVE
 
+    @classmethod
+    def of_name(cls, name: str) -> 'RouterMode':
+        return cls[name] if name.casefold() != 'default' else cls.default()
+
     def __str__(self):
         return self.value[0]
 
     @property
-    def mode(self) -> str:
+    def name(self) -> str:
         return self.value[0]
 
     @property

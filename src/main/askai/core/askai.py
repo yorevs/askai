@@ -220,7 +220,7 @@ class AskAi:
         """Callback to handle mode changed events.
         :param ev: The mode changed event.
         """
-        self._mode: RouterMode = RouterMode.value_of(ev.args.mode)
+        self._mode: RouterMode = RouterMode.of_name(ev.args.mode)
         if not self._mode.is_default:
             self.reply(
                 f"{msg.enter_qna()} \n"
