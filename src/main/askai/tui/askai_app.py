@@ -91,7 +91,7 @@ class AskAiApp(App[None]):
         self._question: str | None = None
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
-        self._mode: RouterMode = RouterMode.DEFAULT
+        self._mode: RouterMode = RouterMode.default()
         self._console_path = Path(f"{CACHE_DIR}/askai-{self.session_id}.md")
         self._re_render = True
         self._display_buffer = list()
@@ -414,6 +414,7 @@ class AskAiApp(App[None]):
         status = True
         processor: AIProcessor = self.mode.processor
         self.enable_controls(False)
+        assert isinstance(processor, AIProcessor)
 
         try:
             if command := re.search(self.RE_ASKAI_CMD, question):
@@ -434,7 +435,7 @@ class AskAiApp(App[None]):
                 self.reply(reply)
         except (NotImplementedError, ImpossibleQuery) as err:
             self.reply_error(str(err))
-        except (MaxInteractionsReached, InaccurateResponse, ValueError, AttributeError) as err:
+        except (MaxInteractionsReached, InaccurateResponse) as err:
             self.reply_error(msg.unprocessable(str(err)))
         except UsageError as err:
             self.reply_error(msg.invalid_command(err))

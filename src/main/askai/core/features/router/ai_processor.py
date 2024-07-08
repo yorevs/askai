@@ -12,9 +12,10 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from typing import Protocol, Optional
+from typing import Protocol, Optional, runtime_checkable
 
 
+@runtime_checkable
 class AIProcessor(Protocol):
     """Provide an interface for AI processors (routing modes)."""
 

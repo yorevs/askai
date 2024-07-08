@@ -83,22 +83,22 @@ class AskAi:
         model_name: str,
         query_string: QueryString,
     ):
+
+        configs.is_interactive = interactive
+        configs.is_debug = is_debugging() or debug
+        configs.is_speak = not quiet and configs.is_interactive
+        configs.is_cache = cacheable
+        configs.tempo = tempo
+        configs.engine = engine_name
+        configs.model = model_name
+
         self._ready: bool = False
         self._processing: Optional[bool] = None
         self._query_string: QueryString = query_string if isinstance(query_string, str) else ' '.join(query_string)
         self._query_prompt: str | None = query_prompt
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
-        self._mode: RouterMode = RouterMode.DEFAULT
-
-        # Save setting configs from program arguments to remember later.
-        configs.is_interactive = interactive
-        configs.is_speak = not quiet
-        configs.is_debug = is_debugging() or debug
-        configs.is_cache = cacheable
-        configs.tempo = tempo
-        configs.engine = engine_name
-        configs.model = model_name
+        self._mode: RouterMode = RouterMode.default()
         self._startup()
 
     def __str__(self) -> str:
@@ -157,8 +157,8 @@ class AskAi:
             elif output:
                 cache.save_reply(query, output)
                 cache.save_query_history()
-                if not configs.is_interactive:
-                    break
+            if not configs.is_interactive:
+                break
         if query == '':
             self.reply(msg.goodbye())
         sysout("%NC%")
@@ -269,6 +269,8 @@ class AskAi:
         """
         status, output = True, None
         processor: AIProcessor = self.mode.processor
+        assert isinstance(processor, AIProcessor)
+
         try:
             if command := re.search(self.RE_ASKAI_CMD, question):
                 args: list[str] = list(
@@ -286,7 +288,7 @@ class AskAi:
                 self.reply(reply)
         except (NotImplementedError, ImpossibleQuery) as err:
             self.reply_error(str(err))
-        except (MaxInteractionsReached, InaccurateResponse, ValueError, AttributeError) as err:
+        except (MaxInteractionsReached, InaccurateResponse) as err:
             self.reply_error(msg.unprocessable(str(err)))
         except UsageError as err:
             self.reply_error(msg.invalid_command(err))

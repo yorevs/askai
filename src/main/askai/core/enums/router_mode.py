@@ -34,9 +34,11 @@ class RouterMode(Enumeration):
 
     NON_INTERACTIVE     = 'Non-Interactive', qstring
 
-    DEFAULT             = 'Task Splitter', splitter if configs.is_interactive else 'Non-Interactive', qstring
-
     # fmt: off
+
+    @staticmethod
+    def default() -> 'RouterMode':
+        return RouterMode.TASK_SPLIT if configs.is_interactive else RouterMode.NON_INTERACTIVE
 
     def __str__(self):
         return self.value[0]
@@ -51,7 +53,7 @@ class RouterMode(Enumeration):
 
     @property
     def is_default(self) -> bool:
-        return self == RouterMode.DEFAULT
+        return self == RouterMode.default()
 
     def process(self, question: str, **kwargs) -> Optional[str]:
         """TODO"""
