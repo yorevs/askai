@@ -25,6 +25,7 @@ from hspylib.core.tools.commons import sysout, to_bool
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.commander.commands.cache_cmd import CacheCmd
+from askai.core.commander.commands.general_cmd import GeneralCmd
 from askai.core.commander.commands.history_cmd import HistoryCmd
 from askai.core.commander.commands.settings_cmd import SettingsCmd
 from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
@@ -282,6 +283,18 @@ def tts(text: str, dest_dir: str | None = None, playback: bool = True) -> None:
     if (text_path := Path(text)).exists and text_path.is_file():
         text: str = text_path.read_text(encoding=Charset.UTF_8.val)
     TtsSttCmd.tts(text.strip(), dirname(dest_dir), playback)
+
+
+@ask_cli.command()
+@click.argument("folder")
+@click.argument("glob", default="**/*")
+def summarize(folder: str, glob: str) -> None:
+    """Generate a summarization of the folder contents.
+    :param folder: The base folder of the summarization.
+    :param glob: The glob pattern or file of the summarization.
+    """
+    _init_context()
+    GeneralCmd.summarize(folder, glob)
 
 
 if __name__ == '__main__':

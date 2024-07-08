@@ -67,6 +67,8 @@ RESOURCE_DIR: Path = classpath.resource_path()
 class AskAiApp(App[None]):
     """The AskAI Textual application."""
 
+    APP_TITLE: str = f"AskAI v{Version.load(load_dir=classpath.source_path())}"
+
     CSS_PATH = f"{RESOURCE_DIR}/askai.tcss"
 
     # fmt: off
@@ -228,7 +230,7 @@ class AskAiApp(App[None]):
     async def on_mount(self) -> None:
         """Called application is mounted."""
         self.enable_controls(False)
-        self.screen.title = f"AskAI v{Version.load(load_dir=classpath.source_path())}"
+        self.screen.title = self.APP_TITLE
         self.screen.sub_title = self.engine.ai_model_name()
         self.md_console.set_class(True, "-hidden")
         self.md_console.show_table_of_contents = False
