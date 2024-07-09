@@ -2,7 +2,7 @@
 #
 # "askai" v1.0.8
 #
-# Package: demo.textual_ui
+# Package: demo.textual_demos
 """Package initialization."""
 
 __all__ = [

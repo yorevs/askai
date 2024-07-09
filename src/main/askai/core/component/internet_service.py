@@ -14,12 +14,22 @@
 """
 import logging as log
 import re
-from functools import lru_cache
 from typing import List
 
 import bs4
+from askai.core.askai_configs import configs
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
+from askai.core.component.geo_location import geo_location
+from askai.core.component.summarizer import summarizer
+from askai.core.engine.openai.temperature import Temperature
+from askai.core.model.search_result import SearchResult
+from askai.core.support.langchain_support import lc_llm
+from askai.core.support.shared_instances import shared
 from googleapiclient.errors import HttpError
 from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.zoned_datetime import now
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_community.document_loaders.web_base import WebBaseLoader
 from langchain_community.vectorstores.chroma import Chroma
@@ -31,17 +41,6 @@ from langchain_core.runnables.utils import Output
 from langchain_core.tools import Tool
 from langchain_google_community import GoogleSearchAPIWrapper
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-from askai.core.askai_configs import configs
-from askai.core.askai_events import events
-from askai.core.askai_messages import msg
-from askai.core.askai_prompt import prompt
-from askai.core.component.geo_location import geo_location
-from askai.core.component.summarizer import summarizer
-from askai.core.engine.openai.temperature import Temperature
-from askai.core.model.search_result import SearchResult
-from askai.core.support.langchain_support import lc_llm
-from askai.core.support.shared_instances import shared
 
 
 class InternetService(metaclass=Singleton):
@@ -65,19 +64,32 @@ class InternetService(metaclass=Singleton):
             return re.sub(r"^weather:(.*)", r'weather:"\1"', " AND ".join(search.filters))
         # We want to find pages containing the exact name of the person.
         if search.filters and any(f.find("people:") >= 0 for f in search.filters):
-            return f" ${query} intext:\"{' + '.join([f.split(':')[1] for f in search.filters])}\" "
+            return f" {query} intext:\"{'+'.join([f.split(':')[1] for f in search.filters])}\" "
         # Make the search query using the provided keywords.
         if search.keywords:
-            query += f" intext:\"{' + '.join(search.keywords)}\" "
+            query = f"{' '.join(search.keywords)} {query} {' :after ' + search.datetime if search.datetime else ' '} "
+
         return query
+
+    @staticmethod
+    def wrap_response(output: str, sites: list[str]) -> str:
+        return (
+            "Your search returned the following:\n"
+            f"\n{output}\n"
+            f"\n---"
+            f"\nSources: {', '.join(sites)}"
+            f"\n>  Accessed: {geo_location.location} {now('%d %B, %Y')} \n"
+        )
 
     def __init__(self):
         self._google = GoogleSearchAPIWrapper()
-        self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
+        self._tool = Tool(
+            name="google_search", description="Search Google for recent results.",
+            func=self._google.run
+        )
         self._text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap)
 
-    @lru_cache
     def refine_template(self) -> str:
         return prompt.read_prompt("refine-search")
 
@@ -86,8 +98,8 @@ class InternetService(metaclass=Singleton):
         Google search operators: https://ahrefs.com/blog/google-advanced-search-operators/
         :param search: The AI search parameters.
         """
-        events.reply.emit(message=msg.searching(), verbosity="debug")
-        search.sites = search.sites if len(search.sites) > 0 else ["google.com", "bing.com"]
+        events.reply.emit(message=msg.searching())
+        search.sites = search.sites or ["google.com", "bing.com", "duckduckgo.com", "ask.com"]
         try:
             query = self._build_google_query(search).strip()
             log.info("Searching Google for '%s'", query)
@@ -96,7 +108,7 @@ class InternetService(metaclass=Singleton):
             llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
             context: List[Document] = [Document(ctx)]
             chain = create_stuff_documents_chain(
-                lc_llm.create_chat_model(temperature=Temperature.DATA_ANALYSIS.temp), llm_prompt
+                lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp), llm_prompt
             )
             output = chain.invoke({"query": search.question, "context": context})
         except HttpError as err:
@@ -156,9 +168,14 @@ class InternetService(metaclass=Singleton):
             question=question,
         )
         log.info("STT::[QUESTION] '%s'", result)
-        llm = lc_llm.create_chat_model(temperature=Temperature.DATA_ANALYSIS.temp)
+        llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)
 
-        return llm.invoke(refine_prompt).content
+        if (response := llm.invoke(refine_prompt)) and (output := response.content):
+            output = output
+        else:
+            output = "The search did not bring any result"
+
+        return self.wrap_response(output, sites)
 
 
 assert (internet := InternetService().INSTANCE) is not None

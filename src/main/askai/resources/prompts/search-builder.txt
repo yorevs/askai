@@ -8,7 +8,7 @@ Before responding to the user, you must follow the step-by-step instructions pro
 
 3. Identify a set of keywords that, when used together, effectively retrieve the necessary information to craft a comprehensive, successful, and accurate response.
 
-4. Locate credible sources relevant to '{idiom}' to collect essential information for creating a thoroughly researched response. Offer a curated list comprising a 'minimum of three' website URLs tailored to the user's locale. Include only the base URL of each website without specifying any particular paths.
+4. Locate credible sources relevant to the question to collect essential information for creating a thoroughly researched response. Offer a curated list comprising a 'minimum of four' website URLs tailored to the user's question or locale: '{idiom}'. Include only the base URL of each website without specifying any particular paths.
 
 5. If the inquiry pertains to programming languages, operating systems, or any other IT-related topics, ensure to include the following websites in your sites list: ['stackoverflow.com', 'github.com'].
 
@@ -16,15 +16,29 @@ Before responding to the user, you must follow the step-by-step instructions pro
 
 7. If the inquiry pertains to weather forecasts or related topics, determine the location mentioned in the question and append this filter: 'weather:<location>' to your filter list.
 
-8. In addition to your final list of website URLs, also include: 'google.com' and 'bing.com'.
 
-9. The final response is a formatted JSON with no additional description or context.
+Response Format:
 
-10. Do not use markdown to format the response message. Use plain JSON.
+1. Ensure the response can be parsed by Python json.loads.
+2. The output must be in a strict JSON format:
 
-11. The final response 'JSON' must contain the string fields: 'question', 'datetime', 'category'.
-
-12. The final response 'JSON' must contain the array fields, 'keywords', 'filters', and 'sites'.
+{{{{
+  "question": "original human question",
+  "category": "classified category",
+  "datetime": "<Month Year>",
+  "keywords": [
+    "identified keyword 1",
+    ... (repeat N times)
+  ],
+  "filters": [
+    "identified filter 1",
+    ... (repeat N times)
+  ],
+  "sites": [
+    "identified site 1",
+    ... (repeat N times)
+  ]
+}}}}
 
 
 Question: "{question}"

@@ -25,7 +25,7 @@ package: openai, version: 1.35.3, mode: eq
 package: google-api-python-client, version: 2.134.0, mode: eq
 package: fake_useragent, version: 1.5.1, mode: eq
 package: rich, version: 13.7.1, mode: eq
-package: textual, version: 0.70.0, mode: eq
+package: textual, version: 0.72.0, mode: eq
 package: retry2, version: 0.9.5, mode: eq
 package: pause, version: 0.3, mode: eq
 package: requests, version: 2.31.0, mode: eq
@@ -49,6 +49,6 @@ package: chromadb, version: 0.4.24, mode: eq
 package: opentelemetry-api, version: 1.22.0, mode: eq
 package: opentelemetry-sdk, version: 1.22.0, mode: eq
 package: opentelemetry-proto, version: 1.22.0, mode: eq
-package: opencv-python, version: 4.9.0.84, mode: eq
+package: opencv-python, version: 4.10.0.84, mode: eq
 package: pytz, version: 2024.1, mode: eq
 package: bs4, version: 0.0.2, mode: eq

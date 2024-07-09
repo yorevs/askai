@@ -6,6 +6,9 @@
 """Package initialization."""
 
 __all__ = [
+    'qna', 
+    'qstring', 
+    'rag', 
     'task_splitter'
 ]
 __version__ = '1.0.8'

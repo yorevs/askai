@@ -12,22 +12,10 @@ Step 3. Correct any semantic or syntax errors, and enhance the writing to align 
 
 Step 4. Enhance the response using Markdown to format single-line code blocks for brief code snippets and multi-line code blocks for extensive code sections. Emphasize key elements or important stuff in **bold** and names in *italic*. When the response is already a markdown formatted text, just ensure everything is neat.
 
-
-If you have improved the answer, format like (attention to the new lines):
-
-"""
-<Your refined answer>
-
----
-Sources: {sources}
-> {location} - {datetime}
-"""
-
-If you could not refine the answer, return the original result.
+Step 5. If the search result is satisfactory or cannot be refined further, please return it without any modifications.
 
 
-Begin!
+Internet Search Result: "{result}"
 
-User Question: {question}
 
-Result: {result}
+User Question: "{question}"

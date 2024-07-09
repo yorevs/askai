@@ -13,7 +13,7 @@ openai==1.35.3
 google-api-python-client==2.134.0
 fake_useragent==1.5.1
 rich==13.7.1
-textual==0.70.0
+textual==0.72.0
 retry2==0.9.5
 pause==0.3
 requests==2.31.0
@@ -37,5 +37,6 @@ chromadb==0.4.24
 opentelemetry-api==1.22.0
 opentelemetry-sdk==1.22.0
 opentelemetry-proto==1.22.0
+opencv-python==4.10.0.84
 pytz==2024.1
 bs4==0.0.2
