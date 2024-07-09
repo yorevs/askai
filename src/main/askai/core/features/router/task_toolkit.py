@@ -13,24 +13,25 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import inspect
+import logging as log
+from functools import lru_cache
+from textwrap import dedent
+from typing import Callable
+
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.tools import BaseTool, StructuredTool
+
 from askai.core.askai_messages import msg
 from askai.core.features.router.tools.analysis import query_output
 from askai.core.features.router.tools.browser import browse
-from askai.core.features.router.tools.general import display_tool
+from askai.core.features.router.tools.general import display_tool, final_answer
 from askai.core.features.router.tools.generation import generate_content
 from askai.core.features.router.tools.summarization import summarize
 from askai.core.features.router.tools.terminal import execute_command, list_contents, open_command
 from askai.core.features.router.tools.vision import image_captioner
 from askai.exception.exceptions import TerminatingQuery
-from clitt.core.tui.line_input.line_input import line_input
-from functools import lru_cache
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.tools import BaseTool, StructuredTool
-from textwrap import dedent
-from typing import Callable
-
-import inspect
-import logging as log
 
 
 class AgentToolkit(metaclass=Singleton):
@@ -115,6 +116,14 @@ class AgentToolkit(metaclass=Singleton):
         :param texts: The comma separated list of texts to be displayed.
         """
         return display_tool(*(texts if isinstance(texts, list) else [texts]))
+
+    def direct_answer(self, question: str, answer: str) -> str:
+        """Use this tool to execute terminal commands or process user-provided commands."
+        Usage: 'direct_answer(answer)'
+        :param question: The original user question.
+        :param answer: Your direct answer to the user.
+        """
+        return final_answer(question=question, response=answer, persona_prompt="taius-jarvis")
 
     def list_tool(self, folder: str, filters: str | None = None) -> str:
         """

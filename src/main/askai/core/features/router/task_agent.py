@@ -75,7 +75,8 @@ class TaskAgent(metaclass=Singleton):
         """
         shared.context.push("HISTORY", query)
         output: str = ""
-        events.reply.emit(message=plan.thoughts.speak)
+        if plan.thoughts.speak:
+            events.reply.emit(message=plan.thoughts.speak)
         tasks: list[SimpleNamespace] = plan.tasks
         result_log: list[str] = []
 
@@ -96,7 +97,7 @@ class TaskAgent(metaclass=Singleton):
                     events.reply.emit(message=output)
                 continue
 
-        assert_accuracy(query, os.linesep.join(result_log), RagResponse.GOOD)
+        assert_accuracy(query, os.linesep.join(result_log), RagResponse.MODERATE)
 
         return self.wrap_answer(plan.primary_goal, output, plan.model)
 

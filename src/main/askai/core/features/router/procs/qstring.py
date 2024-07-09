@@ -11,10 +11,10 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.utilities import find_file
 
 
-class FreeForm(metaclass=Singleton):
-    """Processor to provide a answers from custom prompts (free-form)."""
+class NonInteractive(metaclass=Singleton):
+    """Processor to provide a answers from custom prompts (non-interactive)."""
 
-    INSTANCE: "FreeForm"
+    INSTANCE: "NonInteractive"
 
     DEFAULT_PROMPT: str = f"{prompt.PROMPT_DIR}/taius/taius-non-interactive"
 
@@ -43,4 +43,4 @@ class FreeForm(metaclass=Singleton):
         return output
 
 
-assert (qstring := FreeForm().INSTANCE) is not None
+assert (qstring := NonInteractive().INSTANCE) is not None

@@ -12,17 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import re
+from dataclasses import dataclass, field
+from types import SimpleNamespace
+
+from hspylib.core.preconditions import check_state
+from langchain_core.messages import AIMessage
+
 from askai.core.askai_messages import msg
 from askai.core.model.model_result import ModelResult
 from askai.core.support.object_mapper import object_mapper
 from askai.core.support.utilities import extract_codeblock
-from askai.exception.exceptions import InaccurateResponse
-from dataclasses import dataclass, field
-from hspylib.core.preconditions import check_state
-from langchain_core.messages import AIMessage
-from types import SimpleNamespace
-
-import re
 
 
 @dataclass
@@ -37,7 +37,7 @@ class ActionPlan:
     model: ModelResult = field(default_factory=ModelResult.default)
 
     @staticmethod
-    def _parse_response(response: str) -> 'ActionPlan':
+    def _parse_response(question: str, response: str) -> 'ActionPlan':
         """Parse the router response.
         :param response: The router response. This should be a JSON blob, but sometimes the AI responds with a
         straight JSON string.
@@ -47,7 +47,7 @@ class ActionPlan:
             _, json_string = extract_codeblock(response)
         plan: ActionPlan = object_mapper.of_json(json_string, ActionPlan)
         if not isinstance(plan, ActionPlan):
-            raise InaccurateResponse(f"AI responded an invalid JSON blob !")
+            plan = ActionPlan._direct(question, json_string, ModelResult.default())
 
         return plan
 
@@ -59,23 +59,23 @@ class ActionPlan:
             f"Answer the question: {question}", [],
             SimpleNamespace(
                 reasoning="AI decided to respond directly", observations="", criticism="", speak=""),
-            [SimpleNamespace(id="1", task=re.sub(r"^DIRECT ANSWER:", "FINAL ANSWER:", response, 1, re.IGNORECASE))],
+            [SimpleNamespace(id="1", task=response)],
             model
         )
 
     @staticmethod
-    def create(query: str, response: AIMessage, model: ModelResult) -> 'ActionPlan':
+    def create(question: str, response: AIMessage, model: ModelResult) -> 'ActionPlan':
         """TODO"""
-        if response.content.startswith("DIRECT ANSWER:"):
-            plan: ActionPlan = ActionPlan._direct(query, response.content, model)
+        if response.content.startswith("DIRECT:"):
+            plan: ActionPlan = ActionPlan._direct(question, response.content, model)
         else:
-            plan: ActionPlan = ActionPlan._parse_response(response.content)
+            plan: ActionPlan = ActionPlan._parse_response(question, response.content)
             check_state(
                 plan is not None and isinstance(plan, ActionPlan),
                 f"Invalid action plan received from LLM: {type(plan)}")
             plan.model = model
             if not plan.tasks:
-                plan.tasks.append(SimpleNamespace(id="1", task=f"FINAL ANSWER: {plan.speak}"))
+                plan.tasks.append(SimpleNamespace(id="1", task=f"DIRECT: QUESTION='{question}' ANSWER='{plan.speak}'"))
         return plan
 
     def __str__(self):

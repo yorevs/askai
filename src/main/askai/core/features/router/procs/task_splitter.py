@@ -49,12 +49,8 @@ class TaskSplitter(metaclass=Singleton):
 
     # This is required because the AI sometimes forgets to wrap the response in a Json object.
     HUMAN_PROMPT: str = dedent(
-        """
-        (Notice: Respond in a strict JSON blob. Do not mention this notice.)
-
-        Human Question: "{input}"
-        """
-    )
+        """Human Question: '{input}'"""
+    ).strip()
 
     # Allow the router to retry on the errors bellow.
     RETRIABLE_ERRORS: tuple[Type[Exception], ...] = (

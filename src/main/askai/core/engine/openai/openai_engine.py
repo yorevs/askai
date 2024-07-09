@@ -12,27 +12,27 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
 from pathlib import Path
-
-from askai.core.component.audio_player import player
-from askai.core.component.cache_service import CacheService
-from askai.core.component.recorder import Recorder
-from askai.core.engine.openai.openai_configs import OpenAiConfigs
-from askai.core.engine.openai.openai_model import OpenAIModel
-from askai.core.engine.ai_model import AIModel
-from askai.core.engine.ai_reply import AIReply
-from askai.core.support.utilities import stream_text
-from hspylib.core.preconditions import check_not_none
-from langchain_core.embeddings import Embeddings
-from langchain_core.language_models import BaseChatModel, BaseLLM
-from openai import APIError, OpenAI
 from threading import Thread
 from typing import List, Optional
 
 import langchain_openai
-import logging as log
-import os
 import pause
+from hspylib.core.preconditions import check_not_none
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models import BaseChatModel, BaseLLM
+from openai import APIError, OpenAI
+
+from askai.core.component.audio_player import player
+from askai.core.component.cache_service import CacheService
+from askai.core.component.recorder import Recorder
+from askai.core.engine.ai_model import AIModel
+from askai.core.engine.ai_reply import AIReply
+from askai.core.engine.openai.openai_configs import OpenAiConfigs
+from askai.core.engine.openai.openai_model import OpenAIModel
+from askai.core.support.utilities import stream_text
 
 
 class OpenAIEngine:
@@ -63,17 +63,17 @@ class OpenAIEngine:
     def voices(self) -> list[str]:
         return ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
 
-    def lc_model(self, temperature: float = 0.0, top_p: float = 0.0) -> BaseLLM:
+    def lc_model(self, temperature: float, top_p: float) -> BaseLLM:
         """Create a LangChain OpenAI llm model instance."""
         return langchain_openai.OpenAI(openai_api_key=self._api_key, temperature=temperature, top_p=top_p)
 
-    def lc_chat_model(self, temperature: float = 0.0) -> BaseChatModel:
+    def lc_chat_model(self, temperature: float) -> BaseChatModel:
         """Create a LangChain OpenAI llm chat model instance."""
         return langchain_openai.ChatOpenAI(openai_api_key=self._api_key, temperature=temperature)
 
-    def lc_embeddings(self) -> Embeddings:
+    def lc_embeddings(self, model: str) -> Embeddings:
         """Create a LangChain AI embeddings instance."""
-        return langchain_openai.OpenAIEmbeddings(openai_api_key=self._api_key)
+        return langchain_openai.OpenAIEmbeddings(openai_api_key=self._api_key, model=model)
 
     def ai_name(self) -> str:
         """Get the AI model name."""

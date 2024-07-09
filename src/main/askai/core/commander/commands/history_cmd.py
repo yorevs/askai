@@ -57,7 +57,7 @@ class HistoryCmd(ABC):
         if context := context if context != "ALL" else None:
             shared.context.clear(*(re.split(r"[;,|]", context.upper())))
         else:
-            shared.context.context_forget()
+            shared.context.forget()
         text_formatter.cmd_print(f"Context %GREEN%'{context.upper() if context else 'ALL'}'%NC% has been cleared!")
 
     @staticmethod

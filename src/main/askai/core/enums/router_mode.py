@@ -18,8 +18,9 @@ from hspylib.core.enums.enumeration import Enumeration
 
 from askai.core.askai_configs import configs
 from askai.core.features.router.ai_processor import AIProcessor
-from askai.core.features.router.procs.free_form import qstring
 from askai.core.features.router.procs.qna import qna
+from askai.core.features.router.procs.qstring import qstring
+from askai.core.features.router.procs.rag import rag
 from askai.core.features.router.procs.task_splitter import splitter
 
 
@@ -32,13 +33,15 @@ class RouterMode(Enumeration):
 
     QNA                 = 'Questions and Answers', qna
 
-    NON_INTERACTIVE     = 'Non-Interactive', qstring
+    QSTRING             = 'Non-Interactive', qstring
+
+    RAG                 = 'RAG Mode', rag
 
     # fmt: off
 
     @staticmethod
     def default() -> 'RouterMode':
-        return RouterMode.TASK_SPLIT if configs.is_interactive else RouterMode.NON_INTERACTIVE
+        return RouterMode.TASK_SPLIT if configs.is_interactive else RouterMode.QSTRING
 
     @classmethod
     def of_name(cls, name: str) -> 'RouterMode':

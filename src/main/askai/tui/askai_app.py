@@ -16,10 +16,8 @@ import logging as log
 import os
 import re
 from contextlib import redirect_stdout
-from functools import partial
 from io import StringIO
 from pathlib import Path
-from typing import Optional
 
 import nltk
 from click import UsageError
@@ -37,8 +35,7 @@ from textual.widgets import Footer, Input, MarkdownViewer
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
-from askai.core.askai_events import (ASKAI_BUS_NAME, AskAiEvents, DEVICE_CHANGED_EVENT, MIC_LISTENING_EVENT,
-                                     REPLY_ERROR_EVENT, REPLY_EVENT, MODE_CHANGED_EVENT)
+from askai.core.askai_events import *
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.askai_settings import settings

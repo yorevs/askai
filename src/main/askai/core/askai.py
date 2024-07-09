@@ -16,10 +16,9 @@ import logging as log
 import os
 import re
 import sys
-from functools import partial
 from pathlib import Path
 from threading import Thread
-from typing import List, Optional, TypeAlias
+from typing import List, TypeAlias
 
 import nltk
 import pause
@@ -38,8 +37,7 @@ from openai import RateLimitError
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
-from askai.core.askai_events import (ASKAI_BUS_NAME, AskAiEvents, DEVICE_CHANGED_EVENT, MIC_LISTENING_EVENT,
-                                     REPLY_ERROR_EVENT, REPLY_EVENT, MODE_CHANGED_EVENT)
+from askai.core.askai_events import *
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import ask_cli, commands

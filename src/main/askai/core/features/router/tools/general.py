@@ -12,17 +12,18 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+
+from hspylib.core.config.path_object import PathObject
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import PromptTemplate
+
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from hspylib.core.config.path_object import PathObject
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import PromptTemplate
-
-import logging as log
-import os
 
 
 def display_tool(*texts: str) -> str:
@@ -32,6 +33,7 @@ def display_tool(*texts: str) -> str:
     output = os.linesep.join(texts)
 
     return output or msg.translate("Sorry, there is nothing to display")
+
 
 def final_answer(
     question: str,

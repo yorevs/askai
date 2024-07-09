@@ -15,7 +15,7 @@
 import logging as log
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.singleton import Singleton
@@ -42,7 +42,7 @@ class Summarizer(metaclass=Singleton):
     INSTANCE: "Summarizer"
 
     @staticmethod
-    def _extract_result(result: dict) -> Tuple[str, str]:
+    def extract_result(result: dict) -> tuple[str, str]:
         """Extract the question and answer from the summarization result."""
         question = result["query"] if "query" in result else result["question"]
         answer = result["result"] if "result" in result else result["answer"]
@@ -105,10 +105,10 @@ class Summarizer(metaclass=Singleton):
                 v_store = Chroma(persist_directory=str(self.persist_dir), embedding_function=embeddings)
             else:
                 log.info("Summarizing documents from '%s'", self.sum_path)
-                documents: List[Document] = DirectoryLoader(self.folder, glob=self.glob).load()
+                documents: list[Document] = DirectoryLoader(self.folder, glob=self.glob).load()
                 if len(documents) <= 0:
                     raise DocumentsNotFound(f"Unable to find any document to summarize at: '{self.sum_path}'")
-                texts: List[Document] = self._text_splitter.split_documents(documents)
+                texts: list[Document] = self._text_splitter.split_documents(documents)
                 v_store = Chroma.from_documents(texts, embeddings, persist_directory=str(self.persist_dir))
 
             self._retriever = RetrievalQA.from_chain_type(
@@ -126,12 +126,12 @@ class Summarizer(metaclass=Singleton):
         summary_hash = hash_text(f"{ensure_endswith(folder, '/')}{glob}")
         return self._retriever is not None and Path(f"{PERSIST_DIR}/{summary_hash}").exists()
 
-    def query(self, *queries: str) -> Optional[List[SummaryResult]]:
+    def query(self, *queries: str) -> Optional[list[SummaryResult]]:
         """Answer questions about the summarized content.
         :param queries: The queries to ask the AI engine.
         """
         if queries and self.retriever is not None:
-            results: List[SummaryResult] = []
+            results: list[SummaryResult] = []
             for query in queries:
                 if result := self._invoke(query):
                     results.append(result)
@@ -143,7 +143,7 @@ class Summarizer(metaclass=Singleton):
         :param query: The query to ask the AI engine.
         """
         if query and (result := self.retriever.invoke({"query": query})):
-            return SummaryResult(self._folder, self._glob, *self._extract_result(result))
+            return SummaryResult(self._folder, self._glob, *self.extract_result(result))
         return None
 
 
