@@ -12,16 +12,12 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.askai_events import events
-from askai.core.askai_messages import msg
-from askai.core.askai_prompt import prompt
-from askai.core.component.geo_location import geo_location
-from askai.core.component.summarizer import summarizer
-from askai.core.engine.openai.temperature import Temperature
-from askai.core.model.search_result import SearchResult
-from askai.core.support.langchain_support import lc_llm
-from askai.core.support.shared_instances import shared
+import logging as log
+import re
 from functools import lru_cache
+from typing import List
+
+import bs4
 from googleapiclient.errors import HttpError
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -35,11 +31,17 @@ from langchain_core.runnables.utils import Output
 from langchain_core.tools import Tool
 from langchain_google_community import GoogleSearchAPIWrapper
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from typing import List
 
-import bs4
-import logging as log
-import re
+from askai.core.askai_configs import configs
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
+from askai.core.component.geo_location import geo_location
+from askai.core.component.summarizer import summarizer
+from askai.core.engine.openai.temperature import Temperature
+from askai.core.model.search_result import SearchResult
+from askai.core.support.langchain_support import lc_llm
+from askai.core.support.shared_instances import shared
 
 
 class InternetService(metaclass=Singleton):
@@ -66,13 +68,14 @@ class InternetService(metaclass=Singleton):
             return f" ${query} intext:\"{' + '.join([f.split(':')[1] for f in search.filters])}\" "
         # Make the search query using the provided keywords.
         if search.keywords:
-            query += f" {' + '.join(search.keywords)} "
+            query += f" intext:\"{' + '.join(search.keywords)}\" "
         return query
 
     def __init__(self):
         self._google = GoogleSearchAPIWrapper()
         self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
-        self._text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=200)
+        self._text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap)
 
     @lru_cache
     def refine_template(self) -> str:
@@ -83,11 +86,12 @@ class InternetService(metaclass=Singleton):
         Google search operators: https://ahrefs.com/blog/google-advanced-search-operators/
         :param search: The AI search parameters.
         """
-        events.reply.emit(message=msg.searching())
+        events.reply.emit(message=msg.searching(), verbosity="debug")
         search.sites = search.sites if len(search.sites) > 0 else ["google.com", "bing.com"]
         try:
             query = self._build_google_query(search).strip()
             log.info("Searching Google for '%s'", query)
+            events.reply.emit(message=msg.final_query(query), verbosity="debug")
             ctx = str(self._tool.run(query))
             llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
             context: List[Document] = [Document(ctx)]
@@ -132,15 +136,15 @@ class InternetService(metaclass=Singleton):
                 output: Output = rag_chain.invoke(search.question)
                 # cleanup
                 v_store.delete_collection()
-                log.info("Scrapping sites retuned: '%s'", str(output))
+                log.info("Scrapping sites returned: '%s'", str(output))
 
                 return self.refine_search(search.question, str(output), search.sites)
         return msg.no_output("search")
 
-    def refine_search(self, question: str, context: str, sites: list[str]) -> str:
+    def refine_search(self, question: str, result: str, sites: list[str]) -> str:
         """Refines the text retrieved by the search engine.
         :param question: The user question, used to refine the context.
-        :param context: The context to refine.
+        :param result: The search result to refine.
         :param sites: The list of source sites used on the search.
         """
         refine_prompt = PromptTemplate.from_template(self.refine_template()).format(
@@ -148,11 +152,11 @@ class InternetService(metaclass=Singleton):
             sources=sites,
             location=geo_location.location,
             datetime=geo_location.datetime,
-            context=context,
+            result=result,
             question=question,
         )
-        log.info("STT::[QUESTION] '%s'", context)
-        llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)
+        log.info("STT::[QUESTION] '%s'", result)
+        llm = lc_llm.create_chat_model(temperature=Temperature.DATA_ANALYSIS.temp)
 
         return llm.invoke(refine_prompt).content
 

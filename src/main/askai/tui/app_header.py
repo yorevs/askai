@@ -14,17 +14,18 @@
 """
 from textwrap import dedent
 
-from askai.core.askai_configs import configs
-from askai.core.component.recorder import recorder
-from askai.core.support.shared_instances import shared
-from askai.tui.app_icons import AppIcons
-from askai.tui.app_widgets import MenuIcon
 from hspylib.core.zoned_datetime import now
 from rich.text import Text
 from textual.app import RenderResult
 from textual.events import Mount
 from textual.reactive import Reactive
 from textual.widget import Widget
+
+from askai.core.askai_configs import configs
+from askai.core.component.recorder import recorder
+from askai.core.support.shared_instances import shared
+from askai.tui.app_icons import AppIcons
+from askai.tui.app_widgets import MenuIcon
 
 
 class Header(Widget):
@@ -132,6 +133,7 @@ class HeaderNotifications(Widget):
     caching = Reactive(configs.is_cache)
     listening = Reactive(False)
     headphones = Reactive(False)
+    idiom = Reactive(f"{configs.language.name} ({configs.language.idiom})")
 
     def __init__(self):
         super().__init__()
@@ -147,6 +149,7 @@ class HeaderNotifications(Widget):
              Speaking: {'   ' + voice if self.speaking else ''}
               Caching: {'' if self.caching else ''}
              Audio In: {device_info}
+                Idiom:  {self.idiom}
             """).strip()
 
     def _on_mount(self, _: Mount) -> None:
@@ -171,6 +174,7 @@ class HeaderNotifications(Widget):
         self.debugging = configs.is_debug
         self.caching = configs.is_cache
         self.speaking = configs.is_speak
+        self.idiom = f"{configs.language.name} ({configs.language.idiom})"
         self.app.info.info_text = str(self.app)
         self.app.settings.data = self.app.app_settings
         self.tooltip = str(self)
@@ -188,4 +192,7 @@ class HeaderNotifications(Widget):
         self.refresh()
 
     async def watch_headphones(self) -> None:
+        self.refresh()
+
+    async def watch_idiom(self) -> None:
         self.refresh()

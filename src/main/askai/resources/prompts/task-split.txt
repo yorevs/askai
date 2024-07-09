@@ -40,7 +40,7 @@ You have access to the following resources:
 
 - The user file system and applications.
 - The user terminal ("{os_type}/{shell}").
-- A Google Search tool.
+- Real time access via Google Search tool.
 - A Summarizer tool.
 - An Image Captioner tool.
 - A Content Generator tool.
@@ -205,6 +205,25 @@ AI Response: """
   "tasks": [
     {{{{
         "id": "1", "task": "Generate a thanks note and name it as 'thank-you.txt'", "path": "./",
+    }}}},
+  ]
+}}}}
+"""
+
+10. User Question: "What is the next Flamengo match."
+AI Response: """
+{{{{
+  "question": "What is the next Flamengo match.",
+  "primary_goal": "Search on google for the upcoming Flamengo match",
+  "sub_goals": [],
+  "thoughts": {{{{
+    "reasoning": "The user wants to know what is the upcoming Flamengo match. This question requires real-time access, and that can be obtained by using the Google Search tool.",
+    "observations": "Flamengo is a brazilian soccer team.",
+    "criticism": "Today is Tue 09 Jul 1:49 2024, I should include this information to get the most accurate search result.",
+  }}}},
+  "tasks": [
+    {{{{
+        "id": "1", "task": "Search google for: 'upcoming Flamengo match schedule July 2024'",
     }}}},
   ]
 }}}}

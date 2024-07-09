@@ -70,11 +70,11 @@ class AskAiApp(App[None]):
 
     # fmt: off
     BINDINGS = [
-        ("q", "quit", msg.translate(" Quit")),
-        ("c", "clear", msg.translate(" Clear")),
-        ("d", "debugging", msg.translate(" Debugging")),
-        ("s", "speaking", msg.translate(" Speaking")),
-        ("ctrl+l", "ptt", msg.translate(" Push-to-Talk")),
+        ("q", "quit", " Quit"),
+        ("c", "clear", " Clear"),
+        ("d", "debugging", " Debugging"),
+        ("s", "speaking", " Speaking"),
+        ("ctrl+l", "ptt", " Push-to-Talk"),
     ]
     # fmt: on
 
@@ -331,9 +331,15 @@ class AskAiApp(App[None]):
                     f_console.flush()
                 self._re_render = True
 
-    def display_text(self, markdown_text: str) -> None:
-        """Send the text to the Markdown console."""
-        self._display_buffer.append(markdown_text)
+    async def _cb_refresh_console(self) -> None:
+        """Callback to handle markdown console updates."""
+        if not self._console_path.exists():
+            self.action_clear()
+        await self._write_markdown()
+        if self._re_render:
+            self._re_render = False
+            await self.md_console.go(self._console_path)
+            self.md_console.scroll_end(animate=False)
 
     def reply(self, message: str) -> None:
         """Reply to the user with the AI response.
@@ -357,15 +363,9 @@ class AskAiApp(App[None]):
             if configs.is_speak:
                 self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
 
-    async def _cb_refresh_console(self) -> None:
-        """Callback to handle markdown console updates."""
-        if not self._console_path.exists():
-            self.action_clear()
-        await self._write_markdown()
-        if self._re_render:
-            self._re_render = False
-            await self.md_console.go(self._console_path)
-            self.md_console.scroll_end(animate=False)
+    def display_text(self, markdown_text: str) -> None:
+        """Send the text to the Markdown console."""
+        self._display_buffer.append(markdown_text)
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.
@@ -426,7 +426,6 @@ class AskAiApp(App[None]):
                         self.display_text(f"\n```bash\n{strip_escapes(output)}\n```")
             elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
-                self.reply(msg.wait())
                 if output := processor.process(question):
                     self.reply(output)
             else:
@@ -472,5 +471,4 @@ class AskAiApp(App[None]):
         self.activate_markdown()
         self.action_clear(overwrite=False)
         self.enable_controls()
-        self.reply(f"{msg.welcome(prompt.user.title())}")
         self.line_input.focus(False)

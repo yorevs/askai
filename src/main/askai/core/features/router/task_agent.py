@@ -54,7 +54,7 @@ class TaskAgent(metaclass=Singleton):
                     # Default is to leave the AI response intact.
                     pass
 
-        return output
+        return msg.translate(output)
 
     def __init__(self):
         self._lc_agent: Runnable | None = None
@@ -75,8 +75,8 @@ class TaskAgent(metaclass=Singleton):
         """
         shared.context.push("HISTORY", query)
         output: str = ""
-        if plan.thoughts.speak:
-            events.reply.emit(message=plan.thoughts.speak)
+        if plan.speak:
+            events.reply.emit(message=msg.translate(plan.speak))
         tasks: list[SimpleNamespace] = plan.tasks
         result_log: list[str] = []
 
@@ -94,7 +94,7 @@ class TaskAgent(metaclass=Singleton):
                 shared.memory.save_context({"input": task}, {"output": output})
                 result_log.append(output)
                 if idx < len(tasks):  # Print intermediary steps.
-                    events.reply.emit(message=output)
+                    events.reply.emit(message=msg.translate(output))
                 continue
 
         assert_accuracy(query, os.linesep.join(result_log), RagResponse.MODERATE)

@@ -15,6 +15,7 @@
 import re
 from dataclasses import dataclass, field
 from types import SimpleNamespace
+from typing import Optional
 
 from hspylib.core.preconditions import check_state
 from langchain_core.messages import AIMessage
@@ -58,7 +59,7 @@ class ActionPlan:
             question,
             f"Answer the question: {question}", [],
             SimpleNamespace(
-                reasoning="AI decided to respond directly", observations="", criticism="", speak=""),
+                reasoning="AI decided to respond directly", observations="", criticism="", speak="response"),
             [SimpleNamespace(id="1", task=response)],
             model
         )
@@ -75,7 +76,8 @@ class ActionPlan:
                 f"Invalid action plan received from LLM: {type(plan)}")
             plan.model = model
             if not plan.tasks:
-                plan.tasks.append(SimpleNamespace(id="1", task=f"DIRECT: QUESTION='{question}' ANSWER='{plan.speak}'"))
+                plan.tasks.append(SimpleNamespace(
+                    id="1", task=f"DIRECT: QUESTION='{question}' ANSWER='{response}'"))
         return plan
 
     def __str__(self):
@@ -84,9 +86,9 @@ class ActionPlan:
         return (
             f"`Question:` {self.question}  "
             f"`Reasoning:` {self.reasoning}  "
-            f"`Observations:` {self.thoughts.observations if self.thoughts else 'N/A'}  "
-            f"`Criticism:` {self.thoughts.criticism if self.thoughts else 'N/A'}  "
-            f"`Speak:` {self.thoughts.speak if self.thoughts else 'N/A'}  "
+            f"`Observations:` {self.observations}  "
+            f"`Criticism:` {self.criticism}  "
+            f"`Speak:` {self.speak}  "
             f"`Sub-Goals:` [{sub_goals}]  "
             f"`Tasks:` [{tasks}]  ."
         )
@@ -95,21 +97,21 @@ class ActionPlan:
         return len(self.tasks)
 
     @property
-    def speak(self) -> str:
-        """TODO"""
-        return msg.translate(self.thoughts.speak)
+    def reasoning(self) -> Optional[str]:
+        return msg.translate(self.thoughts.reasoning) \
+            if hasattr(self, 'thoughts') and hasattr(self.thoughts, 'reasoning') else None
 
     @property
-    def reasoning(self) -> str:
-        """TODO"""
-        return self.thoughts.reasoning
+    def observations(self) -> Optional[str]:
+        return msg.translate(self.thoughts.observations) \
+            if hasattr(self, 'thoughts') and hasattr(self.thoughts, 'observations') else None
 
     @property
-    def observations(self) -> str:
-        """TODO"""
-        return self.thoughts.observations
+    def criticism(self) -> Optional[str]:
+        return msg.translate(self.thoughts.criticism) \
+            if hasattr(self, 'thoughts') and hasattr(self.thoughts, 'criticism') else None
 
     @property
-    def criticism(self) -> str:
-        """TODO"""
-        return self.thoughts.criticism
+    def speak(self) -> Optional[str]:
+        return msg.translate(self.thoughts.speak) \
+            if hasattr(self, 'thoughts') and hasattr(self.thoughts, 'speak') else None

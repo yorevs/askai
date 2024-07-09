@@ -12,11 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from functools import cached_property, lru_cache
+
+from hspylib.core.metaclass.singleton import Singleton
+
 from askai.core.askai_configs import configs
 from askai.language.argos_translator import ArgosTranslator
 from askai.language.language import Language
-from functools import cached_property, lru_cache
-from hspylib.core.metaclass.singleton import Singleton
 
 
 class AskAiMessages(metaclass=Singleton):
@@ -104,10 +106,14 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate("Type [exit] to exit Q & A mode")
 
     @lru_cache(maxsize=1)
-    def analysis(self, result: str) -> str:
-        return self.translate(f"~~[DEBUG]~~ Analysis result => {result}")
+    def device_switch(self, device_info: str) -> str:
+        return self.translate(f"\nSwitching to Audio Input device: `{device_info}`\n")
 
-    @lru_cache(maxsize=1)
+    # Debug messages
+
+    def analysis(self, result: str) -> str:
+        return f"~~[DEBUG]~~ Analysis result => {result}"
+
     def assert_acc(self, status: str, details: str) -> str:
         match status.casefold():
             case 'red':
@@ -118,31 +124,25 @@ class AskAiMessages(metaclass=Singleton):
                 cl = '*'
             case _:
                 cl = ''
-        return self.translate(f"~~[DEBUG]~~ Accuracy result => {cl}{status}:{cl} {details}")
+        return f"~~[DEBUG]~~ Accuracy result => {cl}{status}:{cl} {details}"
 
-    @lru_cache(maxsize=1)
     def action_plan(self, plan_text: str) -> str:
-        return self.translate(f"~~[DEBUG]~~ Action plan => {plan_text}")
+        return f"~~[DEBUG]~~ Action plan => {plan_text}"
 
-    @lru_cache(maxsize=1)
     def x_reference(self, pathname: str) -> str:
-        return self.translate(f"~~[DEBUG]~~ Resolving X-References: `{pathname}`…")
+        return f"~~[DEBUG]~~ Resolving X-References: `{pathname}`…"
 
-    @lru_cache(maxsize=1)
     def describe_image(self, image_path: str) -> str:
-        return self.translate(f"~~[DEBUG]~~ Describing image: `{image_path}`…")
+        return f"~~[DEBUG]~~ Describing image: `{image_path}`…"
 
-    @lru_cache(maxsize=1)
     def model_select(self, model: str) -> str:
-        return self.translate(f"~~[DEBUG]~~ Using routing model: `{model}`")
+        return f"~~[DEBUG]~~ Using routing model: `{model}`"
 
-    @lru_cache(maxsize=1)
     def task(self, task: str) -> str:
-        return self.translate(f"~~[DEBUG]~~ > `{task}`")
+        return f"~~[DEBUG]~~ > `{task}`"
 
-    @lru_cache(maxsize=1)
-    def device_switch(self, device_info: str) -> str:
-        return self.translate(f"\nSwitching to Audio Input device: `{device_info}`\n")
+    def final_query(self, query: str) -> str:
+        return f"~~[DEBUG]~~ > Final query: `{query}`"
 
     # Warnings and alerts
 
