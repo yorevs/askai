@@ -1,6 +1,8 @@
 from functools import lru_cache
+from pathlib import Path
 
 from askai.core.askai_configs import configs
+from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import RAG_DIR
 from askai.core.engine.openai.temperature import Temperature
@@ -24,7 +26,7 @@ class Rag(metaclass=Singleton):
         self._rag_chain = None
         self._vectorstore = None
         self._text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=configs.chunk_size, chunk_overlap=0)
+            chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap)
 
     def process(self, question: str, **_) -> str:
         """Process the user question to retrieve the final response.
@@ -32,16 +34,19 @@ class Rag(metaclass=Singleton):
         """
         self._generate()
 
-        if output := self._rag_chain.invoke(question):
-            return output
+        if question.casefold() == "exit":
+            events.mode_changed.emit(mode="DEFAULT")
+            output = msg.leave_rag()
+        elif not (output := self._rag_chain.invoke(question)):
+            output = msg.invalid_response(output)
 
         self._vectorstore.delete_collection()
 
-        return msg.invalid_response(output)
+        return output
 
-    @lru_cache
-    def _generate(self) -> None:
-        loader: DirectoryLoader = DirectoryLoader(str(RAG_DIR))
+    @lru_cache(maxsize=8)
+    def _generate(self, rag_dir: str | Path = RAG_DIR) -> None:
+        loader: DirectoryLoader = DirectoryLoader(str(rag_dir))
         rag_docs: list[Document] = loader.load()
         llm = lc_llm.create_model(temperature=Temperature.DATA_ANALYSIS.temp)
         embeddings = lc_llm.create_embeddings()

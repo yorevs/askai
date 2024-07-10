@@ -9,9 +9,9 @@ from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.rag_response import RagResponse
 from askai.core.enums.routing_model import RoutingModel
-from askai.core.features.rag.accuracy import assert_accuracy
 from askai.core.features.router.task_toolkit import features
 from askai.core.features.router.tools.general import final_answer
+from askai.core.features.validation.accuracy import assert_accuracy
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
 from askai.core.support.langchain_support import lc_llm
@@ -96,7 +96,7 @@ class TaskAgent(metaclass=Singleton):
                     events.reply.emit(message=msg.translate(output))
                 continue
 
-        assert_accuracy(query, os.linesep.join(result_log), RagResponse.MODERATE)
+        assert_accuracy(query, os.linesep.join(result_log), RagResponse.GOOD)
 
         return self.wrap_answer(plan.primary_goal, output, plan.model)
 

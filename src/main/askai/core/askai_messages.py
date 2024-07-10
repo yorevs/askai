@@ -98,6 +98,10 @@ class AskAiMessages(metaclass=Singleton):
         return self.translate("You have *left* the **Summarization Q & A**")
 
     @lru_cache(maxsize=1)
+    def leave_rag(self) -> str:
+        return self.translate("You have *left* the **RAG Mode**")
+
+    @lru_cache(maxsize=1)
     def qna_welcome(self) -> str:
         return self.translate("  What specific information are you seeking about this content ?")
 

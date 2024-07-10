@@ -34,12 +34,18 @@ class RouterMode(Enumeration):
 
     QSTRING             = 'Non-Interactive', qstring
 
-    RAG                 = 'RAG Mode', rag
+    RAG                 = 'Retrieval-Augmented Generation', rag
 
     # fmt: off
 
+    @classmethod
+    def modes(cls) -> list[str]:
+        """Return a list containing al available agent modes."""
+        return RouterMode.names()
+
     @staticmethod
     def default() -> 'RouterMode':
+        """Return the default routing mode."""
         return RouterMode.TASK_SPLIT if configs.is_interactive else RouterMode.QSTRING
 
     @classmethod
@@ -62,5 +68,5 @@ class RouterMode(Enumeration):
         return self == RouterMode.default()
 
     def process(self, question: str, **kwargs) -> Optional[str]:
-        """TODO"""
+        """Invoke the processor associated with the mode."""
         return self.processor.process(question, **kwargs)

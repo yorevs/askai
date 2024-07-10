@@ -6,7 +6,7 @@
 """Package initialization."""
 
 __all__ = [
-    'rag', 
+    'validation',
     'router'
 ]
 __version__ = '1.0.8'

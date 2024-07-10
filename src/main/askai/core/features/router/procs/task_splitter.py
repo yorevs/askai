@@ -95,7 +95,7 @@ class TaskSplitter(metaclass=Singleton):
 
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
         def _process_wrapper() -> Optional[str]:
-            """Wrapper to allow RAG retries."""
+            """Wrapper to allow accuracy retries."""
             log.info("Router::[QUESTION] '%s'", question)
             runnable = self.template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
             runnable = RunnableWithMessageHistory(

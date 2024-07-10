@@ -19,6 +19,7 @@ from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
 
+import dotenv
 import nltk
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
@@ -466,6 +467,7 @@ class AskAiApp(App[None]):
     @work(thread=True, exclusive=True)
     def _setup(self) -> None:
         """Setup the TUI controls."""
+        dotenv.load_dotenv()
         player.start_delay()
         self.splash.set_class(True, "-hidden")
         self.activate_markdown()

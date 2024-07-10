@@ -20,6 +20,7 @@ from pathlib import Path
 from threading import Thread
 from typing import List, TypeAlias
 
+import dotenv
 import nltk
 import pause
 from askai.__classpath__ import classpath
@@ -237,6 +238,7 @@ class AskAi:
 
     def _startup(self) -> None:
         """Initialize the application."""
+        dotenv.load_dotenv()
         askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
         askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))

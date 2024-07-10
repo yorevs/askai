@@ -12,22 +12,22 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.__classpath__ import classpath
-from askai.core.support.text_formatter import text_formatter
+import logging as log
+import os
+import re
 from contextlib import redirect_stdout
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.commons import to_bool
 from io import StringIO
 from pathlib import Path
+from typing import Any, Optional
+
+from askai.__classpath__ import classpath
+from askai.core.support.text_formatter import text_formatter
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.commons import to_bool
 from rich.table import Table
 from setman.settings.settings import Settings
 from setman.settings.settings_config import SettingsConfig
 from setman.settings.settings_entry import SettingsEntry
-from typing import Any, Optional
-
-import logging as log
-import os
-import re
 
 # AskAI config directory.
 ASKAI_DIR: Path = Path(f'{os.getenv("HHS_DIR", os.getenv("ASKAI_DIR", os.getenv("TEMP", "/tmp")))}/askai')
@@ -45,7 +45,7 @@ class AskAiSettings(metaclass=Singleton):
 
     RESOURCE_DIR = str(classpath.resource_path())
 
-    _ACTUAL_VERSION: str = "0.1.3"
+    _ACTUAL_VERSION: str = "0.1.4"
 
     def __init__(self) -> None:
         self._configs = SettingsConfig(self.RESOURCE_DIR, "application.properties")
@@ -94,10 +94,10 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.debug.enabled", "askai", False)
         self._settings.put("askai.speak.enabled", "askai", False)
         self._settings.put("askai.cache.enabled", "askai", False)
-        self._settings.put("askai.cache.ttl.minutes", "askai", 20)
+        self._settings.put("askai.cache.ttl.minutes", "askai", 25)
         self._settings.put("askai.text.to.speech.tempo", "askai", 1)
-        self._settings.put("askai.text.splitter.chunk.size", "askai", 2000)
-        self._settings.put("askai.text.splitter.chunk.overlap", "askai", 200)
+        self._settings.put("askai.text.splitter.chunk.size", "askai", 1000)
+        self._settings.put("askai.text.splitter.chunk.overlap", "askai", 0)
         self._settings.put("askai.default.engine", "askai", "openai")
         self._settings.put("askai.default.engine.model", "askai", "gpt-3.5-turbo")
         # Router

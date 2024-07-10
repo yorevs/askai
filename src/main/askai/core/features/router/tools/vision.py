@@ -4,7 +4,7 @@ import torch
 from PIL import Image
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
-from askai.core.features.rag.accuracy import resolve_x_refs
+from askai.core.features.validation.accuracy import resolve_x_refs
 from askai.core.support.shared_instances import shared
 from hspylib.core.config.path_object import PathObject
 from transformers import BlipForConditionalGeneration, BlipProcessor
