@@ -18,6 +18,10 @@ import sys
 from textwrap import dedent
 from typing import Any, Optional
 
+from askai.__classpath__ import classpath
+from askai.core.askai import AskAi
+from askai.core.askai_configs import configs
+from askai.tui.askai_app import AskAiApp
 from clitt.core.term.commons import is_a_tty
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
@@ -27,11 +31,6 @@ from hspylib.core.zoned_datetime import now
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
-
-from askai.__classpath__ import classpath
-from askai.core.askai import AskAi
-from askai.core.askai_configs import configs
-from askai.tui.askai_app import AskAiApp
 
 if not is_a_tty():
     log.getLogger().setLevel(log.ERROR)
@@ -65,8 +64,8 @@ class Main(TUIApplication):
                 "whether you would like to run the program in an interactive mode.",
                 nargs="?", action=ParserAction.STORE_TRUE)\
             .option(
-                "quiet", "q", "quiet",
-                "whether you want to use speaking (audio in/out).",
+                "speak", "s", "speak",
+                "whether you want the AI to speak (audio out TTS).",
                 nargs="?", action=ParserAction.STORE_TRUE)\
             .option(
                 "debug", "d", "debug",
@@ -108,7 +107,7 @@ class Main(TUIApplication):
         if not is_new_ui:
             self._askai = AskAi(
                 to_bool(self._get_argument("interactive", False)),
-                to_bool(self._get_argument("quiet")),
+                to_bool(self._get_argument("speak", configs.is_speak)),
                 to_bool(self._get_argument("debug")),
                 to_bool(self._get_argument("cache", configs.is_cache)),
                 int(self._get_argument("tempo", configs.tempo)),
@@ -119,7 +118,7 @@ class Main(TUIApplication):
             )
         else:
             self._askai = AskAiApp(
-                to_bool(self._get_argument("quiet")),
+                to_bool(self._get_argument("speak", configs.is_speak)),
                 to_bool(self._get_argument("debug")),
                 to_bool(self._get_argument("cache", configs.is_cache)),
                 int(self._get_argument("tempo", configs.tempo)),

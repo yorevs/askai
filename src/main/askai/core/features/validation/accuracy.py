@@ -14,6 +14,7 @@
 """
 
 import logging as log
+from textwrap import dedent
 
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -27,6 +28,14 @@ from askai.exception.exceptions import InaccurateResponse
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
+
+RAG_GUIDELINES: str = dedent("""
+**Performance Evaluation Guidelines**
+
+1. Continuously review and analyze your actions to ensure optimal performance.
+2. Constructively self-criticize your overall behavior regularly.
+3. Reflect on past decisions and strategies to refine your approach.
+""").strip()
 
 
 def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse = RagResponse.MODERATE) -> None:
@@ -52,6 +61,9 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse
                 log.info("Accuracy check ->  status: '%s'  reason: '%s'", status, details)
                 events.reply.emit(message=msg.assert_acc(status, details), verbosity="debug")
                 if not RagResponse.of_status(status).passed(pass_threshold):
+                    # Include the guidelines for the first mistake
+                    if not shared.context.get("RAG"):
+                        shared.context.push("RAG", RAG_GUIDELINES)
                     shared.context.push("RAG", issues_prompt.format(problems=RagResponse.strip_code(output)))
                     raise InaccurateResponse(f"AI Assistant failed to respond => '{response.content}'")
                 return

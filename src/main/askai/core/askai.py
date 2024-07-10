@@ -72,7 +72,7 @@ class AskAi:
     def __init__(
         self,
         interactive: bool,
-        quiet: bool,
+        speak: bool,
         debug: bool,
         cacheable: bool,
         tempo: int,
@@ -84,7 +84,7 @@ class AskAi:
 
         configs.is_interactive = interactive
         configs.is_debug = is_debugging() or debug
-        configs.is_speak = not quiet and configs.is_interactive
+        configs.is_speak = speak
         configs.is_cache = cacheable
         configs.tempo = tempo
         configs.engine = engine_name

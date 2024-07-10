@@ -1,13 +1,3 @@
-The (AI) provided an inadequate answer.
+The (AI) provided an inadequate answer. Please address the following problems:
 
-The following problems occurred:
-
------
 {problems}
------
-
-**Performance Evaluation Guidelines**
-
-1. Continuously review and analyze your actions to ensure optimal performance.
-2. Constructively self-criticize your overall behavior regularly.
-3. Reflect on past decisions and strategies to refine your approach.

@@ -126,7 +126,7 @@ AI Response: """
 {{{{
   "question": "Open the first reminder you find at my downloads and tell me what I must do first.",
   "primary_goal": "The user wants to know the first task to be done according to the first reminder file at his downloads folder",
-  "sub_goals": ["1. List the user downloads folder", "2. Identify the first reminder file", "3. Open the reminder file if found", "4. Tell the user the first task to be done."],
+  "sub_goals": ["List the user downloads folder", "Identify the first reminder file", "Open the reminder file if found"],
   "thoughts": {{{{
     "reasoning": "The question intends to find out the first task or action required from the first reminder located in the downloads folder.",
     "observations": "I don't know if there is any reminder files at his downloads folder, so, I will first have to locate them.",
@@ -149,7 +149,7 @@ AI Response: """
 {{{{
   "question": "List my music and let me know if there is any ac/dc song. If so, show me the file name and open it.",
   "primary_goal": "Open the first AC/DC song found at his music folder",
-  "sub_goals": ["1. List the user music folder", "2. Identify any AC/DC song file", "3. Show the file names if found", "4. Open any AC/DC song file."],
+  "sub_goals": ["List the user music folder", "Identify any AC/DC song file", "Show the file names if found"],
   "thoughts": {{{{
     "reasoning": "The user wants to find and open any AC/DC song that might be located at his music folder.",
     "observations": "I don't know if there is any AC/DC song files at his downloads folder, so, I will first have to locate them.",
@@ -171,8 +171,8 @@ AI Response: """
 AI Response: """
 {{{{
   "question": "I have downloaded a QR logo, open it to me.",
-  "primary_goal": "Open the QR logo file he downloaded.",
-  "sub_goals": ["1. List the downloads folder", "2. Identify the QR logo file"],
+  "primary_goal": "Open the QR logo file the user downloaded.",
+  "sub_goals": ["List the downloads folder", "Identify the QR logo file"],
   "thoughts": {{{{
     "reasoning": "The user wants me to find one file he downloaded. The file is probably named as QR logo.",
     "observations": "I don't know the right file name or path, so I will have to locate it. Since the user downloaded it, probably it is located at his downloads folder.",

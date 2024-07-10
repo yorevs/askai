@@ -84,8 +84,25 @@ class AskAiApp(App[None]):
 
     RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"
 
-    def __init__(self, quiet: bool, debug: bool, cacheable: bool, tempo: int, engine_name: str, model_name: str):
+    def __init__(
+        self,
+        speak: bool,
+        debug: bool,
+        cacheable: bool,
+        tempo: int,
+        engine_name: str,
+        model_name: str
+    ):
         super().__init__()
+
+        configs.is_interactive = True
+        configs.is_debug = is_debugging() or debug
+        configs.is_speak = speak
+        configs.is_cache = cacheable
+        configs.tempo = tempo
+        configs.engine = engine_name
+        configs.model = model_name
+
         self._session_id = now("%Y%m%d")[:8]
         self._question: str | None = None
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
@@ -94,17 +111,10 @@ class AskAiApp(App[None]):
         self._console_path = Path(f"{CACHE_DIR}/askai-{self.session_id}.md")
         self._re_render = True
         self._display_buffer = list()
+
         if not self._console_path.exists():
             self._console_path.touch()
 
-        # Save setting configs from program arguments to remember later.
-        configs.is_interactive = True
-        configs.is_speak = not quiet
-        configs.is_debug = is_debugging() or debug
-        configs.is_cache = cacheable
-        configs.tempo = tempo
-        configs.engine = engine_name
-        configs.model = model_name
         self._startup()
 
     def __str__(self) -> str:
