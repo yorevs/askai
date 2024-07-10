@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# "askai" v1.0.8
+# "askai" v1.0.9
 #
 # Package: main.askai.core.commander.commands
 """Package initialization."""
@@ -12,4 +12,4 @@ __all__ = [
     'settings_cmd', 
     'tts_stt_cmd'
 ]
-__version__ = '1.0.8'
+__version__ = '1.0.9'
