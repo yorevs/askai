@@ -45,7 +45,7 @@ class AskAiSettings(metaclass=Singleton):
 
     RESOURCE_DIR = str(classpath.resource_path())
 
-    _ACTUAL_VERSION: str = "0.1.4"
+    _ACTUAL_VERSION: str = "0.1.5"
 
     def __init__(self) -> None:
         self._configs = SettingsConfig(self.RESOURCE_DIR, "application.properties")
@@ -97,11 +97,11 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.cache.ttl.minutes", "askai", 25)
         self._settings.put("askai.text.to.speech.tempo", "askai", 1)
         self._settings.put("askai.text.splitter.chunk.size", "askai", 1000)
-        self._settings.put("askai.text.splitter.chunk.overlap", "askai", 0)
+        self._settings.put("askai.text.splitter.chunk.overlap", "askai", 100)
         self._settings.put("askai.default.engine", "askai", "openai")
         self._settings.put("askai.default.engine.model", "askai", "gpt-3.5-turbo")
         # Router
-        self._settings.put("askai.max.short.memory.size", "askai", 15)
+        self._settings.put("askai.max.short.memory.size", "askai", 10)
         self._settings.put("askai.max.router.iteractions", "askai", 30)
         self._settings.put("askai.max.agent.retries", "askai", 3)
         self._settings.put("askai.max.agent.execution.time.seconds", "askai", 45)

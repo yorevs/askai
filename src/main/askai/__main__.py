@@ -18,6 +18,7 @@ import sys
 from textwrap import dedent
 from typing import Any, Optional
 
+import dotenv
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
@@ -103,11 +104,12 @@ class Main(TUIApplication):
 
     def _main(self, *params, **kwargs) -> ExitStatus:
         """Run the application with the command line arguments."""
+        dotenv.load_dotenv()
         is_new_ui: bool = to_bool(self._get_argument("ui", False))
         if not is_new_ui:
             self._askai = AskAi(
                 to_bool(self._get_argument("interactive", False)),
-                to_bool(self._get_argument("speak", configs.is_speak)),
+                to_bool(self._get_argument("speak")),
                 to_bool(self._get_argument("debug")),
                 to_bool(self._get_argument("cache", configs.is_cache)),
                 int(self._get_argument("tempo", configs.tempo)),
@@ -118,7 +120,7 @@ class Main(TUIApplication):
             )
         else:
             self._askai = AskAiApp(
-                to_bool(self._get_argument("speak", configs.is_speak)),
+                to_bool(self._get_argument("speak")),
                 to_bool(self._get_argument("debug")),
                 to_bool(self._get_argument("cache", configs.is_cache)),
                 int(self._get_argument("tempo", configs.tempo)),
@@ -157,7 +159,7 @@ class Main(TUIApplication):
             elif isinstance(arg, int):
                 return arg
             else:
-                raise TypeError("Argument '' has an invalid type: ''", arg, type(arg))
+                raise TypeError("Argument '%s' has an invalid type: '%s'", arg, type(arg))
 
         return None
 
