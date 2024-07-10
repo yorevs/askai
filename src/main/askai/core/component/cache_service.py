@@ -16,14 +16,13 @@ from collections import namedtuple
 from pathlib import Path
 from typing import Optional, Tuple
 
+from askai.core.askai_configs import configs
+from askai.core.askai_settings import ASKAI_DIR
+from askai.core.support.utilities import hash_text
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.modules.cache.ttl_cache import TTLCache
-
-from askai.core.askai_configs import configs
-from askai.core.askai_settings import ASKAI_DIR
-from askai.core.support.utilities import hash_text
 
 # AskAI cache root directory.
 CACHE_DIR: Path = Path(f"{ASKAI_DIR}/cache")
@@ -48,6 +47,12 @@ PERSIST_DIR: Path = Path(str(CACHE_DIR) + "/chroma")
 if not PERSIST_DIR.exists():
     PERSIST_DIR.mkdir(parents=True, exist_ok=True)
 
+# RAG Directory
+RAG_DIR: Path = Path(str(CACHE_DIR) + "/rag")
+if not RAG_DIR.exists():
+    RAG_DIR.mkdir(parents=True, exist_ok=True)
+
+
 CacheEntry = namedtuple('CacheEntry', ["key", "expires"])
 
 
@@ -60,7 +65,7 @@ class CacheService(metaclass=Singleton):
 
     ASKAI_INPUT_CACHE_KEY = "askai-input-history"
 
-    _TTL_CACHE: TTLCache[str] = TTLCache(ttl_minutes=30)
+    _TTL_CACHE: TTLCache[str] = TTLCache(ttl_minutes=configs.ttl)
 
     @staticmethod
     def get_audio_file(text: str, voice: str = "onyx", audio_format: str = "mp3") -> Tuple[str, bool]:

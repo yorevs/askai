@@ -1,13 +1,13 @@
-from askai.core.askai_events import events
-from askai.core.askai_messages import msg
-from askai.core.features.rag.rag import resolve_x_refs
-from askai.core.support.shared_instances import shared
-from hspylib.core.config.path_object import PathObject
-from PIL import Image
-from transformers import BlipForConditionalGeneration, BlipProcessor
 from typing import Optional
 
 import torch
+from PIL import Image
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
+from askai.core.features.rag.accuracy import resolve_x_refs
+from askai.core.support.shared_instances import shared
+from hspylib.core.config.path_object import PathObject
+from transformers import BlipForConditionalGeneration, BlipProcessor
 
 
 def image_captioner(path_name: str) -> Optional[str]:

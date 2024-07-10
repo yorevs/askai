@@ -14,14 +14,13 @@
 """
 from typing import Optional
 
-from hspylib.core.enums.enumeration import Enumeration
-
 from askai.core.askai_configs import configs
 from askai.core.features.router.ai_processor import AIProcessor
 from askai.core.features.router.procs.qna import qna
 from askai.core.features.router.procs.qstring import qstring
 from askai.core.features.router.procs.rag import rag
 from askai.core.features.router.procs.task_splitter import splitter
+from hspylib.core.enums.enumeration import Enumeration
 
 
 class RouterMode(Enumeration):

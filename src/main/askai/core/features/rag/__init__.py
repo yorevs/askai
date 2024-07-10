@@ -6,6 +6,6 @@
 """Package initialization."""
 
 __all__ = [
-    'rag'
+    'accuracy.py'
 ]
 __version__ = '1.0.8'

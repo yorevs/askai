@@ -22,19 +22,6 @@ from typing import List, TypeAlias
 
 import nltk
 import pause
-from click import UsageError
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.term.terminal import terminal
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging, sysout
-from hspylib.core.tools.text_tools import elide_text
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from openai import RateLimitError
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -53,6 +40,18 @@ from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
 from askai.exception.exceptions import *
+from click import UsageError
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.term.terminal import terminal
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging, sysout
+from hspylib.core.tools.text_tools import elide_text
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from openai import RateLimitError
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -111,6 +110,7 @@ class AskAi:
             f"{dtm.center(80, '=')} %EOL%"
             f"   Language: {configs.language} %EOL%"
             f"     Engine: {self.engine} %EOL%"
+            f"       Mode: {self.mode} %EOL%"
             f"        Dir: {cur_dir} %EOL%"
             f"         OS: {prompt.os_type}/{prompt.shell} %EOL%"
             f"{'-' * 80} %EOL%"

@@ -61,24 +61,25 @@ class InternetService(metaclass=Singleton):
             query += f" {' OR '.join(['site:' + url for url in search.sites])}"
         # Weather is a filter that does not require any other search parameter.
         if search.filters and any(f.find("weather:") >= 0 for f in search.filters):
-            return re.sub(r"^weather:(.*)", r'weather:"\1"', " AND ".join(search.filters))
+            return query + ' ' + re.sub(r"^weather:(.*)", r'weather:"\1"', " AND ".join(search.filters))
         # We want to find pages containing the exact name of the person.
         if search.filters and any(f.find("people:") >= 0 for f in search.filters):
-            return f" {query} intext:\"{'+'.join([f.split(':')[1] for f in search.filters])}\" "
+            return query + ' ' + f" intext:\"{'+'.join([f.split(':')[1] for f in search.filters])}\" "
         # Make the search query using the provided keywords.
         if search.keywords:
-            query = f"{' '.join(search.keywords)} {query} {' :after ' + search.datetime if search.datetime else ' '} "
+            query = f"{' '.join(search.keywords)} {query} "
 
         return query
 
     @staticmethod
-    def wrap_response(output: str, sites: list[str]) -> str:
+    def wrap_response(terms: str, output: str, sites: list[str]) -> str:
         return (
             "Your search returned the following:\n"
             f"\n{output}\n"
             f"\n---"
-            f"\nSources: {', '.join(sites)}"
-            f"\n>  Accessed: {geo_location.location} {now('%d %B, %Y')} \n"
+            f"\nSources: {', '.join(sites)}\n"
+            f"\n* Accessed: {geo_location.location} {now('%d %B, %Y')}*"
+            f"\n>  Terms: {terms}\n"
         )
 
     def __init__(self):
@@ -100,11 +101,11 @@ class InternetService(metaclass=Singleton):
         """
         events.reply.emit(message=msg.searching())
         search.sites = search.sites or ["google.com", "bing.com", "duckduckgo.com", "ask.com"]
+        terms = self._build_google_query(search).strip()
         try:
-            query = self._build_google_query(search).strip()
-            log.info("Searching Google for '%s'", query)
-            events.reply.emit(message=msg.final_query(query), verbosity="debug")
-            ctx = str(self._tool.run(query))
+            log.info("Searching Google for '%s'", terms)
+            events.reply.emit(message=msg.final_query(terms), verbosity="debug")
+            ctx = str(self._tool.run(terms))
             llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
             context: List[Document] = [Document(ctx)]
             chain = create_stuff_documents_chain(
@@ -114,7 +115,7 @@ class InternetService(metaclass=Singleton):
         except HttpError as err:
             output = msg.fail_to_search(str(err))
 
-        return self.refine_search(search.question, output, search.sites)
+        return self.refine_search(search.question, output, terms, search.sites)
 
     def scrap_sites(self, search: SearchResult) -> str:
         """Scrap a web page and summarize it's contents.
@@ -150,13 +151,14 @@ class InternetService(metaclass=Singleton):
                 v_store.delete_collection()
                 log.info("Scrapping sites returned: '%s'", str(output))
 
-                return self.refine_search(search.question, str(output), search.sites)
+                return self.refine_search(search.question, str(output), "", search.sites)
         return msg.no_output("search")
 
-    def refine_search(self, question: str, result: str, sites: list[str]) -> str:
+    def refine_search(self, question: str, result: str, terms: str, sites: list[str]) -> str:
         """Refines the text retrieved by the search engine.
         :param question: The user question, used to refine the context.
         :param result: The search result to refine.
+        :param terms: The terms used on the Google search.
         :param sites: The list of source sites used on the search.
         """
         refine_prompt = PromptTemplate.from_template(self.refine_template()).format(
@@ -175,7 +177,7 @@ class InternetService(metaclass=Singleton):
         else:
             output = "The search did not bring any result"
 
-        return self.wrap_response(output, sites)
+        return self.wrap_response(terms, output, sites)
 
 
 assert (internet := InternetService().INSTANCE) is not None

@@ -19,12 +19,6 @@ from textwrap import dedent
 from typing import Any, Optional, Type, TypeAlias
 
 import PIL
-from hspylib.core.exception.exceptions import InvalidArgumentError
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from retry import retry
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_prompt import prompt
@@ -37,6 +31,11 @@ from askai.core.model.model_result import ModelResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
+from hspylib.core.exception.exceptions import InvalidArgumentError
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from retry import retry
 
 AgentResponse: TypeAlias = dict[str, Any]
 
@@ -47,7 +46,6 @@ class TaskSplitter(metaclass=Singleton):
 
     INSTANCE: "TaskSplitter"
 
-    # This is required because the AI sometimes forgets to wrap the response in a Json object.
     HUMAN_PROMPT: str = dedent(
         """Human Question: '{input}'"""
     ).strip()

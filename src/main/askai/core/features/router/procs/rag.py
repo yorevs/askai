@@ -1,24 +1,18 @@
-import logging as log
 from functools import lru_cache
-from pathlib import Path
-from typing import Optional
-
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.metaclass.singleton import Singleton
-from langchain.chains.retrieval_qa.base import RetrievalQA
-from langchain_community.document_loaders import DirectoryLoader, TextLoader
-from langchain_community.vectorstores import Chroma
-from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
-from askai.core.askai_prompt import prompt
-from askai.core.component.cache_service import PERSIST_DIR
-from askai.core.component.summarizer import summarizer
+from askai.core.component.cache_service import RAG_DIR
+from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
-from askai.core.support.utilities import hash_text
-from askai.exception.exceptions import DocumentsNotFound
+from hspylib.core.metaclass.singleton import Singleton
+from langchain import hub
+from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.vectorstores import Chroma
+from langchain_core.documents import Document
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
 class Rag(metaclass=Singleton):
@@ -26,52 +20,45 @@ class Rag(metaclass=Singleton):
 
     INSTANCE: "Rag"
 
-    DEFAULT_RAG_FILE: str = f"{prompt.PROMPT_DIR}/taius/taius-rag.txt"
-
     def __init__(self):
-        self._retriever = None
+        self._rag_chain = None
+        self._vectorstore = None
         self._text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=configs.chunk_size, chunk_overlap=0)
-        p_obj: PathObject = PathObject.of(self.DEFAULT_RAG_FILE)
-        self._folder, self._glob = p_obj.abs_dir, p_obj.filename
 
-    @property
-    def persist_dir(self) -> Path:
-        summary_hash = hash_text(self.sum_path)
-        return Path(f"{PERSIST_DIR}/{summary_hash}")
-
-    @property
-    def sum_path(self) -> str:
-        return f"{self._folder}{self._glob}"
-
-    def process(self, question: str, **_) -> Optional[str]:
+    def process(self, question: str, **_) -> str:
         """Process the user question to retrieve the final response.
         :param question: The user question to process.
         """
         self._generate()
 
-        if (result := self._retriever.invoke({"query": question})) and (output := summarizer.extract_result(result)):
-            return output[1]
+        if output := self._rag_chain.invoke(question):
+            return output
 
-        return msg.invalid_response(str(result))
+        self._vectorstore.delete_collection()
+
+        return msg.invalid_response(output)
 
     @lru_cache
     def _generate(self) -> None:
+        loader: DirectoryLoader = DirectoryLoader(str(RAG_DIR))
+        rag_docs: list[Document] = loader.load()
+        llm = lc_llm.create_model(temperature=Temperature.DATA_ANALYSIS.temp)
         embeddings = lc_llm.create_embeddings()
+        splits = self._text_splitter.split_documents(rag_docs)
 
-        if self.persist_dir.exists():
-            log.info("Recovering vector store from: '%s'", self.persist_dir)
-            v_store = Chroma(persist_directory=str(self.persist_dir), embedding_function=embeddings)
-        else:
-            log.info("Summarizing documents from '%s'", self.sum_path)
-            documents: list[Document] = DirectoryLoader(
-                self._folder, glob=self._glob, loader_cls=TextLoader).load()
-            if len(documents) <= 0:
-                raise DocumentsNotFound(f"Unable to find any document to summarize at: '{self.sum_path}'")
-            splits: list[Document] = self._text_splitter.split_documents(documents)
-            v_store = Chroma.from_documents(splits, embeddings, persist_directory=str(self.persist_dir))
-        self._retriever = RetrievalQA.from_chain_type(
-            llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever()
+        self._vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings)
+        retriever = self._vectorstore.as_retriever()
+        rag_prompt = hub.pull("rlm/rag-prompt")
+
+        def _format_docs_(docs):
+            return "\n\n".join(doc.page_content for doc in docs)
+
+        self._rag_chain = (
+            {"context": retriever | _format_docs_, "question": RunnablePassthrough()}
+            | rag_prompt
+            | llm
+            | StrOutputParser()
         )
 
 
