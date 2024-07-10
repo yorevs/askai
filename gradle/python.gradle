@@ -125,7 +125,8 @@ task installBuildTools(type: Task) {
     buildToolsFile.setText("###### Build Tools Files for $project.name ######\n\n")
     println "Installing \"${project.name}\" build tools: "
     println "Packages:"
-    project.buildTools.each { tool ->
+    def String[] buildTools = project.buildTools.split(',')
+    buildTools.each { tool ->
       println "  |-${tool.trim()}"
       buildToolsFile.append("${tool.trim()}\n")
     }
