@@ -30,8 +30,8 @@ torch==2.2.0
 tqdm==4.66.4
 torchvision==0.17.0
 stanza==1.1.1
-unstructured==0.12.4
-unstructured[md]==0.12.4
+unstructured==0.14.10
+unstructured[md]==0.14.10
 python-magic-bin==0.4.14
 tiktoken==0.7.0
 aiohttp==3.9.3
