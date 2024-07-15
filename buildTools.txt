@@ -1,2 +1,13 @@
 ###### Build Tools Files for AskAI ######
 
+setuptools
+wheel
+build
+twine
+bumpver
+pipenv
+isort
+black
+mypy
+pylint
+pdoc

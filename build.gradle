@@ -34,7 +34,6 @@ ext {
   application = "${sourceRoot}/main/__main__.py"
   pythonPath = "${sourceRoot}/main:${sourceRoot}/test:${sourceRoot}/demo"
   buildToolsFile = new File("${project.projectDir}/buildTools.txt")
-  buildTools = "${buildTools}".split(",")
   startTime = System.currentTimeMillis()
   verbose = findProperty('verbose') ?: false
 }

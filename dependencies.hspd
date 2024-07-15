@@ -4,7 +4,7 @@
   Created: 05th Jan, 2024
 
   !! Syntax for dependencies !!
-  package: <pkg_name>, version: <latest|versionNum>, mode: <gt|ge|eq|ne|eq|none>
+  package: <pkg_name>, version: <latest|versionNum>, mode: <gt|ge|gt|ne|gt|none>
 */
 
 /* Module dependencies */
@@ -15,41 +15,41 @@ package: hspylib-setman, version: 0.10.35, mode: ge
 
 /* Application dependencies */
 
-package: langchain, version: 0.2.7, mode: eq
-package: langchain-openai, version: 0.1.14, mode: eq
-package: langchain-community, version: 0.2.7, mode: eq
-package: langchain-google-community, version: 1.0.6, mode: eq
-package: langchainhub, version: 0.1.20, mode: eq
-package: faiss-cpu, version: 1.8.0.post1, mode: eq
-package: openai-whisper, version: 20231117, mode: eq
-package: openai, version: 1.35.12, mode: eq
-package: google-api-python-client, version: 2.137.0, mode: eq
-package: fake_useragent, version: 1.5.1, mode: eq
-package: rich, version: 13.7.1, mode: eq
-package: textual, version: 0.72.0, mode: eq
-package: soundfile, version: 0.12.1, mode: eq
-package: PyAudio, version: 0.2.14, mode: eq
-package: SpeechRecognition, version: 3.10.4, mode: eq
-package: argostranslate, version: 1.9.6, mode: eq
-package: opencv-python, version: 4.10.0.84, mode: eq
-package: chromadb, version: 0.5.3, mode: eq
-package: retry2, version: 0.9.5, mode: eq
-package: pause, version: 0.3, mode: eq
-package: requests, version: 2.31.0, mode: eq
-package: urllib3, version: 1.26.19, mode: eq
-package: protobuf, version: 4.22.1, mode: eq
-package: torch, version: 2.2.0, mode: eq
-package: tqdm, version: 4.66.4, mode: eq
-package: torchvision, version: 0.17.0, mode: eq
-package: stanza, version: 1.1.1, mode: eq
-package: unstructured, version: 0.14.10, mode: eq
-package: unstructured[md], version: 0.14.10, mode: eq
-package: python-magic-bin, version: 0.4.14, mode: eq
-package: tiktoken, version: 0.7.0, mode: eq
-package: aiohttp, version: 3.9.3, mode: eq
-package: html2text, version: 2024.2.26, mode: eq
-package: opentelemetry-api, version: 1.22.0, mode: eq
-package: opentelemetry-sdk, version: 1.22.0, mode: eq
-package: opentelemetry-proto, version: 1.22.0, mode: eq
-package: pytz, version: 2024.1, mode: eq
-package: bs4, version: 0.0.2, mode: eq
+package: langchain, version: 0.2.7, mode: ge
+package: langchain-openai, version: 0.1.14, mode: ge
+package: langchain-community, version: 0.2.7, mode: ge
+package: langchain-google-community, version: 1.0.6, mode: ge
+package: langchainhub, version: 0.1.20, mode: ge
+package: faiss-cpu, version: 1.8.0.post1, mode: ge
+package: openai-whisper, version: 20231117, mode: ge
+package: openai, version: 1.35.12, mode: ge
+package: google-api-python-client, version: 2.137.0, mode: ge
+package: fake_useragent, version: 1.5.1, mode: ge
+package: rich, version: 13.7.1, mode: ge
+package: textual, version: 0.72.0, mode: ge
+package: soundfile, version: 0.12.1, mode: ge
+package: PyAudio, version: 0.2.14, mode: ge
+package: SpeechRecognition, version: 3.10.4, mode: ge
+package: argostranslate, version: 1.9.6, mode: ge
+package: opencv-python, version: 4.10.0.84, mode: ge
+package: chromadb, version: 0.5.3, mode: ge
+package: retry2, version: 0.9.5, mode: ge
+package: pause, version: 0.3, mode: ge
+package: requests, version: 2.32.3, mode: ge
+package: urllib3, version: 1.26.19, mode: ge
+package: protobuf, version: 4.22.1, mode: ge
+package: torch, version: 2.2.0, mode: ge
+package: tqdm, version: 4.66.4, mode: ge
+package: torchvision, version: 0.17.0, mode: ge
+package: stanza, version: 1.1.1, mode: ge
+package: unstructured, version: 0.14.10, mode: ge
+package: unstructured[md], version: 0.14.10, mode: ge
+package: python-magic-bin, version: 0.4.14, mode: ge
+package: tiktoken, version: 0.7.0, mode: ge
+package: aiohttp, version: 3.9.3, mode: ge
+package: html2text, version: 2024.2.26, mode: ge
+package: opentelemetry-api, version: 1.22.0, mode: ge
+package: opentelemetry-sdk, version: 1.22.0, mode: ge
+package: opentelemetry-proto, version: 1.22.0, mode: ge
+package: pytz, version: 2024.1, mode: ge
+package: bs4, version: 0.0.2, mode: ge

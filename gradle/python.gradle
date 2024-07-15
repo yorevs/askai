@@ -132,7 +132,7 @@ task installBuildTools(type: Task) {
     }
     println "Space: --global"
     def args = [
-      project.python, '-m', 'pip', 'install', '-q',
+      project.python, '-m', 'pip', 'install', '-q', '--force-reinstall',
       project.ext.space, '--upgrade', '-r', buildToolsFile,
       '--no-warn-script-location', '--break-system-packages'
     ]
