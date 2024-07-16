@@ -19,23 +19,24 @@ from textwrap import dedent
 from typing import Any, Optional, Type, TypeAlias
 
 import PIL
+from hspylib.core.exception.exceptions import InvalidArgumentError
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from retry import retry
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
+from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.features.router.model_selector import selector
 from askai.core.features.router.task_agent import agent
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
-from hspylib.core.exception.exceptions import InvalidArgumentError
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from retry import retry
 
 AgentResponse: TypeAlias = dict[str, Any]
 
@@ -66,7 +67,7 @@ class TaskSplitter(metaclass=Singleton):
     def template(self) -> ChatPromptTemplate:
         """Retrieve the processor Template."""
 
-        rag: str = str(shared.context.flat("RAG"))
+        rag: str = str(shared.context.flat("SCRATCHPAD"))
         template = PromptTemplate(
             input_variables=["os_type", "shell", "datetime", "home"],
             template=prompt.read_prompt("task-split.txt"))
@@ -90,8 +91,8 @@ class TaskSplitter(metaclass=Singleton):
         """
 
         os.chdir(Path.home())
-        shared.context.forget("RAG")  # Forget any RAG that was done before.
-        model: ModelResult = selector.select_model(question)
+        shared.context.forget("SCRATCHPAD")  # Erase previous scratchpad.
+        model: ModelResult = ModelResult.default()  # Hardcoding the result model for now.
 
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
         def _process_wrapper() -> Optional[str]:
@@ -103,7 +104,7 @@ class TaskSplitter(metaclass=Singleton):
             if response := runnable.invoke({"input": question}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
                 plan: ActionPlan = ActionPlan.create(question, response, model)
-                events.reply.emit(message=f"> {plan}", verbosity="debug")
+                events.reply.emit(message=msg.action_plan(str(plan)), verbosity="debug")
                 output = agent.invoke(question, plan)
             else:
                 # Most of the times, this indicates a failure.

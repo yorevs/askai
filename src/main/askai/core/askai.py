@@ -22,6 +22,19 @@ from typing import List, TypeAlias
 
 import nltk
 import pause
+from click import UsageError
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.term.terminal import terminal
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging, sysout
+from hspylib.core.tools.text_tools import elide_text
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.application.version import Version
+from hspylib.modules.eventbus.event import Event
+from openai import RateLimitError
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -40,18 +53,6 @@ from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
 from askai.exception.exceptions import *
-from click import UsageError
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.term.terminal import terminal
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging, sysout
-from hspylib.core.tools.text_tools import elide_text
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.application.version import Version
-from hspylib.modules.eventbus.event import Event
-from openai import RateLimitError
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -104,11 +105,12 @@ class AskAi:
         dtm = f" {geo_location.datetime} "
         speak_info = str(configs.tempo) + " @" + shared.engine.configs.tts_voice
         cur_dir = elide_text(str(Path(os.getcwd()).absolute()), 67, "…")
+        translator = f"translated by '{msg.translator.name()}'" if configs.language.name.title() != 'English' else ''
         return (
             f"%GREEN%"
             f"AskAI v{Version.load(load_dir=classpath.source_path())} %EOL%"
             f"{dtm.center(80, '=')} %EOL%"
-            f"   Language: {configs.language} %EOL%"
+            f"   Language: {configs.language} {translator} %EOL%"
             f"     Engine: {self.engine} %EOL%"
             f"       Mode: {self.mode} %EOL%"
             f"        Dir: {cur_dir} %EOL%"
@@ -165,22 +167,23 @@ class AskAi:
         """Reply to the user with the AI response.
         :param message: The message to reply to the user.
         """
-        if message:
+        if message and (text := msg.translate(message)):
+            log.debug(message)
             if configs.is_speak:
-                self.engine.text_to_speech(message, f"{shared.nickname}: ")
+                self.engine.text_to_speech(text, f"{shared.nickname}: ")
             else:
-                display_text(message, f"{shared.nickname}: ")
+                display_text(text, f"{shared.nickname}: ")
 
     def reply_error(self, message: str) -> None:
         """Reply API or system errors.
         :param message: The error message to be displayed.
         """
-        if message:
+        if message and (text := msg.translate(message)):
             log.error(message)
             if configs.is_speak:
-                self.engine.text_to_speech(f"Error: {message}", f"{shared.nickname}: ")
+                self.engine.text_to_speech(f"Error: {text}", f"{shared.nickname}: ")
             else:
-                display_text(f"%RED%Error: {message}%NC%", f"{shared.nickname}: ")
+                display_text(f"%RED%Error: {text}%NC%", f"{shared.nickname}: ")
 
     def _input(self) -> Optional[str]:
         """Read the user input from stdin."""
@@ -284,6 +287,8 @@ class AskAi:
             else:
                 log.debug("Reply found for '%s' in cache.", question)
                 self.reply(reply)
+                shared.context.push("HISTORY", question)
+                shared.context.push("HISTORY", reply, "assistant")
         except (NotImplementedError, ImpossibleQuery) as err:
             self.reply_error(str(err))
         except (MaxInteractionsReached, InaccurateResponse) as err:

@@ -18,8 +18,8 @@ textual>=0.72.0
 soundfile>=0.12.1
 PyAudio>=0.2.14
 SpeechRecognition>=3.10.4
-argostranslate>=1.9.6
 opencv-python>=4.10.0.84
+argostranslate==1.9.1
 chromadb>=0.5.3
 retry2>=0.9.5
 pause>=0.3
@@ -29,6 +29,7 @@ protobuf>=4.22.1
 torch>=2.2.0
 tqdm>=4.66.4
 torchvision>=0.17.0
+transformers>=4.42.4
 stanza>=1.1.1
 unstructured>=0.14.10
 unstructured[md]>=0.14.10

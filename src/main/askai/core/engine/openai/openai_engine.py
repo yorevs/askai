@@ -12,19 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from pathlib import Path
-from threading import Thread
-from typing import List, Optional
-
-import langchain_openai
-import pause
-from hspylib.core.preconditions import check_not_none
-from langchain_core.embeddings import Embeddings
-from langchain_core.language_models import BaseChatModel, BaseLLM
-from openai import APIError, OpenAI
-
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import CacheService
 from askai.core.component.recorder import Recorder
@@ -33,6 +20,18 @@ from askai.core.engine.ai_reply import AIReply
 from askai.core.engine.openai.openai_configs import OpenAiConfigs
 from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.support.utilities import stream_text
+from hspylib.core.preconditions import check_not_none
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models import BaseChatModel, BaseLLM
+from openai import APIError, OpenAI
+from pathlib import Path
+from threading import Thread
+from typing import List, Optional
+
+import langchain_openai
+import logging as log
+import os
+import pause
 
 
 class OpenAIEngine:

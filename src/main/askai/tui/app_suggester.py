@@ -12,13 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from typing import Optional
-
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from textual.suggester import Suggester
-
 from askai.core.commander.commander import commands
 from askai.core.component.cache_service import cache
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from textual.suggester import Suggester
+from typing import Optional
 
 
 class InputSuggester(Suggester):

@@ -12,18 +12,16 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-
-from hspylib.core.config.path_object import PathObject
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import PromptTemplate
-
-from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from hspylib.core.config.path_object import PathObject
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import PromptTemplate
+
+import logging as log
+import os
 
 
 def display_tool(*texts: str) -> str:
@@ -32,7 +30,7 @@ def display_tool(*texts: str) -> str:
     """
     output = os.linesep.join(texts)
 
-    return output or msg.translate("Sorry, there is nothing to display")
+    return output or "Sorry, there is nothing to display"
 
 
 def final_answer(
@@ -60,6 +58,6 @@ def final_answer(
     response: AIMessage = llm.invoke(final_prompt)
 
     if not response or not (output := response.content) or shared.UNCERTAIN_ID in response.content:
-        output = msg.translate("Sorry, I was not able to provide a helpful response.")
+        output = "Sorry, I was not able to provide a helpful response."
 
-    return output or msg.translate("Sorry, the query produced no response!")
+    return output or "Sorry, the query produced no response!"

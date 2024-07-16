@@ -1,3 +1,4 @@
-The (AI) provided an inadequate answer. Please address the following problems:
+The (AI) provided an inadequate answer.
+Please address the following problems:
 
 {problems}

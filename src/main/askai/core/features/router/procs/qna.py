@@ -1,12 +1,10 @@
-from typing import Optional
-
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_state
-
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.summarizer import summarizer
 from askai.core.model.summary_result import SummaryResult
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_state
+from typing import Optional
 
 
 class QnA(metaclass=Singleton):

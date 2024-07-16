@@ -1,13 +1,13 @@
-from typing import Optional
-
-import torch
-from PIL import Image
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.features.validation.accuracy import resolve_x_refs
 from askai.core.support.shared_instances import shared
 from hspylib.core.config.path_object import PathObject
+from PIL import Image
 from transformers import BlipForConditionalGeneration, BlipProcessor
+from typing import Optional
+
+import torch
 
 
 def image_captioner(path_name: str) -> Optional[str]:
@@ -40,6 +40,6 @@ def image_captioner(path_name: str) -> Optional[str]:
         out = model.generate(**inputs, max_new_tokens=20)
         # get the caption
         caption = processor.decode(out[0], skip_special_tokens=True)
-        caption = msg.translate(f"Caption of '{path_name}' => {caption.title() if caption else 'I dont know'}")
+        caption = f"Caption of '{path_name}' => {caption.title() if caption else 'I dont know'}"
 
     return caption

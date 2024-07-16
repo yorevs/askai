@@ -20,7 +20,12 @@
     "src/main/askai/.version": true,
     "src/main/askai/.vscode": true,
     "src/main/askai/__pycache__": true,
-    "src/main/askai/core/__pycache__": true
+    "src/main/askai/core/__pycache__": true,
+    "**/*.egg-info": true,
+    "**/__pycache__": true,
+    "**/__pycache__.*": true,
+    "**/__init__": true,
+    "**/__init__.*": true
   },
   "hide-files.files": []
 }

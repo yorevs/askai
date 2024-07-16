@@ -12,22 +12,22 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-import re
-from functools import partial
-from os.path import expandvars
-from shutil import which
-from typing import Tuple
-
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.features.validation.accuracy import resolve_x_refs
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_path, media_type_of
 from clitt.core.term.terminal import Terminal
+from functools import partial
 from hspylib.core.config.path_object import PathObject
 from hspylib.modules.application.exit_status import ExitStatus
+from os.path import expandvars
+from shutil import which
+from typing import Tuple
+
+import logging as log
+import os
+import re
 
 
 def list_contents(folder: str, filters: str) -> str:
@@ -45,10 +45,10 @@ def list_contents(folder: str, filters: str) -> str:
         status, output = _execute_bash(cmd_line)
         if status:
             if output:
-                return msg.translate(f"Listing the contents of: `{folder}`:\n\n{output}\n")
+                return f"Listing the contents of: `{folder}`:\n\n{output}\n"
             return '' if filters else f"The folder: '{folder}' is empty."
 
-    return msg.translate(f"Error: Could not list folder: '{folder}'!")
+    return f"Error: Could not list folder: '{folder}'!"
 
 
 def open_command(path_name: str) -> str:
@@ -79,14 +79,14 @@ def open_command(path_name: str) -> str:
         status, output = fn_open()
         if status:
             if not output:
-                output = msg.translate(f"{mtype[0].title()}: `{path_name}` was successfully opened!")
+                output = f"{mtype[0].title()}: `{path_name}` was successfully opened!"
             else:
-                output = msg.translate(f"Showing the contents of: `{path_name}`:\n\n{output}\n")
+                output = f"Showing the contents of: `{path_name}`:\n\n{output}\n"
             return output
     else:
-        return msg.translate(f"Error: File was not found: '{path_name}'!")
+        return f"Error: File was not found: '{path_name}'!"
 
-    return msg.translate(f"Error: Failed to open: '{path_name}'!")
+    return f"Error: Failed to open: '{path_name}'!"
 
 
 def execute_command(shell: str, command_line: str) -> str:
@@ -98,7 +98,7 @@ def execute_command(shell: str, command_line: str) -> str:
         case "bash":
             status, output = _execute_bash(command_line)
         case _:
-            raise NotImplementedError(msg.translate(f"'{shell}' is not supported!"))
+            raise NotImplementedError(f"'{shell}' is not supported!")
 
     return output or (msg.cmd_success(command_line) if status else msg.cmd_failed(command_line))
 

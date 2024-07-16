@@ -63,12 +63,15 @@ class ArgosTranslator:
             argos_model = self._get_argos_model(from_idiom, to_idiom)
         self._argos_model = argos_model
 
-    @lru_cache
+    @lru_cache(maxsize=256)
     def translate(self, text: str) -> str:
         """Translate text using Argos translator.
         :param text: Text to translate.
         """
         return text if self._from_idiom == self._to_idiom else self._argos_model.translate(text)
+
+    def name(self) -> str:
+        return "Argos"
 
     def _install_translator(self) -> bool:
         """Install the Argos translator if it's not yet installed on the system."""

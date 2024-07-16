@@ -12,7 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from typing import Protocol, Optional, runtime_checkable
+from typing import Optional, Protocol, runtime_checkable
 
 
 @runtime_checkable

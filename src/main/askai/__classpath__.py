@@ -12,10 +12,10 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-
 from hspylib.core.metaclass.classpath import Classpath
 from hspylib.core.tools.commons import get_path, run_dir
+
+import os
 
 if not os.environ.get("USER_AGENT"):
     # The AskAI User Agent, required by the langchain framework

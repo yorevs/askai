@@ -12,10 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
 from abc import ABC
-from pathlib import Path
-
 from askai.core.askai_configs import configs
 from askai.core.askai_settings import settings
 from askai.core.component.audio_player import player
@@ -23,6 +20,9 @@ from askai.core.component.recorder import recorder
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import copy_file
+from pathlib import Path
+
+import os
 
 
 class TtsSttCmd(ABC):

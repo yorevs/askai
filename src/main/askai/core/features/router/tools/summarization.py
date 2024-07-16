@@ -13,14 +13,13 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-
-from hspylib.core.tools.text_tools import ensure_startswith
-
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.summarizer import summarizer
 from askai.exception.exceptions import DocumentsNotFound
+from hspylib.core.tools.text_tools import ensure_startswith
+
+import logging as log
 
 
 def summarize(base_folder: str, glob: str) -> str:

@@ -12,13 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from pathlib import Path
-from typing import Any, List, Optional, Protocol
-
-from langchain_core.language_models import BaseChatModel, BaseLLM
-
 from askai.core.engine.ai_model import AIModel
 from askai.core.engine.ai_reply import AIReply
+from langchain_core.language_models import BaseChatModel, BaseLLM
+from pathlib import Path
+from typing import Any, List, Optional, Protocol
 
 
 class AIEngine(Protocol):

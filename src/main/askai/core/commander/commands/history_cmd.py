@@ -12,16 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-import re
 from abc import ABC
-from textwrap import indent
-
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from textwrap import indent
+
+import os
+import re
 
 
 class HistoryCmd(ABC):

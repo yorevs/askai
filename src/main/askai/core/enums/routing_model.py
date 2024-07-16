@@ -3,8 +3,8 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.model
-      @file: rag_response.py
+   @package: askai.core.enums.routing_model
+      @file: routing_model.py
    @created: Tue, 11 Jun 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
@@ -13,10 +13,10 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from hspylib.core.enums.enumeration import Enumeration
-
 import logging as log
 import os
+
+from hspylib.core.enums.enumeration import Enumeration
 
 
 class RoutingModel(Enumeration):

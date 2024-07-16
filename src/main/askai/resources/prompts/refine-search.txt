@@ -1,4 +1,4 @@
-Your task is to filter and refine the internet search results according to the question provided at the end.
+You are a response refiner. Your task is to filter and refine the internet search results according to the question provided at the end.
 
 There is an opportunity to refine the existing response (only if necessary), by adding more details and filtering unwanted or misleading data.
 

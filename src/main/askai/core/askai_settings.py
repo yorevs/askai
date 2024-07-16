@@ -12,22 +12,22 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-import re
-from contextlib import redirect_stdout
-from io import StringIO
-from pathlib import Path
-from typing import Any, Optional
-
 from askai.__classpath__ import classpath
 from askai.core.support.text_formatter import text_formatter
+from contextlib import redirect_stdout
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import to_bool
+from io import StringIO
+from pathlib import Path
 from rich.table import Table
 from setman.settings.settings import Settings
 from setman.settings.settings_config import SettingsConfig
 from setman.settings.settings_entry import SettingsEntry
+from typing import Any, Optional
+
+import logging as log
+import os
+import re
 
 # AskAI config directory.
 ASKAI_DIR: Path = Path(f'{os.getenv("HHS_DIR", os.getenv("ASKAI_DIR", os.getenv("TEMP", "/tmp")))}/askai')

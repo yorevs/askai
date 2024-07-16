@@ -12,7 +12,7 @@ Step 4. Locate credible sources relevant to the question to collect essential in
 
 Step 5. If the inquiry pertains to programming languages, operating systems, or any other IT-related topics, ensure to include the following websites in your sites list: ['stackoverflow.com', 'github.com'].
 
-Step 6. If the inquiry pertains to information about specific individuals, please extract the name of the person referenced in the prompt and add the following filter: 'people:<name>'. Additionally, append the following websites in your sites list: ['github.com', 'linkedin.com', 'facebook.com', 'instagram.com', 'x.com'].
+Step 6. If the inquiry pertains to information about specific unknown individuals, extract the name of the person referenced in the prompt and add the following filter: 'people:<name>'. Additionally, append the following websites in your sites list: 'github.com', 'linkedin.com', 'facebook.com', 'instagram.com', 'x.com'.
 
 Step 7. If the inquiry pertains to weather forecasts or related topics, determine the location mentioned in the question and append this filter: 'weather:<location>' to your filter list. Append the following websites in your sites list: ['weather.com', 'accuweather'.com', 'weather.gov'].
 

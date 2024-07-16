@@ -12,8 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from pathlib import Path
-
 from askai.__classpath__ import classpath
 from clitt.core.term.terminal import Terminal
 from functools import lru_cache
@@ -22,6 +20,7 @@ from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.application.exit_status import ExitStatus
+from pathlib import Path
 from shutil import which
 from typing import Literal
 

@@ -16,20 +16,21 @@
 import logging as log
 from textwrap import dedent
 
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.enums.rag_response import RagResponse
+from askai.core.enums.acc_response import RagResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables.history import RunnableWithMessageHistory
 
-RAG_GUIDELINES: str = dedent("""
+ACC_GUIDELINES: str = dedent("""
 **Performance Evaluation Guidelines**
 
 1. Continuously review and analyze your actions to ensure optimal performance.
@@ -48,7 +49,7 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse
         issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("assert"))
         assert_template = PromptTemplate(
             input_variables=["datetime", "input", "response"],
-            template=prompt.read_prompt("accuracy-check")
+            template=prompt.read_prompt("accuracy")
         )
         final_prompt = assert_template.format(datetime=geo_location.datetime, input=question, response=ai_response)
         log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
@@ -61,13 +62,14 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse
                 log.info("Accuracy check ->  status: '%s'  reason: '%s'", status, details)
                 events.reply.emit(message=msg.assert_acc(status, details), verbosity="debug")
                 if not RagResponse.of_status(status).passed(pass_threshold):
-                    # Include the guidelines for the first mistake
-                    if not shared.context.get("RAG"):
-                        shared.context.push("RAG", RAG_GUIDELINES)
-                    shared.context.push("RAG", issues_prompt.format(problems=RagResponse.strip_code(output)))
+                    # Include the guidelines for the first mistake.
+                    if not shared.context.get("SCRATCHPAD"):
+                        shared.context.push("SCRATCHPAD", ACC_GUIDELINES)
+                    # Include the RYG issues.
+                    shared.context.push("SCRATCHPAD", issues_prompt.format(problems=RagResponse.strip_code(output)))
                     raise InaccurateResponse(f"AI Assistant failed to respond => '{response.content}'")
                 return
-        # At this point, the response was not Good enough
+        # At this point, the response was not Good enough.
         raise InaccurateResponse(f"AI Assistant didn't respond accurately. Response: '{response}'")
 
     events.reply.emit(message=msg.no_output("query"))

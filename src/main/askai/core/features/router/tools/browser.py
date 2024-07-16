@@ -52,6 +52,6 @@ def browse(query: str) -> Optional[str]:
             if not output:
                 output = msg.search_empty()
     else:
-        output = msg.translate("Sorry, I don't know.")
+        output = "Sorry, I don't know."
 
     return output

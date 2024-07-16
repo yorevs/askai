@@ -48,4 +48,4 @@ def query_output(query: str, context: str = None) -> str:
             output = response.content
             events.reply.emit(message=msg.analysis(output), verbosity="debug")
 
-    return ensure_ln(output or msg.translate("Sorry, I don't know."))
+    return ensure_ln(output or "Sorry, I don't know.")

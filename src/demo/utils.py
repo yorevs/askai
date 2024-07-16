@@ -1,19 +1,18 @@
-import atexit
-import logging as log
-from pathlib import Path
-from typing import Literal
-
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import log_init
-from hspylib.core.tools.text_tools import ensure_endswith
-
 from askai.__classpath__ import classpath
 from askai.core.askai_events import events
 from askai.core.commander.commander import commands
 from askai.core.component.cache_service import cache
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import log_init
+from hspylib.core.tools.text_tools import ensure_endswith
+from pathlib import Path
+from typing import Literal
+
+import atexit
+import logging as log
 
 BASE_DIR: str = str(classpath.resource_path()).replace("/main/askai/", "/demo/")
 

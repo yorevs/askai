@@ -1,8 +1,8 @@
-import re
 from datetime import datetime
+from hspylib.core.metaclass.singleton import Singleton
 from textwrap import dedent
 
-from hspylib.core.metaclass.singleton import Singleton
+import re
 
 
 class CronUtils(metaclass=Singleton):

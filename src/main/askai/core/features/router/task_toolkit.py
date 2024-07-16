@@ -27,7 +27,7 @@ from askai.core.askai_messages import msg
 from askai.core.features.router.tools.analysis import query_output
 from askai.core.features.router.tools.browser import browse
 from askai.core.features.router.tools.general import display_tool, final_answer
-from askai.core.features.router.tools.generation import generate_content
+from askai.core.features.router.tools.generation import generate_content, save_content
 from askai.core.features.router.tools.summarization import summarize
 from askai.core.features.router.tools.terminal import execute_command, list_contents, open_command
 from askai.core.features.router.tools.vision import image_captioner
@@ -99,14 +99,20 @@ class AgentToolkit(metaclass=Singleton):
         """
         return image_captioner(image_path)
 
-    def generate_content(self, instructions: str, mime_type: str, path_name: str) -> str:
-        """Use this tool for tasks that require generating any kind of content, such as, code and text, image, and others.
-        Usage: generate_content(instructions, mime_type, path_name)
+    def generate_content(self, instructions: str, mime_type: str) -> str:
+        """Use this tool for tasks that require generating any kind of content, such as, code and text, image, etc.
+        Usage: generate_content(instructions, mime_type)
         :param instructions: The instructions for generating the content.
         :param mime_type: The generated content type (use MIME types).
-        :param path_name: The file path where you want to save the generated content. This param is optional and must be used when you intend to save the generated content locally.
         """
-        return generate_content(instructions, mime_type, path_name)
+        return generate_content(instructions, mime_type)
+
+    def save_content(self, path_name: str) -> str:
+        """Use this tool to save generated content into disk (program, text, image, etc).
+        Usage: save_content(path_name)
+        :param path_name: The absolute file path where you want to save the content.
+        """
+        return save_content(path_name)
 
     def display_tool(self, texts: list[str] | str) -> str:
         """
@@ -136,7 +142,7 @@ class AgentToolkit(metaclass=Singleton):
         return list_contents(folder, filters)
 
     def open_tool(self, path_name: str) -> str:
-        """Use this tool to open, show or read content of files, and also, to play any media files.
+        """Use this tool to open, read (show) content of files, and also, to playback any media files.
         Usage: 'open_tool(path_name)'
         :param path_name: The absolute file, folder, or application path name.
         """

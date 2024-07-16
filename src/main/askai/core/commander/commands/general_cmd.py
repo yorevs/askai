@@ -12,16 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os.path
 from abc import ABC
-
+from askai.core.component.summarizer import summarizer
+from askai.core.support.text_formatter import text_formatter
 from clitt.core.term.terminal import Terminal
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.tools.commons import sysout
 from hspylib.modules.application.exit_status import ExitStatus
 
-from askai.core.component.summarizer import summarizer
-from askai.core.support.text_formatter import text_formatter
+import os.path
 
 
 class GeneralCmd(ABC):

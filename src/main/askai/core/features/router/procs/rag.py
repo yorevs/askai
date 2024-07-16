@@ -1,12 +1,10 @@
-from functools import lru_cache
-from pathlib import Path
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import RAG_DIR
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
+from functools import lru_cache
 from hspylib.core.metaclass.singleton import Singleton
 from langchain import hub
 from langchain_community.document_loaders import DirectoryLoader
@@ -15,6 +13,7 @@ from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from pathlib import Path
 
 
 class Rag(metaclass=Singleton):

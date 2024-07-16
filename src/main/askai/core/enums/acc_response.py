@@ -3,8 +3,8 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.model
-      @file: rag_response.py
+   @package: askai.core.enums.acc_response
+      @file: acc_response.py
    @created: Tue, 23 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
@@ -13,9 +13,9 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from hspylib.core.enums.enumeration import Enumeration
-
 import re
+
+from hspylib.core.enums.enumeration import Enumeration
 
 
 class RagResponse(Enumeration):
@@ -23,11 +23,13 @@ class RagResponse(Enumeration):
 
     # fmt: off
 
+    EXCELLENT   = 'Blue'
+
     GOOD        = 'Green'
 
     MODERATE    = 'Yellow'
 
-    LOW         = 'Orange'
+    INCOMPLETE  = 'Orange'
 
     BAD         = 'Red'
 
@@ -53,19 +55,15 @@ class RagResponse(Enumeration):
 
     @property
     def is_bad(self) -> bool:
-        return self == self.BAD
+        return self in [self.BAD, self.INCOMPLETE]
 
     @property
     def is_moderate(self) -> bool:
         return self == self.MODERATE
 
     @property
-    def is_low(self) -> bool:
-        return self == self.LOW
-
-    @property
     def is_good(self) -> bool:
-        return self == self.GOOD
+        return self in [self.GOOD, self.EXCELLENT]
 
     def passed(self, threshold: 'RagResponse') -> bool:
         """whether the response matches a 'PASS' classification."""

@@ -12,9 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import PromptTemplate
-
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
@@ -22,6 +19,8 @@ from askai.core.enums.routing_model import RoutingModel
 from askai.core.model.model_result import ModelResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.object_mapper import object_mapper
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.prompts import PromptTemplate
 
 
 class ModelSelector(metaclass=Singleton):
