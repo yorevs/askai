@@ -12,16 +12,18 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.askai_configs import configs
-from askai.core.askai_settings import ASKAI_DIR
-from askai.core.support.utilities import hash_text
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from collections import namedtuple
+from pathlib import Path
+from typing import Optional, Tuple
+
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.modules.cache.ttl_cache import TTLCache
-from pathlib import Path
-from typing import Optional, Tuple
+
+from askai.core.askai_configs import configs
+from askai.core.askai_settings import ASKAI_DIR
+from askai.core.support.utilities import hash_text
 
 # AskAI cache root directory.
 CACHE_DIR: Path = Path(f"{ASKAI_DIR}/cache")
@@ -35,6 +37,11 @@ if not SETTINGS_DIR.exists():
 AUDIO_DIR: Path = Path(str(CACHE_DIR) + "/audio")
 if not AUDIO_DIR.exists():
     AUDIO_DIR.mkdir(parents=True, exist_ok=True)
+
+# Camera captures cache directory.
+PICTURE_DIR: Path = Path(str(CACHE_DIR) + "/pictures")
+if not PICTURE_DIR.exists():
+    PICTURE_DIR.mkdir(parents=True, exist_ok=True)
 
 # Voice recordings cache directory.
 REC_DIR: Path = Path(str(CACHE_DIR) + "/recordings")
