@@ -8,6 +8,7 @@
 __all__ = [
     'audio_player', 
     'cache_service', 
+    'camera', 
     'geo_location', 
     'internet_service', 
     'recorder', 

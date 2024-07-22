@@ -6,8 +6,8 @@
 """Package initialization."""
 
 __all__ = [
-    'acc_response.py',
-    'router_mode',
+    'acc_response', 
+    'router_mode', 
     'routing_model'
 ]
 __version__ = '1.0.9'

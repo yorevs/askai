@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import re
 from functools import cached_property, lru_cache
 
 from hspylib.core.metaclass.singleton import Singleton
@@ -31,9 +32,6 @@ class AskAiMessages(metaclass=Singleton):
 
     def __init__(self):
         # fmt: off
-        self._translator: Translator = self.TRANSLATOR(
-            Language.EN_US, configs.language
-        )
         self._accurate_responses: list[str] = [
             self.welcome_back()
         ]
@@ -45,12 +43,15 @@ class AskAiMessages(metaclass=Singleton):
 
     @property
     def translator(self) -> Translator:
-        return self._translator
+        return self._translator_(Language.EN_US, configs.language)
 
     @lru_cache(maxsize=256)
     def translate(self, text: str) -> str:
         """Translate text using the configured language."""
-        return self._translator.translate(text)
+        # Avoid translating debug messages.
+        if re.match(r'^~~\[DEBUG]~~.*', text, re.IGNORECASE | re.MULTILINE):
+            return text
+        return self.translator.translate(text)
 
     # Informational
 
@@ -199,6 +200,10 @@ class AskAiMessages(metaclass=Singleton):
         return(
             f"Oops! Looks like you have reached your quota limit. You can add credits at: "
             f"https://platform.openai.com/settings/organization/billing/overview")
+
+    @lru_cache
+    def _translator_(self, from_idiom: Language, to_idiom: Language) -> Translator:
+        return self.TRANSLATOR(from_idiom, to_idiom)
 
 
 assert (msg := AskAiMessages().INSTANCE) is not None

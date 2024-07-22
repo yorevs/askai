@@ -12,14 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import locale
+from shutil import which
+
+from hspylib.core.enums.charset import Charset
+from hspylib.core.metaclass.singleton import Singleton
+
 from askai.__classpath__ import classpath
 from askai.core.askai_settings import settings
 from askai.language.language import Language
-from hspylib.core.enums.charset import Charset
-from hspylib.core.metaclass.singleton import Singleton
-from shutil import which
-
-import os
 
 
 class AskAiConfigs(metaclass=Singleton):
@@ -31,9 +32,6 @@ class AskAiConfigs(metaclass=Singleton):
     RESOURCE_DIR = str(classpath.resource_path())
 
     def __init__(self):
-        self._language: Language = Language.of_locale(
-            os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG", os.getenv("LANGUAGE", "en_US.UTF-8"))))
-        )
         self._recorder_devices: set[str] = set(map(str.strip, settings.get_list("askai.recorder.devices")))
 
     @property
@@ -110,7 +108,7 @@ class AskAiConfigs(metaclass=Singleton):
 
     @property
     def language(self) -> Language:
-        return self._language
+        return Language.of_locale(locale.getlocale(locale.LC_ALL))
 
     @property
     def encoding(self) -> Charset:
@@ -153,11 +151,13 @@ class AskAiConfigs(metaclass=Singleton):
         return self._recorder_devices
 
     def add_device(self, device_name: str) -> None:
+        """TODO"""
         if device_name not in self._recorder_devices:
             self._recorder_devices.add(device_name)
             settings.put("askai.recorder.devices", ", ".join(self._recorder_devices))
 
     def remove_device(self, device_name: str) -> None:
+        """TODO"""
         if device_name in self._recorder_devices:
             self._recorder_devices.remove(device_name)
             settings.put("askai.recorder.devices", ", ".join(self._recorder_devices))

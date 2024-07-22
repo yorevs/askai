@@ -376,8 +376,10 @@ class AskAiApp(App[None]):
                 self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
 
     def display_text(self, markdown_text: str) -> None:
-        """Send the text to the Markdown console."""
-        self._display_buffer.append(markdown_text)
+        """Send the text to the Markdown console.
+        :param markdown_text: the text to be displayed.
+        """
+        self._display_buffer.append(msg.translate(markdown_text))
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.

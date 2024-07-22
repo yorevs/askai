@@ -12,6 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import locale
+import os
+from os.path import dirname
+from pathlib import Path
+from string import Template
+
+import click
+from click import Command, Group
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import sysout, to_bool
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.commander.commands.cache_cmd import CacheCmd
@@ -22,15 +33,7 @@ from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
-from click import Command, Group
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import sysout, to_bool
-from os.path import dirname
-from pathlib import Path
-from string import Template
-
-import click
-import os
+from askai.language.language import Language
 
 COMMANDER_HELP_TPL = Template("""
 # AskAI Commander - HELP
@@ -296,8 +299,24 @@ def summarize(folder: str, glob: str) -> None:
     GeneralCmd.summarize(folder, glob)
 
 
+@ask_cli.command()
+@click.argument("locale_str", default="")
+def idiom(locale_str: str) -> None:
+    """Set the application idiom.
+    :param locale_str:
+    """
+    if locale_str and (language := Language.of_locale(locale_str)):
+        locale.setlocale(locale.LC_ALL, (language.idiom, language.encoding.val))
+        text_formatter.cmd_print(f"Language changed to: {language}")
+    else:
+        language = Language.of_locale(locale.getlocale(locale.LC_ALL))
+        text_formatter.cmd_print(f"Current language: {language}")
+
+
 if __name__ == '__main__':
-    ask_cli(['cache', 'enable', 'True'], standalone_mode=False)
+    ask_cli(['idiom'], standalone_mode=False)
+    ask_cli(['idiom', 'pt_BR.iso8859-1'], standalone_mode=False)
+    ask_cli(['idiom'], standalone_mode=False)
     # cache_service.cache.save_reply('log', "Log message")
     # cache_service.cache.save_reply('audio', "Audio message")
     # ask_cli(['cache'], standalone_mode=False)
