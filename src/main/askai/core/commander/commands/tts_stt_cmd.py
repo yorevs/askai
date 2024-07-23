@@ -34,7 +34,7 @@ class TtsSttCmd(ABC):
         all_voices = shared.engine.voices()
         str_voices = "\n".join([f"{i}. {v.title()}" for i, v in enumerate(all_voices)])
         text_formatter.cmd_print(
-            f"Available `{shared.engine.configs.stt_model}` voices: \n"
+            f"Available `{shared.engine.configs().stt_model}` voices: \n"
             f"\n{str_voices}\n> Hint: Type: '/voices set \\<number|voice_name\\>' to select a voice. "
             f"To hear a sample use: '/voices play \\<number|voice_name\\>'"
         )
@@ -47,7 +47,7 @@ class TtsSttCmd(ABC):
             name = all_voices[int(name)]
         if name in all_voices:
             settings.put("openai.text.to.speech.voice", name)
-            shared.engine.configs.tts_voice = name
+            shared.engine.configs().tts_voice = name
             text_formatter.cmd_print(f"`Speech-To-Text` voice changed to %GREEN%{name.title()}%NC%")
         else:
             text_formatter.cmd_print(f"%RED%Invalid voice: '{name}'%NC%")

@@ -12,9 +12,18 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
+from pathlib import Path
 
+from hspylib.core.tools.text_tools import elide_text
+from hspylib.modules.application.version import Version
+
+from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
+from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
+from askai.core.component.geo_location import geo_location
+from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
 from askai.core.support.chat_context import ChatContext
@@ -85,6 +94,30 @@ class SharedInstances(metaclass=Singleton):
     @property
     def max_iteractions(self) -> int:
         return self._max_iteractions
+
+    @property
+    def app_info(self) -> str:
+        device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
+        device_info += f", AUTO-SWAP {'ON' if recorder.is_auto_swap else '%RED%OFF'}"
+        dtm = f" {geo_location.datetime} "
+        speak_info = str(configs.tempo) + " @" + self.engine.configs().tts_voice
+        cur_dir = elide_text(str(Path(os.getcwd()).absolute()), 67, "…")
+        translator = f"translated by '{msg.translator.name()}'" if configs.language.name.title() != 'English' else ''
+        return (
+            f"%GREEN%"
+            f"AskAI v{Version.load(load_dir=classpath.source_path())} %EOL%"
+            f"{dtm.center(80, '=')} %EOL%"
+            f"   Language: {configs.language} {translator} %EOL%"
+            f"     Engine: {shared.engine} %EOL%"
+            f"        Dir: {cur_dir} %EOL%"
+            f"         OS: {prompt.os_type}/{prompt.shell} %EOL%"
+            f"{'-' * 80} %EOL%"
+            f" Microphone: {device_info or '%RED%Undetected'} %GREEN%%EOL%"
+            f"  Debugging: {'ON' if configs.is_debug else '%RED%OFF'} %GREEN%%EOL%"
+            f"   Speaking: {'ON, tempo: ' + speak_info if configs.is_speak else '%RED%OFF'} %GREEN%%EOL%"
+            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if configs.is_cache else '%RED%OFF'} %GREEN%%EOL%"
+            f"{'=' * 80}%EOL%%NC%"
+        )
 
     def create_engine(self, engine_name: str, model_name: str) -> AIEngine:
         """TODO"""

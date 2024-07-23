@@ -14,9 +14,20 @@
 """
 import locale
 from abc import ABC
+from pathlib import Path
 
+from hspylib.core.tools.text_tools import elide_text
+from hspylib.modules.application.version import Version
+
+from askai.__classpath__ import classpath
+from askai.core.askai_configs import configs
+from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
 from askai.core.askai_settings import settings
+from askai.core.component.geo_location import geo_location
+from askai.core.component.recorder import recorder
 from askai.core.component.summarizer import summarizer
+from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from clitt.core.term.terminal import Terminal
 from hspylib.core.config.path_object import PathObject
@@ -72,3 +83,9 @@ class GeneralCmd(ABC):
                 text_formatter.cmd_print(f"Current locale: {language}")
         except (ValueError, TypeError) as err:
             sysout(f"\n%RED%-=- Failed to set idiom: '{str(err)}'! -=-%NC%")
+
+    @staticmethod
+    def info() -> None:
+        """Display some useful application information.
+        """
+        sysout(shared.app_info)

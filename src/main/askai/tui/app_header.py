@@ -139,7 +139,7 @@ class HeaderNotifications(Widget):
 
     def __str__(self):
         device_info: str = f"{recorder.input_device[1]}" if recorder.input_device else "-"
-        voice: str = shared.engine.configs.tts_voice
+        voice: str = shared.engine.configs().tts_voice
         return dedent(
             f"""
             Debugging: {'' if self.debugging else ''}

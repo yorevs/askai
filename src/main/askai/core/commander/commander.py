@@ -306,10 +306,21 @@ def idiom(locale_str: str) -> None:
     GeneralCmd.idiom(locale_str)
 
 
+@ask_cli.command()
+def info() -> None:
+    """Display some useful application information.
+    """
+    if os.getenv("ASKAI_APP"):
+        GeneralCmd.info()
+    else:
+        text_formatter.cmd_print("No information available (offline)!")
+
+
 if __name__ == '__main__':
-    ask_cli(['idiom'], standalone_mode=False)
-    ask_cli(['idiom', 'pt_BR.iso8859-1'], standalone_mode=False)
-    ask_cli(['idiom'], standalone_mode=False)
+    ask_cli(['info'], standalone_mode=False)
+    # ask_cli(['idiom'], standalone_mode=False)
+    # ask_cli(['idiom', 'pt_BR.iso8859-1'], standalone_mode=False)
+    # ask_cli(['idiom'], standalone_mode=False)
     # cache_service.cache.save_reply('log', "Log message")
     # cache_service.cache.save_reply('audio', "Audio message")
     # ask_cli(['cache'], standalone_mode=False)

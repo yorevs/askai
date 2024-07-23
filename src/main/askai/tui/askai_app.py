@@ -23,9 +23,10 @@ import nltk
 from click import UsageError
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import file_is_not_empty, is_debugging
-from hspylib.core.tools.text_tools import elide_text, ensure_endswith, strip_escapes
+from hspylib.core.tools.text_tools import ensure_endswith, strip_escapes
 from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
 from hspylib.modules.application.version import Version
+from hspylib.modules.cli.vt100.vt_color import VtColor
 from hspylib.modules.eventbus.event import Event
 from openai import RateLimitError
 from textual import on, work
@@ -118,25 +119,7 @@ class AskAiApp(App[None]):
         self._startup()
 
     def __str__(self) -> str:
-        device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
-        device_info += f", AUTO-SWAP {'ON' if recorder.is_auto_swap else 'OFF'}"
-        speak_info = str(configs.tempo) + " @" + shared.engine.configs.tts_voice
-        cur_dir = elide_text(str(Path(os.getcwd()).absolute()), 67, "…")
-        translator = f"translated by '{msg.translator.name()}'" if configs.language.name.title() != 'English' else ''
-        return (
-            " %EOL%"
-            f"   Language: {configs.language} {translator} %EOL%"
-            f"     Engine: {self.engine} %EOL%"
-            f"       Mode: {self.mode} %EOL%"
-            f"        Dir: {cur_dir} %EOL%"
-            f"         OS: {prompt.os_type.title()} - {prompt.shell.title()} %EOL%"
-            f"{'-' * 80}\n"
-            f" Microphone: {device_info or 'Undetected'} %EOL%"
-            f"  Debugging: {'ON' if configs.is_debug else 'OFF'} %EOL%"
-            f"   Speaking: {'ON, tempo: ' + speak_info if configs.is_speak else 'OFF'} %EOL%"
-            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if configs.is_cache else 'OFF'} "
-            " %EOL%"
-        ).replace('%EOL%', os.linesep)
+        return VtColor.strip_colors(shared.app_info.replace('%EOL%', os.linesep))
 
     @property
     def engine(self) -> AIEngine:

@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
 
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
@@ -54,6 +55,10 @@ class Main(TUIApplication):
     def __init__(self, app_name: str):
         super().__init__(app_name, self.VERSION, self.DESCRIPTION.format(self.VERSION), resource_dir=self.RESOURCE_DIR)
         self._askai: AskAi | AskAiApp
+
+    @property
+    def askai(self) -> AskAi | AskAiApp:
+        return self._askai
 
     def _setup_arguments(self) -> None:
         """Initialize application parameters and options."""
@@ -128,10 +133,12 @@ class Main(TUIApplication):
                 self._get_argument("model", configs.model),
             )
 
+        os.environ["ASKAI_APP"] = type(self._askai).__name__
+
         log.info(
             dedent(
                 f"""
-        {self._app_name} v{self._app_version}
+        {os.environ.get("ASKAI_APP")} v{self._app_version}
 
         Settings ==============================
                 STARTED: {now("%Y-%m-%d %H:%M:%S")}

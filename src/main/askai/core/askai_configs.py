@@ -13,6 +13,7 @@
    Copyright (c) 2024, HomeSetup
 """
 import locale
+import os
 from shutil import which
 
 from hspylib.core.enums.charset import Charset
@@ -108,8 +109,11 @@ class AskAiConfigs(metaclass=Singleton):
 
     @property
     def language(self) -> Language:
+        # Lookup order: Environment -> Settings -> Locale
         return Language.of_locale(
-            settings.get("askai.preferred.language") or locale.getlocale(locale.LC_ALL)
+            os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG")))
+            or settings.get("askai.preferred.language")
+            or locale.getlocale(locale.LC_ALL)
         )
 
     @property

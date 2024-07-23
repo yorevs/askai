@@ -55,7 +55,6 @@ class OpenAIEngine:
     def client(self) -> OpenAI:
         return self._client
 
-    @property
     def configs(self) -> OpenAiConfigs:
         return self._configs
 

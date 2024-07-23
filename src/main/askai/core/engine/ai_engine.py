@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from askai.core.askai_configs import AskAiConfigs
 from askai.core.engine.ai_model import AIModel
 from askai.core.engine.ai_reply import AIReply
 from langchain_core.language_models import BaseChatModel, BaseLLM
@@ -21,6 +22,10 @@ from typing import Any, List, Optional, Protocol
 
 class AIEngine(Protocol):
     """Provide an interface for AI engines."""
+
+    def configs(self) -> AskAiConfigs:
+        """Return the engine specific configurations."""
+        ...
 
     def lc_model(self, temperature: float, top_p: float) -> BaseLLM:
         """Create a LangChain AI model instance.
