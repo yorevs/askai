@@ -74,3 +74,7 @@ class TerminatingQuery(HSBaseException):
 
 class InvalidStructuredResponse(HSBaseException):
     """Raised when received an invalid structured response."""
+
+
+class MissingApiKeyError(HSBaseException):
+    """Raised when received an invalid structured response."""

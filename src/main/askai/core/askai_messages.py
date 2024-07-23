@@ -18,8 +18,8 @@ from functools import cached_property, lru_cache
 from hspylib.core.metaclass.singleton import Singleton
 
 from askai.core.askai_configs import configs
+from askai.language.ai_translator import AITranslator
 from askai.language.language import Language
-from askai.language.translator import Translator
 from askai.language.translators.marian import MarianTranslator
 
 
@@ -28,7 +28,7 @@ class AskAiMessages(metaclass=Singleton):
 
     INSTANCE: "AskAiMessages"
 
-    TRANSLATOR: Translator = MarianTranslator
+    TRANSLATOR: AITranslator = MarianTranslator
 
     def __init__(self):
         # fmt: off
@@ -42,7 +42,7 @@ class AskAiMessages(metaclass=Singleton):
         return self._accurate_responses
 
     @property
-    def translator(self) -> Translator:
+    def translator(self) -> AITranslator:
         return self._translator_(Language.EN_US, configs.language)
 
     @lru_cache(maxsize=256)
@@ -202,7 +202,7 @@ class AskAiMessages(metaclass=Singleton):
             f"https://platform.openai.com/settings/organization/billing/overview")
 
     @lru_cache
-    def _translator_(self, from_idiom: Language, to_idiom: Language) -> Translator:
+    def _translator_(self, from_idiom: Language, to_idiom: Language) -> AITranslator:
         return self.TRANSLATOR(from_idiom, to_idiom)
 
 

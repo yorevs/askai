@@ -109,11 +109,12 @@ class AskAiConfigs(metaclass=Singleton):
 
     @property
     def language(self) -> Language:
-        # Lookup order: Environment -> Settings -> Locale
+        # Lookup order: Settings -> Locale -> Environment
         return Language.of_locale(
-            os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG")))
-            or settings.get("askai.preferred.language")
+            settings.get("askai.preferred.language")
             or locale.getlocale(locale.LC_ALL)
+            or os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG")))
+            or Language.EN_US.idiom
         )
 
     @property

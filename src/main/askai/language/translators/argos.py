@@ -16,6 +16,7 @@
 from argostranslate import package, translate
 from argostranslate.translate import ITranslation
 from askai.exception.exceptions import TranslationPackageError
+from askai.language.ai_translator import AITranslator
 from askai.language.language import Language
 from functools import lru_cache
 from typing import Optional
@@ -25,7 +26,7 @@ import os
 import sys
 
 
-class ArgosTranslator:
+class ArgosTranslator(AITranslator):
     """Provides a multilingual offline translation engine.
     Language packages are downloaded at: ~/.local/share/argos-translate/packages
     """
@@ -51,8 +52,7 @@ class ArgosTranslator:
         return source_lang[0].get_translation(target_lang[0])
 
     def __init__(self, from_idiom: Language, to_idiom: Language):
-        self._from_idiom: Language = from_idiom
-        self._to_idiom: Language = to_idiom
+        super().__init__(from_idiom, to_idiom)
         if argos_model := self._get_argos_model(from_idiom, to_idiom):
             log.debug(f"Argos translator found for: {from_idiom.language} -> {to_idiom.language}")
         elif not self._install_translator():

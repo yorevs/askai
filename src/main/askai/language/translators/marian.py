@@ -3,10 +3,10 @@ from functools import lru_cache
 from transformers import MarianMTModel, MarianTokenizer
 
 from askai.language.language import Language
-from askai.language.translator import Translator
+from askai.language.ai_translator import AITranslator
 
 
-class MarianTranslator(Translator):
+class MarianTranslator(AITranslator):
     """Provides a multilingual offline translation engine.
     """
 
@@ -14,8 +14,8 @@ class MarianTranslator(Translator):
     MODEL_NAME = 'Helsinki-NLP/opus-mt-en-ROMANCE'
 
     def __init__(self, from_idiom: Language, to_idiom: Language):
-        # Load the model and tokenizer
         super().__init__(from_idiom, to_idiom)
+        # Load the model and tokenizer
         self._model = MarianMTModel.from_pretrained(self.MODEL_NAME)
         self._tokenizer = MarianTokenizer.from_pretrained(self.MODEL_NAME)
 

@@ -6,8 +6,8 @@
 """Package initialization."""
 
 __all__ = [
-    'language', 
-    'translator', 
+    'language',
+    'ai_translator.py',
     'translators'
 ]
 __version__ = '1.0.9'

@@ -16,7 +16,7 @@ from abc import ABC
 from askai.language.language import Language
 
 
-class Translator(ABC):
+class AITranslator(ABC):
     """Provides a base class for multilingual offline translation engines. Various implementations can be used."""
 
     def __init__(self, from_idiom: Language, to_idiom: Language):
