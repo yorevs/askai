@@ -12,7 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import locale
 import os
 from os.path import dirname
 from pathlib import Path
@@ -33,7 +32,6 @@ from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
-from askai.language.language import Language
 
 COMMANDER_HELP_TPL = Template("""
 # AskAI Commander - HELP
@@ -302,15 +300,10 @@ def summarize(folder: str, glob: str) -> None:
 @ask_cli.command()
 @click.argument("locale_str", default="")
 def idiom(locale_str: str) -> None:
-    """Set the application idiom.
-    :param locale_str:
+    """Set the application language.
+    :param locale_str: The locale string.
     """
-    if locale_str and (language := Language.of_locale(locale_str)):
-        locale.setlocale(locale.LC_ALL, (language.idiom, language.encoding.val))
-        text_formatter.cmd_print(f"Language changed to: {language}")
-    else:
-        language = Language.of_locale(locale.getlocale(locale.LC_ALL))
-        text_formatter.cmd_print(f"Current language: {language}")
+    GeneralCmd.idiom(locale_str)
 
 
 if __name__ == '__main__':

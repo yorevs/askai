@@ -108,7 +108,9 @@ class AskAiConfigs(metaclass=Singleton):
 
     @property
     def language(self) -> Language:
-        return Language.of_locale(locale.getlocale(locale.LC_ALL))
+        return Language.of_locale(
+            settings.get("askai.preferred.language") or locale.getlocale(locale.LC_ALL)
+        )
 
     @property
     def encoding(self) -> Charset:
@@ -151,13 +153,13 @@ class AskAiConfigs(metaclass=Singleton):
         return self._recorder_devices
 
     def add_device(self, device_name: str) -> None:
-        """TODO"""
+        """Add a new device to the configuration list."""
         if device_name not in self._recorder_devices:
             self._recorder_devices.add(device_name)
             settings.put("askai.recorder.devices", ", ".join(self._recorder_devices))
 
     def remove_device(self, device_name: str) -> None:
-        """TODO"""
+        """Remove a new device from the configuration list."""
         if device_name in self._recorder_devices:
             self._recorder_devices.remove(device_name)
             settings.put("askai.recorder.devices", ", ".join(self._recorder_devices))

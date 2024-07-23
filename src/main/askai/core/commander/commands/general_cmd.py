@@ -12,7 +12,10 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import locale
 from abc import ABC
+
+from askai.core.askai_settings import settings
 from askai.core.component.summarizer import summarizer
 from askai.core.support.text_formatter import text_formatter
 from clitt.core.term.terminal import Terminal
@@ -21,6 +24,8 @@ from hspylib.core.tools.commons import sysout
 from hspylib.modules.application.exit_status import ExitStatus
 
 import os.path
+
+from askai.language.language import Language
 
 
 class GeneralCmd(ABC):
@@ -51,3 +56,19 @@ class GeneralCmd(ABC):
                 sysout(f"\n%RED%-=- Failed to summarize. Folder: {folder}  Glob: {glob} ! -=-%NC%")
         else:
             sysout(f"\n%RED%-=- Folder '{folder}' does not exist! -=-%NC%")
+
+    @staticmethod
+    def idiom(locale_str: str) -> None:
+        """Set the application language.
+        :param locale_str: The locale string.
+        """
+        try:
+            if locale_str and (language := Language.of_locale(locale_str)):
+                locale.setlocale(locale.LC_ALL, (language.idiom, language.encoding.val))
+                settings.put("askai.preferred.language", language.idiom)
+                text_formatter.cmd_print(f"Locale changed to: {language}")
+            else:
+                language = Language.of_locale(locale.getlocale(locale.LC_ALL))
+                text_formatter.cmd_print(f"Current locale: {language}")
+        except (ValueError, TypeError) as err:
+            sysout(f"\n%RED%-=- Failed to set idiom: '{str(err)}'! -=-%NC%")

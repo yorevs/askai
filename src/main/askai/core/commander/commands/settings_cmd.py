@@ -42,7 +42,7 @@ class SettingsCmd(ABC):
         if name.isdecimal() and 0 <= int(name) <= len(all_settings):
             name = all_settings[int(name)].name
         if settings[name]:
-            settings.put(name, value)
+            settings.put(name, value if value not in ['\'\'', '\"\"'] else None)
             text_formatter.cmd_print(f"Setting `{name}` changed to %GREEN%{value}%NC%")
         else:
             text_formatter.cmd_print(f"%RED%Setting: '{name}' was not found!%NC%")

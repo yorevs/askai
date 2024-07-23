@@ -20,7 +20,7 @@ from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.preconditions import check_not_none
 from hspylib.core.tools.dict_tools import get_or_default
 
-Locale: TypeAlias = str | tuple[str | str | None, ...]
+AnyLocale: TypeAlias = str | tuple[str | str | None, ...]
 
 
 class Language(Enumeration):
@@ -158,15 +158,15 @@ class Language(Enumeration):
     ZH_TW = 'zh_TW', 'Traditional Chinese', 'Taiwan'
 
     @staticmethod
-    def of_locale(locale: Locale) -> "Language":
+    def of_locale(loc: AnyLocale) -> "Language":
         """Create a Language object based on a locale string or tuple containing the language code and encoding.
-        :param locale: The locale to parse.
+        :param loc: The locale to parse.
         """
         # Replace possible 'loc[:.]charset' values
         loc_enc: tuple = tuple(map(
-            lambda s: re.sub(r'/C|C/', '', s), locale
-            if isinstance(locale, tuple)
-            else tuple(re.split(r"[:.]", locale))
+            lambda s: re.sub(r'(/C|C/|\'|\")+', '', s), loc
+            if isinstance(loc, tuple)
+            else re.split(r"[:.]", loc)
         ))
         # fmt: off
         lang = next((
@@ -175,7 +175,7 @@ class Language(Enumeration):
                 lambda v: v.__getitem__(0), Language.values())) if ln.casefold() == loc_enc[0].casefold()
         ), None)
         # fmt: on
-        check_not_none(lang, f"Unable to create Language from locale: '{locale}'")
+        check_not_none(lang, f"Unable to create Language from locale: '{loc}'")
         lang.encoding = get_or_default(loc_enc, 1, Charset.UTF_8.val)
         return lang
 
