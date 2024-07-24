@@ -6,7 +6,7 @@
    @package: askai.core.model
       @file: summary_result.py
    @created: Tue, 11 Mar 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -26,7 +26,7 @@ class ModelResult:
 
     @staticmethod
     @lru_cache
-    def default() -> 'ModelResult':
+    def default() -> "ModelResult":
         """Return  hte default ModelResult."""
         return ModelResult("ASK_000", "Default model", "Provide the answer as received by the AI")
 

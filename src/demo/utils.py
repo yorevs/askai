@@ -28,11 +28,11 @@ def init_context(
 ) -> None:
     """Initialize AskAI context and startup components."""
     log_init(f"{ensure_endswith(log_name, '.log')}", level=log_level)
-    KeyboardInput.preload_history(cache.load_history(commands()))
+    KeyboardInput.preload_history(cache.load_input_history(commands()))
     shared.create_engine(engine_name=engine_name, model_name=model_name)
     shared.create_context(context_size)
     events.reply.subscribe(cb_event_handler=lambda ev: display_text(ev.args.message))
-    atexit.register(cache.save_query_history)
+    atexit.register(cache.save_input_history)
 
 
 def get_resource(resource_path: str) -> str:

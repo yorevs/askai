@@ -6,7 +6,7 @@
    @package: askai.core.support.utilities
       @file: utilities.py
    @created: Wed, 10 Jan 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -163,13 +163,6 @@ def read_resource(base_dir: str, filename: str, file_ext: str = ".txt") -> str:
     return Path(filename).read_text(encoding=Charset.UTF_8.val)
 
 
-def hash_text(text: str) -> str:
-    """Create a hash string based on the provided text.
-    :param: text the text to be hashed.
-    """
-    return hashlib.md5(text.encode(Charset.UTF_8.val)).hexdigest()
-
-
 def extract_path(command_line: str, flags: int = re.IGNORECASE | re.MULTILINE) -> Optional[str]:
     """Extract the first identifiable path of the executed command line.
     :param command_line: The command line text.
@@ -189,7 +182,7 @@ def extract_codeblock(text: str) -> Tuple[Optional[str], str]:
     :param text: The markdown formatted text.
     """
     # Match a terminal command formatted in a markdown code block.
-    re_command = r'.*```((?:\w+)?\s*)\n(.*?)(?=^```)\s*\n?```.*'
+    re_command = r".*```((?:\w+)?\s*)\n(.*?)(?=^```)\s*\n?```.*"
     if text and (mat := re.search(re_command, text, re.DOTALL | re.MULTILINE)):
         if mat and len(mat.groups()) == 2:
             lang, code = mat.group(1) or "", mat.group(2) or ""

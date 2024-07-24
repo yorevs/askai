@@ -6,7 +6,7 @@
    @package: askai.core.features.tools.general
       @file: general.py
    @created: Mon, 01 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -51,7 +51,8 @@ def final_answer(
     prompt_file: PathObject = PathObject.of(prompt.append_path(f"taius/{persona_prompt}"))
     template = PromptTemplate(
         input_variables=["user", "idiom", "context", "question"],
-        template=prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir))
+        template=prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir),
+    )
     final_prompt = template.format(user=username, idiom=idiom, context=response, question=question)
     log.info("FETCH::[QUESTION] '%s'  context: '%s'", question, response)
     llm = lc_llm.create_chat_model(temperature=Temperature.CODE_GENERATION.temp)

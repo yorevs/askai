@@ -13,9 +13,9 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import re
-
 from hspylib.core.enums.enumeration import Enumeration
+
+import re
 
 
 class RagResponse(Enumeration):

@@ -6,7 +6,7 @@
    @package: askai.core.components
       @file: recorder.py
    @created: Wed, 22 Feb 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -128,15 +128,12 @@ class Recorder(metaclass=Singleton):
     def is_headphones(self) -> bool:
         """Whether the device is set is a headphone. This is a simplistic way of detecting it, bit it has been
         working so far."""
-        return (
-            self.input_device is not None
-            and self.input_device[0] > 1
-        )
+        return self.input_device is not None and self.input_device[0] > 1
 
     def listen(
         self,
         recognition_api: RecognitionApi = RecognitionApi.GOOGLE,  # FIXME Should default to OpenAI (SIGSEGV error)
-        language: Language = Language.EN_US
+        language: Language = Language.EN_US,
     ) -> tuple[Path, Optional[str]]:
         """listen to the microphone, save the AudioData as a wav file and then, transcribe the speech.
         :param recognition_api: the API to be used to recognize the speech.
@@ -150,7 +147,8 @@ class Recorder(metaclass=Singleton):
                 audio: AudioData = self._rec.listen(
                     mic_source,
                     phrase_time_limit=seconds(configs.recorder_phrase_limit_millis),
-                    timeout=seconds(configs.recorder_silence_timeout_millis))
+                    timeout=seconds(configs.recorder_silence_timeout_millis),
+                )
                 stt_text = self._write_audio_file(audio, audio_path, language, recognition_api)
             except WaitTimeoutError as err:
                 err_msg: str = msg.timeout(f"waiting for a speech input => '{err}'")
@@ -172,11 +170,7 @@ class Recorder(metaclass=Singleton):
         return audio_path, stt_text
 
     def _write_audio_file(
-        self,
-        audio: AudioData,
-        audio_path: str | Path,
-        language: Language,
-        recognition_api: RecognitionApi
+        self, audio: AudioData, audio_path: str | Path, language: Language, recognition_api: RecognitionApi
     ) -> Optional[str]:
         """Write the audio file into disk."""
 
@@ -235,7 +229,8 @@ class Recorder(metaclass=Singleton):
                         break
             if not device:
                 device: InputDevice = mselect(
-                    devices, f"{'-=' * 40}%EOL%AskAI::Select the Audio Input device%EOL%{'=-' * 40}%EOL%")
+                    devices, f"{'-=' * 40}%EOL%AskAI::Select the Audio Input device%EOL%{'=-' * 40}%EOL%"
+                )
                 if not device:
                     sys.exit(ExitStatus.FAILED.val)
                 elif not self.set_device(device):

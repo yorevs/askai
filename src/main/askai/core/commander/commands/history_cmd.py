@@ -6,7 +6,7 @@
    @package: askai.core.commander.history_cmd
       @file: general_cmd.py
    @created: Sat, 22 Jun 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -38,10 +38,13 @@ class HistoryCmd(ABC):
                     f"- {ctx} ({len(ctx_val)}/{all_context.max_context_size} "
                     f"tk [{all_context.context_length(ctx)}/{all_context.token_limit}]) \n"
                     + indent(
-                        '\n'.join([
-                            f'{i}. **{e.role.title()}:**\n\n{indent(e.content, " " * 4)}'
-                            + os.linesep for i, e in enumerate(ctx_val, start=1)
-                        ]), ' ' * 4
+                        "\n".join(
+                            [
+                                f'{i}. **{e.role.title()}:**\n\n{indent(e.content, " " * 4)}' + os.linesep
+                                for i, e in enumerate(ctx_val, start=1)
+                            ]
+                        ),
+                        " " * 4,
                     )
                 )
             display_text(f"> Hint: Type: '/context forget [context] to forget a it.")
@@ -66,7 +69,7 @@ class HistoryCmd(ABC):
             history.reverse()
             display_text(f"### Listing ({length}) Input History:\n\n---\n\n")
             padding: int = 1 + len(str(length))
-            hist_list: str = ''
+            hist_list: str = ""
             for i, h in enumerate(history, start=1):
                 hist_list += f'{f"{i}.":<{padding}} **{h}**\n'
             display_text(hist_list)

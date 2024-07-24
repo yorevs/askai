@@ -6,25 +6,12 @@
    @package: askai.core.features.router
       @file: task_splitter.py
    @created: Mon, 01 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from pathlib import Path
-from textwrap import dedent
-from typing import Any, Optional, Type, TypeAlias
-
-import PIL
-from hspylib.core.exception.exceptions import InvalidArgumentError
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from retry import retry
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -37,6 +24,18 @@ from askai.core.model.model_result import ModelResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
+from hspylib.core.exception.exceptions import InvalidArgumentError
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from pathlib import Path
+from retry import retry
+from textwrap import dedent
+from typing import Any, Optional, Type, TypeAlias
+
+import logging as log
+import os
+import PIL
 
 AgentResponse: TypeAlias = dict[str, Any]
 
@@ -47,9 +46,7 @@ class TaskSplitter(metaclass=Singleton):
 
     INSTANCE: "TaskSplitter"
 
-    HUMAN_PROMPT: str = dedent(
-        """Human Question: '{input}'"""
-    ).strip()
+    HUMAN_PROMPT: str = dedent("""Human Question: '{input}'""").strip()
 
     # Allow the router to retry on the errors bellow.
     RETRIABLE_ERRORS: tuple[Type[Exception], ...] = (
@@ -69,8 +66,8 @@ class TaskSplitter(metaclass=Singleton):
 
         rag: str = str(shared.context.flat("SCRATCHPAD"))
         template = PromptTemplate(
-            input_variables=["os_type", "shell", "datetime", "home"],
-            template=prompt.read_prompt("task-split.txt"))
+            input_variables=["os_type", "shell", "datetime", "home"], template=prompt.read_prompt("task-split.txt")
+        )
         return ChatPromptTemplate.from_messages(
             [
                 (
@@ -100,7 +97,8 @@ class TaskSplitter(metaclass=Singleton):
             log.info("Router::[QUESTION] '%s'", question)
             runnable = self.template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
             runnable = RunnableWithMessageHistory(
-                runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history")
+                runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
+            )
             if response := runnable.invoke({"input": question}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
                 plan: ActionPlan = ActionPlan.create(question, response, model)

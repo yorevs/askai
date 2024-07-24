@@ -6,19 +6,12 @@
    @package: askai.core.features.rag.commons
       @file: analysis.py
    @created: Fri, 03 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-
-import logging as log
-from textwrap import dedent
-
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -29,14 +22,22 @@ from askai.core.enums.acc_response import RagResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from textwrap import dedent
 
-ACC_GUIDELINES: str = dedent("""
+import logging as log
+
+ACC_GUIDELINES: str = dedent(
+    """
 **Performance Evaluation Guidelines**
 
 1. Continuously review and analyze your actions to ensure optimal performance.
 2. Constructively self-criticize your overall behavior regularly.
 3. Reflect on past decisions and strategies to refine your approach.
-""").strip()
+"""
+).strip()
 
 
 def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse = RagResponse.MODERATE) -> None:
@@ -48,8 +49,7 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse
     if ai_response and ai_response not in msg.accurate_responses:
         issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("assert"))
         assert_template = PromptTemplate(
-            input_variables=["datetime", "input", "response"],
-            template=prompt.read_prompt("accuracy")
+            input_variables=["datetime", "input", "response"], template=prompt.read_prompt("accuracy")
         )
         final_prompt = assert_template.format(datetime=geo_location.datetime, input=question, response=ai_response)
         log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)

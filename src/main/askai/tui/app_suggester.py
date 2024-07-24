@@ -6,7 +6,7 @@
    @package: askai.tui.app_suggester
       @file: app_suggester.py
    @created: Wed, 19 Jun 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -22,16 +22,12 @@ from typing import Optional
 class InputSuggester(Suggester):
     """Implement a list-based Input suggester."""
 
-    def __init__(
-        self, *, case_sensitive: bool = True
-    ) -> None:
+    def __init__(self, *, case_sensitive: bool = True) -> None:
         super().__init__(use_cache=False, case_sensitive=case_sensitive)
-        KeyboardInput.preload_history(cache.load_history(commands()))
+        KeyboardInput.preload_history(cache.load_input_history(commands()))
         self._suggestions: list[str] = KeyboardInput.history()
         self._for_comparison: list[str] = list(
-            self._suggestions
-            if self.case_sensitive
-            else [suggestion.casefold() for suggestion in self._suggestions]
+            self._suggestions if self.case_sensitive else [suggestion.casefold() for suggestion in self._suggestions]
         )
 
     async def suggestions(self) -> list[str]:

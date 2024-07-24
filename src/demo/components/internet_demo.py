@@ -37,4 +37,4 @@ if __name__ == "__main__":
         # answer = internet.search_google(q)
         answer = internet.scrap_sites(q)
         sysout(f"%GREEN%AI: {answer}")
-        cache.save_query_history()
+        cache.save_input_history()

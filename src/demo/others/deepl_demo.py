@@ -1,6 +1,5 @@
-import os
-
 import deepl
+import os
 
 if __name__ == '__main__':
     auth_key = os.environ.get("DEEPL_API_KEY")

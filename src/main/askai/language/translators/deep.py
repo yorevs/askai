@@ -6,20 +6,19 @@
    @package: askai.language.argos_translator
       @file: argos_translator.py
    @created: Fri, 5 Jan 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-import os
+from askai.exception.exceptions import MissingApiKeyError
+from askai.language.ai_translator import AITranslator
+from askai.language.language import Language
 from functools import lru_cache
 
 import deepl
-
-from askai.exception.exceptions import MissingApiKeyError
-from askai.language.language import Language
-from askai.language.ai_translator import AITranslator
+import os
 
 
 class DeepLTranslator(AITranslator):
@@ -40,10 +39,7 @@ class DeepLTranslator(AITranslator):
             return text
         lang = self._from_locale()
         result: deepl.TextResult = self._translator.translate_text(
-            text,
-            preserve_formatting=True,
-            source_lang=lang[0],
-            target_lang=lang[1]
+            text, preserve_formatting=True, source_lang=lang[0], target_lang=lang[1]
         )
         return str(result)
 
@@ -57,16 +53,16 @@ class DeepLTranslator(AITranslator):
         from_lang: str = self._from_idiom.language.upper()
         match self._to_idiom:
             case Language.PT_BR:
-                to_lang: str = 'PT-BR'
+                to_lang: str = "PT-BR"
             case Language.PT_PT:
-                to_lang: str = 'PT-PT'
+                to_lang: str = "PT-PT"
             case Language.EN_GB:
-                to_lang: str = 'EN-GB'
+                to_lang: str = "EN-GB"
             case _:
-                if self._to_idiom.language.casefold() == 'en':
-                    to_lang: str = 'en_US'
-                elif self._to_idiom.language.casefold() == 'zh':
-                    to_lang: str = 'ZH-HANS'
+                if self._to_idiom.language.casefold() == "en":
+                    to_lang: str = "en_US"
+                elif self._to_idiom.language.casefold() == "zh":
+                    to_lang: str = "ZH-HANS"
                 else:
                     to_lang: str = self._to_idiom.language.upper()
         return from_lang, to_lang.upper()

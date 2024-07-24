@@ -6,7 +6,7 @@
    @package: askai.core.component
       @file: summarizer.py
    @created: Mon, 11 Mar 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -18,12 +18,11 @@ from askai.core.askai_messages import msg
 from askai.core.component.cache_service import PERSIST_DIR
 from askai.core.model.summary_result import SummaryResult
 from askai.core.support.langchain_support import lc_llm
-from askai.core.support.utilities import hash_text
 from askai.exception.exceptions import DocumentsNotFound
 from functools import lru_cache
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.text_tools import ensure_endswith
+from hspylib.core.tools.text_tools import ensure_endswith, hash_text
 from langchain.chains import RetrievalQA
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores.chroma import Chroma
@@ -52,7 +51,8 @@ class Summarizer(metaclass=Singleton):
         self._folder = None
         self._glob = None
         self._text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap)
+            chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap
+        )
 
     @property
     def persist_dir(self) -> Path:

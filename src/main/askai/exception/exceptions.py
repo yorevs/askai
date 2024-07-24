@@ -6,7 +6,7 @@
    @package: askai.exception.exceptions
       @file: exceptions.py
    @created: Fri, 12 May 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -38,14 +38,6 @@ class TranslationPackageError(HSBaseException):
 
 class TokenLengthExceeded(HSBaseException):
     """Raised when the token is too big to fit the token context window."""
-
-
-class InvalidMapping(HSBaseException):
-    """Raised when an invalid mapping is provided."""
-
-
-class InvalidJsonMapping(HSBaseException):
-    """Raised when an invalid json-string to object is provided."""
 
 
 class InvalidInputDevice(HSBaseException):

@@ -36,7 +36,7 @@ class NonInteractive(metaclass=Singleton):
         llm = lc_llm.create_chat_model(temperature or self.DEFAULT_TEMPERATURE)
 
         if (response := llm.invoke(final_prompt)) and (output := response.content):
-            cache.save_query_history()
+            cache.save_input_history()
 
         return output
 

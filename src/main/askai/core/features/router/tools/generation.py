@@ -6,29 +6,28 @@
    @package: askai.core.features.tools.generation
       @file: generation.py
    @created: Mon, 01 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from pathlib import Path
-from typing import AnyStr
-
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.metaclass.classpath import AnyPath
-from hspylib.core.preconditions import check_not_none
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import PromptTemplate
-
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_codeblock
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.metaclass.classpath import AnyPath
+from hspylib.core.preconditions import check_not_none
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import PromptTemplate
+from pathlib import Path
+from typing import AnyStr
+
+import logging as log
+import os
 
 
 def generate_content(prompt_str: str, mime_type: str) -> str:
@@ -39,8 +38,8 @@ def generate_content(prompt_str: str, mime_type: str) -> str:
     check_not_none((prompt_str, mime_type))
     template = PromptTemplate(input_variables=["mime_type", "input"], template=prompt.read_prompt("generator"))
     final_prompt: str = template.format(mime_type=mime_type, input=prompt_str)
-    output: str = ''
-    prompt_str += '\nFormat the content into a markdown code block.\n'
+    output: str = ""
+    prompt_str += "\nFormat the content into a markdown code block.\n"
 
     log.info("GENERATE::[PROMPT] '%s'  Type: '%s'", prompt_str, mime_type)
     llm = lc_llm.create_chat_model(temperature=Temperature.CODE_GENERATION.temp)
@@ -74,4 +73,3 @@ def save_content(filepath: AnyPath, content: AnyStr = None) -> str:
         output = f"File path '{filepath}' was not found !"
 
     return output
-

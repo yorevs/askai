@@ -6,7 +6,7 @@
    @package: askai.core.features.tools.terminal
       @file: terminal.py
    @created: Mon, 01 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -35,18 +35,21 @@ def list_contents(folder: str, filters: str) -> str:
     :param folder: The folder to list contents from.
     :param filters: The optional listing filters (file glob).
     """
+
     def _build_filters_() -> str:
-        return '\\( ' + "-o".join([f" -name \"{f}\" " for f in re.split(r'[,;|]\s?', filters)]).strip() + ' \\)'
+        return "\\( " + "-o".join([f' -name "{f}" ' for f in re.split(r"[,;|]\s?", filters)]).strip() + " \\)"
+
     path_obj = PathObject.of(folder)
     if path_obj.exists and path_obj.is_dir:
         cmd_line: str = (
             f'find {folder} -maxdepth 1 -type f {_build_filters_() if filters else ""} '
-            f'-exec ls -lLht {{}} + 2>/dev/null | sort -k9,9')
+            f"-exec ls -lLht {{}} + 2>/dev/null | sort -k9,9"
+        )
         status, output = _execute_bash(cmd_line)
         if status:
             if output:
                 return f"Listing the contents of: `{folder}`:\n\n{output}\n"
-            return '' if filters else f"The folder: '{folder}' is empty."
+            return "" if filters else f"The folder: '{folder}' is empty."
 
     return f"Error: Could not list folder: '{folder}'!"
 
@@ -107,7 +110,7 @@ def _execute_bash(command_line: str) -> Tuple[bool, str]:
     """Execute the provided command line using bash.
     :param command_line: The command line to be executed in bash.
     """
-    status, output = False, ''
+    status, output = False, ""
     if (command := command_line.split(" ")[0].strip()) and which(command):
         command = expandvars(command_line.replace("~/", f"{os.getenv('HOME')}/").strip())
         log.info("Executing command `%s'", command)

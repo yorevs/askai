@@ -1,11 +1,12 @@
 # _*_ coding: utf-8 _*_
 #
-# 'askai' v1.0.9
+# hspylib-askai v1.0.9
 #
 # Package: demo.others
 """Package initialization."""
 
 __all__ = [
+    'deepl_demo', 
     'tech_week_demo', 
     'translate_demo'
 ]

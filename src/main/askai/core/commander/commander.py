@@ -6,22 +6,12 @@
    @package: askai.core.commander.commander
       @file: commander.py
    @created: Thu, 25 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-from os.path import dirname
-from pathlib import Path
-from string import Template
-
-import click
-from click import Command, Group
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import sysout, to_bool
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.commander.commands.cache_cmd import CacheCmd
@@ -32,8 +22,18 @@ from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
+from click import Command, Group
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import sysout, to_bool
+from os.path import dirname
+from pathlib import Path
+from string import Template
 
-COMMANDER_HELP_TPL = Template("""
+import click
+import os
+
+COMMANDER_HELP_TPL = Template(
+    """
 # AskAI Commander - HELP
 
 > Commands:
@@ -48,7 +48,8 @@ ${commands}
 | *Ctrl+L* | **Push-To-Talk.**             |
 | *Ctrl+R* | **Reset the input field.**    |
 | *Ctrl+F* | **Forget the input history.** |
-""")
+"""
+)
 
 __module__ = locals()
 
@@ -74,11 +75,7 @@ def commander_help() -> str:
     return COMMANDER_HELP_TPL.substitute(commands=f"{h_str}{helpstr}")
 
 
-def _init_context(
-    context_size: int = 1000,
-    engine_name: str = "openai",
-    model_name: str = "gpt-3.5-turbo",
-) -> None:
+def _init_context(context_size: int = 1000, engine_name: str = "openai", model_name: str = "gpt-3.5-turbo") -> None:
     """Initialize AskAI context and startup components.
     :param context_size: The max size of e context window.
     :param engine_name: The name of the engine to initialize.
@@ -200,26 +197,23 @@ def cache(operation: str, args: tuple[str, ...]) -> None:
             CacheCmd.list()
         case "get":
             if not args:
-                err: str = str(
-                    click.MissingParameter(f"Argument 'name' is required. Usage /cache get \\<name\\>"))
+                err: str = str(click.MissingParameter(f"Argument 'name' is required. Usage /cache get \\<name\\>"))
                 text_formatter.cmd_print(f"Error: {err}")
             else:
                 set(map(sysout, map(CacheCmd.get, args)))
         case "clear":
             if args and (invalid := next((a for a in args if not isinstance(a, str | int)), None)):
-                err: str = str(
-                    click.BadParameter(f"Invalid argument: '{invalid}'"))
+                err: str = str(click.BadParameter(f"Invalid argument: '{invalid}'"))
                 text_formatter.cmd_print(f"Error: {err}")
             elif args:
                 set(map(CacheCmd.clear, args))
             else:
                 CacheCmd.clear()
         case "files":
-            CacheCmd.files('cleanup' in args, *args)
+            CacheCmd.files("cleanup" in args, *args)
         case "enable":
             if not args:
-                err: str = str(
-                    click.MissingParameter(f"Argument 'enable' is missing. Usage /cache enable \\<0|1\\>"))
+                err: str = str(click.MissingParameter(f"Argument 'enable' is missing. Usage /cache enable \\<0|1\\>"))
                 text_formatter.cmd_print(f"Error: {err}")
             else:
                 configs.is_cache = to_bool(args[0])
@@ -228,15 +222,13 @@ def cache(operation: str, args: tuple[str, ...]) -> None:
             if not args:
                 text_formatter.cmd_print(f"Cache TTL is set to *{configs.ttl} minutes* !")
             elif not args[0].isdigit():
-                err: str = str(
-                    click.MissingParameter(f"Argument 'minutes' is invalid. Usage /cache ttl \\<minutes\\>"))
+                err: str = str(click.MissingParameter(f"Argument 'minutes' is invalid. Usage /cache ttl \\<minutes\\>"))
                 text_formatter.cmd_print(f"Error: {err}")
             else:
                 configs.ttl = int(args[0])
                 text_formatter.cmd_print(f"Cache TTL was set to *{args[0]} minutes* !")
         case _:
-            err: str = str(
-                click.BadParameter(f"Invalid cache operation: '{operation}'"))
+            err: str = str(click.BadParameter(f"Invalid cache operation: '{operation}'"))
             text_formatter.cmd_print(f"Error: {err}")
 
 
@@ -308,16 +300,15 @@ def idiom(locale_str: str) -> None:
 
 @ask_cli.command()
 def info() -> None:
-    """Display some useful application information.
-    """
+    """Display some useful application information."""
     if os.getenv("ASKAI_APP"):
         GeneralCmd.info()
     else:
         text_formatter.cmd_print("No information available (offline)!")
 
 
-if __name__ == '__main__':
-    ask_cli(['info'], standalone_mode=False)
+if __name__ == "__main__":
+    ask_cli(["info"], standalone_mode=False)
     # ask_cli(['idiom'], standalone_mode=False)
     # ask_cli(['idiom', 'pt_BR.iso8859-1'], standalone_mode=False)
     # ask_cli(['idiom'], standalone_mode=False)

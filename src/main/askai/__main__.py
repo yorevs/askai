@@ -6,14 +6,12 @@
    @package: hspylib
       @file: __main__.py
    @created: Fri, 5 Jan 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
@@ -32,6 +30,7 @@ from typing import Any, Optional
 
 import dotenv
 import logging as log
+import os
 import sys
 
 if not is_a_tty():

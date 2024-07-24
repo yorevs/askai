@@ -6,18 +6,12 @@
    @package: "askai".main.askai.core.support
       @file: shared_instances.py
    @created: Tue, 23 Apr 2024
-    @author: "<B>H</B>ugo <B>S</B>aporetti <B>J</B>unior")"
+    @author: "<B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: "https://github.com/yorevs/askai")
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-from pathlib import Path
-
-from hspylib.core.tools.text_tools import elide_text
-from hspylib.modules.application.version import Version
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
@@ -32,9 +26,14 @@ from clitt.core.term.terminal import terminal
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_state
+from hspylib.core.tools.text_tools import elide_text
+from hspylib.modules.application.version import Version
 from hspylib.modules.cli.keyboard import Keyboard
 from langchain.memory import ConversationBufferWindowMemory
+from pathlib import Path
 from typing import Optional
+
+import os
 
 
 class SharedInstances(metaclass=Singleton):
@@ -102,7 +101,7 @@ class SharedInstances(metaclass=Singleton):
         dtm = f" {geo_location.datetime} "
         speak_info = str(configs.tempo) + " @" + self.engine.configs().tts_voice
         cur_dir = elide_text(str(Path(os.getcwd()).absolute()), 67, "…")
-        translator = f"translated by '{msg.translator.name()}'" if configs.language.name.title() != 'English' else ''
+        translator = f"translated by '{msg.translator.name()}'" if configs.language.name.title() != "English" else ""
         return (
             f"%GREEN%"
             f"AskAI v{Version.load(load_dir=classpath.source_path())} %EOL%"

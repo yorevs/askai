@@ -1,9 +1,7 @@
-from functools import lru_cache
-
-from transformers import MarianMTModel, MarianTokenizer
-
-from askai.language.language import Language
 from askai.language.ai_translator import AITranslator
+from askai.language.language import Language
+from functools import lru_cache
+from transformers import MarianMTModel, MarianTokenizer
 
 
 class MarianTranslator(AITranslator):

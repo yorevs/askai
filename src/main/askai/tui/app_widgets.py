@@ -6,7 +6,7 @@
    @package: askai.tui.app_widgets
       @file: app_widgets.py
    @created: Mon, 29 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -34,7 +34,7 @@ class MenuIcon(Widget):
         menu_icon: str = AppIcons.DEFAULT.value,
         tooltip: str = None,
         on_click: Optional[Callable] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.menu_icon = menu_icon
@@ -91,7 +91,8 @@ class AppInfo(Static):
             Demo:   https://www.youtube.com/watch?v=ZlVOisiUEvs&t=69s
         {'-' * 80}
           Thanks for using AskAI 
-        """)
+        """
+    )
 
     def __init__(self, app_info: str):
         super().__init__()

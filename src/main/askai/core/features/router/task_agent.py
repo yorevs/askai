@@ -1,13 +1,3 @@
-import logging as log
-import os
-from typing import Optional
-
-from hspylib.core.metaclass.singleton import Singleton
-from langchain.agents import AgentExecutor, create_structured_chat_agent
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import Runnable
-from langchain_core.runnables.utils import Output
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -22,6 +12,15 @@ from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from hspylib.core.metaclass.singleton import Singleton
+from langchain.agents import AgentExecutor, create_structured_chat_agent
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import Runnable
+from langchain_core.runnables.utils import Output
+from typing import Optional
+
+import logging as log
+import os
 
 
 class TaskAgent(metaclass=Singleton):

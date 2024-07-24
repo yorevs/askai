@@ -6,7 +6,7 @@
    @package: askai.core.commander.cache_cmd
       @file: cache_cmd.py
    @created: Thu, 27 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -52,8 +52,9 @@ class CacheCmd(ABC):
         """TODO"""
         entry: str = cache.read_reply(name)
         return (
-            f"%GREEN%{name}%NC% cache(s) is %CYAN%\"{entry}\"%NC%"
-            if entry else f"%YELLOW%'{name}'%NC% was not found in the cache!"
+            f'%GREEN%{name}%NC% cache(s) is %CYAN%"{entry}"%NC%'
+            if entry
+            else f"%YELLOW%'{name}'%NC% was not found in the cache!"
         )
 
     @staticmethod
@@ -69,15 +70,14 @@ class CacheCmd(ABC):
                     deleted = cache.del_reply(name)
         else:
             deleted = str(cache.clear_replies())
-        text_formatter.cmd_print(
-            f"*{deleted if deleted else 'No'}* cache(s) has been cleared!")
+        text_formatter.cmd_print(f"*{deleted if deleted else 'No'}* cache(s) has been cleared!")
 
     @staticmethod
     def files(cleanup: bool = False, *args: str | int) -> None:
         """TODO"""
         if os.path.exists(CACHE_DIR):
             if cleanup:
-                for arg in args[1 if cleanup else 0:]:
+                for arg in args[1 if cleanup else 0 :]:
                     i_files = Path(f"{CACHE_DIR}").glob(f"{arg}*")
                     while (cached := next(i_files, None)) and os.path.exists(cached):
                         f_join = partial(os.path.join, f"{CACHE_DIR}/{arg}")

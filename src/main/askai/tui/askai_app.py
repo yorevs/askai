@@ -6,33 +6,13 @@
    @package: askai.tui.askai_app
       @file: askai_app.py
    @created: Mon, 29 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-import re
-from contextlib import redirect_stdout
-from io import StringIO
-from pathlib import Path
-
-import nltk
-from click import UsageError
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import file_is_not_empty, is_debugging
-from hspylib.core.tools.text_tools import ensure_endswith, strip_escapes
-from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
-from hspylib.modules.application.version import Version
-from hspylib.modules.cli.vt100.vt_color import VtColor
-from hspylib.modules.eventbus.event import Event
-from openai import RateLimitError
-from textual import on, work
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.widgets import Footer, Input, MarkdownViewer
+from functools import partial
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
@@ -56,6 +36,27 @@ from askai.tui.app_header import Header
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_suggester import InputSuggester
 from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash
+from click import UsageError
+from contextlib import redirect_stdout
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import file_is_not_empty, is_debugging
+from hspylib.core.tools.text_tools import ensure_endswith, strip_escapes
+from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
+from hspylib.modules.application.version import Version
+from hspylib.modules.cli.vt100.vt_color import VtColor
+from hspylib.modules.eventbus.event import Event
+from io import StringIO
+from openai import RateLimitError
+from pathlib import Path
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.containers import ScrollableContainer
+from textual.widgets import Footer, Input, MarkdownViewer
+
+import logging as log
+import nltk
+import os
+import re
 
 SOURCE_DIR: Path = classpath.source_path()
 
@@ -85,15 +86,7 @@ class AskAiApp(App[None]):
 
     RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"
 
-    def __init__(
-        self,
-        speak: bool,
-        debug: bool,
-        cacheable: bool,
-        tempo: int,
-        engine_name: str,
-        model_name: str
-    ):
+    def __init__(self, speak: bool, debug: bool, cacheable: bool, tempo: int, engine_name: str, model_name: str):
         super().__init__()
 
         configs.is_interactive = True
@@ -119,7 +112,7 @@ class AskAiApp(App[None]):
         self._startup()
 
     def __str__(self) -> str:
-        return VtColor.strip_colors(shared.app_info.replace('%EOL%', os.linesep))
+        return VtColor.strip_colors(shared.app_info.replace("%EOL%", os.linesep))
 
     @property
     def engine(self) -> AIEngine:
@@ -298,7 +291,7 @@ class AskAiApp(App[None]):
             if self._ask_and_reply(spoken_text):
                 await self.suggester.add_suggestion(spoken_text)
                 suggestions = await self.suggester.suggestions()
-                cache.save_query_history(suggestions)
+                cache.save_input_history(suggestions)
         self.enable_controls()
 
     @on(Input.Submitted)
@@ -310,7 +303,7 @@ class AskAiApp(App[None]):
         if self._ask_and_reply(question):
             await self.suggester.add_suggestion(question)
             suggestions = await self.suggester.suggestions()
-            cache.save_query_history(suggestions)
+            cache.save_input_history(suggestions)
 
     async def _write_markdown(self) -> None:
         """Write buffered text to the markdown file."""
@@ -340,7 +333,7 @@ class AskAiApp(App[None]):
         """Reply to the user with the AI response.
         :param message: The message to reply to the user.
         """
-        prev_msg: str = self._display_buffer[-1] if self._display_buffer else ''
+        prev_msg: str = self._display_buffer[-1] if self._display_buffer else ""
         if message and prev_msg != message:
             log.debug(message)
             self.display_text(f"{self.nickname}: {message}")
@@ -351,7 +344,7 @@ class AskAiApp(App[None]):
         """Reply API or system errors.
         :param message: The error message to be displayed.
         """
-        prev_msg: str = self._display_buffer[-1] if self._display_buffer else ''
+        prev_msg: str = self._display_buffer[-1] if self._display_buffer else ""
         if message and prev_msg != message:
             log.error(message)
             self.display_text(f"{self.nickname}: Error: {message}")
@@ -400,7 +393,8 @@ class AskAiApp(App[None]):
                 f"{msg.enter_qna()} \n"
                 f"```\nContext:  {ev.args.sum_path},   {ev.args.glob} \n```\n"
                 f"`{msg.press_esc_enter()}` \n\n"
-                f"> {msg.qna_welcome()}")
+                f"> {msg.qna_welcome()}"
+            )
 
     @work(thread=True, exclusive=True)
     def _ask_and_reply(self, question: str) -> bool:

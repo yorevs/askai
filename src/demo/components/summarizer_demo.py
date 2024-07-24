@@ -42,4 +42,4 @@ if __name__ == "__main__":
     while (query := line_input("You: ")) not in ["exit", "q", "quit"]:
         results: List[str] = [f"%GREEN%AI: {r.answer}" for r in summarizer.query(query)]
         list(map(sysout, results))
-    cache.save_query_history()
+    cache.save_input_history()

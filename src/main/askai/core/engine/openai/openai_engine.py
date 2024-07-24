@@ -6,32 +6,33 @@
    @package: askai.core.engine.openai
       @file: openai_engine.py
    @created: Fri, 12 Jan 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+from pathlib import Path
+from threading import Thread
+from typing import List, Optional
+
+import langchain_openai
+import pause
+from hspylib.core.preconditions import check_not_none
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models import BaseChatModel, BaseLLM
+from openai import APIError, OpenAI
+
 from askai.core.component.audio_player import player
-from askai.core.component.cache_service import CacheService
+from askai.core.component.cache_service import cache
 from askai.core.component.recorder import Recorder
 from askai.core.engine.ai_model import AIModel
 from askai.core.engine.ai_reply import AIReply
 from askai.core.engine.openai.openai_configs import OpenAiConfigs
 from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.support.utilities import stream_text
-from hspylib.core.preconditions import check_not_none
-from langchain_core.embeddings import Embeddings
-from langchain_core.language_models import BaseChatModel, BaseLLM
-from openai import APIError, OpenAI
-from pathlib import Path
-from threading import Thread
-from typing import List, Optional
-
-import langchain_openai
-import logging as log
-import os
-import pause
 
 
 class OpenAIEngine:
@@ -121,22 +122,25 @@ class OpenAIEngine:
         :param playback: Whether to playback the generated audio file.
         """
         if text:
-            speech_file_path, file_exists = CacheService.get_audio_file(
-                text, self._configs.tts_voice, self._configs.tts_format)
+            speech_file_path, file_exists = cache.audio_file_path(
+                text, self._configs.tts_voice, self._configs.tts_format
+            )
             if not file_exists:
                 log.debug(f'Audio file "%s" not found in cache. Generating from %s.', self.nickname(), speech_file_path)
                 with self.client.audio.speech.with_streaming_response.create(
                     input=text,
                     model=self._configs.tts_model,
                     voice=self._configs.tts_voice,
-                    response_format=self._configs.tts_format) as response:
+                    response_format=self._configs.tts_format,
+                ) as response:
                     response.stream_to_file(speech_file_path)
                     log.debug(f"Audio file created: '%s' at %s", text, speech_file_path)
             else:
                 log.debug(f"Audio file found in cache: '%s' at %s", text, speech_file_path)
             if playback:
                 speak_thread = Thread(
-                    daemon=True, target=player.play_audio_file, args=(speech_file_path, self._configs.tempo))
+                    daemon=True, target=player.play_audio_file, args=(speech_file_path, self._configs.tempo)
+                )
                 speak_thread.start()
                 if stream:
                     pause.seconds(player.start_delay())

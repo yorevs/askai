@@ -12,13 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import re
-from typing import TypeAlias
-
 from hspylib.core.enums.charset import Charset
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.preconditions import check_not_none
 from hspylib.core.tools.dict_tools import get_or_default
+from typing import TypeAlias
+
+import re
 
 AnyLocale: TypeAlias = str | tuple[str | str | None, ...]
 

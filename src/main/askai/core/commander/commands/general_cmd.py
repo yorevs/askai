@@ -6,19 +6,13 @@
    @package: askai.core.commander.general_cmd
       @file: general_cmd.py
    @created: Mon, 06 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-import locale
 from abc import ABC
-from pathlib import Path
-
-from hspylib.core.tools.text_tools import elide_text
-from hspylib.modules.application.version import Version
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
@@ -29,14 +23,17 @@ from askai.core.component.recorder import recorder
 from askai.core.component.summarizer import summarizer
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
+from askai.language.language import Language
 from clitt.core.term.terminal import Terminal
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.tools.commons import sysout
+from hspylib.core.tools.text_tools import elide_text
 from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.application.version import Version
+from pathlib import Path
 
+import locale
 import os.path
-
-from askai.language.language import Language
 
 
 class GeneralCmd(ABC):
@@ -86,6 +83,5 @@ class GeneralCmd(ABC):
 
     @staticmethod
     def info() -> None:
-        """Display some useful application information.
-        """
+        """Display some useful application information."""
         sysout(shared.app_info)

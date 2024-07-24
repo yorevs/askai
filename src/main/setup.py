@@ -5,7 +5,7 @@
    @project: HsPyLib-AskAI
       @file: setup.py
    @created: Tue, 2 Jan 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -33,7 +33,7 @@ setuptools.setup(
     name="hspylib-askai",
     version="1.0.9",
     description="HomeSetup - AskAI",
-    author="Hugo Saporetti Junior",
+    author="Hugo Saporetti Junior,
     author_email="yorevs@hotmail.com",
     long_description=README,
     long_description_content_type="text/markdown",

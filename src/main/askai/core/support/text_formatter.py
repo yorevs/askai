@@ -3,7 +3,7 @@
    @package: askai.core.support.text_formatter
       @file: text_formatter.py
    @created: Fri, 28 Feb 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -123,5 +123,5 @@ class TextFormatter(metaclass=Singleton):
 assert (text_formatter := TextFormatter().INSTANCE) is not None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     text_formatter.display_markdown(" Oops!\n>  An Exception Occurred: \n#### &nbsp;")

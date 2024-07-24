@@ -6,23 +6,22 @@
    @package: askai.core.model.action_plan
       @file: action_plan.py
    @created: Fri, 19 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-import re
+from askai.core.model.model_result import ModelResult
+from askai.core.support.utilities import extract_codeblock
 from dataclasses import dataclass, field
+from hspylib.core.object_mapper import object_mapper
+from hspylib.core.preconditions import check_state
+from langchain_core.messages import AIMessage
 from types import SimpleNamespace
 from typing import Optional
 
-from hspylib.core.preconditions import check_state
-from langchain_core.messages import AIMessage
-
-from askai.core.model.model_result import ModelResult
-from askai.core.support.object_mapper import object_mapper
-from askai.core.support.utilities import extract_codeblock
+import re
 
 
 @dataclass
@@ -37,7 +36,7 @@ class ActionPlan:
     model: ModelResult = field(default_factory=ModelResult.default)
 
     @staticmethod
-    def _parse_response(question: str, response: str) -> 'ActionPlan':
+    def _parse_response(question: str, response: str) -> "ActionPlan":
         """Parse the router response.
         :param response: The router response. This should be a JSON blob, but sometimes the AI responds with a
         straight JSON string.
@@ -52,58 +51,63 @@ class ActionPlan:
         return plan
 
     @staticmethod
-    def _final(question: str, response: str, model: ModelResult) -> 'ActionPlan':
+    def _final(question: str, response: str, model: ModelResult) -> "ActionPlan":
         """TODO"""
         return ActionPlan(
             question,
-            f"Answer to the question: {question}", [],
+            f"Answer to the question: {question}",
+            [],
             SimpleNamespace(
                 reasoning="AI decided to respond directly",
                 observations="AI had enough context to respond directly",
                 criticism="The answer may not be good enough",
-                speak=response
-            ), [SimpleNamespace(id="1", task=response)], model
+                speak=response,
+            ),
+            [SimpleNamespace(id="1", task=response)],
+            model,
         )
 
     @staticmethod
-    def _browse(question: str, query: str, model: ModelResult) -> 'ActionPlan':
+    def _browse(question: str, query: str, model: ModelResult) -> "ActionPlan":
         """TODO"""
         return ActionPlan(
             question,
-            f"Answer to the question: {question}", [],
+            f"Answer to the question: {question}",
+            [],
             SimpleNamespace(
                 reasoning="AI requested internet browsing",
                 observations="",
                 criticism="The answer may not be too accurate",
-                speak="I will search on the internet for you"
-            ), [
-                SimpleNamespace(id="1", task=f"Browse on te internet for: {query}")
-            ], model
+                speak="I will search on the internet for you",
+            ),
+            [SimpleNamespace(id="1", task=f"Browse on te internet for: {query}")],
+            model,
         )
 
     @staticmethod
-    def _terminal(question: str, cmd_line: str, model: ModelResult) -> 'ActionPlan':
+    def _terminal(question: str, cmd_line: str, model: ModelResult) -> "ActionPlan":
         """TODO"""
         return ActionPlan(
             question,
-            f"Execute terminal command: {question}", [],
+            f"Execute terminal command: {question}",
+            [],
             SimpleNamespace(
                 reasoning="AI requested to execute a terminal command",
                 observations="",
                 criticism="The user needs to grant access",
-                speak=""
-            ), [
-                SimpleNamespace(id="1", task=f"Execute the following command on the terminal: {cmd_line}")
-            ], model
+                speak="",
+            ),
+            [SimpleNamespace(id="1", task=f"Execute the following command on the terminal: {cmd_line}")],
+            model,
         )
 
     @staticmethod
-    def create(question: str, message: AIMessage, model: ModelResult) -> 'ActionPlan':
+    def create(question: str, message: AIMessage, model: ModelResult) -> "ActionPlan":
         """TODO"""
         plan: ActionPlan = ActionPlan._parse_response(question, message.content)
         check_state(
-            plan is not None and isinstance(plan, ActionPlan),
-            f"Invalid action plan received from LLM: {type(plan)}")
+            plan is not None and isinstance(plan, ActionPlan), f"Invalid action plan received from LLM: {type(plan)}"
+        )
         plan.model = model
 
         return plan
@@ -126,20 +130,18 @@ class ActionPlan:
 
     @property
     def reasoning(self) -> Optional[str]:
-        return self.thoughts.reasoning \
-            if hasattr(self, 'thoughts') and hasattr(self.thoughts, 'reasoning') else None
+        return self.thoughts.reasoning if hasattr(self, "thoughts") and hasattr(self.thoughts, "reasoning") else None
 
     @property
     def observations(self) -> Optional[str]:
-        return self.thoughts.observations \
-            if hasattr(self, 'thoughts') and hasattr(self.thoughts, 'observations') else None
+        return (
+            self.thoughts.observations if hasattr(self, "thoughts") and hasattr(self.thoughts, "observations") else None
+        )
 
     @property
     def criticism(self) -> Optional[str]:
-        return self.thoughts.criticism \
-            if hasattr(self, 'thoughts') and hasattr(self.thoughts, 'criticism') else None
+        return self.thoughts.criticism if hasattr(self, "thoughts") and hasattr(self.thoughts, "criticism") else None
 
     @property
     def speak(self) -> Optional[str]:
-        return self.thoughts.speak \
-            if hasattr(self, 'thoughts') and hasattr(self.thoughts, 'speak') else None
+        return self.thoughts.speak if hasattr(self, "thoughts") and hasattr(self.thoughts, "speak") else None

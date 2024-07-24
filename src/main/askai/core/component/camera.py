@@ -6,24 +6,23 @@
    @package: askai.core.components
       @file: recorder.py
    @created: Wed, 22 Feb 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-import atexit
-from pathlib import Path
-from typing import TypeAlias, Optional
-
-import cv2
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.zoned_datetime import now_ms
-from retry import retry
-
 from askai.__classpath__ import classpath
 from askai.core.component.cache_service import PICTURE_DIR
 from askai.core.support.utilities import display_text
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.zoned_datetime import now_ms
+from pathlib import Path
+from retry import retry
+from typing import Optional, TypeAlias
+
+import atexit
+import cv2
 
 InputDevice: TypeAlias = tuple[int, str]
 
@@ -56,7 +55,7 @@ class Camera(metaclass=Singleton):
         ret, photo = self._cam.read()
 
         if not ret:
-            print('Failed to capture the camera!')
+            print("Failed to capture the camera!")
             return None
 
         self.detect_faces(photo, timestamp)
@@ -68,14 +67,9 @@ class Camera(metaclass=Singleton):
         """Whether to detect all faces in the photo."""
         # Face detection
         gray = cv2.cvtColor(photo, cv2.COLOR_BGR2GRAY)
-        faces = self._faceCascade.detectMultiScale(
-            gray,
-            scaleFactor=1.1,
-            minNeighbors=5,
-            minSize=(30, 30)
-        )
+        faces = self._faceCascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
         # Draw a rectangle around the faces
-        for (x, y, w, h) in faces:
+        for x, y, w, h in faces:
             cv2.rectangle(photo, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
         if self._anterior != len(faces):
@@ -88,7 +82,7 @@ class Camera(metaclass=Singleton):
         self._cam = cv2.VideoCapture(0)
         ret, _ = self._cam.read()
         if not ret:
-            print('Failed to initialize the camera !')
+            print("Failed to initialize the camera !")
         atexit.register(self._shutdown)
 
     def _shutdown(self) -> None:
@@ -100,6 +94,6 @@ class Camera(metaclass=Singleton):
 
 assert (camera := Camera().INSTANCE) is not None
 
-if __name__ == '__main__':
-    while (done := input('Press [Enter] to take photo')) not in ['e', 'q']:
+if __name__ == "__main__":
+    while (done := input("Press [Enter] to take photo")) not in ["e", "q"]:
         camera.capture()

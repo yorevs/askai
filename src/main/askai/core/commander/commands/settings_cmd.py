@@ -6,7 +6,7 @@
    @package: askai.core.commander.settings_cmd
       @file: settings_cmd.py
    @created: Thu, 25 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -30,7 +30,7 @@ class SettingsCmd(ABC):
     def list(filters: str | None = None) -> None:
         """TODO"""
         if all_settings := settings.search(f"*{filters}*"):
-            sysout(all_settings + '\n')
+            sysout(all_settings + "\n")
         else:
             sysout(f"\n%RED%-=- No settings found! -=-%NC%\n")
         display_text(f"> Hint: Type: '/settings set \\<number|settings_name\\> \\<value\\>' to set.")
@@ -42,7 +42,7 @@ class SettingsCmd(ABC):
         if name.isdecimal() and 0 <= int(name) <= len(all_settings):
             name = all_settings[int(name)].name
         if settings[name]:
-            settings.put(name, value if value not in ['\'\'', '\"\"'] else None)
+            settings.put(name, value if value not in ["''", '""'] else None)
             text_formatter.cmd_print(f"Setting `{name}` changed to %GREEN%{value}%NC%")
         else:
             text_formatter.cmd_print(f"%RED%Setting: '{name}' was not found!%NC%")

@@ -6,7 +6,7 @@
    @package: askai.tui.header
       @file: app_header.py
    @created: Mon, 29 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
@@ -148,7 +148,8 @@ class HeaderNotifications(Widget):
               Caching: {'' if self.caching else ''}
              Audio In: {device_info}
                 Idiom:  {self.idiom}
-            """).strip()
+            """
+        ).strip()
 
     def _on_mount(self, _: Mount) -> None:
         self.set_interval(1, callback=self.refresh, name="update clock")
@@ -162,8 +163,9 @@ class HeaderNotifications(Widget):
             f"{AppIcons.SPEAKING_ON if self.speaking else AppIcons.SPEAKING_OFF} "
             f"{AppIcons.CACHING_ON if self.caching else AppIcons.CACHING_OFF} "
             f"{AppIcons.DEBUG_ON if self.debugging else AppIcons.DEBUG_OFF}  "
-            f"{AppIcons.SEPARATOR_V} {now(f'%a %d %b %X')}"
-            , no_wrap=True, overflow="ellipsis"
+            f"{AppIcons.SEPARATOR_V} {now(f'%a %d %b %X')}",
+            no_wrap=True,
+            overflow="ellipsis",
         )
 
     def refresh_icons(self) -> None:

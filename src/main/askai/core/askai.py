@@ -6,31 +6,13 @@
    @package: askai.core
       @file: askai.py
    @created: Fri, 5 Jan 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-import re
-import sys
-from threading import Thread
-from typing import List, TypeAlias
-
-import nltk
-import pause
-from click import UsageError
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.term.terminal import terminal
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging, sysout
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.eventbus.event import Event
-from openai import RateLimitError
+from functools import partial
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
@@ -48,6 +30,25 @@ from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
 from askai.exception.exceptions import *
+from click import UsageError
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.term.terminal import terminal
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging, sysout
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.eventbus.event import Event
+from openai import RateLimitError
+from threading import Thread
+from typing import List, TypeAlias
+
+import logging as log
+import nltk
+import os
+import pause
+import re
+import sys
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -87,7 +88,7 @@ class AskAi:
 
         self._ready: bool = False
         self._processing: Optional[bool] = None
-        self._query_string: QueryString = query_string if isinstance(query_string, str) else ' '.join(query_string)
+        self._query_string: QueryString = query_string if isinstance(query_string, str) else " ".join(query_string)
         self._query_prompt: str | None = query_prompt
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
@@ -130,10 +131,10 @@ class AskAi:
                 break
             elif output:
                 cache.save_reply(query, output)
-                cache.save_query_history()
+                cache.save_input_history()
             if not configs.is_interactive:
                 break
-        if query == '':
+        if query == "":
             self.reply(msg.goodbye())
         sysout("%NC%")
 
@@ -201,7 +202,8 @@ class AskAi:
                 f"{msg.enter_qna()} \n"
                 f"```\nContext:  {ev.args.sum_path},   {ev.args.glob} \n```\n"
                 f"`{msg.press_esc_enter()}` \n\n"
-                f"> {msg.qna_welcome()}")
+                f"> {msg.qna_welcome()}"
+            )
 
     def _splash(self) -> None:
         """Display the AskAI splash screen."""
@@ -222,7 +224,7 @@ class AskAi:
             splash_thread.start()
             nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
             cache.cache_enable = configs.is_cache
-            KeyboardInput.preload_history(cache.load_history(commands()))
+            KeyboardInput.preload_history(cache.load_input_history(commands()))
             recorder.setup()
             scheduler.start()
             player.start_delay()

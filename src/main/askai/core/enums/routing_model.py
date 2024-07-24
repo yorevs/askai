@@ -13,10 +13,10 @@
    Copyright (c) 2024, HomeSetup
 """
 
+from hspylib.core.enums.enumeration import Enumeration
+
 import logging as log
 import os
-
-from hspylib.core.enums.enumeration import Enumeration
 
 
 class RoutingModel(Enumeration):
