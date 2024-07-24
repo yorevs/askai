@@ -56,6 +56,8 @@ When evaluating responses, classify 'Red' (Known Bad Responses) when:
 
 Classification Guidelines (rate from 0% to 100%):
 
+- Check if the response explicitly and directly addresses the user's request by providing all necessary information and details (that clearly states actions, steps, tasks, and objectives as per the user's question). Classify the response as 'Yellow' if not.
+
 - Assess the AI's response for correctness by considering its ability to effectively address and correct syntax errors or misinterpretations in the user's input, rather than focusing solely on literal repetitions or minor discrepancies in terminology.
 
 - Revise the classifications for responses from the AI that contain irrelevant information to 'Yellow' instead of 'Red', as any additional information is still valued.

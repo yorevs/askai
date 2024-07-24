@@ -38,22 +38,26 @@ def final_answer(
     username: str = prompt.user.title(),
     idiom: str = shared.idiom,
     persona_prompt: str | None = None,
+    input_variables: list[str] | None = None,
     response: str | None = None,
+    **kwargs
 ) -> str:
     """Provide the final response to the user.
     :param question: The user question.
     :param username: The user name.
     :param idiom: The determined user idiom.
     :param persona_prompt: The persona prompt to be used.
+    :param input_variables: The prompt input variables.
     :param response: The final AI response or context.
     """
     output = response or ""
     prompt_file: PathObject = PathObject.of(prompt.append_path(f"taius/{persona_prompt}"))
     template = PromptTemplate(
-        input_variables=["user", "idiom", "context", "question"],
+        input_variables=input_variables or ["user", "idiom", "context", "question"],
         template=prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir),
     )
-    final_prompt = template.format(user=username, idiom=idiom, context=response, question=question)
+    default_args = {'user': username, 'idiom': idiom, 'context': response, 'question': question}
+    final_prompt = template.format(**kwargs or default_args)
     log.info("FETCH::[QUESTION] '%s'  context: '%s'", question, response)
     llm = lc_llm.create_chat_model(temperature=Temperature.CODE_GENERATION.temp)
     response: AIMessage = llm.invoke(final_prompt)

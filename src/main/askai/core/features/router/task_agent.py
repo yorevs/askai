@@ -31,30 +31,47 @@ class TaskAgent(metaclass=Singleton):
     @staticmethod
     def wrap_answer(
         query: str,
-        response: str,
-        model_result: ModelResult = ModelResult.default()
+        answer: str,
+        model_result: ModelResult = ModelResult.default(),
+        rag: RagResponse | None = None
     ) -> str:
         """Provide a final answer to the user.
         :param query: The user question.
-        :param response: The AI response.
+        :param answer: The AI response.
         :param model_result: The selected routing model.
+        :param rag: The final accuracy check (RAG) response.
         """
-        output: str = response
-        if model_result:
-            model: RoutingModel = RoutingModel.of_model(model_result.mid)
-            events.reply.emit(message=msg.model_select(str(model)), verbosity="debug")
-            match model, configs.is_speak:
-                case RoutingModel.TERMINAL_COMMAND, True:
-                    output = final_answer(query, persona_prompt=f"taius-stt", response=response)
-                case RoutingModel.ASSISTIVE_TECH_HELPER, _:
-                    output = final_answer(query, persona_prompt=f"taius-stt", response=response)
-                case RoutingModel.CHAT_MASTER, _:
-                    output = final_answer(query, persona_prompt=f"taius-jarvis", response=response)
-                case _:
-                    # Default is to leave the AI response intact.
-                    pass
+        output: str = answer
+        model: RoutingModel = RoutingModel.of_model(model_result.mid)
+        events.reply.emit(message=msg.model_select(str(model)), verbosity="debug")
+
+        match model, configs.is_speak:
+            case RoutingModel.TERMINAL_COMMAND, True:
+                output = final_answer(query, persona_prompt=f"taius-stt", response=answer)
+            case RoutingModel.ASSISTIVE_TECH_HELPER, _:
+                output = final_answer(query, persona_prompt=f"taius-stt", response=answer)
+            case RoutingModel.CHAT_MASTER, _:
+                output = final_answer(query, persona_prompt=f"taius-jarvis", response=answer)
+            case RoutingModel.REFINER, _:
+                if rag:
+                    output = final_answer(
+                        query, persona_prompt=f"taius-refiner",
+                        input_variables=['improvements', 'context', 'response', 'question'],
+                        improvements="", context="", response=answer, question=query
+                    )
+            case _:
+                # Default is to leave the AI response intact.
+                pass
 
         return output
+
+    @staticmethod
+    def improve_response(
+        query: str,
+        response: str,
+        rag: RagResponse
+    ) -> str:
+        return response
 
     def __init__(self):
         self._lc_agent: Runnable | None = None
@@ -104,12 +121,14 @@ class TaskAgent(metaclass=Singleton):
             output = plan.speak
             accumulated.append(output)
 
-        assert_accuracy(query, os.linesep.join(accumulated), RagResponse.MODERATE)
+        if (rag := assert_accuracy(query, os.linesep.join(accumulated), RagResponse.MODERATE)).is_moderate:
+            plan.model.mid = RoutingModel.REFINER.name
+
         shared.context.push("HISTORY", query, "assistant")
         shared.context.push("HISTORY", output, "assistant")
         shared.memory.save_context({"input": query}, {"output": output})
 
-        return self.wrap_answer(plan.primary_goal, output, plan.model)
+        return self.wrap_answer(plan.primary_goal, output, plan.model, rag)
 
     def _create_lc_agent(self, temperature: Temperature = Temperature.CODE_GENERATION) -> Runnable:
         """Create the LangChain agent.

@@ -76,6 +76,10 @@ class RoutingModel(Enumeration):
         "Select this model to respond to well-known queries, where you database is enough to "
         "provide a clear and accurate answer.")
 
+    # REFINE_ANSWER
+    REFINER = "ASK_012", (
+        "Select this model to respond to improve the AI response. This should be only selected upon a clear request.")
+
     @classmethod
     def of_model(cls, model_id: str) -> 'RoutingModel':
         """Returning teh matching model ID instance."""

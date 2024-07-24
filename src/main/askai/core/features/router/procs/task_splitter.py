@@ -89,7 +89,7 @@ class TaskSplitter(metaclass=Singleton):
 
         os.chdir(Path.home())
         shared.context.forget("SCRATCHPAD")  # Erase previous scratchpad.
-        model: ModelResult = ModelResult.default()  # Hardcoding the result model for now.
+        model: ModelResult = ModelResult.default()  # Hard-coding the result model for now.
 
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
         def _process_wrapper() -> Optional[str]:

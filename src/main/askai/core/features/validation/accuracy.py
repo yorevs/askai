@@ -40,14 +40,20 @@ ACC_GUIDELINES: str = dedent(
 ).strip()
 
 
-def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse = RagResponse.MODERATE) -> None:
+def assert_accuracy(
+    question: str,
+    ai_response: str,
+    pass_threshold: RagResponse = RagResponse.MODERATE
+) -> RagResponse:
     """Function responsible for asserting that the question was properly answered.
     :param question: The user question.
     :param ai_response: The AI response to be analysed.
     :param pass_threshold: The threshold color to be considered as a pass.
     """
     if ai_response and ai_response not in msg.accurate_responses:
-        issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("assert"))
+        issues_prompt = PromptTemplate(
+            input_variables=["problems"], template=prompt.read_prompt("assert")
+        )
         assert_template = PromptTemplate(
             input_variables=["datetime", "input", "response"], template=prompt.read_prompt("accuracy")
         )
@@ -61,14 +67,14 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: RagResponse
                 status, details = mat.group(1), mat.group(2)
                 log.info("Accuracy check ->  status: '%s'  reason: '%s'", status, details)
                 events.reply.emit(message=msg.assert_acc(status, details), verbosity="debug")
-                if not RagResponse.of_status(status).passed(pass_threshold):
+                if not (rag_resp := RagResponse.of_status(status)).passed(pass_threshold):
                     # Include the guidelines for the first mistake.
                     if not shared.context.get("SCRATCHPAD"):
                         shared.context.push("SCRATCHPAD", ACC_GUIDELINES)
                     # Include the RYG issues.
                     shared.context.push("SCRATCHPAD", issues_prompt.format(problems=RagResponse.strip_code(output)))
                     raise InaccurateResponse(f"AI Assistant failed to respond => '{response.content}'")
-                return
+                return rag_resp
         # At this point, the response was not Good enough.
         raise InaccurateResponse(f"AI Assistant didn't respond accurately. Response: '{response}'")
 
