@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from hspylib.core.metaclass.classpath import AnyPath
 
 from askai.core.askai_messages import msg
 from askai.core.features.router.tools.analysis import query_output
@@ -98,20 +99,21 @@ class AgentToolkit(metaclass=Singleton):
         """
         return image_captioner(image_path)
 
-    def generate_content(self, instructions: str, mime_type: str) -> str:
+    def generate_content(self, instructions: str, mime_type: str, filepath: AnyPath) -> str:
         """Use this tool for tasks that require generating any kind of content, such as, code and text, image, etc.
         Usage: generate_content(instructions, mime_type)
         :param instructions: The instructions for generating the content.
         :param mime_type: The generated content type (use MIME types).
+        :param filepath: Optional file path for saving the content.
         """
-        return generate_content(instructions, mime_type)
+        return generate_content(instructions, mime_type, filepath)
 
-    def save_content(self, path_name: str) -> str:
-        """Use this tool to save generated content into disk (program, text, image, etc).
-        Usage: save_content(path_name)
-        :param path_name: The absolute file path where you want to save the content.
+    def save_content(self, filepath: AnyPath) -> str:
+        """Use this tool to save generated content into disk (program, script, text, image, etc).
+        Usage: save_content(filepath)
+        :param filepath: The path where you want to save the content.
         """
-        return save_content(path_name)
+        return save_content(filepath)
 
     def display_tool(self, texts: list[str] | str) -> str:
         """

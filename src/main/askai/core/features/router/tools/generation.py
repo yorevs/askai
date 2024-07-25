@@ -12,51 +12,57 @@
 
    Copyright (c) 2024, HomeSetup
 """
+
+import logging as log
+import os
+from pathlib import Path
+from typing import AnyStr
+
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.metaclass.classpath import AnyPath
+from hspylib.core.preconditions import check_not_none
+from hspylib.core.zoned_datetime import now_ms
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import PromptTemplate
+
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
+from askai.core.component.cache_service import GEN_AI_DIR
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_codeblock
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.metaclass.classpath import AnyPath
-from hspylib.core.preconditions import check_not_none
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import PromptTemplate
-from pathlib import Path
-from typing import AnyStr
-
-import logging as log
-import os
 
 
-def generate_content(prompt_str: str, mime_type: str) -> str:
+def generate_content(instructions: str, mime_type: str, filepath: AnyPath | None = None) -> str:
     """Generate content using the AI. It's a general function now, but it can be specialized afterwards.
-    :param prompt_str: The prompt (instructions) to generate the content.
-    :param mime_type: The content type and format using MIME types.
+    :param instructions: The instructions for generating the content.
+    :param mime_type: The generated content type (use MIME types).
+    :param filepath: Optional file path for saving the content.
     """
-    check_not_none((prompt_str, mime_type))
+    check_not_none((instructions, mime_type))
     template = PromptTemplate(input_variables=["mime_type", "input"], template=prompt.read_prompt("generator"))
-    final_prompt: str = template.format(mime_type=mime_type, input=prompt_str)
-    output: str = ""
-    prompt_str += "\nFormat the content into a markdown code block.\n"
+    final_prompt: str = template.format(mime_type=mime_type, input=instructions)
+    instructions += "\nFormat the content into a markdown code block.\n"
 
-    log.info("GENERATE::[PROMPT] '%s'  Type: '%s'", prompt_str, mime_type)
+    log.info("GENERATE::[PROMPT] '%s'  Type: '%s'", instructions, mime_type)
     llm = lc_llm.create_chat_model(temperature=Temperature.CODE_GENERATION.temp)
     response: AIMessage = llm.invoke(final_prompt)
+    final_path: str = str(filepath or f"{GEN_AI_DIR}/gen-ai-{now_ms()}")
 
     if response and (output := response.content):
         shared.context.set("GENERATED", output)
+        save_content(final_path)
     else:
         output = msg.no_output("GenAI")
 
-    return f"The following '{mime_type}' content was generated.\n\n{output}\n"
+    return f"The following file: *{final_path}* (`{mime_type}`) was generated. Contents:\n\n{output}\n"
 
 
-def save_content(filepath: AnyPath, content: AnyStr = None) -> str:
+def save_content(filepath: AnyPath, content: AnyStr | None = None) -> str:
     """Save any generated context into a file.
     :param filepath: The path where you want to save the content.
-    :param content: The content to be saved. If not provided, it will get from the last generated context.
+    :param content: Optional content to be saved. If not provided, it will get from the last generated context.
     """
     if filepath:
         path_obj = PathObject.of(filepath)

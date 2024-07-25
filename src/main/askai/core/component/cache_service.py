@@ -41,6 +41,11 @@ PICTURE_DIR: Path = Path(str(CACHE_DIR) + "/pictures")
 if not PICTURE_DIR.exists():
     PICTURE_DIR.mkdir(parents=True, exist_ok=True)
 
+# AI Generation cache directory.
+GEN_AI_DIR: Path = Path(str(CACHE_DIR) + "/generated")
+if not GEN_AI_DIR.exists():
+    GEN_AI_DIR.mkdir(parents=True, exist_ok=True)
+
 # Voice recordings cache directory.
 REC_DIR: Path = Path(str(CACHE_DIR) + "/recordings")
 if not REC_DIR.exists():
