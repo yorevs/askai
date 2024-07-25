@@ -32,8 +32,8 @@ Use the following context to create your answer, according to the question at th
 
 Context:
 
-"""
+```
 {context}
-"""
+```
 
-Question: {question}
+Human Question: "{question}"

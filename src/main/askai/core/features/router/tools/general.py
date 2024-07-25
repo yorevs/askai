@@ -12,16 +12,16 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.askai_prompt import prompt
-from askai.core.engine.openai.temperature import Temperature
-from askai.core.support.langchain_support import lc_llm
-from askai.core.support.shared_instances import shared
+import os
+
 from hspylib.core.config.path_object import PathObject
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import PromptTemplate
 
-import logging as log
-import os
+from askai.core.askai_prompt import prompt
+from askai.core.engine.openai.temperature import Temperature
+from askai.core.support.langchain_support import lc_llm
+from askai.core.support.shared_instances import shared
 
 
 def display_tool(*texts: str) -> str:
@@ -34,33 +34,25 @@ def display_tool(*texts: str) -> str:
 
 
 def final_answer(
-    question: str,
-    username: str = prompt.user.title(),
-    idiom: str = shared.idiom,
     persona_prompt: str | None = None,
     input_variables: list[str] | None = None,
-    response: str | None = None,
-    **kwargs
+    **prompt_args
 ) -> str:
     """Provide the final response to the user.
-    :param question: The user question.
-    :param username: The user name.
-    :param idiom: The determined user idiom.
+    :param temperature: The LLM temperature to be used.
     :param persona_prompt: The persona prompt to be used.
     :param input_variables: The prompt input variables.
-    :param response: The final AI response or context.
+    :param prompt_args: The prompt input arguments.
     """
-    output = response or ""
     prompt_file: PathObject = PathObject.of(prompt.append_path(f"taius/{persona_prompt}"))
     template = PromptTemplate(
-        input_variables=input_variables or ["user", "idiom", "context", "question"],
+        input_variables=input_variables or [],
         template=prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir),
     )
-    default_args = {'user': username, 'idiom': idiom, 'context': response, 'question': question}
-    final_prompt = template.format(**kwargs or default_args)
-    log.info("FETCH::[QUESTION] '%s'  context: '%s'", question, response)
-    llm = lc_llm.create_chat_model(temperature=Temperature.CODE_GENERATION.temp)
+    final_prompt = template.format(**prompt_args)
+    llm = lc_llm.create_chat_model(temperature=Temperature.COLDEST.temp)
     response: AIMessage = llm.invoke(final_prompt)
+    output: str | None = None
 
     if not response or not (output := response.content) or shared.UNCERTAIN_ID in response.content:
         output = "Sorry, I was not able to provide a helpful response."

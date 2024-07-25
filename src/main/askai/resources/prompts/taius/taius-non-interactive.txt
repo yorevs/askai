@@ -14,8 +14,8 @@ Guidelines for the response (in-order):
 
 Context:
 
-"""
+```
 {context}
-"""
+```
 
 Question: "{question}"

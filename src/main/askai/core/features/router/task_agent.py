@@ -3,7 +3,7 @@ from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.enums.acc_response import RagResponse
+from askai.core.enums.acc_response import AccResponse
 from askai.core.enums.routing_model import RoutingModel
 from askai.core.features.router.task_toolkit import features
 from askai.core.features.router.tools.general import final_answer
@@ -33,7 +33,7 @@ class TaskAgent(metaclass=Singleton):
         query: str,
         answer: str,
         model_result: ModelResult = ModelResult.default(),
-        rag: RagResponse | None = None
+        rag: AccResponse | None = None
     ) -> str:
         """Provide a final answer to the user.
         :param query: The user question.
@@ -44,34 +44,29 @@ class TaskAgent(metaclass=Singleton):
         output: str = answer
         model: RoutingModel = RoutingModel.of_model(model_result.mid)
         events.reply.emit(message=msg.model_select(str(model)), verbosity="debug")
+        args = {'user': shared.username, 'idiom': shared.idiom, 'context': answer, 'question': query}
 
         match model, configs.is_speak:
             case RoutingModel.TERMINAL_COMMAND, True:
-                output = final_answer(query, persona_prompt=f"taius-stt", response=answer)
+                output = final_answer("taius-stt", [k for k in args.keys()], **args)
             case RoutingModel.ASSISTIVE_TECH_HELPER, _:
-                output = final_answer(query, persona_prompt=f"taius-stt", response=answer)
+                output = final_answer("taius-stt", [k for k in args.keys()], **args)
             case RoutingModel.CHAT_MASTER, _:
-                output = final_answer(query, persona_prompt=f"taius-jarvis", response=answer)
+                output = final_answer("taius-jarvis", [k for k in args.keys()], **args)
             case RoutingModel.REFINER, _:
                 if rag:
-                    output = final_answer(
-                        query, persona_prompt=f"taius-refiner",
-                        input_variables=['improvements', 'context', 'response', 'question'],
-                        improvements="", context="", response=answer, question=query
-                    )
+                    ctx: str = str(shared.context.flat("HISTORY"))
+                    args = {'improvements': rag.reasoning, 'context': ctx, 'response': answer, 'question': query}
+                    output = final_answer("taius-refiner", [k for k in args.keys()], **args)
             case _:
-                # Default is to leave the AI response intact.
+                # Default is to leave the last AI response intact.
                 pass
 
-        return output
+        shared.context.push("HISTORY", query)
+        shared.context.push("HISTORY", output, "assistant")
+        shared.memory.save_context({"input": query}, {"output": output})
 
-    @staticmethod
-    def improve_response(
-        query: str,
-        response: str,
-        rag: RagResponse
-    ) -> str:
-        return response
+        return output
 
     def __init__(self):
         self._lc_agent: Runnable | None = None
@@ -93,9 +88,9 @@ class TaskAgent(metaclass=Singleton):
         shared.context.push("HISTORY", query)
         output: str = ""
         accumulated: list[str] = []
-        if plan.speak:
-            events.reply.emit(message=plan.speak)
         if tasks := plan.tasks:
+            if plan.speak:
+                events.reply.emit(message=plan.speak)
             for idx, action in enumerate(tasks, start=1):
                 path_str: str = 'Path: ' + action.path \
                     if hasattr(action, 'path') and action.path.upper() not in ['N/A', 'NONE'] \
@@ -105,7 +100,7 @@ class TaskAgent(metaclass=Singleton):
                 if (response := self._exec_action(task)) and (output := response["output"]):
                     log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
                     if len(tasks) > 1:
-                        assert_accuracy(task, output, RagResponse.MODERATE)
+                        assert_accuracy(task, output, AccResponse.MODERATE)
                         # Push intermediary steps to the chat history.
                         shared.context.push("HISTORY", task, "assistant")
                         shared.context.push("HISTORY", output, "assistant")
@@ -121,12 +116,8 @@ class TaskAgent(metaclass=Singleton):
             output = plan.speak
             accumulated.append(output)
 
-        if (rag := assert_accuracy(query, os.linesep.join(accumulated), RagResponse.MODERATE)).is_moderate:
-            plan.model.mid = RoutingModel.REFINER.name
-
-        shared.context.push("HISTORY", query, "assistant")
-        shared.context.push("HISTORY", output, "assistant")
-        shared.memory.save_context({"input": query}, {"output": output})
+        if (rag := assert_accuracy(query, os.linesep.join(accumulated), AccResponse.MODERATE)).is_moderate:
+            plan.model.mid = RoutingModel.REFINER.model
 
         return self.wrap_answer(plan.primary_goal, output, plan.model, rag)
 

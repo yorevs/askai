@@ -51,9 +51,9 @@ If you have an answer, format like (attention to the new lines):
 
 Context:
 
-"""
+```
 {context}
-"""
+```
 
 
-Question: {question}
+Human Question: "{question}"

@@ -26,27 +26,32 @@ Step 5. Separate tasks clearly, avoiding the use of conjunctions like 'and', 'or
 Step 6. Follow this workflow to guide you in breaking down the tasks:
 
 ----
-Group 0. Chat History
-    - Recall the chat history for tasks already performed to avoid wasting resource and time.
+Group 0. Chat History and Context
+    - Recall the chat history and context for tasks already performed to avoid wasting resources and time.
 Group 1. Locate, List, Generate, or Summarize
-    - Locate resources (e.g files and folders. Use the chat history; Prefer 'find' over 'search').
-    - List the contents of folders and sub folders (specify the max recursion depth).
+    - Locate resources (e.g., files and folders. Use the chat history; prefer 'find' over 'search').
+    - List the contents of folders and sub-folders (specify the max recursion depth).
     - Summarize files and folders (only upon explicit user request).
     - Generate content by giving the prompt (instructions).
 Group 2. Open, Read, Save
     - Open necessary files (playback included).
     - Read (show) file or folder contents.
     - Save generated content.
-Group 3. Identify, or Extract.
+Group 3. Identify, or Extract
     - Identify text or resources (like files and folders).
     - Extract required data/text (explain how to extract).
 Group 4. Analyze or Display
-    - Analyze output, content or extracted data/text.
-    - Display information to the human.
-Group 5. Revise
-    - Revise your task list, ensuring tasks for the primary goal and sub goals.
+    - Analyze output, content, or extracted data/text.
+    - Display the information and details to the human.
+Group 5. Revise and Refine
+    - Revise your task list, ensuring tasks for the primary goal and sub-goals.
+    - Refine your task list, providing a direct and explicit answer to the user's question.
 
-Note: Actions within the same group must not be repeated as they will produce the same result.
+Notes:
+
+- Actions within the same group must not be repeated as they will produce the same result.
+- Ensure that your answer is unbiased and does not rely on stereotypes.
+- Think step by step.
 ----
 
 

@@ -18,7 +18,7 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.enums.acc_response import RagResponse
+from askai.core.enums.acc_response import AccResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
@@ -43,8 +43,8 @@ ACC_GUIDELINES: str = dedent(
 def assert_accuracy(
     question: str,
     ai_response: str,
-    pass_threshold: RagResponse = RagResponse.MODERATE
-) -> RagResponse:
+    pass_threshold: AccResponse = AccResponse.MODERATE
+) -> AccResponse:
     """Function responsible for asserting that the question was properly answered.
     :param question: The user question.
     :param ai_response: The AI response to be analysed.
@@ -59,20 +59,20 @@ def assert_accuracy(
         )
         final_prompt = assert_template.format(datetime=geo_location.datetime, input=question, response=ai_response)
         log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
-        llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+        llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
         response: AIMessage = llm.invoke(final_prompt)
 
         if response and (output := response.content):
-            if mat := RagResponse.matches(output):
+            if mat := AccResponse.matches(output):
                 status, details = mat.group(1), mat.group(2)
                 log.info("Accuracy check ->  status: '%s'  reason: '%s'", status, details)
                 events.reply.emit(message=msg.assert_acc(status, details), verbosity="debug")
-                if not (rag_resp := RagResponse.of_status(status)).passed(pass_threshold):
+                if not (rag_resp := AccResponse.of_status(status, details)).passed(pass_threshold):
                     # Include the guidelines for the first mistake.
                     if not shared.context.get("SCRATCHPAD"):
                         shared.context.push("SCRATCHPAD", ACC_GUIDELINES)
                     # Include the RYG issues.
-                    shared.context.push("SCRATCHPAD", issues_prompt.format(problems=RagResponse.strip_code(output)))
+                    shared.context.push("SCRATCHPAD", issues_prompt.format(problems=AccResponse.strip_code(output)))
                     raise InaccurateResponse(f"AI Assistant failed to respond => '{response.content}'")
                 return rag_resp
         # At this point, the response was not Good enough.

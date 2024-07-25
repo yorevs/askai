@@ -4,6 +4,8 @@ Given the human input and the AI response, your task is to evaluate "AI-generate
 
 This involves examining the user question, user goals and their underlying sub goals, and the "AI-response". Disregard the "Response Formatting" when classifying.
 
+Check if the AI response explicitly and directly addresses the user's request by providing all necessary information and details. The response must include specific actions, steps, tasks, and objectives as per the user's question.
+
 Evaluate using percentage as your color threshold reference (from 0% to 100%).
 
 Use the following criteria for classification:
@@ -55,8 +57,6 @@ When evaluating responses, classify 'Red' (Known Bad Responses) when:
 
 
 Classification Guidelines (rate from 0% to 100%):
-
-- Check if the response explicitly and directly addresses the user's request by providing all necessary information and details (that clearly states actions, steps, tasks, and objectives as per the user's question). Classify the response as 'Yellow' if not.
 
 - Assess the AI's response for correctness by considering its ability to effectively address and correct syntax errors or misinterpretations in the user's input, rather than focusing solely on literal repetitions or minor discrepancies in terminology.
 
