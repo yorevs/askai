@@ -26,7 +26,6 @@ from os.path import basename, dirname
 from pathlib import Path
 from typing import Any, Optional, Tuple
 
-import hashlib
 import mimetypes
 import os
 import pause
@@ -183,7 +182,7 @@ def extract_codeblock(text: str) -> Tuple[Optional[str], str]:
     """
     # Match a terminal command formatted in a markdown code block.
     re_command = r".*```((?:\w+)?\s*)\n(.*?)(?=^```)\s*\n?```.*"
-    if text and (mat := re.search(re_command, text, re.DOTALL | re.MULTILINE)):
+    if text and (mat := re.search(re_command, text, flags=re.DOTALL | re.MULTILINE)):
         if mat and len(mat.groups()) == 2:
             lang, code = mat.group(1) or "", mat.group(2) or ""
             return lang.strip(), code.strip()

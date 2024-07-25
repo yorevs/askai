@@ -48,7 +48,7 @@ class AskAiMessages(metaclass=Singleton):
     def translate(self, text: str) -> str:
         """Translate text using the configured language."""
         # Avoid translating debug messages.
-        if re.match(r'^~~\[DEBUG]~~.*', text, re.IGNORECASE | re.MULTILINE):
+        if re.match(r'^~~\[DEBUG]~~.*', text, flags=re.IGNORECASE | re.MULTILINE):
             return text
         return self.translator.translate(text)
 

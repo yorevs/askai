@@ -12,8 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from functools import partial
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -35,6 +33,7 @@ from clitt.core.term.cursor import cursor
 from clitt.core.term.screen import screen
 from clitt.core.term.terminal import terminal
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from functools import partial
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import is_debugging, sysout
 from hspylib.modules.application.exit_status import ExitStatus
@@ -244,7 +243,8 @@ class AskAi:
         """Ask the question to the AI, and provide the reply.
         :param question: The question to ask to the AI engine.
         """
-        status, output = True, None
+        status = True
+        reply: str | None = None
         processor: AIProcessor = self.mode.processor
         assert isinstance(processor, AIProcessor)
 
@@ -257,9 +257,8 @@ class AskAi:
             elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
                 self.reply(msg.wait())
-                output = processor.process(question, context=read_stdin(), query_prompt=self._query_prompt)
-                if output or msg.no_output("processor"):
-                    self.reply(output)
+                reply = processor.process(question, context=read_stdin(), query_prompt=self._query_prompt)
+                self.reply(reply or msg.no_output("processor"))
             else:
                 log.debug("Reply found for '%s' in cache.", question)
                 self.reply(reply)
@@ -278,5 +277,8 @@ class AskAi:
             status = False
         except TerminatingQuery:
             status = False
+        finally:
+            if reply:
+                shared.context.set("LAST_REPLY", reply)
 
-        return status, output
+        return status, reply

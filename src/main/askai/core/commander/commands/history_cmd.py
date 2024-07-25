@@ -20,6 +20,7 @@ from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from textwrap import indent
 
 import os
+import pyperclip
 import re
 
 
@@ -61,6 +62,22 @@ class HistoryCmd(ABC):
         else:
             shared.context.forget()
         text_formatter.cmd_print(f"Context %GREEN%'{context.upper() if context else 'ALL'}'%NC% has been cleared!")
+
+    @staticmethod
+    def context_copy(name: str | None = None) -> None:
+        """Copy a context entry to the clipboard
+        :param name: The context name.
+        """
+        if (name := name.upper()) in shared.context.keys:
+            if (ctx := str(shared.context.flat(name.upper()))) \
+                and (stripped_role := re.sub(r'^((system|human|assistant):\s*)', '', ctx,
+                                             flags=re.MULTILINE | re.IGNORECASE)):
+                pyperclip.copy(stripped_role)
+                text_formatter.cmd_print(f"`{name}` copied to the clipboard!")
+            else:
+                text_formatter.cmd_print(f"There is nothing to copy from `{name}`!")
+        else:
+            text_formatter.cmd_print(f"Context name not found: `{name}`!")
 
     @staticmethod
     def history_list() -> None:

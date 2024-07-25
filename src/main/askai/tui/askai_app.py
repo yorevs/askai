@@ -12,8 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from functools import partial
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -38,6 +36,7 @@ from askai.tui.app_suggester import InputSuggester
 from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash
 from click import UsageError
 from contextlib import redirect_stdout
+from functools import partial
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import file_is_not_empty, is_debugging
 from hspylib.core.tools.text_tools import ensure_endswith, strip_escapes
@@ -402,6 +401,7 @@ class AskAiApp(App[None]):
         :param question: The question to ask to the AI engine.
         """
         status = True
+        reply: str | None = None
         processor: AIProcessor = self.mode.processor
         self.enable_controls(False)
         assert isinstance(processor, AIProcessor)
@@ -417,8 +417,8 @@ class AskAiApp(App[None]):
                         self.display_text(f"\n```bash\n{strip_escapes(output)}\n```")
             elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
-                if output := processor.process(question):
-                    self.reply(output)
+                reply = processor.process(question)
+                self.reply(reply or msg.no_output("processor"))
             else:
                 log.debug("Reply found for '%s' in cache.", question)
                 self.reply(reply)
@@ -435,6 +435,9 @@ class AskAiApp(App[None]):
             status = False
         except TerminatingQuery:
             status = False
+        finally:
+            if reply:
+                shared.context.set("LAST_REPLY", reply)
 
         self.enable_controls()
 

@@ -302,13 +302,28 @@ def idiom(locale_str: str) -> None:
 def info() -> None:
     """Display some useful application information."""
     if os.getenv("ASKAI_APP"):
-        GeneralCmd.info()
+        GeneralCmd.app_info()
     else:
         text_formatter.cmd_print("No information available (offline)!")
 
 
+@ask_cli.command()
+@click.argument("name", default="LAST_REPLY")
+def copy(name: str) -> None:
+    """Copy a context entry to the clipboard
+    :param name: The context name.
+    """
+    HistoryCmd.context_copy(name)
+
+
 if __name__ == "__main__":
-    ask_cli(["info"], standalone_mode=False)
+    pass
+    # shared.create_context(1000)
+    # shared.context.push("LAST_REPLY", "This is the last reply!")
+    # shared.context.push("LAST_REPLY", "This is the another last reply!")
+    # ask_cli(["copy"], standalone_mode=False)
+    # print(pyperclip.paste())
+    # ask_cli(["info"], standalone_mode=False)
     # ask_cli(['idiom'], standalone_mode=False)
     # ask_cli(['idiom', 'pt_BR.iso8859-1'], standalone_mode=False)
     # ask_cli(['idiom'], standalone_mode=False)

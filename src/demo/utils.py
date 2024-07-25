@@ -20,14 +20,15 @@ RESOURCES: dict[str, any] = {"files": "ctx-files.txt", "reminders": "ctx-reminde
 
 
 def init_context(
-    log_name: str,
+    log_name: str | None = None,
     context_size: int = 1000,
     log_level: int = log.INFO,
     engine_name: Literal["openai"] = "openai",
     model_name: Literal["gpt-3.5-turbo", "gpt-4", "gpt-4o"] = "gpt-3.5-turbo",
 ) -> None:
     """Initialize AskAI context and startup components."""
-    log_init(f"{ensure_endswith(log_name, '.log')}", level=log_level)
+    if log_name:
+        log_init(f"{ensure_endswith(log_name, '.log')}", level=log_level)
     KeyboardInput.preload_history(cache.load_input_history(commands()))
     shared.create_engine(engine_name=engine_name, model_name=model_name)
     shared.create_context(context_size)

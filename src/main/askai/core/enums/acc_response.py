@@ -12,9 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from typing import Literal
-
 from hspylib.core.enums.enumeration import Enumeration
+from typing import Literal
 
 import re
 
@@ -24,21 +23,21 @@ class AccResponse(Enumeration):
 
     # fmt: off
 
-    EXCELLENT = 'Blue'
+    EXCELLENT   = 'Blue'
 
-    GOOD = 'Green'
+    GOOD        = 'Green'
 
-    MODERATE = 'Yellow'
+    MODERATE    = 'Yellow'
 
-    INCOMPLETE = 'Orange'
+    INCOMPLETE  = 'Orange'
 
-    BAD = 'Red'
+    BAD         = 'Red'
 
     # fmt: on
 
     @classmethod
     def matches(cls, output: str) -> re.Match:
-        return re.search(cls._re(), output.replace("\n", " "), re.IGNORECASE)
+        return re.search(cls._re(), output.replace("\n", " "), flags=re.IGNORECASE)
 
     @classmethod
     def _re(cls) -> str:

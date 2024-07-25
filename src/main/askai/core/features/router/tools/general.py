@@ -12,16 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-
-from hspylib.core.config.path_object import PathObject
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import PromptTemplate
-
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from hspylib.core.config.path_object import PathObject
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import PromptTemplate
+
+import os
 
 
 def display_tool(*texts: str) -> str:

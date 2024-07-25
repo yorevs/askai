@@ -15,7 +15,7 @@ from collections import defaultdict, deque, namedtuple
 from functools import partial, reduce
 from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from typing import Any, Literal, Optional, TypeAlias
+from typing import Any, AnyStr, Literal, Optional, TypeAlias
 
 import os
 
@@ -34,7 +34,7 @@ class ChatContext:
     LANGCHAIN_ROLE_MAP: dict = {"human": HumanMessage, "system": SystemMessage, "assistant": AIMessage}
 
     def __init__(self, token_limit: int, _max_context_size: int):
-        self._store: dict[Any, deque] = defaultdict(partial(deque, maxlen=_max_context_size))
+        self._store: dict[AnyStr, deque] = defaultdict(partial(deque, maxlen=_max_context_size))
         self._token_limit: int = token_limit * 1024  # The limit is given in KB
         self._max_context_size: int = _max_context_size
 
@@ -50,6 +50,10 @@ class ChatContext:
 
     def __len__(self):
         return self._store.__len__()
+
+    @property
+    def keys(self) -> list[AnyStr]:
+        return [str(k) for k in self._store.keys()]
 
     @property
     def max_context_size(self) -> int:
