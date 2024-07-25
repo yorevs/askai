@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.0.9
+# hspylib-askai v1.0.11
 #
 # Package: demo.others
 """Package initialization."""
@@ -10,4 +10,4 @@ __all__ = [
     'tech_week_demo', 
     'translate_demo'
 ]
-__version__ = '1.0.9'
+__version__ = '1.0.11'

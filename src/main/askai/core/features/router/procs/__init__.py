@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.0.9
+# hspylib-askai v1.0.11
 #
 # Package: main.askai.core.features.router.procs
 """Package initialization."""
@@ -11,4 +11,4 @@ __all__ = [
     'rag', 
     'task_splitter'
 ]
-__version__ = '1.0.9'
+__version__ = '1.0.11'
