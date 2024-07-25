@@ -48,7 +48,8 @@ def generate_content(instructions: str, mime_type: str, filepath: AnyPath | None
     log.info("GENERATE::[PROMPT] '%s'  Type: '%s'", instructions, mime_type)
     llm = lc_llm.create_chat_model(temperature=Temperature.CODE_GENERATION.temp)
     response: AIMessage = llm.invoke(final_prompt)
-    final_path: str = str(filepath or f"{GEN_AI_DIR}/gen-ai-{now_ms()}")
+    timestamp: int = now_ms()
+    final_path: str = str(filepath or f"{GEN_AI_DIR}/gen-ai-{timestamp}")
 
     if response and (output := response.content):
         shared.context.set("GENERATED", output)

@@ -33,6 +33,7 @@ package: SpeechRecognition, version: 3.10.4, mode: ge
 package: opencv-python, version: 4.10.0.84, mode: ge
 package: argostranslate, version: 1.9.1, mode: eq
 package: chromadb, version: 0.5.3, mode: ge
+package: imgbeddings, version: 0.1.0, mode: ge
 package: retry2, version: 0.9.5, mode: ge
 package: pause, version: 0.3, mode: ge
 package: requests, version: 2.32.3, mode: ge
