@@ -22,6 +22,7 @@ from typing import Optional, TypeAlias
 import chromadb
 import cv2
 import numpy
+import pause
 from chromadb.api.types import IncludeEnum
 from chromadb.utils.data_loaders import ImageLoader
 from chromadb.utils.embedding_functions.open_clip_embedding_function import OpenCLIPEmbeddingFunction
@@ -57,6 +58,17 @@ class Camera(metaclass=Singleton):
 
     PHOTO_CATEGORY: str = 'photos'
 
+    @staticmethod
+    def _countdown(count: int) -> None:
+        """Display a countdown before taking a photo."""
+        i = count
+        print()
+        display_text(f"Smile {str(i) + ' '}")
+        while i:
+            display_text(f"Smile {str(i) + ' '}", erase_last=True)
+            pause.seconds(1)
+            i -= 1
+
     def __init__(self):
         self._cam = None
         self._cascPath: Path = Path.joinpath(self.RESOURCE_DIR, self.ALG)
@@ -76,7 +88,8 @@ class Camera(metaclass=Singleton):
         self,
         filename: str | None = None,
         store_photo: bool = True,
-        detect_faces: bool = False
+        detect_faces: bool = False,
+        countdown: int = 0,
     ) -> Optional[tuple[str, numpy.ndarray]]:
         """Capture a WebCam frame (take a photo)."""
 
@@ -88,7 +101,10 @@ class Camera(metaclass=Singleton):
 
         timestamp: int = now_ms()
         filepath: str = str(Path.joinpath(PICTURE_DIR, basename(filename or f"ASKAI-{timestamp}"))).strip()
-        display_text("\nSmile...\n")
+
+        if countdown > 0:
+            self._countdown(countdown)
+
         ret, photo = self._cam.read()
 
         if not ret:
@@ -103,7 +119,7 @@ class Camera(metaclass=Singleton):
             camera._store_image(ImageFile(hash_text(basename(final_path)), final_path, self.PHOTO_CATEGORY, 'Photo'))
 
         if detect_faces:
-            self.detect_faces(photo, final_path)
+            self.detect_faces(photo, filepath)
 
         return final_path, photo
 
@@ -115,13 +131,16 @@ class Camera(metaclass=Singleton):
         faces = self._haarFaceCascade.detectMultiScale(
             gray_img, scaleFactor=1.1, minNeighbors=5, minSize=(100, 100)
         )
-        # For each face detected on the photo.
+        log.info("Detected faces: %d", len(faces))
         face_files: set[ImageFile] = set()
+        # For each face detected on the photo.
         for x, y, w, h in faces:
             # Draw a rectangle around the detected faces.
             cv2.rectangle(photo, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cropped_face = photo[y: y + h, x: x + w]
-            f_face: str = ensure_endswith(filepath, f'-face-{len(face_files)}.png')
+            f_face: str = str(
+                Path.joinpath(PICTURE_DIR, basename(ensure_endswith(filepath, f'-face-{len(face_files)}.png')))
+            )
             if cv2.imwrite(f_face, cropped_face):
                 face_files.add(ImageFile(hash_text(basename(f_face)), f_face, self.FACE_CATEGORY, 'Face'))
                 log.info("Face file successfully saved: '%s' !", f_face)
@@ -134,22 +153,21 @@ class Camera(metaclass=Singleton):
         return face_files
 
     def identify(self) -> Optional[ImageData]:
-        """TODO"""
-        _, photo = self.shot("ASKAI-ID-PHOTO", False, True)
+        """Identify the person in front of the WebCam."""
+        _, photo = self.shot("ASKAI-ID-PHOTO", False, False)
         result = self._search_face(photo)
-        return result[0] or None
+        return get_or_default(result, 0, None)
 
     def query_face(self, query: str, max_results: int = 1) -> list[ImageData]:
-        """TODO"""
-        return self._query_image(self.FACE_CATEGORY, max_results, query)
+        """Query for a face matching the query."""
+        return self._search_image(self.FACE_CATEGORY, max_results, query)
 
     def query_photo(self, query: str, max_results: int = 1) -> list[ImageData]:
-        """TODO"""
-        return self._query_image(self.PHOTO_CATEGORY, max_results, query)
+        """Query for a photo matching the query."""
+        return self._search_image(self.PHOTO_CATEGORY, max_results, query)
 
     def _store_image(self, *face_files: ImageFile) -> None:
-        """Store the faces into the Vector store.
-        """
+        """Store the faces into the Vector store."""
         if face_files:
             img_ids = [ff.img_id for ff in face_files]
             img_uris = [ff.img_path for ff in face_files]
@@ -169,16 +187,16 @@ class Camera(metaclass=Singleton):
             )
             log.info("Face collection increased to: '%d' !", self._face_collection.count())
 
-    def _query_image(self, category: str, max_results: int, query: str) -> list[ImageData]:
-        """TODO"""
+    def _search_image(self, category: str, max_results: int, query: str) -> list[ImageData]:
+        """Search for images using natural language."""
         return self._query(category, max_results, query_texts=[query])
 
     def _search_face(self, photo: numpy.ndarray) -> list[ImageData]:
-        """TODO"""
+        """Search for faces matching the provided photo using similarity methods."""
         return self._query(self.FACE_CATEGORY, 1, query_images=[photo])
 
     def _query(self, category: str, max_results: int, **kwargs) -> list[ImageData]:
-        """TODO"""
+        """Query the database for images."""
         result: list[ImageData] = list()
         query_results = self._face_collection.query(
             **kwargs,
