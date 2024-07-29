@@ -36,10 +36,20 @@ AUDIO_DIR: Path = Path(str(CACHE_DIR) + "/audio")
 if not AUDIO_DIR.exists():
     AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 
-# Camera captures cache directory.
+# Camera photo shots cache directory.
 PICTURE_DIR: Path = Path(str(CACHE_DIR) + "/pictures")
 if not PICTURE_DIR.exists():
     PICTURE_DIR.mkdir(parents=True, exist_ok=True)
+
+# Camera photo shots cache directory.
+PHOTO_DIR: Path = Path(str(PICTURE_DIR) + "/photos")
+if not PHOTO_DIR.exists():
+    PHOTO_DIR.mkdir(parents=True, exist_ok=True)
+
+# Detected faces cache directory.
+FACE_DIR: Path = Path(str(PICTURE_DIR) + "/faces")
+if not FACE_DIR.exists():
+    FACE_DIR.mkdir(parents=True, exist_ok=True)
 
 # AI Generation cache directory.
 GEN_AI_DIR: Path = Path(str(CACHE_DIR) + "/generated")

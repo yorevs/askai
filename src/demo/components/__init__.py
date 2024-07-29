@@ -6,6 +6,7 @@
 """Package initialization."""
 
 __all__ = [
+    'camera_demo', 
     'internet_demo', 
     'summarizer_demo'
 ]

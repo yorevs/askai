@@ -11,6 +11,7 @@ __all__ = [
     'camera', 
     'geo_location', 
     'internet_service', 
+    'recognizer', 
     'recorder', 
     'scheduler', 
     'summarizer'

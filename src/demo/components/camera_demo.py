@@ -3,7 +3,8 @@ from textwrap import dedent
 
 from matplotlib import pyplot as plt
 
-from askai.core.component.camera import camera, ImageFile
+from askai.core.component.camera import camera
+from askai.core.component.recognizer import recognizer
 from utils import init_context
 
 MENU = dedent("""
@@ -19,11 +20,11 @@ if __name__ == "__main__":
     while opt := input(MENU):
         print()
         while opt == '1' and (name := input("Photo name: ")):
-            f_path, pic = camera.shot(name, countdown=3)
-            f_files: set[ImageFile] = camera.detect_faces(pic, name)
-            print(os.linesep, "Photo taken: ", f_path, 'Detected faces: ', len(f_files))
+            pic_file, pic_data = camera.capture(name, countdown=0)
+            face_files, face_datas = recognizer.detect_faces(pic_data, name)
+            print(os.linesep, "Photo taken: ", pic_file, 'Detected faces: ', len(face_files))
         while opt == '2' and not (name := input("Press [Enter] key when ready")):
-            if person := camera.identify():
+            if person := recognizer.recognize():
                 print(os.linesep, "Person photo: ", person.uri)
                 plt.imshow(person.data)
                 plt.axis("off")
@@ -32,7 +33,7 @@ if __name__ == "__main__":
                 print(os.linesep, "No identification was possible!")
         while opt == '3' and (query := input("Query photo: ")):
             print(os.linesep, "Showing result for:", query)
-            results = camera.query_photo(query)
+            results = recognizer.query_photo(query)
             for photo in results:
                 print(os.linesep, 'Showing photo: ', photo.name, 'URI: ', photo.uri, 'DIST:', photo.distance)
                 plt.imshow(photo.data)
@@ -40,7 +41,7 @@ if __name__ == "__main__":
                 plt.show()
         while opt == '4' and (query := input("Query face: ")):
             print(os.linesep, "Showing result for:", query)
-            results = camera.query_face(query)
+            results = recognizer.query_face(query)
             for face in results:
                 print(os.linesep, 'Showing face: ', face.name, 'URI: ', face.uri, 'DIST:', face.distance)
                 plt.imshow(face.data)
