@@ -14,25 +14,22 @@
 """
 import atexit
 import logging as log
-from collections import namedtuple
 from os.path import basename
+from pathlib import Path
 from typing import Optional, TypeAlias
 
 import cv2
-import numpy
 import pause
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import hash_text
 from retry import retry
 
-from askai.core.component.cache_service import PHOTO_DIR
+from askai.__classpath__ import classpath
+from askai.core.component.cache_service import PHOTO_DIR, FACE_DIR
+from askai.core.component.recognizer import ImageFile, ImageData, recognizer, ImageMetadata
 from askai.core.support.utilities import display_text, build_img_path
 
 InputDevice: TypeAlias = tuple[int, str]
-
-ImageData: TypeAlias = numpy.ndarray
-
-ImageFile = namedtuple('ImageFile', ['img_id', 'img_path', 'img_category', 'img_name'])
 
 
 class Camera(metaclass=Singleton):
@@ -40,7 +37,9 @@ class Camera(metaclass=Singleton):
 
     INSTANCE: "Camera"
 
-    PHOTO_CATEGORY: str = 'photos'
+    RESOURCE_DIR: Path = classpath.resource_path()
+
+    ALG: str = "haarcascade_frontalface_default.xml"
 
     @staticmethod
     def _countdown(count: int) -> None:
@@ -55,6 +54,8 @@ class Camera(metaclass=Singleton):
 
     def __init__(self):
         self._cam = None
+        self._cascPath: Path = Path.joinpath(self.RESOURCE_DIR, self.ALG)
+        self._haarFaceCascade = cv2.CascadeClassifier(str(self._cascPath))
 
     def capture(self, filename: str | None = None, countdown: int = 0) -> Optional[tuple[ImageFile, ImageData]]:
         """Capture a WebCam frame (take a photo)."""
@@ -76,14 +77,52 @@ class Camera(metaclass=Singleton):
 
         final_path: str = build_img_path(PHOTO_DIR, filename, '-photo.jpg')
         cv2.imwrite(final_path, photo)
-        photo_file = ImageFile(hash_text(basename(final_path)), final_path, self.PHOTO_CATEGORY, 'Photo')
-        log.info("WebCam photo taken: '%s'", photo_file)
+        photo_file = ImageFile(hash_text(basename(final_path)), final_path, recognizer.PHOTO_CATEGORY, 'Photo')
+        recognizer.store_image(photo_file)
+        log.info("WebCam photo captured: '%s'", photo_file)
 
         return photo_file, photo
 
+    def detect_faces(self, photo: ImageData, filename: str) -> tuple[list[ImageFile], list[ImageData]]:
+        """Detect all faces in the photo."""
+
+        # Face detection
+        gray_img = cv2.cvtColor(photo, cv2.COLOR_BGR2GRAY)
+        faces = self._haarFaceCascade.detectMultiScale(
+            gray_img, scaleFactor=1.1, minNeighbors=5, minSize=(100, 100)
+        )
+        log.info("Detected faces: %d", len(faces))
+        face_files: list[ImageFile] = list()
+        face_datas: list[ImageData] = list()
+
+        if len(faces) > 0:
+            # For each face detected on the photo.
+            for x, y, w, h in faces:
+                # Draw a rectangle around the detected faces.
+                cv2.rectangle(photo, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                cropped_face: ImageData = photo[y: y + h, x: x + w]
+                final_path: str = build_img_path(FACE_DIR, filename, f'-face-{len(face_files)}.jpg')
+                if cv2.imwrite(final_path, cropped_face):
+                    face_file = ImageFile(hash_text(basename(final_path)), final_path, recognizer.FACE_CATEGORY, 'Face')
+                    face_files.append(face_file)
+                    face_datas.append(cropped_face)
+                    log.info("Face file successfully saved: '%s' !", final_path)
+                else:
+                    log.error("Failed to save face file: '%s' !", final_path)
+            recognizer.store_image(*face_files)
+
+        return face_files, face_datas
+
+    def identify(self) -> Optional[ImageMetadata]:
+        """Identify the person in front of the WebCam."""
+        _, photo = self.capture("ASKAI-ID-PHOTO", False)
+        _ = self.detect_faces(photo, "ASKAI-ID-FACE")
+        result = recognizer.search_face(photo)
+        return next(iter(result), None)
+
     @retry(tries=3, backoff=1)
     def _initialize(self) -> None:
-        """Initialize the camera component."""
+        """Initialize the camera device."""
         # Init the WebCam.
         if not self._cam or not self._cam.isOpened():
             self._cam = cv2.VideoCapture(0)
@@ -96,7 +135,7 @@ class Camera(metaclass=Singleton):
 
     @retry(tries=3, backoff=1)
     def _shutdown(self) -> None:
-        """Shutdown the camera."""
+        """Shutdown the camera device."""
         if self._cam and self._cam.isOpened():
             log.info("Shutting down the WebCam device")
             self._cam.release()

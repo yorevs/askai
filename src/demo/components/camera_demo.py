@@ -16,15 +16,16 @@ MENU = dedent("""
 
 
 if __name__ == "__main__":
+    recognizer.sync_store()
     init_context("camera-demo")
     while opt := input(MENU):
         print()
         while opt == '1' and (name := input("Photo name: ")):
             pic_file, pic_data = camera.capture(name, countdown=0)
-            face_files, face_datas = recognizer.detect_faces(pic_data, name)
+            face_files, face_datas = camera.detect_faces(pic_data, name)
             print(os.linesep, "Photo taken: ", pic_file, 'Detected faces: ', len(face_files))
         while opt == '2' and not (name := input("Press [Enter] key when ready")):
-            if person := recognizer.recognize():
+            if person := camera.identify():
                 print(os.linesep, "Person photo: ", person.uri)
                 plt.imshow(person.data)
                 plt.axis("off")
