@@ -26,7 +26,7 @@ from retry import retry
 
 from askai.__classpath__ import classpath
 from askai.core.component.cache_service import PHOTO_DIR, FACE_DIR
-from askai.core.component.recognizer import ImageFile, ImageData, recognizer, ImageMetadata
+from askai.core.component.image_store import ImageFile, ImageData, ImageMetadata, store
 from askai.core.features.router.tools.vision import image_captioner
 from askai.core.support.utilities import display_text, build_img_path
 
@@ -60,14 +60,14 @@ class Camera(metaclass=Singleton):
 
     def capture(
         self,
-        filename: str | None = None,
-        caption_photo: bool = False,
-        countdown: int = 0
+        filename: str,
+        countdown: int = 3,
+        caption_photo: bool = True,
+        store_photo: bool = True
     ) -> Optional[tuple[ImageFile, ImageData]]:
         """Capture a WebCam frame (take a photo)."""
 
         self._initialize()
-
         if not self._cam.isOpened():
             display_text(f"%HOM%%ED2%Error: Camera is not open!%NC%")
             return None
@@ -76,65 +76,70 @@ class Camera(metaclass=Singleton):
             self._countdown(countdown)
 
         ret, photo = self._cam.read()
-
         if not ret:
             log.error("Failed to take a photo from WebCam!")
             return None
 
-        final_path: str = build_img_path(PHOTO_DIR, filename, '-photo.jpg')
-        cv2.imwrite(final_path, photo)
-        photo_file = ImageFile(
-            hash_text(basename(final_path)), final_path, recognizer.PHOTO_CATEGORY,
-            image_captioner(final_path) if caption_photo else "No caption"
-        )
-        recognizer.store_image(photo_file)
-        log.info("WebCam photo captured: '%s'", photo_file)
+        final_path: str = build_img_path(PHOTO_DIR, filename, '-PHOTO.jpg')
+        if final_path and cv2.imwrite(final_path, photo):
+            photo_file = ImageFile(
+                hash_text(basename(final_path)), final_path, store.PHOTO_CATEGORY,
+                image_captioner(final_path) if caption_photo else "No caption"
+            )
+            if store_photo:
+                store.store_image(photo_file)
+            log.info("WebCam photo captured: '%s'", photo_file)
+            return photo_file, photo
 
-        return photo_file, photo
+        return None
 
     def detect_faces(
         self,
         photo: ImageData,
-        filename: str,
+        filename: str | None = None,
         caption_faces: bool = True,
+        store_faces: bool = True
     ) -> tuple[list[ImageFile], list[ImageData]]:
         """Detect all faces in the photo."""
 
-        # Face detection
+        face_files: list[ImageFile] = []
+        face_datas: list[ImageData] = []
         gray_img = cv2.cvtColor(photo, cv2.COLOR_BGR2GRAY)
         faces = self._haarFaceCascade.detectMultiScale(
-            gray_img, scaleFactor=1.1, minNeighbors=5, minSize=(100, 100)
+            gray_img, scaleFactor=1.1, minNeighbors=5, minSize=(80, 80)
         )
         log.info("Detected faces: %d", len(faces))
-        face_files: list[ImageFile] = list()
-        face_datas: list[ImageData] = list()
 
-        if len(faces) > 0:
-            # For each face detected on the photo.
-            for x, y, w, h in faces:
-                # Draw a rectangle around the detected faces.
-                cv2.rectangle(photo, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                cropped_face: ImageData = photo[y: y + h, x: x + w]
-                final_path: str = build_img_path(FACE_DIR, filename, f'-face-{len(face_files)}.jpg')
-                if cv2.imwrite(final_path, cropped_face):
-                    face_file = ImageFile(
-                        hash_text(basename(final_path)), final_path, recognizer.FACE_CATEGORY,
-                        image_captioner(final_path) if caption_faces else "No caption"
-                    )
-                    face_files.append(face_file)
-                    face_datas.append(cropped_face)
-                    log.info("Face file successfully saved: '%s' !", final_path)
-                else:
-                    log.error("Failed to save face file: '%s' !", final_path)
-            recognizer.store_image(*face_files)
+        if len(faces) == 0:
+            return face_files, face_datas
+
+        for x, y, w, h in faces:
+            cv2.rectangle(photo, (x, y), (x + w, y + h), (0, 255, 0), 1)
+            cropped_face: ImageData = photo[y: y + h, x: x + w]
+            final_path: str = build_img_path(FACE_DIR, filename, f'-FACE-{len(face_files)}.jpg')
+            if final_path and cv2.imwrite(final_path, cropped_face):
+                face_file = ImageFile(
+                    hash_text(basename(final_path)), final_path, store.FACE_CATEGORY,
+                    image_captioner(final_path) if caption_faces else "No caption"
+                )
+                face_files.append(face_file)
+                face_datas.append(cropped_face)
+                log.info("Face file successfully saved: '%s' !", final_path)
+            else:
+                log.error("Failed to save face file: '%s' !", final_path)
+
+        if store_faces:
+            store.store_image(*face_files)
 
         return face_files, face_datas
 
     def identify(self) -> Optional[ImageMetadata]:
         """Identify the person in front of the WebCam."""
-        _, photo = self.capture("ASKAI-ID-PHOTO", False)
-        _ = self.detect_faces(photo, "ASKAI-ID-FACE", False)
-        result = recognizer.search_face(photo)
+
+        _, photo = self.capture("ASKAI-ID", 0, False, False)
+        _ = self.detect_faces(photo, "ASKAI-ID", False, False)
+        result = store.search_face(photo)
+
         return next(iter(result), None)
 
     @retry(tries=3, backoff=1)
@@ -147,8 +152,8 @@ class Camera(metaclass=Singleton):
             log.info("Starting the WebCam device")
             if not (ret and img is not None):
                 log.error("Failed to initialize the WebCam device !")
-                return
-            atexit.register(self._shutdown)
+            else:
+                atexit.register(self._shutdown)
 
     @retry(tries=3, backoff=1)
     def _shutdown(self) -> None:

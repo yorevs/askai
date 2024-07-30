@@ -27,7 +27,7 @@ from hspylib.core.config.path_object import PathObject
 from hspylib.core.enums.charset import Charset
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
-from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
+from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith, strip_escapes
 from hspylib.core.zoned_datetime import now_ms
 from hspylib.modules.cli.vt100.vt_color import VtColor
 
@@ -153,11 +153,14 @@ def copy_file(filename: str | Path, destfile: str | Path) -> str:
     return dest_file
 
 
-def build_img_path(base_dir: Path, filename: str, suffix: str) -> str:
+def build_img_path(base_dir: Path, filename: str, suffix: str) -> Optional[str]:
     """TODO"""
+    if not filename:
+        return None
     img_path: str = str(Path.joinpath(base_dir, basename(filename or f"ASKAI-{now_ms()}"))).strip()
     img_path = re.sub(r'\s+', '-', ensure_endswith(img_path, suffix))
-    return re.sub(r'-+', '-', img_path)
+    img_path = re.sub(r'-+', '-', img_path)
+    return strip_escapes(img_path)
 
 
 def read_resource(base_dir: str, filename: str, file_ext: str = ".txt") -> str:

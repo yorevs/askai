@@ -4,7 +4,7 @@ from textwrap import dedent
 from matplotlib import pyplot as plt
 
 from askai.core.component.camera import camera
-from askai.core.component.recognizer import recognizer
+from askai.core.component.image_store import store, ImageMetadata
 from utils import init_context
 
 MENU = dedent("""
@@ -19,40 +19,49 @@ MENU = dedent("""
 
 if __name__ == "__main__":
     init_context("camera-demo")
+    photo: ImageMetadata
     while opt := input(MENU):
         print()
         while opt == '1' and (name := input("Photo name: ")):
-            pic_file, pic_data = camera.capture(name, countdown=3)
-            face_files, face_datas = camera.detect_faces(pic_data, name, caption_faces=True)
-            print(os.linesep, "Photo taken: ", pic_file, 'Detected faces: ', len(face_files))
-        while opt == '2' and not (name := input("Press [Enter] key when ready")):
-            if person := camera.identify():
-                print(os.linesep, "Person photo: ", person.uri)
-                plt.imshow(person.data)
+            pic_file, pic_data = camera.capture(name)
+            face_files, face_datas = camera.detect_faces(pic_data, name)
+            print()
+            print("Photo taken: ", pic_file, 'Detected faces: ', len(face_files))
+        if opt == '2' and not (name := input("Press [Enter] key when ready")):
+            if photo := camera.identify():
+                print()
+                print("Identified person: ", f'"{photo.name}"', 'URI: ', photo.uri, 'DIST:', photo.distance)
+                plt.imshow(photo.data)
                 plt.axis("off")
                 plt.show()
             else:
-                print(os.linesep, "No identification was possible!")
+                print()
+                print("No identification was possible!")
         while opt == '3' and (query := input("Query photo: ")):
-            print(os.linesep, "Showing result for:", query)
-            results = recognizer.query_photo(query)
+            print()
+            print("Showing result for:", query)
+            results: list[ImageMetadata] = store.query_photo(query)
             for photo in results:
-                print(os.linesep, 'Showing photo: ', f'"{photo.name}"', 'URI: ', photo.uri, 'DIST:', photo.distance)
+                print()
+                print('Showing photo: ', f'"{photo.name}"', 'URI: ', photo.uri, 'DIST:', photo.distance)
                 plt.imshow(photo.data)
                 plt.axis("off")
                 plt.show()
         while opt == '4' and (query := input("Query face: ")):
-            print(os.linesep, "Showing result for:", query)
-            results = recognizer.query_face(query)
-            for face in results:
-                print(os.linesep, 'Showing face: ', face.name, 'URI: ', face.uri, 'DIST:', face.distance)
-                plt.imshow(face.data)
+            print()
+            print("Showing result for:", query)
+            results: list[ImageMetadata] = store.query_face(query)
+            for photo in results:
+                print()
+                print('Showing face: ', photo.name, 'URI: ', photo.uri, 'DIST:', photo.distance)
+                plt.imshow(photo.data)
                 plt.axis("off")
                 plt.show()
         if opt == '5':
-            recognizer.sync_store(caption_enable=True)
+            store.sync_store(with_caption=False)
         if opt == '6':
-            print(os.linesep.join(recognizer.enlist()))
+            print(os.linesep.join(store.enlist()))
         print()
-    print(os.linesep, 'Done')
+        print()
+    print('Done')
 
