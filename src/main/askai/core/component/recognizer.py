@@ -17,7 +17,7 @@ import os
 from collections import namedtuple
 from os.path import basename
 from pathlib import Path
-from typing import TypeAlias
+from typing import TypeAlias, Mapping, Optional
 
 import chromadb
 import numpy
@@ -30,10 +30,13 @@ from langchain_community.retrievers.pinecone_hybrid_search import hash_text
 from torchvision.datasets.folder import is_image_file
 
 from askai.core.component.cache_service import PICTURE_DIR, PHOTO_DIR, FACE_DIR
+from askai.core.features.router.tools.vision import image_captioner
 
 ImageData: TypeAlias = numpy.ndarray
 
-ImageFile = namedtuple('ImageFile', ['img_id', 'img_path', 'img_category', 'img_name'])
+Metadata = TypeAlias = Mapping[str, str | int | float | bool]
+
+ImageFile = namedtuple('ImageFile', ['img_id', 'img_path', 'img_category', 'img_caption'])
 
 ImageMetadata = namedtuple('ImageData', ['name', 'data', 'uri', 'distance'])
 
@@ -61,6 +64,13 @@ class Recognizer(metaclass=Singleton):
     def persist_dir(self) -> Path:
         return Path.joinpath(PICTURE_DIR, self.COLLECTION_NAME)
 
+    @property
+    def metadatas(self) -> Optional[list[Metadata]]:
+        return self._img_collection.get()['metadatas']
+
+    def enlist(self) -> Optional[list[str]]:
+        return [str(mt) for mt in self.metadatas]
+
     def store_image(self, *face_files: ImageFile) -> None:
         """Store the faces into the Vector store."""
         if face_files:
@@ -70,7 +80,7 @@ class Recognizer(metaclass=Singleton):
                 {
                     'img_id': ff.img_id,
                     'img_category': ff.img_category,
-                    'img_name': ff.img_name,
+                    'img_caption': ff.img_caption,
                     'img_path': ff.img_path
                 }
                 for ff in face_files
@@ -92,19 +102,18 @@ class Recognizer(metaclass=Singleton):
             data_loader=ImageLoader()
         )
 
-    def sync_store(self) -> int:
+    def sync_store(self, caption_enable: bool = False) -> int:
         """TODO"""
         log.info("Synchronizing image store folders: '%s' and '%s'", PHOTO_DIR, FACE_DIR)
         self.clear_store()
         img_files: list[ImageFile] = list()
         for (dir_path, dir_names, file_names) in os.walk(PICTURE_DIR):
             if dir_path in [str(PHOTO_DIR), str(FACE_DIR)]:
+                cat: str = recognizer.PHOTO_CATEGORY if dir_path == str(PHOTO_DIR) else recognizer.FACE_CATEGORY
                 files: list[str] = list(filter(is_image_file, map(lambda fn: os.path.join(dir_path, fn), file_names)))
                 img_files.extend(
                     ImageFile(
-                        hash_text(basename(f)), f,
-                        recognizer.PHOTO_CATEGORY if dir_path == str(PHOTO_DIR) else recognizer.FACE_CATEGORY,
-                        'Import'
+                        hash_text(basename(f)), f, cat, image_captioner(f) if caption_enable else "No caption"
                     ) for f in files
                 )
         self.store_image(*img_files)
@@ -144,7 +153,7 @@ class Recognizer(metaclass=Singleton):
         for i in range(len(query_results['ids'][0])):
             if (img_data := get_or_default(query_results['data'][0], i, None)) is None:
                 continue
-            img_name = query_results['metadatas'][0][i]['img_name']
+            img_name = query_results['metadatas'][0][i]['img_caption']
             img_path = query_results['metadatas'][0][i]['img_path']
             img_dist = query_results['distances'][0][i]
             result.append(ImageMetadata(img_name, img_data, img_path, img_dist))

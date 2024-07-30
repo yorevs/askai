@@ -27,6 +27,7 @@ from retry import retry
 from askai.__classpath__ import classpath
 from askai.core.component.cache_service import PHOTO_DIR, FACE_DIR
 from askai.core.component.recognizer import ImageFile, ImageData, recognizer, ImageMetadata
+from askai.core.features.router.tools.vision import image_captioner
 from askai.core.support.utilities import display_text, build_img_path
 
 InputDevice: TypeAlias = tuple[int, str]
@@ -57,7 +58,12 @@ class Camera(metaclass=Singleton):
         self._cascPath: Path = Path.joinpath(self.RESOURCE_DIR, self.ALG)
         self._haarFaceCascade = cv2.CascadeClassifier(str(self._cascPath))
 
-    def capture(self, filename: str | None = None, countdown: int = 0) -> Optional[tuple[ImageFile, ImageData]]:
+    def capture(
+        self,
+        filename: str | None = None,
+        caption_photo: bool = False,
+        countdown: int = 0
+    ) -> Optional[tuple[ImageFile, ImageData]]:
         """Capture a WebCam frame (take a photo)."""
 
         self._initialize()
@@ -77,13 +83,21 @@ class Camera(metaclass=Singleton):
 
         final_path: str = build_img_path(PHOTO_DIR, filename, '-photo.jpg')
         cv2.imwrite(final_path, photo)
-        photo_file = ImageFile(hash_text(basename(final_path)), final_path, recognizer.PHOTO_CATEGORY, 'Photo')
+        photo_file = ImageFile(
+            hash_text(basename(final_path)), final_path, recognizer.PHOTO_CATEGORY,
+            image_captioner(final_path) if caption_photo else "No caption"
+        )
         recognizer.store_image(photo_file)
         log.info("WebCam photo captured: '%s'", photo_file)
 
         return photo_file, photo
 
-    def detect_faces(self, photo: ImageData, filename: str) -> tuple[list[ImageFile], list[ImageData]]:
+    def detect_faces(
+        self,
+        photo: ImageData,
+        filename: str,
+        caption_faces: bool = True,
+    ) -> tuple[list[ImageFile], list[ImageData]]:
         """Detect all faces in the photo."""
 
         # Face detection
@@ -103,7 +117,10 @@ class Camera(metaclass=Singleton):
                 cropped_face: ImageData = photo[y: y + h, x: x + w]
                 final_path: str = build_img_path(FACE_DIR, filename, f'-face-{len(face_files)}.jpg')
                 if cv2.imwrite(final_path, cropped_face):
-                    face_file = ImageFile(hash_text(basename(final_path)), final_path, recognizer.FACE_CATEGORY, 'Face')
+                    face_file = ImageFile(
+                        hash_text(basename(final_path)), final_path, recognizer.FACE_CATEGORY,
+                        image_captioner(final_path) if caption_faces else "No caption"
+                    )
                     face_files.append(face_file)
                     face_datas.append(cropped_face)
                     log.info("Face file successfully saved: '%s' !", final_path)
@@ -116,7 +133,7 @@ class Camera(metaclass=Singleton):
     def identify(self) -> Optional[ImageMetadata]:
         """Identify the person in front of the WebCam."""
         _, photo = self.capture("ASKAI-ID-PHOTO", False)
-        _ = self.detect_faces(photo, "ASKAI-ID-FACE")
+        _ = self.detect_faces(photo, "ASKAI-ID-FACE", False)
         result = recognizer.search_face(photo)
         return next(iter(result), None)
 

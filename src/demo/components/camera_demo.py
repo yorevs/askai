@@ -12,17 +12,18 @@ MENU = dedent("""
 2. Identify person
 3. Query a photo
 4. Query a face
+5. Re-sync images
+6. List images
 ? """)
 
 
 if __name__ == "__main__":
-    recognizer.sync_store()
     init_context("camera-demo")
     while opt := input(MENU):
         print()
         while opt == '1' and (name := input("Photo name: ")):
-            pic_file, pic_data = camera.capture(name, countdown=0)
-            face_files, face_datas = camera.detect_faces(pic_data, name)
+            pic_file, pic_data = camera.capture(name, countdown=3)
+            face_files, face_datas = camera.detect_faces(pic_data, name, caption_faces=True)
             print(os.linesep, "Photo taken: ", pic_file, 'Detected faces: ', len(face_files))
         while opt == '2' and not (name := input("Press [Enter] key when ready")):
             if person := camera.identify():
@@ -36,7 +37,7 @@ if __name__ == "__main__":
             print(os.linesep, "Showing result for:", query)
             results = recognizer.query_photo(query)
             for photo in results:
-                print(os.linesep, 'Showing photo: ', photo.name, 'URI: ', photo.uri, 'DIST:', photo.distance)
+                print(os.linesep, 'Showing photo: ', f'"{photo.name}"', 'URI: ', photo.uri, 'DIST:', photo.distance)
                 plt.imshow(photo.data)
                 plt.axis("off")
                 plt.show()
@@ -48,6 +49,10 @@ if __name__ == "__main__":
                 plt.imshow(face.data)
                 plt.axis("off")
                 plt.show()
+        if opt == '5':
+            recognizer.sync_store(caption_enable=True)
+        if opt == '6':
+            print(os.linesep.join(recognizer.enlist()))
         print()
     print(os.linesep, 'Done')
 
