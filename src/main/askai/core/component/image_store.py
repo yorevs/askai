@@ -12,26 +12,25 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from collections import namedtuple
-from os.path import basename
-from pathlib import Path
-from typing import TypeAlias, Mapping, Optional, Any
-
-import chromadb
-import numpy
+from askai.core.features.router.tools.vision import image_captioner
 from chromadb.api.types import IncludeEnum
 from chromadb.utils.data_loaders import ImageLoader
 from chromadb.utils.embedding_functions.open_clip_embedding_function import OpenCLIPEmbeddingFunction
+from collections import namedtuple
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.dict_tools import get_or_default
 from langchain_community.retrievers.pinecone_hybrid_search import hash_text
+from os.path import basename
+from pathlib import Path
 from torchvision.datasets.folder import is_image_file
+from typing import Any, Mapping, Optional, TypeAlias
 
 import askai.core.component.cache_service as cache
-from askai.core.features.router.tools.vision import image_captioner
+import chromadb
+import logging as log
+import numpy
+import os
 
 Metadata: TypeAlias = Mapping[str, str | int | float | bool]
 

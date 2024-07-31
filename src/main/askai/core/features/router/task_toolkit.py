@@ -12,8 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from hspylib.core.metaclass.classpath import AnyPath
-
 from askai.core.askai_messages import msg
 from askai.core.features.router.tools.analysis import query_output
 from askai.core.features.router.tools.browser import browse
@@ -25,6 +23,7 @@ from askai.core.features.router.tools.vision import image_captioner
 from askai.exception.exceptions import TerminatingQuery
 from clitt.core.tui.line_input.line_input import line_input
 from functools import lru_cache
+from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
 from langchain_core.tools import BaseTool, StructuredTool
 from textwrap import dedent

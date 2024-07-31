@@ -12,23 +12,22 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import atexit
-import logging as log
-from os.path import basename
-from pathlib import Path
-from typing import Optional, TypeAlias
-
-import cv2
-import pause
+from askai.__classpath__ import classpath
+from askai.core.component.cache_service import FACE_DIR, PHOTO_DIR
+from askai.core.component.image_store import ImageData, ImageFile, ImageMetadata, store
+from askai.core.features.router.tools.vision import image_captioner
+from askai.core.support.utilities import build_img_path, display_text
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import hash_text
+from os.path import basename
+from pathlib import Path
 from retry import retry
+from typing import Optional, TypeAlias
 
-from askai.__classpath__ import classpath
-from askai.core.component.cache_service import PHOTO_DIR, FACE_DIR
-from askai.core.component.image_store import ImageFile, ImageData, ImageMetadata, store
-from askai.core.features.router.tools.vision import image_captioner
-from askai.core.support.utilities import display_text, build_img_path
+import atexit
+import cv2
+import logging as log
+import pause
 
 InputDevice: TypeAlias = tuple[int, str]
 
