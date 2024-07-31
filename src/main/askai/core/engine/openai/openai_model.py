@@ -34,6 +34,7 @@ class OpenAIModel(Enumeration):
     GPT_3_5_TURBO_16K_0613  = "gpt-3.5-turbo-16k-0613", 16385
     GPT_4                   = "gpt-4", 8192
     GPT_4_O                 = "gpt-4o", 128000
+    GPT_4_O_MINI            = "gpt-4o-mini", 128000
     GPT_4_0314              = "gpt-4-0314", 8192
     GPT_4_0613              = "gpt-4-0613", 8192
     GPT_4_32K               = "gpt-4-32k", 32768
