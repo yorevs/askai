@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 name = "hspylib-askai"
 version = "1.0.11"
 description = "HomeSetup - AskAI"
-authors = ["Hugo Saporetti Junior yorevs@hotmail.com"]
+authors = ["Hugo Saporetti Junior <yorevs@hotmail.com>"]
 license = "MIT"
 readme = "README.md"
 

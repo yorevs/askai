@@ -32,6 +32,7 @@ import langchain_openai
 import logging as log
 import os
 import pause
+import tiktoken
 
 
 class OpenAIEngine:
@@ -153,3 +154,11 @@ class OpenAIEngine:
         _, text = Recorder.INSTANCE.listen(language=self._configs.language)
         log.debug(f"Audio transcribed to: {text}")
         return text.strip() if text else None
+
+    def calculate_tokens(self, text: str) -> int:
+        """Calculate the number of tokens for the given text.
+        :param text: The text to base the token calculation.
+        """
+        encoding: tiktoken.Encoding = tiktoken.encoding_for_model(self._model.model_name)
+        tokens: list[int] = encoding.encode(text)
+        return len(tokens)

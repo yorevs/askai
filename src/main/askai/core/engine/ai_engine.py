@@ -87,3 +87,9 @@ class AIEngine(Protocol):
 
     def voices(self) -> list[str]:
         """Return the available model voices for speech to text."""
+
+    def calculate_tokens(text: str) -> int:
+        """Calculate the number of tokens for the given text.
+        :param text: The text to base the token calculation.
+        """
+        ...
