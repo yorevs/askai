@@ -30,7 +30,7 @@ import os
 import re
 
 # AskAI config directory.
-ASKAI_DIR: Path = Path(f'{os.getenv("HHS_DIR", os.getenv("ASKAI_DIR", os.getenv("TEMP", "/tmp")))}/askai')
+ASKAI_DIR: Path = Path(f'{os.getenv("HHS_DIR", os.getenv("ASKAI_DIR", str(Path.home())))}/askai')
 if not ASKAI_DIR.exists():
     ASKAI_DIR: Path = classpath.resource_path()
 

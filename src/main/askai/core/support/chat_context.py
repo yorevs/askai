@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
    @project: HsPyLib-AskAI
    @package: askai.core.support.chat_context

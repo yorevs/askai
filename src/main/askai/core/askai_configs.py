@@ -12,18 +12,16 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import locale
-import os
-from shutil import which
-
+from askai.__classpath__ import classpath
+from askai.core.askai_settings import settings
+from askai.language.language import Language
 from hspylib.core.enums.charset import Charset
 from hspylib.core.metaclass.singleton import Singleton
 from pydantic import ValidationError
+from shutil import which
 
-from askai.__classpath__ import classpath
-from askai.core.askai_settings import settings
-from askai.core.model.api_keys import ApiKeys
-from askai.language.language import Language
+import locale
+import os
 
 
 class AskAiConfigs(metaclass=Singleton):
@@ -36,14 +34,6 @@ class AskAiConfigs(metaclass=Singleton):
 
     def __init__(self):
         self._recorder_devices: set[str] = set(map(str.strip, settings.get_list("askai.recorder.devices")))
-        try:
-            self._api_keys: ApiKeys = ApiKeys()
-        except ValidationError:
-            self._prompt()
-
-    @property
-    def api_keys(self) -> ApiKeys:
-        return self._api_keys
 
     @property
     def engine(self) -> str:
@@ -178,10 +168,6 @@ class AskAiConfigs(metaclass=Singleton):
         if device_name in self._recorder_devices:
             self._recorder_devices.remove(device_name)
             settings.put("askai.recorder.devices", ", ".join(self._recorder_devices))
-
-    def _prompt(self) -> None:
-        """TODO"""
-        pass
 
 
 assert (configs := AskAiConfigs().INSTANCE) is not None

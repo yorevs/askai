@@ -12,10 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.__classpath__ import classpath
-from askai.core.askai import AskAi
-from askai.core.askai_configs import configs
-from askai.tui.askai_app import AskAiApp
+import logging as log
+import os
+import sys
+from enum import Enum
+from textwrap import dedent
+from typing import Any, Optional
+
 from clitt.core.term.commons import is_a_tty
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
@@ -25,13 +28,11 @@ from hspylib.core.zoned_datetime import now
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
-from textwrap import dedent
-from typing import Any, Optional
 
-import dotenv
-import logging as log
-import os
-import sys
+from askai.__classpath__ import classpath
+from askai.core.askai import AskAi
+from askai.core.askai_configs import configs
+from askai.tui.askai_app import AskAiApp
 
 if not is_a_tty():
     log.getLogger().setLevel(log.ERROR)
@@ -50,6 +51,12 @@ class Main(TUIApplication):
     RESOURCE_DIR: str = str(classpath.resource_path())
 
     INSTANCE: "Main"
+
+    class RunModes(Enum):
+        """ASKAI run modes"""
+        ASKAI_CLI = "ASKAI_CLI"  # Run as interactive CLI.
+        ASKAI_TUI = "ASKAI_TUI"  # Run as interactive Terminal UI.
+        ASKAI_CMD = "ASKAI_CMD"  # Run as non interactive CLI (Command mode).
 
     def __init__(self, app_name: str):
         super().__init__(app_name, self.VERSION, self.DESCRIPTION.format(self.VERSION), resource_dir=self.RESOURCE_DIR)
@@ -108,11 +115,12 @@ class Main(TUIApplication):
 
     def _main(self, *params, **kwargs) -> ExitStatus:
         """Run the application with the command line arguments."""
-        dotenv.load_dotenv()
         is_new_ui: bool = to_bool(self._get_argument("ui", False))
         if not is_new_ui:
+            interactive: bool = to_bool(self._get_argument("interactive", False))
+            os.environ["ASKAI_APP"] = (self.RunModes.ASKAI_CLI if interactive else self.RunModes.ASKAI_CMD).value
             self._askai = AskAi(
-                to_bool(self._get_argument("interactive", False)),
+                interactive,
                 to_bool(self._get_argument("speak")),
                 to_bool(self._get_argument("debug")),
                 to_bool(self._get_argument("cache", configs.is_cache)),
@@ -123,6 +131,7 @@ class Main(TUIApplication):
                 self._get_query_string(),
             )
         else:
+            os.environ["ASKAI_APP"] = self.RunModes.ASKAI_TUI.value
             self._askai = AskAiApp(
                 to_bool(self._get_argument("speak")),
                 to_bool(self._get_argument("debug")),
@@ -131,8 +140,6 @@ class Main(TUIApplication):
                 self._get_argument("engine", configs.engine),
                 self._get_argument("model", configs.model),
             )
-
-        os.environ["ASKAI_APP"] = type(self._askai).__name__
 
         log.info(
             dedent(
