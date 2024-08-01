@@ -32,6 +32,7 @@ package: PyAudio, version: 0.2.14, mode: ge
 package: SpeechRecognition, version: 3.10.4, mode: ge
 package: opencv-python, version: 4.10.0.84, mode: ge
 package: argostranslate, version: 1.9.1, mode: eq
+package: deepl, version: 1.18.0, mode: ge
 package: chromadb, version: 0.5.3, mode: ge
 package: retry2, version: 0.9.5, mode: ge
 package: pause, version: 0.3, mode: ge
