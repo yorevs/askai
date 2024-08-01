@@ -1,4 +1,4 @@
-The (AI) provided an inadequate answer.
-Please improve you response by addressing the following problems:
+The (AI-Assistant) provided a bad answer.
+Improve subsequent responses by addressing the following:
 
 {problems}

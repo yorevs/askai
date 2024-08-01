@@ -12,16 +12,19 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.askai_configs import configs
-from askai.core.askai_settings import ASKAI_DIR
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+import re
 from collections import namedtuple
+from pathlib import Path
+from typing import Optional, Tuple
+
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.tools.text_tools import hash_text
 from hspylib.modules.cache.ttl_cache import TTLCache
-from pathlib import Path
-from typing import Optional, Tuple
+
+from askai.core.askai_configs import configs
+from askai.core.askai_settings import ASKAI_DIR
 
 # AskAI cache root directory.
 CACHE_DIR: Path = Path(f"{ASKAI_DIR}/cache")
@@ -80,9 +83,13 @@ class CacheService(metaclass=Singleton):
 
     INSTANCE: "CacheService"
 
-    ASKAI_CACHE_KEYS = "askai-cache-keys"
+    ASKAI_CACHE_KEYS: str = "askai-cache-keys"
 
-    ASKAI_INPUT_CACHE_KEY = "askai-input-history"
+    ASKAI_INPUT_CACHE_KEY: str = "askai-input-history"
+
+    ASKAI_CONTEXT_KEY: str = "askai-context-key"
+
+    # ASKAI_CONTEXT
 
     _TTL_CACHE: TTLCache[str] = TTLCache(ttl_minutes=configs.ttl)
 
@@ -104,6 +111,19 @@ class CacheService(metaclass=Singleton):
         audio_file_path = f"{str(AUDIO_DIR)}/askai-{hash_text(key)}.{audio_format}"
         return audio_file_path, file_is_not_empty(audio_file_path)
 
+    def save_reply(self, text: str, reply: str) -> Optional[str]:
+        """Save a AI reply into the TTL cache.
+        :param text: Text to be cached.
+        :param reply: The reply associated to this text.
+        """
+        if configs.is_cache:
+            key = text.strip().lower()
+            self._TTL_CACHE.save(key, reply)
+            self.keys.add(key)
+            self._TTL_CACHE.save(self.ASKAI_CACHE_KEYS, ",".join(self._cache_keys))
+            return text
+        return None
+
     def read_reply(self, text: str) -> Optional[str]:
         """Read AI replies from TTL cache.
         :param text: Text to be cached.
@@ -121,19 +141,6 @@ class CacheService(metaclass=Singleton):
             key = text.strip().lower()
             self._TTL_CACHE.delete(key)
             self.keys.remove(key)
-            self._TTL_CACHE.save(self.ASKAI_CACHE_KEYS, ",".join(self._cache_keys))
-            return text
-        return None
-
-    def save_reply(self, text: str, reply: str) -> Optional[str]:
-        """Save a AI reply into the TTL cache.
-        :param text: Text to be cached.
-        :param reply: The reply associated to this text.
-        """
-        if configs.is_cache:
-            key = text.strip().lower()
-            self._TTL_CACHE.save(key, reply)
-            self.keys.add(key)
             self._TTL_CACHE.save(self.ASKAI_CACHE_KEYS, ",".join(self._cache_keys))
             return text
         return None
@@ -157,6 +164,15 @@ class CacheService(metaclass=Singleton):
         if predefined:
             history.extend(list(filter(lambda c: c not in history, predefined)))
         return history
+
+    def save_context(self, context: list[str]) -> None:
+        """Save the Context window entries into the TTL cache."""
+        self._TTL_CACHE.save(self.ASKAI_CONTEXT_KEY, "%EOL%".join(context))
+
+    def read_context(self) -> list[str]:
+        """Read the Context window entries from the TTL cache."""
+        ctx_str: str = self._TTL_CACHE.read(self.ASKAI_CONTEXT_KEY)
+        return re.split(r'%EOL%', ctx_str, flags=re.MULTILINE | re.IGNORECASE) if ctx_str else []
 
 
 assert (cache := CacheService().INSTANCE) is not None

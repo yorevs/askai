@@ -38,7 +38,6 @@ def final_answer(
     **prompt_args
 ) -> str:
     """Provide the final response to the user.
-    :param temperature: The LLM temperature to be used.
     :param persona_prompt: The persona prompt to be used.
     :param input_variables: The prompt input variables.
     :param prompt_args: The prompt input arguments.

@@ -41,7 +41,7 @@ class AccResponse(Enumeration):
 
     @classmethod
     def _re(cls) -> str:
-        return rf"^\$?({'|'.join(cls.values())})[:,-]\s*(.+)"
+        return rf"^\$?({'|'.join(cls.values())})[:,-]\s*[0-9]+%\s+(.+)"
 
     @classmethod
     def strip_code(cls, message: str) -> str:

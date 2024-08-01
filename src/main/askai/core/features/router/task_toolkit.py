@@ -20,6 +20,7 @@ from askai.core.features.router.tools.generation import generate_content, save_c
 from askai.core.features.router.tools.summarization import summarize
 from askai.core.features.router.tools.terminal import execute_command, list_contents, open_command
 from askai.core.features.router.tools.vision import image_captioner
+from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import TerminatingQuery
 from clitt.core.tui.line_input.line_input import line_input
 from functools import lru_cache
@@ -129,7 +130,8 @@ class AgentToolkit(metaclass=Singleton):
         :param question: The original user question.
         :param answer: Your direct answer to the user.
         """
-        return final_answer(question=question, response=answer, persona_prompt="taius-jarvis")
+        args = {'user': shared.username, 'idiom': shared.idiom, 'context': answer, 'question': question}
+        return final_answer("taius-jarvis", [k for k in args.keys()], **args)
 
     def list_tool(self, folder: str, filters: str | None = None) -> str:
         """

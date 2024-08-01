@@ -64,7 +64,7 @@ class TaskSplitter(metaclass=Singleton):
     def template(self) -> ChatPromptTemplate:
         """Retrieve the processor Template."""
 
-        rag: str = str(shared.context.flat("SCRATCHPAD"))
+        rag: str = str(shared.context.flat("EVALUATION"))
         template = PromptTemplate(
             input_variables=["os_type", "shell", "datetime", "home"], template=prompt.read_prompt("task-split.txt")
         )
@@ -88,7 +88,7 @@ class TaskSplitter(metaclass=Singleton):
         """
 
         os.chdir(Path.home())
-        shared.context.forget("SCRATCHPAD")  # Erase previous scratchpad.
+        shared.context.forget("EVALUATION")  # Erase previous scratchpad.
         model: ModelResult = ModelResult.default()  # Hard-coding the result model for now.
 
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)

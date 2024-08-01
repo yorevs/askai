@@ -12,7 +12,9 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import re
 
+from askai.core.component.cache_service import cache
 from askai.exception.exceptions import TokenLengthExceeded
 from collections import defaultdict, deque, namedtuple
 from functools import partial, reduce
@@ -36,10 +38,19 @@ class ChatContext:
 
     LANGCHAIN_ROLE_MAP: dict = {"human": HumanMessage, "system": SystemMessage, "assistant": AIMessage}
 
-    def __init__(self, token_limit: int, _max_context_size: int):
-        self._store: dict[AnyStr, deque] = defaultdict(partial(deque, maxlen=_max_context_size))
+    @staticmethod
+    def of(context: list[str], token_limit: int, max_context_size: int) -> 'ChatContext':
+        """Create a chat context from a context list on the format: <ROLE: MSG>"""
+        ctx = ChatContext(token_limit, max_context_size)
+        for e in context:
+            role, reply = list(filter(None, re.split(r'(human|assistant|system):', e, flags=re.MULTILINE | re.IGNORECASE)))
+            ctx.push("HISTORY", reply, role)
+        return ctx
+
+    def __init__(self, token_limit: int, max_context_size: int):
+        self._store: dict[AnyStr, deque] = defaultdict(partial(deque, maxlen=max_context_size))
         self._token_limit: int = token_limit * 1024  # The limit is given in KB
-        self._max_context_size: int = _max_context_size
+        self._max_context_size: int = max_context_size
 
     def __str__(self):
         ln: str = os.linesep
@@ -138,3 +149,9 @@ class ChatContext:
     def size(self, key: str) -> int:
         """Return the amount of entries a context specified by key have."""
         return len(self._store[key])
+
+    def save(self) -> None:
+        """Save the current context window."""
+        ctx: LangChainContext = self.join(*self._store.keys())
+        ctx_str: list[str] = [f"{role}: {msg}" for role, msg in ctx]
+        cache.save_context(ctx_str)

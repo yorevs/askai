@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import atexit
 import logging as log
 import os
 import sys
@@ -32,6 +33,7 @@ from hspylib.modules.application.version import Version
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
+from askai.core.support.shared_instances import shared
 from askai.tui.askai_app import AskAiApp
 
 if not is_a_tty():
@@ -84,13 +86,13 @@ class Main(TUIApplication):
                 "whether you want to run under debug mode.",
                 nargs="?", action=ParserAction.STORE_TRUE) \
             .option(
-                "cache", "c", "cache",
-                "whether you want to cache AI replies.",
-                nargs="?", action=ParserAction.STORE_TRUE) \
-            .option(
                 "ui", "u", "ui",
                 "whether to use the new AskAI TUI (experimental).",
                 nargs="?", action=ParserAction.STORE_TRUE)\
+            .option(
+                "cache", "c", "cache",
+                "whether you want to cache AI replies.",
+                nargs="?", default=True) \
             .option(
                 "tempo", "t", "tempo",
                 "specifies the playback and streaming speed.",
@@ -157,6 +159,7 @@ class Main(TUIApplication):
     def _exec_application(self) -> ExitStatus:
         """Execute the application main flow."""
         self._askai.run()
+        shared.context.save()
 
         return ExitStatus.SUCCESS
 

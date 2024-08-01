@@ -16,6 +16,7 @@ from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
+from askai.core.component.cache_service import cache
 from askai.core.component.geo_location import geo_location
 from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
@@ -127,7 +128,10 @@ class SharedInstances(metaclass=Singleton):
     def create_context(self, token_limit: int) -> ChatContext:
         """TODO"""
         if self._context is None:
-            self._context = ChatContext(token_limit, self.max_short_memory_size)
+            if configs.is_cache:
+                self._context = ChatContext.of(cache.read_context(), token_limit, self.max_short_memory_size)
+            else:
+                self._context = ChatContext(token_limit, self.max_short_memory_size)
         return self._context
 
     def create_memory(self, memory_key: str = "chat_history") -> ConversationBufferWindowMemory:

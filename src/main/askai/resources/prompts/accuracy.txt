@@ -62,6 +62,8 @@ Classification Guidelines (rate from 0% to 100%):
 
 - Revise the classifications for responses from the AI that contain irrelevant information to 'Yellow' instead of 'Red', as any additional information is still valued.
 
+- "I don't know." may be a good response. Before classifying, check the chat context or provided contexts to make sure the AI understood the question, but, it does not have an answer. If that's the case, classify as 'Green'.
+
 - Do not include any part of the question in your response.
 
 - Indicate your classification choice ('Red', 'Orange', 'Yellow', 'Green', or 'Blue') followed by the reasoning behind your decision.

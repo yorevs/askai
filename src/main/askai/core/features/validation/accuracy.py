@@ -29,13 +29,14 @@ from textwrap import dedent
 
 import logging as log
 
-ACC_GUIDELINES: str = dedent(
+EVALUATION_GUIDE: str = dedent(
     """
-**Performance Evaluation Guidelines**
+**Accuracy Evaluation Guidelines:**
 
-1. Continuously review and analyze your actions to ensure optimal performance.
-2. Constructively self-criticize your overall behavior regularly.
+1. Review and analyze your past responses to ensure optimal accuracy.
+2. Constructively self-criticize your overall responses regularly.
 3. Reflect on past decisions and strategies to refine your approach.
+4. Try something different.
 """
 ).strip()
 
@@ -69,13 +70,12 @@ def assert_accuracy(
                 events.reply.emit(message=msg.assert_acc(status, details), verbosity="debug")
                 if not (rag_resp := AccResponse.of_status(status, details)).passed(pass_threshold):
                     # Include the guidelines for the first mistake.
-                    if not shared.context.get("SCRATCHPAD"):
-                        shared.context.push("SCRATCHPAD", ACC_GUIDELINES)
-                    # Include the RYG issues.
-                    shared.context.push("SCRATCHPAD", issues_prompt.format(problems=AccResponse.strip_code(output)))
+                    if not shared.context.get("EVALUATION"):
+                        shared.context.push("EVALUATION", EVALUATION_GUIDE)
+                    shared.context.push("EVALUATION", issues_prompt.format(problems=AccResponse.strip_code(output)))
                     raise InaccurateResponse(f"AI Assistant failed to respond => '{response.content}'")
                 return rag_resp
-        # At this point, the response was not Good enough.
+        # At this point, the response was not Good.
         raise InaccurateResponse(f"AI Assistant didn't respond accurately. Response: '{response}'")
 
     events.reply.emit(message=msg.no_output("query"))
