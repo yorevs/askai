@@ -24,11 +24,11 @@ from typing import Any, Optional
 
 
 class SettingsCmd(ABC):
-    """TODO"""
+    """Provides settings manipulation command functionalities."""
 
     @staticmethod
     def list(filters: str | None = None) -> None:
-        """TODO"""
+        """List all settings, optionally matching filters."""
         if all_settings := settings.search(f"*{filters}*"):
             sysout(all_settings + "\n")
         else:
@@ -37,7 +37,7 @@ class SettingsCmd(ABC):
 
     @staticmethod
     def set(name: str, value: Any) -> None:
-        """TODO"""
+        """Set a setting value."""
         all_settings = settings.settings.search()
         if name.isdecimal() and 0 <= int(name) <= len(all_settings):
             name = all_settings[int(name)].name
@@ -49,7 +49,7 @@ class SettingsCmd(ABC):
 
     @staticmethod
     def get(key: str) -> Optional[SettingsEntry]:
-        """TODO"""
+        """Get the setting specified by key."""
         if ss := settings[key]:
             text_formatter.cmd_print(f"%WHITE%Name: %BLUE%{ss.name}\t%WHITE%Value: %GREEN%{ss.value}%NC%")
             return ss
@@ -58,7 +58,7 @@ class SettingsCmd(ABC):
 
     @staticmethod
     def reset() -> None:
-        """TODO"""
+        """Reset settings to the defaults."""
         settings.defaults()
         # Include the current audio input.
         settings.put("askai.recorder.devices", recorder.input_device[1] or "")

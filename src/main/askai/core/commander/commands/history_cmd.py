@@ -25,7 +25,7 @@ import re
 
 
 class HistoryCmd(ABC):
-    """TODO"""
+    """Provides history command functionalities."""
 
     @staticmethod
     def context_list() -> None:

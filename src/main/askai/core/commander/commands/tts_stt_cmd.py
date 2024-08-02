@@ -26,11 +26,11 @@ import os
 
 
 class TtsSttCmd(ABC):
-    """TODO"""
+    """Provides Speech-to-Text (STT) and Text-to-Speech (TTS) command functionalities."""
 
     @staticmethod
     def voice_list() -> None:
-        """TODO"""
+        """List all available voices for the current engine/model."""
         all_voices = shared.engine.voices()
         str_voices = "\n".join([f"{i}. {v.title()}" for i, v in enumerate(all_voices)])
         text_formatter.cmd_print(
@@ -41,7 +41,7 @@ class TtsSttCmd(ABC):
 
     @staticmethod
     def voice_set(name: str | int | None = None) -> None:
-        """TODO"""
+        """Set the specified engine's voice."""
         all_voices = shared.engine.voices()
         if name.isdecimal() and 0 <= int(name) <= len(all_voices):
             name = all_voices[int(name)]
@@ -54,7 +54,7 @@ class TtsSttCmd(ABC):
 
     @staticmethod
     def voice_play(name: str | int | None = None) -> None:
-        """TODO"""
+        """Play a sample using the specified voice."""
         all_voices = shared.engine.voices()
         ai_name = shared.engine.ai_name().lower().replace("engine", "")
         if name.isdecimal() and 0 <= int(name) <= len(all_voices):
@@ -67,7 +67,7 @@ class TtsSttCmd(ABC):
 
     @staticmethod
     def tempo(speed: int | None = None) -> None:
-        """TODO"""
+        """Set the playing speed of the speech."""
         if not speed:
             settings.get("askai.text.to.speech.tempo")
         elif 1 <= speed <= 3:
@@ -80,7 +80,7 @@ class TtsSttCmd(ABC):
 
     @staticmethod
     def device_list() -> None:
-        """TODO"""
+        """List the available audio input devices."""
         all_devices = recorder.devices
         str_devices = "\n".join([f"{d[0]}. {d[1]}" for d in all_devices])
         text_formatter.cmd_print(
@@ -91,7 +91,7 @@ class TtsSttCmd(ABC):
 
     @staticmethod
     def device_set(name: str | int | None = None) -> None:
-        """TODO"""
+        """Set the current audio input device."""
         all_devices = recorder.devices
         if name.isdecimal() and 0 <= int(name) <= len(all_devices):
             name = all_devices[int(name)][1]
@@ -105,7 +105,7 @@ class TtsSttCmd(ABC):
 
     @staticmethod
     def tts(text: str, dest_dir: str = os.getcwd(), playback: bool = True) -> None:
-        """TODO"""
+        """Convert a text to speech."""
         if (audio_path := shared.engine.text_to_speech(text, stream=False, playback=playback)) and audio_path.exists():
             if dest_dir and ((dest_path := Path(dest_dir)) and dest_path.exists()):
                 audio_path = copy_file(audio_path, dest_dir)

@@ -12,26 +12,27 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
 from abc import ABC
+from functools import partial
+from pathlib import Path
+from typing import Optional
+
+from hspylib.core.tools.commons import human_readable_bytes, sysout
+from hspylib.core.tools.text_tools import elide_text
+
 from askai.core.askai_configs import configs
 from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
-from functools import partial
-from hspylib.core.tools.commons import human_readable_bytes, sysout
-from hspylib.core.tools.text_tools import elide_text
-from pathlib import Path
-from typing import Optional
-
-import os
 
 
 class CacheCmd(ABC):
-    """TODO"""
+    """Provides cache command functionalities."""
 
     @staticmethod
     def list() -> None:
-        """TODO"""
+        """List all cache entries."""
         if not configs.is_cache:
             sysout(f"\n%ORANGE%-=- Cache is disabled! -=-%NC%\n")
         elif (all_keys := sorted(cache.keys)) and (length := len(all_keys)) > 0:
@@ -41,7 +42,8 @@ class CacheCmd(ABC):
                 answer: str | None = cache.read_reply(query)
                 if not answer:
                     continue
-                entries += f"{i}. **{query}**: `{elide_text(answer, 80)}` \n"
+                cache_str: str = elide_text(answer, 80).replace(os.linesep, "␊")
+                entries += f"{i}. **{query}**: `{cache_str}` \n"
             display_text(entries)
         else:
             sysout(f"\n%RED%-=- Caching is empty! -=-%NC%")
@@ -49,7 +51,7 @@ class CacheCmd(ABC):
 
     @staticmethod
     def get(name: str) -> Optional[str]:
-        """TODO"""
+        """Get cache entry by name."""
         entry: str = cache.read_reply(name)
         return (
             f'%GREEN%{name}%NC% cache(s) is %CYAN%"{entry}"%NC%'
@@ -59,7 +61,7 @@ class CacheCmd(ABC):
 
     @staticmethod
     def clear(entry: str | int | None = None) -> None:
-        """TODO"""
+        """Clear a specified, or all, cache entries."""
         deleted: str | None = None
         if entry:
             if isinstance(entry, int):
@@ -74,7 +76,7 @@ class CacheCmd(ABC):
 
     @staticmethod
     def files(cleanup: bool = False, *args: str | int) -> None:
-        """TODO"""
+        """Enlist all cached files (from askai cache dir)."""
         if os.path.exists(CACHE_DIR):
             if cleanup:
                 for arg in args[1 if cleanup else 0 :]:

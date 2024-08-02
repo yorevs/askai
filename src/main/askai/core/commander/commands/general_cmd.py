@@ -28,7 +28,7 @@ import os.path
 
 
 class GeneralCmd(ABC):
-    """TODO"""
+    """Provides general command functionalities."""
 
     @staticmethod
     def execute(cmd_line: str | None = None) -> None:
