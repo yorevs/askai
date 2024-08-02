@@ -54,6 +54,11 @@ FACE_DIR: Path = Path(str(PICTURE_DIR) + "/faces")
 if not FACE_DIR.exists():
     FACE_DIR.mkdir(parents=True, exist_ok=True)
 
+# Imported image files cache directory.
+IMG_IMPORTS_DIR: Path = Path(str(PICTURE_DIR) + "/imports")
+if not IMG_IMPORTS_DIR.exists():
+    IMG_IMPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
 # AI Generation cache directory.
 GEN_AI_DIR: Path = Path(str(CACHE_DIR) + "/generated")
 if not GEN_AI_DIR.exists():

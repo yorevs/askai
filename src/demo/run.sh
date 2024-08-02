@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export PYTHONPATH="../../"
+export PYTHONPATH="../"
 
 demos="$(find $PYTHONPATH -type f -iname '*_demo.py' -exec basename {} \;)"
 

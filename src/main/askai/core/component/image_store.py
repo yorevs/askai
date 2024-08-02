@@ -52,10 +52,10 @@ class ImageStore(metaclass=Singleton):
 
     FACE_CATEGORY: str = 'faces'
 
-    OTHER_CATEGORY: str = 'other'
+    IMPORTS_CATEGORY: str = 'imports'
 
     @staticmethod
-    def load_image_files(with_caption: bool = False, *dirs: AnyPath) -> list[ImageFile]:
+    def sync_folders(with_caption: bool = False, *dirs: AnyPath) -> list[ImageFile]:
         """Load image files from the specified directories."""
 
         def category() -> str:
@@ -63,10 +63,10 @@ class ImageStore(metaclass=Singleton):
             cat_str: str
             if dir_path == str(cache.PHOTO_DIR):
                 cat_str = store.PHOTO_CATEGORY
-            elif dir_path ==  str(cache.FACE_DIR):
+            elif dir_path == str(cache.FACE_DIR):
                 cat_str = store.FACE_CATEGORY
             else:
-                cat_str = store.OTHER_CATEGORY
+                cat_str = store.IMPORTS_CATEGORY
             return cat_str
 
         img_files: list[ImageFile] = []
@@ -100,7 +100,7 @@ class ImageStore(metaclass=Singleton):
         return self._img_collection.get()['metadatas']
 
     def enlist(self) -> Optional[list[str]]:
-        return [str(mt) for mt in self.metadatas]
+        return [str(mt).replace("'", '"') for mt in self.metadatas]
 
     def store_image(self, *face_files: ImageFile) -> int:
         """Add the faces into the image store collection."""
@@ -136,34 +136,37 @@ class ImageStore(metaclass=Singleton):
     def sync_store(self, with_caption: bool = False) -> int:
         """Synchronize image store collection with the picture folder."""
 
-        log.info("Synchronizing image store folders: '%s' and '%s'", cache.PHOTO_DIR, cache.FACE_DIR)
+        log.info("Synchronizing image store folders: '%s', '%s' and '%s'",
+                 cache.PHOTO_DIR, cache.FACE_DIR, cache.IMG_IMPORTS_DIR)
         self.clear_store()
-        img_files: list[ImageFile] = self.load_image_files(with_caption, cache.PHOTO_DIR, cache.FACE_DIR)
-        # Store all image files in one shot.
+        img_files: list[ImageFile] = self.sync_folders(
+            with_caption, cache.PHOTO_DIR, cache.FACE_DIR, cache.IMG_IMPORTS_DIR)
         self.store_image(*img_files)
 
         return len(img_files)
 
+    def query_image(self, query: str, max_results: int = 1) -> list[ImageMetadata]:
+        """Query for a photo matching the query."""
+        return self.search_image(query, [self.PHOTO_CATEGORY, self.IMPORTS_CATEGORY], max_results)
+
     def query_face(self, query: str, max_results: int = 1) -> list[ImageMetadata]:
         """Query for a face matching the query."""
-        return self.search_image(self.FACE_CATEGORY, query, max_results)
+        return self.search_image(query, [self.FACE_CATEGORY], max_results)
 
-    def query_photo(self, query: str, max_results: int = 1) -> list[ImageMetadata]:
-        """Query for a photo matching the query."""
-        return self.search_image(self.PHOTO_CATEGORY, query, max_results)
-
-    def search_image(self, category: str, query: str, max_results: int = 1) -> list[ImageMetadata]:
+    def search_image(self, query: str, categories: list[str], max_results: int = 1) -> list[ImageMetadata]:
         """Search for images using natural language."""
-        return self._query(category, max_results, query_texts=[query])
+        return self._query(max_results, categories=categories, query_texts=[query])
 
     def search_face(self, photo: ImageData, max_results: int = 1) -> list[ImageMetadata]:
         """Search for faces matching the provided photo using similarity methods."""
-        return self._query(self.FACE_CATEGORY, max_results, query_images=[photo])
+        return self._query(max_results, categories=[self.FACE_CATEGORY], query_images=[photo])
 
-    def _query(self, category: str, max_results: int = 5, **kwargs) -> list[ImageMetadata]:
+    def _query(self, max_results: int = 5, **kwargs) -> list[ImageMetadata]:
         """Query the database for images."""
         result: list[ImageMetadata] = []
-        filters: dict[str, str] = {'img_category': category.casefold()}
+        categories: list[str] = kwargs['categories'] or []
+        filters: dict[str, Any] = self._categories(categories)
+        del kwargs['categories']
         query_results = self._img_collection.query(
             **kwargs,
             n_results=5,
@@ -187,6 +190,12 @@ class ImageStore(metaclass=Singleton):
         result.sort(key=lambda img: img[3])
 
         return result[0:max_results]
+
+    def _categories(self, categories: list[str]) -> dict[str, Any]:
+        """Build the category filter to query images."""
+        return {"$or": [{'img_category': cat} for cat in categories]} \
+            if len(categories) > 1 \
+            else {'img_category': get_or_default(categories, 0, "")}
 
 
 assert (store := ImageStore().INSTANCE) is not None
