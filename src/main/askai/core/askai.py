@@ -12,52 +12,57 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+import re
+import sys
+from enum import Enum
+from pathlib import Path
+from typing import List, TypeAlias, Optional
+
+from click import UsageError
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging, file_is_not_empty
+from hspylib.core.zoned_datetime import now, DATE_FORMAT, TIME_FORMAT
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.eventbus.event import Event
+from openai import RateLimitError
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
-from askai.core.askai_events import *
 from askai.core.askai_messages import msg
-from askai.core.commander.commander import ask_cli, commands
-from askai.core.component.audio_player import player
-from askai.core.component.cache_service import cache, CACHE_DIR
-from askai.core.component.recorder import recorder
-from askai.core.component.scheduler import scheduler
+from askai.core.askai_settings import settings
+from askai.core.commander.commander import ask_cli
+from askai.core.component.cache_service import CACHE_DIR, cache
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.enums.router_mode import RouterMode
 from askai.core.features.router.ai_processor import AIProcessor
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
-from askai.core.support.utilities import display_text, read_stdin
-from askai.exception.exceptions import *
-from click import UsageError
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.term.terminal import terminal
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from functools import partial
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging, sysout
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.eventbus.event import Event
-from openai import RateLimitError
-from threading import Thread
-from typing import List, TypeAlias
-
-import logging as log
-import nltk
-import os
-import pause
-import re
-import sys
+from askai.core.support.utilities import read_stdin
+from askai.exception.exceptions import ImpossibleQuery, MaxInteractionsReached, InaccurateResponse, \
+    IntelligibleAudioError, TerminatingQuery
+from askai.tui.app_icons import AppIcons
 
 QueryString: TypeAlias = str | List[str] | None
 
 
 class AskAi:
-    """Responsible for the OpenAI functionalities."""
+    """The AskAI core functionalities."""
+
+    SOURCE_DIR: Path = classpath.source_path()
+
+    RESOURCE_DIR: Path = classpath.resource_path()
 
     SPLASH: str = classpath.get_resource("splash.txt").read_text(encoding=Charset.UTF_8.val)
 
     RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"
+
+    class RunModes(Enum):
+        """ASKAI run modes"""
+        ASKAI_CLI = "ASKAI_CLI"  # Run as interactive CLI.
+        ASKAI_TUI = "ASKAI_TUI"  # Run as interactive Terminal UI.
+        ASKAI_CMD = "ASKAI_CMD"  # Run as non interactive CLI (Command mode).
 
     @staticmethod
     def _abort():
@@ -71,10 +76,8 @@ class AskAi:
         debug: bool,
         cacheable: bool,
         tempo: int,
-        query_prompt: str,
         engine_name: str,
         model_name: str,
-        query_string: QueryString,
     ):
 
         configs.is_interactive = interactive
@@ -85,17 +88,26 @@ class AskAi:
         configs.engine = engine_name
         configs.model = model_name
 
-        self._ready: bool = False
-        self._processing: Optional[bool] = None
-        self._query_string: QueryString = query_string if isinstance(query_string, str) else " ".join(query_string)
-        self._query_prompt: str | None = query_prompt
+        self._session_id = now("%Y%m%d")[:8]
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         self._mode: RouterMode = RouterMode.default()
-        self._startup()
+        self._console_path = Path(f"{CACHE_DIR}/askai-{self.session_id}.md")
+        self._query_prompt: str | None = None
+
+        if not self._console_path.exists():
+            self._console_path.touch()
 
     def __str__(self) -> str:
         return shared.app_info
+
+    @property
+    def username(self) -> str:
+        return f"%WHITE%{shared.username.title()}%NC%"
+
+    @property
+    def nickname(self) -> str:
+        return f"%GREEN%{shared.nickname.title()}%NC%"
 
     @property
     def engine(self) -> AIEngine:
@@ -110,140 +122,52 @@ class AskAi:
         return self._mode
 
     @property
-    def loading(self) -> bool:
-        return self._processing
+    def session_id(self) -> str:
+        """Get the Session id."""
+        return self._session_id
 
-    @loading.setter
-    def loading(self, processing: bool) -> None:
-        if processing:
-            self.reply(msg.wait())
-        elif not processing and self._processing is not None and processing != self._processing:
-            terminal.cursor.erase_line()
-        self._processing = processing
+    @property
+    def app_settings(self) -> list[tuple[str, ...]]:
+        all_settings = [("UUID", "Setting", "Value")]
+        for s in settings.settings.search():
+            r: tuple[str, ...] = str(s.identity["uuid"]), str(s.name), str(s.value)
+            all_settings.append(r)
+        return all_settings
 
     def run(self) -> None:
         """Run the application."""
-        while query := (self._query_string or self._input()):
-            status, output = self._ask_and_reply(query)
-            if not status:
-                query = None
-                break
-            elif output:
-                cache.save_reply(query, output)
-                cache.save_input_history()
-            if not configs.is_interactive:
-                break
-        if query == "":
-            self.reply(msg.goodbye())
-        sysout("%NC%")
+        ...
 
-    def reply(self, message: str) -> None:
+    def _create_console_file(self, overwrite: bool = True):
+        """Create the Markdown formatted console file.
+        :param overwrite: Whether to overwrite the file or not.
+        """
+        is_new: bool = not file_is_not_empty(str(self._console_path)) or overwrite
+        with open(self._console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val) as f_console:
+            f_console.write(
+                f"{'---' + os.linesep * 2 if not is_new else ''}"
+                f"{'# ' + now(DATE_FORMAT) + os.linesep * 2 if is_new else ''}"
+                f"## {AppIcons.STARTED} {now(TIME_FORMAT)}\n\n"
+            )
+            f_console.flush()
+
+    def _reply(self, message: str) -> None:
         """Reply to the user with the AI response.
         :param message: The message to reply to the user.
         """
-        if message and (text := msg.translate(message)):
-            log.debug(message)
-            if configs.is_speak:
-                self.engine.text_to_speech(text, f"{shared.nickname}: ")
-            else:
-                display_text(text, f"{shared.nickname}: ")
+        ...
 
-    def reply_error(self, message: str) -> None:
+    def _reply_error(self, message: str) -> None:
         """Reply API or system errors.
         :param message: The error message to be displayed.
         """
-        if message and (text := msg.translate(message)):
-            log.error(message)
-            if configs.is_speak:
-                self.engine.text_to_speech(f"Error: {text}", f"{shared.nickname}: ")
-            else:
-                display_text(f"%RED%Error: {text}%NC%", f"{shared.nickname}: ")
-
-    def _input(self) -> Optional[str]:
-        """Read the user input from stdin."""
-        return shared.input_text(f"{shared.username}: ", f"Message {self.engine.nickname()}")
-
-    def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
-        """Callback to handle reply events.
-        :param ev: The reply event.
-        :param error: Whether the event is an error not not.
-        """
-        if message := ev.args.message:
-            if error:
-                self.reply_error(message)
-            else:
-                if ev.args.verbosity.casefold() == "normal" or configs.is_debug:
-                    if ev.args.erase_last:
-                        cursor.erase_line()
-                    self.reply(message)
-
-    def _cb_mic_listening_event(self, ev: Event) -> None:
-        """Callback to handle microphone listening events.
-        :param ev: The microphone listening event.
-        """
-        if ev.args.listening:
-            self.reply(msg.listening())
-
-    def _cb_device_changed_event(self, ev: Event) -> None:
-        """Callback to handle audio input device changed events.
-        :param ev: The device changed event.
-        """
-        cursor.erase_line()
-        self.reply(msg.device_switch(str(ev.args.device)))
-
-    def _cb_mode_changed_event(self, ev: Event) -> None:
-        """Callback to handle mode changed events.
-        :param ev: The mode changed event.
-        """
-        self._mode: RouterMode = RouterMode.of_name(ev.args.mode)
-        if not self._mode.is_default:
-            self.reply(
-                f"{msg.enter_qna()} \n"
-                f"```\nContext:  {ev.args.sum_path},   {ev.args.glob} \n```\n"
-                f"`{msg.press_esc_enter()}` \n\n"
-                f"> {msg.qna_welcome()}"
-            )
-
-    def _splash(self) -> None:
-        """Display the AskAI splash screen."""
-        splash_interval = 250
-        screen.clear()
-        sysout(f"%GREEN%{self.SPLASH}%NC%")
-        while not self._ready:
-            pause.milliseconds(splash_interval)
-        screen.clear()
-
-    def _startup(self) -> None:
-        """Initialize the application."""
-        askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
-        askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
-        askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
-        if configs.is_interactive:
-            splash_thread: Thread = Thread(daemon=True, target=self._splash)
-            splash_thread.start()
-            nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
-            cache.cache_enable = configs.is_cache
-            KeyboardInput.preload_history(cache.load_input_history(commands()))
-            recorder.setup()
-            scheduler.start()
-            player.start_delay()
-            self._ready = True
-            splash_thread.join()
-            display_text(self, markdown=False)
-            self.reply(msg.welcome(os.getenv("USER", "you")))
-        elif configs.is_speak:
-            recorder.setup()
-            player.start_delay()
-        askai_bus.subscribe(MIC_LISTENING_EVENT, self._cb_mic_listening_event)
-        askai_bus.subscribe(DEVICE_CHANGED_EVENT, self._cb_device_changed_event)
-        askai_bus.subscribe(MODE_CHANGED_EVENT, self._cb_mode_changed_event)
-        log.info("AskAI is ready to use!")
+        ...
 
     def _ask_and_reply(self, question: str) -> tuple[bool, Optional[str]]:
         """Ask the question to the AI, and provide the reply.
         :param question: The question to ask to the AI engine.
         """
-        status = True
+        status: bool = True
         reply: str | None = None
         processor: AIProcessor = self.mode.processor
         assert isinstance(processor, AIProcessor)
@@ -256,24 +180,26 @@ class AskAi:
                 ask_cli(args, standalone_mode=False)
             elif not (reply := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
-                self.reply(msg.wait())
-                reply = processor.process(question, context=read_stdin(), query_prompt=self._query_prompt)
-                self.reply(reply or msg.no_output("processor"))
+                self._reply(msg.wait())
+                reply = processor.process(
+                    question, context=read_stdin(), query_prompt=self._query_prompt
+                )
+                self._reply(reply or msg.no_output("processor"))
             else:
                 log.debug("Reply found for '%s' in cache.", question)
-                self.reply(reply)
+                self._reply(reply)
                 shared.context.push("HISTORY", question)
                 shared.context.push("HISTORY", reply, "assistant")
         except (NotImplementedError, ImpossibleQuery) as err:
-            self.reply_error(str(err))
+            self._reply_error(str(err))
         except (MaxInteractionsReached, InaccurateResponse) as err:
-            self.reply_error(msg.unprocessable(str(err)))
+            self._reply_error(msg.unprocessable(str(err)))
         except UsageError as err:
-            self.reply_error(msg.invalid_command(err))
+            self._reply_error(msg.invalid_command(err))
         except IntelligibleAudioError as err:
-            self.reply_error(msg.intelligible(err))
+            self._reply_error(msg.intelligible(err))
         except RateLimitError:
-            self.reply_error(msg.quote_exceeded())
+            self._reply_error(msg.quote_exceeded())
             status = False
         except TerminatingQuery:
             status = False
@@ -282,3 +208,16 @@ class AskAi:
                 shared.context.set("LAST_REPLY", reply)
 
         return status, reply
+
+    def _cb_mode_changed_event(self, ev: Event) -> None:
+        """Callback to handle mode changed events.
+        :param ev: The mode changed event.
+        """
+        self._mode: RouterMode = RouterMode.of_name(ev.args.mode)
+        if not self._mode.is_default:
+            self._reply(
+                f"{msg.enter_qna()} \n"
+                f"```\nContext:  {ev.args.sum_path},   {ev.args.glob} \n```\n"
+                f"`{msg.press_esc_enter()}` \n\n"
+                f"> {msg.qna_welcome()}"
+            )

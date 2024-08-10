@@ -28,7 +28,7 @@ class EngineFactory(metaclass=Singleton):
 
     INSTANCE: "EngineFactory"
 
-    _ACTIVE_AI_ENGINE: AIEngine = None
+    _ACTIVE_AI_ENGINE: AIEngine | None = None
 
     @classmethod
     def create_engine(cls, engine_name: str | List[str], engine_model: str | List[str]) -> AIEngine:
@@ -41,7 +41,7 @@ class EngineFactory(metaclass=Singleton):
         match engine_name:
             case "openai":
                 model: AIModel = OpenAIModel.of_name(model_name) if model_name else None
-                cls._ACTIVE_AI_ENGINE = OpenAIEngine(model or OpenAIModel.GPT_3_5_TURBO)
+                cls._ACTIVE_AI_ENGINE = OpenAIEngine(model or OpenAIModel.GPT_4_O_MINI)
             case "gemini":
                 raise NoSuchEngineError("Google 'paml' is not yet implemented!")
             case _:

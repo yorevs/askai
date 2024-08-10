@@ -73,11 +73,11 @@ class SharedInstances(metaclass=Singleton):
 
     @property
     def nickname(self) -> str:
-        return f"%GREEN%  Taius%NC%"
+        return f"  Taius"
 
     @property
     def username(self) -> str:
-        return f"%WHITE%  {prompt.user.title()}%NC%"
+        return f"  {prompt.user.title()}"
 
     @property
     def idiom(self) -> str:
@@ -120,13 +120,13 @@ class SharedInstances(metaclass=Singleton):
         )
 
     def create_engine(self, engine_name: str, model_name: str) -> AIEngine:
-        """TODO"""
+        """Create an AI engine specified by the engine and model names."""
         if self._engine is None:
             self._engine = EngineFactory.create_engine(engine_name, model_name)
         return self._engine
 
     def create_context(self, token_limit: int) -> ChatContext:
-        """TODO"""
+        """Create the chat context, limiting to the specified token"""
         if self._context is None:
             if configs.is_cache:
                 self._context = ChatContext.of(cache.read_context(), token_limit, self.max_short_memory_size)

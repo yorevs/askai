@@ -38,7 +38,7 @@ import tiktoken
 class OpenAIEngine:
     """Provide a base class for OpenAI features. Implements the prototype AIEngine."""
 
-    def __init__(self, model: AIModel = OpenAIModel.GPT_3_5_TURBO):
+    def __init__(self, model: AIModel = OpenAIModel.GPT_4_O_MINI):
         super().__init__()
         self._model: AIModel = model
         self._configs: OpenAiConfigs = OpenAiConfigs.INSTANCE
