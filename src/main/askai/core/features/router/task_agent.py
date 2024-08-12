@@ -74,7 +74,7 @@ class TaskAgent(metaclass=Singleton):
     @property
     def agent_template(self) -> ChatPromptTemplate:
         """Retrieve the Structured Agent Template."""
-        return prompt.hub("hwchase17/structured-chat-agent")
+        return prompt.read_prompt("langchain/structured-agent")
 
     @property
     def lc_agent(self) -> Runnable:
