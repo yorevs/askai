@@ -12,50 +12,43 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+from functools import partial
+from pathlib import Path
+
+import nltk
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import file_is_not_empty
+from hspylib.core.tools.text_tools import ensure_endswith
+from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
+from hspylib.modules.application.version import Version
+from hspylib.modules.cli.vt100.vt_color import VtColor
+from hspylib.modules.eventbus.event import Event
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.containers import ScrollableContainer
+from textual.widgets import Footer, Input, MarkdownViewer
+
 from askai.__classpath__ import classpath
+from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.askai_settings import settings
-from askai.core.commander.commander import ask_cli, commander_help
+from askai.core.commander.commander import commander_help
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.enums.router_mode import RouterMode
-from askai.core.features.router.ai_processor import AIProcessor
-from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
-from askai.exception.exceptions import *
 from askai.tui.app_header import Header
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_suggester import InputSuggester
 from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash
-from click import UsageError
-from contextlib import redirect_stdout
-from functools import partial
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import file_is_not_empty, is_debugging
-from hspylib.core.tools.text_tools import ensure_endswith, strip_escapes
-from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
-from hspylib.modules.application.version import Version
-from hspylib.modules.cli.vt100.vt_color import VtColor
-from hspylib.modules.eventbus.event import Event
-from io import StringIO
-from openai import RateLimitError
-from pathlib import Path
-from textual import on, work
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.widgets import Footer, Input, MarkdownViewer
-
-import logging as log
-import nltk
-import os
-import re
 
 SOURCE_DIR: Path = classpath.source_path()
 
@@ -81,33 +74,11 @@ class AskAiApp(App[None]):
 
     ENABLE_COMMAND_PALETTE = False
 
-    SPLASH_IMAGE: str = classpath.get_resource("splash.txt").read_text(encoding=Charset.UTF_8.val)
-
-    RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"
-
     def __init__(self, speak: bool, debug: bool, cacheable: bool, tempo: int, engine_name: str, model_name: str):
         super().__init__()
-
-        configs.is_interactive = True
-        configs.is_debug = is_debugging() or debug
-        configs.is_speak = speak
-        configs.is_cache = cacheable
-        configs.tempo = tempo
-        configs.engine = engine_name
-        configs.model = model_name
-
-        self._session_id = now("%Y%m%d")[:8]
-        self._question: str | None = None
-        self._engine: AIEngine = shared.create_engine(engine_name, model_name)
-        self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
-        self._mode: RouterMode = RouterMode.default()
-        self._console_path = Path(f"{CACHE_DIR}/askai-{self.session_id}.md")
+        self._askai = AskAi(True, speak, debug, cacheable, tempo, engine_name, model_name)
         self._re_render = True
         self._display_buffer = list()
-
-        if not self._console_path.exists():
-            self._console_path.touch()
-
         self._startup()
 
     def __str__(self) -> str:
@@ -115,27 +86,15 @@ class AskAiApp(App[None]):
 
     @property
     def engine(self) -> AIEngine:
-        return self._engine
+        return self._askai.engine
 
     @property
-    def context(self) -> ChatContext:
-        return self._context
+    def app_settings(self) -> list[tuple[str, ...]]:
+        return self._askai.app_settings
 
     @property
-    def mode(self) -> RouterMode:
-        return self._mode
-
-    @property
-    def question(self) -> str:
-        return self._question
-
-    @property
-    def nickname(self) -> str:
-        return f"*  Taius*"
-
-    @property
-    def username(self) -> str:
-        return f"**  {prompt.user.title()}**"
+    def console_path(self) -> Path:
+        return self._askai.console_path
 
     @property
     def md_console(self) -> MarkdownViewer:
@@ -182,19 +141,6 @@ class AskAiApp(App[None]):
         """Get the Input widget."""
         return self.query_one(Footer)
 
-    @property
-    def session_id(self) -> str:
-        """Get the Session id."""
-        return self._session_id
-
-    @property
-    def app_settings(self) -> list[tuple[str, ...]]:
-        all_settings = [("UUID", "Setting", "Value")]
-        for s in settings.settings.search():
-            r: tuple[str, ...] = str(s.identity["uuid"]), str(s.name), str(s.value)
-            all_settings.append(r)
-        return all_settings
-
     def compose(self) -> ComposeResult:
         """Called to add widgets to the app."""
         suggester = InputSuggester(case_sensitive=False)
@@ -205,7 +151,7 @@ class AskAiApp(App[None]):
         with ScrollableContainer():
             yield AppSettings()
             yield AppInfo("")
-            yield Splash(self.SPLASH_IMAGE)
+            yield Splash(self._askai.SPLASH)
             yield AppHelp(commander_help())
             yield MarkdownViewer()
         yield Input(placeholder=f"Message {self.engine.nickname()}", suggester=suggester)
@@ -256,14 +202,14 @@ class AskAiApp(App[None]):
 
     def activate_markdown(self) -> None:
         """Activate the Markdown console."""
-        self.md_console.go(self._console_path)
+        self.md_console.go(self.console_path)
         self.md_console.set_class(False, "-hidden")
         self.md_console.scroll_end(animate=False)
 
     def action_clear(self, overwrite: bool = True) -> None:
         """Clear the output console."""
-        is_new: bool = not file_is_not_empty(str(self._console_path)) or overwrite
-        with open(self._console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val) as f_console:
+        is_new: bool = not file_is_not_empty(str(self.console_path)) or overwrite
+        with open(self.console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val) as f_console:
             f_console.write(
                 f"{'---' + os.linesep * 2 if not is_new else ''}"
                 f"{'# ' + now(DATE_FORMAT) + os.linesep * 2 if is_new else ''}"
@@ -286,7 +232,7 @@ class AskAiApp(App[None]):
         """Push-To-Talk STT as input method."""
         self.enable_controls(False)
         if spoken_text := self.engine.speech_to_text():
-            self.display_text(f"{self.username}: {spoken_text}")
+            self.display_text(f"{shared.username}: {spoken_text}")
             if self._ask_and_reply(spoken_text):
                 await self.suggester.add_suggestion(spoken_text)
                 suggestions = await self.suggester.suggestions()
@@ -298,7 +244,7 @@ class AskAiApp(App[None]):
         """A coroutine to handle a input submission."""
         question: str = submitted.value
         self.line_input.clear()
-        self.display_text(f"{self.username}: {question}")
+        self.display_text(f"{shared.username}: {question}")
         if self._ask_and_reply(question):
             await self.suggester.add_suggestion(question)
             suggestions = await self.suggester.suggestions()
@@ -307,7 +253,7 @@ class AskAiApp(App[None]):
     async def _write_markdown(self) -> None:
         """Write buffered text to the markdown file."""
         if len(self._display_buffer) > 0:
-            with open(self._console_path, "a", encoding=Charset.UTF_8.val) as f_console:
+            with open(self.console_path, "a", encoding=Charset.UTF_8.val) as f_console:
                 prev_text: str | None = None
                 while len(self._display_buffer) > 0:
                     if (text := self._display_buffer.pop(0)) == prev_text:
@@ -320,12 +266,12 @@ class AskAiApp(App[None]):
 
     async def _cb_refresh_console(self) -> None:
         """Callback to handle markdown console updates."""
-        if not self._console_path.exists():
+        if not self.console_path.exists():
             self.action_clear()
         await self._write_markdown()
         if self._re_render:
             self._re_render = False
-            await self.md_console.go(self._console_path)
+            await self.md_console.go(self.console_path)
             self.md_console.scroll_end(animate=False)
 
     def reply(self, message: str) -> None:
@@ -335,9 +281,9 @@ class AskAiApp(App[None]):
         prev_msg: str = self._display_buffer[-1] if self._display_buffer else ""
         if message and prev_msg != message:
             log.debug(message)
-            self.display_text(f"{self.nickname}: {message}")
+            self.display_text(f"{shared.nickname}: {message}")
             if configs.is_speak:
-                self.engine.text_to_speech(message, f"{self.nickname}: ")
+                self.engine.text_to_speech(message, f"{shared.nickname}: ")
 
     def reply_error(self, message: str) -> None:
         """Reply API or system errors.
@@ -346,9 +292,9 @@ class AskAiApp(App[None]):
         prev_msg: str = self._display_buffer[-1] if self._display_buffer else ""
         if message and prev_msg != message:
             log.error(message)
-            self.display_text(f"{self.nickname}: Error: {message}")
+            self.display_text(f"{shared.nickname}: Error: {message}")
             if configs.is_speak:
-                self.engine.text_to_speech(f"Error: {message}", f"{self.nickname}: ")
+                self.engine.text_to_speech(f"Error: {message}", f"{shared.nickname}: ")
 
     def display_text(self, markdown_text: str) -> None:
         """Send the text to the Markdown console.
@@ -396,52 +342,15 @@ class AskAiApp(App[None]):
             )
 
     @work(thread=True, exclusive=True)
-    def _ask_and_reply(self, question: str) -> bool:
+    def _ask_and_reply(self, question: str) -> tuple[bool, Optional[str]]:
         """Ask the question to the AI, and provide the reply.
         :param question: The question to ask to the AI engine.
         """
-        status = True
-        reply: str | None = None
-        processor: AIProcessor = self.mode.processor
         self.enable_controls(False)
-        assert isinstance(processor, AIProcessor)
-
-        try:
-            if command := re.search(self.RE_ASKAI_CMD, question):
-                with StringIO() as buf, redirect_stdout(buf):
-                    args: list[str] = list(
-                        filter(lambda a: a and a != "None", re.split(r"\s", f"{command.group(1)} {command.group(2)}"))
-                    )
-                    ask_cli(args, standalone_mode=False)
-                    if output := buf.getvalue():
-                        self.display_text(f"\n```bash\n{strip_escapes(output)}\n```")
-            elif not (reply := cache.read_reply(question)):
-                log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
-                reply = processor.process(question)
-                self.reply(reply or msg.no_output("processor"))
-            else:
-                log.debug("Reply found for '%s' in cache.", question)
-                self.reply(reply)
-        except (NotImplementedError, ImpossibleQuery) as err:
-            self.reply_error(str(err))
-        except (MaxInteractionsReached, InaccurateResponse) as err:
-            self.reply_error(msg.unprocessable(str(err)))
-        except UsageError as err:
-            self.reply_error(msg.invalid_command(err))
-        except IntelligibleAudioError as err:
-            self.reply_error(msg.intelligible(err))
-        except RateLimitError:
-            self.reply_error(msg.quote_exceeded())
-            status = False
-        except TerminatingQuery:
-            status = False
-        finally:
-            if reply:
-                shared.context.set("LAST_REPLY", reply)
-
+        status, reply = self._askai.ask_and_reply(question)
         self.enable_controls()
 
-        return status
+        return status, reply
 
     def _startup(self) -> None:
         """Initialize the application."""

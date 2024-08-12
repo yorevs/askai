@@ -68,7 +68,7 @@ class AskAiCli(AskAi):
     def run(self) -> None:
         """Run the application."""
         while query := (self._query_string or self._input()):
-            status, output = self._ask_and_reply(query)
+            status, output = self.ask_and_reply(query)
             if not status:
                 query = None
                 break

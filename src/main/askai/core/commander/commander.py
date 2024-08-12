@@ -52,6 +52,8 @@ ${commands}
 """
 )
 
+RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"
+
 __module__ = locals()
 
 
@@ -90,32 +92,32 @@ def _init_context(context_size: int = 1000, engine_name: str = "openai", model_n
 
 @click.group()
 @click.pass_context
-def ask_cli(_) -> None:
+def ask_commander(_) -> None:
     """AskAI commands group."""
     pass
 
 
-@ask_cli.command()
+@ask_commander.command()
 def help() -> None:
     """Show this help message and exit."""
     text_formatter.cmd_print(commander_help())
 
 
-@ask_cli.command()
+@ask_commander.command()
 def debug() -> None:
     """Toggle debug mode ON/OFF."""
     configs.is_debug = not configs.is_debug
     text_formatter.cmd_print(f"`Debugging` is {'%GREEN%ON' if configs.is_debug else '%RED%OFF'}%NC%")
 
 
-@ask_cli.command()
+@ask_commander.command()
 def speak() -> None:
     """Toggle speak mode ON/OFF."""
     configs.is_speak = not configs.is_speak
     text_formatter.cmd_print(f"`Speech-To-Text` is {'%GREEN%ON' if configs.is_speak else '%RED%OFF'}%NC%")
 
 
-@ask_cli.command()
+@ask_commander.command()
 @click.argument("operation", default="list")
 @click.argument("name", default="ALL")
 def context(operation: str, name: str | None = None) -> None:
@@ -130,7 +132,7 @@ def context(operation: str, name: str | None = None) -> None:
             HistoryCmd.context_list()
 
 
-@ask_cli.command()
+@ask_commander.command()
 @click.argument("operation", default="list")
 def history(operation: str) -> None:
     """List/forget the input history.
@@ -143,7 +145,7 @@ def history(operation: str) -> None:
             HistoryCmd.history_list()
 
 
-@ask_cli.command()
+@ask_commander.command()
 @click.argument("operation", default="list")
 @click.argument("name", default="")
 def devices(operation: str, name: str | None = None) -> None:
@@ -161,7 +163,7 @@ def devices(operation: str, name: str | None = None) -> None:
             text_formatter.cmd_print(f"Error: {err}")
 
 
-@ask_cli.command()
+@ask_commander.command()
 @click.argument("operation", default="list")
 @click.argument("name", default="")
 @click.argument("value", default="")
@@ -185,7 +187,7 @@ def settings(operation: str, name: str | None = None, value: str | None = None) 
             text_formatter.cmd_print(f"Error: {err}")
 
 
-@ask_cli.command()
+@ask_commander.command()
 @click.argument("operation", default="list")
 @click.argument("args", nargs=-1)
 def cache(operation: str, args: tuple[str, ...]) -> None:
@@ -233,7 +235,7 @@ def cache(operation: str, args: tuple[str, ...]) -> None:
             text_formatter.cmd_print(f"Error: {err}")
 
 
-@ask_cli.command()
+@ask_commander.command()
 @click.argument("speed", type=click.INT, default=1)
 def tempo(speed: int | None = None) -> None:
     """List/set speech-to-text tempo.
@@ -242,7 +244,7 @@ def tempo(speed: int | None = None) -> None:
     TtsSttCmd.tempo(speed)
 
 
-@ask_cli.command()
+@ask_commander.command()
 @click.argument("operation", default="list")
 @click.argument("name", default="onyx")
 def voices(operation: str, name: str | int | None = None) -> None:
@@ -262,7 +264,7 @@ def voices(operation: str, name: str | int | None = None) -> None:
             text_formatter.cmd_print(f"%RED%{err}%NC%")
 
 
-@ask_cli.command()
+@ask_commander.command()
 @click.argument("text")
 @click.argument("dest_dir", default="")
 @click.argument("playback", default="True")
@@ -278,7 +280,7 @@ def tts(text: str, dest_dir: str | None = None, playback: bool = True) -> None:
     TtsSttCmd.tts(text.strip(), dirname(dest_dir), playback)
 
 
-@ask_cli.command()
+@ask_commander.command()
 @click.argument("folder")
 @click.argument("glob", default="**/*")
 def summarize(folder: str, glob: str) -> None:
@@ -290,7 +292,7 @@ def summarize(folder: str, glob: str) -> None:
     GeneralCmd.summarize(folder, glob)
 
 
-@ask_cli.command()
+@ask_commander.command()
 @click.argument("locale_str", default="")
 def idiom(locale_str: str) -> None:
     """Set the application language.
@@ -299,7 +301,7 @@ def idiom(locale_str: str) -> None:
     GeneralCmd.idiom(locale_str)
 
 
-@ask_cli.command()
+@ask_commander.command()
 def info() -> None:
     """Display some useful application information."""
     if os.getenv("ASKAI_APP"):
@@ -308,7 +310,7 @@ def info() -> None:
         text_formatter.cmd_print("No information available (offline)!")
 
 
-@ask_cli.command()
+@ask_commander.command()
 @click.argument("name", default="LAST_REPLY")
 def copy(name: str) -> None:
     """Copy a context entry to the clipboard
