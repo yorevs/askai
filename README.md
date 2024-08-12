@@ -76,7 +76,7 @@ The following software are required:
 Use Homebrew to install the prerequisite portaudio:
 
 ```bash
-$ brew install portaudio ffmpeg
+$ brew install portaudio ffmpeg libmagic
 ```
 
 ##### GNU/Linux installation
@@ -84,13 +84,13 @@ $ brew install portaudio ffmpeg
 Debian-based systems:
 
 ```bash
-$ sudo apt install python3-pyaudio ffmpeg
+$ sudo apt install python3-pyaudio ffmpeg libmagic-dev
 ```
 
 RedHat-based systems:
 
 ```bash
-$ sudo dnf install portaudio-devel redhat-rpm-config ffmpeg
+$ sudo dnf install portaudio-devel redhat-rpm-config ffmpeg libmagic-dev
 ```
 
 #### AskAI installation

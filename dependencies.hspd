@@ -49,7 +49,7 @@ package: pyperclip, version: 1.9.0, mode: ge
 package: stanza, version: 1.1.1, mode: ge
 package: unstructured, version: 0.14.10, mode: ge
 package: unstructured[md], version: 0.14.10, mode: ge
-package: python-magic-bin, version: 0.4.14, mode: ge
+package: python-magic, version: 0.4.27, mode: ge
 package: tiktoken, version: 0.7.0, mode: ge
 package: aiohttp, version: 3.9.3, mode: ge
 package: html2text, version: 2024.2.26, mode: ge
