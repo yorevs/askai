@@ -30,6 +30,7 @@ from retry import retry
 from torchvision.datasets.folder import is_image_file
 
 from askai.__classpath__ import classpath
+from askai.core.askai_configs import configs
 from askai.core.component.cache_service import FACE_DIR, PHOTO_DIR, IMG_IMPORTS_DIR
 from askai.core.component.image_store import ImageData, ImageFile, ImageMetadata, store
 from askai.core.features.router.tools.vision import image_captioner
@@ -45,7 +46,7 @@ class Camera(metaclass=Singleton):
 
     RESOURCE_DIR: Path = classpath.resource_path()
 
-    ALG: str = "haarcascade_frontalface_default.xml"
+    ALG: str = configs.face_detect_alg
 
     @staticmethod
     def _countdown(count: int) -> None:
@@ -112,7 +113,10 @@ class Camera(metaclass=Singleton):
         face_datas: list[ImageData] = []
         gray_img = cv2.cvtColor(photo, cv2.COLOR_BGR2GRAY)
         faces = self._haarFaceCascade.detectMultiScale(
-            gray_img, scaleFactor=1.2, minNeighbors=5, minSize=(50, 50)
+            gray_img,
+            scaleFactor=configs.scale_factor,
+            minNeighbors=configs.min_neighbors,
+            minSize=configs.min_size
         )
         log.info("Detected faces: %d", len(faces))
 
@@ -188,7 +192,7 @@ class Camera(metaclass=Singleton):
 
         return len(img_files), len(faces)
 
-    def identify(self, max_distance: float = 0.75) -> Optional[ImageMetadata]:
+    def identify(self, max_distance: float = configs.max_id_distance) -> Optional[ImageMetadata]:
         """Identify the person in front of the WebCam."""
 
         _, photo = self.capture("ASKAI-ID", 0, False, False)

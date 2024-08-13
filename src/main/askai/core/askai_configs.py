@@ -12,16 +12,16 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import locale
+import os
+from shutil import which
+
+from hspylib.core.enums.charset import Charset
+from hspylib.core.metaclass.singleton import Singleton
+
 from askai.__classpath__ import classpath
 from askai.core.askai_settings import settings
 from askai.language.language import Language
-from hspylib.core.enums.charset import Charset
-from hspylib.core.metaclass.singleton import Singleton
-from pydantic import ValidationError
-from shutil import which
-
-import locale
-import os
 
 
 class AskAiConfigs(metaclass=Singleton):
@@ -138,6 +138,26 @@ class AskAiConfigs(metaclass=Singleton):
         return settings.get_int("askai.max.agent.execution.time.seconds")
 
     @property
+    def face_detect_alg(self) -> str:
+        return settings.get("askai.camera.face-detect.alg")
+
+    @property
+    def scale_factor(self) -> float:
+        return settings.get_float("askai.camera.scale.factor")
+
+    @property
+    def min_neighbors(self) -> int:
+        return settings.get_int("askai.camera.min.neighbors")
+
+    @property
+    def min_size(self) -> tuple[int, ...]:
+        return tuple(map(int, settings.get_list("askai.camera.min.size")))
+
+    @property
+    def max_id_distance(self) -> float:
+        return settings.get_float("askai.camera.identity.max.distance")
+
+    @property
     def recorder_phrase_limit_millis(self) -> int:
         return settings.get_int("askai.recorder.phrase.limit.millis")
 
@@ -168,6 +188,5 @@ class AskAiConfigs(metaclass=Singleton):
         if device_name in self._recorder_devices:
             self._recorder_devices.remove(device_name)
             settings.put("askai.recorder.devices", ", ".join(self._recorder_devices))
-
 
 assert (configs := AskAiConfigs().INSTANCE) is not None

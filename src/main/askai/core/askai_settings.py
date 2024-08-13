@@ -45,7 +45,7 @@ class AskAiSettings(metaclass=Singleton):
 
     RESOURCE_DIR = str(classpath.resource_path())
 
-    _ACTUAL_VERSION: str = "0.1.6"
+    _ACTUAL_VERSION: str = "0.1.7"
 
     def __init__(self) -> None:
         self._configs = SettingsConfig(self.RESOURCE_DIR, "application.properties")
@@ -98,9 +98,9 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.text.to.speech.tempo", "askai", 1)
         self._settings.put("askai.text.splitter.chunk.size", "askai", 1000)
         self._settings.put("askai.text.splitter.chunk.overlap", "askai", 100)
-        self._settings.put("askai.default.engine", "askai", "openai")
-        self._settings.put("askai.default.engine.model", "askai", "gpt-3.5-turbo")
         self._settings.put("askai.preferred.language", "askai", '')
+        self._settings.put("askai.default.engine", "askai", "openai")
+        self._settings.put("askai.default.engine.model", "askai", "gpt-4o-mini")
         # Router
         self._settings.put("askai.max.short.memory.size", "askai", 10)
         self._settings.put("askai.max.router.iteractions", "askai", 30)
@@ -112,6 +112,12 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.recorder.phrase.limit.millis", "askai", 10000)
         self._settings.put("askai.recorder.noise.detection.duration.millis", "askai", 600)
         self._settings.put("askai.recorder.input.device.auto.swap", "askai", True)
+        # Camera
+        self._settings.put("askai.camera.face-detect.alg", "askai", "haarcascade_frontalface_default.xml")
+        self._settings.put("askai.camera.scale.factor", "askai", 1.2)
+        self._settings.put("askai.camera.min.neighbors", "askai", 5)
+        self._settings.put("askai.camera.min.size", "askai", "50, 50")
+        self._settings.put("askai.camera.identity.max.distance", "askai", 0.75)
         # OpenAI
         self._settings.put("openai.speech.to.text.model", "openai", "whisper-1")
         self._settings.put("openai.text.to.speech.model", "openai", "tts-1")
