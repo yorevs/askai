@@ -69,7 +69,7 @@ def open_command(path_name: str) -> str:
     if posix_path.exists:
         # find the best app to open the file.
         path_name: str = str(posix_path)
-        mtype = media_type_of(path_name)
+        mtype: tuple[str, ...] = media_type_of(path_name) or ('text', 'plain')
         match mtype:
             case ("audio", _) | ("video", _):
                 fn_open = partial(_execute_bash, f"ffplay -v 0 -autoexit {path_name} &>/dev/null")

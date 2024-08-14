@@ -85,16 +85,20 @@ class AskAiApp(App[None]):
         return VtColor.strip_colors(shared.app_info.replace("%EOL%", os.linesep))
 
     @property
+    def askai(self) -> AskAi:
+        return self._askai
+
+    @property
     def engine(self) -> AIEngine:
-        return self._askai.engine
+        return self.askai.engine
 
     @property
     def app_settings(self) -> list[tuple[str, ...]]:
-        return self._askai.app_settings
+        return self.askai.app_settings
 
     @property
     def console_path(self) -> Path:
-        return self._askai.console_path
+        return self.askai.console_path
 
     @property
     def md_console(self) -> MarkdownViewer:
@@ -151,7 +155,7 @@ class AskAiApp(App[None]):
         with ScrollableContainer():
             yield AppSettings()
             yield AppInfo("")
-            yield Splash(self._askai.SPLASH)
+            yield Splash(self.askai.SPLASH)
             yield AppHelp(commander_help())
             yield MarkdownViewer()
         yield Input(placeholder=f"Message {self.engine.nickname()}", suggester=suggester)
@@ -217,23 +221,23 @@ class AskAiApp(App[None]):
             )
             f_console.flush()
             self._re_render = True
-        self.reply(f"{msg.welcome(prompt.user.title())}")
+        self._reply(f"{msg.welcome(prompt.user.title())}")
 
     async def action_speaking(self) -> None:
         """Toggle Speaking ON/OFF."""
-        self._ask_and_reply("/speak")
+        self.ask_and_reply("/speak")
 
     async def action_debugging(self) -> None:
         """Toggle Debugging ON/OFF."""
-        self._ask_and_reply("/debug")
+        self.ask_and_reply("/debug")
 
     @work(thread=True, exclusive=True)
     async def action_ptt(self) -> None:
         """Push-To-Talk STT as input method."""
         self.enable_controls(False)
         if spoken_text := self.engine.speech_to_text():
-            self.display_text(f"{shared.username}: {spoken_text}")
-            if self._ask_and_reply(spoken_text):
+            self.display_text(f"{shared.username_md}: {spoken_text}")
+            if self.ask_and_reply(spoken_text):
                 await self.suggester.add_suggestion(spoken_text)
                 suggestions = await self.suggester.suggestions()
                 cache.save_input_history(suggestions)
@@ -244,8 +248,8 @@ class AskAiApp(App[None]):
         """A coroutine to handle a input submission."""
         question: str = submitted.value
         self.line_input.clear()
-        self.display_text(f"{shared.username}: {question}")
-        if self._ask_and_reply(question):
+        self.display_text(f"{shared.username_md}: {question}")
+        if self.ask_and_reply(question):
             await self.suggester.add_suggestion(question)
             suggestions = await self.suggester.suggestions()
             cache.save_input_history(suggestions)
@@ -274,27 +278,27 @@ class AskAiApp(App[None]):
             await self.md_console.go(self.console_path)
             self.md_console.scroll_end(animate=False)
 
-    def reply(self, message: str) -> None:
+    def _reply(self, message: str) -> None:
         """Reply to the user with the AI response.
-        :param message: The message to reply to the user.
+        :param message: The reply message to be displayed.
         """
         prev_msg: str = self._display_buffer[-1] if self._display_buffer else ""
         if message and prev_msg != message:
             log.debug(message)
-            self.display_text(f"{shared.nickname}: {message}")
+            self.display_text(f"{shared.nickname_md} {message}")
             if configs.is_speak:
-                self.engine.text_to_speech(message, f"{shared.nickname}: ")
+                self.engine.text_to_speech(message, f"{shared.nickname_md} ")
 
-    def reply_error(self, message: str) -> None:
+    def _reply_error(self, message: str) -> None:
         """Reply API or system errors.
         :param message: The error message to be displayed.
         """
         prev_msg: str = self._display_buffer[-1] if self._display_buffer else ""
         if message and prev_msg != message:
             log.error(message)
-            self.display_text(f"{shared.nickname}: Error: {message}")
+            self.display_text(f"{shared.nickname_md} Error: {message}")
             if configs.is_speak:
-                self.engine.text_to_speech(f"Error: {message}", f"{shared.nickname}: ")
+                self.engine.text_to_speech(f"Error: {message}", f"{shared.nickname_md} ")
 
     def display_text(self, markdown_text: str) -> None:
         """Send the text to the Markdown console.
@@ -309,10 +313,10 @@ class AskAiApp(App[None]):
         """
         if message := ev.args.message:
             if error:
-                self.reply_error(message)
+                self._reply_error(message)
             else:
                 if ev.args.verbosity.casefold() == "normal" or configs.is_debug:
-                    self.reply(message)
+                    self._reply(message)
 
     def _cb_mic_listening_event(self, ev: Event) -> None:
         """Callback to handle microphone listening events.
@@ -320,13 +324,13 @@ class AskAiApp(App[None]):
         """
         self.header.notifications.listening = ev.args.listening
         if ev.args.listening:
-            self.reply(msg.listening())
+            self._reply(msg.listening())
 
     def _cb_device_changed_event(self, ev: Event) -> None:
         """Callback to handle audio input device changed events.
         :param ev: The device changed event.
         """
-        self.reply(msg.device_switch(str(ev.args.device)))
+        self._reply(msg.device_switch(str(ev.args.device)))
 
     def _cb_mode_changed_event(self, ev: Event) -> None:
         """Callback to handle mode changed events.
@@ -334,7 +338,7 @@ class AskAiApp(App[None]):
         """
         self._mode: RouterMode = RouterMode.of_name(ev.args.mode)
         if not self._mode.is_default:
-            self.reply(
+            self._reply(
                 f"{msg.enter_qna()} \n"
                 f"```\nContext:  {ev.args.sum_path},   {ev.args.glob} \n```\n"
                 f"`{msg.press_esc_enter()}` \n\n"
@@ -342,12 +346,12 @@ class AskAiApp(App[None]):
             )
 
     @work(thread=True, exclusive=True)
-    def _ask_and_reply(self, question: str) -> tuple[bool, Optional[str]]:
+    def ask_and_reply(self, question: str) -> tuple[bool, Optional[str]]:
         """Ask the question to the AI, and provide the reply.
         :param question: The question to ask to the AI engine.
         """
         self.enable_controls(False)
-        status, reply = self._askai.ask_and_reply(question)
+        status, reply = self.askai.ask_and_reply(question)
         self.enable_controls()
 
         return status, reply

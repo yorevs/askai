@@ -216,7 +216,7 @@ def cache(operation: str, args: tuple[str, ...]) -> None:
             CacheCmd.files("cleanup" in args, *args)
         case "enable":
             if not args:
-                err: str = str(click.MissingParameter(f"Argument 'enable' is missing. Usage /cache enable \\<0|1\\>"))
+                err: str = str(click.MissingParameter(f"Arguments missing. Usage /cache enable \\<0|1\\>"))
                 text_formatter.cmd_print(f"Error: {err}")
             else:
                 configs.is_cache = to_bool(args[0])

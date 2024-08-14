@@ -47,7 +47,7 @@ class CacheCmd(ABC):
             display_text(entries)
         else:
             sysout(f"\n%RED%-=- Caching is empty! -=-%NC%")
-        display_text("\n> Hint: Type: '/cache get/clear [name | index]' to clear one or all cache entries.")
+        display_text("\n> Hint: Type: '/cache [get|clear|files|enable|ttl] <args>'.")
 
     @staticmethod
     def get(name: str) -> Optional[str]:

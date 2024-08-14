@@ -67,17 +67,21 @@ class AskAiCli(AskAi):
 
     def run(self) -> None:
         """Run the application."""
-        while query := (self._query_string or self._input()):
-            status, output = self.ask_and_reply(query)
+        while question := (self._query_string or self._input()):
+            status, output = self.ask_and_reply(question)
             if not status:
-                query = None
+                question = None
                 break
             elif output:
-                cache.save_reply(query, output)
+                cache.save_reply(question, output)
                 cache.save_input_history()
+                with open(self._console_path, "a+") as f_console:
+                    f_console.write(f"{shared.username_md}{question}\n\n")
+                    f_console.write(f"{shared.nickname_md}{output}\n\n")
+                    f_console.flush()
             if not configs.is_interactive:
                 break
-        if query == "":
+        if question == "":
             self._reply(msg.goodbye())
         sysout("%NC%")
 
@@ -88,9 +92,9 @@ class AskAiCli(AskAi):
         if message and (text := msg.translate(message)):
             log.debug(message)
             if configs.is_speak:
-                self.engine.text_to_speech(text, f"{shared.nickname}: ")
+                self.engine.text_to_speech(text, f"{shared.nickname}")
             else:
-                display_text(text, f"{shared.nickname}: ")
+                display_text(text, f"{shared.nickname}")
 
     def _reply_error(self, message: str) -> None:
         """Reply API or system errors.
@@ -99,13 +103,13 @@ class AskAiCli(AskAi):
         if message and (text := msg.translate(message)):
             log.error(message)
             if configs.is_speak:
-                self.engine.text_to_speech(f"Error: {text}", f"{shared.nickname}: ")
+                self.engine.text_to_speech(f"Error: {text}", f"{shared.nickname}")
             else:
-                display_text(f"%RED%Error: {text}%NC%", f"{shared.nickname}: ")
+                display_text(f"%RED%Error: {text}%NC%", f"{shared.nickname}")
 
     def _input(self) -> Optional[str]:
         """Read the user input from stdin."""
-        return shared.input_text(f"{shared.username}: ", f"Message {self.engine.nickname()}")
+        return shared.input_text(f"{shared.username}", f"Message {self.engine.nickname()}")
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.
@@ -155,8 +159,8 @@ class AskAiCli(AskAi):
             nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
             cache.cache_enable = configs.is_cache
             KeyboardInput.preload_history(cache.load_input_history(commands()))
-            recorder.setup()
             scheduler.start()
+            recorder.setup()
             player.start_delay()
             self._ready = True
             splash_thread.join()

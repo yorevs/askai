@@ -55,7 +55,7 @@ class AskAiMessages(metaclass=Singleton):
     # Informational
 
     def welcome(self, username: str) -> str:
-        return f"Welcome back {username.title()}, How can I assist you today ?"
+        return f"Welcome back {username}, How can I assist you today ?"
 
     def wait(self) -> str:
         return "I'm thinking…"

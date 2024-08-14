@@ -73,10 +73,11 @@ class TaskSplitter(metaclass=Singleton):
                 (
                     "system",
                     template.format(
-                        os_type=prompt.os_type, shell=prompt.shell, datetime=geo_location.datetime, home=Path.home()
+                        os_type=prompt.os_type, shell=prompt.shell,
+                        datetime=geo_location.datetime, home=Path.home()
                     ),
                 ),
-                MessagesPlaceholder("chat_history", optional=True),
+                MessagesPlaceholder("chat_history"),
                 ("assistant", rag),
                 ("human", self.HUMAN_PROMPT),
             ]

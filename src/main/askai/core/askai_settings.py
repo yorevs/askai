@@ -30,7 +30,7 @@ import os
 import re
 
 # AskAI config directory.
-ASKAI_DIR: Path = Path(f'{os.getenv("ASKAI_DIR", os.getenv("HHS_CACHE_DIR", str(Path.home())))}/askai')
+ASKAI_DIR: Path = Path(f'{os.getenv("ASKAI_DIR", os.getenv("HHS_DIR", str(Path.home())))}/askai')
 if not ASKAI_DIR.exists():
     ASKAI_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -114,10 +114,10 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.recorder.input.device.auto.swap", "askai", True)
         # Camera
         self._settings.put("askai.camera.face-detect.alg", "askai", "haarcascade_frontalface_default.xml")
-        self._settings.put("askai.camera.scale.factor", "askai", 1.2)
-        self._settings.put("askai.camera.min.neighbors", "askai", 5)
+        self._settings.put("askai.camera.scale.factor", "askai", 1.1)
+        self._settings.put("askai.camera.min.neighbors", "askai", 3)
         self._settings.put("askai.camera.min.size", "askai", "50, 50")
-        self._settings.put("askai.camera.identity.max.distance", "askai", 0.75)
+        self._settings.put("askai.camera.identity.max.distance", "askai", 0.70)
         # OpenAI
         self._settings.put("openai.speech.to.text.model", "openai", "whisper-1")
         self._settings.put("openai.text.to.speech.model", "openai", "tts-1")

@@ -65,7 +65,7 @@ class AskAiConfigs(metaclass=Singleton):
 
     @is_speak.setter
     def is_speak(self, value: bool) -> None:
-        settings.put("askai.speak.enabled", which("ffplay") and value)
+        settings.put("askai.speak.enabled", which("ffplay") and not self.is_debug and value)
 
     @property
     def is_debug(self) -> bool:

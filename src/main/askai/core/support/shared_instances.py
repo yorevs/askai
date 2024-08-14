@@ -73,11 +73,19 @@ class SharedInstances(metaclass=Singleton):
 
     @property
     def nickname(self) -> str:
-        return f"*  Taius*"
+        return f"%WHITE%  Taius:%NC% "
 
     @property
     def username(self) -> str:
-        return f"**  {prompt.user.title()}**"
+        return f"%GREEN%  {prompt.user.title()}:%NC% "
+
+    @property
+    def nickname_md(self) -> str:
+        return f"*  Taius:* "
+
+    @property
+    def username_md(self) -> str:
+        return f"**  {prompt.user.title()}:** "
 
     @property
     def idiom(self) -> str:

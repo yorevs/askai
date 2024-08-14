@@ -1,3 +1,14 @@
+import logging as log
+import os
+from typing import Optional
+
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.metaclass.singleton import Singleton
+from langchain.agents import AgentExecutor, create_structured_chat_agent
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables import Runnable
+from langchain_core.runnables.utils import Output
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -12,15 +23,6 @@ from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from hspylib.core.metaclass.singleton import Singleton
-from langchain.agents import AgentExecutor, create_structured_chat_agent
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import Runnable
-from langchain_core.runnables.utils import Output
-from typing import Optional
-
-import logging as log
-import os
 
 
 class TaskAgent(metaclass=Singleton):
@@ -73,8 +75,19 @@ class TaskAgent(metaclass=Singleton):
 
     @property
     def agent_template(self) -> ChatPromptTemplate:
-        """Retrieve the Structured Agent Template."""
-        return prompt.read_prompt("langchain/structured-agent")
+        """Retrieve the Structured Agent Template.
+        Ref: https://smith.langchain.com/hub/hwchase17/structured-chat-agent
+        """
+        prompt_file: PathObject = PathObject.of(prompt.append_path(f"langchain/structured-chat-agent"))
+        final_prompt: str = prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir)
+        return ChatPromptTemplate.from_messages(
+            [
+                ("system", final_prompt),
+                MessagesPlaceholder(variable_name="chat_history", optional=True),
+                ("user", "{input}"),
+                ("assistant", "{agent_scratchpad}"),
+            ]
+        )
 
     @property
     def lc_agent(self) -> Runnable:
@@ -130,7 +143,7 @@ class TaskAgent(metaclass=Singleton):
             llm = lc_llm.create_chat_model(temperature.temp)
             chat_memory = shared.memory
             lc_agent = create_structured_chat_agent(llm, tools, self.agent_template)
-            self._lc_agent = AgentExecutor(
+            self._lc_agent: Runnable = AgentExecutor(
                 agent=lc_agent,
                 tools=tools,
                 max_iteraction=configs.max_router_retries,

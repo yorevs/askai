@@ -178,7 +178,7 @@ class Recorder(metaclass=Singleton):
             f_rec.write(audio.get_wav_data())
             log.debug("Voice recorded and saved as %s", audio_path)
             if api := getattr(self._rec, recognition_api.value):
-                events.reply.emit(message=msg.transcribing(), erase_last=True)
+                events.reply.emit(message=msg.transcribing(), verbosity="debug", erase_last=True)
                 log.debug("Recognizing voice using %s", recognition_api)
                 assert isinstance(api, Callable)
                 return api(audio, language=language.language)

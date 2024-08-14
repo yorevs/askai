@@ -58,10 +58,10 @@ class AskAi:
     SPLASH: str = classpath.get_resource("splash.txt").read_text(encoding=Charset.UTF_8.val)
 
     class RunModes(Enum):
-        """ASKAI run modes"""
-        ASKAI_CLI = "ASKAI_CLI"  # Run as interactive CLI.
-        ASKAI_TUI = "ASKAI_TUI"  # Run as interactive Terminal UI.
-        ASKAI_CMD = "ASKAI_CMD"  # Run as non interactive CLI (Command mode).
+        """AskAI run modes"""
+        ASKAI_TUI = "ASKAI_TUI"  # Interactive Terminal UI.
+        ASKAI_CLI = "ASKAI_CLI"  # Interactive CLI.
+        ASKAI_CMD = "ASKAI_CMD"  # Non interactive CLI (Command mode).
 
     @staticmethod
     def _abort():
@@ -137,31 +137,6 @@ class AskAi:
         """Run the application."""
         ...
 
-    def _create_console_file(self, overwrite: bool = True):
-        """Create the Markdown formatted console file.
-        :param overwrite: Whether to overwrite the file or not.
-        """
-        is_new: bool = not file_is_not_empty(str(self.console_path)) or overwrite
-        with open(self.console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val) as f_console:
-            f_console.write(
-                f"{'---' + os.linesep * 2 if not is_new else ''}"
-                f"{'# ' + now(DATE_FORMAT) + os.linesep * 2 if is_new else ''}"
-                f"## {AppIcons.STARTED} {now(TIME_FORMAT)}\n\n"
-            )
-            f_console.flush()
-
-    def _reply(self, message: str) -> None:
-        """Reply to the user with the AI response.
-        :param message: The message to reply to the user.
-        """
-        ...
-
-    def _reply_error(self, message: str) -> None:
-        """Reply API or system errors.
-        :param message: The error message to be displayed.
-        """
-        ...
-
     def ask_and_reply(self, question: str) -> tuple[bool, Optional[str]]:
         """Ask the question to the AI, and provide the reply.
         :param question: The question to ask to the AI engine.
@@ -178,7 +153,7 @@ class AskAi:
                 ask_commander(args, standalone_mode=False)
             elif not (output := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
-                events.reply.emit(message=msg.wait())
+                events.reply.emit(message=msg.wait(), verbosity="debug")
                 output = processor.process(question, context=read_stdin(), query_prompt=self._query_prompt)
                 events.reply.emit(message=(output or msg.no_output("processor")))
             else:
@@ -204,6 +179,31 @@ class AskAi:
                 shared.context.set("LAST_REPLY", output)
 
         return status, output
+
+    def _create_console_file(self, overwrite: bool = True):
+        """Create the Markdown formatted console file.
+        :param overwrite: Whether to overwrite the file or not.
+        """
+        is_new: bool = not file_is_not_empty(str(self.console_path)) or overwrite
+        with open(self.console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val) as f_console:
+            f_console.write(
+                f"{'---' + os.linesep * 2 if not is_new else ''}"
+                f"{'# ' + now(DATE_FORMAT) + os.linesep * 2 if is_new else ''}"
+                f"## {AppIcons.STARTED} {now(TIME_FORMAT)}\n\n"
+            )
+            f_console.flush()
+
+    def _reply(self, message: str) -> None:
+        """Reply to the user with the AI response.
+        :param message: The message to reply to the user.
+        """
+        ...
+
+    def _reply_error(self, message: str) -> None:
+        """Reply API or system errors.
+        :param message: The error message to be displayed.
+        """
+        ...
 
     def _cb_mode_changed_event(self, ev: Event) -> None:
         """Callback to handle mode changed events.
