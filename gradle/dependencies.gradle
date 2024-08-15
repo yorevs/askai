@@ -5,10 +5,12 @@
     License: MIT - Please refer to <https://opensource.org/licenses/MIT>
     Copyright·(c)·2024,·HSPyLib
 */
+import org.gradle.internal.os.OperatingSystem;
 
 /* Project file definitions */
 project.ext.depsFile = "$project.projectDir/dependencies.hspd"
 project.ext.reqsFile = "$project.projectDir/src/main/requirements.txt"
+project.ext.os = OperatingSystem.current().getName()
 
 /* Version compatibility mode map */
 def modesMap = [
@@ -21,7 +23,7 @@ def modesMap = [
 
 /* Helper Functions -------------------------------------------------------- */
 
-// Detect the package space to install dependencies.
+/* Detect the package space to install dependencies. */
 String detectSpace() {
 
   def output = new ByteArrayOutputStream()
@@ -35,12 +37,13 @@ String detectSpace() {
   return is_venv ? '--global' : '--user'
 }
 
-// Read .hspd files using the defined hspd syntax. Added \[\] as valid package names.
+/* Read .hspd files using the defined HSPD syntax. Added \[\] as valid package names. */
 void readDependencies() {
   def depsFile = new File(depsFile)
   depsFile.eachLine { line ->
     def dep = null
-     // All fields syntax
+    // Python Packages {
+    // All fields syntax
     if (dep = line =~ /package: (([\w.-]+)(\[[\w.-]+\])?), version: (latest|\d+(\.\d+){0,4}), mode: (lt|le|eq|compat|ne|gt|ge|none)/) {
       dep.each {
         deps << [package: "${it[1]}", version: "${it[4]}", mode: "${it[6]}"]
@@ -58,6 +61,21 @@ void readDependencies() {
         deps << [package: "${it[1]}", version: "latest", mode: "ge"]
       }
     }
+    // } Python Packages
+    // System Apps {
+    // All fields syntax
+    else if (dep = line =~ /binary: (([\w.-]+)(\[[\w.-]+\])?), version: (latest|\d+(\.\d+){0,4})/) {
+      dep.each {
+        apps << [binary: "${it[1]}", version: "${it[4]}"]
+      }
+    }
+    // Only binary syntax
+    else if (dep = line =~ /binary: (([\w.-]+)(\[[\w.-]+\])?)/) {
+      dep.each {
+        apps << [binary: "${it[1]}", version: "latest"]
+      }
+    }
+    // } system Apps
     else {
       if ( line.startsWith('package: ') ) {
         throw new GradleException("Invalid hspd syntax $line. Usage: "
@@ -70,6 +88,7 @@ void readDependencies() {
 
 ext {
   deps = []  // List of project dependencies
+  apps = []  // List of project applications
   space = detectSpace()  // the user space to install packages
 }
 
@@ -130,6 +149,9 @@ task installPackages(type: Task) {
       project.space, '--upgrade', '-r', req_file.toString(),
       '--break-system-packages'
     ]
+    if (! verbose) {
+      args += '-q'
+    }
     exec {
       commandLine args.flatten()
     }
@@ -156,6 +178,9 @@ task removePackages(type: Task) {
       project.python, '-m', 'pip', 'uninstall', '-y',
       '-r', req_file.toString(), '--break-system-packages'
     ]
+    if (! verbose) {
+      args += '-q'
+    }
     exec {
       commandLine args.flatten()
     }
@@ -198,6 +223,23 @@ task freezeRequirements(type: Task) {
         println("package: ${dep.package}, version: ${pkgVersion}, mode: ${dep.mode}")
       } else {
         println("package: ${dep.package} -> 'Not-Installed' " + pkgVersion)
+      }
+    }
+  }
+}
+
+/* Gather all project requirements and generate a requirements file */
+task installBinaries(type: Task) {
+  group = 'Dependencies'
+  description = 'Install required system packages (applications)'
+  doLast {
+    readDependencies()
+    apps.each { app ->
+      if ('latest' == app.version) {
+        println(os + ": TODO Installing latest version of '" + app.binary + "'")
+      }
+      else {
+        println(os + ": TODO Installing '" + app.binary + "' v" + app.version)
       }
     }
   }

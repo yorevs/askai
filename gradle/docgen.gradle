@@ -13,7 +13,7 @@ def curDate = new SimpleDateFormat("EEE, d MMM yyyy").format(new Date())
 def apiSrcDir = "${sourceRoot}/main/${project.name.toLowerCase()}"
 
 ext {
-  apiDocsDir = "${project.projectDir}/docs/api"
+  apiDocsDir = "${rootDir}/docs/api"
 }
 
 /* File Headers Section ---------------------------------------------------- */
