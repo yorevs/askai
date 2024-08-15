@@ -136,10 +136,10 @@ task publish(type: Task) {
         }
     }
     exec {
-      commandLine 'git', 'tag', '-a', "v${version}", '-m', "New PyPi version v${version}"
+      commandLine 'git', 'tag', '-a', "v${app_version}", '-m', "New PyPi version v${app_version}"
     }
     exec {
-      commandLine 'git', 'push', 'origin', "v${version}"
+      commandLine 'git', 'push', 'origin', "v${app_version}"
     }
   }
 }
