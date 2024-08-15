@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.0.11
+# hspylib-askai v1.0.12
 #
 # Package: main.askai.core.component
 """Package initialization."""
@@ -16,4 +16,4 @@ __all__ = [
     'scheduler', 
     'summarizer'
 ]
-__version__ = '1.0.11'
+__version__ = '1.0.12'

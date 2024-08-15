@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.0.11
+# hspylib-askai v1.0.12
 #
 # Package: main.askai.core.features.router
 """Package initialization."""
@@ -13,4 +13,4 @@ __all__ = [
     'task_toolkit', 
     'tools'
 ]
-__version__ = '1.0.11'
+__version__ = '1.0.12'

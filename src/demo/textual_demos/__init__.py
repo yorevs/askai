@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.0.11
+# hspylib-askai v1.0.12
 #
 # Package: demo.textual_demos
 """Package initialization."""
@@ -19,4 +19,4 @@ __all__ = [
     'stopwatch', 
     'tooltip'
 ]
-__version__ = '1.0.11'
+__version__ = '1.0.12'
