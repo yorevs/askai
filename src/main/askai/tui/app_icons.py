@@ -30,7 +30,7 @@ class AppIcons(Enumeration):
     SETTINGS = ""
     INFO = ""
     CONSOLE = ""
-    DEBUG_ON = ""
+    DEBUG_ON = ""
     DEBUG_OFF = ""
     SPEAKING_ON = "墳"
     SPEAKING_OFF = "婢"

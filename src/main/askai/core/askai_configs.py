@@ -150,8 +150,8 @@ class AskAiConfigs(metaclass=Singleton):
         return settings.get_int("askai.camera.min.neighbors")
 
     @property
-    def min_size(self) -> tuple[int, ...]:
-        return tuple(map(int, settings.get_list("askai.camera.min.size")))
+    def min_max_size(self) -> tuple[int, ...]:
+        return tuple(map(int, settings.get_list("askai.camera.min-max.size")))
 
     @property
     def max_id_distance(self) -> float:

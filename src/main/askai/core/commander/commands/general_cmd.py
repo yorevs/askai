@@ -13,14 +13,16 @@
    Copyright (c) 2024, HomeSetup
 """
 from abc import ABC
+
+from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_settings import settings
 from askai.core.component.summarizer import summarizer
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
+from askai.core.support.utilities import display_text
 from askai.language.language import Language
 from clitt.core.term.terminal import Terminal
 from hspylib.core.config.path_object import PathObject
-from hspylib.core.tools.commons import sysout
 from hspylib.modules.application.exit_status import ExitStatus
 
 import locale
@@ -39,7 +41,7 @@ class GeneralCmd(ABC):
         if exit_code == ExitStatus.SUCCESS:
             text_formatter.cmd_print(output)
         else:
-            sysout(f"\n%RED%-=- Command `{cmd_line}` failed to execute: Code ({exit_code}) -=-%NC%")
+            display_text(f"\n%RED%-=- Command `{cmd_line}` failed to execute: Code ({exit_code}) -=-%NC%")
 
     @staticmethod
     def summarize(folder: str, glob: str) -> None:
@@ -52,9 +54,9 @@ class GeneralCmd(ABC):
             if summarizer.generate(sum_dir.abs_dir, glob):
                 text_formatter.cmd_print(f"Summarization complete. Folder: *{folder}*  Glob: *{glob}* !")
             else:
-                sysout(f"\n%RED%-=- Failed to summarize. Folder: {folder}  Glob: {glob} ! -=-%NC%")
+                display_text(f"\n%RED%-=- Failed to summarize. Folder: {folder}  Glob: {glob} ! -=-%NC%")
         else:
-            sysout(f"\n%RED%-=- Folder '{folder}' does not exist! -=-%NC%")
+            display_text(f"\n%RED%-=- Folder '{folder}' does not exist! -=-%NC%")
 
     @staticmethod
     def idiom(locale_str: str) -> None:
@@ -70,9 +72,20 @@ class GeneralCmd(ABC):
                 language = Language.of_locale(locale.getlocale(locale.LC_ALL))
                 text_formatter.cmd_print(f"Current locale: {language}")
         except (ValueError, TypeError) as err:
-            sysout(f"\n%RED%-=- Failed to set idiom: '{str(err)}'! -=-%NC%")
+            display_text(f"\n%RED%-=- Failed to set idiom: '{str(err)}'! -=-%NC%")
 
     @staticmethod
     def app_info() -> None:
         """Display some useful application information."""
-        sysout(shared.app_info)
+        display_text(shared.app_info)
+
+    @staticmethod
+    def translate(from_lang: Language, to_lang: Language, *texts: str) -> None:
+        """Translate a text from the source language to the target language.
+        :param from_lang: The source idiom.
+        :param to_lang: The target idiom.
+        :param texts: The texts to be translated.
+        """
+        translator = AskAiMessages.get_translator(from_lang, to_lang)
+        list(map(display_text, map(translator.translate, texts)))
+

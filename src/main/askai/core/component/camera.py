@@ -26,15 +26,19 @@ import pause
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import hash_text
+from hspylib.core.zoned_datetime import now_ms
 from retry import retry
 from torchvision.datasets.folder import is_image_file
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
 from askai.core.component.cache_service import FACE_DIR, PHOTO_DIR, IMG_IMPORTS_DIR
 from askai.core.component.image_store import ImageData, ImageFile, ImageMetadata, store
 from askai.core.features.router.tools.vision import image_captioner
-from askai.core.support.utilities import build_img_path, display_text
+from askai.core.support.utilities import build_img_path
+from askai.exception.exceptions import WebCamInitializationFailure, CameraAccessFailure
 
 InputDevice: TypeAlias = tuple[int, str]
 
@@ -51,51 +55,68 @@ class Camera(metaclass=Singleton):
     @staticmethod
     def _countdown(count: int) -> None:
         """Display a countdown before taking a photo."""
-        i = count
-        print()
-        display_text(f"Smile {str(i) + ' '}")
-        while i:
-            display_text(f"Smile {str(i) + ' '}", erase_last=True)
-            pause.seconds(1)
-            i -= 1
+        if i := count:
+            events.reply.emit(message=msg.smile(i))
+            while i:
+                events.reply.emit(message=msg.smile(i), erase_last=True)
+                pause.seconds(1)
+                i -= 1
 
     def __init__(self):
         self._cam = None
-        self._cascPath: Path = Path.joinpath(self.RESOURCE_DIR, self.ALG)
-        self._haarFaceCascade = cv2.CascadeClassifier(str(self._cascPath))
+        self._alg_path: Path = Path.joinpath(self.RESOURCE_DIR, self.ALG)
+        self._face_classifier = cv2.CascadeClassifier(str(self._alg_path))
+
+    @retry(tries=3, backoff=1, delay=1)
+    def initialize(self) -> None:
+        """Initialize the camera device."""
+        if not self._cam or not self._cam.isOpened():
+            self._cam = cv2.VideoCapture(0)
+            ret, img = self._cam.read()
+            log.info("Starting the WebCam device")
+            if not (ret and img is not None):
+                raise WebCamInitializationFailure("Failed to initialize the WebCam device !")
+            else:
+                atexit.register(self.shutdown)
+
+    @retry(tries=3, backoff=1, delay=1)
+    def shutdown(self) -> None:
+        """Shutdown the camera device."""
+        if self._cam and self._cam.isOpened():
+            log.info("Shutting down the WebCam device")
+            self._cam.release()
 
     def capture(
         self,
-        filename: str,
+        filename: AnyPath,
         countdown: int = 3,
         with_caption: bool = True,
         store_image: bool = True
     ) -> Optional[tuple[ImageFile, ImageData]]:
         """Capture a WebCam frame (take a photo)."""
 
-        self._initialize()
+        self.initialize()
 
         if not self._cam.isOpened():
-            display_text(f"%HOM%%ED2%Error: Camera is not open!%NC%")
+            events.reply_error.emit(message=msg.camera_not_open())
             return None
 
-        if countdown > 0:
-            self._countdown(countdown)
+        self._countdown(countdown)
 
         ret, photo = self._cam.read()
         if not ret:
-            log.error("Failed to take a photo from WebCam!")
-            return None
+            raise CameraAccessFailure("Failed to take a photo from WebCam!")
 
-        final_path: str = build_img_path(PHOTO_DIR, filename, '-PHOTO.jpg')
+        filename: str = filename or str(now_ms())
+        final_path: str = build_img_path(PHOTO_DIR, str(filename), '-PHOTO.jpg')
         if final_path and cv2.imwrite(final_path, photo):
             photo_file = ImageFile(
                 hash_text(basename(final_path)), final_path, store.PHOTO_CATEGORY,
-                image_captioner(final_path) if with_caption else "No caption"
+                image_captioner(final_path) if with_caption else msg.no_caption()
             )
             if store_image:
                 store.store_image(photo_file)
-            log.info("WebCam photo captured: '%s'", photo_file)
+            events.reply.emit(message=msg.photo_captured(photo_file.img_path), verbosity="debug")
             return photo_file, photo
 
         return None
@@ -103,7 +124,7 @@ class Camera(metaclass=Singleton):
     def detect_faces(
         self,
         photo: ImageData,
-        filename: str | None = None,
+        filename: AnyPath = None,
         with_caption: bool = True,
         store_image: bool = True
     ) -> tuple[list[ImageFile], list[ImageData]]:
@@ -112,35 +133,45 @@ class Camera(metaclass=Singleton):
         face_files: list[ImageFile] = []
         face_datas: list[ImageData] = []
         gray_img = cv2.cvtColor(photo, cv2.COLOR_BGR2GRAY)
-        faces = self._haarFaceCascade.detectMultiScale(
+        faces = self._face_classifier.detectMultiScale(
             gray_img,
             scaleFactor=configs.scale_factor,
             minNeighbors=configs.min_neighbors,
-            minSize=configs.min_size
+            minSize=configs.min_max_size,
+            maxSize=configs.min_max_size
         )
-        log.info("Detected faces: %d", len(faces))
+        log.debug("Detected faces: %d", len(faces))
 
         if len(faces) == 0:
             return face_files, face_datas
 
         for x, y, w, h in faces:
             cropped_face: ImageData = photo[y: y + h, x: x + w]
-            final_path: str = build_img_path(FACE_DIR, filename, f'-FACE-{len(face_files)}.jpg')
+            final_path: str = build_img_path(FACE_DIR, str(filename), f'-FACE-{len(face_files)}.jpg')
             if final_path and cv2.imwrite(final_path, cropped_face):
                 face_file = ImageFile(
                     hash_text(basename(final_path)), final_path, store.FACE_CATEGORY,
-                    image_captioner(final_path) if with_caption else "No caption"
+                    image_captioner(final_path) if with_caption else msg.no_caption()
                 )
                 face_files.append(face_file)
                 face_datas.append(cropped_face)
-                log.info("Face file successfully saved: '%s' !", final_path)
+                log.debug("Face file successfully saved: '%s' !", final_path)
             else:
-                log.error("Failed to save face file: '%s' !", final_path)
+                raise CameraAccessFailure(f"Failed to save face file: '{final_path}'!")
 
         if store_image:
             store.store_image(*face_files)
 
         return face_files, face_datas
+
+    def identify(self, max_distance: float = configs.max_id_distance) -> Optional[ImageMetadata]:
+        """Identify the person in front of the WebCam."""
+
+        _, photo = self.capture("ASKAI-ID", 0, False, False)
+        _ = self.detect_faces(photo, "ASKAI-ID", False, False)
+        result = list(filter(lambda p: p.distance <= max_distance, store.search_face(photo)))
+
+        return next(iter(result), None)
 
     def import_images(
         self,
@@ -149,7 +180,7 @@ class Camera(metaclass=Singleton):
         with_caption: bool = True,
         store_image: bool = True
     ) -> tuple[int, ...]:
-        """TODO"""
+        """Import image files into the image collection."""
 
         img_datas: list[ImageData] = []
         img_files: list[ImageFile] = []
@@ -164,11 +195,11 @@ class Camera(metaclass=Singleton):
             return ImageFile(
                 hash_text(basename(img_path)),
                 img_path, store.IMPORTS_CATEGORY,
-                image_captioner(img_path) if with_caption else "No caption"
+                image_captioner(img_path) if with_caption else msg.no_caption()
             )
 
         def _do_import(*img_path: str) -> None:
-            log.info("Importing images: %s", img_path)
+            log.debug("Importing images: %s", img_path)
             import_paths: list[str] = list(map(_import_file, img_path))
             list(map(img_files.append, map(_read_file, import_paths)))
             list(map(img_datas.append, map(cv2.imread, import_paths)))
@@ -191,35 +222,6 @@ class Camera(metaclass=Singleton):
                     faces.extend(face_file)
 
         return len(img_files), len(faces)
-
-    def identify(self, max_distance: float = configs.max_id_distance) -> Optional[ImageMetadata]:
-        """Identify the person in front of the WebCam."""
-
-        _, photo = self.capture("ASKAI-ID", 0, False, False)
-        _ = self.detect_faces(photo, "ASKAI-ID", False, False)
-        result = list(filter(lambda p: p.distance <= max_distance, store.search_face(photo)))
-
-        return next(iter(result), None)
-
-    @retry(tries=3, backoff=1, delay=1)
-    def _initialize(self) -> None:
-        """Initialize the camera device."""
-        # Init the WebCam.
-        if not self._cam or not self._cam.isOpened():
-            self._cam = cv2.VideoCapture(0)
-            ret, img = self._cam.read()
-            log.info("Starting the WebCam device")
-            if not (ret and img is not None):
-                log.error("Failed to initialize the WebCam device !")
-            else:
-                atexit.register(self._shutdown)
-
-    @retry(tries=3, backoff=1, delay=1)
-    def _shutdown(self) -> None:
-        """Shutdown the camera device."""
-        if self._cam and self._cam.isOpened():
-            log.info("Shutting down the WebCam device")
-            self._cam.release()
 
 
 assert (camera := Camera().INSTANCE) is not None

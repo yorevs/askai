@@ -13,18 +13,22 @@
    Copyright (c) 2024, HomeSetup
 """
 import os
+from functools import partial
 from os.path import dirname
 from pathlib import Path
 from string import Template
 
 import click
 from click import Command, Group
+from clitt.core.term.cursor import cursor
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import sysout, to_bool
+from hspylib.modules.eventbus.event import Event
 
 from askai.core.askai_configs import configs
-from askai.core.askai_events import events
+from askai.core.askai_events import events, AskAiEvents, ASKAI_BUS_NAME, REPLY_EVENT, REPLY_ERROR_EVENT
 from askai.core.commander.commands.cache_cmd import CacheCmd
+from askai.core.commander.commands.camera_cmd import CameraCmd
 from askai.core.commander.commands.general_cmd import GeneralCmd
 from askai.core.commander.commands.history_cmd import HistoryCmd
 from askai.core.commander.commands.settings_cmd import SettingsCmd
@@ -32,6 +36,7 @@ from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
+from askai.language.language import Language, AnyLocale
 
 COMMANDER_HELP_TPL = Template(
     """
@@ -94,7 +99,19 @@ def _init_context(context_size: int = 1000, engine_name: str = "openai", model_n
 @click.pass_context
 def ask_commander(_) -> None:
     """AskAI commands group."""
-    pass
+
+    def _reply_event(ev: Event, error: bool = False) -> None:
+        if message := ev.args.message:
+            if error:
+                text_formatter.cmd_print(f"%RED%{message}!%NC%")
+            else:
+                if ev.args.erase_last:
+                    cursor.erase_line()
+                display_text(message)
+
+    askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
+    askai_bus.subscribe(REPLY_EVENT, _reply_event)
+    askai_bus.subscribe(REPLY_ERROR_EVENT, partial(_reply_event, error=True))
 
 
 @ask_commander.command()
@@ -143,6 +160,15 @@ def history(operation: str) -> None:
             HistoryCmd.history_forget()
         case "list":
             HistoryCmd.history_list()
+
+
+@ask_commander.command()
+@click.argument("name", default="LAST_REPLY")
+def copy(name: str) -> None:
+    """Copy a context entry to the clipboard
+    :param name: The context name.
+    """
+    HistoryCmd.context_copy(name)
 
 
 @ask_commander.command()
@@ -311,12 +337,40 @@ def info() -> None:
 
 
 @ask_commander.command()
-@click.argument("name", default="LAST_REPLY")
-def copy(name: str) -> None:
-    """Copy a context entry to the clipboard
-    :param name: The context name.
+@click.argument("from_locale_str")
+@click.argument("to_locale_str")
+@click.argument("texts", nargs=-1)
+def translate(from_locale_str: AnyLocale, to_locale_str: AnyLocale, texts: tuple[str, ...]) -> None:
+    """Translate a text from the source language to the target language.
+    :param from_locale_str: The source idiom.
+    :param to_locale_str: The target idiom.
+    :param texts: The texts to be translated.
     """
-    HistoryCmd.context_copy(name)
+    GeneralCmd.translate(
+        Language.of_locale(from_locale_str),
+        Language.of_locale(to_locale_str),
+        ' '.join(texts)
+    )
+
+
+@ask_commander.command()
+@click.argument("operation", default="capture")
+@click.argument("args", nargs=-1)
+def camera(operation: str, args: tuple[str, ...]) -> None:
+    """Take photos, import images or identify a person using hte WebCam.
+    :param operation: the camera operation.
+    :param args The operation arguments operate.
+    """
+    match operation:
+        case "capture" | "photo":
+            CameraCmd.capture(*args)
+        case "identify" | "id":
+            CameraCmd.identify(*args)
+        case "import":
+            CameraCmd.import_images(*args)
+        case _:
+            err = str(click.BadParameter(f"Invalid camera operation: '{operation}'"))
+            text_formatter.cmd_print(f"%RED%{err}%NC%")
 
 
 if __name__ == "__main__":
@@ -324,18 +378,23 @@ if __name__ == "__main__":
     # shared.create_context(1000)
     # shared.context.push("LAST_REPLY", "This is the last reply!")
     # shared.context.push("LAST_REPLY", "This is the another last reply!")
-    # ask_cli(["copy"], standalone_mode=False)
+    # ask_commander(["copy"], standalone_mode=False)
     # print(pyperclip.paste())
-    # ask_cli(["info"], standalone_mode=False)
-    # ask_cli(['idiom'], standalone_mode=False)
-    # ask_cli(['idiom', 'pt_BR.iso8859-1'], standalone_mode=False)
-    # ask_cli(['idiom'], standalone_mode=False)
+    # ask_commander(["info"], standalone_mode=False)
+    # ask_commander(['idiom'], standalone_mode=False)
+    # ask_commander(['idiom', 'pt_BR.iso8859-1'], standalone_mode=False)
+    # ask_commander(['idiom'], standalone_mode=False)
     # cache_service.cache.save_reply('log', "Log message is a big reply that will be wrapped into")
     # cache_service.cache.save_reply('audio', "Audio message")
-    # ask_cli(['cache'], standalone_mode=False)
-    # ask_cli(['cache', 'get', 'log', 'audio'], standalone_mode=False)
-    # ask_cli(['cache', 'clear'], standalone_mode=False)
-    # ask_cli(['cache', 'clear', 'log', 'audio'], standalone_mode=False)
-    # ask_cli(['cache', 'files'], standalone_mode=False)
-    # ask_cli(['cache', 'files', 'cleanup', 'askai'], standalone_mode=False)
-    # ask_cli(['cache', 'files', 'cleanup', 'recordings'], standalone_mode=False)
+    # ask_commander(['cache'], standalone_mode=False)
+    # ask_commander(['cache', 'get', 'log', 'audio'], standalone_mode=False)
+    # ask_commander(['cache', 'clear'], standalone_mode=False)
+    # ask_commander(['cache', 'clear', 'log', 'audio'], standalone_mode=False)
+    # ask_commander(['cache', 'files'], standalone_mode=False)
+    # ask_commander(['cache', 'files', 'cleanup', 'askai'], standalone_mode=False)
+    # ask_commander(['cache', 'files', 'cleanup', 'recordings'], standalone_mode=False)
+    # ask_commander(['camera'], standalone_mode=False)
+    # ask_commander(['camera', 'id', 'True'], standalone_mode=False)
+    # ask_commander(['camera', 'import', '/tmp/*.jpeg'], standalone_mode=False)
+    # ask_commander(['camera', 'import', '/Users/hjunior/Downloads'], standalone_mode=False)
+    ask_commander(['translate', 'pt_BR', 'fr_FR', "Olá eu sou o Hugo desenvolvedor pleno!"], standalone_mode=False)

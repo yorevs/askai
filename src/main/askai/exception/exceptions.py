@@ -70,3 +70,11 @@ class InvalidStructuredResponse(HSBaseException):
 
 class MissingApiKeyError(HSBaseException):
     """Raised when received an invalid structured response."""
+
+
+class WebCamInitializationFailure(HSBaseException):
+    """Raised when failed to initialize the computer Webcam."""
+
+
+class CameraAccessFailure(HSBaseException):
+    """Raised when failed to operate with the computer Webcam."""

@@ -12,14 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import re
+from functools import cached_property, lru_cache
+
+from hspylib.core.metaclass.singleton import Singleton
+
 from askai.core.askai_configs import configs
 from askai.language.ai_translator import AITranslator
 from askai.language.language import Language
 from askai.language.translators.marian import MarianTranslator
-from functools import cached_property, lru_cache
-from hspylib.core.metaclass.singleton import Singleton
-
-import re
 
 
 class AskAiMessages(metaclass=Singleton):
@@ -28,6 +29,11 @@ class AskAiMessages(metaclass=Singleton):
     INSTANCE: "AskAiMessages"
 
     TRANSLATOR: AITranslator = MarianTranslator
+
+    @staticmethod
+    @lru_cache
+    def get_translator(from_lang: Language, to_lang: Language) -> AITranslator:
+        return AskAiMessages.TRANSLATOR(from_lang, to_lang)
 
     def __init__(self):
         # fmt: off
@@ -42,7 +48,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @property
     def translator(self) -> AITranslator:
-        return self._translator_(Language.EN_US, configs.language)
+        return AskAiMessages.get_translator(Language.EN_US, configs.language)
 
     @lru_cache(maxsize=256)
     def translate(self, text: str) -> str:
@@ -72,8 +78,8 @@ class AskAiMessages(metaclass=Singleton):
     def goodbye(self) -> str:
         return "Goodbye, have a nice day !"
 
-    def executing(self, command_line: str) -> str:
-        return f"~~[DEBUG]~~ Executing: `{command_line}`…"
+    def smile(self, countdown: int) -> str:
+        return f"\nSmile {str(countdown)} "
 
     def cmd_success(self, command_line: str) -> str:
         return f"OK, command `{command_line}` succeeded"
@@ -107,6 +113,12 @@ class AskAiMessages(metaclass=Singleton):
 
     def device_switch(self, device_info: str) -> str:
         return f"\nSwitching to Audio Input device: `{device_info}`\n"
+
+    def photo_captured(self, photo: str) -> str:
+        return f"~~[DEBUG]~~ WebCam photo captured: `{photo}`"
+
+    def executing(self, command_line: str) -> str:
+        return f"~~[DEBUG]~~ Executing: `{command_line}`…"
 
     # Debug messages
 
@@ -143,6 +155,9 @@ class AskAiMessages(metaclass=Singleton):
     def final_query(self, query: str) -> str:
         return f"~~[DEBUG]~~ > Final query: `{query}`"
 
+    def no_caption(self) -> str:
+        return "No caption available"
+
     # Warnings and alerts
 
     def no_output(self, source: str) -> str:
@@ -167,6 +182,9 @@ class AskAiMessages(metaclass=Singleton):
 
     def cmd_failed(self, cmd_line: str) -> str:
         return f"Command: `{cmd_line}' failed to execute !"
+
+    def camera_not_open(self) -> str:
+        return "Camera is not open, or unauthorized!"
 
     def missing_package(self, err: ImportError) -> str:
         return f"Unable to summarize => {str(err)}' !"
@@ -199,10 +217,6 @@ class AskAiMessages(metaclass=Singleton):
         return(
             f"Oops! Looks like you have reached your quota limit. You can add credits at: "
             f"https://platform.openai.com/settings/organization/billing/overview")
-
-    @lru_cache
-    def _translator_(self, from_idiom: Language, to_idiom: Language) -> AITranslator:
-        return self.TRANSLATOR(from_idiom, to_idiom)
 
 
 assert (msg := AskAiMessages().INSTANCE) is not None
