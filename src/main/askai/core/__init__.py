@@ -7,6 +7,7 @@
 
 __all__ = [
     'askai', 
+    'askai_cli', 
     'askai_configs', 
     'askai_events', 
     'askai_messages', 

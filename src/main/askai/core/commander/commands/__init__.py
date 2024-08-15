@@ -7,6 +7,7 @@
 
 __all__ = [
     'cache_cmd', 
+    'camera_cmd', 
     'general_cmd', 
     'history_cmd', 
     'settings_cmd', 

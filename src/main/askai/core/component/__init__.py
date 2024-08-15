@@ -10,8 +10,8 @@ __all__ = [
     'cache_service', 
     'camera', 
     'geo_location', 
+    'image_store', 
     'internet_service', 
-    'recognizer', 
     'recorder', 
     'scheduler', 
     'summarizer'

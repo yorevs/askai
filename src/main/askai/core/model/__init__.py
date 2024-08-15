@@ -7,6 +7,7 @@
 
 __all__ = [
     'action_plan', 
+    'api_keys', 
     'model_result', 
     'search_result', 
     'summary_result'
