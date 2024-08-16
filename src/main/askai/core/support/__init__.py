@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.0.12
+# hspylib-askai v1.0.13
 #
 # Package: main.askai.core.support
 """Package initialization."""
@@ -14,4 +14,4 @@ __all__ = [
     'text_formatter', 
     'utilities'
 ]
-__version__ = '1.0.12'
+__version__ = '1.0.13'

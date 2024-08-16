@@ -12,19 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import json
-from pathlib import Path
-
-import dotenv
-
-from askai.core.model.api_keys import ApiKeys
-from hspylib.core.metaclass.classpath import Classpath
-from hspylib.core.tools.commons import get_path, run_dir
 
 import logging as log
 import os
-import pydantic
 import sys
+
+import pydantic
+from askai.core.model.api_keys import ApiKeys
+from hspylib.core.metaclass.classpath import Classpath
+from hspylib.core.tools.commons import parent_path, root_dir
 
 if not os.environ.get("USER_AGENT"):
     # The AskAI User Agent, required by the langchain framework
@@ -44,7 +40,7 @@ class _Classpath(Classpath):
     """TODO"""
 
     def __init__(self):
-        super().__init__(get_path(__file__), get_path(run_dir()), (get_path(__file__) / "resources"))
+        super().__init__(parent_path(__file__), parent_path(root_dir()), (parent_path(__file__) / "resources"))
 
 
 # Instantiate the classpath singleton

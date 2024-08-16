@@ -9,7 +9,7 @@
 
 /* Module dependencies */
 
-package: hspylib, version: 1.12.43, mode: ge
+package: hspylib, version: 1.12.44, mode: ge
 package: hspylib-clitt, version: 0.9.128, mode: ge
 package: hspylib-setman, version: 0.10.35, mode: ge
 
