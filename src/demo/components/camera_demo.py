@@ -1,14 +1,14 @@
 import os
 from textwrap import dedent
 
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.tools.commons import sysout
-from hspylib.core.tools.text_tools import strip_escapes
-
 from askai.core.component.camera import camera
 from askai.core.component.image_store import ImageMetadata, store
 from askai.core.features.router.tools.terminal import open_command
 from askai.core.support.utilities import display_text
+from clitt.core.term.cursor import cursor
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.tools.text_tools import strip_escapes
+
 from utils import init_context
 
 MENU = dedent(
@@ -23,54 +23,53 @@ MENU = dedent(
 6. Import images
 7. List images
 
-? """
+> """
 )
 
 
 if __name__ == "__main__":
-    init_context("camera-demo")
+    init_context(log_name="camera-demo")
     photo: ImageMetadata
     while opt := line_input(MENU, placeholder="Select an option"):
-        sysout()
+        cursor.write()
         if opt == "1" and (name := strip_escapes(line_input("Photo name: "))):
             pic_file, pic_data = camera.capture(name)
             face_files, face_datas = camera.detect_faces(pic_data, name)
-            sysout()
-            sysout("Photo taken: ", pic_file, " Detected faces: ", len(face_files))
+            cursor.write()
+            cursor.write(f"Photo taken: {pic_file} Detected faces: {len(face_files)}")
         if opt == "2" and not (name := line_input("Press [Enter] key when ready")):
             if photo := camera.identify():
-                sysout()
-                sysout("Identified person: ", f'"{photo.name}"', " URI: ", photo.uri, " DIST: ", photo.distance)
+                cursor.write()
+                cursor.write(f"Identified person: {photo.name} URI: {photo.uri} DIST: ", photo.distance)
                 open_command(photo.uri)
             else:
-                sysout()
-                sysout("No identification was possible!")
+                cursor.write()
+                cursor.write("No identification was possible!")
         while opt == "3" and (query := line_input("Query photo: ", "Type in the description (<empty> to return)")):
-            sysout()
-            sysout("Showing result for:", query)
+            cursor.write()
+            cursor.write(f"Showing result for: {query}")
             results: list[ImageMetadata] = store.query_image(query)
             for photo in results:
-                sysout()
-                sysout("Showing photo: ", f'"{photo.name}"', " URI: ", photo.uri, " DIST:", photo.distance)
+                cursor.write()
+                cursor.write(f"Showing photo: {photo.name} URI: {photo.uri} DIST: {photo.distance}")
                 open_command(photo.uri)
         while opt == "4" and (query := line_input("Query face: ", "Type in the description (<empty> to return)")):
-            sysout()
-            sysout("Showing result for:", query)
+            cursor.write()
+            cursor.write(f"Showing result for: {query}")
             results: list[ImageMetadata] = store.query_face(query)
             for photo in results:
-                sysout()
-                sysout("Showing face: ", photo.name, " URI: ", photo.uri, " DIST:", photo.distance)
+                cursor.write()
+                cursor.write(f"Showing face: {photo.name} URI: {photo.uri} DIST:", photo.distance)
                 open_command(photo.uri)
         if opt == "5":
             count: int = store.sync_store(with_caption=False)
-            sysout()
-            sysout("Synchronized files: ", count)
+            cursor.write()
+            cursor.write(f"Synchronized files: {count}")
         if opt == "6" and (query := line_input("Path to import: ", "File, folder path or glob")):
             images, faces = camera.import_images(query.strip(), True)
-            sysout()
-            sysout("Imported images: ", images, " Detected faces: ", faces)
+            cursor.write()
+            cursor.write(f"Imported images: {images} Detected faces: {faces}")
         if opt == "7":
             display_text(f"```json\n{os.linesep.join(store.enlist())}\n```")
-        sysout()
-        sysout()
-    sysout("Done")
+        cursor.write(os.linesep)
+    cursor.write("Done")

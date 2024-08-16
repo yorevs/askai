@@ -10,18 +10,16 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import os
+import re
+from textwrap import dedent
+from typing import Any
+
+from clitt.core.term.cursor import cursor
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
 from hspylib.modules.cli.vt100.vt_code import VtCode
 from hspylib.modules.cli.vt100.vt_color import VtColor
-from rich.console import Console
-from rich.markdown import Markdown
-from rich.text import Text
-from textwrap import dedent
-from typing import Any
-
-import os
-import re
 
 
 class TextFormatter(metaclass=Singleton):
@@ -68,13 +66,6 @@ class TextFormatter(metaclass=Singleton):
         """
         return ensure_endswith(ensure_startswith(text, os.linesep), os.linesep * 2)
 
-    def __init__(self):
-        self._console: Console = Console()
-
-    @property
-    def console(self) -> Console:
-        return self._console
-
     def beautify(self, text: Any) -> str:
         """Beautify the provided text with icons and other formatting improvements.
         :param text: The text to be beautified.
@@ -104,14 +95,14 @@ class TextFormatter(metaclass=Singleton):
         :param text: The text to be displayed.
         """
         colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text)))
-        self.console.print(Markdown(colorized))
+        cursor.write(colorized, markdown=True)
 
     def display_text(self, text: str) -> None:
         """Display a vt100 formatted text.
         :param text: The text to be displayed.
         """
         colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text)))
-        self.console.print(Text.from_ansi(colorized))
+        cursor.write(colorized)
 
     def cmd_print(self, text: str):
         """Display an AskAI commander text.

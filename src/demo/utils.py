@@ -22,7 +22,7 @@ RESOURCES: dict[str, any] = {"files": "ctx-files.txt", "reminders": "ctx-reminde
 def init_context(
     log_name: str | None = None,
     context_size: int = 1000,
-    log_level: int = log.INFO,
+    log_level: int = log.NOTSET,
     engine_name: Literal["openai"] = "openai",
     model_name: Literal["gpt-3.5-turbo", "gpt-4", "gpt-4o"] = "gpt-3.5-turbo",
 ) -> None:

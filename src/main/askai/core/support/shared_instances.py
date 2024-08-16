@@ -73,11 +73,11 @@ class SharedInstances(metaclass=Singleton):
 
     @property
     def nickname(self) -> str:
-        return f"%WHITE%  Taius:%NC% "
+        return f"%GREEN%  Taius:%NC% "
 
     @property
     def username(self) -> str:
-        return f"%GREEN%  {prompt.user.title()}:%NC% "
+        return f"%WHITE%  {prompt.user.title()}:%NC% "
 
     @property
     def nickname_md(self) -> str:
@@ -128,13 +128,13 @@ class SharedInstances(metaclass=Singleton):
         )
 
     def create_engine(self, engine_name: str, model_name: str) -> AIEngine:
-        """Create an AI engine specified by the engine and model names."""
+        """Create/Get the AI engine specified by the engine and model names."""
         if self._engine is None:
             self._engine = EngineFactory.create_engine(engine_name, model_name)
         return self._engine
 
     def create_context(self, token_limit: int) -> ChatContext:
-        """Create the chat context, limiting to the specified token"""
+        """Create/Get the chat context, with the specified token limit."""
         if self._context is None:
             if configs.is_cache:
                 self._context = ChatContext.of(cache.read_context(), token_limit, self.max_short_memory_size)
@@ -143,7 +143,7 @@ class SharedInstances(metaclass=Singleton):
         return self._context
 
     def create_memory(self, memory_key: str = "chat_history") -> ConversationBufferWindowMemory:
-        """TODO"""
+        """Create/Get the conversation window memory."""
         if self._memory is None:
             self._memory = ConversationBufferWindowMemory(
                 memory_key=memory_key, k=configs.max_short_memory_size, return_messages=True
