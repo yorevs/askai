@@ -92,7 +92,7 @@ class Main(TUIApplication):
                 nargs="?")\
             .option(
                 "prompt", "p", "prompt",
-                "specifies the query prompt file (not useful with interactive mode).",
+                "specifies the landing prompt file (not useful with interactive mode).",
                 nargs="?")\
             .option(
                 "engine", "e", "engine",

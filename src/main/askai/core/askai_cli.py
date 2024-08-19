@@ -63,6 +63,7 @@ class AskAiCli(AskAi):
         self._ready: bool = False
         self._query_prompt = query_prompt
         self._query_string: QueryString = query_string if isinstance(query_string, str) else " ".join(query_string)
+        configs.is_interactive = configs.is_interactive if not query_prompt else False
         self._startup()
 
     def run(self) -> None:
