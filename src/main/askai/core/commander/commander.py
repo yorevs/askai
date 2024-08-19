@@ -13,10 +13,12 @@
    Copyright (c) 2024, HomeSetup
 """
 import os
+import re
 from functools import partial
 from os.path import dirname
 from pathlib import Path
 from string import Template
+from textwrap import dedent
 
 import click
 from click import Command, Group
@@ -39,23 +41,36 @@ from askai.core.support.utilities import display_text
 from askai.language.language import Language, AnyLocale
 
 COMMANDER_HELP_TPL = Template(
-    """
-# AskAI Commander - HELP
+    dedent("""
+    # AskAI Commander - HELP
 
-> Commands:
+    > Commands:
 
-${commands}
----
+    ${commands}
+    ---
 
-> CLI-Input Key-Bindings:
+    > CLI-Input Key-Bindings:
 
-| **Key**  | **Action**                    |
-| -------- | ----------------------------- |
-| *Ctrl+L* | **Push-To-Talk.**             |
-| *Ctrl+R* | **Reset the input field.**    |
-| *Ctrl+F* | **Forget the input history.** |
-"""
-)
+    | **Key**  | **Action**                    |
+    | -------- | ----------------------------- |
+    | *Ctrl+L* | **Push-To-Talk.**             |
+    | *Ctrl+R* | **Reset the input field.**    |
+    | *Ctrl+F* | **Forget the input history.** |
+
+    >   To get help about a specific command type: '/help \<command\>'
+    """))
+
+COMMANDER_HELP_CMD_TPL = Template(
+    dedent("""
+    # AskAI Commander - HELP
+    ```
+    %CYAN%Command: %ORANGE%${command}%NC%
+
+        ${docstr}
+
+    %CYAN%Usage:\t%WHITE%/${usage}
+    ```
+    """))
 
 RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"
 
@@ -71,16 +86,37 @@ def commands() -> list[str]:
     return sorted(all_commands, reverse=True)
 
 
-def commander_help() -> str:
-    """Return the commander help string."""
-    helpstr: str = ""
-    for cmd, obj in __module__.items():
-        if obj and isinstance(obj, Command) and not isinstance(obj, Group):
-            cmd_doc: str = f"{obj.__doc__.split(os.linesep, 1)[0]}**"
-            helpstr += f"| /{'*' + cmd + '*':<8} | **{cmd_doc:<43} |\n"
-    h_str: str = f"| {'**Command**':<9} | {'**Description**':<45} |\n"
-    h_str += f"| {'-' * 9} | {'-' * 45} |\n"
-    return COMMANDER_HELP_TPL.substitute(commands=f"{h_str}{helpstr}")
+def commander_help(command: str | None) -> str:
+    """Return the commander help string.
+    :param command: The command to get help from.
+    """
+    if (command in __module__) and (cmd := __module__[command]):
+        return _format_help(cmd)
+    else:
+        help_str: str = ""
+        for cmd, obj in __module__.items():
+            if obj and isinstance(obj, Command) and not isinstance(obj, Group):
+                cmd_doc: str = f"{obj.__doc__.split(os.linesep, 1)[0]}**"
+                help_str += f"| /{'*' + cmd + '*':<8} | **{cmd_doc:<43} |\n"
+        h_str: str = f"| {'**Command**':<9} | {'**Description**':<45} |\n"
+        h_str += f"| {'-' * 9} | {'-' * 45} |\n"
+        return COMMANDER_HELP_TPL.substitute(commands=f"{h_str}{help_str}")
+
+
+def _format_help(command: Command) -> str:
+    """Return a formatted help string for the given command.
+    :param command: The command to be formatted.
+    """
+    docstr: str = ""
+    splits: list[str] = re.split(os.linesep, command.__doc__, flags=re.MULTILINE | re.IGNORECASE)
+    for i, arg in enumerate(splits):
+        if mat := re.match(r':\w+\s+(\w+):\s+(.+)', arg.strip()):
+            docstr += f"\n\t\t- %BLUE%{mat.group(1).casefold():<15}%WHITE%\t: {mat.group(2).title()}"
+        elif arg.strip():
+            docstr += f"{arg}\n\n%CYAN%Arguments:%NC%\n"
+    usage_str: str = f"{command.name} {' '.join(['<' + p.name + '>' for p in command.params])}"
+
+    return COMMANDER_HELP_CMD_TPL.substitute(command=command.name.title(), docstr=docstr, usage=usage_str)
 
 
 def _init_context(context_size: int = 1000, engine_name: str = "openai", model_name: str = "gpt-4o-mini") -> None:
@@ -109,15 +145,19 @@ def ask_commander(_) -> None:
                     cursor.erase_line()
                 display_text(message)
 
+    _init_context()
     askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
     askai_bus.subscribe(REPLY_EVENT, _reply_event)
     askai_bus.subscribe(REPLY_ERROR_EVENT, partial(_reply_event, error=True))
 
 
 @ask_commander.command()
-def help() -> None:
-    """Show this help message and exit."""
-    text_formatter.cmd_print(commander_help())
+@click.argument("command", default="")
+def help(command: str | None) -> None:
+    """Display this help message and exit.
+    :param command: The command to retrieve help for.
+    """
+    display_text(commander_help(command.replace('/', '')))
 
 
 @ask_commander.command()
@@ -138,35 +178,41 @@ def speak() -> None:
 @click.argument("operation", default="list")
 @click.argument("name", default="ALL")
 def context(operation: str, name: str | None = None) -> None:
-    """List/forget the current context window.
-    :param operation The operation to manage contexts.
-    :param name The context name.
+    """Manages the current chat context window.
+    :param operation: The operation to perform on contexts. Options: [list|forget].
+    :param name: The name of the context.
     """
     match operation:
-        case "forget":
-            HistoryCmd.context_forget(name)
         case "list":
             HistoryCmd.context_list()
+        case "forget":
+            HistoryCmd.context_forget(name)
+        case _:
+            err = str(click.BadParameter(f"Invalid settings operation: '{operation}'"))
+            text_formatter.cmd_print(f"Error: {err}")
 
 
 @ask_commander.command()
 @click.argument("operation", default="list")
 def history(operation: str) -> None:
-    """List/forget the input history.
-    :param operation The operation to manage history.
+    """Manages the current input history.
+    :param operation: The operation to perform on contexts. Options: [list|forget].
     """
     match operation:
-        case "forget":
-            HistoryCmd.history_forget()
         case "list":
             HistoryCmd.history_list()
+        case "forget":
+            HistoryCmd.history_forget()
+        case _:
+            err = str(click.BadParameter(f"Invalid settings operation: '{operation}'"))
+            text_formatter.cmd_print(f"Error: {err}")
 
 
 @ask_commander.command()
 @click.argument("name", default="LAST_REPLY")
 def copy(name: str) -> None:
-    """Copy a context entry to the clipboard
-    :param name: The context name.
+    """Copy the specified context entry to the clipboard.
+    :param name: The name of the context entry to copy.
     """
     HistoryCmd.context_copy(name)
 
@@ -175,9 +221,9 @@ def copy(name: str) -> None:
 @click.argument("operation", default="list")
 @click.argument("name", default="")
 def devices(operation: str, name: str | None = None) -> None:
-    """List/set the audio input devices.
-    :param operation The operation to manage devices.
-    :param name The device name to set.
+    """Manages the audio input devices.
+    :param operation: Specifies the device operation. Options: [list|set].
+    :param name: The target device name for setting.
     """
     match operation:
         case "list":
@@ -194,10 +240,10 @@ def devices(operation: str, name: str | None = None) -> None:
 @click.argument("name", default="")
 @click.argument("value", default="")
 def settings(operation: str, name: str | None = None, value: str | None = None) -> None:
-    """List/get/set/reset AskAI settings.
-    :param operation The operation to manage settings.
-    :param name The settings key to operate.
-    :param value The settings value to be set.
+    """Handles modifications to AskAI settings.
+    :param operation: The action to perform on settings. Options: [list|get|set|reset]
+    :param name: The key for the setting to modify.
+    :param value: The new value for the specified setting.
     """
     match operation:
         case "list":
@@ -217,9 +263,9 @@ def settings(operation: str, name: str | None = None, value: str | None = None) 
 @click.argument("operation", default="list")
 @click.argument("args", nargs=-1)
 def cache(operation: str, args: tuple[str, ...]) -> None:
-    """List/get/clear/files AskAI TTL cache and files.
-    :param operation The operation to manage cache.
-    :param args The operation arguments operate.
+    """Manages AskAI TTL-cache management and associated files.
+    :param operation: Specifies the cache operation. Options: [list|get|clear|files|enable|ttl]
+    :param args: Arguments relevant to the chosen operation.
     """
     match operation:
         case "list":
@@ -264,8 +310,8 @@ def cache(operation: str, args: tuple[str, ...]) -> None:
 @ask_commander.command()
 @click.argument("speed", type=click.INT, default=1)
 def tempo(speed: int | None = None) -> None:
-    """List/set speech-to-text tempo.
-    :param speed The tempo to set.
+    """Manages the speech-to-text tempo.
+    :param speed: Desired speech tempo setting. Options: [list|get]
     """
     TtsSttCmd.tempo(speed)
 
@@ -274,9 +320,9 @@ def tempo(speed: int | None = None) -> None:
 @click.argument("operation", default="list")
 @click.argument("name", default="onyx")
 def voices(operation: str, name: str | int | None = None) -> None:
-    """List/set/play speech-to-text voices.
-    :param operation The operation to manage voices.
-    :param name The voice name.
+    """Manages speech-to-text voice operations.
+    :param operation: The action to perform on voices. Options: [list/set/play]
+    :param name: The voice name.
     """
     match operation:
         case "list":
@@ -295,12 +341,11 @@ def voices(operation: str, name: str | int | None = None) -> None:
 @click.argument("dest_dir", default="")
 @click.argument("playback", default="True")
 def tts(text: str, dest_dir: str | None = None, playback: bool = True) -> None:
-    """Convert a text to speech using the default AI engine.
-    :param text: The text to be converted. If the text denotes a valid file, its contents will be used instead.
-    :param dest_dir: The destination directory, where to save the converted file.
-    :param playback: Whether to plat the audio file or not.
+    """Convert text to speech using the default AI engine.
+    :param text: The text to convert. If text represents a valid file, its contents will be used instead.
+    :param dest_dir: The directory where the converted audio file will be saved.
+    :param playback: Whether to play the audio file after conversion.
     """
-    _init_context()
     if (text_path := Path(text)).exists and text_path.is_file():
         text: str = text_path.read_text(encoding=Charset.UTF_8.val)
     TtsSttCmd.tts(text.strip(), dirname(dest_dir), playback)
@@ -310,26 +355,25 @@ def tts(text: str, dest_dir: str | None = None, playback: bool = True) -> None:
 @click.argument("folder")
 @click.argument("glob", default="**/*")
 def summarize(folder: str, glob: str) -> None:
-    """Generate a summarization of the folder contents.
-    :param folder: The base folder of the summarization.
-    :param glob: The glob pattern or file of the summarization.
+    """Create a summary of the folder's contents.
+    :param folder: The root directory for the summary.
+    :param glob: The file pattern or path to summarize.
     """
-    _init_context()
     GeneralCmd.summarize(folder, glob)
 
 
 @ask_commander.command()
 @click.argument("locale_str", default="")
 def idiom(locale_str: str) -> None:
-    """Set the application language.
-    :param locale_str: The locale string.
+    """Set the application's language preference.
+    :param locale_str: The locale identifier, e.g., 'pt_BR'.
     """
     GeneralCmd.idiom(locale_str)
 
 
 @ask_commander.command()
 def info() -> None:
-    """Display some useful application information."""
+    """Display key information about the running application."""
     if os.getenv("ASKAI_APP"):
         GeneralCmd.app_info()
     else:
@@ -341,10 +385,10 @@ def info() -> None:
 @click.argument("to_locale_str")
 @click.argument("texts", nargs=-1)
 def translate(from_locale_str: AnyLocale, to_locale_str: AnyLocale, texts: tuple[str, ...]) -> None:
-    """Translate a text from the source language to the target language.
-    :param from_locale_str: The source idiom.
-    :param to_locale_str: The target idiom.
-    :param texts: The texts to be translated.
+    """Translate text from the source language to the target language.
+    :param from_locale_str: The source locale identifier, e.g., 'pt_BR'.
+    :param to_locale_str: The target locale identifier, e.g., 'en_US'.
+    :param texts: The list of texts to translate.
     """
     GeneralCmd.translate(
         Language.of_locale(from_locale_str),
@@ -357,9 +401,9 @@ def translate(from_locale_str: AnyLocale, to_locale_str: AnyLocale, texts: tuple
 @click.argument("operation", default="capture")
 @click.argument("args", nargs=-1)
 def camera(operation: str, args: tuple[str, ...]) -> None:
-    """Take photos, import images or identify a person using hte WebCam.
-    :param operation: the camera operation.
-    :param args The operation arguments operate.
+    """Take photos, import images, or identify a person using the WebCam.
+    :param operation: The camera operation to perform. Options: [capture|identify|import]
+    :param args: The arguments required for the operation.
     """
     match operation:
         case "capture" | "photo":
@@ -374,27 +418,4 @@ def camera(operation: str, args: tuple[str, ...]) -> None:
 
 
 if __name__ == "__main__":
-    pass
-    # shared.create_context(1000)
-    # shared.context.push("LAST_REPLY", "This is the last reply!")
-    # shared.context.push("LAST_REPLY", "This is the another last reply!")
-    # ask_commander(["copy"], standalone_mode=False)
-    # print(pyperclip.paste())
-    # ask_commander(["info"], standalone_mode=False)
-    # ask_commander(['idiom'], standalone_mode=False)
-    # ask_commander(['idiom', 'pt_BR.iso8859-1'], standalone_mode=False)
-    # ask_commander(['idiom'], standalone_mode=False)
-    # cache_service.cache.save_reply('log', "Log message is a big reply that will be wrapped into")
-    # cache_service.cache.save_reply('audio', "Audio message")
-    # ask_commander(['cache'], standalone_mode=False)
-    # ask_commander(['cache', 'get', 'log', 'audio'], standalone_mode=False)
-    # ask_commander(['cache', 'clear'], standalone_mode=False)
-    # ask_commander(['cache', 'clear', 'log', 'audio'], standalone_mode=False)
-    # ask_commander(['cache', 'files'], standalone_mode=False)
-    # ask_commander(['cache', 'files', 'cleanup', 'askai'], standalone_mode=False)
-    # ask_commander(['cache', 'files', 'cleanup', 'recordings'], standalone_mode=False)
-    # ask_commander(['camera'], standalone_mode=False)
-    # ask_commander(['camera', 'id', 'True'], standalone_mode=False)
-    # ask_commander(['camera', 'import', '/tmp/*.jpeg'], standalone_mode=False)
-    # ask_commander(['camera', 'import', '/Users/hjunior/Downloads'], standalone_mode=False)
-    ask_commander(['translate', 'pt_BR', 'fr_FR', "Olá eu sou o Hugo desenvolvedor pleno!"], standalone_mode=False)
+    ask_commander(["help", "camera"], standalone_mode=False)
