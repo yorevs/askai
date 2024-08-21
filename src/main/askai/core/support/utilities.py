@@ -12,27 +12,28 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import mimetypes
+import os
+import re
+import shutil
+import sys
+from os.path import basename, dirname
+from pathlib import Path
+from typing import Any, Optional, Tuple
+
+import pause
 from askai.core.support.presets import Presets
 from askai.core.support.text_formatter import text_formatter
 from askai.language.language import Language
 from clitt.core.term.cursor import Cursor
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.enums.charset import Charset
+from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty, sysout
 from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith, strip_escapes
 from hspylib.core.zoned_datetime import now_ms
 from hspylib.modules.cli.vt100.vt_color import VtColor
-from os.path import basename, dirname
-from pathlib import Path
-from typing import Any, Optional, Tuple
-
-import mimetypes
-import os
-import pause
-import re
-import shutil
-import sys
 
 
 def read_stdin() -> Optional[str]:
@@ -127,7 +128,7 @@ def stream_text(text: Any, prefix: Any = "", tempo: int = 1, language: Language 
     sysout("%NC%")
 
 
-def find_file(filename: str | None) -> Optional[Path]:
+def find_file(filename: AnyPath) -> Optional[Path]:
     """Find the specified file, specified by name, from the most common locations."""
     prompt_path: Path = Path(filename) if filename else None
     if prompt_path and not prompt_path.exists():
@@ -196,9 +197,15 @@ def extract_codeblock(text: str) -> Tuple[Optional[str], str]:
     if text and (mat := re.search(re_command, text, flags=re.DOTALL | re.MULTILINE)):
         if mat and len(mat.groups()) == 2:
             lang, code = mat.group(1) or "", mat.group(2) or ""
-            return lang.strip(), code.strip()
+            return lang, code
 
     return None, text
+
+
+def strip_format(text: str) -> str:
+    """Strip the markdown code block form the text."""
+    _, string = extract_codeblock(text)
+    return strip_escapes(string)
 
 
 def media_type_of(pathname: str) -> Optional[tuple[str, ...]] | None:

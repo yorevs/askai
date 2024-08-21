@@ -13,11 +13,12 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.core.support.shared_instances import shared
 from functools import lru_cache
+from typing import Any
+
+from askai.core.support.shared_instances import shared
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_not_none
-from typing import Any, List, Type
 
 
 class LangChainSupport(metaclass=Singleton):

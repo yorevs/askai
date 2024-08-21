@@ -64,15 +64,18 @@ class OpenAIEngine:
 
     def lc_model(self, temperature: float, top_p: float) -> BaseLLM:
         """Create a LangChain OpenAI llm model instance."""
-        return langchain_openai.OpenAI(openai_api_key=self._api_key, temperature=temperature, top_p=top_p)
+        return langchain_openai.OpenAI(
+            openai_api_key=self._api_key, model=self._model.model_name(), temperature=temperature, top_p=top_p)
 
     def lc_chat_model(self, temperature: float) -> BaseChatModel:
         """Create a LangChain OpenAI llm chat model instance."""
-        return langchain_openai.ChatOpenAI(openai_api_key=self._api_key, temperature=temperature)
+        return langchain_openai.ChatOpenAI(
+            openai_api_key=self._api_key, model=self._model.model_name(), temperature=temperature)
 
     def lc_embeddings(self, model: str) -> Embeddings:
         """Create a LangChain AI embeddings instance."""
-        return langchain_openai.OpenAIEmbeddings(openai_api_key=self._api_key, model=model)
+        return langchain_openai.OpenAIEmbeddings(
+            openai_api_key=self._api_key, model=model)
 
     def ai_name(self) -> str:
         """Get the AI model name."""

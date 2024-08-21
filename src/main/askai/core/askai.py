@@ -20,14 +20,6 @@ from enum import Enum
 from pathlib import Path
 from typing import List, TypeAlias, Optional
 
-from click import UsageError
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import is_debugging, file_is_not_empty
-from hspylib.core.zoned_datetime import now, DATE_FORMAT, TIME_FORMAT
-from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.eventbus.event import Event
-from openai import RateLimitError
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -44,6 +36,13 @@ from askai.core.support.utilities import read_stdin
 from askai.exception.exceptions import ImpossibleQuery, MaxInteractionsReached, InaccurateResponse, \
     IntelligibleAudioError, TerminatingQuery
 from askai.tui.app_icons import AppIcons
+from click import UsageError
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import is_debugging, file_is_not_empty
+from hspylib.core.zoned_datetime import now, DATE_FORMAT, TIME_FORMAT
+from hspylib.modules.application.exit_status import ExitStatus
+from hspylib.modules.eventbus.event import Event
+from openai import RateLimitError
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -90,9 +89,9 @@ class AskAi:
         self._session_id = now("%Y%m%d")[:8]
         self._engine: AIEngine = shared.create_engine(engine_name, model_name)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
-        self._mode: RouterMode = RouterMode.default()
         self._console_path = Path(f"{CACHE_DIR}/askai-{self.session_id}.md")
         self._query_prompt: str | None = None
+        self._mode: RouterMode = RouterMode.default()
 
         if not self._console_path.exists():
             self._console_path.touch()

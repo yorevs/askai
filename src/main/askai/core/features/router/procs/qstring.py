@@ -1,3 +1,5 @@
+from typing import Optional
+
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
 from askai.core.engine.openai.temperature import Temperature
@@ -6,7 +8,6 @@ from askai.core.support.utilities import find_file
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.singleton import Singleton
 from langchain_core.prompts import PromptTemplate
-from typing import Optional
 
 
 class NonInteractive(metaclass=Singleton):

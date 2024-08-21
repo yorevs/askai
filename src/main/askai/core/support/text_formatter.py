@@ -85,6 +85,7 @@ class TextFormatter(metaclass=Singleton):
         text = re.sub(self.RE_TYPES[''], r" [\1](\1)", text)
         # Make sure markdown is prefixed and suffixed with new lines
         text = re.sub(self.RE_TYPES['MD'], r"\n\1\n", text)
+        text = re.sub(r' ```(.+)', r"\n```\1", text)
 
         # fmt: on
 

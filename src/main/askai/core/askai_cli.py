@@ -21,12 +21,6 @@ from typing import List, TypeAlias
 
 import nltk
 import pause
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.core.tools.commons import sysout
-from hspylib.modules.eventbus.event import Event
-
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -37,7 +31,12 @@ from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.support.shared_instances import shared
-from askai.core.support.utilities import display_text
+from askai.core.support.utilities import display_text, strip_format
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.core.tools.commons import sysout
+from hspylib.modules.eventbus.event import Event
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -58,12 +57,13 @@ class AskAiCli(AskAi):
         query_string: QueryString,
     ):
 
-        os.environ["ASKAI_APP"] = (self.RunModes.ASKAI_CLI if interactive else self.RunModes.ASKAI_CMD).value
+        configs.is_interactive = configs.is_interactive if not query_prompt else False
         super().__init__(interactive, speak, debug, cacheable, tempo, engine_name, model_name)
+
+        os.environ["ASKAI_APP"] = (self.RunModes.ASKAI_CLI if interactive else self.RunModes.ASKAI_CMD).value
         self._ready: bool = False
         self._query_prompt = query_prompt
         self._query_string: QueryString = query_string if isinstance(query_string, str) else " ".join(query_string)
-        configs.is_interactive = configs.is_interactive if not query_prompt else False
         self._startup()
 
     def run(self) -> None:
@@ -84,7 +84,7 @@ class AskAiCli(AskAi):
                 break
         if question == "":
             self._reply(msg.goodbye())
-        sysout("%NC%")
+        sysout("")
 
     def _reply(self, message: str) -> None:
         """Reply to the user with the AI response.
@@ -94,6 +94,8 @@ class AskAiCli(AskAi):
             log.debug(message)
             if configs.is_speak:
                 self.engine.text_to_speech(text, f"{shared.nickname}")
+            elif not configs.is_interactive:
+                print(strip_format(text))
             else:
                 display_text(text, f"{shared.nickname}")
 
