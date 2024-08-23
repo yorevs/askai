@@ -110,6 +110,7 @@ class Camera(metaclass=Singleton):
         filename: str = filename or str(now_ms())
         final_path: str = build_img_path(PHOTO_DIR, str(filename), '-PHOTO.jpg')
         if final_path and cv2.imwrite(final_path, photo):
+            log.debug("WebCam photo taken: %s", final_path)
             photo_file = ImageFile(
                 hash_text(basename(final_path)), final_path, store.PHOTO_CATEGORY,
                 image_captioner(final_path) if with_caption else msg.no_caption()
@@ -137,8 +138,7 @@ class Camera(metaclass=Singleton):
             gray_img,
             scaleFactor=configs.scale_factor,
             minNeighbors=configs.min_neighbors,
-            minSize=configs.min_max_size,
-            maxSize=configs.min_max_size
+            minSize=configs.min_max_size
         )
         log.debug("Detected faces: %d", len(faces))
 
@@ -170,8 +170,10 @@ class Camera(metaclass=Singleton):
         _, photo = self.capture("ASKAI-ID", 0, False, False)
         _ = self.detect_faces(photo, "ASKAI-ID", False, False)
         result = list(filter(lambda p: p.distance <= max_distance, store.search_face(photo)))
+        id_data: ImageMetadata = next(iter(result), None)
+        log.info("WebCam identification request: %s", id_data or '<No-One>')
 
-        return next(iter(result), None)
+        return id_data
 
     def import_images(
         self,

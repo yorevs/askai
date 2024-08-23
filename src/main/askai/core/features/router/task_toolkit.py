@@ -20,6 +20,7 @@ from askai.core.features.router.tools.generation import generate_content, save_c
 from askai.core.features.router.tools.summarization import summarize
 from askai.core.features.router.tools.terminal import execute_command, list_contents, open_command
 from askai.core.features.router.tools.vision import image_captioner
+from askai.core.features.router.tools.webcam import webcam_capturer
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import TerminatingQuery
 from clitt.core.tui.line_input.line_input import line_input
@@ -94,10 +95,19 @@ class AgentToolkit(metaclass=Singleton):
 
     def image_captioner(self, image_path: str) -> str:
         """Use this tool to provide a textual description of a visual content, such as, image files.
-        Usage: image_captioner(image_path)
+        Usage: `image_captioner(image_path)`
         :param image_path: The absolute path of the image file to be analyzed.
         """
         return image_captioner(image_path)
+
+    def webcam_capturer(self, photo_name: str | None, detect_faces: bool = False) -> str:
+        """This tool is used to take a photo (and save it locally) using the webcam. It also provide a captioning
+        of the image taken. This is useful to describe people in front of the webcam.
+        Usage: `webcam_capturer(photo_name, detect_faces)`
+        :param photo_name: The name of the photo file.
+        :param detect_faces: Whether to detect all faces in the photo.
+        """
+        return webcam_capturer(photo_name, detect_faces)
 
     def generate_content(self, instructions: str, mime_type: str, filepath: AnyPath) -> str:
         """Use this tool for tasks that require generating any kind of content, such as, code and text, image, etc.

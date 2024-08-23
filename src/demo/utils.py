@@ -1,3 +1,5 @@
+import os
+
 from askai.__classpath__ import classpath
 from askai.core.askai_events import events
 from askai.core.commander.commander import commands
@@ -28,7 +30,8 @@ def init_context(
 ) -> None:
     """Initialize AskAI context and startup components."""
     if log_name:
-        log_init(f"{ensure_endswith(log_name, '.log')}", level=log_level)
+        log_dir: str = os.environ.get('HHS_LOG_DIR', os.getcwd())
+        log_init(f"{os.path.join(log_dir, ensure_endswith(log_name, '.log'))}", level=log_level)
     KeyboardInput.preload_history(cache.load_input_history(commands()))
     shared.create_engine(engine_name=engine_name, model_name=model_name)
     shared.create_context(context_size)
