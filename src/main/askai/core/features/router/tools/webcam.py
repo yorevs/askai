@@ -36,3 +36,16 @@ def webcam_capturer(photo_name: str | None, detect_faces: bool = False) -> str:
 
     return caption
 
+
+def webcam_identifier() -> str:
+    """This too is used to identify the person in front of the webcam. It also provide a description of him/her."""
+    caption: str = "No identification was possible!"
+    if pic_file := camera.identify():
+        caption = dedent(
+            f">   Person Identification\n\n"
+            f"1. Name: {pic_file.caption}\n"
+            f"2. URI: {pic_file.uri}\n"
+            f"3. Distance: {pic_file.distance}\n"
+        ).strip()
+
+    return caption

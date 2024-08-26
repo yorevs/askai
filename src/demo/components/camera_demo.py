@@ -40,7 +40,7 @@ if __name__ == "__main__":
         if opt == "2" and not (name := line_input("Press [Enter] key when ready")):
             if photo := camera.identify():
                 cursor.write()
-                cursor.write(f"Identified person: {photo.name} URI: {photo.uri} DIST: ", photo.distance)
+                cursor.write(f"Identified person: {photo.caption} URI: {photo.uri} DIST: {photo.distance}")
                 open_command(photo.uri)
             else:
                 cursor.write()
@@ -51,7 +51,7 @@ if __name__ == "__main__":
             results: list[ImageMetadata] = store.query_image(query)
             for photo in results:
                 cursor.write()
-                cursor.write(f"Showing photo: {photo.name} URI: {photo.uri} DIST: {photo.distance}")
+                cursor.write(f"Showing photo: {photo.caption} URI: {photo.uri} DIST: {photo.distance}")
                 open_command(photo.uri)
         while opt == "4" and (query := line_input("Query face: ", "Type in the description (<empty> to return)")):
             cursor.write()
@@ -59,7 +59,7 @@ if __name__ == "__main__":
             results: list[ImageMetadata] = store.query_face(query)
             for photo in results:
                 cursor.write()
-                cursor.write(f"Showing face: {photo.name} URI: {photo.uri} DIST:", photo.distance)
+                cursor.write(f"Showing face: {photo.caption} URI: {photo.uri} DIST:", photo.distance)
                 open_command(photo.uri)
         if opt == "5":
             count: int = store.sync_store(with_caption=False)

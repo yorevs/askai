@@ -109,6 +109,11 @@ class AgentToolkit(metaclass=Singleton):
         """
         return webcam_capturer(photo_name, detect_faces)
 
+    def webcam_identifier(self) -> str:
+        """This too is used to identify the person in front of the webcam. It also provide a description of him/her.
+        Usage: `webcam_identifier()`
+        """
+
     def generate_content(self, instructions: str, mime_type: str, filepath: AnyPath) -> str:
         """Use this tool for tasks that require generating any kind of content, such as, code and text, image, etc.
         Usage: generate_content(instructions, mime_type)

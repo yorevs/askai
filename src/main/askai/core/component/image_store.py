@@ -38,7 +38,7 @@ ImageData: TypeAlias = numpy.ndarray[Any, numpy.dtype]
 
 ImageFile = namedtuple('ImageFile', ['img_id', 'img_path', 'img_category', 'img_caption'])
 
-ImageMetadata = namedtuple('ImageMetadata', ['name', 'data', 'uri', 'distance'])
+ImageMetadata = namedtuple('ImageMetadata', ['caption', 'data', 'uri', 'distance'])
 
 
 class ImageStore(metaclass=Singleton):
