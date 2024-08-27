@@ -12,6 +12,20 @@
 
    Copyright (c) 2024, HomeSetup
 """
+
+import os
+from pathlib import Path
+from typing import Optional
+
+from clitt.core.term.terminal import terminal
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_state
+from hspylib.core.tools.text_tools import elide_text
+from hspylib.modules.application.version import Version
+from hspylib.modules.cli.keyboard import Keyboard
+from langchain.memory import ConversationBufferWindowMemory
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
@@ -23,18 +37,6 @@ from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.utilities import display_text
-from clitt.core.term.terminal import terminal
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_state
-from hspylib.core.tools.text_tools import elide_text
-from hspylib.modules.application.version import Version
-from hspylib.modules.cli.keyboard import Keyboard
-from langchain.memory import ConversationBufferWindowMemory
-from pathlib import Path
-from typing import Optional
-
-import os
 
 
 class SharedInstances(metaclass=Singleton):

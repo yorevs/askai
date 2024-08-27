@@ -17,6 +17,8 @@ en_US
 - Describe the first image you find at my downloads.
 - find . -mxdepth 1 -type f -nme *.png
 - I have downloaded a QR logo, open it to me.
+- Tell me who you see using the webcam. Respond like talking to an audience.
+
 
 
 Major Issues:

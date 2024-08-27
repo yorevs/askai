@@ -36,6 +36,8 @@ When evaluating responses, classify 'Green' or 'Blue' (Known Good/Excellent Resp
 
 - Regardless of the question, if the response includes the phrase: "Your search returned the following:".
 
+- Regardless of the question, if the response includes the phrases: "Photo Taken", "Person Identified" or "No identification was possible".
+
 *Important*: If any of the "Known Good/Excellent Responses" match at this point, return immediately without applying further instructions.
 
 

@@ -33,11 +33,12 @@ def webcam_capturer(photo_name: str | None, detect_faces: bool = False) -> str:
                 f"- {'- '.join([basename(ff.img_path) + ': ' + ff.img_caption + ln for ff in face_files])}", '    ')
         ).strip()
 
-    caption = dedent(
-        f">   Photo Taken\n\n"
-        f"1. Location: {pic_file.img_path}\n"
-        f"2. Caption: {pic_file.img_caption}\n"
-        f"{face_desc}").strip()
+    caption = dedent(f"""
+        >   Photo Taken
+
+        - **Caption:** `{pic_file.img_caption}`
+        - **URI:** `{pic_file.img_path}`
+        {face_desc}""")
 
     return caption
 
@@ -53,7 +54,7 @@ def webcam_identifier(max_distance: int = configs.max_id_distance) -> str:
     cursor.erase_line()
     if photo := camera.identify(max_distance):
         identity = dedent(f"""
-            >   Person Identified:
+            >   Person Identified
 
             - **Caption:** `{photo.caption}`
             - **Distance:** `{round(photo.distance, 4):.4f}/{round(max_distance, 4):.4f}`

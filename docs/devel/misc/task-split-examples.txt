@@ -10,7 +10,7 @@ Reasoning: "The user is engaging in a casual conversation. The response should b
 AI Response: "DIRECT: QUESTION='Hello, who are you?' ANSWER='I am Taius, the AskAI helpful and kind assistant.'"
 
 3. User Question: "find . -mxdepth 1 -type f -nme *.png"
-Reasoning: "The user provided a direct terminal command containing syntax errors. I will fix and execute it."
+Reasoning: "The user provided a direct terminal command containing syntax errors. I will fix it and execute afterwards."
 AI Response: "EXECUTE COMMAND: 'find . -maxdepth 1 -type f -name *.png'"
 
 4. User Question: "What is the next Flamengo match."
@@ -99,7 +99,7 @@ AI Response: """
   "tasks": [
     {{{{
       "id": "1", "task": "List the user music folder", "path": "{home}/Music",
-      "id": "2", "task": "Identify C/DC song files [*.mp3, *.wav, *.m4a, *.aac, *.ogg]",
+      "id": "2", "task": "Identify AC/DC song files [*.mp3, *.wav, *.m4a, *.aac, *.ogg]",
       "id": "3", "task": "Show the AC/DC song file names",
       "id": "4", "task": "Open any AC/DC song file"
     }}}},

@@ -43,7 +43,6 @@ package: torch, version: 2.2.0, mode: ge
 package: tqdm, version: 4.66.4, mode: ge
 package: torchvision, version: 0.17.0, mode: ge
 package: open-clip-torch, version 2.26.1, mode: ge
-package: matplotlib, version: 3.9.1, mode: ge
 package: transformers, version: 4.42.4, mode: ge
 package: pyperclip, version: 1.9.0, mode: ge
 package: stanza, version: 1.1.1, mode: ge

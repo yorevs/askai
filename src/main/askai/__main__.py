@@ -109,6 +109,7 @@ class Main(TUIApplication):
 
     def _main(self, *params, **kwargs) -> ExitStatus:
         """Run the application with the command line arguments."""
+        os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
         is_new_ui: bool = to_bool(self._get_argument("ui", False))
         if not is_new_ui:
             interactive: bool = to_bool(self._get_argument("interactive", False))
