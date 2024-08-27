@@ -164,10 +164,10 @@ class Camera(metaclass=Singleton):
 
         return face_files, face_datas
 
-    def identify(self, max_distance: float = configs.max_id_distance) -> Optional[ImageMetadata]:
+    def identify(self, countdown: int = 0, max_distance: float = configs.max_id_distance) -> Optional[ImageMetadata]:
         """Identify the person in front of the WebCam."""
 
-        _, photo = self.capture("ASKAI-ID", 0, False, False)
+        _, photo = self.capture("ASKAI-ID", countdown, False, False)
         _ = self.detect_faces(photo, "ASKAI-ID", False, False)
         result = list(filter(lambda p: p.distance <= max_distance, store.search_face(photo)))
         id_data: ImageMetadata = next(iter(result), None)

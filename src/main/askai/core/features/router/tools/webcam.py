@@ -2,7 +2,12 @@ import os
 from os.path import basename
 from textwrap import dedent, indent
 
+import pause
+from clitt.core.term.cursor import cursor
+
+from askai.core.askai_configs import configs
 from askai.core.component.camera import camera
+from askai.core.support.utilities import display_text
 
 
 def webcam_capturer(photo_name: str | None, detect_faces: bool = False) -> str:
@@ -37,15 +42,21 @@ def webcam_capturer(photo_name: str | None, detect_faces: bool = False) -> str:
     return caption
 
 
-def webcam_identifier() -> str:
+def webcam_identifier(max_distance: int = configs.max_id_distance) -> str:
     """This too is used to identify the person in front of the webcam. It also provide a description of him/her."""
-    caption: str = "No identification was possible!"
-    if pic_file := camera.identify():
-        caption = dedent(
-            f">   Person Identification\n\n"
-            f"1. Name: {pic_file.caption}\n"
-            f"2. URI: {pic_file.uri}\n"
-            f"3. Distance: {pic_file.distance}\n"
-        ).strip()
+    identity: str = "%ORANGE%  No identification was possible!%NC%"
+    display_text("Look at the camera...")
+    pause.seconds(2)
+    display_text("GO  ")
+    pause.seconds(1)
+    cursor.erase_line()
+    cursor.erase_line()
+    if photo := camera.identify(max_distance):
+        identity = dedent(f"""
+            >   Person Identified:
 
-    return caption
+            - **Caption:** `{photo.caption}`
+            - **Distance:** `{round(photo.distance, 4):.4f}/{round(max_distance, 4):.4f}`
+            - **URI:** `{photo.uri}`""")
+
+    return identity

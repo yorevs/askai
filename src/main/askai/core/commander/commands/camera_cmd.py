@@ -1,16 +1,11 @@
 from abc import ABC
-from textwrap import dedent
 
-import pause
-from clitt.core.term.cursor import cursor
 from hspylib.core.metaclass.classpath import AnyPath
-from hspylib.core.tools.commons import sysout
 
 from askai.core.askai_configs import configs
 from askai.core.component.camera import camera
-from askai.core.features.router.tools.terminal import open_command
+from askai.core.features.router.tools.webcam import webcam_identifier
 from askai.core.support.text_formatter import text_formatter
-from askai.core.support.utilities import display_text
 
 
 class CameraCmd(ABC):
@@ -37,25 +32,7 @@ class CameraCmd(ABC):
         """Identify the person in from of the WebCam.
         :param max_distance: The maximum distance of the face (the lower, the closer to the real face).
         """
-        sysout("Look at the camera...", end='')
-        pause.seconds(2)
-        display_text("GO  ")
-        pause.seconds(1)
-        cursor.erase_line()
-        cursor.erase_line()
-        identity: str | None = None
-        if photo := camera.identify(max_distance):
-            identity = dedent(
-                f"""
-                >   Person identified:
-
-                - **Name:** `{photo.name}`
-                - **Distance:** `{round(photo.distance, 4):.4f}/{round(max_distance, 4):.4f}`
-                - **URI:** `{photo.uri}`
-                """)
-            open_command(photo.uri)
-        cursor.erase_line()
-        text_formatter.cmd_print(identity or "%ORANGE%  No identification was possible!%NC%")
+        text_formatter.cmd_print(webcam_identifier(max_distance))
 
     @staticmethod
     def import_images(pathname: AnyPath = None, detect_faces: bool = True) -> None:
