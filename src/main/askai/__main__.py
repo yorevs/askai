@@ -84,7 +84,7 @@ class Main(TUIApplication):
             .option(
                 "cache", "c", "cache",
                 "whether you want to cache AI replies.",
-                nargs="?", default=True) \
+                nargs="?") \
             .option(
                 "tempo", "t", "tempo",
                 "specifies the playback and streaming speed.",

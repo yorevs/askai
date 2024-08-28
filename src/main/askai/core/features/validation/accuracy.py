@@ -13,21 +13,22 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.core.askai_events import events
-from askai.core.askai_messages import msg
-from askai.core.askai_prompt import prompt
-from askai.core.component.geo_location import geo_location
-from askai.core.engine.openai.temperature import Temperature
-from askai.core.enums.acc_response import AccResponse
-from askai.core.support.langchain_support import lc_llm
-from askai.core.support.shared_instances import shared
-from askai.exception.exceptions import InaccurateResponse
+import logging as log
+from textwrap import dedent
+
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from textwrap import dedent
 
-import logging as log
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
+from askai.core.engine.openai.temperature import Temperature
+from askai.core.enums.acc_response import AccResponse
+from askai.core.support.langchain_support import lc_llm
+from askai.core.support.rag_provider import RAGProvider
+from askai.core.support.shared_instances import shared
+from askai.exception.exceptions import InaccurateResponse
 
 EVALUATION_GUIDE: str = dedent(
     """
@@ -39,6 +40,8 @@ EVALUATION_GUIDE: str = dedent(
 4. Try something different.
 """
 ).strip()
+
+RAG: RAGProvider = RAGProvider("accuracy.csv")
 
 
 def assert_accuracy(
@@ -53,12 +56,17 @@ def assert_accuracy(
     """
     if ai_response and ai_response not in msg.accurate_responses:
         issues_prompt = PromptTemplate(
-            input_variables=["problems"], template=prompt.read_prompt("assert")
+            input_variables=["problems"],
+            template=prompt.read_prompt("assert")
         )
         assert_template = PromptTemplate(
-            input_variables=["datetime", "input", "response"], template=prompt.read_prompt("accuracy")
+            input_variables=["examples", "input", "response"],
+            template=prompt.read_prompt("accuracy")
         )
-        final_prompt = assert_template.format(datetime=geo_location.datetime, input=question, response=ai_response)
+        final_prompt = assert_template.format(
+            examples=RAG.retrieve_examples(question),
+            input=question, response=ai_response
+        )
         log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
         llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
         response: AIMessage = llm.invoke(final_prompt)
@@ -78,7 +86,8 @@ def assert_accuracy(
         # At this point, the response was not Good.
         raise InaccurateResponse(f"AI Assistant didn't respond accurately. Response: '{response}'")
 
-    events.reply.emit(message=msg.no_output("query"))
+
+events.reply.emit(message=msg.no_output("query"))
 
 
 def resolve_x_refs(ref_name: str, context: str | None = None) -> str:

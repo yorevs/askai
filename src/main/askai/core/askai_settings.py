@@ -12,22 +12,22 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.__classpath__ import classpath
-from askai.core.support.text_formatter import text_formatter
+import logging as log
+import os
+import re
 from contextlib import redirect_stdout
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.commons import to_bool
 from io import StringIO
 from pathlib import Path
+from typing import Any, Optional
+
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.commons import to_bool, console_out
 from rich.table import Table
 from setman.settings.settings import Settings
 from setman.settings.settings_config import SettingsConfig
 from setman.settings.settings_entry import SettingsEntry
-from typing import Any, Optional
 
-import logging as log
-import os
-import re
+from askai.__classpath__ import classpath
 
 # AskAI config directory.
 ASKAI_DIR: Path = Path(f'{os.getenv("ASKAI_DIR", os.getenv("HHS_DIR", str(Path.home())))}/askai')
@@ -82,7 +82,7 @@ class AskAiSettings(metaclass=Singleton):
             for i, d in enumerate(data):
                 table.add_row(str(i), d[0], d[1])
             with StringIO() as buf, redirect_stdout(buf):
-                text_formatter.console.print(table)
+                console_out.print(table)
                 return buf.getvalue()
         return None
 

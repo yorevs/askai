@@ -41,6 +41,7 @@ class ActionPlan:
         :param response: The router response. This should be a JSON blob, but sometimes the AI responds with a
         straight JSON string.
         """
+
         json_string = response
         if re.match(r"^`{3}(.+)`{3}$", response):
             _, json_string = extract_codeblock(response)
@@ -54,51 +55,13 @@ class ActionPlan:
     def _final(question: str, response: str, model: ModelResult) -> "ActionPlan":
         """TODO"""
         return ActionPlan(
-            question,
-            f"Answer to the question: {question}",
-            [],
+            question, f"Answer to the question: {question}", [],
             SimpleNamespace(
-                reasoning="AI decided to respond directly",
-                observations="AI had enough context to respond directly",
-                criticism="The answer may not be good enough",
+                reasoning="AI had enough context to respond directly",
+                observations="N/A", criticism="N/A",
                 speak=response,
             ),
-            [SimpleNamespace(id="1", task=response)],
-            model,
-        )
-
-    @staticmethod
-    def _browse(question: str, query: str, model: ModelResult) -> "ActionPlan":
-        """TODO"""
-        return ActionPlan(
-            question,
-            f"Answer to the question: {question}",
-            [],
-            SimpleNamespace(
-                reasoning="AI requested internet browsing",
-                observations="",
-                criticism="The answer may not be too accurate",
-                speak="I will search on the internet for you",
-            ),
-            [SimpleNamespace(id="1", task=f"Browse on te internet for: {query}")],
-            model,
-        )
-
-    @staticmethod
-    def _terminal(question: str, cmd_line: str, model: ModelResult) -> "ActionPlan":
-        """TODO"""
-        return ActionPlan(
-            question,
-            f"Execute terminal command: {question}",
-            [],
-            SimpleNamespace(
-                reasoning="AI requested to execute a terminal command",
-                observations="",
-                criticism="The user needs to grant access",
-                speak="",
-            ),
-            [SimpleNamespace(id="1", task=f"Execute the following command on the terminal: {cmd_line}")],
-            model,
+            [SimpleNamespace(id="1", task=response)], model,
         )
 
     @staticmethod

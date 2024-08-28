@@ -13,7 +13,7 @@
 import os
 import re
 from textwrap import dedent
-from typing import Any
+from typing import Any, AnyStr
 
 from clitt.core.term.cursor import cursor
 from hspylib.core.metaclass.singleton import Singleton
@@ -91,25 +91,25 @@ class TextFormatter(metaclass=Singleton):
 
         return text
 
-    def display_markdown(self, text: str) -> None:
+    def display_markdown(self, text: AnyStr) -> None:
         """Display a markdown formatted text.
         :param text: The text to be displayed.
         """
-        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text)))
+        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(str(text))))
         cursor.write(colorized, markdown=True)
 
-    def display_text(self, text: str) -> None:
+    def display_text(self, text: AnyStr) -> None:
         """Display a vt100 formatted text.
         :param text: The text to be displayed.
         """
-        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text)))
+        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(str(text))))
         cursor.write(colorized)
 
-    def cmd_print(self, text: str):
+    def cmd_print(self, text: AnyStr):
         """Display an AskAI commander text.
         :param text: The text to be displayed.
         """
-        self.display_markdown(f"%ORANGE%  Commander%NC%: {self.beautify(text)}")
+        self.display_markdown(f"%ORANGE%  Commander%NC%: {self.beautify(str(text))}")
 
 
 assert (text_formatter := TextFormatter().INSTANCE) is not None

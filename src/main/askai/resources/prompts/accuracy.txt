@@ -23,39 +23,11 @@ Use the following criteria for classification:
 
 Response format is: "<Color>: <level of accuracy %> <reasoning to the Human> <how the answer can be improved when 94% or less>".
 
+Follow this source of truth to guide you classifying the responses:
 
-When evaluating responses, classify 'Green' or 'Blue' (Known Good/Excellent Responses) when:
-
-- 'Blue' if it detects a successful command execution, e.g., "OK, command <any command> succeeded". The "command output" can be disregarded for this classification.
-
-- The response responds to conversations where there are no definitive right or wrong answers.
-
-- The response explains the lack of information, context, or when the AI is clearly having trouble understanding the user input.
-
-- Regardless of the question, if the response includes the phrase: "Summarization of docs at: '<path/glob>' succeeded !".
-
-- Regardless of the question, if the response includes the phrase: "Your search returned the following:".
-
-- Regardless of the question, if the response includes the phrases: "Photo Taken", "Person Identified" or "No identification was possible".
-
-*Important*: If any of the "Known Good/Excellent Responses" match at this point, return immediately without applying further instructions.
-
-
-When evaluating responses, classify 'Red' (Known Bad Responses) when:
-
-- The response fails to resolve the primary goal; 'Orange' if the response fails to resolve any of the sub goals.
-
-- The response language used by the AI differs from the user question (language mismatch).
-
-- The following message is detected: "Invalid or incomplete response".
-
-- Acknowledging or mentioning previous responses, indicating or stating the intention of accomplishment, are considered unhelpful.
-
-- Check if the response is coherent with the question. Ensure the answer is unbiased and does not rely on stereotypes. Detect AI hallucinations by verifying the accuracy of the response. Classify the response as 'Red' if it does not align with known facts.
-
-- The AI is seeking user assistance.
-
-*Important*: If any of the "Known Bad Responses" match at this point, return immediately without applying further instructions.
+----
+{examples}
+----
 
 
 Classification Guidelines (rate from 0% to 100%):

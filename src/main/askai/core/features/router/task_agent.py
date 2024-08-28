@@ -114,7 +114,6 @@ class TaskAgent(metaclass=Singleton):
                     log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
                     if len(tasks) > 1:
                         assert_accuracy(task, output, AccResponse.MODERATE)
-                        # Push intermediary steps to the chat history.
                         shared.context.push("HISTORY", task, "assistant")
                         shared.context.push("HISTORY", output, "assistant")
                         shared.memory.save_context({"input": task}, {"output": output})
