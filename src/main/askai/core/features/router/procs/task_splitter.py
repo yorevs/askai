@@ -23,9 +23,7 @@ from hspylib.core.exception.exceptions import InvalidArgumentError
 from hspylib.core.metaclass.singleton import Singleton
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from retry import retry
 
-from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -96,7 +94,7 @@ class TaskSplitter(metaclass=Singleton):
         shared.context.forget("EVALUATION")  # Erase previous evaluation notes.
         model: ModelResult = ModelResult.default()  # Hard-coding the result model for now.
 
-        @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
+        # @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=0)
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow accuracy retries."""
             log.info("Router::[QUESTION] '%s'", question)

@@ -1,6 +1,7 @@
 import logging as log
 import os
-from typing import Optional
+from functools import lru_cache
+from typing import Optional, Callable
 
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.singleton import Singleton
@@ -89,10 +90,6 @@ class TaskAgent(metaclass=Singleton):
             ]
         )
 
-    @property
-    def lc_agent(self) -> Runnable:
-        return self._create_lc_agent()
-
     def invoke(self, query: str, plan: ActionPlan) -> str:
         """Invoke the agent to respond the given query, using the specified action plan.
         :param query: The user question.
@@ -133,29 +130,35 @@ class TaskAgent(metaclass=Singleton):
 
         return self.wrap_answer(plan.primary_goal, output, plan.model, rag)
 
-    def _create_lc_agent(self, temperature: Temperature = Temperature.CODE_GENERATION) -> Runnable:
+    @lru_cache
+    def _create_lc_agent(
+        self,
+        temperature: Temperature = Temperature.CODE_GENERATION
+    ) -> Runnable:
         """Create the LangChain agent.
         :param temperature: The LLM temperature (randomness).
         """
-        if self._lc_agent is None:
-            tools = features.tools()
-            llm = lc_llm.create_chat_model(temperature.temp)
-            chat_memory = shared.memory
-            lc_agent = create_structured_chat_agent(llm, tools, self.agent_template)
-            self._lc_agent: Runnable = AgentExecutor(
-                agent=lc_agent,
-                tools=tools,
-                max_iteraction=configs.max_router_retries,
-                memory=chat_memory,
-                handle_parsing_errors=True,
-                max_execution_time=configs.max_agent_execution_time_seconds,
-                verbose=configs.is_debug,
-            )
+        tools = features.tools()
+        llm = lc_llm.create_chat_model(temperature.temp)
+        chat_memory = shared.memory
+        lc_agent = create_structured_chat_agent(llm, tools, self.agent_template)
+        self._lc_agent: Runnable = AgentExecutor(
+            agent=lc_agent,
+            tools=tools,
+            max_iteraction=configs.max_router_retries,
+            memory=chat_memory,
+            handle_parsing_errors=True,
+            max_iterations=5,
+            max_execution_time=configs.max_agent_execution_time_seconds,
+            verbose=configs.is_debug,
+        )
 
         return self._lc_agent
 
+    @lru_cache
     def _exec_action(self, action: str) -> Optional[Output]:
-        return self.lc_agent.invoke({"input": action})
+        lc_agent: Runnable = self._create_lc_agent()
+        return lc_agent.invoke({"input": action})
 
 
 assert (agent := TaskAgent().INSTANCE) is not None

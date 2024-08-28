@@ -80,16 +80,20 @@ class AgentToolkit(metaclass=Singleton):
         )
 
     def browse(self, search_query: str) -> str:
-        """Use this tool to browse the internet or to stay informed about the latest news and current events, especially when you require up-to-date information quickly. It is especially effective for accessing the most recent data available online.
+        """Use this tool to browse the internet or to stay informed about the latest news and current events, especially
+         when you require up-to-date information quickly. It is especially effective for accessing the most recent data
+         available online.
         Usage: `browse(search_query)`
         :param search_query: The web search query in string format.
         """
         return browse(search_query)
 
     def query_output(self, output_query: str) -> str:
-        """Use this tool to analyze textual content to identify the presence of files, folders, and applications. It is designed to process and analyze content that is already available in textual form, but not to read or extract file contents directly.
+        """Use this tool to analyze textual content, identify the presence of files, folders, and applications. It is
+        designed to process and analyze content that is already available in textual form, but not to read or extract
+        file contents directly.
         Usage: `query_output(query)`
-        :param output_query: The query regarding the output. Prefer using "Identify <file types or name or textual content>".
+        :param output_query: The query regarding the output. Use "Identify <file types, names or textual content>".
         """
         return query_output(output_query)
 
@@ -130,11 +134,9 @@ class AgentToolkit(metaclass=Singleton):
         """
         return save_content(filepath)
 
-    def direct_answer(self, texts: list[str] | str) -> str:
-        """
-        Name: 'Display Tool'
-        Description: Use this tool to display textual information.
-        Usage: 'display_tool(text, ...repeat N times)'
+    def final_answer(self, texts: list[str] | str) -> str:
+        """Use this tool to provide display text, or to provide a final answer to the Human.
+        Usage: 'final_answer(text, ...repeat N times)'
         :param texts: The comma separated list of texts to be displayed.
         """
         return display_tool(*(texts if isinstance(texts, list) else [texts]))
@@ -145,7 +147,7 @@ class AgentToolkit(metaclass=Singleton):
         Description: Use this tool to access the contents of a specified folder.
         Usage: 'list_tool(folder, filters)'
         :param folder: The absolute path of the folder whose contents you wish to list or access.
-        :param filters: Optional Parameter: Specify a comma-separated list of file glob to filter the results (e.g., "*.*, *.txt").
+        :param filters: Optional Parameter: A comma-separated list of file glob to filter results (e.g., "*.*, *.txt").
         """
         return list_contents(folder, filters)
 
@@ -174,7 +176,8 @@ class AgentToolkit(metaclass=Singleton):
         return execute_command(shell_type, command)
 
     def shutdown(self, reason: str) -> None:
-        """Use this tool when the user provides a query that indicates he wants to conclude the interaction (e.g. bye, exit).
+        """Use this tool when the user provides a query that indicates he wants to conclude the interaction
+        (e.g. bye, exit).
         Usage: 'shutdown(reason)'
         :param reason: The reason for termination.
         """
