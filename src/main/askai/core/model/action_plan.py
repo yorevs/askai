@@ -47,17 +47,17 @@ class ActionPlan:
             _, json_string = extract_codeblock(response)
         plan: ActionPlan = object_mapper.of_json(json_string, ActionPlan)
         if not isinstance(plan, ActionPlan):
-            plan = ActionPlan._final(question, json_string, ModelResult.default())
+            plan = ActionPlan._direct(question, json_string, ModelResult.default())
 
         return plan
 
     @staticmethod
-    def _final(question: str, response: str, model: ModelResult) -> "ActionPlan":
+    def _direct(question: str, response: str, model: ModelResult) -> "ActionPlan":
         """TODO"""
         return ActionPlan(
-            question, f"Answer to the question: {question}", [],
+            question, "N/A", [],
             SimpleNamespace(
-                reasoning="AI had enough context to respond directly",
+                reasoning="N/A",
                 observations="N/A", criticism="N/A",
                 speak=response,
             ),

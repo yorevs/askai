@@ -121,7 +121,7 @@ class AgentToolkit(metaclass=Singleton):
     def generate_content(self, instructions: str, mime_type: str, filepath: AnyPath) -> str:
         """Use this tool for tasks that require generating any kind of content, such as, code and text, image, etc.
         Usage: generate_content(instructions, mime_type)
-        :param instructions: The instructions for generating the content.
+        :param instructions: Descriptive instructions on how to create the content (not the content itself).
         :param mime_type: The generated content type (use MIME types).
         :param filepath: Optional file path for saving the content.
         """
@@ -134,9 +134,9 @@ class AgentToolkit(metaclass=Singleton):
         """
         return save_content(filepath)
 
-    def final_answer(self, texts: list[str] | str) -> str:
-        """Use this tool to provide display text, or to provide a final answer to the Human.
-        Usage: 'final_answer(text, ...repeat N times)'
+    def direct_answer(self, texts: list[str] | str) -> str:
+        """Use this tool to provide display text, or to provide a direct answer to the Human.
+        Usage: 'direct_answer(text, ...repeat N times)'
         :param texts: The comma separated list of texts to be displayed.
         """
         return display_tool(*(texts if isinstance(texts, list) else [texts]))

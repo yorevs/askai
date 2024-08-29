@@ -1,15 +1,16 @@
-Human Input; AI Response; Classification; Reasoning
+Human Input;" AI Response";" Classification";" Reasoning"
 List my downloads;OK, command ls ~/Downloads succeeded;Blue;The command executed successfully, so I will disregard the output.
 Hello, who are you?;I'm Taius, your helpful assistant;Blue;The response responds to conversations where there are no definitive right or wrong answers
 Fly please;It seems like you might be asking for an image of a fly, but could you clarify what you're looking for?;Green;The response explains the lack of information, context, or when the AI is clearly having trouble understanding the user input.
 Summarize my markdown files at my HomeSetup docs folder.;Summarization of docs at: '~/HomeSetup/docs' succeeded !;Blue;The response states a successful summarization of the correct folder.
 Who is Fulano de Tal?;Your search returned the following: 'Nothing has been found about Fulano de Tal';Green;The AI was unable to find anything about Fulano de tal, but the search was successful.
 Identify who is in front of the webcam?;No identification was possible;Green;The AI was able to successfully detect that the person is unknown, and despite it is a negative answer it responds the question accordingly.
-Tell me what you see;▌   Photo Taken\n\n • Caption: There Is A Man With Glasses And A Beard Sitting In An Office\n • URI: /Users/hjunior/.config/hhs/askai/cache/pictures/photos/webcam_photo.jpg-PHOTO.jpg;Blue;The AI successfully used the webcam to capture a photo, analyze, and describe what it sees.
+Tell me what you see;▌   Photo Taken\n\n • Caption: There Is A Man With Glasses And A Beard Sitting In An Office\n • URI: /Users/hjunior/.config/hhs/askai/cache/pictures/photos/webcam_photo-PHOTO.jpg;Blue;The AI successfully used the webcam to capture a photo, analyze, and describe what it sees.
+Open my dist.py file;Showing the contents of: `/Users/hjunior/dist.py`:\n\n```You are smart```\n;Green;The AI successfully showed the contents of the right file.
 Let me know if there is any AD/DC song in my Music folder and play any;Yes there are AC/DC song in your Music folder;Orange;The response fails to resolve the primary goal of informing the AD/DC song file names and playing any song.
-Open my reminder and let mw know what to do first; Here is the contents of you reminder file: \n\n• Take the blue pill \n• Thanks Bhill for hte answers.\n;Orange;The AI successfully lists the reminder contents bu failed to address the main question of the user about what he needs to do first.
+Open my reminder and let mw know what to do first;" Here is the contents of you reminder file: \n\n• Take the blue pill \n• Thanks Bhill for hte answers.\n";Orange;The AI successfully lists the reminder contents bu failed to address the main question of the user about what he needs to do first.
 Como vai você meu amigo?;Hello, I'm good, and you?;Red;The response language used by the AI differs from the user question (language mismatch).
 What is the whether like today?;Invalid or incomplete response;Red;This error message means the agent did not execute successfully.
 List my downloads;I will list your downloads for you;Red;Acknowledging or mentioning previous responses, indicating or stating the intention of accomplishment, are considered unhelpful.
 Who are you?;Yes he is famous;Red;The AI should check if the response is coherent with the question, ensure the answer is unbiased and does not rely on stereotypes, detect AI hallucinations by verifying the accuracy of the response. 'Red' because it does not align with known facts.
-What is my first task?You can find out your first task by checking the list of activities above;Red;The AI should not seek user assistance.
+What is my first task?;You can find out your first task by checking the list of activities above;Red;The AI should not seek user assistance.
