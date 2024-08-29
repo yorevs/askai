@@ -48,19 +48,21 @@ class TaskAgent(metaclass=Singleton):
         model: RoutingModel = RoutingModel.of_model(model_result.mid)
         events.reply.emit(message=msg.model_select(str(model)), verbosity="debug")
         args = {'user': shared.username, 'idiom': shared.idiom, 'context': answer, 'question': query}
+        prompt_args: list[str] = [k for k in args.keys()]
 
         match model, configs.is_speak:
             case RoutingModel.TERMINAL_COMMAND, True:
-                output = final_answer("taius-stt", [k for k in args.keys()], **args)
+                output = final_answer("taius-stt", prompt_args, **args)
             case RoutingModel.ASSISTIVE_TECH_HELPER, _:
-                output = final_answer("taius-stt", [k for k in args.keys()], **args)
+                output = final_answer("taius-stt", prompt_args, **args)
             case RoutingModel.CHAT_MASTER, _:
-                output = final_answer("taius-jarvis", [k for k in args.keys()], **args)
+                output = final_answer("taius-jarvis", prompt_args, **args)
             case RoutingModel.REFINER, _:
-                if rag:
+                if rag and rag.reasoning:
                     ctx: str = str(shared.context.flat("HISTORY"))
                     args = {'improvements': rag.reasoning, 'context': ctx, 'response': answer, 'question': query}
-                    output = final_answer("taius-refiner", [k for k in args.keys()], **args)
+                    prompt_args = [k for k in args.keys()]
+                    output = final_answer("taius-refiner", prompt_args, **args)
             case _:
                 # Default is to leave the last AI response intact.
                 pass

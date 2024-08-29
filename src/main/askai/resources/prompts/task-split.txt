@@ -23,14 +23,15 @@ Step 4. Provide direct instructions without explaining its purpose.
 
 Step 5. Separate tasks clearly, avoiding the use of conjunctions like 'and', 'or' and implicit multi-step processes within a single task.
 
-Step 6. Follow this source of truth to guide you in breaking down the tasks:
+
+Use the provided source of truth as a guide for classifying the responses.
 
 ----
 {examples}
 ----
 
 
-Task Requirements:
+**Task Requirements:**
 
 1. Use a single infinitive verb per task and exclude extraneous comments or explanations.
 
@@ -55,7 +56,7 @@ Task Requirements:
 11. When you lack an answer, need user assistance, or require real-time access, the "tasks" field will be: "[{{{{ "id": "id", "task": "Search google for: '<Your advanced google search query with filters> <Current Month> <Current Year>'" }}}}]".
 
 
-Response Format:
+**Response Format:**
 
 1. Ensure the response can be parsed by Python json.loads.
 

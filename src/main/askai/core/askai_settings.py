@@ -45,7 +45,7 @@ class AskAiSettings(metaclass=Singleton):
 
     RESOURCE_DIR = str(classpath.resource_path())
 
-    _ACTUAL_VERSION: str = "0.1.8"
+    _ACTUAL_VERSION: str = "0.1.81"
 
     def __init__(self) -> None:
         self._configs = SettingsConfig(self.RESOURCE_DIR, "application.properties")
@@ -102,7 +102,7 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.default.engine", "askai", "openai")
         self._settings.put("askai.default.engine.model", "askai", "gpt-4o-mini")
         # Router
-        self._settings.put("askai.max.short.memory.size", "askai", 10)
+        self._settings.put("askai.max.short.memory.size", "askai", 15)
         self._settings.put("askai.max.router.iteractions", "askai", 30)
         self._settings.put("askai.max.agent.retries", "askai", 3)
         self._settings.put("askai.max.agent.execution.time.seconds", "askai", 45)
@@ -116,7 +116,7 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.camera.face-detect.alg", "askai", "haarcascade_frontalface_default.xml")
         self._settings.put("askai.camera.scale.factor", "askai", 1.1)
         self._settings.put("askai.camera.min.neighbors", "askai", 3)
-        self._settings.put("askai.camera.min-max.size", "askai", "60, 60")
+        self._settings.put("askai.camera.min-max.size", "askai", "100, 100")
         self._settings.put("askai.camera.identity.max.distance", "askai", 0.70)
         # OpenAI
         self._settings.put("openai.speech.to.text.model", "openai", "whisper-1")
