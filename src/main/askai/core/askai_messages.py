@@ -218,5 +218,8 @@ class AskAiMessages(metaclass=Singleton):
             f"https://platform.openai.com/settings/organization/billing/overview"
         )
 
+    def missing_api_key(self, api_key: str, feature: str) -> str:
+        return f"ApiKey '{api_key}' is required to use '{feature}'"
+
 
 assert (msg := AskAiMessages().INSTANCE) is not None

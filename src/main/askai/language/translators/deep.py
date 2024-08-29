@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from askai.core.askai_messages import msg
 from askai.exception.exceptions import MissingApiKeyError
 from askai.language.ai_translator import AITranslator
 from askai.language.language import Language
@@ -27,7 +28,7 @@ class DeepLTranslator(AITranslator):
     def __init__(self, from_idiom: Language, to_idiom: Language):
         super().__init__(from_idiom, to_idiom)
         if not (auth_key := os.environ.get("DEEPL_API_KEY")):
-            raise MissingApiKeyError("ApiKey: 'DEEPL_API_KEY' is required to use DeepL translator!")
+            raise MissingApiKeyError(msg.missing_api_key("DEEPL_API_KEY", "DeepLTranslator"))
         self._translator = deepl.Translator(auth_key)
 
     @lru_cache(maxsize=256)

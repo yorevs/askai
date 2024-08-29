@@ -30,15 +30,22 @@ dotenv.load_dotenv(API_KEY_FILE)
 class ApiKeys(BaseSettings):
     """Provide a class no handle the required Api Keys."""
 
+    # fmt: off
     OPENAI_API_KEY: str = Field(..., description="Open AI Api Key")
     GOOGLE_API_KEY: str = Field(..., description="Google Api Key")
-    DEEPL_API_KEY: str = Field(..., description="DeepL Api Key")
+    DEEPL_API_KEY: str  = Field(..., description="DeepL Api Key")
+    # fmt: on
 
     @validator("OPENAI_API_KEY", "GOOGLE_API_KEY", "DEEPL_API_KEY")
     def not_empty(cls, value):
         if not value or not value.strip():
             raise ValueError("must not be empty or blank")
         return value
+
+    def has_key(self, key_name: str) -> bool:
+        """TODO"""
+        api_key: str = key_name.upper()
+        return hasattr(self, api_key) and getattr(self, api_key) is not None
 
     class Config:
         env_file = API_KEY_FILE
@@ -60,13 +67,11 @@ class ApiKeys(BaseSettings):
                 .label('GOOGLE_API_KEY') \
                 .value(os.environ.get("GOOGLE_API_KEY")) \
                 .min_max_length(39, 39) \
-                .validator(InputValidator.anything()) \
                 .build() \
             .field() \
                 .label('DEEPL_API_KEY') \
                 .value(os.environ.get("DEEPL_API_KEY")) \
                 .min_max_length(39, 39) \
-                .validator(InputValidator.anything()) \
                 .build() \
             .build()
         # fmt: on

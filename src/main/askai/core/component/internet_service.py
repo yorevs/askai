@@ -12,6 +12,12 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import re
+from typing import List
+
+import bs4
+from askai.__classpath__ import API_KEYS
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -36,11 +42,6 @@ from langchain_core.runnables.utils import Output
 from langchain_core.tools import Tool
 from langchain_google_community import GoogleSearchAPIWrapper
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from typing import List
-
-import bs4
-import logging as log
-import re
 
 
 class InternetService(metaclass=Singleton):
@@ -97,6 +98,8 @@ class InternetService(metaclass=Singleton):
         Google search operators: https://ahrefs.com/blog/google-advanced-search-operators/
         :param search: The AI search parameters.
         """
+        if not API_KEYS.has_key('GOOGLE_API_KEY'):
+            return msg.missing_api_key('GOOGLE_API_KEY', 'search_google')
         events.reply.emit(message=msg.searching())
         search.sites = search.sites or ["google.com", "bing.com", "duckduckgo.com", "ask.com"]
         terms = self._build_google_query(search).strip()

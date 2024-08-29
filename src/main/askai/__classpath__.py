@@ -29,7 +29,7 @@ if not os.environ.get("USER_AGENT"):
 
 
 try:
-    keys: ApiKeys = ApiKeys()
+    API_KEYS: ApiKeys = ApiKeys()
 except pydantic.v1.error_wrappers.ValidationError as err:
     if not ApiKeys.prompt():
         log.error(err.json())

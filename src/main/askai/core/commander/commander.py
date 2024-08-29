@@ -91,7 +91,7 @@ def commands() -> list[str]:
     return sorted(all_commands, reverse=True)
 
 
-def commander_help(command: str | None) -> str:
+def commander_help(command: str | None = None) -> str:
     """Return the commander help string.
     :param command: The command to get help from.
     """
