@@ -27,13 +27,13 @@ class RouterMode(Enumeration):
 
     # fmt: on
 
-    TASK_SPLIT          = 'Task Splitter', splitter
+    TASK_SPLIT = "Task Splitter", splitter
 
-    QNA                 = 'Questions and Answers', qna
+    QNA = "Questions and Answers", qna
 
-    QSTRING             = 'Non-Interactive', qstring
+    QSTRING = "Non-Interactive", qstring
 
-    RAG                 = 'Retrieval-Augmented Generation', rag
+    RAG = "Retrieval-Augmented Generation", rag
 
     # fmt: off
 

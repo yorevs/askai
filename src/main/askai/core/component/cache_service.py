@@ -12,19 +12,18 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import re
-from collections import namedtuple
-from pathlib import Path
-from typing import Optional, Tuple
-
+from askai.core.askai_configs import configs
+from askai.core.askai_settings import ASKAI_DIR
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from collections import namedtuple
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.tools.text_tools import hash_text
 from hspylib.modules.cache.ttl_cache import TTLCache
+from pathlib import Path
+from typing import Optional, Tuple
 
-from askai.core.askai_configs import configs
-from askai.core.askai_settings import ASKAI_DIR
+import re
 
 # AskAI cache root directory.
 CACHE_DIR: Path = Path(f"{ASKAI_DIR}/cache")
@@ -177,7 +176,7 @@ class CacheService(metaclass=Singleton):
     def read_context(self) -> list[str]:
         """Read the Context window entries from the TTL cache."""
         ctx_str: str = self._TTL_CACHE.read(self.ASKAI_CONTEXT_KEY)
-        return re.split(r'%EOL%', ctx_str, flags=re.MULTILINE | re.IGNORECASE) if ctx_str else []
+        return re.split(r"%EOL%", ctx_str, flags=re.MULTILINE | re.IGNORECASE) if ctx_str else []
 
 
 assert (cache := CacheService().INSTANCE) is not None

@@ -14,7 +14,6 @@
 """
 from askai.core.features.router.tools.webcam import webcam_capturer, webcam_identifier
 from hspylib.core.tools.commons import sysout
-
 from utils import init_context
 
 if __name__ == "__main__":

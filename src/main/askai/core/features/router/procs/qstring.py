@@ -1,5 +1,3 @@
-from typing import Optional
-
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
 from askai.core.engine.openai.temperature import Temperature
@@ -8,6 +6,7 @@ from askai.core.support.utilities import find_file
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.singleton import Singleton
 from langchain_core.prompts import PromptTemplate
+from typing import Optional
 
 
 class NonInteractive(metaclass=Singleton):
@@ -32,8 +31,9 @@ class NonInteractive(metaclass=Singleton):
 
         dir_name, file_name = PathObject.split(query_prompt or self.DEFAULT_PROMPT)
         template = PromptTemplate(
-            input_variables=["context", "question"], template=prompt.read_prompt(file_name, dir_name))
-        final_prompt: str =  template.format(context=context or self.DEFAULT_CONTEXT, question=question)
+            input_variables=["context", "question"], template=prompt.read_prompt(file_name, dir_name)
+        )
+        final_prompt: str = template.format(context=context or self.DEFAULT_CONTEXT, question=question)
         llm = lc_llm.create_chat_model(temperature or self.DEFAULT_TEMPERATURE)
 
         if (response := llm.invoke(final_prompt)) and (output := response.content):

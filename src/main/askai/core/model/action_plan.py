@@ -55,13 +55,12 @@ class ActionPlan:
     def _direct(question: str, response: str, model: ModelResult) -> "ActionPlan":
         """TODO"""
         return ActionPlan(
-            question, "N/A", [],
-            SimpleNamespace(
-                reasoning="N/A",
-                observations="N/A", criticism="N/A",
-                speak=response,
-            ),
-            [SimpleNamespace(id="1", task=response)], model,
+            question,
+            "N/A",
+            [],
+            SimpleNamespace(reasoning="N/A", observations="N/A", criticism="N/A", speak=response),
+            [SimpleNamespace(id="1", task=response)],
+            model,
         )
 
     @staticmethod

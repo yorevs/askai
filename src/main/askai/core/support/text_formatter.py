@@ -10,16 +10,16 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import os
-import re
-from textwrap import dedent
-from typing import Any, AnyStr
-
 from clitt.core.term.cursor import cursor
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
 from hspylib.modules.cli.vt100.vt_code import VtCode
 from hspylib.modules.cli.vt100.vt_color import VtColor
+from textwrap import dedent
+from typing import Any, AnyStr
+
+import os
+import re
 
 
 class TextFormatter(metaclass=Singleton):

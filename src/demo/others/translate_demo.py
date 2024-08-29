@@ -1,9 +1,9 @@
 from transformers import MarianMTModel, MarianTokenizer
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # Specify the model name
-    model_name = 'Helsinki-NLP/opus-mt-en-ROMANCE'
+    model_name = "Helsinki-NLP/opus-mt-en-ROMANCE"
 
     # Load the model and tokenizer
     model = MarianMTModel.from_pretrained(model_name)

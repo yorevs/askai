@@ -12,14 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from pathlib import Path
-from textwrap import dedent
-from typing import Any, Optional, Type, TypeAlias
-
-import PIL
-import pydantic
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -37,7 +29,15 @@ from hspylib.core.exception.exceptions import InvalidArgumentError
 from hspylib.core.metaclass.singleton import Singleton
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from pathlib import Path
 from retry import retry
+from textwrap import dedent
+from typing import Any, Optional, Type, TypeAlias
+
+import logging as log
+import os
+import PIL
+import pydantic
 
 AgentResponse: TypeAlias = dict[str, Any]
 
@@ -70,16 +70,18 @@ class TaskSplitter(metaclass=Singleton):
         evaluation: str = str(shared.context.flat("EVALUATION"))
         template = PromptTemplate(
             input_variables=["os_type", "shell", "datetime", "home", "examples"],
-            template=prompt.read_prompt("task-split.txt")
+            template=prompt.read_prompt("task-split.txt"),
         )
         return ChatPromptTemplate.from_messages(
             [
                 (
                     "system",
                     template.format(
-                        os_type=prompt.os_type, shell=prompt.shell,
-                        datetime=geo_location.datetime, home=Path.home(),
-                        examples=self._rag.retrieve_examples(query)
+                        os_type=prompt.os_type,
+                        shell=prompt.shell,
+                        datetime=geo_location.datetime,
+                        home=Path.home(),
+                        examples=self._rag.retrieve_examples(query),
                     ),
                 ),
                 MessagesPlaceholder("chat_history"),
@@ -101,7 +103,7 @@ class TaskSplitter(metaclass=Singleton):
         def _process_wrapper() -> Optional[str]:
             """Wrapper to allow accuracy retries."""
             log.info("Router::[QUESTION] '%s'", question)
-            runnable = self.template(question) | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
+            runnable = self.template(question) | lc_llm.create_chat_model(Temperature.COLDEST.temp)
             runnable = RunnableWithMessageHistory(
                 runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
             )

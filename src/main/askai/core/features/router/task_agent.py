@@ -1,8 +1,3 @@
-import logging as log
-import os
-from functools import lru_cache
-from typing import Optional
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -17,6 +12,7 @@ from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from functools import lru_cache
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.agents import AgentExecutor, create_structured_chat_agent
@@ -24,6 +20,10 @@ from langchain.memory.chat_memory import BaseChatMemory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.utils import Output
+from typing import Optional
+
+import logging as log
+import os
 
 
 class TaskAgent(metaclass=Singleton):
@@ -33,10 +33,7 @@ class TaskAgent(metaclass=Singleton):
 
     @staticmethod
     def wrap_answer(
-        query: str,
-        answer: str,
-        model_result: ModelResult = ModelResult.default(),
-        rag: AccResponse | None = None
+        query: str, answer: str, model_result: ModelResult = ModelResult.default(), rag: AccResponse | None = None
     ) -> str:
         """Provide a final answer to the user.
         :param query: The user question.
@@ -47,7 +44,7 @@ class TaskAgent(metaclass=Singleton):
         output: str = answer
         model: RoutingModel = RoutingModel.of_model(model_result.mid)
         events.reply.emit(message=msg.model_select(str(model)), verbosity="debug")
-        args = {'user': shared.username, 'idiom': shared.idiom, 'context': answer, 'question': query}
+        args = {"user": shared.username, "idiom": shared.idiom, "context": answer, "question": query}
         prompt_args: list[str] = [k for k in args.keys()]
 
         match model, configs.is_speak:
@@ -60,7 +57,7 @@ class TaskAgent(metaclass=Singleton):
             case RoutingModel.REFINER, _:
                 if rag and rag.reasoning:
                     ctx: str = str(shared.context.flat("HISTORY"))
-                    args = {'improvements': rag.reasoning, 'context': ctx, 'response': answer, 'question': query}
+                    args = {"improvements": rag.reasoning, "context": ctx, "response": answer, "question": query}
                     prompt_args = [k for k in args.keys()]
                     output = final_answer("taius-refiner", prompt_args, **args)
             case _:
@@ -104,9 +101,11 @@ class TaskAgent(metaclass=Singleton):
             if plan.speak:
                 events.reply.emit(message=plan.speak)
             for idx, action in enumerate(tasks, start=1):
-                path_str: str = 'Path: ' + action.path \
-                    if hasattr(action, 'path') and action.path.upper() not in ['N/A', 'NONE'] \
-                    else ''
+                path_str: str = (
+                    "Path: " + action.path
+                    if hasattr(action, "path") and action.path.upper() not in ["N/A", "NONE"]
+                    else ""
+                )
                 task: str = f"{action.task}  {path_str}"
                 events.reply.emit(message=msg.task(task), verbosity="debug")
                 if (response := self._exec_action(task)) and (output := response["output"]):
@@ -133,10 +132,7 @@ class TaskAgent(metaclass=Singleton):
         return self.wrap_answer(plan.primary_goal, output, plan.model, rag)
 
     @lru_cache
-    def _create_lc_agent(
-        self,
-        temperature: Temperature = Temperature.COLDEST
-    ) -> Runnable:
+    def _create_lc_agent(self, temperature: Temperature = Temperature.COLDEST) -> Runnable:
         """Create the LangChain agent.
         :param temperature: The LLM temperature (randomness).
         """

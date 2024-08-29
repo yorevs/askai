@@ -12,16 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import locale
-import os
-from shutil import which
-
-from hspylib.core.enums.charset import Charset
-from hspylib.core.metaclass.singleton import Singleton
-
 from askai.__classpath__ import classpath
 from askai.core.askai_settings import settings
 from askai.language.language import Language
+from hspylib.core.enums.charset import Charset
+from hspylib.core.metaclass.singleton import Singleton
+from shutil import which
+
+import locale
+import os
 
 
 class AskAiConfigs(metaclass=Singleton):
@@ -188,5 +187,6 @@ class AskAiConfigs(metaclass=Singleton):
         if device_name in self._recorder_devices:
             self._recorder_devices.remove(device_name)
             settings.put("askai.recorder.devices", ", ".join(self._recorder_devices))
+
 
 assert (configs := AskAiConfigs().INSTANCE) is not None

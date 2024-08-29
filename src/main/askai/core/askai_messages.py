@@ -12,15 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import re
-from functools import cached_property, lru_cache
-
-from hspylib.core.metaclass.singleton import Singleton
-
 from askai.core.askai_configs import configs
 from askai.language.ai_translator import AITranslator
 from askai.language.language import Language
 from askai.language.translators.marian import MarianTranslator
+from functools import cached_property, lru_cache
+from hspylib.core.metaclass.singleton import Singleton
+
+import re
 
 
 class AskAiMessages(metaclass=Singleton):
@@ -54,7 +53,7 @@ class AskAiMessages(metaclass=Singleton):
     def translate(self, text: str) -> str:
         """Translate text using the configured language."""
         # Avoid translating debug messages.
-        if re.match(r'^~~\[DEBUG]~~.*', text, flags=re.IGNORECASE | re.MULTILINE):
+        if re.match(r"^~~\[DEBUG]~~.*", text, flags=re.IGNORECASE | re.MULTILINE):
             return text
         return self.translator.translate(text)
 
@@ -127,14 +126,14 @@ class AskAiMessages(metaclass=Singleton):
 
     def assert_acc(self, status: str, details: str) -> str:
         match status.casefold():
-            case 'red':
-                cl = '~~'
-            case 'yellow':
-                cl = '`'
-            case 'green':
-                cl = '*'
+            case "red":
+                cl = "~~"
+            case "yellow":
+                cl = "`"
+            case "green":
+                cl = "*"
             case _:
-                cl = ''
+                cl = ""
         return f"~~[DEBUG]~~ Accuracy result => {cl}{status}:{cl} {details}"
 
     def action_plan(self, plan_text: str) -> str:
@@ -214,9 +213,10 @@ class AskAiMessages(metaclass=Singleton):
         return f"Sorry, {reason}"
 
     def quote_exceeded(self) -> str:
-        return(
+        return (
             f"Oops! Looks like you have reached your quota limit. You can add credits at: "
-            f"https://platform.openai.com/settings/organization/billing/overview")
+            f"https://platform.openai.com/settings/organization/billing/overview"
+        )
 
 
 assert (msg := AskAiMessages().INSTANCE) is not None

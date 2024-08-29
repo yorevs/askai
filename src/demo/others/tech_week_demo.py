@@ -27,7 +27,7 @@ import pause
 import sys
 
 today = datetime.today()
-th_dir: str = f'{Path.home()}/TechWeek'
+th_dir: str = f"{Path.home()}/TechWeek"
 song_file: str = f"{th_dir}/highway-to-hell-fade.mp3"
 welcome_file: str = f"{th_dir}/techweek-welcome.txt"
 

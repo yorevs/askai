@@ -13,14 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-import os
-from functools import partial
-from threading import Thread
-from typing import List, TypeAlias
-
-import nltk
-import pause
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -35,8 +27,16 @@ from askai.core.support.utilities import display_text, strip_format
 from clitt.core.term.cursor import cursor
 from clitt.core.term.screen import screen
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from functools import partial
 from hspylib.core.tools.commons import sysout
 from hspylib.modules.eventbus.event import Event
+from threading import Thread
+from typing import List, TypeAlias
+
+import logging as log
+import nltk
+import os
+import pause
 
 QueryString: TypeAlias = str | List[str] | None
 

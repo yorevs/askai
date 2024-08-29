@@ -12,19 +12,18 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
+from askai.__classpath__ import classpath
+from askai.core.support.langchain_support import lc_llm
 from functools import lru_cache
-from pathlib import Path
-
 from hspylib.core.preconditions import check_state
 from hspylib.core.tools.commons import file_is_not_empty
 from langchain_community.document_loaders import CSVLoader
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStore
+from pathlib import Path
 
-from askai.__classpath__ import classpath
-from askai.core.support.langchain_support import lc_llm
+import os
 
 
 class RAGProvider:

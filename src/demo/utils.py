@@ -1,5 +1,3 @@
-import os
-
 from askai.__classpath__ import classpath
 from askai.core.askai_events import events
 from askai.core.commander.commander import commands
@@ -15,6 +13,7 @@ from typing import Literal
 
 import atexit
 import logging as log
+import os
 
 BASE_DIR: str = str(classpath.resource_path()).replace("/main/askai/", "/demo/")
 
@@ -30,7 +29,7 @@ def init_context(
 ) -> None:
     """Initialize AskAI context and startup components."""
     if log_name:
-        log_dir: str = os.environ.get('HHS_LOG_DIR', os.getcwd())
+        log_dir: str = os.environ.get("HHS_LOG_DIR", os.getcwd())
         log_init(f"{os.path.join(log_dir, ensure_endswith(log_name, '.log'))}", level=log_level)
     KeyboardInput.preload_history(cache.load_input_history(commands()))
     shared.create_engine(engine_name=engine_name, model_name=model_name)

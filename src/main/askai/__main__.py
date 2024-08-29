@@ -12,12 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-import sys
-from textwrap import dedent
-from typing import Any, Optional
-
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
 from askai.core.askai_cli import AskAiCli
@@ -33,6 +27,12 @@ from hspylib.core.zoned_datetime import now
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
+from textwrap import dedent
+from typing import Any, Optional
+
+import logging as log
+import os
+import sys
 
 if not is_a_tty():
     log.getLogger().setLevel(log.ERROR)
@@ -109,7 +109,7 @@ class Main(TUIApplication):
 
     def _main(self, *params, **kwargs) -> ExitStatus:
         """Run the application with the command line arguments."""
-        os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
+        os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
         is_new_ui: bool = to_bool(self._get_argument("ui", False))
         if not is_new_ui:
             interactive: bool = to_bool(self._get_argument("interactive", False))

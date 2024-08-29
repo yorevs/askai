@@ -25,7 +25,8 @@ class Rag(metaclass=Singleton):
         self._rag_chain = None
         self._vectorstore = None
         self._text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap)
+            chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap
+        )
 
     def process(self, question: str, **_) -> str:
         """Process the user question to retrieve the final response.

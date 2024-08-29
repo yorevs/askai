@@ -32,11 +32,7 @@ def display_tool(*texts: str) -> str:
     return output or "Sorry, there is nothing to display"
 
 
-def final_answer(
-    persona_prompt: str | None = None,
-    input_variables: list[str] | None = None,
-    **prompt_args
-) -> str:
+def final_answer(persona_prompt: str | None = None, input_variables: list[str] | None = None, **prompt_args) -> str:
     """Provide the final response to the user.
     :param persona_prompt: The persona prompt to be used.
     :param input_variables: The prompt input variables.
@@ -44,8 +40,7 @@ def final_answer(
     """
     prompt_file: PathObject = PathObject.of(prompt.append_path(f"taius/{persona_prompt}"))
     template = PromptTemplate(
-        input_variables=input_variables or [],
-        template=prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir),
+        input_variables=input_variables or [], template=prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir)
     )
     final_prompt = template.format(**prompt_args)
     llm = lc_llm.create_chat_model(temperature=Temperature.COLDEST.temp)

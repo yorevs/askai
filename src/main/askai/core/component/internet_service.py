@@ -61,10 +61,10 @@ class InternetService(metaclass=Singleton):
             query += f" {' OR '.join(['site:' + url for url in search.sites])}"
         # Weather is a filter that does not require any other search parameter.
         if search.filters and any(f.find("weather:") >= 0 for f in search.filters):
-            return query + ' ' + re.sub(r"^weather:(.*)", r'weather:"\1"', " AND ".join(search.filters))
+            return query + " " + re.sub(r"^weather:(.*)", r'weather:"\1"', " AND ".join(search.filters))
         # We want to find pages containing the exact name of the person.
         if search.filters and any(f.find("people:") >= 0 for f in search.filters):
-            return query + ' ' + f" intext:\"{'+'.join([f.split(':')[1] for f in search.filters])}\" "
+            return query + " " + f" intext:\"{'+'.join([f.split(':')[1] for f in search.filters])}\" "
         # Make the search query using the provided keywords.
         if search.keywords:
             query = f"{' '.join(search.keywords)} {query} "
@@ -84,12 +84,10 @@ class InternetService(metaclass=Singleton):
 
     def __init__(self):
         self._google = GoogleSearchAPIWrapper()
-        self._tool = Tool(
-            name="google_search", description="Search Google for recent results.",
-            func=self._google.run
-        )
+        self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
         self._text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap)
+            chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap
+        )
 
     def refine_template(self) -> str:
         return prompt.read_prompt("refine-search")

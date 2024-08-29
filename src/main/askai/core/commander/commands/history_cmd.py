@@ -69,9 +69,9 @@ class HistoryCmd(ABC):
         :param name: The context name.
         """
         if (name := name.upper()) in shared.context.keys:
-            if (ctx := str(shared.context.flat(name.upper()))) \
-                and (stripped_role := re.sub(r'^((system|human|assistant):\s*)', '', ctx,
-                                             flags=re.MULTILINE | re.IGNORECASE)):
+            if (ctx := str(shared.context.flat(name.upper()))) and (
+                stripped_role := re.sub(r"^((system|human|assistant):\s*)", "", ctx, flags=re.MULTILINE | re.IGNORECASE)
+            ):
                 pyperclip.copy(stripped_role)
                 text_formatter.cmd_print(f"`{name}` copied to the clipboard!")
             else:

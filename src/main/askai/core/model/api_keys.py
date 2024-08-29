@@ -12,15 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import dotenv
 from clitt.core.tui.minput.input_validator import InputValidator
 from clitt.core.tui.minput.menu_input import MenuInput
 from clitt.core.tui.minput.minput import minput
 from hspylib.core.enums.charset import Charset
 from pathlib import Path
+from pydantic.v1 import BaseSettings, Field, validator
 
-from pydantic.v1 import Field, BaseSettings, validator
-
+import dotenv
 import os
 
 API_KEY_FILE: str = os.environ.get("HHS_ENV_FILE", str(os.path.join(Path.home(), ".env")))
@@ -35,10 +34,10 @@ class ApiKeys(BaseSettings):
     GOOGLE_API_KEY: str = Field(..., description="Google Api Key")
     DEEPL_API_KEY: str = Field(..., description="DeepL Api Key")
 
-    @validator('OPENAI_API_KEY', 'GOOGLE_API_KEY', 'DEEPL_API_KEY')
+    @validator("OPENAI_API_KEY", "GOOGLE_API_KEY", "DEEPL_API_KEY")
     def not_empty(cls, value):
         if not value or not value.strip():
-            raise ValueError('must not be empty or blank')
+            raise ValueError("must not be empty or blank")
         return value
 
     class Config:
@@ -73,9 +72,9 @@ class ApiKeys(BaseSettings):
         # fmt: on
 
         if result := minput(form_fields, "Please fill all required Api Keys"):
-            with open(API_KEY_FILE, 'r+', encoding=Charset.UTF_8.val) as f_envs:
+            with open(API_KEY_FILE, "r+", encoding=Charset.UTF_8.val) as f_envs:
                 envs = f_envs.readlines()
-            with open(API_KEY_FILE, 'w', encoding=Charset.UTF_8.val) as f_envs:
+            with open(API_KEY_FILE, "w", encoding=Charset.UTF_8.val) as f_envs:
                 all_envs: set[str] = set(map(str.strip, envs))
                 for key, value in zip(result.attributes, result.values):
                     os.environ[key.upper()] = value

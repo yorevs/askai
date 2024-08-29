@@ -12,23 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-import re
-from functools import partial
-from os.path import dirname
-from pathlib import Path
-from string import Template
-from textwrap import dedent
-
-import click
-from click import Command, Group
-from clitt.core.term.cursor import cursor
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import sysout, to_bool
-from hspylib.modules.eventbus.event import Event
-
 from askai.core.askai_configs import configs
-from askai.core.askai_events import events, AskAiEvents, ASKAI_BUS_NAME, REPLY_EVENT, REPLY_ERROR_EVENT
+from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, events, REPLY_ERROR_EVENT, REPLY_EVENT
 from askai.core.commander.commands.cache_cmd import CacheCmd
 from askai.core.commander.commands.camera_cmd import CameraCmd
 from askai.core.commander.commands.general_cmd import GeneralCmd
@@ -38,10 +23,25 @@ from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
-from askai.language.language import Language, AnyLocale
+from askai.language.language import AnyLocale, Language
+from click import Command, Group
+from clitt.core.term.cursor import cursor
+from functools import partial
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import sysout, to_bool
+from hspylib.modules.eventbus.event import Event
+from os.path import dirname
+from pathlib import Path
+from string import Template
+from textwrap import dedent
+
+import click
+import os
+import re
 
 COMMANDER_HELP_TPL = Template(
-    dedent("""
+    dedent(
+        """
     # AskAI Commander - HELP
 
     > Commands:
@@ -58,10 +58,13 @@ COMMANDER_HELP_TPL = Template(
     | *Ctrl+F* | **Forget the input history.** |
 
     >   To get help about a specific command type: '/help \<command\>'
-    """))
+    """
+    )
+)
 
 COMMANDER_HELP_CMD_TPL = Template(
-    dedent("""
+    dedent(
+        """
     # AskAI Commander - HELP
     ```
     %CYAN%Command: %ORANGE%${command}%NC%
@@ -70,7 +73,9 @@ COMMANDER_HELP_CMD_TPL = Template(
 
     %CYAN%Usage:\t%WHITE%/${usage}
     ```
-    """))
+    """
+    )
+)
 
 RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"
 
@@ -110,7 +115,7 @@ def _format_help(command: Command) -> str:
     docstr: str = ""
     splits: list[str] = re.split(os.linesep, command.__doc__, flags=re.MULTILINE | re.IGNORECASE)
     for i, arg in enumerate(splits):
-        if mat := re.match(r':\w+\s+(\w+):\s+(.+)', arg.strip()):
+        if mat := re.match(r":\w+\s+(\w+):\s+(.+)", arg.strip()):
             docstr += f"\n\t\t- %BLUE%{mat.group(1).casefold():<15}%WHITE%\t: {mat.group(2).title()}"
         elif arg.strip():
             docstr += f"{arg}\n\n%CYAN%Arguments:%NC%\n"
@@ -157,7 +162,7 @@ def help(command: str | None) -> None:
     """Display this help message and exit.
     :param command: The command to retrieve help for.
     """
-    display_text(commander_help(command.replace('/', '')))
+    display_text(commander_help(command.replace("/", "")))
 
 
 @ask_commander.command()
@@ -390,11 +395,7 @@ def translate(from_locale_str: AnyLocale, to_locale_str: AnyLocale, texts: tuple
     :param to_locale_str: The target locale identifier, e.g., 'en_US'.
     :param texts: The list of texts to translate.
     """
-    GeneralCmd.translate(
-        Language.of_locale(from_locale_str),
-        Language.of_locale(to_locale_str),
-        ' '.join(texts)
-    )
+    GeneralCmd.translate(Language.of_locale(from_locale_str), Language.of_locale(to_locale_str), " ".join(texts))
 
 
 @ask_commander.command()

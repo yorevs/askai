@@ -13,14 +13,14 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-import os
-import sys
-
-import pydantic
 from askai.core.model.api_keys import ApiKeys
 from hspylib.core.metaclass.classpath import Classpath
 from hspylib.core.tools.commons import parent_path, root_dir
+
+import logging as log
+import os
+import pydantic
+import sys
 
 if not os.environ.get("USER_AGENT"):
     # The AskAI User Agent, required by the langchain framework

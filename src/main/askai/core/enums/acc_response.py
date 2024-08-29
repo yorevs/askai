@@ -52,12 +52,12 @@ class AccResponse(Enumeration):
     @classmethod
     def of_status(cls, status: str, reasoning: str | None) -> "AccResponse":
         resp = cls.of_value(status.title())
-        if reasoning and (mat := re.match(r'(^[0-9]{1,3})%\s+(.*)', reasoning)):
+        if reasoning and (mat := re.match(r"(^[0-9]{1,3})%\s+(.*)", reasoning)):
             resp.rate = float(mat.group(1))
             resp.reasoning = mat.group(2)
         return resp
 
-    def __init__(self, color: Literal['Blue', 'Green', 'Yellow', 'Orange', 'Red']):
+    def __init__(self, color: Literal["Blue", "Green", "Yellow", "Orange", "Red"]):
         self.color = color
         self.reasoning: str | None = None
         self.rate: float | None = None
@@ -78,7 +78,7 @@ class AccResponse(Enumeration):
     def is_good(self) -> bool:
         return self in [self.GOOD, self.EXCELLENT]
 
-    def passed(self, threshold: 'AccResponse') -> bool:
+    def passed(self, threshold: "AccResponse") -> bool:
         """whether the response matches a 'PASS' classification."""
         if isinstance(threshold, AccResponse):
             idx_self, idx_threshold = None, None

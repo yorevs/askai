@@ -5,11 +5,10 @@ from transformers import MarianMTModel, MarianTokenizer
 
 
 class MarianTranslator(AITranslator):
-    """Provides a multilingual offline translation engine.
-    """
+    """Provides a multilingual offline translation engine."""
 
     # Specify the model name
-    MODEL_NAME = 'Helsinki-NLP/opus-mt-en-ROMANCE'
+    MODEL_NAME = "Helsinki-NLP/opus-mt-en-ROMANCE"
 
     def __init__(self, from_idiom: Language, to_idiom: Language):
         super().__init__(from_idiom, to_idiom)
@@ -25,9 +24,7 @@ class MarianTranslator(AITranslator):
         if self._from_idiom == self._to_idiom:
             return text
 
-        return self._translate(
-            f">>{self._to_idiom.idiom}<<{text}",
-        )
+        return self._translate(f">>{self._to_idiom.idiom}<<{text}")
 
     def _translate(self, text) -> str:
         """TODO"""
@@ -36,9 +33,7 @@ class MarianTranslator(AITranslator):
         # Perform the translation
         translated = self._model.generate(inputs)
         # Decode the translated text
-        translated_text = self._tokenizer.decode(
-            translated[0], skip_special_tokens=True
-        )
+        translated_text = self._tokenizer.decode(translated[0], skip_special_tokens=True)
         return translated_text
 
     def name(self) -> str:

@@ -13,16 +13,11 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from functools import lru_cache
-from typing import Any
-
-from langchain_community.vectorstores import FAISS
-from langchain_core.documents import Document
-from langchain_core.vectorstores import VectorStore
-
 from askai.core.support.shared_instances import shared
+from functools import lru_cache
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_not_none
+from typing import Any
 
 
 class LangChainSupport(metaclass=Singleton):

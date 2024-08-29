@@ -1,6 +1,3 @@
-import os
-from textwrap import dedent
-
 from askai.core.component.camera import camera
 from askai.core.component.image_store import ImageMetadata, store
 from askai.core.features.router.tools.terminal import open_command
@@ -8,8 +5,10 @@ from askai.core.support.utilities import display_text
 from clitt.core.term.cursor import cursor
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.tools.text_tools import strip_escapes
-
+from textwrap import dedent
 from utils import init_context
+
+import os
 
 MENU = dedent(
     f"""Camera Demo options

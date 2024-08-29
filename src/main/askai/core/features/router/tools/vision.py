@@ -1,14 +1,14 @@
-from typing import Optional
-
-import torch
-from PIL import Image
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.features.validation.accuracy import resolve_x_refs
 from askai.core.support.shared_instances import shared
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.enums.enumeration import Enumeration
+from PIL import Image
 from transformers import BlipForConditionalGeneration, BlipProcessor
+from typing import Optional
+
+import torch
 
 
 def image_captioner(path_name: str) -> Optional[str]:
@@ -18,17 +18,18 @@ def image_captioner(path_name: str) -> Optional[str]:
 
     class HFModel(Enumeration):
         """Available Hugging Face models"""
+
         # fmt: off
         SF_BLIP_BASE            = "Salesforce/blip-image-captioning-base"
         SF_BLIP_LARGE           = "Salesforce/blip-image-captioning-large"
         # fmt: on
 
         @staticmethod
-        def default() -> 'HFModel':
+        def default() -> "HFModel":
             """Return the default HF model."""
             return HFModel.SF_BLIP_LARGE
 
-    caption: str = 'Not available'
+    caption: str = "Not available"
 
     posix_path: PathObject = PathObject.of(path_name)
     if not posix_path.exists:
@@ -49,6 +50,6 @@ def image_captioner(path_name: str) -> Optional[str]:
         inputs = processor(images=image, return_tensors="pt").to(device)
         outputs = model.generate(**inputs)
         caption = processor.decode(outputs[0], skip_special_tokens=True)
-        caption = caption.title() if caption else 'I could not caption the image'
+        caption = caption.title() if caption else "I could not caption the image"
 
     return caption

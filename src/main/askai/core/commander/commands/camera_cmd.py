@@ -1,11 +1,9 @@
 from abc import ABC
-
-from hspylib.core.metaclass.classpath import AnyPath
-
 from askai.core.askai_configs import configs
 from askai.core.component.camera import camera
 from askai.core.features.router.tools.webcam import webcam_identifier
 from askai.core.support.text_formatter import text_formatter
+from hspylib.core.metaclass.classpath import AnyPath
 
 
 class CameraCmd(ABC):

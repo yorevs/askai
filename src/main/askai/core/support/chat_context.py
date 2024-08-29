@@ -12,8 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import re
-
 from askai.core.component.cache_service import cache
 from askai.exception.exceptions import TokenLengthExceeded
 from collections import defaultdict, deque, namedtuple
@@ -23,6 +21,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from typing import Any, AnyStr, Literal, Optional, TypeAlias
 
 import os
+import re
 
 ChatRoles: TypeAlias = Literal["system", "human", "assistant"]
 
@@ -39,11 +38,13 @@ class ChatContext:
     LANGCHAIN_ROLE_MAP: dict = {"human": HumanMessage, "system": SystemMessage, "assistant": AIMessage}
 
     @staticmethod
-    def of(context: list[str], token_limit: int, max_context_size: int) -> 'ChatContext':
+    def of(context: list[str], token_limit: int, max_context_size: int) -> "ChatContext":
         """Create a chat context from a context list on the format: <ROLE: MSG>"""
         ctx = ChatContext(token_limit, max_context_size)
         for e in context:
-            role, reply = list(filter(None, re.split(r'(human|assistant|system):', e, flags=re.MULTILINE | re.IGNORECASE)))
+            role, reply = list(
+                filter(None, re.split(r"(human|assistant|system):", e, flags=re.MULTILINE | re.IGNORECASE))
+            )
             ctx.push("HISTORY", reply, role)
         return ctx
 

@@ -13,7 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 from abc import ABC
-
 from askai.core.askai_messages import AskAiMessages
 from askai.core.askai_settings import settings
 from askai.core.component.summarizer import summarizer
@@ -88,4 +87,3 @@ class GeneralCmd(ABC):
         """
         translator = AskAiMessages.get_translator(from_lang, to_lang)
         list(map(display_text, map(translator.translate, texts)))
-

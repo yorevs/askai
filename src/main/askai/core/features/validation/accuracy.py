@@ -13,13 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-from textwrap import dedent
-
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables.history import RunnableWithMessageHistory
-
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -29,6 +22,12 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.rag_provider import RAGProvider
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from textwrap import dedent
+
+import logging as log
 
 EVALUATION_GUIDE: str = dedent(
     """
@@ -44,28 +43,19 @@ EVALUATION_GUIDE: str = dedent(
 RAG: RAGProvider = RAGProvider("accuracy.csv")
 
 
-def assert_accuracy(
-    question: str,
-    ai_response: str,
-    pass_threshold: AccResponse = AccResponse.MODERATE
-) -> AccResponse:
+def assert_accuracy(question: str, ai_response: str, pass_threshold: AccResponse = AccResponse.MODERATE) -> AccResponse:
     """Function responsible for asserting that the question was properly answered.
     :param question: The user question.
     :param ai_response: The AI response to be analysed.
     :param pass_threshold: The threshold color to be considered as a pass.
     """
     if ai_response and ai_response not in msg.accurate_responses:
-        issues_prompt = PromptTemplate(
-            input_variables=["problems"],
-            template=prompt.read_prompt("assert")
-        )
+        issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("assert"))
         assert_template = PromptTemplate(
-            input_variables=["examples", "input", "response"],
-            template=prompt.read_prompt("accuracy")
+            input_variables=["examples", "input", "response"], template=prompt.read_prompt("accuracy")
         )
         final_prompt = assert_template.format(
-            examples=RAG.retrieve_examples(question),
-            input=question, response=ai_response
+            examples=RAG.retrieve_examples(question), input=question, response=ai_response
         )
         log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
         llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)

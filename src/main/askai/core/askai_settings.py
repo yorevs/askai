@@ -12,22 +12,21 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-import re
+from askai.__classpath__ import classpath
 from contextlib import redirect_stdout
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.commons import console_out, to_bool
 from io import StringIO
 from pathlib import Path
-from typing import Any, Optional
-
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.commons import to_bool, console_out
 from rich.table import Table
 from setman.settings.settings import Settings
 from setman.settings.settings_config import SettingsConfig
 from setman.settings.settings_entry import SettingsEntry
+from typing import Any, Optional
 
-from askai.__classpath__ import classpath
+import logging as log
+import os
+import re
 
 # AskAI config directory.
 ASKAI_DIR: Path = Path(f'{os.getenv("ASKAI_DIR", os.getenv("HHS_DIR", str(Path.home())))}/askai')
@@ -95,12 +94,12 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.speak.enabled", "askai", False)
         self._settings.put("askai.cache.enabled", "askai", False)
         self._settings.put("askai.cache.ttl.minutes", "askai", 25)
+        self._settings.put("askai.preferred.language", "askai", "")
+        self._settings.put("askai.default.engine", "askai", "openai")
+        self._settings.put("askai.default.engine.model", "askai", "gpt-4o-mini")
         self._settings.put("askai.text.to.speech.tempo", "askai", 1)
         self._settings.put("askai.text.splitter.chunk.size", "askai", 1000)
         self._settings.put("askai.text.splitter.chunk.overlap", "askai", 100)
-        self._settings.put("askai.preferred.language", "askai", '')
-        self._settings.put("askai.default.engine", "askai", "openai")
-        self._settings.put("askai.default.engine.model", "askai", "gpt-4o-mini")
         # Router
         self._settings.put("askai.max.short.memory.size", "askai", 15)
         self._settings.put("askai.max.router.iteractions", "askai", 30)
