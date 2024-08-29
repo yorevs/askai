@@ -1,19 +1,76 @@
+[tool.poetry]
+  name = "hspylib-askai"
+  version = "1.0.13"
+  description = "HomeSetup - AskAI"
+  authors = ["Hugo Saporetti Junior <yorevs@hotmail.com>"]
+  license = "MIT"
+  readme = "README.md"
+  repository = "https://github.com/yorevs/hspylib"
+
 [build-system]
 
-requires = ["setuptools", "wheel", "poetry-core>=1.0.0"]
+requires = [
+  "setuptools",
+  "wheel",
+  "build",
+  "twine",
+  "bumpver",
+  "pipenv",
+  "isort",
+  "black",
+  "mypy",
+  "pylint",
+  "pdoc",
+  "poetry-core",
+]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry]
+[tool.poetry.urls]
 
-name = "hspylib-askai"
-version = "1.0.13"
-description = "HomeSetup - AskAI"
-authors = ["Hugo Saporetti Junior <yorevs@hotmail.com>"]
-license = "MIT"
-readme = "README.md"
+GitHub = "https://github.com/yorevs/hspylib"
+PyPi = "https://pypi.org/project/hspylib-askai/"
 
 [tool.poetry.dependencies]
 
-python = ">=3.10"
-
-[tool.poetry.dev-dependencies]
+hspylib = ">=1.12.44"
+hspylib-clitt = ">=0.9.128"
+hspylib-setman = ">=0.10.35"
+langchain = ">=0.2.15"
+langchain-openai = ">=0.1.23"
+langchain-community = ">=0.2.14"
+langchain-google-community = ">=1.0.8"
+langchainhub = ">=0.1.20"
+faiss-cpu = "~=1.8.0"
+openai-whisper = ">=20231117"
+openai = ">=1.42.0"
+google-api-python-client = ">=2.143.0"
+fake_useragent = ">=1.5.1"
+rich = ">=13.8.0"
+textual = ">=0.78.0"
+soundfile = ">=0.12.1"
+PyAudio = ">=0.2.14"
+SpeechRecognition = ">=3.10.4"
+opencv-python = ">=4.10.0.84"
+deepl = ">=1.18.0"
+chromadb = ">=0.5.5"
+retry2 = ">=0.9.5"
+pause = ">=0.3"
+requests = ">=2.32.3"
+urllib3 = ">=1.26.19"
+protobuf = ">=4.25.4"
+torch = ">=2.4.0"
+tqdm = ">=4.66.5"
+torchvision = ">=0.19.0"
+open-clip-torch = ""
+transformers = ">=4.44.2"
+pyperclip = ">=1.9.0"
+stanza = ">=1.8.2"
+unstructured = { version = ">=0.15.8", extras = ["md"] }
+python-magic = ">=0.4.27"
+tiktoken = ">=0.7.0"
+aiohttp = ">=3.10.5"
+html2text = ">=2024.2.26"
+opentelemetry-api = ">=1.27.0"
+opentelemetry-sdk = ">=1.27.0"
+opentelemetry-proto = ">=1.27.0"
+pytz = ">=2024.1"

@@ -36,7 +36,7 @@ package: chromadb, version: 0.5.5, mode: ge
 package: retry2, version: 0.9.5, mode: ge
 package: pause, version: 0.3, mode: ge
 package: requests, version: 2.32.3, mode: ge
-package: urllib3, version: 1.26.19, mode: ge
+package: urllib3, version: 1.26.20, mode: ge
 package: protobuf, version: 4.25.4, mode: ge
 package: torch, version: 2.4.0, mode: ge
 package: tqdm, version: 4.66.5, mode: ge

@@ -117,18 +117,31 @@ task compileQrc(type: Task) {
 
 /***** Install Group */
 
+/* Synchronize the buildTools file. */
+task syncBuildTools(type: Task) {
+  group = 'Build'
+  description = 'Synchronize the buildTools file'
+  doLast {
+    buildToolsFile.setText("###### Build Tools Files for $project.name ######\n\n")
+    def String[] buildTools = project.buildTools.split(',')
+    buildTools.each { tool ->
+      buildToolsFile.append("${tool.trim()}\n")
+    }
+  }
+}
+
 /* Install application build tools using Global space */
 task installBuildTools(type: Task) {
   group = 'Build'
   description = 'Install application build tools using Global space'
+  dependsOn syncBuildTools
+
   doLast {
-    buildToolsFile.setText("###### Build Tools Files for $project.name ######\n\n")
     println "Installing \"${project.name}\" build tools: "
     println "Packages:"
     def String[] buildTools = project.buildTools.split(',')
     buildTools.each { tool ->
       println "  |-${tool.trim()}"
-      buildToolsFile.append("${tool.trim()}\n")
     }
     println "Space: --global"
     def args = [
