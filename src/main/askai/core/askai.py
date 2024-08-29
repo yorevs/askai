@@ -212,9 +212,9 @@ class AskAi:
         """
         self._mode: RouterMode = RouterMode.of_name(ev.args.mode)
         if not self._mode.is_default:
-            events.reply.emit(
+            sum_msg: str = (
                 f"{msg.enter_qna()} \n"
                 f"```\nContext:  {ev.args.sum_path},   {ev.args.glob} \n```\n"
                 f"`{msg.press_esc_enter()}` \n\n"
-                f"> {msg.qna_welcome()}"
-            )
+                f"> {msg.qna_welcome()}")
+            events.reply.emit(message=sum_msg)

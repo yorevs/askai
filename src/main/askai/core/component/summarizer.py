@@ -111,7 +111,7 @@ class Summarizer(metaclass=Singleton):
                 v_store = Chroma.from_documents(texts, embeddings, persist_directory=str(self.persist_dir))
 
             self._retriever = RetrievalQA.from_chain_type(
-                llm=lc_llm.create_model(), chain_type="stuff", retriever=v_store.as_retriever()
+                llm=lc_llm.create_chat_model(), chain_type="stuff", retriever=v_store.as_retriever()
             )
             return True
         except ImportError as err:
