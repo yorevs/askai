@@ -5,5 +5,9 @@
 # Package: demo.features
 """Package initialization."""
 
-__all__ = ["rag", "router_demo", "tools"]
-__version__ = "1.0.13"
+__all__ = [
+    'rag', 
+    'router_demo', 
+    'tools'
+]
+__version__ = '1.0.13'

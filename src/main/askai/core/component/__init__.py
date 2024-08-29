@@ -6,14 +6,14 @@
 """Package initialization."""
 
 __all__ = [
-    "audio_player",
-    "cache_service",
-    "camera",
-    "geo_location",
-    "image_store",
-    "internet_service",
-    "recorder",
-    "scheduler",
-    "summarizer",
+    'audio_player', 
+    'cache_service', 
+    'camera', 
+    'geo_location', 
+    'image_store', 
+    'internet_service', 
+    'recorder', 
+    'scheduler', 
+    'summarizer'
 ]
-__version__ = "1.0.13"
+__version__ = '1.0.13'

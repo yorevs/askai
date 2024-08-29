@@ -5,5 +5,10 @@
 # Package: demo.components
 """Package initialization."""
 
-__all__ = ["camera_demo", "internet_demo", "summarizer_demo"]
-__version__ = "1.0.13"
+__all__ = [
+    'camera_demo', 
+    'internet_demo', 
+    'summarizer_demo', 
+    'webcam_demo'
+]
+__version__ = '1.0.13'

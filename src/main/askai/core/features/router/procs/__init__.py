@@ -5,5 +5,10 @@
 # Package: main.askai.core.features.router.procs
 """Package initialization."""
 
-__all__ = ["qna", "qstring", "rag", "task_splitter"]
-__version__ = "1.0.13"
+__all__ = [
+    'qna', 
+    'qstring', 
+    'rag', 
+    'task_splitter'
+]
+__version__ = '1.0.13'
