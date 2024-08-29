@@ -1,4 +1,6 @@
 Human Input;" AI Response";" Classification";" Reasoning"
+Do you know what is Gus Fraba?;I don't know;Black;The AI can't proceed with further interactions.
+Is there any gabiroba song?;No gabiroba song files found.;Black;The AI provided a negative answer, so, interactions should stop.
 List my downloads;OK, command ls ~/Downloads succeeded;Blue;The command executed successfully, so I will disregard the output.
 Hello, who are you?;I'm Taius, your helpful assistant;Blue;The response responds to conversations where there are no definitive right or wrong answers
 Fly please;It seems like you might be asking for an image of a fly, but could you clarify what you're looking for?;Green;The response explains the lack of information, context, or when the AI is clearly having trouble understanding the user input.
@@ -14,3 +16,4 @@ What is the whether like today?;Invalid or incomplete response;Red;This error me
 List my downloads;I will list your downloads for you;Red;Acknowledging or mentioning previous responses, indicating or stating the intention of accomplishment, are considered unhelpful.
 Who are you?;Yes he is famous;Red;The AI should check if the response is coherent with the question, ensure the answer is unbiased and does not rely on stereotypes, detect AI hallucinations by verifying the accuracy of the response. 'Red' because it does not align with known facts.
 What is my first task?;You can find out your first task by checking the list of activities above;Red;The AI should not seek user assistance.
+Did I download and gabiroba file?;No files containing 'gabiroba' were found in the specified directory.;Black;This is a clear negative answer that indicates the AI can't proceed any further.

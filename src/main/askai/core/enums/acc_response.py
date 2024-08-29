@@ -33,6 +33,8 @@ class AccResponse(Enumeration):
 
     BAD         = 'Red'
 
+    INTERRUPT   = 'Black'
+
     # fmt: on
 
     @classmethod
@@ -77,6 +79,10 @@ class AccResponse(Enumeration):
     @property
     def is_good(self) -> bool:
         return self in [self.GOOD, self.EXCELLENT]
+
+    @property
+    def is_interrupt(self) -> bool:
+        return self == self.INTERRUPT
 
     def passed(self, threshold: "AccResponse") -> bool:
         """whether the response matches a 'PASS' classification."""

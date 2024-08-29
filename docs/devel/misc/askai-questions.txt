@@ -18,6 +18,7 @@ en_US
 - find . -mxdepth 1 -type f -nme *.png
 - I have downloaded a QR logo, open it to me.
 - Tell me who you see using the webcam. Respond like talking to an audience.
+- List my music and let me know if there is any gabiroba song. If so, show me the file name and open it.
 
 
 

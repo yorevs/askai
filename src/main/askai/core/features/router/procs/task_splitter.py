@@ -24,7 +24,7 @@ from askai.core.model.model_result import ModelResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.rag_provider import RAGProvider
 from askai.core.support.shared_instances import shared
-from askai.exception.exceptions import InaccurateResponse
+from askai.exception.exceptions import InaccurateResponse, InterruptionRequest
 from hspylib.core.exception.exceptions import InvalidArgumentError
 from hspylib.core.metaclass.singleton import Singleton
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
@@ -62,7 +62,7 @@ class TaskSplitter(metaclass=Singleton):
 
     def __init__(self):
         self._approved: bool = False
-        self._rag: RAGProvider = RAGProvider("task_splitter.csv")
+        self._rag: RAGProvider = RAGProvider("task-splitter.csv")
 
     def template(self, query: str) -> ChatPromptTemplate:
         """Retrieve the processor Template."""
@@ -70,7 +70,7 @@ class TaskSplitter(metaclass=Singleton):
         evaluation: str = str(shared.context.flat("EVALUATION"))
         template = PromptTemplate(
             input_variables=["os_type", "shell", "datetime", "home", "examples"],
-            template=prompt.read_prompt("task-split.txt"),
+            template=prompt.read_prompt("task-splitter.txt"),
         )
         return ChatPromptTemplate.from_messages(
             [
@@ -111,7 +111,10 @@ class TaskSplitter(metaclass=Singleton):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
                 plan: ActionPlan = ActionPlan.create(question, response, model)
                 events.reply.emit(message=msg.action_plan(str(plan)), verbosity="debug")
-                output = agent.invoke(question, plan)
+                try:
+                    output = agent.invoke(question, plan)
+                except InterruptionRequest as err:
+                    output = str(err)
             else:
                 # Most of the times, this indicates a failure.
                 output = response

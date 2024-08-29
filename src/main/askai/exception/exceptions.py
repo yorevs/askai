@@ -78,3 +78,7 @@ class WebCamInitializationFailure(HSBaseException):
 
 class CameraAccessFailure(HSBaseException):
     """Raised when failed to operate with the computer Webcam."""
+
+
+class InterruptionRequest(HSBaseException):
+    """Raised when the AI flags to interrupt the execution of the action plan."""

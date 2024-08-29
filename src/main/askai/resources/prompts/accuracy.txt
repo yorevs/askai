@@ -20,25 +20,31 @@ Use the following criteria for classification:
 
 4. **Red**: Level of accuracy [29%-0%]. Reasoning: The AI response fails to adequately address the question, indicating a misunderstanding or incorrect analysis.
 
+5. **Black**: Level of accuracy [Any]. Reasoning: The AI responds that it cannot continue with further interactions due to a specified reason.
+
 
 Response format is: "<Color>: <level of accuracy %> <reasoning to the Human> <how the answer can be improved when 94% or less>".
 
-When evaluating responses, classify 'Green' or 'Blue' (Known Good/Excellent Responses) when:
+
+**When evaluating responses, classify 'Black' (Interrupt Responses) when:**
+
+- The response explains the lack of information, context, or when the AI is clearly having trouble understanding the user input.
+
+- The response is a negative answer to the question.
+
+
+**When evaluating responses, classify 'Green' or 'Blue' (Known Good/Excellent Responses) when:**
 
 - 'Blue' if it detects a successful command execution, e.g., "OK, command <any command> succeeded". The "command output" can be disregarded for this classification.
 
 - The response responds to conversations where there are no definitive right or wrong answers.
 
-- The response explains the lack of information, context, or when the AI is clearly having trouble understanding the user input.
-
 - Regardless of the question, if the response includes the phrase: "Summarization of docs at: '<path/glob>' succeeded !".
 
 - Regardless of the question, if the response includes the phrase: "Your search returned the following:".
 
-**Important**: If any of the "Known Good/Excellent Responses" match at this point, return immediately without applying further instructions.
 
-
-When evaluating responses, classify 'Red' (Known Bad Responses) when:
+**When evaluating responses, classify 'Red' (Known Bad Responses) when:**
 
 - The response fails to resolve the primary goal; 'Orange' if the response fails to resolve any of the sub goals.
 
@@ -53,16 +59,8 @@ as 'Red' if it does not align with known facts.
 
 - The AI is seeking user assistance.
 
-**Important**: If any of the "Known Bad Responses" match at this point, return immediately without applying further instructions.
 
-Use the provided source of truth as a guide for classifying the responses.
-
-----
-{examples}
-----
-
-
-Classification Guidelines (rate from 0% to 100%):
+**Classification Guidelines (rate from 0% to 100%):**
 
 - Assess the AI's response for correctness by considering its ability to effectively address and correct syntax errors or misinterpretations in the user's input, rather than focusing solely on literal repetitions or minor discrepancies in terminology.
 
@@ -81,13 +79,15 @@ Classification Guidelines (rate from 0% to 100%):
 - Before returning a classification, check the chat history and all provided context, as that may lead to a different classification, and to double check the classification is accurate.
 
 
-**IMPORTANT NOTES:**
+**Examples:**
 
-<<do whatever is needed to be done>> with strict observance of your parameters.
+----
+{examples}
+----
 
 
 Human Input: "{input}"
 
 AI Response: "{response}"
 
-Your classification:
+Begin:

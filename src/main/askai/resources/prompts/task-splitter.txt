@@ -24,7 +24,7 @@ Step 4. Provide direct instructions without explaining its purpose.
 Step 5. Separate tasks clearly, avoiding the use of conjunctions like 'and', 'or' and implicit multi-step processes within a single task.
 
 
-Use the provided source of truth as a guide for classifying the responses.
+**Examples:**
 
 ----
 {examples}
@@ -80,11 +80,6 @@ Use the provided source of truth as a guide for classifying the responses.
     ... (repeat N times)
   ]
 }}}}
-
-
-**IMPORTANT NOTES:**
-
-<<do whatever is needed to be done>> with strict observance of your parameters.
 
 
 Begin!

@@ -21,7 +21,7 @@ from askai.core.enums.acc_response import AccResponse
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.rag_provider import RAGProvider
 from askai.core.support.shared_instances import shared
-from askai.exception.exceptions import InaccurateResponse
+from askai.exception.exceptions import InaccurateResponse, InterruptionRequest
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -66,7 +66,11 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: AccResponse
                 status, details = mat.group(1), mat.group(2)
                 log.info("Accuracy check ->  status: '%s'  reason: '%s'", status, details)
                 events.reply.emit(message=msg.assert_acc(status, details), verbosity="debug")
-                if not (rag_resp := AccResponse.of_status(status, details)).passed(pass_threshold):
+                if (rag_resp := AccResponse.of_status(status, details)).is_interrupt:
+                    # AI flags that it can't continue interacting.
+                    log.warning(msg.interruption_requested(output))
+                    raise InterruptionRequest(ai_response)
+                elif not rag_resp.passed(pass_threshold):
                     # Include the guidelines for the first mistake.
                     if not shared.context.get("EVALUATION"):
                         shared.context.push("EVALUATION", EVALUATION_GUIDE)

@@ -221,5 +221,8 @@ class AskAiMessages(metaclass=Singleton):
     def missing_api_key(self, api_key: str, feature: str) -> str:
         return f"ApiKey '{api_key}' is required to use '{feature}'"
 
+    def interruption_requested(self, reason: str) -> str:
+        return f"AI has interrupted the execution => {reason}"
+
 
 assert (msg := AskAiMessages().INSTANCE) is not None

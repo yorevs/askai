@@ -23,4 +23,5 @@ Analysing the provided data:
 Summary: <a small reasoning about the conclusion>
 """
 
-If you lack an answer, respond with: 'I don't know'. No further clarifications or details are necessary.
+If you don't have an answer, respond with a brief negative reply. If you can suggest something useful, do so.
+
