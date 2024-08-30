@@ -23,7 +23,9 @@ from typing import Optional
 
 
 class RouterMode(Enumeration):
-    """The available router modes used to provide an answer to the user."""
+    """Enumeration of available router modes used to determine the type of response provided to the user. This class
+    defines the different modes that the router can operate in, each affecting how answers are generated and delivered.
+    """
 
     # fmt: on
 
@@ -49,6 +51,11 @@ class RouterMode(Enumeration):
 
     @classmethod
     def of_name(cls, name: str) -> 'RouterMode':
+        """Retrieve the RouterMode instance corresponding to the given name.
+        :param name: The name of the router mode to retrieve.
+        :return: The RouterMode instance that matches the given name.
+        :raises ValueError: If no matching RouterMode is found.
+        """
         return cls[name] if name.casefold() != 'default' else cls.default()
 
     def __str__(self):
@@ -67,5 +74,9 @@ class RouterMode(Enumeration):
         return self == RouterMode.default()
 
     def process(self, question: str, **kwargs) -> Optional[str]:
-        """Invoke the processor associated with the mode."""
+        """Invoke the processor associated with the current mode to handle the given question.
+        :param question: The question to be processed.
+        :param kwargs: Additional arguments to be passed to the processor.
+        :return: The processed response as a string, or None if no response is generated.
+        """
         return self.processor.process(question, **kwargs)

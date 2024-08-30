@@ -41,7 +41,9 @@ class Summarizer(metaclass=Singleton):
 
     @staticmethod
     def extract_result(result: dict) -> tuple[str, str]:
-        """Extract the question and answer from the summarization result."""
+        """Extract the question and answer from the summarization result.
+        :param result: The summarization result object.
+        """
         question = result["query"] if "query" in result else result["question"]
         answer = result["result"] if "result" in result else result["answer"]
         return question, answer
@@ -51,8 +53,7 @@ class Summarizer(metaclass=Singleton):
         self._folder = None
         self._glob = None
         self._text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap
-        )
+            chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap)
 
     @property
     def persist_dir(self) -> Path:
@@ -99,6 +100,7 @@ class Summarizer(metaclass=Singleton):
         embeddings = lc_llm.create_embeddings()
 
         try:
+
             if self.persist_dir.exists():
                 log.info("Recovering vector store from: '%s'", self.persist_dir)
                 v_store = Chroma(persist_directory=str(self.persist_dir), embedding_function=embeddings)
@@ -111,9 +113,10 @@ class Summarizer(metaclass=Singleton):
                 v_store = Chroma.from_documents(texts, embeddings, persist_directory=str(self.persist_dir))
 
             self._retriever = RetrievalQA.from_chain_type(
-                llm=lc_llm.create_chat_model(), chain_type="stuff", retriever=v_store.as_retriever()
-            )
+                llm=lc_llm.create_chat_model(), chain_type="stuff", retriever=v_store.as_retriever())
+
             return True
+
         except ImportError as err:
             log.error("Unable to summarize '%s' => %s", self.sum_path, err)
             events.reply_error.emit(message=msg.missing_package(err))
@@ -121,13 +124,17 @@ class Summarizer(metaclass=Singleton):
         return False
 
     def exists(self, folder: str | Path, glob: str) -> bool:
-        """Return whether or not the summary already exists."""
+        """Return whether or not the summary of the given folder/glob combination exists.
+        :param folder: The base folder of the summarization.
+        :param glob: The glob pattern or file of the summarization.
+        """
+
         summary_hash = hash_text(f"{ensure_endswith(folder, '/')}{glob}")
         return self._retriever is not None and Path(f"{PERSIST_DIR}/{summary_hash}").exists()
 
     def query(self, *queries: str) -> Optional[list[SummaryResult]]:
         """Answer questions about the summarized content.
-        :param queries: The queries to ask the AI engine.
+        :param queries: The list queries to ask the AI engine.
         """
         if queries and self.retriever is not None:
             results: list[SummaryResult] = []

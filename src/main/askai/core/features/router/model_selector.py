@@ -12,6 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from langchain_core.language_models import BaseChatModel
+
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
@@ -24,7 +26,10 @@ from langchain_core.prompts import PromptTemplate
 
 
 class ModelSelector(metaclass=Singleton):
-    """TODO"""
+    """Utility class to query the LLM for selecting the appropriate model to process user requests. This class
+    facilitates the selection of the most suitable model based on the nature of the user's query, ensuring optimal
+    processing and response generation.
+    """
 
     INSTANCE: "ModelSelector"
 
@@ -35,13 +40,17 @@ class ModelSelector(metaclass=Singleton):
             input_variables=["datetime", "models", "question"], template=prompt.read_prompt("model-select.txt")
         )
 
-    def select_model(self, query: str) -> ModelResult:
-        """Select the response model."""
-
+    def select_model(self, question: str) -> ModelResult:
+        """Select the appropriate response model based on the given human question.
+        :param question: The user's query used to determine the most suitable model.
+        :return: An instance of ModelResult representing the selected model.
+        """
         final_prompt: str = self.model_template.format(
-            datetime=geo_location.datetime, models=RoutingModel.enlist(), question=query
+            datetime=geo_location.datetime,
+            models=RoutingModel.enlist(),
+            question=question
         )
-        llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
+        llm: BaseChatModel = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
         if response := llm.invoke(final_prompt):
             json_string: str = response.content  # from AIMessage
             model_result: ModelResult | str = object_mapper.of_json(json_string, ModelResult)

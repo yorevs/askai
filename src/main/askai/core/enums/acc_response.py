@@ -19,7 +19,9 @@ import re
 
 
 class AccResponse(Enumeration):
-    """Keep track of the accuracy responses (color classifications)."""
+    """Track and classify accuracy responses based on color classifications. This class provides an enumeration of
+    possible accuracy responses, which are typically represented by different colors.
+    """
 
     # fmt: off
 
@@ -85,7 +87,10 @@ class AccResponse(Enumeration):
         return self == self.INTERRUPT
 
     def passed(self, threshold: "AccResponse") -> bool:
-        """whether the response matches a 'PASS' classification."""
+        """Determine whether the response matches a 'PASS' classification.
+        :param threshold: The threshold or criteria used to determine a 'PASS' classification.
+        :return: True if the response meets or exceeds the 'PASS' threshold, otherwise False.
+        """
         if isinstance(threshold, AccResponse):
             idx_self, idx_threshold = None, None
             for i, v in enumerate(AccResponse.values()):

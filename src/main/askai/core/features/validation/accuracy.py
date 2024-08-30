@@ -29,25 +29,25 @@ from textwrap import dedent
 
 import logging as log
 
-EVALUATION_GUIDE: str = dedent(
-    """
+EVALUATION_GUIDE: str = dedent("""
 **Accuracy Evaluation Guidelines:**
 
-1. Review and analyze your past responses to ensure optimal accuracy.
-2. Constructively self-criticize your overall responses regularly.
-3. Reflect on past decisions and strategies to refine your approach.
-4. Try something different.
-"""
-).strip()
+1. Analyze past responses to ensure accuracy.
+2. Regularly self-critique overall responses.
+3. Reflect on past strategies to refine your approach.
+4. Experiment with different methods or solutions.
+""").strip()
 
 RAG: RAGProvider = RAGProvider("accuracy.csv")
 
 
 def assert_accuracy(question: str, ai_response: str, pass_threshold: AccResponse = AccResponse.MODERATE) -> AccResponse:
-    """Function responsible for asserting that the question was properly answered.
-    :param question: The user question.
-    :param ai_response: The AI response to be analysed.
-    :param pass_threshold: The threshold color to be considered as a pass.
+    """Assert that the AI's response to the question meets the required accuracy threshold.
+    :param question: The user's question.
+    :param ai_response: The AI's response to be analyzed for accuracy.
+    :param pass_threshold: The accuracy threshold, represented by a color, that must be met or exceeded for the
+                           response to be considered a pass (default is AccResponse.MODERATE).
+    :return: The accuracy classification of the AI's response as an AccResponse enum value.
     """
     if ai_response and ai_response not in msg.accurate_responses:
         issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("assert"))
@@ -81,13 +81,11 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: AccResponse
         raise InaccurateResponse(f"AI Assistant didn't respond accurately. Response: '{response}'")
 
 
-events.reply.emit(message=msg.no_output("query"))
-
-
 def resolve_x_refs(ref_name: str, context: str | None = None) -> str:
-    """Replace all cross references by their actual values.
-    :param ref_name: The cross-reference or variable name.
-    :param context: The context to analyze the references.
+    """Replace all cross-references with their actual values.
+    :param ref_name: The name of the cross-reference or variable to resolve.
+    :param context: The context in which to analyze and resolve the references (optional).
+    :return: The string with all cross-references replaced by their corresponding values.
     """
     template = ChatPromptTemplate.from_messages(
         [
@@ -100,7 +98,9 @@ def resolve_x_refs(ref_name: str, context: str | None = None) -> str:
     if context or (context := str(shared.context.flat("HISTORY"))):
         runnable = template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
         runnable = RunnableWithMessageHistory(
-            runnable, shared.context.flat, input_messages_key="pathname", history_messages_key="context"
+            runnable, shared.context.flat,
+            input_messages_key="pathname",
+            history_messages_key="context"
         )
         log.info("Analysis::[QUERY] '%s'  context=%s", ref_name, context)
         events.reply.emit(message=msg.x_reference(ref_name), verbosity="debug")

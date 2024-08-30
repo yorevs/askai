@@ -18,11 +18,12 @@ from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from askai.core.support.utilities import ensure_ln
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
 import logging as log
+
+from askai.core.support.text_formatter import TextFormatter
 
 
 def query_output(query: str, context: str = None) -> str:
@@ -48,4 +49,4 @@ def query_output(query: str, context: str = None) -> str:
             output = response.content
             events.reply.emit(message=msg.analysis(output), verbosity="debug")
 
-    return ensure_ln(output or "Sorry, I don't know.")
+    return TextFormatter.ensure_ln(output or "Sorry, I don't know.")

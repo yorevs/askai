@@ -47,7 +47,9 @@ class AskAiEvents(Enumeration):
 
     @staticmethod
     def bus(bus_name: str) -> Optional[FluidEventBus]:
-        """Return an eventbus instance for the given name."""
+        """Return an eventbus instance for the given name.
+        :param bus_name: The name of the retrieving event bus.
+        """
         return next((b.bus for b in AskAiEvents.values() if b.name == bus_name), None)
 
     def __init__(self, bus: FluidEventBus):

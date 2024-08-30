@@ -12,15 +12,16 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
+from pathlib import Path
+from typing import AnyStr
+
+import dotenv
 from clitt.core.tui.minput.input_validator import InputValidator
 from clitt.core.tui.minput.menu_input import MenuInput
 from clitt.core.tui.minput.minput import minput
 from hspylib.core.enums.charset import Charset
-from pathlib import Path
 from pydantic.v1 import BaseSettings, Field, validator
-
-import dotenv
-import os
 
 API_KEY_FILE: str = os.environ.get("HHS_ENV_FILE", str(os.path.join(Path.home(), ".env")))
 
@@ -28,7 +29,10 @@ dotenv.load_dotenv(API_KEY_FILE)
 
 
 class ApiKeys(BaseSettings):
-    """Provide a class no handle the required Api Keys."""
+    """A class to manage and handle the required API keys.
+    This class provides a structured way to store, access, and manage API keys necessary for various services.
+    It inherits from BaseSettings to facilitate environment-based configuration.
+    """
 
     # fmt: off
     OPENAI_API_KEY: str = Field(..., description="Open AI Api Key")
@@ -37,23 +41,34 @@ class ApiKeys(BaseSettings):
     # fmt: on
 
     @validator("OPENAI_API_KEY", "GOOGLE_API_KEY", "DEEPL_API_KEY")
-    def not_empty(cls, value):
+    def not_empty(cls, value: AnyStr) -> AnyStr:
+        """Pydantic validator to ensure that API key fields are not empty.
+        :param value: The value of the API key being validated.
+        :return: The value if it is not empty.
+        :raises ValueError: If the value is empty or None.
+        """
         if not value or not value.strip():
             raise ValueError("must not be empty or blank")
         return value
 
     def has_key(self, key_name: str) -> bool:
-        """TODO"""
+        """Check if the specified API key exists and is not empty.
+        :param key_name: The name of the API key to check.
+        :return: True if the API key exists and is not empty, otherwise False.
+        """
         api_key: str = key_name.upper()
-        return hasattr(self, api_key) and getattr(self, api_key) is not None
+        return hasattr(self, api_key) and ((kv := getattr(self, api_key)) is not None and len(kv) > 0)
 
     class Config:
+        """Configuration class for setting environment variables related to API keys."""
         env_file = API_KEY_FILE
         env_file_encoding = Charset.UTF_8.val
 
     @staticmethod
     def prompt() -> bool:
-        """TODO"""
+        """Prompt the user to input the required API keys.
+        :return: True if all required API keys are successfully provided, otherwise False.
+        """
 
         # fmt: off
         form_fields = MenuInput.builder() \

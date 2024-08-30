@@ -138,8 +138,9 @@ class AskAi:
         ...
 
     def ask_and_reply(self, question: str) -> tuple[bool, Optional[str]]:
-        """Ask the question to the AI, and provide the reply.
-        :param question: The question to ask to the AI engine.
+        """Ask the specified question to the AI and provide the reply.
+        :param question: The question to ask the AI engine.
+        :return: A tuple containing a boolean indicating success or failure, and the AI's reply as an optional string.
         """
         status: bool = True
         output: str | None = None
@@ -181,9 +182,9 @@ class AskAi:
 
         return status, output
 
-    def _create_console_file(self, overwrite: bool = True):
-        """Create the Markdown formatted console file.
-        :param overwrite: Whether to overwrite the file or not.
+    def _create_console_file(self, overwrite: bool = True) -> None:
+        """Create a Markdown-formatted console file.
+        :param overwrite: Whether to overwrite the existing file if it already exists (default is True).
         """
         is_new: bool = not file_is_not_empty(str(self.console_path)) or overwrite
         with open(self.console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val) as f_console:
@@ -195,20 +196,20 @@ class AskAi:
             f_console.flush()
 
     def _reply(self, message: str) -> None:
-        """Reply to the user with the AI response.
-        :param message: The message to reply to the user.
+        """Reply to the user with the AI-generated response.
+        :param message: The message to send as a reply to the user.
         """
         ...
 
     def _reply_error(self, message: str) -> None:
-        """Reply API or system errors.
-        :param message: The error message to be displayed.
+        """Reply to the user with an AI-generated error message or system error.
+        :param message: The error message to be displayed to the user.
         """
         ...
 
     def _cb_mode_changed_event(self, ev: Event) -> None:
-        """Callback to handle mode changed events.
-        :param ev: The mode changed event.
+        """Callback to handle mode change events.
+        :param ev: The event object representing the mode change.
         """
         self._mode: RouterMode = RouterMode.of_name(ev.args.mode)
         if not self._mode.is_default:

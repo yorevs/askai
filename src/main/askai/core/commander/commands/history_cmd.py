@@ -37,7 +37,7 @@ class HistoryCmd(ABC):
                 ctx, ctx_val = c[0], c[1]
                 display_text(
                     f"- {ctx} ({len(ctx_val)}/{all_context.max_context_size} "
-                    f"tk [{all_context.context_length(ctx)}/{all_context.token_limit}]) \n"
+                    f"tk [{all_context.length(ctx)}/{all_context.token_limit}]) \n"
                     + indent(
                         "\n".join(
                             [

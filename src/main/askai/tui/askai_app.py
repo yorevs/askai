@@ -187,7 +187,11 @@ class AskAiApp(App[None]):
         self.md_console.show_table_of_contents = not self.md_console.show_table_of_contents
 
     def check_action(self, action: str, _) -> Optional[bool]:
-        """Check if certain actions can be performed."""
+        """Check if a specific action can be performed.
+        :param action: The name of the action to check.
+        :param _: Unused parameter, typically a placeholder for additional context.
+        :return: True if the action can be performed, None if it cannot.
+        """
         if action == "forward" and self.md_console.navigator.end:
             # Disable footer link if we can't go forward
             return None
@@ -198,19 +202,23 @@ class AskAiApp(App[None]):
         return True
 
     def enable_controls(self, enable: bool = True) -> None:
-        """Enable all UI controls (header, input and footer)."""
+        """Enable or disable all UI controls, including the header, input, and footer.
+        :param enable: Whether to enable (True) or disable (False) the UI controls (default is True).
+        """
         self.header.disabled = not enable
         self.line_input.loading = not enable
         self.footer.disabled = not enable
 
     def activate_markdown(self) -> None:
-        """Activate the Markdown console."""
+        """Activate the markdown console widget."""
         self.md_console.go(self.console_path)
         self.md_console.set_class(False, "-hidden")
         self.md_console.scroll_end(animate=False)
 
     def action_clear(self, overwrite: bool = True) -> None:
-        """Clear the output console."""
+        """Clear the output console.
+        :param overwrite: Whether to overwrite the existing content in the console (default is True).
+        """
         is_new: bool = not file_is_not_empty(str(self.console_path)) or overwrite
         with open(self.console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val) as f_console:
             f_console.write(
@@ -232,7 +240,9 @@ class AskAiApp(App[None]):
 
     @work(thread=True, exclusive=True)
     async def action_ptt(self) -> None:
-        """Push-To-Talk STT as input method."""
+        """Handle the Push-To-Talk (PTT) action for Speech-To-Text (STT) input. This method allows the user to use
+        Push-To-Talk as an input method, converting spoken words into text.
+        """
         self.enable_controls(False)
         if spoken_text := self.engine.speech_to_text():
             self.display_text(f"{shared.username_md}: {spoken_text}")
@@ -244,7 +254,9 @@ class AskAiApp(App[None]):
 
     @on(Input.Submitted)
     async def on_submit(self, submitted: Input.Submitted) -> None:
-        """A coroutine to handle a input submission."""
+        """A coroutine to handle input submission events.
+        :param submitted: The event that contains the submitted data.
+        """
         question: str = submitted.value
         self.line_input.clear()
         self.display_text(f"{shared.username_md}: {question}")
@@ -254,7 +266,9 @@ class AskAiApp(App[None]):
             cache.save_input_history(suggestions)
 
     async def _write_markdown(self) -> None:
-        """Write buffered text to the markdown file."""
+        """Write buffered text to the markdown file.
+        This method handles writing any accumulated or buffered text to a markdown file.
+        """
         if len(self._display_buffer) > 0:
             with open(self.console_path, "a", encoding=Charset.UTF_8.val) as f_console:
                 prev_text: str | None = None
@@ -268,7 +282,9 @@ class AskAiApp(App[None]):
                 self._re_render = True
 
     async def _cb_refresh_console(self) -> None:
-        """Callback to handle markdown console updates."""
+        """Callback to handle markdown console updates.
+        This method is responsible for refreshing or updating the console display in markdown format.
+        """
         if not self.console_path.exists():
             self.action_clear()
         await self._write_markdown()
@@ -278,8 +294,8 @@ class AskAiApp(App[None]):
             self.md_console.scroll_end(animate=False)
 
     def _reply(self, message: str) -> None:
-        """Reply to the user with the AI response.
-        :param message: The reply message to be displayed.
+        """Reply to the user with the AI-generated response.
+        :param message: The message to send as a reply to the user.
         """
         prev_msg: str = self._display_buffer[-1] if self._display_buffer else ""
         if message and prev_msg != message:
@@ -289,8 +305,8 @@ class AskAiApp(App[None]):
                 self.engine.text_to_speech(message, f"{shared.nickname_md} ")
 
     def _reply_error(self, message: str) -> None:
-        """Reply API or system errors.
-        :param message: The error message to be displayed.
+        """Reply to the user with an AI-generated error message or system error.
+        :param message: The error message to be displayed to the user.
         """
         prev_msg: str = self._display_buffer[-1] if self._display_buffer else ""
         if message and prev_msg != message:
@@ -307,8 +323,8 @@ class AskAiApp(App[None]):
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.
-        :param ev: The reply event.
-        :param error: Whether the event is an error not not.
+        :param ev: The event object representing the reply event.
+        :param error: Indicates whether the reply is an error (default is False).
         """
         if message := ev.args.message:
             if error:
@@ -319,21 +335,21 @@ class AskAiApp(App[None]):
 
     def _cb_mic_listening_event(self, ev: Event) -> None:
         """Callback to handle microphone listening events.
-        :param ev: The microphone listening event.
+        :param ev: The event object representing the microphone listening event.
         """
         self.header.notifications.listening = ev.args.listening
         if ev.args.listening:
             self._reply(msg.listening())
 
     def _cb_device_changed_event(self, ev: Event) -> None:
-        """Callback to handle audio input device changed events.
-        :param ev: The device changed event.
+        """Callback to handle audio input device change events.
+        :param ev: The event object representing the device change.
         """
         self._reply(msg.device_switch(str(ev.args.device)))
 
     def _cb_mode_changed_event(self, ev: Event) -> None:
-        """Callback to handle mode changed events.
-        :param ev: The mode changed event.
+        """Callback to handle mode change events.
+        :param ev: The event object representing the mode change.
         """
         self._mode: RouterMode = RouterMode.of_name(ev.args.mode)
         if not self._mode.is_default:
@@ -346,8 +362,9 @@ class AskAiApp(App[None]):
 
     @work(thread=True, exclusive=True)
     def ask_and_reply(self, question: str) -> tuple[bool, Optional[str]]:
-        """Ask the question to the AI, and provide the reply.
-        :param question: The question to ask to the AI engine.
+        """Ask the specified question to the AI and provide the reply.
+        :param question: The question to ask the AI engine.
+        :return: A tuple containing a boolean indicating success or failure, and the AI's reply as an optional string.
         """
         self.enable_controls(False)
         status, reply = self.askai.ask_and_reply(question)
@@ -356,7 +373,7 @@ class AskAiApp(App[None]):
         return status, reply
 
     def _startup(self) -> None:
-        """Initialize the application."""
+        """Initialize the application components."""
         os.chdir(Path.home())
         askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)

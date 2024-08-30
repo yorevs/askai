@@ -63,20 +63,31 @@ class OpenAIEngine:
         return ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
 
     def lc_model(self, temperature: float, top_p: float) -> BaseLLM:
-        """Create a LangChain OpenAI llm model instance."""
+        """Create an OpenAI LLM model instance.
+        :param temperature: The LLM model temperature.
+        :param top_p: The model engine top_p.
+        """
         return langchain_openai.OpenAI(
-            openai_api_key=self._api_key, model=self._model.model_name(), temperature=temperature, top_p=top_p
-        )
+            openai_api_key=self._api_key,
+            model=self._model.model_name(),
+            temperature=temperature, top_p=top_p)
 
     def lc_chat_model(self, temperature: float) -> BaseChatModel:
-        """Create a LangChain OpenAI llm chat model instance."""
+        """Create an OpenAI chat model instance.
+        param temperature: The LLM chat model temperature.
+        """
         return langchain_openai.ChatOpenAI(
-            openai_api_key=self._api_key, model=self._model.model_name(), temperature=temperature
-        )
+            openai_api_key=self._api_key,
+            model=self._model.model_name(),
+            temperature=temperature)
 
     def lc_embeddings(self, model: str) -> Embeddings:
-        """Create a LangChain AI embeddings instance."""
-        return langchain_openai.OpenAIEmbeddings(openai_api_key=self._api_key, model=model)
+        """Create an OpenAI embeddings model instance.
+        :param model: The OpenAI embeddings model name.
+        """
+        return langchain_openai.OpenAIEmbeddings(
+            openai_api_key=self._api_key,
+            model=model)
 
     def ai_name(self) -> str:
         """Get the AI model name."""
@@ -163,6 +174,6 @@ class OpenAIEngine:
         """Calculate the number of tokens for the given text.
         :param text: The text to base the token calculation.
         """
-        encoding: tiktoken.Encoding = tiktoken.encoding_for_model(self._model.model_name)
+        encoding: tiktoken.Encoding = tiktoken.encoding_for_model(self._model.model_name())
         tokens: list[int] = encoding.encode(text)
         return len(tokens)

@@ -42,9 +42,9 @@ class AskAiSettings(metaclass=Singleton):
 
     INSTANCE: "AskAiSettings"
 
-    RESOURCE_DIR = str(classpath.resource_path())
-
     _ACTUAL_VERSION: str = "0.1.81"
+
+    RESOURCE_DIR = str(classpath.resource_path())
 
     def __init__(self) -> None:
         self._configs = SettingsConfig(self.RESOURCE_DIR, "application.properties")
@@ -70,7 +70,7 @@ class AskAiSettings(metaclass=Singleton):
 
     def search(self, filters: str | None = None) -> Optional[str]:
         """Search setting using the specified filters.
-        :param filters: Filters used on the search.
+        :param filters: Optional filters used on the search.
         """
         data = [(s.name, s.value) for s in self._settings.search(filters)]
         if data:
@@ -125,33 +125,66 @@ class AskAiSettings(metaclass=Singleton):
         log.debug(f"Settings database created !")
 
     def get(self, key: str, default_value: str | None = "") -> str:
+        """Retrieve the setting specified by the given key.
+        :param key: The name of the setting to retrieve.
+        :param default_value: The value to return if the setting does not exist.
+        :return: The setting value if it exists, otherwise the default_value.
+        """
+
         val = self.__getitem__(key)
         return str(val.value) if val else default_value
 
     def put(self, key: str, value: Any) -> None:
+        """Set the setting specified by the given key.
+        :param key: The name of the setting to update.
+        :param value: The value to associate with the key.
+        """
+
         self.__setitem__(key, value)
 
     def get_bool(self, key: str, default_value: bool | None = False) -> bool:
+        """Retrieve the setting specified by the given key, converting it to boolean.
+        :param key: The name of the setting to retrieve.
+        :param default_value: The value to return if the setting does not exist.
+        :return: The setting value if it exists, otherwise the default_value.
+        """
         return to_bool(self.get(key) or default_value)
 
     def get_int(self, key: str, default_value: int | None = 0) -> int:
+        """Retrieve the setting specified by the given key, converting it to integer.
+        :param key: The name of the setting to retrieve.
+        :param default_value: The value to return if the setting does not exist.
+        :return: The setting value if it exists, otherwise the default_value.
+        """
         try:
             return int(self.get(key) or default_value)
         except ValueError:
-            return 0
+            return default_value
 
     def get_float(self, key: str, default_value: float | None = 0.0) -> float:
+        """Retrieve the setting specified by the given key, converting it to float.
+        :param key: The name of the setting to retrieve.
+        :param default_value: The value to return if the setting does not exist.
+        :return: The setting value if it exists, otherwise the default_value.
+        """
         try:
             return float(self.get(key) or default_value)
         except ValueError:
-            return 0
+            return default_value
 
     def get_list(self, key: str, default_value: list | None = None) -> list:
-        str_val: str = self.get(key) or ""
-        val: list | None = None
-        if str_val:
-            val: list = re.split(r"[;,|]", str_val)
-        return val or default_value or []
+        """Retrieve the setting specified by the given key, converting it to list.
+        :param key: The name of the setting to retrieve.
+        :param default_value: The value to return if the setting does not exist.
+        :return: The setting value if it exists, otherwise the default_value.
+        """
+        try:
+            val: list | None = None
+            if str_val := (self.get(key) or ""):
+                val = re.split(r"[;,|]", str_val)
+            return val or default_value or list()
+        except ValueError:
+            return default_value or list()
 
 
 assert (settings := AskAiSettings().INSTANCE) is not None

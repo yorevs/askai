@@ -27,7 +27,10 @@ class ModelResult:
     @staticmethod
     @lru_cache
     def default() -> "ModelResult":
-        """Return  hte default ModelResult."""
+        """Track and store the responses from the selected model.
+        This class is used to encapsulate the model selection returned by the LLM, including any relevant data
+        associated with the model's response.
+        """
         return ModelResult("ASK_000", "Default model", "Provide the answer as received by the AI")
 
     def __str__(self):

@@ -1,7 +1,7 @@
 import logging as log
 import os
 from functools import lru_cache
-from typing import Optional
+from typing import Optional, AnyStr
 
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -27,7 +27,9 @@ from langchain_core.runnables.utils import Output
 
 
 class TaskAgent(metaclass=Singleton):
-    """This Langchain agent is responsible for executing the routers tasks using the available tools."""
+    """A LangChain agent responsible for executing router tasks using the available tools. This agent manages and
+    performs tasks by leveraging various tools, ensuring efficient and accurate task execution in the routing process.
+    """
 
     INSTANCE: "TaskAgent"
 
@@ -35,11 +37,12 @@ class TaskAgent(metaclass=Singleton):
     def wrap_answer(
         query: str, answer: str, model_result: ModelResult = ModelResult.default(), rag: AccResponse | None = None
     ) -> str:
-        """Provide a final answer to the user.
-        :param query: The user question.
-        :param answer: The AI response.
-        :param model_result: The selected routing model.
-        :param rag: The final accuracy check (RAG) response.
+        """Provide a final answer to the user by wrapping the AI response with additional context.
+        :param query: The user's question.
+        :param answer: The AI's response to the question.
+        :param model_result: The result from the selected routing model (default is ModelResult.default()).
+        :param rag: The final accuracy check (RAG) response, if available.
+        :return: A formatted string containing the final answer.
         """
         output: str = answer
         model: RoutingModel = RoutingModel.of_model(model_result.mid)
@@ -75,8 +78,10 @@ class TaskAgent(metaclass=Singleton):
 
     @property
     def agent_template(self) -> ChatPromptTemplate:
-        """Retrieve the Structured Agent Template.
-        Ref: https://smith.langchain.com/hub/hwchase17/structured-chat-agent
+        """Retrieve the Structured Agent Template for use in the chat agent. This template is used to structure the
+        interactions of the chat agent.
+        Reference: https://smith.langchain.com/hub/hwchase17/structured-chat-agent
+        :return: An instance of ChatPromptTemplate representing the structured agent template.
         """
         prompt_file: PathObject = PathObject.of(prompt.append_path(f"langchain/structured-chat-agent"))
         final_prompt: str = prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir)
@@ -90,9 +95,10 @@ class TaskAgent(metaclass=Singleton):
         )
 
     def invoke(self, query: str, plan: ActionPlan) -> str:
-        """Invoke the agent to respond the given query, using the specified action plan.
-        :param query: The user question.
-        :param plan: The AI action plan.
+        """Invoke the agent to respond to the given query using the specified action plan.
+        :param query: The user's question.
+        :param plan: The AI action plan that outlines the steps to generate the response.
+        :return: The agent's response as a string.
         """
         shared.context.push("HISTORY", query)
         output: str = ""
@@ -108,7 +114,7 @@ class TaskAgent(metaclass=Singleton):
                 )
                 task: str = f"{action.task}  {path_str}"
                 events.reply.emit(message=msg.task(task), verbosity="debug")
-                if (response := self._exec_action(task)) and (output := response["output"]):
+                if (response := self._exec_task(task)) and (output := response["output"]):
                     log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
                     if len(tasks) > 1:
                         assert_accuracy(task, output, AccResponse.MODERATE)
@@ -133,8 +139,10 @@ class TaskAgent(metaclass=Singleton):
 
     @lru_cache
     def _create_lc_agent(self, temperature: Temperature = Temperature.COLDEST) -> Runnable:
-        """Create the LangChain agent.
-        :param temperature: The LLM temperature (randomness).
+        """Create and return a LangChain agent.
+        :param temperature: The LLM temperature, which controls the randomness of the responses (default is
+                            Temperature.COLDEST).
+        :return: An instance of a Runnable representing the LangChain agent.
         """
         tools = features.tools()
         llm = lc_llm.create_chat_model(temperature.temp)
@@ -153,9 +161,14 @@ class TaskAgent(metaclass=Singleton):
         return self._lc_agent
 
     @lru_cache
-    def _exec_action(self, action: str) -> Optional[Output]:
+    def _exec_task(self, task: AnyStr) -> Optional[Output]:
+        """Execute the specified agent task.
+        :param task: The task to be executed by the agent.
+        :return: An instance of Output containing the result of the task, or None if the task fails or produces
+        no output.
+        """
         lc_agent: Runnable = self._create_lc_agent()
-        return lc_agent.invoke({"input": action})
+        return lc_agent.invoke({"input": task})
 
 
 assert (agent := TaskAgent().INSTANCE) is not None

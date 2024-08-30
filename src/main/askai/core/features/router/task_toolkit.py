@@ -20,7 +20,7 @@ from askai.core.features.router.tools.generation import generate_content, save_c
 from askai.core.features.router.tools.summarization import summarize
 from askai.core.features.router.tools.terminal import execute_command, list_contents, open_command
 from askai.core.features.router.tools.vision import image_captioner
-from askai.core.features.router.tools.webcam import webcam_capturer
+from askai.core.features.router.tools.webcam import webcam_capturer, webcam_identifier
 from askai.exception.exceptions import TerminatingQuery
 from clitt.core.tui.line_input.line_input import line_input
 from functools import lru_cache
@@ -28,14 +28,16 @@ from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
 from langchain_core.tools import BaseTool, StructuredTool
 from textwrap import dedent
-from typing import Callable
+from typing import Callable, Optional
 
 import inspect
 import logging as log
 
 
 class AgentToolkit(metaclass=Singleton):
-    """This class provides the AskAI task agent tools."""
+    """This class serves as the toolkit for AskAI task agents, providing essential tools and functionalities required
+    for their tasks.
+    """
 
     INSTANCE: "AgentToolkit"
 
@@ -51,7 +53,9 @@ class AgentToolkit(metaclass=Singleton):
 
     @lru_cache
     def tools(self) -> list[BaseTool]:
-        """Return a list of Langchain base tools."""
+        """Return a cached list of LangChain base tools.
+        :return: A list of BaseTool's instances available for use.
+        """
         tools: list[BaseTool] = [self._create_structured_tool(v) for _, v in self._all.items()]
 
         log.debug("Available tools: are: '%s'", tools)
@@ -68,8 +72,9 @@ class AgentToolkit(metaclass=Singleton):
         return self._approved
 
     def _create_structured_tool(self, fn: Callable) -> BaseTool:
-        """Create the LangChain agent tool.
-        :param fn: The function that provides the tool implementation.
+        """Create a LangChain agent tool based on the provided function.
+        :param fn: The function that implements the tool's behavior.
+        :return: An instance of BaseTool configured with the provided function.
         """
         return StructuredTool.from_function(
             func=fn,
@@ -78,107 +83,126 @@ class AgentToolkit(metaclass=Singleton):
             return_direct=True,
         )
 
-    def browse(self, search_query: str) -> str:
-        """Use this tool to browse the internet or to stay informed about the latest news and current events, especially
-         when you require up-to-date information quickly. It is especially effective for accessing the most recent data
-         available online.
+    def browse(self, search_query: str) -> Optional[str]:
+        """Use this tool to browse the internet for the latest news and current events, particularly when up-to-date
+        information is needed quickly. This tool is especially effective for accessing the most recent data available
+        online.
         Usage: `browse(search_query)`
-        :param search_query: The web search query in string format.
+        :param search_query: The web search query as a string.
+        :return: A string containing the results of the web search, or None if no relevant results are found.
         """
         return browse(search_query)
 
     def query_output(self, output_query: str) -> str:
-        """Use this tool to analyze textual content, identify the presence of files, folders, and applications. It is
-        designed to process and analyze content that is already available in textual form, but not to read or extract
-        file contents directly.
-        Usage: `query_output(query)`
-        :param output_query: The query regarding the output. Use "Identify <file types, names or textual content>".
+        """Use this tool to analyze textual content and identify the presence of files, folders, and applications. This
+        tool is designed to process and analyze content that is already available in textual form, but it does not
+        directly read or extract file contents.
+        Usage: `query_output(output_query)`
+        :param output_query: The query regarding the output. Use "Identify <file types, names, or textual content>".
+        :return: A string containing the results of the analysis based on the query.
         """
         return query_output(output_query)
 
     def image_captioner(self, image_path: str) -> str:
-        """Use this tool to provide a textual description of a visual content, such as, image files.
+        """Use this tool to generate a textual description of visual content, such as image files.
         Usage: `image_captioner(image_path)`
         :param image_path: The absolute path of the image file to be analyzed.
+        :return: A string containing the generated caption describing the image.
         """
         return image_captioner(image_path)
 
     def webcam_capturer(self, photo_name: str | None, detect_faces: bool = False) -> str:
-        """This tool is used to take a photo (and save it locally) using the webcam. It also provide a captioning
-        of the image taken. This is useful to describe people in front of the webcam.
+        """Capture a photo using the webcam, save it locally, and optionally provide a caption describing the image.
+        This tool is useful for taking photos and describing people in front of the webcam.
         Usage: `webcam_capturer(photo_name, detect_faces)`
-        :param photo_name: The name of the photo file.
-        :param detect_faces: Whether to detect all faces in the photo.
+        :param photo_name: The name of the photo file (without the extension). If None, a default name will be used.
+        :param detect_faces: Whether to detect and describe all faces in the photo (default is False).
+        :return: The file path of the saved JPEG image.
         """
         return webcam_capturer(photo_name, detect_faces)
 
     def webcam_identifier(self) -> str:
-        """This too is used to identify the person in front of the webcam. It also provide a description of him/her.
+        """Identify the person in front of the webcam using a pre-stored set of faces and provide a description. This
+        tool is useful for recognizing individuals and generating descriptions based on pre-stored facial data.
         Usage: `webcam_identifier()`
+        :return: A string containing the identification and description of the person.
         """
+        return webcam_identifier()
 
     def generate_content(self, instructions: str, mime_type: str, filepath: AnyPath) -> str:
-        """Use this tool for tasks that require generating any kind of content, such as, code and text, image, etc.
-        Usage: generate_content(instructions, mime_type)
+        """Use this tool to generate various types of content, such as code, text, images, etc. This tool processes
+        descriptive instructions to create the specified content type and can optionally save it to a file.
+        Usage: `generate_content(instructions, mime_type, filepath)`
         :param instructions: Descriptive instructions on how to create the content (not the content itself).
-        :param mime_type: The generated content type (use MIME types).
-        :param filepath: Optional file path for saving the content.
+        :param mime_type: The MIME type representing the type of content to generate.
+        :param filepath: The optional file path where the generated content will be saved.
+        :return: The generated content as a string.
         """
         return generate_content(instructions, mime_type, filepath)
 
     def save_content(self, filepath: AnyPath) -> str:
-        """Use this tool to save generated content into disk (program, script, text, image, etc).
-        Usage: save_content(filepath)
+        """Save previously generated content to disk, such as programs, scripts, text, images, etc. This tool is used
+        to persist content that was generated using the `generate_content` tool.
+        Usage: `save_content(filepath)`
         :param filepath: The path where you want to save the content.
+        :return: The absolute path name of the saved file.
         """
         return save_content(filepath)
 
     def direct_answer(self, texts: list[str] | str) -> str:
-        """Use this tool to provide display text, or to provide a direct answer to the Human.
-        Usage: 'direct_answer(text, ...repeat N times)'
-        :param texts: The comma separated list of texts to be displayed.
+        """Provide and display text as a direct answer to the user. This tool is used to present one or more pieces of
+        text directly to the user.
+        Usage: `direct_answer(text, ...repeat N times)`
+        :param texts: A list of texts or a single text string to be displayed.
+        :return: A string containing all provided texts concatenated together.
         """
         return display_tool(*(texts if isinstance(texts, list) else [texts]))
 
     def list_tool(self, folder: str, filters: str | None = None) -> str:
-        """
-        Name: 'List Folder'
-        Description: Use this tool to access the contents of a specified folder.
-        Usage: 'list_tool(folder, filters)'
+        """Access and list the contents of a specified folder. This tool is used to retrieve the contents of a folder,
+        optionally filtering the results based on specified criteria.
+        Usage: `list_tool(folder, filters)`
         :param folder: The absolute path of the folder whose contents you wish to list or access.
-        :param filters: Optional Parameter: A comma-separated list of file glob to filter results (e.g., "*.*, *.txt").
+        :param filters: Optional parameter: A comma-separated list of file globs to filter results (e.g., "*.*, *.txt").
+        :return: A string listing the contents of the folder, filtered by the provided criteria if applicable.
         """
         return list_contents(folder, filters)
 
     def open_tool(self, path_name: str) -> str:
-        """Use this tool to open, read (show) content of files, and also, to playback any media files.
-        Usage: 'open_tool(path_name)'
-        :param path_name: The absolute file, folder, or application path name.
+        """Open and display the content of files, or playback media files, and also execute applications. This tool is
+        used to open a file, folder, or application, read its contents, or play back media files.
+        Usage: `open_tool(path_name)`
+        :param path_name: The absolute path of the file, folder, or application to be opened.
+        :return: The output generated by the open command, such as file content or playback status.
         """
         return open_command(path_name)
 
     def summarize(self, folder: str, glob: str) -> str:
-        """Use this tool only when the user explicitly requests a summary of files and folders.
-        Usage: summarize(folder_name, glob)
-        :param folder: The base name of the folder containing the files to be summarized.
-        :param glob: The glob expression to specify files to be included for summarization.
+        """Summarize the contents of files and folders based on user requests. This tool should be used only when the
+        user explicitly requests a summary of files and folders, not for summarizing textual content.
+        Usage: `summarize(folder, glob)`
+        :param folder: The base path of the folder containing the files to be summarized.
+        :param glob: The glob expression to specify which files should be included in the summary.
+        :return: A string containing the summary of the specified files and folders.
         """
         return summarize(folder, glob)
 
     def terminal(self, shell_type: str, command: str) -> str:
-        """Use this tool to execute terminal commands or process user-provided commands."
-        Usage: 'terminal(shell_type, command)'
-        :param shell_type: The type of the shell (e.g. bash, zsh, powershell, etc).
-        :param command: The actual commands you wish to execute in the terminal.
+        """Execute terminal commands or process user-provided commands using the specified shell. This tool is used to
+        run commands in a terminal environment based on the provided shell type.
+        Usage: `terminal(shell_type, command)`
+        :param shell_type: The type of shell to use (e.g., bash, zsh, powershell, etc.).
+        :param command: The command or set of commands to execute in the terminal.
+        :return: The output of the executed terminal command(s) as a string.
         """
         # TODO Check for permission before executing
         return execute_command(shell_type, command)
 
     def shutdown(self, reason: str) -> None:
-        """Use this tool when the user provides a query that indicates he wants to conclude the interaction
-        (e.g. bye, exit).
-        Usage: 'shutdown(reason)'
-        :param reason: The reason for termination.
+        """Conclude the interaction based on the user's intent to end the session (e.g., bye, exit). This tool is used
+        to gracefully shut down the interaction when the user indicates a desire to terminate the session.
+        Usage: `shutdown(reason)`
+        :param reason: The reason for terminating the session.
         """
         raise TerminatingQuery(reason)
 

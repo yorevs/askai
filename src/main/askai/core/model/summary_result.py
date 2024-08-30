@@ -19,7 +19,10 @@ import json
 
 @dataclass
 class SummaryResult:
-    """Keep track of the summarization responses."""
+    """Track and store the responses from summarization tasks. This class encapsulates the results of text
+    summarization, including the summarized content and any relevant data associated with the summarization
+    process.
+    """
 
     folder: str = None
     glob: str = None

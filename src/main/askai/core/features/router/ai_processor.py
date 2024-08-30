@@ -17,8 +17,14 @@ from typing import Optional, Protocol, runtime_checkable
 
 @runtime_checkable
 class AIProcessor(Protocol):
-    """Provide an interface for AI processors (routing modes)."""
+    """Interface for AI processors, also known as routing modes. This protocol defines the required methods and
+    behaviors that AI processors must implement to handle specific routing tasks.
+    """
 
     def process(self, question: str, **kwargs) -> Optional[str]:
-        """Process a user query."""
+        """Process a user query and generate a response.
+        :param question: The user's query to be processed.
+        :param kwargs: Additional arguments that may be used in the processing.
+        :return: The generated response as a string, or None if no response is generated.
+        """
         ...

@@ -20,7 +20,10 @@ import json
 
 @dataclass
 class SearchResult:
-    """Keep track of the internet search responses."""
+    """Track and store responses from internet searches.
+    This class encapsulates the results returned from an internet search, including any relevant data
+    associated with the search response.
+    """
 
     question: str = None
     datetime: str = None

@@ -76,7 +76,7 @@ class GeneralCmd(ABC):
     @staticmethod
     def app_info() -> None:
         """Display some useful application information."""
-        display_text(shared.app_info)
+        display_text(shared.app_info, markdown=False)
 
     @staticmethod
     def translate(from_lang: Language, to_lang: Language, *texts: str) -> None:

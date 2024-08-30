@@ -20,7 +20,10 @@ import os
 
 
 class RoutingModel(Enumeration):
-    """The model used to provide the final answer to the user."""
+    """Enumeration representing the model used to provide the final answer to the user.
+    This class defines the different models that can be used in the routing process to generate and deliver the
+    final response.
+    """
 
     # fmt: on
 
@@ -87,16 +90,25 @@ class RoutingModel(Enumeration):
         "Select this model to respond to improve the AI response. This should be only selected upon a clear request."
     )
 
+    # fmt: on
+
     @classmethod
     def of_model(cls, model_id: str) -> "RoutingModel":
-        """Returning teh matching model ID instance."""
+        """Return the RoutingModel instance that matches the given model ID.
+        :param model_id: The ID of the model to retrieve.
+        :return: The RoutingModel instance corresponding to the specified model ID.
+        :raises ValueError: If no matching RoutingModel is found.
+        """
         for v in cls.values():
             if v[0] == model_id:
                 return cls.of_value(v)
 
     @classmethod
     def enlist(cls, separator: str = os.linesep) -> str:
-        """Return a list of selectable models."""
+        """Return a list of selectable models as a formatted string.
+        :param separator: The separator used to delimit the models in the list (default is the system's line separator).
+        :return: A string containing the list of selectable models, separated by the specified separator.
+        """
         model_list: str = separator.join(f"{v[0]}: {v[1]}" for v in cls.values())
         log.debug("Routing Models: %s", model_list)
         return model_list
@@ -114,5 +126,3 @@ class RoutingModel(Enumeration):
     @property
     def description(self) -> str:
         return self.value[1]
-
-    # fmt: on

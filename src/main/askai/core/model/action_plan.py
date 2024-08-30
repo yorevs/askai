@@ -26,7 +26,9 @@ import re
 
 @dataclass
 class ActionPlan:
-    """Keep track of the router action plan."""
+    """Represents and tracks the action plan for a router.
+    This class is used to keep track of the sequence of actions or steps to be executed by the router.
+    """
 
     question: str = None
     primary_goal: str = None
@@ -37,23 +39,28 @@ class ActionPlan:
 
     @staticmethod
     def _parse_response(question: str, response: str) -> "ActionPlan":
-        """Parse the router response.
-        :param response: The router response. This should be a JSON blob, but sometimes the AI responds with a
-        straight JSON string.
+        """Parse the router's response and convert it into an ActionPlan.
+        :param question: The original question or command that was sent to the router.
+        :param response: The router's response, typically a JSON blob. Note that the response might sometimes be a
+                         plain JSON string.
+        :return: An instance of ActionPlan created from the parsed response.
         """
-
         json_string = response
         if re.match(r"^`{3}(.+)`{3}$", response):
             _, json_string = extract_codeblock(response)
         plan: ActionPlan = object_mapper.of_json(json_string, ActionPlan)
         if not isinstance(plan, ActionPlan):
             plan = ActionPlan._direct(question, json_string, ModelResult.default())
-
         return plan
 
     @staticmethod
     def _direct(question: str, response: str, model: ModelResult) -> "ActionPlan":
-        """TODO"""
+        """Create a simple ActionPlan from an AI's direct response in plain text.
+        :param question: The original question that was sent to the AI.
+        :param response: The AI's direct response in plain text (unformatted JSON).
+        :param model: The result model.
+        :return: An instance of ActionPlan created from the direct response.
+        """
         return ActionPlan(
             question,
             "N/A",
@@ -65,7 +72,12 @@ class ActionPlan:
 
     @staticmethod
     def create(question: str, message: AIMessage, model: ModelResult) -> "ActionPlan":
-        """TODO"""
+        """Create an ActionPlan based on the provided question, AI message, and result model.
+        :param question: The original question or command that was sent to the AI.
+        :param message: The AIMessage object containing the AI's response and metadata.
+        :param model: The result model.
+        :return: An instance of ActionPlan created from the provided inputs.
+        """
         plan: ActionPlan = ActionPlan._parse_response(question, message.content)
         check_state(
             plan is not None and isinstance(plan, ActionPlan), f"Invalid action plan received from LLM: {type(plan)}"

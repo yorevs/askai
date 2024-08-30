@@ -27,7 +27,7 @@ import os
 
 
 class RAGProvider:
-    """TODO"""
+    """A class responsible for implementing the Retrieval-Augmented Generation (RAG) mechanism."""
 
     RAG_DIR: Path = Path(os.path.join(classpath.resource_path(), "assets/rag"))
 
@@ -40,7 +40,11 @@ class RAGProvider:
 
     @lru_cache
     def retrieve_examples(self, query: str, k: int = 3) -> list[str]:
-        """TODO"""
+        """Retrieve a list of relevant examples based on the provided query.
+        :param query: The search query used to retrieve examples.
+        :param k: The number of examples to retrieve (default is 3).
+        :return: A list of strings representing the retrieved examples.
+        """
         if self._rag_db is None:
             self._rag_db = FAISS.from_documents(self._rag_docs, lc_llm.create_embeddings())
         example_docs: list[Document] = self._rag_db.similarity_search(query, k=k)

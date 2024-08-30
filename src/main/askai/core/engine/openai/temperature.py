@@ -17,20 +17,21 @@ from hspylib.core.enums.enumeration import Enumeration
 
 
 class Temperature(Enumeration):
-    """Provide some recommended temperature x top_p combinations for ChatGPT prompts.
-    Ref:. https://community.openai.com/t/cheat-sheet-mastering-temperature-and-top-p-in-chatgpt-api/172683
+    """Provides recommended temperature and top_p combinations for ChatGPT prompts. This enumeration is designed to
+    help users select appropriate temperature settings for different types of prompts, balancing creativity and
+    consistency according to the task at hand.
+    Reference: https://community.openai.com/t/cheat-sheet-mastering-temperature-and-top-p-in-chatgpt-api/172683
 
     - Lower temperature (e.g., 0.1 - 0.4): Produces more focused, conservative, and consistent responses.
-    This is useful when the marketer needs factual information, precise answers, or messaging that adheres closely
-    to a specific format or brand guideline.
+      Useful for scenarios requiring factual information, precise answers, or adherence to specific formats or brand
+      guidelines.
 
     - Moderate temperature (e.g., 0.5 - 0.7): Strikes a balance between creativity and consistency.
-    This setting can be useful for general content generation, where a blend of accuracy and inventiveness
-    is desired.
+      Ideal for general content generation where a blend of accuracy and inventiveness is desired.
 
     - Higher temperature (e.g., 0.8 - 1.0): Generates more creative, diverse, and unexpected outputs.
-    Marketers may prefer this setting when brainstorming innovative campaign ideas, crafting engaging social media
-    content, or seeking fresh perspectives on a topic.
+      Suitable for brainstorming innovative ideas, crafting engaging social media content, or exploring fresh
+      perspectives on a topic.
     """
 
     # fmt: off

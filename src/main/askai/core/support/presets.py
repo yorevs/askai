@@ -50,6 +50,12 @@ class Presets:
     @classmethod
     @lru_cache
     def get(cls, lang: str = "en", tempo: int = 1, base_interval: float = 0.010) -> "Presets":
+        """Retrieve the text-to-speech preset based on the specified parameters.
+        :param lang: The language code for the preset (default is "en" -> English).
+        :param tempo: The tempo of the speech, where 1 is the default speed (natural).
+        :param base_interval: The base interval between speech units (default is 0.010).
+        :return: An instance of the Presets class configured with the specified parameters.
+        """
         base_speed = base_interval / max(1, tempo)
         presets = cls._ALL_RESETS[lang] if hasattr(cls._ALL_RESETS, lang) else cls._ALL_RESETS["en"]
         return Presets(

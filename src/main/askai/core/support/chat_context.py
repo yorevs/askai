@@ -39,7 +39,11 @@ class ChatContext:
 
     @staticmethod
     def of(context: list[str], token_limit: int, max_context_size: int) -> "ChatContext":
-        """Create a chat context from a context list on the format: <ROLE: MSG>"""
+        """Create a chat context from a list of context entries formatted as <ROLE: MSG>.
+        :param context: The initial list of chat context entries.
+        :param token_limit: The maximum number of tokens allowed by the active engine's model.
+        :param max_context_size: The maximum allowable size of the context (window size).
+        """
         ctx = ChatContext(token_limit, max_context_size)
         for e in context:
             role, reply = list(
@@ -79,26 +83,44 @@ class ChatContext:
         return self._token_limit
 
     def push(self, key: str, content: Any, role: ChatRoles = "human") -> ContextRaw:
-        """Push a context message to the chat with the provided role."""
-        entry = ContextEntry(role, str(content))
-        ctx = self._store[key]
-        if (token_length := (self.context_length(key)) + len(content)) > self._token_limit:
+        """Push a context message to the chat with the specified role.
+        :param key: The identifier for the context message.
+        :param content: The content of the message to push.
+        :param role: The role associated with the message (default is "human").
+        :return: The updated chat context.
+        """
+
+        if (token_length := (self.length(key)) + len(content)) > self._token_limit:
             raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
-        if entry not in ctx:
+        if (entry := ContextEntry(role, str(content))) not in (ctx := self._store[key]):
             ctx.append(entry)
+
         return self.get(key)
 
-    def context_length(self, key: str):
-        ctx = self._store[key]
-        return reduce(lambda total, e: total + len(e.content), ctx, 0) if len(ctx) > 0 else 0
+    def get(self, key: str) -> ContextRaw:
+        """Retrieve a context message identified by the specified key.
+        :param key: The identifier for the context message.
+        :return: The context message associated with the key.
+        """
+
+        return [{"role": ctx.role, "content": ctx.content} for ctx in self._store[key]] or []
 
     def set(self, key: str, content: Any, role: ChatRoles = "human") -> ContextRaw:
-        """Set the context to the chat with the provided role."""
+        """Set the context message in the chat with the specified role.
+        :param key: The identifier for the context message.
+        :param content: The content of the message to set.
+        :param role: The role associated with the message (default is "human").
+        :return: The updated chat context.
+        """
         self.clear(key)
         return self.push(key, content, role)
 
     def remove(self, key: str, index: int) -> Optional[str]:
-        """Remove a context message from the chat at the provided index."""
+        """Remove a context message from the chat at the specified index.
+        :param key: The identifier for the context message list.
+        :param index: The position of the message to remove within the list.
+        :return: The removed message if successful, otherwise None.
+        """
         val = None
         if ctx := self._store[key]:
             if index < len(ctx):
@@ -106,12 +128,19 @@ class ChatContext:
                 del ctx[index]
         return val
 
-    def get(self, key: str) -> ContextRaw:
-        """Retrieve a context from the specified by key."""
-        return [{"role": ctx.role, "content": ctx.content} for ctx in self._store[key]] or []
+    def length(self, key: str):
+        """Return the length of the context identified by the specified key.
+        :param key: The identifier for the context.
+        :return: The length of the context (e.g., number of content entries).
+        """
+        ctx = self._store[key]
+        return reduce(lambda total, e: total + len(e.content), ctx, 0) if len(ctx) > 0 else 0
 
     def join(self, *keys: str) -> LangChainContext:
-        """Join contexts specified by keys."""
+        """Join multiple contexts identified by the specified keys.
+        :param keys: The identifiers for the contexts to join.
+        :return: The combined chat context.
+        """
         context: LangChainContext = []
         token_length = 0
         for key in keys:
@@ -125,7 +154,10 @@ class ChatContext:
         return context
 
     def flat(self, *keys: str) -> ChatMessageHistory:
-        """Flatten contexts specified by keys."""
+        """Flatten multiple contexts identified by the specified keys into a single chat history.
+        :param keys: The identifiers for the contexts to flatten.
+        :return: The flattened chat message history.
+        """
         history = ChatMessageHistory()
         flatten: LangChainContext = self.join(*keys)
         for ctx_entry in flatten:
@@ -134,7 +166,11 @@ class ChatContext:
         return history
 
     def clear(self, *keys: str) -> int:
-        """Clear the all the chat context specified by key."""
+        """Clear all chat contexts specified by the provided keys.
+        :param keys: The identifiers for the contexts to clear.
+        :return: The number of contexts that were cleared.
+        """
+
         count = 0
         contexts = list(keys or self._store.keys())
         while contexts and (key := contexts.pop()):
@@ -144,15 +180,21 @@ class ChatContext:
         return count
 
     def forget(self, *keys: str) -> None:
-        """Forget all entries pushed to the chat context."""
+        """Forget all entries pushed to the chat context for the specified keys.
+        :param keys: The identifiers for the contexts to forget.
+        """
         self.clear(*keys)
 
     def size(self, key: str) -> int:
-        """Return the amount of entries a context specified by key have."""
+        """Return the number of entries in the context specified by the given key.
+        :param key: The identifier for the context.
+        :return: The number of entries in the context.
+        """
+
         return len(self._store[key])
 
     def save(self) -> None:
-        """Save the current context window."""
+        """Save the current context window to the cache."""
         ctx: LangChainContext = self.join(*self._store.keys())
         ctx_str: list[str] = [f"{role}: {msg}" for role, msg in ctx]
         cache.save_context(ctx_str)

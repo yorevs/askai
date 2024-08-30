@@ -12,12 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from pathlib import Path
+from typing import List, Optional, Protocol
+
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models import BaseChatModel, BaseLLM
+
 from askai.core.askai_configs import AskAiConfigs
 from askai.core.engine.ai_model import AIModel
 from askai.core.engine.ai_reply import AIReply
-from langchain_core.language_models import BaseChatModel, BaseLLM
-from pathlib import Path
-from typing import Any, List, Optional, Protocol
 
 
 class AIEngine(Protocol):
@@ -28,20 +31,22 @@ class AIEngine(Protocol):
         ...
 
     def lc_model(self, temperature: float, top_p: float) -> BaseLLM:
-        """Create a LangChain AI model instance.
-        :param temperature: The model engine temperature.
+        """Create a LangChain LLM model instance using the current AI engine.
+        :param temperature: The LLM model temperature.
         :param top_p: The model engine top_p.
         """
         ...
 
     def lc_chat_model(self, temperature: float = 0.0) -> BaseChatModel:
-        """Create a LangChain OpenAI llm chat model instance.
-        :param temperature: The model engine temperature.
+        """Create a LangChain LLM chat model instance using the current AI engine.
+        :param temperature: The LLM chat model temperature.
         """
         ...
 
-    def lc_embeddings(self, model: str) -> Any:
-        """Create a LangChain AI embeddings instance."""
+    def lc_embeddings(self, model: str) -> Embeddings:
+        """Create a LangChain LLM embeddings  model instance using the current AI engine.
+        :param model: the LLM embeddings model.
+        """
         ...
 
     def ai_name(self) -> str:
@@ -53,7 +58,7 @@ class AIEngine(Protocol):
         ...
 
     def ai_token_limit(self) -> int:
-        """Get the AI model tokens limit."""
+        """Get the AI model token limit."""
         ...
 
     def nickname(self) -> str:

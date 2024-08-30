@@ -108,13 +108,12 @@ class AskAiConfigs(metaclass=Singleton):
 
     @property
     def language(self) -> Language:
-        # Lookup order: Settings -> Locale -> Environment
+        """Lookup order: Settings -> Locale -> Environment."""
         return Language.of_locale(
             settings.get("askai.preferred.language")
             or locale.getlocale(locale.LC_ALL)
             or os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG")))
-            or Language.EN_US.idiom
-        )
+            or Language.EN_US.idiom)
 
     @property
     def encoding(self) -> Charset:
@@ -177,13 +176,17 @@ class AskAiConfigs(metaclass=Singleton):
         return self._recorder_devices
 
     def add_device(self, device_name: str) -> None:
-        """Add a new device to the configuration list."""
+        """Add a new device to the configuration list.
+        :param device_name: The device name to be added.
+        """
         if device_name not in self._recorder_devices:
             self._recorder_devices.add(device_name)
             settings.put("askai.recorder.devices", ", ".join(self._recorder_devices))
 
     def remove_device(self, device_name: str) -> None:
-        """Remove a new device from the configuration list."""
+        """Remove a new device from the configuration list.
+        :param device_name: The device name to be removed.
+        """
         if device_name in self._recorder_devices:
             self._recorder_devices.remove(device_name)
             settings.put("askai.recorder.devices", ", ".join(self._recorder_devices))

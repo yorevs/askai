@@ -130,13 +130,20 @@ class SharedInstances(metaclass=Singleton):
         )
 
     def create_engine(self, engine_name: str, model_name: str) -> AIEngine:
-        """Create/Get the AI engine specified by the engine and model names."""
+        """Create or retrieve an AI engine instance based on the specified engine and model names.
+        :param engine_name: The name of the AI engine to create or retrieve.
+        :param model_name: The name of the model to use with the AI engine.
+        :return: An instance of the AIEngine configured with the specified engine and model.
+        """
         if self._engine is None:
             self._engine = EngineFactory.create_engine(engine_name, model_name)
         return self._engine
 
     def create_context(self, token_limit: int) -> ChatContext:
-        """Create/Get the chat context, with the specified token limit."""
+        """Create or retrieve a chat context with the specified token limit.
+        :param token_limit: The maximum number of tokens allowed in the chat context.
+        :return: An instance of the ChatContext configured with the specified token limit.
+        """
         if self._context is None:
             if configs.is_cache:
                 self._context = ChatContext.of(cache.read_context(), token_limit, self.max_short_memory_size)
@@ -144,8 +151,11 @@ class SharedInstances(metaclass=Singleton):
                 self._context = ChatContext(token_limit, self.max_short_memory_size)
         return self._context
 
-    def create_memory(self, memory_key: str = "chat_history") -> ConversationBufferWindowMemory:
-        """Create/Get the conversation window memory."""
+    def create_memory(self, memory_key: str = "chat_history") -> BaseChatMemory:
+        """Create or retrieve the conversation window memory.
+        :param memory_key: The key used to identify the memory (default is "chat_history").
+        :return: An instance of BaseChatMemory associated with the specified memory key.
+        """
         if self._memory is None:
             self._memory = ConversationBufferWindowMemory(
                 memory_key=memory_key, k=configs.max_short_memory_size, return_messages=True
@@ -153,9 +163,10 @@ class SharedInstances(metaclass=Singleton):
         return self._memory
 
     def input_text(self, input_prompt: str, placeholder: str | None = None) -> Optional[str]:
-        """Prompt for user input.
-        :param input_prompt: The prompt to display to the user.
-        :param placeholder: The input placeholder text.
+        """Prompt the user for input.
+        :param input_prompt: The text prompt to display to the user.
+        :param placeholder: The placeholder text to display in the input field (optional).
+        :return: The user's input as a string, or None if no input is provided.
         """
         ret = None
         while ret is None:

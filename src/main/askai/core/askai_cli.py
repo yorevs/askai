@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from pathlib import Path
 
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
@@ -87,8 +88,8 @@ class AskAiCli(AskAi):
         sysout("")
 
     def _reply(self, message: str) -> None:
-        """Reply to the user with the AI response.
-        :param message: The message to reply to the user.
+        """Reply to the user with the AI-generated response.
+        :param message: The message to send as a reply to the user.
         """
         if message and (text := msg.translate(message)):
             log.debug(message)
@@ -100,8 +101,8 @@ class AskAiCli(AskAi):
                 display_text(text, f"{shared.nickname}")
 
     def _reply_error(self, message: str) -> None:
-        """Reply API or system errors.
-        :param message: The error message to be displayed.
+        """Reply to the user with an AI-generated error message or system error.
+        :param message: The error message to be displayed to the user.
         """
         if message and (text := msg.translate(message)):
             log.error(message)
@@ -111,13 +112,15 @@ class AskAiCli(AskAi):
                 display_text(f"%RED%Error: {text}%NC%", f"{shared.nickname}")
 
     def _input(self) -> Optional[str]:
-        """Read the user input from stdin."""
+        """Read the user input from stdin.
+        :return: The user's input as a string, or None if no input is provided.
+        """
         return shared.input_text(f"{shared.username}", f"Message {self.engine.nickname()}")
 
     def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
         """Callback to handle reply events.
-        :param ev: The reply event.
-        :param error: Whether the event is an error not not.
+        :param ev: The event object representing the reply event.
+        :param error: Indicates whether the reply is an error (default is False).
         """
         if message := ev.args.message:
             if error:
@@ -130,29 +133,32 @@ class AskAiCli(AskAi):
 
     def _cb_mic_listening_event(self, ev: Event) -> None:
         """Callback to handle microphone listening events.
-        :param ev: The microphone listening event.
+        :param ev: The event object representing the microphone listening event.
         """
         if ev.args.listening:
             self._reply(msg.listening())
 
     def _cb_device_changed_event(self, ev: Event) -> None:
-        """Callback to handle audio input device changed events.
-        :param ev: The device changed event.
+        """Callback to handle audio input device change events.
+        :param ev: The event object representing the device change.
         """
         cursor.erase_line()
         self._reply(msg.device_switch(str(ev.args.device)))
 
-    def _splash(self) -> None:
-        """Display the AskAI splash screen."""
-        splash_interval = 250
+    def _splash(self, interval: int = 250) -> None:
+        """Display the AskAI splash screen until the system is fully started and ready. This method shows the splash
+        screen during the startup process and hides it once the system is ready.
+        :param interval: The interval in milliseconds for polling the startup status (default is 250 ms).
+        """
         screen.clear()
         sysout(f"%GREEN%{self.SPLASH}%NC%")
         while not self._ready:
-            pause.milliseconds(splash_interval)
+            pause.milliseconds(interval)
         screen.clear()
 
     def _startup(self) -> None:
-        """Initialize the application."""
+        """Initialize the application components."""
+        os.chdir(Path.home())
         askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
         askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
@@ -167,7 +173,7 @@ class AskAiCli(AskAi):
             player.start_delay()
             self._ready = True
             splash_thread.join()
-            display_text(self, markdown=False)
+            display_text(str(self), markdown=False)
             self._reply(msg.welcome(os.getenv("USER", "you")))
         elif configs.is_speak:
             recorder.setup()

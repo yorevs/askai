@@ -23,7 +23,11 @@ import re
 
 
 class TextFormatter(metaclass=Singleton):
-    """TODO"""
+    """A utility class for formatting text according to specified rules or styles.
+    This class provides various methods for transforming and formatting text,
+    such as adjusting indentation, line breaks, or applying specific text styles.
+    The Singleton metaclass ensures that only one instance of this class exists throughout the application.
+    """
 
     INSTANCE: "TextFormatter"
 
@@ -60,15 +64,18 @@ class TextFormatter(metaclass=Singleton):
     }
 
     @staticmethod
-    def ensure_ln(text: str) -> str:
-        """Ensure text starts and ends with a lien separator.
+    def ensure_ln(text: str, separator: str = os.linesep) -> str:
+        """Ensure the text starts and ends with a line separator.
         :param text: The text to be formatted.
+        :param separator: The line separator to use (default is the system's line separator).
+        :return: The formatted text with the specified line separator at the beginning and end.
         """
-        return ensure_endswith(ensure_startswith(text, os.linesep), os.linesep * 2)
+        return ensure_endswith(ensure_startswith(text, separator), separator * 2)
 
     def beautify(self, text: Any) -> str:
-        """Beautify the provided text with icons and other formatting improvements.
+        """Beautify the provided text with icons and other formatting enhancements.
         :param text: The text to be beautified.
+        :return: The beautified text as a string with applied icons and formatting improvements.
         """
         # fmt: off
 
@@ -92,28 +99,24 @@ class TextFormatter(metaclass=Singleton):
         return text
 
     def display_markdown(self, text: AnyStr) -> None:
-        """Display a markdown formatted text.
-        :param text: The text to be displayed.
+        """Display a markdown-formatted text.
+        :param text: The markdown-formatted text to be displayed.
         """
         colorized: str = VtColor.colorize(VtCode.decode(self.beautify(str(text))))
         cursor.write(colorized, markdown=True)
 
     def display_text(self, text: AnyStr) -> None:
-        """Display a vt100 formatted text.
-        :param text: The text to be displayed.
+        """Display a VT100 formatted text.
+        :param text: The VT100 formatted text to be displayed.
         """
         colorized: str = VtColor.colorize(VtCode.decode(self.beautify(str(text))))
         cursor.write(colorized)
 
     def cmd_print(self, text: AnyStr):
-        """Display an AskAI commander text.
+        """Display an AskAI commander formatted text.
         :param text: The text to be displayed.
         """
         self.display_markdown(f"%ORANGE%  Commander%NC%: {self.beautify(str(text))}")
 
 
 assert (text_formatter := TextFormatter().INSTANCE) is not None
-
-
-if __name__ == "__main__":
-    text_formatter.display_markdown(" Oops!\n>  An Exception Occurred: \n#### &nbsp;")
