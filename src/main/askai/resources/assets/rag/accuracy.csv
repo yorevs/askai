@@ -17,3 +17,5 @@ List my downloads;I will list your downloads for you;Red;Acknowledging or mentio
 Who are you?;Yes he is famous;Red;The AI should check if the response is coherent with the question, ensure the answer is unbiased and does not rely on stereotypes, detect AI hallucinations by verifying the accuracy of the response. 'Red' because it does not align with known facts.
 What is my first task?;You can find out your first task by checking the list of activities above;Red;The AI should not seek user assistance.
 Did I download and gabiroba file?;No files containing 'gabiroba' were found in the specified directory.;Black;This is a clear negative answer that indicates the AI can't proceed any further.
+List my music and let me know if there is any gabiroba song. If so, show me the file name and open it.;The 'gabiroba' song file was not found in the Music folder.;Black;This is a clear negative answer that indicates the file does not exists and, so, the AI can't proceed any further.
+Display the file name of the gabiroba song;The Gabiroba song file name is 'have-a-nice-day.mp3';Red;This is a clear hallucination, since the filename does not match the required file pattern.

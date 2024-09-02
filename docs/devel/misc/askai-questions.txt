@@ -21,13 +21,7 @@ en_US
 - List my music and let me know if there is any gabiroba song. If so, show me the file name and open it.
 
 
-
 Major Issues:
 
-1. Router is Not Understanding: 'What should I do first/second/third'.
-2. Fix summarize (Q&A mode).
+TODO
 
-
-
-
-Start by including steps for accessing and opening the necessary files and folders, then, convert the subsequent tasks into a series of straightforward tasks, ensuring each action is stated clearly

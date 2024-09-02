@@ -23,5 +23,6 @@ Analysing the provided data:
 Summary: <a small reasoning about the conclusion>
 """
 
-If you don't have an answer, respond with a brief negative reply. If you can suggest something useful, do so.
+If you don't have an answer, respond with a brief unformatted (plain-text) negative reply. If you can suggest something useful, do so (also as plain text).
 
+Begin!

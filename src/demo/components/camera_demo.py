@@ -61,7 +61,7 @@ if __name__ == "__main__":
                 cursor.write(f"Showing face: {photo.caption} URI: {photo.uri} DIST:", photo.distance)
                 open_command(photo.uri)
         if opt == "5":
-            count: int = store.sync_store(with_caption=False)
+            count: int = store.sync_store(re_caption=False)
             cursor.write()
             cursor.write(f"Synchronized files: {count}")
         if opt == "6" and (query := line_input("Path to import: ", "File, folder path or glob")):
@@ -69,6 +69,6 @@ if __name__ == "__main__":
             cursor.write()
             cursor.write(f"Imported images: {images} Detected faces: {faces}")
         if opt == "7":
-            display_text(f"```json\n{os.linesep.join(store.enlist())}\n```")
+            print(f"```json\n{os.linesep.join(store.enlist())}\n```")
         cursor.write(os.linesep)
     cursor.write("Done")
