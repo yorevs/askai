@@ -83,7 +83,9 @@ __module__ = locals()
 
 
 def commands() -> list[str]:
-    """Return the list of all commander commands."""
+    """Return the list of all available commander commands.
+    :return: A list of strings representing the available commands.
+    """
     all_commands: set[str] = set()
     for name, obj in __module__.items():
         if obj and isinstance(obj, Command) and not isinstance(obj, Group):
@@ -92,8 +94,9 @@ def commands() -> list[str]:
 
 
 def commander_help(command: str | None = None) -> str:
-    """Return the commander help string.
-    :param command: The command to get help from.
+    """Return the help string for the specified commander command.
+    :param command: The command for which to retrieve help.
+    :return: A string containing the help information for the specified command.
     """
     if (command in __module__) and (cmd := __module__[command]):
         return _format_help(cmd)
@@ -110,10 +113,12 @@ def commander_help(command: str | None = None) -> str:
 
 def _format_help(command: Command) -> str:
     """Return a formatted help string for the given command.
-    :param command: The command to be formatted.
+    :param command: The command for which the help string will be formatted.
+    :return: A formatted string containing the help information for the specified command.
     """
     docstr: str = ""
-    splits: list[str] = re.split(os.linesep, command.__doc__, flags=re.MULTILINE | re.IGNORECASE)
+    re_flags = re.MULTILINE | re.IGNORECASE
+    splits: list[str] = re.split(os.linesep, command.__doc__, flags=re_flags)
     for i, arg in enumerate(splits):
         if mat := re.match(r":\w+\s+(\w+):\s+(.+)", arg.strip()):
             docstr += f"\n\t\t- %BLUE%{mat.group(1).casefold():<15}%WHITE%\t: {mat.group(2).title()}"
@@ -125,10 +130,10 @@ def _format_help(command: Command) -> str:
 
 
 def _init_context(context_size: int = 1000, engine_name: str = "openai", model_name: str = "gpt-4o-mini") -> None:
-    """Initialize AskAI context and startup components.
-    :param context_size: The max size of e context window.
-    :param engine_name: The name of the engine to initialize.
-    :param model_name: The engine's model name to initialize.
+    """Initialize the AskAI context and startup components.
+    :param context_size: The maximum size of the context window (default is 1000).
+    :param engine_name: The name of the engine to initialize (default is "openai").
+    :param model_name: The model name of the engine to initialize (default is "gpt-4o-mini").
     """
     if not (shared.engine and shared.context):
         shared.create_engine(engine_name=engine_name, model_name=model_name)
@@ -139,9 +144,15 @@ def _init_context(context_size: int = 1000, engine_name: str = "openai", model_n
 @click.group()
 @click.pass_context
 def ask_commander(_) -> None:
-    """AskAI commands group."""
+    """AskAI commands group. This function serves as the entry point for the AskAI command-line interface (CLI)
+    commands, grouping related commands together.
+    """
 
     def _reply_event(ev: Event, error: bool = False) -> None:
+        """Callback for handling the reply event.
+        :param ev: The event object representing the reply event.
+        :param error: Indicates whether the reply contains an error (default is False).
+        """
         if message := ev.args.message:
             if error:
                 text_formatter.cmd_print(f"%RED%{message}!%NC%")
@@ -159,8 +170,9 @@ def ask_commander(_) -> None:
 @ask_commander.command()
 @click.argument("command", default="")
 def help(command: str | None) -> None:
-    """Display this help message and exit.
-    :param command: The command to retrieve help for.
+    """Display the help message for the specified command and exit. If no command is provided, it displays the general
+    help message.
+    :param command: The command to retrieve help for (optional).
     """
     display_text(commander_help(command.replace("/", "")))
 
@@ -183,9 +195,9 @@ def speak() -> None:
 @click.argument("operation", default="list")
 @click.argument("name", default="ALL")
 def context(operation: str, name: str | None = None) -> None:
-    """Manages the current chat context window.
-    :param operation: The operation to perform on contexts. Options: [list|forget].
-    :param name: The name of the context.
+    """Manage the current chat context window.
+    :param operation: The operation to perform on contexts. Options: [list | forget].
+    :param name: The name of the context to target (default is "ALL").
     """
     match operation:
         case "list":

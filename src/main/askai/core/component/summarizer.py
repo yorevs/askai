@@ -12,6 +12,9 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from hspylib.core.metaclass.classpath import AnyPath
+from langchain_core.embeddings import Embeddings
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -35,14 +38,19 @@ import logging as log
 
 
 class Summarizer(metaclass=Singleton):
-    """Provide a summarization service to complete queries that require summarization."""
+    """Provide a summarization service to complete queries that require summarization. This class is designed to
+    generate concise summaries of text data, which can be used to condense lengthy content into more digestible
+    information. It leverages natural language processing techniques to extract key points and present them in a
+    coherent manner.
+    """
 
     INSTANCE: "Summarizer"
 
     @staticmethod
     def extract_result(result: dict) -> tuple[str, str]:
         """Extract the question and answer from the summarization result.
-        :param result: The summarization result object.
+        :param result: A dictionary containing the summarization result.
+        :return: A tuple containing the question and the answer.
         """
         question = result["query"] if "query" in result else result["question"]
         answer = result["result"] if "result" in result else result["answer"]
@@ -89,18 +97,19 @@ class Summarizer(metaclass=Singleton):
         return self._retriever
 
     @lru_cache
-    def generate(self, folder: str | Path, glob: str) -> bool:
-        """Generate a summarization of the folder contents.
-        :param folder: The base folder of the summarization.
-        :param glob: The glob pattern or file of the summarization.
+    def generate(self, folder: AnyPath, glob: str) -> bool:
+        """Generate a summarization of the contents within a specified folder. This method analyzes files within the
+        given folder that match the provided glob pattern and creates a summarization of their contents.
+        :param folder: The base folder where files are located.
+        :param glob: The glob pattern or specific file name used to filter the files for summarization.
+        :return: A boolean indicating the success or failure of the summarization process.
         """
-        self._folder = str(PathObject.of(folder))
+        self._folder: str = str(PathObject.of(folder))
         self._glob: str = glob.strip()
         events.reply.emit(message=msg.summarizing(self.sum_path))
-        embeddings = lc_llm.create_embeddings()
+        embeddings: Embeddings = lc_llm.create_embeddings()
 
         try:
-
             if self.persist_dir.exists():
                 log.info("Recovering vector store from: '%s'", self.persist_dir)
                 v_store = Chroma(persist_directory=str(self.persist_dir), embedding_function=embeddings)
@@ -114,21 +123,21 @@ class Summarizer(metaclass=Singleton):
 
             self._retriever = RetrievalQA.from_chain_type(
                 llm=lc_llm.create_chat_model(), chain_type="stuff", retriever=v_store.as_retriever())
-
             return True
-
         except ImportError as err:
             log.error("Unable to summarize '%s' => %s", self.sum_path, err)
             events.reply_error.emit(message=msg.missing_package(err))
 
         return False
 
-    def exists(self, folder: str | Path, glob: str) -> bool:
-        """Return whether or not the summary of the given folder/glob combination exists.
-        :param folder: The base folder of the summarization.
-        :param glob: The glob pattern or file of the summarization.
+    @lru_cache
+    def exists(self, folder: AnyPath, glob: str) -> bool:
+        """Check if a summarization exists for the specified folder and glob pattern. This method determines whether a
+        summarization has been created for the contents of the given folder that match the provided glob pattern.
+        :param folder: The base folder where files are located.
+        :param glob: The glob pattern or file name used to filter the files for which the summarization was created.
+        :return: True if a summarization exists for the given folder and glob pattern; False otherwise.
         """
-
         summary_hash = hash_text(f"{ensure_endswith(folder, '/')}{glob}")
         return self._retriever is not None and Path(f"{PERSIST_DIR}/{summary_hash}").exists()
 
@@ -145,8 +154,11 @@ class Summarizer(metaclass=Singleton):
         return None
 
     def _invoke(self, query: str) -> Optional[SummaryResult]:
-        """Query the AI about a given query based on the summarized content.
-        :param query: The query to ask the AI engine.
+        """Query the AI retriever based on the summarized content. This method uses the provided query to retrieve
+        information from a previously generated summary. If the query is valid and the AI engine returns a result, it
+        creates a `SummaryResult` object with the summary details.
+        :param query: The query string to be asked to the AI engine.
+        :return: An object containing the summary details if the query is successful; otherwise, returns None.
         """
         if query and (result := self.retriever.invoke({"query": query})):
             return SummaryResult(self._folder, self._glob, *self.extract_result(result))

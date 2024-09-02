@@ -38,10 +38,11 @@ os.environ["ASKAI_DIR"] = str(ASKAI_DIR)
 
 
 class AskAiSettings(metaclass=Singleton):
-    """The Setman Settings."""
+    """The AskAI 'SetMan' Settings."""
 
     INSTANCE: "AskAiSettings"
 
+    # Current settings version. Updating this value will trigger a database recreation using the defaults.
     _ACTUAL_VERSION: str = "0.1.81"
 
     RESOURCE_DIR = str(classpath.resource_path())
@@ -69,8 +70,9 @@ class AskAiSettings(metaclass=Singleton):
         return self._settings
 
     def search(self, filters: str | None = None) -> Optional[str]:
-        """Search setting using the specified filters.
-        :param filters: Optional filters used on the search.
+        """Search settings using the specified filters.
+        :param filters: Optional filters to apply to the search.
+        :return: The search results as a string, or None if no results are found.
         """
         data = [(s.name, s.value) for s in self._settings.search(filters)]
         if data:
@@ -86,7 +88,7 @@ class AskAiSettings(metaclass=Singleton):
         return None
 
     def defaults(self) -> None:
-        """Create the default settings database if they doesn't exist."""
+        """Create the default settings database."""
         # AskAI General
         self._settings.clear()
         self._settings.put("askai.settings.version.id", "askai", self._ACTUAL_VERSION)
@@ -130,7 +132,6 @@ class AskAiSettings(metaclass=Singleton):
         :param default_value: The value to return if the setting does not exist.
         :return: The setting value if it exists, otherwise the default_value.
         """
-
         val = self.__getitem__(key)
         return str(val.value) if val else default_value
 
@@ -139,7 +140,6 @@ class AskAiSettings(metaclass=Singleton):
         :param key: The name of the setting to update.
         :param value: The value to associate with the key.
         """
-
         self.__setitem__(key, value)
 
     def get_bool(self, key: str, default_value: bool | None = False) -> bool:

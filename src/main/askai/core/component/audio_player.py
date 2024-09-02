@@ -29,7 +29,9 @@ import time
 
 
 class AudioPlayer(metaclass=Singleton):
-    """Provide an interface to play audio using the default speaker device."""
+    """Provide an interface for playing audio through the default speaker device. This class allows for the playback of
+    audio files using the system's default audio output device.
+    """
 
     INSTANCE: "AudioPlayer"
 
@@ -38,9 +40,10 @@ class AudioPlayer(metaclass=Singleton):
 
     @staticmethod
     def play_audio_file(path_to_audio_file: str | Path, tempo: int = 1) -> bool:
-        """Play the specified mp3 file using ffplay (ffmpeg) application.
-        :param path_to_audio_file: the path to the mp3 file to be played.
-        :param tempo: the playing speed.
+        """Play the specified audio file using the ffplay (ffmpeg) application.
+        :param path_to_audio_file: The path to the audio file (e.g., MP3) to be played.
+        :param tempo: The playback speed (default is 1).
+        :return: True if the audio file is played successfully, otherwise False.
         """
         if file_is_not_empty(str(path_to_audio_file)):
             try:
@@ -70,6 +73,10 @@ class AudioPlayer(metaclass=Singleton):
 
     @lru_cache
     def audio_length(self, path_to_audio_file: str) -> float:
+        """Determine the length of an audio file using ffmpeg.
+        :param path_to_audio_file: The path to the audio file whose length is to be determined.
+        :return: The length of the audio file in seconds as a float.
+        """
         check_argument(which("ffprobe") and file_is_not_empty(path_to_audio_file))
         ret: float = 0.0
         try:
@@ -86,8 +93,9 @@ class AudioPlayer(metaclass=Singleton):
 
     def play_sfx(self, filename: str, file_ext: Literal[".mp3", ".wav", ".m4a"] = ".mp3") -> bool:
         """Play a sound effect audio file.
-        :param filename: The filename of the sound effect.
-        :param file_ext: the file extension.
+        :param filename: The name of the sound effect file (without the extension).
+        :param file_ext: The file extension of the sound effect (default is ".mp3").
+        :return: True if the sound effect is played successfully, otherwise False.
         """
         filename = f"{self.SFX_DIR}/{ensure_endswith(filename, file_ext)}"
         check_argument(file_is_not_empty(filename), f"Sound effects file does not exist: {filename}")

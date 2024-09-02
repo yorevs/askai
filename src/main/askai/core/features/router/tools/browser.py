@@ -47,7 +47,7 @@ def browse(query: str) -> Optional[str]:
             log.error(msg.invalid_response(search))
             output = response.strip()
         else:
-            output = internet.search_google(search)
+            output = internet.google_search(search)
             if not output:
                 output = msg.search_empty()
     else:

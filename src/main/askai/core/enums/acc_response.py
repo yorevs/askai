@@ -41,20 +41,34 @@ class AccResponse(Enumeration):
 
     @classmethod
     def matches(cls, output: str) -> re.Match:
+        """Find a match in the given output string.
+        :param output: The string to search for a match.
+        :return: A match object if a match is found.
+        :raises: re.error if an error occurs during the matching process.
+        """
         return re.search(cls._re(), output.replace("\n", " "), flags=re.IGNORECASE)
 
     @classmethod
     def _re(cls) -> str:
+        """TODO"""
         return rf"^\$?({'|'.join(cls.values())})[:,-]\s*[0-9]+%\s+(.+)"
 
     @classmethod
     def strip_code(cls, message: str) -> str:
-        """Strip the color code from the message"""
+        """Strip the color code from the message.
+        :param message: The message from which to strip color codes.
+        :return: The message with color codes removed.
+        """
         mat = cls.matches(message)
         return str(mat.group(2)).strip() if mat else message.strip()
 
     @classmethod
     def of_status(cls, status: str, reasoning: str | None) -> "AccResponse":
+        """Create an AccResponse instance based on status and optional reasoning.
+        :param status: The status as a string.
+        :param reasoning: Optional reasoning for the status, formatted as '<percentage>% <details>'.
+        :return: An instance of AccResponse with the given status and reasoning.
+        """
         resp = cls.of_value(status.title())
         if reasoning and (mat := re.match(r"(^[0-9]{1,3})%\s+(.*)", reasoning)):
             resp.rate = float(mat.group(1))

@@ -25,7 +25,7 @@ AnyLocale: TypeAlias = str | tuple[str | str | None, ...]
 
 class Language(Enumeration):
     """Enumeration to wrap all standard languages.
-    Ref:. https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html
+    Reference: https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html
     """
 
     # fmt: off
@@ -161,6 +161,7 @@ class Language(Enumeration):
     def of_locale(loc: AnyLocale) -> "Language":
         """Create a Language object based on a locale string or tuple containing the language code and encoding.
         :param loc: The locale to parse.
+        :return: A Language instance corresponding to the provided locale.
         """
         # Replace possible 'loc[:.]charset' values
         loc_enc: tuple = tuple(map(
@@ -181,7 +182,7 @@ class Language(Enumeration):
 
     def __init__(self, locale_str: str, name: str, country: str):
         loc_enc = re.split(r"[:.]", locale_str)
-        self._locale: tuple = loc_enc[0], get_or_default(loc_enc, 1, Charset.UTF_8.val)
+        self._locale: tuple[str, Charset] = loc_enc[0], get_or_default(loc_enc, 1, Charset.UTF_8.val)
         self._name: str = name
         self._country: str = country
         self._encoding: Charset = Charset.of_value(self._locale[1])
@@ -193,57 +194,58 @@ class Language(Enumeration):
         return f"{self.name} '{self.country}' '{str(self.encoding).upper()}'"
 
     @property
-    def locale(self) -> tuple:
+    def locale(self) -> tuple[str, Charset]:
         """Return a tuple containing the locale attributes.
-        E.g:. (en_US, utf-8)
+        :return: A tuple with locale attributes, e.g., (en_US, utf-8).
         """
         return self._locale
 
     @property
     def idiom(self) -> str:
         """Return a string representing the idiom.
-        E.g:. en_US
+        :return: The idiom as a string, e.g., en_US.
         """
         return self._idiom
 
     @property
     def encoding(self) -> Charset:
         """Return the charset (encoding) required for the language to be properly displayed.
-        E.g:. utf-8
+        :return: The charset (encoding), e.g., utf-8.
         """
         return self._encoding
 
     @encoding.setter
     def encoding(self, value: str | Charset) -> None:
         """Set the charset (encoding) required for the language to be properly displayed.
-        E.g:. utf-8
+        :param value: The charset (encoding) as a string or Charset instance, e.g., utf-8.
         """
         self._encoding = value if isinstance(value, Charset) else Charset.of_value(value.casefold())
 
     @property
     def name(self) -> str:
         """Return the language name.
-        E.g:. English
+        :return: The name of the language, e.g., English.
         """
         return self._name
 
     @property
     def country(self) -> str:
         """Return the country where the language is spoken.
-        E.g:. U.S.A.
+        :return: The country where the language is spoken, e.g., U.S.A.
         """
         return self._country
 
     @property
     def language(self) -> str:
         """Return a mnemonic representing the language.
-        E.g:. en
+        :return: The mnemonic representing the language, e.g., en.
         """
         return self._language
 
     @property
     def territory(self) -> str:
         """Return a mnemonic representing the territory (Alpha-2 code).
-        E.g:. US
+        :return: The mnemonic representing the territory, e.g., US.
         """
         return self._territory
+

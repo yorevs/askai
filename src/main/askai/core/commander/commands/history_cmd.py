@@ -29,7 +29,7 @@ class HistoryCmd(ABC):
 
     @staticmethod
     def context_list() -> None:
-        """List the chat context window entries."""
+        """List the entries in the chat context window."""
 
         if (all_context := shared.context) and (length := len(all_context)) > 0:
             display_text(f"### Listing ALL ({length}) Chat Contexts:\n\n---\n\n")
@@ -55,7 +55,7 @@ class HistoryCmd(ABC):
     @staticmethod
     def context_forget(context: str | None = None) -> None:
         """Forget entries pushed to the chat context.
-        :param context: The context key; or none to forget all context.
+        :param context: The context key to forget, or None to forget all context entries.
         """
         if context := context if context != "ALL" else None:
             shared.context.clear(*(re.split(r"[;,|]", context.upper())))
@@ -65,8 +65,8 @@ class HistoryCmd(ABC):
 
     @staticmethod
     def context_copy(name: str | None = None) -> None:
-        """Copy a context entry to the clipboard
-        :param name: The context name.
+        """Copy a context entry to the clipboard.
+        :param name: The name of the context entry to copy. If None, the default context will be copied.
         """
         if (name := name.upper()) in shared.context.keys:
             if (ctx := str(shared.context.flat(name.upper()))) and (

@@ -43,23 +43,27 @@ InputDevice: TypeAlias = tuple[int, str]
 
 
 class Camera(metaclass=Singleton):
-    """Provide an interface to capture WebCam photos."""
+    """Provide an interface to interact with the webcam. This class offers methods for controlling and accessing the
+    webcam's functionality, ensuring that only one instance interacts with the hardware at a time.
+    """
 
     INSTANCE: "Camera"
 
     RESOURCE_DIR: Path = classpath.resource_path()
 
+    # Face-Detection algorithm to be used
     ALG: str = configs.face_detect_alg
 
     @staticmethod
     def _countdown(count: int) -> None:
-        """Display a countdown before taking a photo."""
+        """Display a countdown before taking a photo.
+        :param count: The number of seconds for the countdown.
+        """
         if i := count:
             events.reply.emit(message=msg.smile(i))
-            while i:
+            while i := (i - 1):
                 events.reply.emit(message=msg.smile(i), erase_last=True)
                 pause.seconds(1)
-                i -= 1
 
     def __init__(self):
         self._cam = None
@@ -88,7 +92,13 @@ class Camera(metaclass=Singleton):
     def capture(
         self, filename: AnyPath, countdown: int = 3, with_caption: bool = True, store_image: bool = True
     ) -> Optional[tuple[ImageFile, ImageData]]:
-        """Capture a WebCam frame (take a photo)."""
+        """Capture a webcam frame (take a photo).
+        :param filename: The file name for the capturing image.
+        :param countdown: The number of seconds for the countdown before capturing the photo (default is 3).
+        :param with_caption: Whether to generate a caption for the captured image (default is True).
+        :param store_image: Whether to save the captured image to the image store (default is True).
+        :return: A tuple containing the image file and image data, or None if the capture fails.
+        """
 
         self.initialize()
 
@@ -122,7 +132,13 @@ class Camera(metaclass=Singleton):
     def detect_faces(
         self, photo: ImageData, filename: AnyPath = None, with_caption: bool = True, store_image: bool = True
     ) -> tuple[list[ImageFile], list[ImageData]]:
-        """Detect all faces in the photo."""
+        """Detect all faces in the provided photo.
+        :param photo: The image data in which to detect faces.
+        :param filename: The file name for the detected face image.(optional).
+        :param with_caption: Whether to generate captions for the detected faces (default is True).
+        :param store_image: Whether to save the processed images to the image store (default is True).
+        :return: A tuple containing a list of image files and a list of image data for the detected faces.
+        """
 
         face_files: list[ImageFile] = []
         face_datas: list[ImageData] = []
@@ -157,11 +173,16 @@ class Camera(metaclass=Singleton):
         return face_files, face_datas
 
     def identify(self, countdown: int = 0, max_distance: float = configs.max_id_distance) -> Optional[ImageMetadata]:
-        """Identify the person in front of the WebCam."""
-
+        """Identify the person in front of the webcam.
+        :param countdown: The number of seconds for the countdown before capturing an identification the photo
+                          (default is 0).
+        :param max_distance: The maximum allowable distance for face recognition accuracy (default is
+                          configs.max_id_distance).
+        :return: Metadata about the identified person, or None if identification fails.
+        """
         _, photo = self.capture("ASKAI-ID", countdown, False, False)
         _ = self.detect_faces(photo, "ASKAI-ID", False, False)
-        result = list(filter(lambda p: p.distance <= max_distance, store.search_face(photo)))
+        result = list(filter(lambda p: p.distance <= max_distance, store.find_by_similarity(photo)))
         id_data: ImageMetadata = next(iter(result), None)
         log.info("WebCam identification request: %s", id_data or "<No-One>")
 
@@ -170,7 +191,13 @@ class Camera(metaclass=Singleton):
     def import_images(
         self, pathname: AnyPath, detect_faces: bool = False, with_caption: bool = True, store_image: bool = True
     ) -> tuple[int, ...]:
-        """Import image files into the image collection."""
+        """Import image files into the image collection.
+        :param pathname: The path or glob pattern of the images to be imported.
+        :param detect_faces: Whether to detect faces in the imported images (default is False).
+        :param with_caption: Whether to generate captions for the imported images (default is True).
+        :param store_image: Whether to save the processed images to the image store (default is True).
+        :return: A tuple containing the number of images successfully imported, and the number of detected faces.
+        """
 
         img_datas: list[ImageData] = []
         img_files: list[ImageFile] = []

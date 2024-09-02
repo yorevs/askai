@@ -37,7 +37,10 @@ class SettingsCmd(ABC):
 
     @staticmethod
     def set(name: str, value: Any) -> None:
-        """Set a setting value."""
+        """Set a setting value.
+        :param name: The name of the setting to update or create.
+        :param value: The value to assign to the setting.
+        """
         all_settings = settings.settings.search()
         if name.isdecimal() and 0 <= int(name) <= len(all_settings):
             name = all_settings[int(name)].name
@@ -49,7 +52,10 @@ class SettingsCmd(ABC):
 
     @staticmethod
     def get(key: str) -> Optional[SettingsEntry]:
-        """Get the setting specified by key."""
+        """Retrieve the setting specified by the key.
+        :param key: The key of the setting to retrieve.
+        :return: The corresponding SettingsEntry if found, otherwise None.
+        """
         if ss := settings[key]:
             text_formatter.cmd_print(f"%WHITE%Name: %BLUE%{ss.name}\t%WHITE%Value: %GREEN%{ss.value}%NC%")
             return ss
@@ -58,7 +64,7 @@ class SettingsCmd(ABC):
 
     @staticmethod
     def reset() -> None:
-        """Reset settings to the defaults."""
+        """Reset all settings to their default values."""
         settings.defaults()
         # Include the current audio input.
         settings.put("askai.recorder.devices", recorder.input_device[1] or "")

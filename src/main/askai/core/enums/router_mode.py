@@ -41,12 +41,16 @@ class RouterMode(Enumeration):
 
     @classmethod
     def modes(cls) -> list[str]:
-        """Return a list containing al available agent modes."""
+        """Return a list containing all available agent modes.
+        :return: A list of available agent modes as strings.
+        """
         return RouterMode.names()
 
     @staticmethod
     def default() -> 'RouterMode':
-        """Return the default routing mode."""
+        """Return the default routing mode.
+        :return: The default RouterMode instance.
+        """
         return RouterMode.TASK_SPLIT if configs.is_interactive else RouterMode.QSTRING
 
     @classmethod

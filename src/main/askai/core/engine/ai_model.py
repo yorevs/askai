@@ -19,9 +19,14 @@ class AIModel(Protocol):
     """Provide an interface for AI models."""
 
     def model_name(self) -> str:
-        """Get the official model's name."""
+        """Get the official model's name.
+        :return: The name of the model.
+        """
         ...
 
     def token_limit(self) -> int:
-        """Get the official model tokens limit."""
+        """Get the official model's token limit.
+        :return: The token limit of the model.
+        """
         ...
+

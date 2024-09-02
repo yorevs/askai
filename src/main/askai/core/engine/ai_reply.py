@@ -18,10 +18,11 @@ from dataclasses import dataclass
 
 @dataclass
 class AIReply:
-    """Data class that represent AI replies."""
+    """Data class that represents AI replies."""
 
-    message: str = None
-    is_success: bool = None
+    message: str = ""
+    is_success: bool = False
 
-    def __str__(self):
-        return f"Success = {self.is_success}  \nMessage = {self.message}"
+    def __str__(self) -> str:
+        return f"Success = {self.is_success}\nMessage = {self.message}"
+

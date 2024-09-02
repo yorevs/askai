@@ -19,13 +19,14 @@ from typing import List
 
 
 class OpenAIModel(Enumeration):
-    """Enumeration for the supported OpenAi models. Implements the AIModel protocol.
-    Details at: https://www.pluralsight.com/resources/blog/data/ai-gpt-models-differences
+    """Enumeration for the supported OpenAI models. This class implements the AIModel protocol.
+    Reference: https://www.pluralsight.com/resources/blog/data/ai-gpt-models-differences
     """
 
     # ID of the model to use. Currently, only the values below are supported:
 
     # fmt: off
+
     GPT_3_5_TURBO           = "gpt-3.5-turbo", 4096
     GPT_3_5_TURBO_16K       = "gpt-3.5-turbo-16k", 16385
     GPT_3_5_TURBO_1106      = "gpt-3.5-turbo-1106", 16385
@@ -42,14 +43,22 @@ class OpenAIModel(Enumeration):
     GPT_4_32K_0613          = "gpt-4-32k-0613", 32768
     GPT_4_1106_PREVIEW      = "gpt-4-1106-preview", 128000
     GPT_4_VISION_PREVIEW    = "gpt-4-vision-preview", 128000
+
     # fmt: on
 
     @staticmethod
     def models() -> List["AIModel"]:
+        """Get the list of available models for the engine.
+        :return: A list of available AI models.
+        """
         return [OpenAIModel.of_value(m) for m in OpenAIModel.values()]
 
     @staticmethod
     def of_name(model_name: str) -> "AIModel":
+        """Get the AIModel instance corresponding to the given model name.
+        :param model_name: The name of the AI model.
+        :return: The corresponding AIModel instance.
+        """
         found = next((m for m in OpenAIModel.models() if m.model_name() == model_name.casefold()), None)
         check_not_none(found, '"{}" name does not correspond to a valid "{}" enum', model_name, OpenAIModel.__name__)
         return found

@@ -25,7 +25,10 @@ import threading
 
 
 class Scheduler(Thread, metaclass=Singleton):
-    """Provide a scheduler class."""
+    """A singleton scheduler class for managing and executing scheduled tasks.
+    Inherits from:
+        - Thread: Allows the scheduler to run tasks in a separate thread.
+    """
 
     INSTANCE: "Scheduler"
 
@@ -39,22 +42,38 @@ class Scheduler(Thread, metaclass=Singleton):
 
     @staticmethod
     def every(interval_ms: int, delay_ms: int):
-        """Decorate a function to be run every `interval_ms` seconds. Can't be used to decorate instance
-        methods (with self). For that use the `set_interval` method."""
-
+        """Decorator to schedule a function to be run periodically. The decorated function will be executed every
+        `interval_ms` milliseconds, with an initial delay of `delay_ms` milliseconds before the first execution.
+        Note:
+            - This decorator cannot be used for instance methods (methods with `self`).
+            - For scheduling instance methods, use the `set_interval` method.
+        :param interval_ms: The interval in milliseconds between consecutive executions of the decorated function.
+        :param delay_ms: The initial delay in milliseconds before the first execution of the decorated function.
+        :return: The decorated function.
+        """
         def every_wrapper(func: Callable, *fargs, **fkwargs):
-            """every wrapper"""
+            """'every' function wrapper."""
             return scheduler.set_interval(interval_ms, func, delay_ms, *fargs, **fkwargs)
 
         return every_wrapper
 
     @staticmethod
     def at(hour: int, minute: int, second: int, millis: int):
-        """Decorate a function to run at a specific time. Can't be used to decorate instance
-        methods (with self). For that use the `schedule` method."""
+        """Decorator to schedule a function to be run periodically at a specific time each day. This decorator
+        schedules the decorated function to execute at the given hour, minute, second, and millisecond every day. It is
+        useful for tasks that need to be performed at a specific time daily.
+        Note:
+            - This decorator cannot be used to decorate instance methods (with `self`). For instance methods,
+              use the `schedule` method.
+        :param hour: The hour of the day (0-23) when the function should run.
+        :param minute: The minute of the hour (0-59) when the function should run.
+        :param second: The second of the minute (0-59) when the function should run.
+        :param millis: The millisecond of the second (0-999) when the function should run.
+        :return: A decorator that schedules the function to run at the specified time.
+        """
 
         def at_wrapper(func: Callable, *fargs, **fkwargs):
-            """at wrapper"""
+            """'at' function wrapper."""
             return scheduler.schedule(hour, minute, second, millis, func, *fargs, **fkwargs)
 
         return at_wrapper
@@ -81,21 +100,26 @@ class Scheduler(Thread, metaclass=Singleton):
         cb_fn_args: Iterable | None = None,
         cb_fn_kwargs: Mapping[str, Any] | None = None,
     ) -> None:
-        """Schedule a task to run at specific time in future.
-        :param hh: The hour of the day.
-        :param mm: The minute of the day.
-        :param ss: The seconds of the day.
-        :param us: The microseconds of the day.
-        :param callback: The callback function.
-        :param cb_fn_args: The arguments of the callback function.
-        :param cb_fn_kwargs: The keyword arguments of the callback function.
+        """Schedule a task to run at a specific time in the future. This method schedules the provided callback
+        function to execute at the specified hour, minute, second, and microsecond on the current day. The function
+        will be invoked with the specified arguments and keyword arguments.
+        :param hh: The hour of the day (0-23) when the task should run.
+        :param mm: The minute of the hour (0-59) when the task should run.
+        :param ss: The second of the minute (0-59) when the task should run.
+        :param us: The microsecond of the second (0-999999) when the task should run.
+        :param callback: The callback function to be executed at the scheduled time.
+        :param cb_fn_args: The positional arguments to pass to the callback function. Defaults to None.
+        :param cb_fn_kwargs: The keyword arguments to pass to the callback function. Defaults to None.
         """
         run_at: datetime = self._today.replace(day=self._today.day, hour=hh, minute=mm, second=ss, microsecond=us)
         delta_t: timedelta = run_at - self._today
         check_argument(delta_t.total_seconds() > 0, ">> Time is in the past <<")
         secs: float = max(0, delta_t.seconds) + 1
 
-        def __timer():
+        def _call_it_back():
+            """Continuously checks if the scheduled time has been reached and executes the callback function. The
+            method uses a 100ms pause between checks to avoid excessive CPU usage.
+            """
             while not self._done and threading.main_thread().is_alive():
                 elapsed = monotonic() - self._start_time
                 if elapsed >= secs:
@@ -105,7 +129,7 @@ class Scheduler(Thread, metaclass=Singleton):
                     return
                 pause.milliseconds(100)
 
-        self._threads.append(Thread(name=f"Scheduled-{callback.__name__}", target=__timer))
+        self._threads.append(Thread(name=f"Schedule-{callback.__name__}", target=_call_it_back))
 
     def set_interval(
         self,
@@ -115,15 +139,19 @@ class Scheduler(Thread, metaclass=Singleton):
         cb_fn_args: Iterable | None = None,
         cb_fn_kwargs: Mapping[str, Any] | None = None,
     ) -> None:
-        """Schedule a task to run every interval in milliseconds.
-        :param interval_ms: The interval in milliseconds, to invoke the callback function.
-        :param callback: The callback function.
-        :param delay_ms: The initial delay before start invoking.
-        :param cb_fn_args: The arguments of the callback function.
-        :param cb_fn_kwargs: The keyword arguments of the callback function.
+        """Schedule a function to be run periodically at a specified interval (in milliseconds). This method schedules
+        the given callback function to be invoked repeatedly at the specified interval in milliseconds. The function
+        will be initially delayed by the specified amount of milliseconds before the first invocation.
+        :param interval_ms: The interval in milliseconds between each invocation of the callback function.
+        :param callback: The callback function to be invoked periodically.
+        :param delay_ms: The initial delay in milliseconds before starting the periodic invocations.
+        :param cb_fn_args: The arguments to pass to the callback function.
+        :param cb_fn_kwargs: The keyword arguments to pass to the callback function.
         """
-
-        def __task():
+        def _call_it_back():
+            """Internal method to repeatedly invoke the callback function at specified intervals. It uses the
+            `pause.milliseconds()` method to handle the waiting periods between each invocation.
+            """
             if delay_ms > 0:
                 pause.milliseconds(interval_ms)
             while not self._done and threading.main_thread().is_alive():
@@ -132,7 +160,7 @@ class Scheduler(Thread, metaclass=Singleton):
                 callback(*args, **xargs)
                 pause.milliseconds(interval_ms)
 
-        self._threads.append(Thread(name=f"Interval-{callback.__name__}", target=__task))
+        self._threads.append(Thread(name=f"SetInterval-{callback.__name__}", target=_call_it_back))
 
 
 assert (scheduler := Scheduler().INSTANCE) is not None

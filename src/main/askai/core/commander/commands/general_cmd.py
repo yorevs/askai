@@ -34,7 +34,7 @@ class GeneralCmd(ABC):
     @staticmethod
     def execute(cmd_line: str | None = None) -> None:
         """Execute a terminal command.
-        :param cmd_line The command line to execute.
+        :param cmd_line: The command line to execute (optional).
         """
         output, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
         if exit_code == ExitStatus.SUCCESS:
@@ -44,9 +44,9 @@ class GeneralCmd(ABC):
 
     @staticmethod
     def summarize(folder: str, glob: str) -> None:
-        """Generate a summarization of the folder contents.
-        :param folder: The base folder of the summarization.
-        :param glob: The glob pattern or file of the summarization.
+        """Generate a summarization of files and folder contents.
+        :param folder: The base folder from which the summarization will be generated.
+        :param glob: The glob pattern specifying which files or folders to include in the summarization.
         """
         sum_dir: PathObject = PathObject.of(folder)
         if os.path.exists(sum_dir.abs_dir):
@@ -80,9 +80,9 @@ class GeneralCmd(ABC):
 
     @staticmethod
     def translate(from_lang: Language, to_lang: Language, *texts: str) -> None:
-        """Translate a text from the source language to the target language.
-        :param from_lang: The source idiom.
-        :param to_lang: The target idiom.
+        """Translate text from the source language to the target language.
+        :param from_lang: The source language.
+        :param to_lang: The target language.
         :param texts: The texts to be translated.
         """
         translator = AskAiMessages.get_translator(from_lang, to_lang)

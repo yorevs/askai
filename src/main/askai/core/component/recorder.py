@@ -12,6 +12,22 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import operator
+import sys
+from pathlib import Path
+from typing import Callable, Optional, TypeAlias
+
+import pause
+from clitt.core.tui.mselect.mselect import mselect
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.classpath import AnyPath
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_argument, check_state
+from hspylib.core.zoned_datetime import now_ms
+from hspylib.modules.application.exit_status import ExitStatus
+from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -20,30 +36,19 @@ from askai.core.component.scheduler import Scheduler
 from askai.core.support.utilities import display_text, seconds
 from askai.exception.exceptions import InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
-from clitt.core.tui.mselect.mselect import mselect
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_argument, check_state
-from hspylib.core.zoned_datetime import now_ms
-from hspylib.modules.application.exit_status import ExitStatus
-from pathlib import Path
-from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
-from typing import Callable, Optional, TypeAlias
-
-import logging as log
-import operator
-import pause
-import sys
 
 InputDevice: TypeAlias = tuple[int, str]
 
 
 class Recorder(metaclass=Singleton):
-    """Provide an interface to record voice using the microphone device."""
+    """Provide an interface to record voice using the microphone device. This class offers methods to capture and
+    manage audio recordings, ensuring that only one instance interacts with the microphone at a time.
+    """
 
     INSTANCE: "Recorder"
 
     class RecognitionApi(Enumeration):
+        """Available voice recognition APIs."""
         # fmt: off
         OPEN_AI = 'recognize_whisper'
         GOOGLE = 'recognize_google'
@@ -51,8 +56,10 @@ class Recorder(metaclass=Singleton):
 
     @classmethod
     def get_device_list(cls) -> list[InputDevice]:
-        """Return a list of available devices."""
-        devices = []
+        """Return a list of available audio input devices.
+        :return: A list of InputDevice objects representing the available microphone devices.
+        """
+        devices = list()
         for index, name in enumerate(Microphone.list_microphone_names()):
             devices.append((index, name))
         return devices
@@ -65,7 +72,7 @@ class Recorder(metaclass=Singleton):
         self._old_device = None
 
     def setup(self) -> None:
-        """Setup the recorder."""
+        """Setup the microphone recorder."""
         self._devices = self.get_device_list()
         log.debug("Available audio devices:\n%s", "\n".join([f"{d[0]} - {d[1]}" for d in self._devices]))
         self._select_device()
@@ -73,7 +80,9 @@ class Recorder(metaclass=Singleton):
     @staticmethod
     @Scheduler.every(3000, 5000)
     def __device_watcher() -> None:
-        """Watch for audio input devices being plugged/unplugged."""
+        """Monitor audio input devices for being plugged in or unplugged. This method periodically checks the status of
+        audio input devices to detect any changes.
+        """
         if recorder.is_auto_swap and recorder.devices:
             new_list = recorder.get_device_list()
             new_list.sort(key=operator.itemgetter(1))
@@ -113,8 +122,9 @@ class Recorder(metaclass=Singleton):
         return configs.recorder_input_device_auto_swap
 
     def set_device(self, device: InputDevice) -> bool:
-        """Test and set the specified device as current.
-        :param device: rge device to set.
+        """Test and set the specified device as the current audio input device.
+        :param device: The audio input device to be set as the current device.
+        :return: True if the device was successfully set, False otherwise.
         """
         check_argument(device and isinstance(device, tuple), f"Invalid device: {device} -> {type(device)}")
         if ret := self.test_device(device[0]):
@@ -126,22 +136,26 @@ class Recorder(metaclass=Singleton):
         return ret
 
     def is_headphones(self) -> bool:
-        """Whether the device is set is a headphone. This is a simplistic way of detecting it, bit it has been
-        working so far."""
+        """Check if the currently set audio input device is a headphone. This is a simplistic method of detection, but
+        it has been effective in practice.
+        :return: True if the device is detected as a headphone, False otherwise.
+        """
         return self.input_device is not None and self.input_device[0] > 1
 
     def listen(
         self,
-        recognition_api: RecognitionApi = RecognitionApi.GOOGLE,  # FIXME Should default to OpenAI (SIGSEGV error)
+        recognition_api: RecognitionApi = RecognitionApi.GOOGLE,
         language: Language = Language.EN_US,
     ) -> tuple[Path, Optional[str]]:
-        """listen to the microphone, save the AudioData as a wav file and then, transcribe the speech.
-        :param recognition_api: the API to be used to recognize the speech.
-        :param language: the spoken language.
+        """Listen to the microphone, save the recorded audio as a WAV file, and transcribe the speech.
+        :param recognition_api: The API to use for recognizing the speech. Defaults to GOOGLE.
+        :param language: The spoken language. Defaults to EN_US.
+        :return: A tuple containing the path to the saved audio file and the transcribed text.
+                 If transcription fails, the second element of the tuple will be None.
         """
-        audio_path = Path(f"{REC_DIR}/askai-stt-{now_ms()}.wav")
         with Microphone(device_index=self._device_index) as mic_source:
             try:
+                audio_path = Path(f"{REC_DIR}/askai-stt-{now_ms()}.wav")
                 self._detect_noise()
                 events.listening.emit()
                 audio: AudioData = self._rec.listen(
@@ -170,10 +184,16 @@ class Recorder(metaclass=Singleton):
         return audio_path, stt_text
 
     def _write_audio_file(
-        self, audio: AudioData, audio_path: str | Path, language: Language, recognition_api: RecognitionApi
+        self, audio: AudioData, audio_path: AnyPath, language: Language, recognition_api: RecognitionApi
     ) -> Optional[str]:
-        """Write the audio file into disk."""
-
+        """Write the provided audio data to disk as a file and transcribe the contents into text using the specified
+        recognition API.
+        :param audio: The audio data to be saved.
+        :param audio_path: The path where the audio file will be saved.
+        :param language: The language of the spoken content in the audio.
+        :param recognition_api: The API used for speech recognition.
+        :return: The transcribed text from the audio file. If transcription fails, returns None.
+        """
         with open(str(audio_path), "wb") as f_rec:
             f_rec.write(audio.get_wav_data())
             log.debug("Voice recorded and saved as %s", audio_path)
@@ -183,12 +203,13 @@ class Recorder(metaclass=Singleton):
                 assert isinstance(api, Callable)
                 return api(audio, language=language.language)
             else:
-                raise InvalidRecognitionApiError(str(recognition_api or "<none>"))
+                raise InvalidRecognitionApiError(str(recognition_api) or "<stt-error>")
         return None
 
     def test_device(self, idx: int) -> bool:
-        """Test whether the input device specified by index can be used as an STT input.
+        """Test whether the input device specified by the given index can be used for speech-to-text (STT) input.
         :param idx: The index of the device to be tested.
+        :return: True if the device at the specified index is suitable for STT, otherwise False.
         """
         log.debug(f"Testing audio input device at index: '%d'", idx)
         test_timeout, test_phrase_limit = 0.3, 0.3
@@ -196,7 +217,7 @@ class Recorder(metaclass=Singleton):
             with Microphone(device_index=idx) as source:
                 self._rec.listen(source, timeout=test_timeout, phrase_time_limit=test_phrase_limit)
                 return True
-        except WaitTimeoutError:
+        except WaitTimeoutError:  # We do expect a T/O error due to lack of audio input.
             log.info(f"Device at index: '%d' is functional!", idx)
             return True
         except (AssertionError, AttributeError):
@@ -217,7 +238,7 @@ class Recorder(metaclass=Singleton):
                 events.reply_error.emit(message=err_msg, erase_last=True)
 
     def _select_device(self) -> None:
-        """Select device for recording."""
+        """Select a device for recording."""
         available: list[str] = list(filter(lambda d: d, map(str.strip, configs.recorder_devices)))
         device: InputDevice | None = None
         devices: list[InputDevice] = list(reversed(self.devices))

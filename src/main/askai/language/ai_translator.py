@@ -24,11 +24,14 @@ class AITranslator(ABC):
         self._to_idiom: Language = to_idiom
 
     def translate(self, text: str) -> str:
-        """Translate text using te default translator.
+        """Translate text using the default translator.
         :param text: Text to translate.
+        :return: The translated text.
         """
         ...
 
     def name(self) -> str:
-        """Return the translator name or model."""
+        """Return the translator name or model.
+        :return: The name or model of the translator.
+        """
         ...

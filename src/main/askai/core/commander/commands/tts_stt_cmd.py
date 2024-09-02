@@ -40,34 +40,40 @@ class TtsSttCmd(ABC):
         )
 
     @staticmethod
-    def voice_set(name: str | int | None = None) -> None:
-        """Set the specified engine's voice."""
+    def voice_set(name_or_index: str | int | None = None) -> None:
+        """Set the specified voice for the current engine.
+        :param name_or_index: The name or index of the voice to set. If None, the default voice will be used.
+        """
         all_voices = shared.engine.voices()
-        if name.isdecimal() and 0 <= int(name) <= len(all_voices):
-            name = all_voices[int(name)]
-        if name in all_voices:
-            settings.put("openai.text.to.speech.voice", name)
-            shared.engine.configs().tts_voice = name
-            text_formatter.cmd_print(f"`Speech-To-Text` voice changed to %GREEN%{name.title()}%NC%")
+        if name_or_index.isdecimal() and 0 <= int(name_or_index) <= len(all_voices):
+            name_or_index = all_voices[int(name_or_index)]
+        if name_or_index in all_voices:
+            settings.put("openai.text.to.speech.voice", name_or_index)
+            shared.engine.configs().tts_voice = name_or_index
+            text_formatter.cmd_print(f"`Speech-To-Text` voice changed to %GREEN%{name_or_index.title()}%NC%")
         else:
-            text_formatter.cmd_print(f"%RED%Invalid voice: '{name}'%NC%")
+            text_formatter.cmd_print(f"%RED%Invalid voice: '{name_or_index}'%NC%")
 
     @staticmethod
-    def voice_play(name: str | int | None = None) -> None:
-        """Play a sample using the specified voice."""
+    def voice_play(name_or_index: str | int | None = None) -> None:
+        """Play a sample using the specified voice.
+        :param name_or_index: The name or index of the voice to use for the sample. If None, the default voice will be used.
+        """
         all_voices = shared.engine.voices()
         ai_name = shared.engine.ai_name().lower().replace("engine", "")
-        if name.isdecimal() and 0 <= int(name) <= len(all_voices):
-            name = all_voices[int(name)]
-        if name in all_voices:
-            text_formatter.cmd_print(f"Sampling voice `{name}` …")
-            player.play_sfx(f"voices/{ai_name}-{name}-sample")
+        if name_or_index.isdecimal() and 0 <= int(name_or_index) <= len(all_voices):
+            name_or_index = all_voices[int(name_or_index)]
+        if name_or_index in all_voices:
+            text_formatter.cmd_print(f"Sampling voice `{name_or_index}` …")
+            player.play_sfx(f"voices/{ai_name}-{name_or_index}-sample")
         else:
-            text_formatter.cmd_print(f"%RED%Invalid voice: '{name}'%NC%")
+            text_formatter.cmd_print(f"%RED%Invalid voice: '{name_or_index}'%NC%")
 
     @staticmethod
     def tempo(speed: int | None = None) -> None:
-        """Set the playing speed of the speech."""
+        """Set the playing speed of the speech.
+        :param speed: The speed to set for speech playback. If None, the default speed will be used.
+        """
         if not speed:
             settings.get("askai.text.to.speech.tempo")
         elif 1 <= speed <= 3:
@@ -90,22 +96,29 @@ class TtsSttCmd(ABC):
         )
 
     @staticmethod
-    def device_set(name: str | int | None = None) -> None:
-        """Set the current audio input device."""
+    def device_set(name_or_index: str | int | None = None) -> None:
+        """Set the current audio input device.
+        :param name_or_index: The name or index of the audio input device to set. If None, the default device will be
+                              used.
+        """
         all_devices = recorder.devices
-        if name.isdecimal() and 0 <= int(name) <= len(all_devices):
-            name = all_devices[int(name)][1]
-        if device := next((dev for dev in all_devices if dev[1] == name), None):
+        if name_or_index.isdecimal() and 0 <= int(name_or_index) <= len(all_devices):
+            name_or_index = all_devices[int(name_or_index)][1]
+        if device := next((dev for dev in all_devices if dev[1] == name_or_index), None):
             if recorder.set_device(device):
                 text_formatter.cmd_print(f"`Text-To-Speech` device changed to %GREEN%{device[1]}%NC%")
             else:
-                text_formatter.cmd_print(f"%RED%Device: '{name}' failed to initialize!%NC%")
+                text_formatter.cmd_print(f"%RED%Device: '{name_or_index}' failed to initialize!%NC%")
         else:
-            text_formatter.cmd_print(f"%RED%Invalid audio input device: '{name}'%NC%")
+            text_formatter.cmd_print(f"%RED%Invalid audio input device: '{name_or_index}'%NC%")
 
     @staticmethod
     def tts(text: str, dest_dir: str = os.getcwd(), playback: bool = True) -> None:
-        """Convert a text to speech."""
+        """Convert text to speech and optionally play it back.
+        :param text: The text to be converted to speech.
+        :param dest_dir: The directory where the audio file will be saved (default is the current working directory).
+        :param playback: Whether to play back the generated speech after conversion (default is True).
+        """
         if (audio_path := shared.engine.text_to_speech(text, stream=False, playback=playback)) and audio_path.exists():
             if dest_dir and ((dest_path := Path(dest_dir)) and dest_path.exists()):
                 audio_path = copy_file(audio_path, dest_dir)

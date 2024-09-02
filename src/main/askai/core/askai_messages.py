@@ -51,7 +51,10 @@ class AskAiMessages(metaclass=Singleton):
 
     @lru_cache(maxsize=256)
     def translate(self, text: str) -> str:
-        """Translate text using the configured language."""
+        """Translate text using the configured language.
+        :param text: The text to be translated.
+        :return: The translated text.
+        """
         # Avoid translating debug messages.
         if re.match(r"^~~\[DEBUG]~~.*", text, flags=re.IGNORECASE | re.MULTILINE):
             return text
@@ -156,6 +159,9 @@ class AskAiMessages(metaclass=Singleton):
 
     def no_caption(self) -> str:
         return "No caption available"
+
+    def no_good_result(self) -> str:
+        return "The search did not bring any good result"
 
     # Warnings and alerts
 

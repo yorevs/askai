@@ -42,24 +42,32 @@ ImageMetadata = namedtuple("ImageMetadata", ["caption", "data", "uri", "distance
 
 
 class ImageStore(metaclass=Singleton):
-    """Provide an interface to capture WebCam photos."""
+    """Provide an interface to store, retrieve, locate, and vectorize images. This class manages the storage and
+    retrieval of images, as well as their localization and vectorization for various applications.
+    """
 
     INSTANCE: "ImageStore"
 
-    COLLECTION_NAME: str = "image_store"
+    # fmt: off
 
-    PHOTO_CATEGORY: str = "photos"
+    COLLECTION_NAME: str    = "image_store"
 
-    FACE_CATEGORY: str = "faces"
+    PHOTO_CATEGORY: str     = "photos"
 
-    IMPORTS_CATEGORY: str = "imports"
+    FACE_CATEGORY: str      = "faces"
+
+    IMPORTS_CATEGORY: str   = "imports"
+
+    # fmt: on
 
     @staticmethod
     def sync_folders(with_caption: bool = False, *dirs: AnyPath) -> list[ImageFile]:
         """Load image files from the specified directories."""
 
         def category() -> str:
-            """TODO"""
+            """Determine and return the category based on the directory path.
+            :return: A string representing the category.
+            """
             cat_str: str
             if dir_path == str(cache.PHOTO_DIR):
                 cat_str = store.PHOTO_CATEGORY
@@ -99,12 +107,15 @@ class ImageStore(metaclass=Singleton):
     def enlist(self) -> Optional[list[str]]:
         return [str(mt).replace("'", '"') for mt in self.metadatas]
 
-    def store_image(self, *face_files: ImageFile) -> int:
-        """Add the faces into the image store collection."""
-
-        if face_files:
-            img_ids = [ff.img_id for ff in face_files]
-            img_uris = [ff.img_path for ff in face_files]
+    def store_image(self, *image_files: ImageFile) -> int:
+        """Add the provided images to the image store collection.
+        :param image_files: One or more ImageFile objects representing the images to be stored.
+        :return: The number of images successfully added to the store.
+        """
+        img_ids: list[str] = list()
+        if image_files:
+            img_ids.extend([ff.img_id for ff in image_files])
+            img_uris = [ff.img_path for ff in image_files]
             img_metas = [
                 {
                     "img_id": ff.img_id,
@@ -112,25 +123,26 @@ class ImageStore(metaclass=Singleton):
                     "img_category": ff.img_category,
                     "img_caption": ff.img_caption,
                 }
-                for ff in face_files
+                for ff in image_files
             ]
             self._img_collection.add(ids=img_ids, uris=img_uris, metadatas=img_metas)
-            log.info("Face collection increased to: '%d' !", self._img_collection.count())
+            log.info("Image collection increased to: '%d' !", self._img_collection.count())
 
-        return self._img_collection.count()
+        return len(img_ids)
 
     def clear_store(self) -> None:
         """Clear the image store collection."""
-
         log.info("Clearing image store collection: '%s'", self.COLLECTION_NAME)
         self._db_client.delete_collection(self.COLLECTION_NAME)
         self._img_collection = self._db_client.get_or_create_collection(
             self.COLLECTION_NAME, embedding_function=OpenCLIPEmbeddingFunction(), data_loader=ImageLoader()
         )
 
-    def sync_store(self, with_caption: bool = False) -> int:
-        """Synchronize image store collection with the picture folder."""
-
+    def sync_store(self, re_caption: bool = False) -> int:
+        """Synchronize the image store collection with the cached pictures folder.
+         :param re_caption: Whether to regenerate captions for the images during synchronization (default is False).
+         :return: The number of images synchronized with the store.
+         """
         log.info(
             "Synchronizing image store folders: '%s', '%s' and '%s'",
             cache.PHOTO_DIR,
@@ -139,33 +151,54 @@ class ImageStore(metaclass=Singleton):
         )
         self.clear_store()
         img_files: list[ImageFile] = self.sync_folders(
-            with_caption, cache.PHOTO_DIR, cache.FACE_DIR, cache.IMG_IMPORTS_DIR
+            re_caption, cache.PHOTO_DIR, cache.FACE_DIR, cache.IMG_IMPORTS_DIR
         )
         self.store_image(*img_files)
 
         return len(img_files)
 
-    def query_image(self, query: str, max_results: int = 1) -> list[ImageMetadata]:
-        """Query for a photo matching the query."""
-        return self.search_image(query, [self.PHOTO_CATEGORY, self.IMPORTS_CATEGORY], max_results)
+    def query_image(self, description: str, k: int = 3) -> list[ImageMetadata]:
+        """Query the image store for photos matching the provided description.
+        :param description: A text description to match against the stored images.
+        :param k: The maximum number of matching results to return (default is 3).
+        :return: A list of ImageMetadata objects for the photos that match the description.
+        """
+        return self.find_by_description(description, [self.PHOTO_CATEGORY, self.IMPORTS_CATEGORY], k)
 
-    def query_face(self, query: str, max_results: int = 1) -> list[ImageMetadata]:
-        """Query for a face matching the query."""
-        return self.search_image(query, [self.FACE_CATEGORY], max_results)
+    def query_face(self, description: str, k: int = 3) -> list[ImageMetadata]:
+        """Query the image store for faces matching the provided description.
+        :param description: A text description to match against the stored faces.
+        :param k: The maximum number of matching faces to return (default is 1).
+        :return: A list of ImageMetadata objects for the faces that match the description.
+        """
+        return self.find_by_description(description, [self.FACE_CATEGORY], k)
 
-    def search_image(self, query: str, categories: list[str], max_results: int = 1) -> list[ImageMetadata]:
-        """Search for images using natural language."""
-        return self._query(max_results, categories=categories, query_texts=[query])
+    def find_by_description(self, description: str, categories: list[str], k: int = 3) -> list[ImageMetadata]:
+        """Find images using natural language.
+        :param description: A natural language description to match against stored images.
+        :param categories: A list of categories to limit the search within.
+        :param k: The maximum number of matching images to return (default is 3).
+        :return: A list of ImageMetadata objects for the images that match the description and categories.
+        """
+        return self._query(k, categories=categories, query_texts=[description])
 
-    def search_face(self, photo: ImageData, max_results: int = 1) -> list[ImageMetadata]:
-        """Search for faces matching the provided photo using similarity methods."""
-        return self._query(max_results, categories=[self.FACE_CATEGORY], query_images=[photo])
+    def find_by_similarity(self, photo: ImageData, k: int = 3) -> list[ImageMetadata]:
+        """Find images that match the provided photo using similarity methods.
+        :param photo: The ImageData object representing the photo to match against stored faces.
+        :param k: The maximum number of matching faces to return (default is 3).
+        :return: A list of ImageMetadata objects for the faces that match the provided photo.
+        """
+        return self._query(k, categories=[self.FACE_CATEGORY], query_images=[photo])
 
-    def _query(self, max_results: int = 5, **kwargs) -> list[ImageMetadata]:
-        """Query the database for images."""
+    def _query(self, k: int = 5, **kwargs) -> list[ImageMetadata]:
+        """Query the image store collection for entries that match the provided arguments, sorted by distance.
+        :param k: The maximum number of results to return (default is 5).
+        :param kwargs: Additional arguments to filter and refine the query, such as categories or other search parameters.
+        :return: A list of ImageMetadata objects that match the query, sorted by distance.
+        """
         result: list[ImageMetadata] = []
         categories: list[str] = kwargs["categories"] or []
-        filters: dict[str, Any] = self._categories(categories)
+        filters: dict[str, Any] = self._category_filter(categories)
         del kwargs["categories"]
         query_results = self._img_collection.query(
             **kwargs,
@@ -189,10 +222,13 @@ class ImageStore(metaclass=Singleton):
         # Sort by distance
         result.sort(key=lambda img: img[3])
 
-        return result[0:max_results]
+        return result[0:k]
 
-    def _categories(self, categories: list[str]) -> dict[str, Any]:
-        """Build the category filter to query images."""
+    def _category_filter(self, categories: list[str]) -> dict[str, Any]:
+        """Build a ChromaDB category filter for querying images.
+        :param categories: A list of category names to include in the filter.
+        :return: A dictionary representing the category filter to be used in image queries.
+        """
         return (
             {"$or": [{"img_category": cat} for cat in categories]}
             if len(categories) > 1

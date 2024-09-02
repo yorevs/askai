@@ -28,28 +28,29 @@ import pytz
 
 
 class GeoLocation(metaclass=Singleton):
-    """TODO"""
+    """A class for managing and retrieving geographic location data."""
 
     INSTANCE: "GeoLocation"
 
     GEO_LOC_URL: str = "http://ip-api.com/json"
 
-    EMPTY_JSON_RESP: str = dedent(
-        """
+    EMPTY_JSON_RESP: str = dedent("""
     {
         "status": "failure", "country": "", "countryCode": "", "region": "", "regionName": "",
         "city": "", "zip": "", "lat": 0.0, "lon": 0.0, "timezone": "",
         "isp": "", "org": "", "as": "", "query": ""
     }
-    """
-    )
+    """).strip()
 
     # Date format used in prompts, e.g: Fri 22 Mar 19:47 2024.
     DATE_FMT: str = "%a %d %b %-H:%M %Y"
 
     @classmethod
     def get_location(cls, ip: str = None) -> Namespace:
-        """TODO"""
+        """Retrieve the geographic location based on the provided IP address.
+        :param ip: The IP address to locate. If None, the current device's IP address will be used.
+        :return: A Namespace object containing the geolocation data, such as latitude, longitude, city, and country.
+        """
         try:
             url = f"{cls.GEO_LOC_URL}{'/' + ip if ip else ''}"
             log.debug("Fetching the Geo Position from: %s", url)
@@ -57,9 +58,8 @@ class GeoLocation(metaclass=Singleton):
         except (JSONDecodeError, ConnectionError) as err:
             log.error("Failed to retrieve geo location => %s", str(err))
             geo_req = Namespace(body=cls.EMPTY_JSON_RESP)
-        geo_json = json.loads(geo_req.body)
-        geo_location: Namespace = Namespace(**geo_json)
-        return geo_location
+        geo_loc: Namespace = Namespace(**(json.loads(geo_req.body)))
+        return geo_loc
 
     def __init__(self, ip: str = None):
         self._geo_location = self.get_location(ip)

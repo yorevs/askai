@@ -11,12 +11,11 @@ class CameraCmd(ABC):
 
     @staticmethod
     def capture(filename: AnyPath = None, detect_faces: bool = True, countdown: int = 3) -> None:
-        """Take a photo using hte Webcam.
-        :param filename: The filename of the photo taken.
-        :param detect_faces: Whether to detect faces on the photo or not.
-        :param countdown: A countdown to be displayed before the photo is taken.
+        """Take a photo using the webcam.
+        :param filename: The filename to save the photo under (optional).
+        :param detect_faces: Whether to detect faces in the photo (default is True).
+        :param countdown: The countdown in seconds before the photo is taken (default is 3).
         """
-
         if photo := camera.capture(filename, countdown):
             text_formatter.cmd_print(f"Photo taken: %GREEN%{photo[0]}%NC%")
             if detect_faces:
@@ -27,16 +26,17 @@ class CameraCmd(ABC):
 
     @staticmethod
     def identify(max_distance: int = configs.max_id_distance) -> None:
-        """Identify the person in from of the WebCam.
-        :param max_distance: The maximum distance of the face (the lower, the closer to the real face).
+        """Identify the person in front of the webcam.
+        :param max_distance: The maximum allowable distance for face recognition. A lower value means closer matching
+                             to the real face (default is configs.max_id_distance).
         """
         text_formatter.cmd_print(webcam_identifier(max_distance))
 
     @staticmethod
     def import_images(pathname: AnyPath = None, detect_faces: bool = True) -> None:
         """Import image files into the image collection.
-        :param pathname: The pathname or glob to be imported.
-        :param detect_faces: Whether to detect faces on the images or not.
+        :param pathname: The pathname or glob pattern specifying the images to be imported (optional).
+        :param detect_faces: Whether to detect faces in the imported images (default is True).
         """
         imports: tuple[int, ...] = camera.import_images(str(pathname), detect_faces)
         text_formatter.cmd_print(f"`Imports:` {imports[0]}  `Faces:` {imports[1]}")

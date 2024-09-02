@@ -51,11 +51,18 @@ class AskAiPrompt(metaclass=Singleton):
 
     @lru_cache
     def read_prompt(self, template_file: str, prompt_dir: str = None) -> str:
-        """Read a processor prompt template and set its persona."""
+        """Read a processor prompt template and set its persona.
+        :param template_file: The name of the template file to read.
+        :param prompt_dir: Optional directory where the template file is located.
+        :return: The content of the prompt template as a string.
+        """
         return read_resource(prompt_dir or self.PROMPT_DIR, template_file)
 
     def append_path(self, path: str) -> str:
-        """Return the PROMPT_DIR with the extra path appended."""
+        """Return the PROMPT_DIR with the extra path appended.
+        :param path: The path to append to PROMPT_DIR.
+        :return: The concatenated path.
+        """
         return f"{self.PROMPT_DIR}/{path}"
 
 

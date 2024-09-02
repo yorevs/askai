@@ -12,18 +12,19 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.askai_configs import configs
-from askai.core.askai_settings import ASKAI_DIR
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+import re
 from collections import namedtuple
+from pathlib import Path
+from typing import Optional
+
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.tools.text_tools import hash_text
 from hspylib.modules.cache.ttl_cache import TTLCache
-from pathlib import Path
-from typing import Optional, Tuple
 
-import re
+from askai.core.askai_configs import configs
+from askai.core.askai_settings import ASKAI_DIR
 
 # AskAI cache root directory.
 CACHE_DIR: Path = Path(f"{ASKAI_DIR}/cache")
@@ -83,7 +84,10 @@ CacheEntry = namedtuple("CacheEntry", ["key", "expires"])
 
 
 class CacheService(metaclass=Singleton):
-    """Provide a cache service for previously used queries, audio generation, etc..."""
+    """Provide a cache service for previously used queries, audio generation, and other recurring operations. This
+    class is designed to store and retrieve cached data efficiently, reducing the need for repeated processing and
+    enhancing performance.
+    """
 
     INSTANCE: "CacheService"
 
@@ -92,8 +96,6 @@ class CacheService(metaclass=Singleton):
     ASKAI_INPUT_CACHE_KEY: str = "askai-input-history"
 
     ASKAI_CONTEXT_KEY: str = "askai-context-key"
-
-    # ASKAI_CONTEXT
 
     _TTL_CACHE: TTLCache[str] = TTLCache(ttl_minutes=configs.ttl)
 
@@ -105,32 +107,35 @@ class CacheService(metaclass=Singleton):
     def keys(self) -> set[str]:
         return self._cache_keys
 
-    def audio_file_path(self, text: str, voice: str = "onyx", audio_format: str = "mp3") -> Tuple[str, bool]:
-        """Retrieve the hashed audio file path and whether the file exists or not.
-        :param text: Text to be cached. This is the text that the audio is speaking.
-        :param voice: The AI voice used to STT.
-        :param audio_format: The audio file format.
+    def audio_file_path(self, text: str, voice: str = "onyx", audio_format: str = "mp3") -> tuple[str, bool]:
+        """Retrieve the hashed audio file path and determine whether the file already exists.
+        :param text: The text that the audio represents.
+        :param voice: The AI voice used for speech synthesis (default is "onyx").
+        :param audio_format: The audio file format (default is "mp3").
+        :return: A tuple containing the hashed file path as a string and a boolean indicating if the file exists.
         """
         key = f"{text.strip().lower()}-{hash_text(voice)}"
         audio_file_path = f"{str(AUDIO_DIR)}/askai-{hash_text(key)}.{audio_format}"
         return audio_file_path, file_is_not_empty(audio_file_path)
 
     def save_reply(self, text: str, reply: str) -> Optional[str]:
-        """Save a AI reply into the TTL cache.
-        :param text: Text to be cached.
-        :param reply: The reply associated to this text.
+        """Save an AI reply into the TTL (Time-To-Live) cache.
+         :param text: The text to be cached.
+         :param reply: The AI reply associated with this text.
+         :return: The key under which the reply is saved, or None if the save operation fails.
         """
         if configs.is_cache:
             key = text.strip().lower()
             self._TTL_CACHE.save(key, reply)
             self.keys.add(key)
             self._TTL_CACHE.save(self.ASKAI_CACHE_KEYS, ",".join(self._cache_keys))
-            return text
+            return key
         return None
 
     def read_reply(self, text: str) -> Optional[str]:
-        """Read AI replies from TTL cache.
-        :param text: Text to be cached.
+        """Retrieve AI replies from the TTL (Time-To-Live) cache.
+        :param text: The text key to look up in the cache.
+        :return: The cached reply associated with the text, or None if not found.
         """
         if configs.is_cache:
             key = text.strip().lower()
@@ -138,8 +143,9 @@ class CacheService(metaclass=Singleton):
         return None
 
     def del_reply(self, text: str) -> Optional[str]:
-        """Delete AI replies from TTL cache.
-        :param text: Text to be deleted.
+        """Delete an AI reply from the TTL (Time-To-Live) cache.
+        :param text: The text key whose associated reply is to be deleted from the cache.
+        :return: The deleted reply if it existed, or None if no reply was found.
         """
         if configs.is_cache:
             key = text.strip().lower()
@@ -150,31 +156,44 @@ class CacheService(metaclass=Singleton):
         return None
 
     def clear_replies(self) -> list[str]:
-        """Clear all cached replies."""
+        """Clear all cached replies.
+        :return: A list of keys for the replies that were deleted from the cache.
+        """
         return list(map(self.del_reply, sorted(self.keys)))
 
     def read_input_history(self) -> list[str]:
-        """Read the input queries from TTL cache."""
+        """Retrieve line input queries from the TTL (Time-To-Live) cache.
+        :return: A list of input queries stored in the cache.
+        """
         hist_str: str = self._TTL_CACHE.read(self.ASKAI_INPUT_CACHE_KEY)
         return hist_str.split(",") if hist_str else []
 
-    def save_input_history(self, history: list[str] = None) -> None:
-        """Save the line input queries into the TTL cache."""
-        self._TTL_CACHE.save(self.ASKAI_INPUT_CACHE_KEY, ",".join(history or KeyboardInput.history()))
+    def save_input_history(self, history: list[str] = None) -> str:
+        """Save input queries into the TTL (Time-To-Live) cache.
+        :param history: A list of input queries to be saved. If None, the current input history will be saved.
+        :return: The temporary file name of the saved entry.
+        """
+        return self._TTL_CACHE.save(self.ASKAI_INPUT_CACHE_KEY, ",".join(history or KeyboardInput.history()))
 
     def load_input_history(self, predefined: list[str] = None) -> list[str]:
-        """Load the suggester with user input history."""
+        """Load input queries from the TTL (Time-To-Live) cache extending it with a predefined input history.
+        :param predefined: A list of predefined input queries to be appended to the final list.
+        :return: A list of input queries loaded from the cache.
+        """
         history = self.read_input_history()
         if predefined:
             history.extend(list(filter(lambda c: c not in history, predefined)))
         return history
 
     def save_context(self, context: list[str]) -> None:
-        """Save the Context window entries into the TTL cache."""
+        """Save the context window entries into the TTL (Time-To-Live) cache.
+        :param context: A list of context entries to be saved.
+        """
         self._TTL_CACHE.save(self.ASKAI_CONTEXT_KEY, "%EOL%".join(context))
 
     def read_context(self) -> list[str]:
-        """Read the Context window entries from the TTL cache."""
+        """Read the context window entries from the TTL (Time-To-Live) cache.
+        :return: A list of context entries retrieved from the cache."""
         ctx_str: str = self._TTL_CACHE.read(self.ASKAI_CONTEXT_KEY)
         return re.split(r"%EOL%", ctx_str, flags=re.MULTILINE | re.IGNORECASE) if ctx_str else []
 

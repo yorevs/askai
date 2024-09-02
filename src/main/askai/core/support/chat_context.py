@@ -43,6 +43,7 @@ class ChatContext:
         :param context: The initial list of chat context entries.
         :param token_limit: The maximum number of tokens allowed by the active engine's model.
         :param max_context_size: The maximum allowable size of the context (window size).
+        :return: A ChatContext instance created from the provided parameters.
         """
         ctx = ChatContext(token_limit, max_context_size)
         for e in context:
@@ -89,7 +90,6 @@ class ChatContext:
         :param role: The role associated with the message (default is "human").
         :return: The updated chat context.
         """
-
         if (token_length := (self.length(key)) + len(content)) > self._token_limit:
             raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
         if (entry := ContextEntry(role, str(content))) not in (ctx := self._store[key]):

@@ -36,7 +36,7 @@ import tiktoken
 
 
 class OpenAIEngine:
-    """Provide a base class for OpenAI features. Implements the prototype AIEngine."""
+    """Provide a base class for OpenAI features. This class implements the AIEngine protocol."""
 
     def __init__(self, model: AIModel = OpenAIModel.GPT_4_O_MINI):
         super().__init__()
@@ -57,15 +57,32 @@ class OpenAIEngine:
         return self._client
 
     def configs(self) -> OpenAiConfigs:
+        """Return the engine-specific configurations."""
         return self._configs
 
+    def nickname(self) -> str:
+        """Get the AI engine nickname.
+        :return: The nickname of the AI engine.
+        """
+        return "ChatGPT"
+
+    def models(self) -> List[AIModel]:
+        """Get the list of available models for the engine.
+        :return: A list of available AI models.
+        """
+        return OpenAIModel.models()
+
     def voices(self) -> list[str]:
+        """Return the available model voices for speech to text.
+        :return: A list of available voices.
+        """
         return ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
 
     def lc_model(self, temperature: float, top_p: float) -> BaseLLM:
-        """Create an OpenAI LLM model instance.
+        """Create a LangChain LLM model instance using the current AI engine.
         :param temperature: The LLM model temperature.
         :param top_p: The model engine top_p.
+        :return: An instance of BaseLLM.
         """
         return langchain_openai.OpenAI(
             openai_api_key=self._api_key,
@@ -73,8 +90,9 @@ class OpenAIEngine:
             temperature=temperature, top_p=top_p)
 
     def lc_chat_model(self, temperature: float) -> BaseChatModel:
-        """Create an OpenAI chat model instance.
-        param temperature: The LLM chat model temperature.
+        """Create a LangChain LLM chat model instance using the current AI engine.
+        :param temperature: The LLM chat model temperature.
+        :return: An instance of BaseChatModel.
         """
         return langchain_openai.ChatOpenAI(
             openai_api_key=self._api_key,
@@ -82,38 +100,38 @@ class OpenAIEngine:
             temperature=temperature)
 
     def lc_embeddings(self, model: str) -> Embeddings:
-        """Create an OpenAI embeddings model instance.
-        :param model: The OpenAI embeddings model name.
+        """Create a LangChain LLM embeddings model instance.
+        :param model: The LLM embeddings model string.
+        :return: An instance of Embeddings.
         """
         return langchain_openai.OpenAIEmbeddings(
             openai_api_key=self._api_key,
             model=model)
 
     def ai_name(self) -> str:
-        """Get the AI model name."""
+        """Get the AI engine name.
+        :return: The name of the AI engine.
+        """
         return self.__class__.__name__
 
     def ai_model_name(self) -> str:
-        """Get the AI model name."""
+        """Get the AI model name.
+        :return: The name of the AI model.
+        """
         return self._model.model_name()
 
     def ai_token_limit(self) -> int:
-        """Get the AI model tokens limit."""
+        """Get the AI model token limit.
+        :return: The token limit of the AI model.
+        """
         return self._model.token_limit()
-
-    def nickname(self) -> str:
-        """Get the AI engine nickname."""
-        return "ChatGPT"
-
-    def models(self) -> List[AIModel]:
-        """Get the list of available models for the engine."""
-        return OpenAIModel.models()
 
     def ask(self, chat_context: List[dict], temperature: float = 0.8, top_p: float = 0.0) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
         :param chat_context: The chat history or context.
         :param temperature: The model engine temperature.
         :param top_p: The model engine top_p.
+        :return: The AI's reply.
         """
         try:
             check_not_none(chat_context)
@@ -130,11 +148,12 @@ class OpenAIEngine:
         return reply
 
     def text_to_speech(self, text: str, prefix: str = "", stream: bool = True, playback: bool = True) -> Optional[Path]:
-        """Text-T0-Speech the provided text.
-        :param text: The text to speech.
+        """Convert the provided text to speech.
+        :param text: The text to convert to speech.
         :param prefix: The prefix of the streamed text.
         :param stream: Whether to stream the text into stdout.
-        :param playback: Whether to playback the generated audio file.
+        :param playback: Whether to play back the generated audio file.
+        :return: The path to the generated audio file; or None if no file was generated.
         """
         if text:
             speech_file_path, file_exists = cache.audio_file_path(
@@ -165,15 +184,19 @@ class OpenAIEngine:
         return None
 
     def speech_to_text(self) -> Optional[str]:
-        """Transcribes audio input from the microphone into the text input language."""
+        """Transcribe audio input from the microphone into text.
+        :return: The transcribed text or None if transcription fails.
+        """
         _, text = Recorder.INSTANCE.listen(language=self._configs.language)
         log.debug(f"Audio transcribed to: {text}")
         return text.strip() if text else None
 
     def calculate_tokens(self, text: str) -> int:
         """Calculate the number of tokens for the given text.
-        :param text: The text to base the token calculation.
+        :param text: The text for which to calculate tokens.
+        :return: The number of tokens in the text.
         """
         encoding: tiktoken.Encoding = tiktoken.encoding_for_model(self._model.model_name())
         tokens: list[int] = encoding.encode(text)
+        log.debug(f"Tokens calculated. Text: '{text}'  Tokens: '{tokens}'")
         return len(tokens)
