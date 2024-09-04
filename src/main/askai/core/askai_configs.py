@@ -113,7 +113,8 @@ class AskAiConfigs(metaclass=Singleton):
             settings.get("askai.preferred.language")
             or locale.getlocale(locale.LC_ALL)
             or os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG")))
-            or Language.EN_US.idiom)
+            or Language.EN_US.idiom
+        )
 
     @property
     def encoding(self) -> Charset:

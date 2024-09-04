@@ -1,11 +1,11 @@
-import os
-from os.path import basename
-from textwrap import indent
-
 from askai.core.askai_configs import configs
 from askai.core.component.camera import camera
 from askai.core.features.router.tools.vision import image_captioner, parse_caption
 from askai.core.support.utilities import display_text
+from os.path import basename
+from textwrap import indent
+
+import os
 
 
 def webcam_capturer(photo_name: str | None, detect_faces: bool = False) -> str:
@@ -23,19 +23,22 @@ def webcam_capturer(photo_name: str | None, detect_faces: bool = False) -> str:
         face_files, face_datas = camera.detect_faces(pic_data, photo_name)
         faces: int = len(face_files)
         face_description = (
-            f"- **Faces:** `({faces})`\n"
-            + indent(f"- {'- '.join([f'`{ff.img_path}` {ln}' for ff in face_files])}", "    ")
-            + f"- **Face-Captions:** `({faces})`\n"
-            + indent(f"- {'- '.join([f'*{basename(ff.img_path)}*: `{ff.img_caption}` {ln}' for ff in face_files])}", "    ")
-        ) if faces else ''
+            (
+                f"- **Faces:** `({faces})`\n"
+                + indent(f"- {'- '.join([f'`{ff.img_path}` {ln}' for ff in face_files])}", "    ")
+                + f"- **Face-Captions:** `({faces})`\n"
+                + indent(
+                    f"- {'- '.join([f'*{basename(ff.img_path)}*: `{ff.img_caption}` {ln}' for ff in face_files])}",
+                    "    ",
+                )
+            )
+            if faces
+            else ""
+        )
 
     image_description: str = parse_caption(image_captioner(pic_file.img_path))
 
-    return (
-        f">   Photo Taken -> {pic_file.img_path}\n\n"
-        f"{image_description or ''}\n"
-        f"{face_description or ''}"
-    )
+    return f">   Photo Taken -> {pic_file.img_path}\n\n" f"{image_description or ''}\n" f"{face_description or ''}"
 
 
 def webcam_identifier(max_distance: int = configs.max_id_distance) -> str:

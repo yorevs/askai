@@ -34,13 +34,15 @@ class GeoLocation(metaclass=Singleton):
 
     GEO_LOC_URL: str = "http://ip-api.com/json"
 
-    EMPTY_JSON_RESP: str = dedent("""
+    EMPTY_JSON_RESP: str = dedent(
+        """
     {
         "status": "failure", "country": "", "countryCode": "", "region": "", "regionName": "",
         "city": "", "zip": "", "lat": 0.0, "lon": 0.0, "timezone": "",
         "isp": "", "org": "", "as": "", "query": ""
     }
-    """).strip()
+    """
+    ).strip()
 
     # Date format used in prompts, e.g: Fri 22 Mar 19:47 2024.
     DATE_FMT: str = "%a %d %b %-H:%M %Y"

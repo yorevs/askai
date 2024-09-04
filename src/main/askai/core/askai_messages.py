@@ -12,14 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import re
-from functools import cached_property, lru_cache
-
 from askai.core.askai_configs import configs
 from askai.language.ai_translator import AITranslator
 from askai.language.language import Language
 from askai.language.translators.deep import DeepLTranslator
+from functools import cached_property, lru_cache
 from hspylib.core.metaclass.singleton import Singleton
+
+import re
 
 
 class AskAiMessages(metaclass=Singleton):

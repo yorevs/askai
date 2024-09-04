@@ -12,22 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import operator
-import sys
-from pathlib import Path
-from typing import Callable, Optional, TypeAlias
-
-import pause
-from clitt.core.tui.mselect.mselect import mselect
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.classpath import AnyPath
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_argument, check_state
-from hspylib.core.zoned_datetime import now_ms
-from hspylib.modules.application.exit_status import ExitStatus
-from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -36,6 +20,21 @@ from askai.core.component.scheduler import Scheduler
 from askai.core.support.utilities import display_text, seconds
 from askai.exception.exceptions import InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
+from clitt.core.tui.mselect.mselect import mselect
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.classpath import AnyPath
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_argument, check_state
+from hspylib.core.zoned_datetime import now_ms
+from hspylib.modules.application.exit_status import ExitStatus
+from pathlib import Path
+from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
+from typing import Callable, Optional, TypeAlias
+
+import logging as log
+import operator
+import pause
+import sys
 
 InputDevice: TypeAlias = tuple[int, str]
 
@@ -49,6 +48,7 @@ class Recorder(metaclass=Singleton):
 
     class RecognitionApi(Enumeration):
         """Available voice recognition APIs."""
+
         # fmt: off
         OPEN_AI = 'recognize_whisper'
         GOOGLE = 'recognize_google'
@@ -143,9 +143,7 @@ class Recorder(metaclass=Singleton):
         return self.input_device is not None and self.input_device[0] > 1
 
     def listen(
-        self,
-        recognition_api: RecognitionApi = RecognitionApi.GOOGLE,
-        language: Language = Language.EN_US,
+        self, recognition_api: RecognitionApi = RecognitionApi.GOOGLE, language: Language = Language.EN_US
     ) -> tuple[Path, Optional[str]]:
         """Listen to the microphone, save the recorded audio as a WAV file, and transcribe the speech.
         :param recognition_api: The API to use for recognizing the speech. Defaults to GOOGLE.

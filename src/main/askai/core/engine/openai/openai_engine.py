@@ -12,15 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from pathlib import Path
-from threading import Thread
-from typing import List, Optional
-
-import langchain_openai
-import pause
-import tiktoken
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache
 from askai.core.component.recorder import Recorder
@@ -35,6 +26,15 @@ from hspylib.core.preconditions import check_not_none
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models import BaseChatModel, BaseLLM
 from openai import APIError, OpenAI
+from pathlib import Path
+from threading import Thread
+from typing import List, Optional
+
+import langchain_openai
+import logging as log
+import os
+import pause
+import tiktoken
 
 
 class OpenAIEngine:
@@ -94,9 +94,8 @@ class OpenAIEngine:
         :return: An instance of BaseLLM.
         """
         return langchain_openai.OpenAI(
-            openai_api_key=self._api_key,
-            model=self._model.model_name(),
-            temperature=temperature, top_p=top_p)
+            openai_api_key=self._api_key, model=self._model.model_name(), temperature=temperature, top_p=top_p
+        )
 
     def lc_chat_model(self, temperature: float) -> BaseChatModel:
         """Create a LangChain LLM chat model instance using the current AI engine.
@@ -104,18 +103,15 @@ class OpenAIEngine:
         :return: An instance of BaseChatModel.
         """
         return langchain_openai.ChatOpenAI(
-            openai_api_key=self._api_key,
-            model=self._model.model_name(),
-            temperature=temperature)
+            openai_api_key=self._api_key, model=self._model.model_name(), temperature=temperature
+        )
 
     def lc_embeddings(self, model: str) -> Embeddings:
         """Create a LangChain LLM embeddings model instance.
         :param model: The LLM embeddings model string.
         :return: An instance of Embeddings.
         """
-        return langchain_openai.OpenAIEmbeddings(
-            openai_api_key=self._api_key,
-            model=model)
+        return langchain_openai.OpenAIEmbeddings(openai_api_key=self._api_key, model=model)
 
     def ai_name(self) -> str:
         """Get the AI engine name.

@@ -29,14 +29,16 @@ from textwrap import dedent
 
 import logging as log
 
-EVALUATION_GUIDE: str = dedent("""
+EVALUATION_GUIDE: str = dedent(
+    """
 **Accuracy Evaluation Guidelines:**
 
 1. Analyze past responses to ensure accuracy.
 2. Regularly self-critique overall responses.
 3. Reflect on past strategies to refine your approach.
 4. Experiment with different methods or solutions.
-""").strip()
+"""
+).strip()
 
 RAG: RAGProvider = RAGProvider("accuracy.csv")
 
@@ -98,9 +100,7 @@ def resolve_x_refs(ref_name: str, context: str | None = None) -> str:
     if context or (context := str(shared.context.flat("HISTORY"))):
         runnable = template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
         runnable = RunnableWithMessageHistory(
-            runnable, shared.context.flat,
-            input_messages_key="pathname",
-            history_messages_key="context"
+            runnable, shared.context.flat, input_messages_key="pathname", history_messages_key="context"
         )
         log.info("Analysis::[QUERY] '%s'  context=%s", ref_name, context)
         events.reply.emit(message=msg.x_reference(ref_name), verbosity="debug")

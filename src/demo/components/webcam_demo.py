@@ -14,7 +14,6 @@
 """
 from askai.core.features.router.tools.webcam import webcam_capturer
 from hspylib.core.tools.commons import sysout
-
 from utils import init_context
 
 if __name__ == "__main__":
@@ -22,7 +21,6 @@ if __name__ == "__main__":
     sysout("-=" * 40)
     sysout("AskAI WebCam Demo")
     sysout("-=" * 40)
-    info: str = webcam_capturer('hugo', True)
+    info: str = webcam_capturer("hugo", True)
     # info: str = webcam_identifier()
     sysout(info, markdown=True)
-

@@ -12,9 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from typing import Protocol
-
 from hspylib.core.metaclass.classpath import AnyPath
+from typing import Protocol
 
 
 class AIVision(Protocol):

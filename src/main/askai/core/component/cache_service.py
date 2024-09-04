@@ -12,19 +12,18 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import re
-from collections import namedtuple
-from pathlib import Path
-from typing import Optional
-
+from askai.core.askai_configs import configs
+from askai.core.askai_settings import ASKAI_DIR
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from collections import namedtuple
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.tools.text_tools import hash_text
 from hspylib.modules.cache.ttl_cache import TTLCache
+from pathlib import Path
+from typing import Optional
 
-from askai.core.askai_configs import configs
-from askai.core.askai_settings import ASKAI_DIR
+import re
 
 # AskAI cache root directory.
 CACHE_DIR: Path = Path(f"{ASKAI_DIR}/cache")
@@ -120,9 +119,9 @@ class CacheService(metaclass=Singleton):
 
     def save_reply(self, text: str, reply: str) -> Optional[str]:
         """Save an AI reply into the TTL (Time-To-Live) cache.
-         :param text: The text to be cached.
-         :param reply: The AI reply associated with this text.
-         :return: The key under which the reply is saved, or None if the save operation fails.
+        :param text: The text to be cached.
+        :param reply: The AI reply associated with this text.
+        :return: The key under which the reply is saved, or None if the save operation fails.
         """
         if configs.is_cache:
             key = text.strip().lower()

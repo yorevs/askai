@@ -12,10 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-from textwrap import dedent
-from typing import TypeAlias
-
 from askai.core.model.image_result import ImageResult
 from askai.core.support.utilities import encode_image, find_file
 from hspylib.core.metaclass.classpath import AnyPath
@@ -27,6 +23,10 @@ from langchain_core.messages import BaseMessage, HumanMessage
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.runnables import chain
 from langchain_openai import ChatOpenAI
+from textwrap import dedent
+from typing import TypeAlias
+
+import os
 
 Base64Image: TypeAlias = dict[str, str]
 
@@ -58,23 +58,28 @@ class OpenAIVision:
         """
         model: BaseChatModel = ChatOpenAI(temperature=0.8, model="gpt-4o-mini", max_tokens=1024)
         msg: BaseMessage = model.invoke(
-            [HumanMessage(
-                content=[
-                    {"type": "text", "text": inputs["prompt"]},
-                    {"type": "text", "text": OpenAIVision._OUT_PARSER.get_format_instructions()},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{inputs['image']}"}},
-                ])]
+            [
+                HumanMessage(
+                    content=[
+                        {"type": "text", "text": inputs["prompt"]},
+                        {"type": "text", "text": OpenAIVision._OUT_PARSER.get_format_instructions()},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{inputs['image']}"}},
+                    ]
+                )
+            ]
         )
         return msg.content
 
     def template(self, question: str | None = None) -> str:
-        return dedent(f"""
+        return dedent(
+            f"""
         Given the image, provide the following information:
         - A count of how many living beings are in the image.
         - A list of the main objects present in the image.
         - A description the atmosphere of the environment.
         - A list of detailed descriptions all living beings you find in the image.
-        {'- ' + question if question else ''}""").strip()
+        {'- ' + question if question else ''}"""
+        ).strip()
 
     def caption(self, filename: AnyPath, load_dir: AnyPath | None, question: str | None = None) -> str:
         """Generate a caption for the provided image.
@@ -86,10 +91,8 @@ class OpenAIVision:
         check_argument(len((final_path := str(find_file(final_path) or ""))) > 0, f"Invalid image path: {final_path}")
         vision_prompt = self.template()
         load_image_chain = TransformChain(
-            input_variables=["image_path"],
-            output_variables=["image"],
-            transform=self._encode_image
+            input_variables=["image_path"], output_variables=["image"], transform=self._encode_image
         )
         vision_chain = load_image_chain | self.create_image_caption_chain | OpenAIVision._OUT_PARSER
-        args: dict[str, str] = {'image_path': f'{final_path}', 'prompt': vision_prompt}
+        args: dict[str, str] = {"image_path": f"{final_path}", "prompt": vision_prompt}
         return str(vision_chain.invoke(args))

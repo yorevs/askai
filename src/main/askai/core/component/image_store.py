@@ -140,9 +140,9 @@ class ImageStore(metaclass=Singleton):
 
     def sync_store(self, re_caption: bool = False) -> int:
         """Synchronize the image store collection with the cached pictures folder.
-         :param re_caption: Whether to regenerate captions for the images during synchronization (default is False).
-         :return: The number of images synchronized with the store.
-         """
+        :param re_caption: Whether to regenerate captions for the images during synchronization (default is False).
+        :return: The number of images synchronized with the store.
+        """
         log.info(
             "Synchronizing image store folders: '%s', '%s' and '%s'",
             cache.PHOTO_DIR,

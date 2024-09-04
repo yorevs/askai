@@ -248,4 +248,3 @@ class Language(Enumeration):
         :return: The mnemonic representing the territory, e.g., US.
         """
         return self._territory
-

@@ -5,8 +5,5 @@
 # Package: main.askai.core.commander
 """Package initialization."""
 
-__all__ = [
-    'commander', 
-    'commands'
-]
-__version__ = '1.0.13'
+__all__ = ["commander", "commands"]
+__version__ = "1.0.13"

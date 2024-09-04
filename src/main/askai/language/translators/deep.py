@@ -12,12 +12,12 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from functools import lru_cache
-
-import deepl
 from askai.__classpath__ import API_KEYS
 from askai.language.ai_translator import AITranslator
 from askai.language.language import Language
+from functools import lru_cache
+
+import deepl
 
 
 class DeepLTranslator(AITranslator):
@@ -25,7 +25,7 @@ class DeepLTranslator(AITranslator):
 
     def __init__(self, from_idiom: Language, to_idiom: Language):
         super().__init__(from_idiom, to_idiom)
-        API_KEYS.ensure('DEEPL_API_KEY', 'DeepLTranslator')
+        API_KEYS.ensure("DEEPL_API_KEY", "DeepLTranslator")
         self._translator = deepl.Translator(API_KEYS.DEEPL_API_KEY)
 
     @lru_cache(maxsize=256)

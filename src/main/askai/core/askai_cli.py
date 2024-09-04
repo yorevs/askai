@@ -12,8 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from pathlib import Path
-
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -31,6 +29,7 @@ from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from functools import partial
 from hspylib.core.tools.commons import sysout
 from hspylib.modules.eventbus.event import Event
+from pathlib import Path
 from threading import Thread
 from typing import List, TypeAlias
 

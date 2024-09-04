@@ -18,12 +18,11 @@ from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from askai.core.support.text_formatter import TextFormatter
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
 import logging as log
-
-from askai.core.support.text_formatter import TextFormatter
 
 
 def query_output(query: str, context: str = None) -> str:

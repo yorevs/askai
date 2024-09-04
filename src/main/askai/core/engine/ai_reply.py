@@ -25,4 +25,3 @@ class AIReply:
 
     def __str__(self) -> str:
         return f"Success = {self.is_success}\nMessage = {self.message}"
-

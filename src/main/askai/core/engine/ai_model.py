@@ -29,4 +29,3 @@ class AIModel(Protocol):
         :return: The token limit of the model.
         """
         ...
-

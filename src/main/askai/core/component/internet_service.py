@@ -12,12 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import re
-from textwrap import dedent
-from typing import List, Literal
-
-import bs4
 from askai.__classpath__ import API_KEYS
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -43,6 +37,12 @@ from langchain_core.runnables.utils import Output
 from langchain_core.tools import Tool
 from langchain_google_community import GoogleSearchAPIWrapper
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from textwrap import dedent
+from typing import List, Literal
+
+import bs4
+import logging as log
+import re
 
 
 class InternetService(metaclass=Singleton):
@@ -78,25 +78,27 @@ class InternetService(metaclass=Singleton):
         return final_query
 
     @staticmethod
-    def _wrap_response(terms: str, output: str, sites: list[str], method: Literal['Google', 'Other'] = 'Google') -> str:
+    def _wrap_response(terms: str, output: str, sites: list[str], method: Literal["Google", "Other"] = "Google") -> str:
         """Format and wrap the search response based on the search terms, output, and method used.
-         :param terms: The search terms used in the query.
-         :param output: The raw output or results from the search.
-         :param sites: A list of websites included in or relevant to the search results.
-         :param method: The search method used, either 'Google' or 'Other'.
-         :return: A formatted string that encapsulates the search response.
-         """
+        :param terms: The search terms used in the query.
+        :param output: The raw output or results from the search.
+        :param sites: A list of websites included in or relevant to the search results.
+        :param method: The search method used, either 'Google' or 'Other'.
+        :return: A formatted string that encapsulates the search response.
+        """
         method_icon = {"google": "", "other": ""}
-        return dedent(f"""
+        return dedent(
+            f"""
             Your {method.title()} search returned the following:
             {output}
             \n---\n
             Sources: {', '.join(sites)}
             *{method_icon[method]} Accessed: {geo_location.location} {now('%d %B, %Y')}*
-            >  Terms: {terms}""").strip()
+            >  Terms: {terms}"""
+        ).strip()
 
     def __init__(self):
-        API_KEYS.ensure('GOOGLE_API_KEY', 'google_search')
+        API_KEYS.ensure("GOOGLE_API_KEY", "google_search")
         self._google = GoogleSearchAPIWrapper(google_api_key=API_KEYS.GOOGLE_API_KEY)
         self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
         self._text_splitter = RecursiveCharacterTextSplitter(

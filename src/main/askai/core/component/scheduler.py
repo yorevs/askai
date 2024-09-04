@@ -51,6 +51,7 @@ class Scheduler(Thread, metaclass=Singleton):
         :param delay_ms: The initial delay in milliseconds before the first execution of the decorated function.
         :return: The decorated function.
         """
+
         def every_wrapper(func: Callable, *fargs, **fkwargs):
             """'every' function wrapper."""
             return scheduler.set_interval(interval_ms, func, delay_ms, *fargs, **fkwargs)
@@ -148,6 +149,7 @@ class Scheduler(Thread, metaclass=Singleton):
         :param cb_fn_args: The arguments to pass to the callback function.
         :param cb_fn_kwargs: The keyword arguments to pass to the callback function.
         """
+
         def _call_it_back():
             """Internal method to repeatedly invoke the callback function at specified intervals. It uses the
             `pause.milliseconds()` method to handle the waiting periods between each invocation.

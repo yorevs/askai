@@ -1,8 +1,8 @@
-import os
-
-from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
-import torch
 from PIL import Image
+from transformers import AutoTokenizer, VisionEncoderDecoderModel, ViTImageProcessor
+
+import os
+import torch
 
 
 class Captioner:
@@ -34,6 +34,6 @@ class Captioner:
         return preds
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     c = Captioner()
-    print(c.predict_step(['photos/webcam_photo.jpg-PHOTO.jpg']))
+    print(c.predict_step(["photos/webcam_photo.jpg-PHOTO.jpg"]))

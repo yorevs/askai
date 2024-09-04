@@ -13,11 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-import os
-from pathlib import Path
-from typing import AnyStr
-
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import GEN_AI_DIR
@@ -31,6 +26,11 @@ from hspylib.core.preconditions import check_not_none
 from hspylib.core.zoned_datetime import now_ms
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import PromptTemplate
+from pathlib import Path
+from typing import AnyStr
+
+import logging as log
+import os
 
 
 def generate_content(instructions: str, mime_type: str, filepath: AnyPath | None = None) -> str:

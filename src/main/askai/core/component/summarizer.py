@@ -12,9 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from hspylib.core.metaclass.classpath import AnyPath
-from langchain_core.embeddings import Embeddings
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -24,12 +21,14 @@ from askai.core.support.langchain_support import lc_llm
 from askai.exception.exceptions import DocumentsNotFound
 from functools import lru_cache
 from hspylib.core.config.path_object import PathObject
+from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import ensure_endswith, hash_text
 from langchain.chains import RetrievalQA
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter, TextSplitter
 from pathlib import Path
 from typing import Optional
@@ -61,7 +60,8 @@ class Summarizer(metaclass=Singleton):
         self._folder = None
         self._glob = None
         self._text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap)
+            chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap
+        )
 
     @property
     def persist_dir(self) -> Path:
@@ -122,7 +122,8 @@ class Summarizer(metaclass=Singleton):
                 v_store = Chroma.from_documents(texts, embeddings, persist_directory=str(self.persist_dir))
 
             self._retriever = RetrievalQA.from_chain_type(
-                llm=lc_llm.create_chat_model(), chain_type="stuff", retriever=v_store.as_retriever())
+                llm=lc_llm.create_chat_model(), chain_type="stuff", retriever=v_store.as_retriever()
+            )
             return True
         except ImportError as err:
             log.error("Unable to summarize '%s' => %s", self.sum_path, err)

@@ -12,15 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-import re
-from functools import partial
-from os.path import dirname
-from pathlib import Path
-from string import Template
-from textwrap import dedent
-
-import click
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
 from askai.core.commander.commands.cache_cmd import CacheCmd
@@ -35,9 +26,18 @@ from askai.core.support.utilities import display_text
 from askai.language.language import AnyLocale, Language
 from click import Command, Group
 from clitt.core.term.cursor import cursor
+from functools import partial
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import sysout, to_bool
 from hspylib.modules.eventbus.event import Event
+from os.path import dirname
+from pathlib import Path
+from string import Template
+from textwrap import dedent
+
+import click
+import os
+import re
 
 COMMANDER_HELP_TPL = Template(
     dedent(

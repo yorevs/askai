@@ -12,17 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import atexit
-import glob
-import logging as log
-import os.path
-import shutil
-from os.path import basename
-from pathlib import Path
-from typing import Optional, TypeAlias
-
-import cv2
-import pause
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -39,8 +28,19 @@ from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.dict_tools import get_or_default
 from hspylib.core.tools.text_tools import hash_text
 from hspylib.core.zoned_datetime import now_ms
+from os.path import basename
+from pathlib import Path
 from retry import retry
 from torchvision.datasets.folder import is_image_file
+from typing import Optional, TypeAlias
+
+import atexit
+import cv2
+import glob
+import logging as log
+import os.path
+import pause
+import shutil
 
 InputDevice: TypeAlias = tuple[int, str]
 
@@ -167,7 +167,7 @@ class Camera(metaclass=Singleton):
                     hash_text(basename(final_path)),
                     final_path,
                     store.FACE_CATEGORY,
-                    get_or_default(result.people_description, 0, '<N/A>') if with_caption else msg.no_caption(),
+                    get_or_default(result.people_description, 0, "<N/A>") if with_caption else msg.no_caption(),
                 )
                 face_files.append(face_file)
                 face_datas.append(cropped_face)

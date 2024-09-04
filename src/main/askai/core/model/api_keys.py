@@ -12,17 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-from pathlib import Path
-from typing import AnyStr
-
-import dotenv
 from askai.exception.exceptions import MissingApiKeyError
 from clitt.core.tui.minput.input_validator import InputValidator
 from clitt.core.tui.minput.menu_input import MenuInput
 from clitt.core.tui.minput.minput import minput
 from hspylib.core.enums.charset import Charset
+from pathlib import Path
 from pydantic.v1 import BaseSettings, Field, validator
+from typing import AnyStr
+
+import dotenv
+import os
 
 API_KEY_FILE: str = os.environ.get("HHS_ENV_FILE", str(os.path.join(Path.home(), ".env")))
 
@@ -62,6 +62,7 @@ class ApiKeys(BaseSettings):
 
     class Config:
         """Configuration class for setting environment variables related to API keys."""
+
         env_file = API_KEY_FILE
         env_file_encoding = Charset.UTF_8.val
 
