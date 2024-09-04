@@ -154,15 +154,6 @@ def extract_codeblock(text: str, flags: int = re.IGNORECASE | re.MULTILINE) -> t
     return None, text
 
 
-def strip_format(text: str) -> str:
-    """Remove the markdown code block formatting from the text.
-    :param text: The text containing the markdown code block formatting.
-    :return: The text with the markdown code block formatting stripped away.
-    """
-    _, string = extract_codeblock(text)
-    return strip_escapes(string)
-
-
 def media_type_of(pathname: str) -> Optional[Optional[tuple[str, ...]]]:
     """Return the media type of the specified file, or None if the type could not be determined.
     :param pathname: The file path to check.

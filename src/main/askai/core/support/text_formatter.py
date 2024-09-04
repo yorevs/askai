@@ -12,7 +12,7 @@
 
 from clitt.core.term.cursor import cursor
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
+from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith, strip_escapes
 from hspylib.modules.cli.vt100.vt_code import VtCode
 from hspylib.modules.cli.vt100.vt_color import VtColor
 from textwrap import dedent
@@ -92,7 +92,7 @@ class TextFormatter(metaclass=Singleton):
         text = re.sub(self.RE_TYPES[''], r" [\1](\1)", text)
         # Make sure markdown is prefixed and suffixed with new lines
         text = re.sub(self.RE_TYPES['MD'], r"\n\1\n", text)
-        text = re.sub(r' ```(.+)', r"\n```\1", text)
+        text = re.sub(r'```(.+)```\s+', r"\n```\1```\n", text)
 
         # fmt: on
 
@@ -117,6 +117,33 @@ class TextFormatter(metaclass=Singleton):
         :param text: The text to be displayed.
         """
         self.display_markdown(f"%ORANGE%  Commander%NC%: {self.beautify(str(text))}")
+
+    def remove_markdown(self, text: AnyStr) -> str:
+        """
+        Remove Markdown formatting from a string.
+        """
+        plain_text = re.sub(r'```(.*?)```', r'\1', str(text), flags=re.DOTALL)
+        plain_text = re.sub(r'`[^`]+`', '', plain_text)
+        plain_text = re.sub(r'^(#+\s+)', '', plain_text)
+        plain_text = re.sub(r'\*\*([^*]+)\*\*', r'\1', plain_text)
+        plain_text = re.sub(r'\*([^*]+)\*', r'\1', plain_text)
+        plain_text = re.sub(r'__([^_]+)__', r'\1', plain_text)
+        plain_text = re.sub(r'_([^_]+)_', r'\1', plain_text)
+        plain_text = re.sub(r'\[([^]]+)]\([^)]+\)', r'\1', plain_text)
+        plain_text = re.sub(r'!\[([^]]*)]\([^)]+\)', r'\1', plain_text)
+        plain_text = re.sub(r'---|___|\*\*\*', '', plain_text)
+        plain_text = re.sub(r'>\s+', '', plain_text)
+        plain_text = re.sub(r'[-*+]\s+', '', plain_text)
+        plain_text = re.sub(r'^\d+\.\s+', '', plain_text)
+
+        return plain_text.strip()
+
+    def strip_format(self, text: AnyStr) -> str:
+        """Remove the markdown code block formatting from the text.
+        :param text: The text containing the markdown code block formatting.
+        :return: The text with the markdown code block formatting stripped away.
+        """
+        return strip_escapes(self.remove_markdown(text))
 
 
 assert (text_formatter := TextFormatter().INSTANCE) is not None

@@ -37,7 +37,8 @@ from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.support.shared_instances import shared
-from askai.core.support.utilities import display_text, strip_format
+from askai.core.support.text_formatter import text_formatter
+from askai.core.support.utilities import display_text
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -74,18 +75,18 @@ class AskAiCli(AskAi):
             if not status:
                 question = None
                 break
-            if output:
+            elif output:
                 cache.save_reply(question, output)
                 cache.save_input_history()
                 with open(self._console_path, "a+") as f_console:
                     f_console.write(f"{shared.username_md}{question}\n\n")
                     f_console.write(f"{shared.nickname_md}{output}\n\n")
                     f_console.flush()
-            elif not output and not configs.is_interactive:
+            if not configs.is_interactive:
                 break
         if question == "":
             self._reply(msg.goodbye())
-        display_text("")
+        display_text("", markdown=False)
 
     def _reply(self, message: str) -> None:
         """Reply to the user with the AI-generated response.
@@ -96,7 +97,7 @@ class AskAiCli(AskAi):
             if configs.is_speak:
                 self.engine.text_to_speech(text, f"{shared.nickname}")
             elif not configs.is_interactive:
-                print(strip_format(text))
+                display_text(text_formatter.strip_format(text), f"{shared.nickname}", markdown=False)
             else:
                 display_text(text, f"{shared.nickname}")
 
