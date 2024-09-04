@@ -1,0 +1,4 @@
+Major Issues:
+
+- When is_speak, the click is being spoken
+- Multiple Scheduler.every

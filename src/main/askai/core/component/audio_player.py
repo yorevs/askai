@@ -27,6 +27,8 @@ from typing import Literal
 import logging as log
 import time
 
+from askai.core.askai_configs import configs
+
 
 class AudioPlayer(metaclass=Singleton):
     """Provide an interface for playing audio through the default speaker device. This class allows for the playback of
@@ -45,7 +47,9 @@ class AudioPlayer(metaclass=Singleton):
         :param tempo: The playback speed (default is 1).
         :return: True if the audio file is played successfully, otherwise False.
         """
-        if file_is_not_empty(str(path_to_audio_file)):
+        if not configs.is_speak:
+            return True
+        elif file_is_not_empty(str(path_to_audio_file)):
             try:
                 out, code = Terminal.shell_exec(
                     f'ffplay -af "atempo={tempo}" -v 0 -nodisp -autoexit {path_to_audio_file}'

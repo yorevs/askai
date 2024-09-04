@@ -1,7 +1,5 @@
 Questions:
 
-en_US
-
 - Summarize my markdown files at my HomeSetup docs folder.
 - What are the current weather conditions in San Francisco, U.S today?
 - When is the upcoming Los Angeles Lakers match?
@@ -19,9 +17,3 @@ en_US
 - I have downloaded a QR logo, open it to me.
 - Tell me who you see using the webcam. Respond like talking to an audience.
 - List my music and let me know if there is any gabiroba song. If so, show me the file name and open it.
-
-
-Major Issues:
-
-TODO
-
