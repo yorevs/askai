@@ -12,8 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
+import re
+from functools import partial
+from os.path import dirname
+from pathlib import Path
+from string import Template
+from textwrap import dedent
+
+import click
 from askai.core.askai_configs import configs
-from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, events, REPLY_ERROR_EVENT, REPLY_EVENT
+from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
 from askai.core.commander.commands.cache_cmd import CacheCmd
 from askai.core.commander.commands.camera_cmd import CameraCmd
 from askai.core.commander.commands.general_cmd import GeneralCmd
@@ -26,18 +35,9 @@ from askai.core.support.utilities import display_text
 from askai.language.language import AnyLocale, Language
 from click import Command, Group
 from clitt.core.term.cursor import cursor
-from functools import partial
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import sysout, to_bool
 from hspylib.modules.eventbus.event import Event
-from os.path import dirname
-from pathlib import Path
-from string import Template
-from textwrap import dedent
-
-import click
-import os
-import re
 
 COMMANDER_HELP_TPL = Template(
     dedent(
@@ -135,18 +135,6 @@ def _init_context(context_size: int = 1000, engine_name: str = "openai", model_n
     :param engine_name: The name of the engine to initialize (default is "openai").
     :param model_name: The model name of the engine to initialize (default is "gpt-4o-mini").
     """
-    if not (shared.engine and shared.context):
-        shared.create_engine(engine_name=engine_name, model_name=model_name)
-        shared.create_context(context_size)
-        events.reply.subscribe(cb_event_handler=lambda ev: display_text(ev.args.message))
-
-
-@click.group()
-@click.pass_context
-def ask_commander(_) -> None:
-    """AskAI commands group. This function serves as the entry point for the AskAI command-line interface (CLI)
-    commands, grouping related commands together.
-    """
 
     def _reply_event(ev: Event, error: bool = False) -> None:
         """Callback for handling the reply event.
@@ -161,10 +149,21 @@ def ask_commander(_) -> None:
                     cursor.erase_line()
                 display_text(message)
 
+    if shared.engine is None and shared.context is None:
+        shared.create_engine(engine_name=engine_name, model_name=model_name)
+        shared.create_context(context_size)
+        askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
+        askai_bus.subscribe(REPLY_EVENT, _reply_event)
+        askai_bus.subscribe(REPLY_ERROR_EVENT, partial(_reply_event, error=True))
+
+
+@click.group()
+@click.pass_context
+def ask_commander(_) -> None:
+    """AskAI commands group. This function serves as the entry point for the AskAI command-line interface (CLI)
+    commands, grouping related commands together.
+    """
     _init_context()
-    askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
-    askai_bus.subscribe(REPLY_EVENT, _reply_event)
-    askai_bus.subscribe(REPLY_ERROR_EVENT, partial(_reply_event, error=True))
 
 
 @ask_commander.command()
@@ -431,4 +430,4 @@ def camera(operation: str, args: tuple[str, ...]) -> None:
 
 
 if __name__ == "__main__":
-    ask_commander(["help", "camera"], standalone_mode=False)
+    ask_commander(["camera", "identify"], standalone_mode=False)

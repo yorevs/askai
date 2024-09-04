@@ -26,9 +26,9 @@ pause>=0.3
 requests>=2.32.3
 urllib3>=1.26.20
 protobuf>=4.25.4
-torch>=2.4.0
 tqdm>=4.66.5
-torchvision>=0.19.0
+torch>=2.2.0
+torchvision>=0.17.2
 open-clip-torch
 transformers>=4.44.2
 pyperclip>=1.9.0

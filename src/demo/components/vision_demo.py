@@ -6,7 +6,7 @@ from utils import init_context
 if __name__ == '__main__':
     init_context("vision-demo")
     vision: AIVision = shared.engine.vision()
-    load_dir: str = "/Users/hjunior/.config/hhs/askai/cache/pictures/photos"
+    load_dir: str = "${HOME}/.config/hhs/askai/cache/pictures/photos"
     image_file: str = "eu-edvaldo-suecia.jpg"
     result = vision.caption(image_file, load_dir)
     print(result)

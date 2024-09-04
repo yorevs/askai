@@ -39,7 +39,7 @@ class OpenAIVision:
     _OUT_PARSER = JsonOutputParser(pydantic_object=ImageResult)
 
     @staticmethod
-    def _encode_image(inputs: dict) -> dict:
+    def _encode_image(inputs: dict) -> dict[str, str]:
         """Load an image from file and encode it as a base64 string.
         :param inputs: Dictionary containing the file path under a specific key.
         :return: Dictionary with the base64 encoded image string.
@@ -67,17 +67,16 @@ class OpenAIVision:
         )
         return msg.content
 
-    @property
-    def template(self) -> str:
-        return dedent("""
+    def template(self, question: str | None = None) -> str:
+        return dedent(f"""
         Given the image, provide the following information:
         - A count of how many living beings are in the image.
         - A list of the main objects present in the image.
         - A description the atmosphere of the environment.
         - A list of detailed descriptions all living beings you find in the image.
-        """).strip()
+        {'- ' + question if question else ''}""").strip()
 
-    def caption(self, filename: AnyPath, load_dir: AnyPath | None) -> str:
+    def caption(self, filename: AnyPath, load_dir: AnyPath | None, question: str | None = None) -> str:
         """Generate a caption for the provided image.
         :param filename: File name of the image for which the caption is to be generated.
         :param load_dir: Optional directory path for loading related resources.
@@ -85,7 +84,7 @@ class OpenAIVision:
         """
         final_path: str = os.path.join(load_dir, filename) if load_dir else os.getcwd()
         check_argument(len((final_path := str(find_file(final_path) or ""))) > 0, f"Invalid image path: {final_path}")
-        vision_prompt = self.template
+        vision_prompt = self.template()
         load_image_chain = TransformChain(
             input_variables=["image_path"],
             output_variables=["image"],

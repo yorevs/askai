@@ -23,6 +23,9 @@ from pathlib import Path
 from typing import Optional, AnyStr
 
 import pause
+from askai.core.support.presets import Presets
+from askai.core.support.text_formatter import text_formatter
+from askai.language.language import Language
 from clitt.core.term.cursor import Cursor
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.enums.charset import Charset
@@ -32,10 +35,6 @@ from hspylib.core.tools.commons import file_is_not_empty, sysout
 from hspylib.core.tools.text_tools import ensure_endswith, strip_escapes
 from hspylib.core.zoned_datetime import now_ms
 from hspylib.modules.cli.vt100.vt_color import VtColor
-
-from askai.core.support.presets import Presets
-from askai.core.support.text_formatter import text_formatter
-from askai.language.language import Language
 
 
 def read_stdin() -> Optional[str]:

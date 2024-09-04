@@ -1,4 +1,4 @@
-from typing import Any
+from typing import AnyStr
 
 from pydantic import BaseModel, Field
 
@@ -13,9 +13,5 @@ class ImageResult(BaseModel):
     people_description: list[str] = Field(description="List of people description")
 
     @staticmethod
-    def to_image_result(from_dict: dict[str, Any]) -> 'ImageResult':
-        return ImageResult.MyModel.parse_obj(
-            from_dict['people_count'],
-            from_dict['main_objects'],
-            from_dict['env_description'],
-            from_dict['people_description'])
+    def of(image_caption: AnyStr) -> 'ImageResult':
+        return ImageResult.model_validate_json(str(image_caption).replace("'", '"'))

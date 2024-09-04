@@ -31,10 +31,12 @@ from askai.core.component.audio_player import player
 from askai.core.component.cache_service import FACE_DIR, IMG_IMPORTS_DIR, PHOTO_DIR
 from askai.core.component.image_store import ImageData, ImageFile, ImageMetadata, store
 from askai.core.features.router.tools.vision import image_captioner, parse_caption
+from askai.core.model.image_result import ImageResult
 from askai.core.support.utilities import build_img_path
 from askai.exception.exceptions import CameraAccessFailure, WebCamInitializationFailure
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.dict_tools import get_or_default
 from hspylib.core.tools.text_tools import hash_text
 from hspylib.core.zoned_datetime import now_ms
 from retry import retry
@@ -155,15 +157,17 @@ class Camera(metaclass=Singleton):
         if len(faces) == 0:
             return face_files, face_datas
 
+        filename: str = filename or str(now_ms())
         for x, y, w, h in faces:
             cropped_face: ImageData = photo[y : y + h, x : x + w]
             final_path: str = build_img_path(FACE_DIR, str(filename), f"-FACE-{len(face_files)}.jpg")
             if final_path and cv2.imwrite(final_path, cropped_face):
+                result: ImageResult = ImageResult.of(image_captioner(final_path))
                 face_file = ImageFile(
                     hash_text(basename(final_path)),
                     final_path,
                     store.FACE_CATEGORY,
-                    parse_caption(image_captioner(final_path)) if with_caption else msg.no_caption(),
+                    get_or_default(result.people_description, 0, '<N/A>') if with_caption else msg.no_caption(),
                 )
                 face_files.append(face_file)
                 face_datas.append(cropped_face)
