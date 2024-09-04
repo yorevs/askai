@@ -12,6 +12,21 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+from functools import partial
+from pathlib import Path
+from threading import Thread
+from typing import List, TypeAlias
+
+import nltk
+import pause
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.modules.eventbus.event import Event
+from rich.progress import Progress
+
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -23,20 +38,6 @@ from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, strip_format
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from functools import partial
-from hspylib.core.tools.commons import sysout
-from hspylib.modules.eventbus.event import Event
-from pathlib import Path
-from threading import Thread
-from typing import List, TypeAlias
-
-import logging as log
-import nltk
-import os
-import pause
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -59,9 +60,9 @@ class AskAiCli(AskAi):
 
         configs.is_interactive = configs.is_interactive if not query_prompt else False
         super().__init__(interactive, speak, debug, cacheable, tempo, engine_name, model_name)
-
         os.environ["ASKAI_APP"] = (self.RunModes.ASKAI_CLI if interactive else self.RunModes.ASKAI_CMD).value
         self._ready: bool = False
+        self._progress = Progress()
         self._query_prompt = query_prompt
         self._query_string: QueryString = query_string if isinstance(query_string, str) else " ".join(query_string)
         self._startup()
@@ -73,18 +74,18 @@ class AskAiCli(AskAi):
             if not status:
                 question = None
                 break
-            elif output:
+            if output:
                 cache.save_reply(question, output)
                 cache.save_input_history()
                 with open(self._console_path, "a+") as f_console:
                     f_console.write(f"{shared.username_md}{question}\n\n")
                     f_console.write(f"{shared.nickname_md}{output}\n\n")
                     f_console.flush()
-            if not configs.is_interactive:
+            elif not output and not configs.is_interactive:
                 break
         if question == "":
             self._reply(msg.goodbye())
-        sysout("")
+        display_text("")
 
     def _reply(self, message: str) -> None:
         """Reply to the user with the AI-generated response.
@@ -150,34 +151,53 @@ class AskAiCli(AskAi):
         :param interval: The interval in milliseconds for polling the startup status (default is 250 ms).
         """
         screen.clear()
-        sysout(f"%GREEN%{self.SPLASH}%NC%")
+        display_text(f"%GREEN%{self.SPLASH}%NC%", markdown=False)
         while not self._ready:
             pause.milliseconds(interval)
         screen.clear()
 
     def _startup(self) -> None:
         """Initialize the application components."""
-        os.chdir(Path.home())
+        # List of tasks for progress tracking
+        tasks = [
+            "Downloading nltk data",
+            "Preloading input history",
+            "Starting scheduler",
+            "Setting up recorder",
+            "Starting player delay",
+            "Finalizing startup"
+        ]
+        # Start and manage the progress bar
         askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
         askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
         if configs.is_interactive:
             splash_thread: Thread = Thread(daemon=True, target=self._splash)
             splash_thread.start()
-            nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
-            cache.cache_enable = configs.is_cache
-            KeyboardInput.preload_history(cache.load_input_history(commands()))
-            scheduler.start()
-            recorder.setup()
-            player.start_delay()
+            task = self._progress.add_task("[green]Starting up...", total=len(tasks))
+            with self._progress:
+                os.chdir(Path.home())
+                self._progress.update(task, advance=1, description="[green]Downloading nltk data")
+                nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
+                cache.cache_enable = configs.is_cache
+                self._progress.update(task, advance=1, description="[green]Preloading input history")
+                KeyboardInput.preload_history(cache.load_input_history(commands()))
+                self._progress.update(task, advance=1, description="[green]Starting scheduler")
+                scheduler.start()
+                self._progress.update(task, advance=1, description="[green]Setting up recorder")
+                recorder.setup()
+                self._progress.update(task, advance=1, description="[green]Starting player delay")
+                player.start_delay()
+                self._progress.update(task, advance=1, description="[green]Finalizing startup")
+                pause.seconds(1)
             self._ready = True
             splash_thread.join()
+            askai_bus.subscribe(MIC_LISTENING_EVENT, self._cb_mic_listening_event)
+            askai_bus.subscribe(DEVICE_CHANGED_EVENT, self._cb_device_changed_event)
+            askai_bus.subscribe(MODE_CHANGED_EVENT, self._cb_mode_changed_event)
             display_text(str(self), markdown=False)
             self._reply(msg.welcome(os.getenv("USER", "you")))
         elif configs.is_speak:
             recorder.setup()
             player.start_delay()
-        askai_bus.subscribe(MIC_LISTENING_EVENT, self._cb_mic_listening_event)
-        askai_bus.subscribe(DEVICE_CHANGED_EVENT, self._cb_device_changed_event)
-        askai_bus.subscribe(MODE_CHANGED_EVENT, self._cb_mode_changed_event)
         log.info("AskAI is ready to use!")
