@@ -12,27 +12,29 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.component.audio_player import player
-from askai.core.component.cache_service import cache
-from askai.core.component.recorder import Recorder
-from askai.core.engine.ai_model import AIModel
-from askai.core.engine.ai_reply import AIReply
-from askai.core.engine.openai.openai_configs import OpenAiConfigs
-from askai.core.engine.openai.openai_model import OpenAIModel
-from askai.core.support.utilities import stream_text
-from hspylib.core.preconditions import check_not_none
-from langchain_core.embeddings import Embeddings
-from langchain_core.language_models import BaseChatModel, BaseLLM
-from openai import APIError, OpenAI
+import logging as log
+import os
 from pathlib import Path
 from threading import Thread
 from typing import List, Optional
 
 import langchain_openai
-import logging as log
-import os
 import pause
 import tiktoken
+from askai.core.component.audio_player import player
+from askai.core.component.cache_service import cache
+from askai.core.component.recorder import Recorder
+from askai.core.engine.ai_model import AIModel
+from askai.core.engine.ai_reply import AIReply
+from askai.core.engine.ai_vision import AIVision
+from askai.core.engine.openai.openai_configs import OpenAiConfigs
+from askai.core.engine.openai.openai_model import OpenAIModel
+from askai.core.engine.openai.openai_vision import OpenAIVision
+from askai.core.support.utilities import stream_text
+from hspylib.core.preconditions import check_not_none
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models import BaseChatModel, BaseLLM
+from openai import APIError, OpenAI
 
 
 class OpenAIEngine:
@@ -44,6 +46,7 @@ class OpenAIEngine:
         self._configs: OpenAiConfigs = OpenAiConfigs.INSTANCE
         self._api_key: str = os.environ.get("OPENAI_API_KEY")
         self._client = OpenAI(api_key=self._api_key)
+        self._vision = OpenAIVision()
 
     def __str__(self):
         return f"{self.ai_name()} '{self.nickname()}' '{self._model}'"
@@ -77,6 +80,12 @@ class OpenAIEngine:
         :return: A list of available voices.
         """
         return ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
+
+    def vision(self) -> AIVision:
+        """Return the engine's vision component.
+        :return: The vision component of the engine.
+        """
+        return self._vision
 
     def lc_model(self, temperature: float, top_p: float) -> BaseLLM:
         """Create a LangChain LLM model instance using the current AI engine.

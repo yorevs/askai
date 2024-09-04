@@ -112,8 +112,8 @@ class AgentToolkit(metaclass=Singleton):
         return image_captioner(image_path)
 
     def webcam_capturer(self, photo_name: str | None, detect_faces: bool = False) -> str:
-        """Capture a photo using the webcam, save it locally, and optionally provide a caption describing the image.
-        This tool is useful for taking photos and describing people in front of the webcam.
+        """Capture a photo using the webcam, and save it locally. This tool is useful for taking photos, detect people's
+        faces, and, describing what is in front of the webcam.
         Usage: `webcam_capturer(photo_name, detect_faces)`
         :param photo_name: The name of the photo file (without the extension). If None, a default name will be used.
         :param detect_faces: Whether to detect and describe all faces in the photo (default is False).

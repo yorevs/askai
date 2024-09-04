@@ -13,6 +13,10 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import os
+from pathlib import Path
+from typing import Optional
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
@@ -33,10 +37,6 @@ from hspylib.modules.application.version import Version
 from hspylib.modules.cli.keyboard import Keyboard
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.memory.chat_memory import BaseChatMemory
-from pathlib import Path
-from typing import Optional
-
-import os
 
 
 class SharedInstances(metaclass=Singleton):

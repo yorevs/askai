@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import AnyStr
 
 import dotenv
+from askai.exception.exceptions import MissingApiKeyError
 from clitt.core.tui.minput.input_validator import InputValidator
 from clitt.core.tui.minput.menu_input import MenuInput
 from clitt.core.tui.minput.minput import minput
@@ -105,3 +106,12 @@ class ApiKeys(BaseSettings):
             return True
 
         return False
+
+    def ensure(self, api_key: str, feature: str) -> None:
+        """Ensure that the provided API key is valid for the required method.
+        :param api_key: The API key to check.
+        :param feature: The feature for which the API key is required.
+        :raises MissingApiKeyError: If the API key is not valid.
+        """
+        if not self.has_key(api_key):
+            raise MissingApiKeyError(f"ApiKey '{api_key}' is required to use '{feature}'")

@@ -15,12 +15,12 @@
 from pathlib import Path
 from typing import Optional, Protocol
 
-from langchain_core.embeddings import Embeddings
-from langchain_core.language_models import BaseChatModel, BaseLLM
-
 from askai.core.askai_configs import AskAiConfigs
 from askai.core.engine.ai_model import AIModel
 from askai.core.engine.ai_reply import AIReply
+from askai.core.engine.ai_vision import AIVision
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models import BaseChatModel, BaseLLM
 
 
 class AIEngine(Protocol):
@@ -46,6 +46,12 @@ class AIEngine(Protocol):
         """Return the available model voices for speech to text.
         :return: A list of available voices.
         """
+
+    def vision(self) -> AIVision:
+        """Return the engine's vision component.
+        :return: The vision component of the engine.
+        """
+        ...
 
     def lc_model(self, temperature: float, top_p: float) -> BaseLLM:
         """Create a LangChain LLM model instance using the current AI engine.

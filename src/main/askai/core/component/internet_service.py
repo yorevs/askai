@@ -96,7 +96,8 @@ class InternetService(metaclass=Singleton):
             >  Terms: {terms}""").strip()
 
     def __init__(self):
-        self._google = GoogleSearchAPIWrapper()
+        API_KEYS.ensure('GOOGLE_API_KEY', 'google_search')
+        self._google = GoogleSearchAPIWrapper(google_api_key=API_KEYS.GOOGLE_API_KEY)
         self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
         self._text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap
@@ -113,8 +114,6 @@ class InternetService(metaclass=Singleton):
         :param search: The AI search parameters encapsulated in a SearchResult object.
         :return: A refined string containing the search results.
         """
-        if not API_KEYS.has_key('GOOGLE_API_KEY'):
-            return msg.missing_api_key('GOOGLE_API_KEY', 'search_google')
         events.reply.emit(message=msg.searching())
         search.sites = search.sites or ["google.com", "bing.com", "duckduckgo.com", "ask.com"]
         terms = self._build_google_query(search).strip()

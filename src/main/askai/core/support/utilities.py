@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import base64
 import mimetypes
 import os
 import re
@@ -186,6 +187,15 @@ def read_resource(base_dir: str, filename: str, file_ext: str = ".txt") -> str:
     filename = f"{base_dir}/{ensure_endswith(basename(filename), file_ext)}"
     check_argument(file_is_not_empty(filename), f"Resource file is empty does not exist: {filename}")
     return Path(filename).read_text(encoding=Charset.UTF_8.val)
+
+
+def encode_image(file_path: str):
+    """Encode an image file to a base64 string.
+    :param file_path: Path to the image file to be encoded.
+    :return: Base64 encoded string of the image file.
+    """
+    with open(file_path, "rb") as f_image:
+        return base64.b64encode(f_image.read()).decode(Charset.UTF_8.val)
 
 
 def extract_path(command_line: str, flags: int = re.IGNORECASE | re.MULTILINE) -> Optional[str]:

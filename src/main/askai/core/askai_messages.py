@@ -12,14 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import re
+from functools import cached_property, lru_cache
+
 from askai.core.askai_configs import configs
 from askai.language.ai_translator import AITranslator
 from askai.language.language import Language
-from askai.language.translators.marian import MarianTranslator
-from functools import cached_property, lru_cache
+from askai.language.translators.deep import DeepLTranslator
 from hspylib.core.metaclass.singleton import Singleton
-
-import re
 
 
 class AskAiMessages(metaclass=Singleton):
@@ -27,7 +27,7 @@ class AskAiMessages(metaclass=Singleton):
 
     INSTANCE: "AskAiMessages"
 
-    TRANSLATOR: AITranslator = MarianTranslator
+    TRANSLATOR: AITranslator = DeepLTranslator
 
     @staticmethod
     @lru_cache
@@ -223,9 +223,6 @@ class AskAiMessages(metaclass=Singleton):
             f"Oops! Looks like you have reached your quota limit. You can add credits at: "
             f"https://platform.openai.com/settings/organization/billing/overview"
         )
-
-    def missing_api_key(self, api_key: str, feature: str) -> str:
-        return f"ApiKey '{api_key}' is required to use '{feature}'"
 
     def interruption_requested(self, reason: str) -> str:
         return f"AI has interrupted the execution => {reason}"

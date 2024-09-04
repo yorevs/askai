@@ -12,32 +12,33 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import atexit
+import glob
+import logging as log
+import os.path
+import shutil
+from os.path import basename
+from pathlib import Path
+from typing import Optional, TypeAlias
+
+import cv2
+import pause
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
+from askai.core.component.audio_player import player
 from askai.core.component.cache_service import FACE_DIR, IMG_IMPORTS_DIR, PHOTO_DIR
 from askai.core.component.image_store import ImageData, ImageFile, ImageMetadata, store
-from askai.core.features.router.tools.vision import image_captioner
+from askai.core.features.router.tools.vision import image_captioner, parse_caption
 from askai.core.support.utilities import build_img_path
 from askai.exception.exceptions import CameraAccessFailure, WebCamInitializationFailure
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import hash_text
 from hspylib.core.zoned_datetime import now_ms
-from os.path import basename
-from pathlib import Path
 from retry import retry
 from torchvision.datasets.folder import is_image_file
-from typing import Optional, TypeAlias
-
-import atexit
-import cv2
-import glob
-import logging as log
-import os.path
-import pause
-import shutil
 
 InputDevice: TypeAlias = tuple[int, str]
 
@@ -61,9 +62,12 @@ class Camera(metaclass=Singleton):
         """
         if i := count:
             events.reply.emit(message=msg.smile(i))
-            while i := (i - 1):
-                events.reply.emit(message=msg.smile(i), erase_last=True)
+            while (i := (i - 1)) >= 0:
+                player.play_sfx("click")
                 pause.seconds(1)
+                events.reply.emit(message=msg.smile(i), erase_last=True)
+            player.play_sfx("camera-shutter")
+            events.reply.emit(message="  !!Click!!!", erase_last=True)
 
     def __init__(self):
         self._cam = None
@@ -120,7 +124,7 @@ class Camera(metaclass=Singleton):
                 hash_text(basename(final_path)),
                 final_path,
                 store.PHOTO_CATEGORY,
-                image_captioner(final_path) if with_caption else msg.no_caption(),
+                parse_caption(image_captioner(final_path)) if with_caption else msg.no_caption(),
             )
             if store_image:
                 store.store_image(photo_file)
@@ -159,7 +163,7 @@ class Camera(metaclass=Singleton):
                     hash_text(basename(final_path)),
                     final_path,
                     store.FACE_CATEGORY,
-                    image_captioner(final_path) if with_caption else msg.no_caption(),
+                    parse_caption(image_captioner(final_path)) if with_caption else msg.no_caption(),
                 )
                 face_files.append(face_file)
                 face_datas.append(cropped_face)
@@ -213,7 +217,7 @@ class Camera(metaclass=Singleton):
                 hash_text(basename(img_path)),
                 img_path,
                 store.IMPORTS_CATEGORY,
-                image_captioner(img_path) if with_caption else msg.no_caption(),
+                parse_caption(image_captioner(img_path)),
             )
 
         def _do_import(*img_path: str) -> None:
