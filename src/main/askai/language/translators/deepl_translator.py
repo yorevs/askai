@@ -23,23 +23,25 @@ import deepl
 class DeepLTranslator(AITranslator):
     """Provides a multilingual online translation engine."""
 
-    def __init__(self, from_idiom: Language, to_idiom: Language):
-        super().__init__(from_idiom, to_idiom)
+    def __init__(self, source_lang: Language, target_lang: Language):
+        super().__init__(source_lang, target_lang)
         API_KEYS.ensure("DEEPL_API_KEY", "DeepLTranslator")
         self._translator = deepl.Translator(API_KEYS.DEEPL_API_KEY)
 
-    @lru_cache(maxsize=256)
-    def translate(self, text: str) -> str:
-        """Translate text using te default translator.
+    @lru_cache
+    def translate(self, text: str, **kwargs) -> str:
+        """Translate text from the source language to the target language.
         :param text: Text to translate.
+        :return: The translated text.
         """
-        if self._from_idiom == self._to_idiom:
-            return text
-        lang = self._from_locale()
-        result: deepl.TextResult = self._translator.translate_text(
-            text, preserve_formatting=True, source_lang=lang[0], target_lang=lang[1]
-        )
-        return str(result)
+        if self._source_lang != self._target_lang:
+            kwargs['preserve_formatting'] = True
+            lang = self._from_locale()
+            result: deepl.TextResult = self._translator.translate_text(
+                text, source_lang=lang[0], target_lang=lang[1], **kwargs
+            )
+            return str(result)
+        return text
 
     def name(self) -> str:
         return "DeepL"
@@ -48,8 +50,8 @@ class DeepLTranslator(AITranslator):
         """Convert from locale string to DeepL language.
         Ref:.https://developers.deepl.com/docs/resources/supported-languages
         """
-        from_lang: str = self._from_idiom.language.upper()
-        match self._to_idiom:
+        from_lang: str = self._source_lang.language.upper()
+        match self._target_lang:
             case Language.PT_BR:
                 to_lang: str = "PT-BR"
             case Language.PT_PT:
@@ -57,15 +59,10 @@ class DeepLTranslator(AITranslator):
             case Language.EN_GB:
                 to_lang: str = "EN-GB"
             case _:
-                if self._to_idiom.language.casefold() == "en":
+                if self._target_lang.language.casefold() == "en":
                     to_lang: str = "en_US"
-                elif self._to_idiom.language.casefold() == "zh":
+                elif self._target_lang.language.casefold() == "zh":
                     to_lang: str = "ZH-HANS"
                 else:
-                    to_lang: str = self._to_idiom.language.upper()
+                    to_lang: str = self._target_lang.language.upper()
         return from_lang, to_lang.upper()
-
-
-if __name__ == "__main__":
-    t = DeepLTranslator(Language.EN_US, Language.PT_BR)
-    print(t.translate("--- \n Hello \"initialization\"\n How ARE you doing 'what is up'?"))

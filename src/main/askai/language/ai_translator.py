@@ -12,19 +12,22 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from abc import ABC
+from functools import lru_cache
+from typing import Protocol
+
 from askai.language.language import Language
 
 
-class AITranslator(ABC):
+class AITranslator(Protocol):
     """Provides a base class for multilingual offline translation engines. Various implementations can be used."""
 
-    def __init__(self, from_idiom: Language, to_idiom: Language):
-        self._from_idiom: Language = from_idiom
-        self._to_idiom: Language = to_idiom
+    def __init__(self, source_lang: Language, target_lang: Language):
+        self._source_lang: Language = source_lang
+        self._target_lang: Language = target_lang
 
-    def translate(self, text: str) -> str:
-        """Translate text using the default translator.
+    @lru_cache
+    def translate(self, text: str, **kwargs) -> str:
+        """Translate text from the source language to the target language.
         :param text: Text to translate.
         :return: The translated text.
         """

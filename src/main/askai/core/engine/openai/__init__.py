@@ -5,5 +5,11 @@
 # Package: main.askai.core.engine.openai
 """Package initialization."""
 
-__all__ = ["openai_configs", "openai_engine", "openai_model", "temperature"]
-__version__ = "1.0.13"
+__all__ = [
+    'openai_configs', 
+    'openai_engine', 
+    'openai_model', 
+    'openai_vision', 
+    'temperature'
+]
+__version__ = '1.0.13'

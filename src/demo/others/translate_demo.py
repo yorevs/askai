@@ -1,27 +1,23 @@
-from transformers import MarianMTModel, MarianTokenizer
+from hspylib.core.tools.commons import sysout
+
+from askai.language.language import Language
+from askai.language.translators.argos_translator import ArgosTranslator
+from askai.language.translators.deepl_translator import DeepLTranslator
+from askai.language.translators.marian_translator import MarianTranslator
 
 if __name__ == "__main__":
-
-    # Specify the model name
-    model_name = "Helsinki-NLP/opus-mt-en-ROMANCE"
-
-    # Load the model and tokenizer
-    model = MarianMTModel.from_pretrained(model_name)
-    tokenizer = MarianTokenizer.from_pretrained(model_name)
-
-    # Function to translate text
-    def translate(text, model, tokenizer):
-        # Prepare the text for the model
-        inputs = tokenizer.encode(text, return_tensors="pt", padding=True)
-        # Perform the translation
-        translated = model.generate(inputs)
-        # Decode the translated text
-        translated_text = tokenizer.decode(translated[0], skip_special_tokens=True)
-        return translated_text
-
-    # Example text to translate
-    text_to_translate = ">>es_ES<< Hello, how are you?"
-
-    # Perform the translation
-    translated_text = translate(text_to_translate, model, tokenizer)
-    print(translated_text)
+    text = """
+    This is just a 'Translator' test. there are some **Markdown Formatted**
+    1. Bullet 1
+    2. Bullet 2
+    "This should not be translated"
+    ∆ Finished.
+    """
+    from_lang: Language = Language.EN_US
+    to_lang: Language = Language.PT_BR
+    t = DeepLTranslator(from_lang, to_lang)
+    sysout("DeepL: ", t.translate(text))
+    m = MarianTranslator(from_lang, to_lang)
+    sysout("Marian: ", m.translate(text))
+    a = ArgosTranslator(from_lang, to_lang)
+    sysout("Argos: ", a.translate(text))

@@ -427,7 +427,3 @@ def camera(operation: str, args: tuple[str, ...]) -> None:
         case _:
             err = str(click.BadParameter(f"Invalid camera operation: '{operation}'"))
             text_formatter.cmd_print(f"%RED%{err}%NC%")
-
-
-if __name__ == "__main__":
-    ask_commander(["camera", "identify"], standalone_mode=False)
