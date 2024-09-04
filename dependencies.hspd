@@ -20,7 +20,6 @@ package: langchain-openai, version: 0.1.23, mode: ge
 package: langchain-community, version: 0.2.14, mode: ge
 package: langchain-google-community, version: 1.0.8, mode: ge
 package: langchainhub, version: 0.1.20, mode: ge
-package: faiss-cpu, version: 1.8.0.post1, mode: ge
 package: openai-whisper, version: 20231117, mode: ge
 package: openai, version: 1.42.0, mode: ge
 package: google-api-python-client, version: 2.143.0, mode: ge
@@ -32,6 +31,7 @@ package: PyAudio, version: 0.2.14, mode: ge
 package: SpeechRecognition, version: 3.10.4, mode: ge
 package: opencv-python, version: 4.10.0.84, mode: ge
 package: deepl, version: 1.18.0, mode: ge
+package: faiss-cpu, version: 1.8.0.post1, mode: ge
 package: chromadb, version: 0.5.5, mode: ge
 package: retry2, version: 0.9.5, mode: ge
 package: pause, version: 0.3, mode: ge
