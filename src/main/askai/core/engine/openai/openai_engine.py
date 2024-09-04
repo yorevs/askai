@@ -15,13 +15,13 @@
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache
 from askai.core.component.recorder import Recorder
+from askai.core.component.text_streamer import streamer
 from askai.core.engine.ai_model import AIModel
 from askai.core.engine.ai_reply import AIReply
 from askai.core.engine.ai_vision import AIVision
 from askai.core.engine.openai.openai_configs import OpenAiConfigs
 from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.engine.openai.openai_vision import OpenAIVision
-from askai.core.support.utilities import stream_text
 from hspylib.core.preconditions import check_not_none
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models import BaseChatModel, BaseLLM
@@ -183,7 +183,7 @@ class OpenAIEngine:
                 speak_thread.start()
                 if stream:
                     pause.seconds(player.start_delay())
-                    stream_text(text, prefix)
+                    streamer.stream_text(text, prefix)
                 speak_thread.join()  # Block until the speech has finished.
             return Path(speech_file_path)
         return None
