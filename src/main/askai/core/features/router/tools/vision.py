@@ -66,8 +66,7 @@ def image_captioner(path_name: AnyPath, load_dir: AnyPath | None = None) -> str:
     :param load_dir: Optional directory path for loading related resources.
     :return: A string containing the description of the image, or None if the description could not be generated.
     """
-    caption: str = "Not available"
-
+    image_caption: str = "Not available"
     posix_path: PathObject = PathObject.of(path_name)
 
     if not posix_path.exists:
@@ -80,9 +79,11 @@ def image_captioner(path_name: AnyPath, load_dir: AnyPath | None = None) -> str:
     if posix_path.exists:
         events.reply.emit(message=msg.describe_image(str(posix_path)), verbosity="debug")
         vision: AIVision = shared.engine.vision()
-        caption = vision.caption(posix_path.filename, load_dir or posix_path.abs_dir or PICTURE_DIR)
+        image_caption = vision.caption(posix_path.filename, load_dir or posix_path.abs_dir or PICTURE_DIR)
+        if result := ImageResult.of(image_caption):
+            image_caption = f"{result.env_description} {'. '.join(result.people_description)}"
 
-    return caption
+    return image_caption
 
 
 def parse_caption(image_caption: str) -> str:

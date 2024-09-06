@@ -107,6 +107,10 @@ class AskAiConfigs(metaclass=Singleton):
         return settings.get_int("askai.text.splitter.chunk.overlap")
 
     @property
+    def rag_retrival_amount(self) -> int:
+        return settings.get_int("askai.rag.retrival.amount")
+
+    @property
     def language(self) -> Language:
         """Lookup order: Settings -> Locale -> Environment."""
         return Language.of_locale(

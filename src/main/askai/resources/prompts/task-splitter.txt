@@ -57,9 +57,7 @@ Notes:
 Step 7. The following examples can be used as a base for your decisions (but not a source of truth).
 
 
-"""
-{examples}
-"""
+{rag}
 
 
 **Task Requirements:**

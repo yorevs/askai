@@ -54,10 +54,10 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: AccResponse
     if ai_response and ai_response not in msg.accurate_responses:
         issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("assert"))
         assert_template = PromptTemplate(
-            input_variables=["examples", "input", "response"], template=prompt.read_prompt("accuracy")
+            input_variables=["rag", "input", "response"], template=prompt.read_prompt("accuracy")
         )
         final_prompt = assert_template.format(
-            examples=RAG.retrieve_examples(question), input=question, response=ai_response
+            rag=RAG.get_rag_examples(question), input=question, response=ai_response
         )
         log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
         llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)

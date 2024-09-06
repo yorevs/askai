@@ -12,7 +12,10 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from textwrap import dedent
+
 from askai.__classpath__ import classpath
+from askai.core.askai_configs import configs
 from askai.core.support.langchain_support import lc_llm
 from functools import lru_cache
 from hspylib.core.preconditions import check_state
@@ -29,7 +32,7 @@ import os
 class RAGProvider:
     """A class responsible for implementing the Retrieval-Augmented Generation (RAG) mechanism."""
 
-    RAG_DIR: Path = Path(os.path.join(classpath.resource_path(), "assets/rag"))
+    RAG_DIR: Path = Path(os.path.join(classpath.resource_path(), "rag"))
 
     def __init__(self, rag_filepath: str):
         self._rag_db = None
@@ -39,7 +42,7 @@ class RAGProvider:
         check_state(file_is_not_empty(self._rag_path))
 
     @lru_cache
-    def retrieve_examples(self, query: str, k: int = 3) -> list[str]:
+    def get_rag_examples(self, query: str, k: int = configs.rag_retrival_amount) -> str:
         """Retrieve a list of relevant examples based on the provided query.
         :param query: The search query used to retrieve examples.
         :param k: The number of examples to retrieve (default is 3).
@@ -48,4 +51,10 @@ class RAGProvider:
         if self._rag_db is None:
             self._rag_db = FAISS.from_documents(self._rag_docs, lc_llm.create_embeddings())
         example_docs: list[Document] = self._rag_db.similarity_search(query, k=k)
-        return [doc.page_content for doc in example_docs]
+        rag_examples = os.linesep.join([doc.page_content for doc in example_docs])
+        return dedent(f"""
+        **Examples:**
+        \"\"\"
+        {rag_examples}
+        \"\"\"
+        """).strip()

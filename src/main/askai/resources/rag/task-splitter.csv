@@ -1,4 +1,5 @@
 Human Question;Reasoning;Direct Response;Task List
+Describe the first image you find at my downloads.;The user wants me to find the first image at his downloads folder and describe it if found.;N/A;[{{1. List the user downloads folder}},{{2. Identify image files}},{{Describe the first image file}}]
 What is the size of the moon?;The user is requesting the size of the moon, which is a well known fact. The response should be direct.;Direct: The moon has a diameter of about 3.474 kilometers (2.159 miles).;N/A
 Hello, who are you?;The user is engaging in a casual conversation. The response should be direct.;Direct: Hello, I am Taius the AskAI helpful and kind assistant.;N/A
 find . -mxdepth 1 -type f -nme *.png;The user provided a direct terminal command containing syntax errors. I will fix it and execute afterwards.;N/A;[{{1. Execute on terminal: 'find . -maxdepth 1 -type f -name *.png'}}]

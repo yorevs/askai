@@ -38,7 +38,7 @@ class AudioPlayer(metaclass=Singleton):
     INSTANCE: "AudioPlayer"
 
     # Sound effects directory.
-    SFX_DIR = str(classpath.resource_path()) + "/assets/sound-fx"
+    SFX_DIR = str(classpath.resource_path()) + "/sound-fx"
 
     @staticmethod
     def play_audio_file(path_to_audio_file: str | Path, tempo: int = 1) -> bool:

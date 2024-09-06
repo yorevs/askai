@@ -69,7 +69,7 @@ class TaskSplitter(metaclass=Singleton):
 
         evaluation: str = str(shared.context.flat("EVALUATION"))
         template = PromptTemplate(
-            input_variables=["os_type", "shell", "datetime", "home", "examples"],
+            input_variables=["os_type", "shell", "datetime", "home", "rag"],
             template=prompt.read_prompt("task-splitter.txt"),
         )
         return ChatPromptTemplate.from_messages(
@@ -81,7 +81,7 @@ class TaskSplitter(metaclass=Singleton):
                         shell=prompt.shell,
                         datetime=geo_location.datetime,
                         home=Path.home(),
-                        examples=self._rag.retrieve_examples(query),
+                        rag=self._rag.get_rag_examples(query),
                     ),
                 ),
                 MessagesPlaceholder("chat_history"),

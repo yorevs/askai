@@ -79,11 +79,7 @@ as 'Red' if it does not align with known facts.
 - Before returning a classification, check the chat history and all provided context, as that may lead to a different classification, and to double check the classification is accurate.
 
 
-**Examples:**
-
-----
-{examples}
-----
+{rag}
 
 
 Human Input: "{input}"
