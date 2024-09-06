@@ -111,6 +111,10 @@ class AskAiConfigs(metaclass=Singleton):
         return settings.get_int("askai.rag.retrival.amount")
 
     @property
+    def is_rag(self) -> bool:
+        return settings.get_int("askai.rag.enabled")
+
+    @property
     def language(self) -> Language:
         """Lookup order: Settings -> Locale -> Environment."""
         return Language.of_locale(

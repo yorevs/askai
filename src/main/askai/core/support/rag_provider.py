@@ -48,13 +48,14 @@ class RAGProvider:
         :param k: The number of examples to retrieve (default is 3).
         :return: A list of strings representing the retrieved examples.
         """
-        if self._rag_db is None:
-            self._rag_db = FAISS.from_documents(self._rag_docs, lc_llm.create_embeddings())
-        example_docs: list[Document] = self._rag_db.similarity_search(query, k=k)
-        rag_examples = os.linesep.join([doc.page_content for doc in example_docs])
-        return dedent(f"""
-        **Examples:**
-        \"\"\"
-        {rag_examples}
-        \"\"\"
-        """).strip()
+        if configs.is_rag:
+            if self._rag_db is None:
+                self._rag_db = FAISS.from_documents(self._rag_docs, lc_llm.create_embeddings())
+            example_docs: list[Document] = self._rag_db.similarity_search(query, k=k)
+            rag_examples = os.linesep.join([doc.page_content for doc in example_docs])
+            return dedent(f"""
+            **Examples:**
+            \"\"\"
+            {rag_examples}
+            \"\"\"
+            """).strip()
