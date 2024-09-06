@@ -12,10 +12,9 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from askai.language.language import Language
 from functools import lru_cache
 from typing import Protocol
-
-from askai.language.language import Language
 
 
 class AITranslator(Protocol):

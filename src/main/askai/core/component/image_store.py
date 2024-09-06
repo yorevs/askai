@@ -12,7 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.features.router.tools.vision import image_captioner
+from askai.core.features.router.tools.vision import offline_captioner
 from chromadb.api.types import IncludeEnum
 from chromadb.utils.data_loaders import ImageLoader
 from chromadb.utils.embedding_functions.open_clip_embedding_function import OpenCLIPEmbeddingFunction
@@ -84,7 +84,7 @@ class ImageStore(metaclass=Singleton):
                 cat: str = category()
                 files: list[str] = list(filter(is_image_file, map(lambda fn: os.path.join(dir_path, fn), file_names)))
                 img_files.extend(
-                    ImageFile(hash_text(basename(f)), f, cat, image_captioner(f) if with_caption else "No caption")
+                    ImageFile(hash_text(basename(f)), f, cat, offline_captioner(f) if with_caption else "No caption")
                     for f in files
                 )
 

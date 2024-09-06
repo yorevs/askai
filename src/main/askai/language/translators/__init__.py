@@ -5,9 +5,5 @@
 # Package: main.askai.language.translators
 """Package initialization."""
 
-__all__ = [
-    'argos_translator', 
-    'deepl_translator', 
-    'marian_translator'
-]
-__version__ = '1.0.13'
+__all__ = ["argos_translator", "deepl_translator", "marian_translator"]
+__version__ = "1.0.13"

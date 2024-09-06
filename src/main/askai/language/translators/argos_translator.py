@@ -40,12 +40,10 @@ class ArgosTranslator(AITranslator):
         """
         lang = f"{source.name} -> {target.name}"
         source_lang = [
-            model for model in translate.get_installed_languages()
-            if lang in map(repr, model.translations_from)
+            model for model in translate.get_installed_languages() if lang in map(repr, model.translations_from)
         ]
         target_lang = [
-            model for model in translate.get_installed_languages()
-            if lang in map(repr, model.translations_to)
+            model for model in translate.get_installed_languages() if lang in map(repr, model.translations_to)
         ]
         if len(source_lang) <= 0 or len(target_lang) <= 0:
             log.info('Translation "%s" is not installed!')

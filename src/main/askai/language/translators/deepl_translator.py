@@ -35,7 +35,7 @@ class DeepLTranslator(AITranslator):
         :return: The translated text.
         """
         if self._source_lang != self._target_lang:
-            kwargs['preserve_formatting'] = True
+            kwargs["preserve_formatting"] = True
             lang = self._from_locale()
             result: deepl.TextResult = self._translator.translate_text(
                 text, source_lang=lang[0], target_lang=lang[1], **kwargs

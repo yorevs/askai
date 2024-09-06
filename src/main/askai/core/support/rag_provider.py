@@ -12,8 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from textwrap import dedent
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.support.langchain_support import lc_llm
@@ -25,6 +23,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStore
 from pathlib import Path
+from textwrap import dedent
 
 import os
 
@@ -53,9 +52,11 @@ class RAGProvider:
                 self._rag_db = FAISS.from_documents(self._rag_docs, lc_llm.create_embeddings())
             example_docs: list[Document] = self._rag_db.similarity_search(query, k=k)
             rag_examples = os.linesep.join([doc.page_content for doc in example_docs])
-            return dedent(f"""
+            return dedent(
+                f"""
             **Examples:**
             \"\"\"
             {rag_examples}
             \"\"\"
-            """).strip()
+            """
+            ).strip()

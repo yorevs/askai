@@ -12,21 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from functools import partial
-from pathlib import Path
-from threading import Thread
-from typing import List, TypeAlias
-
-import nltk
-import pause
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.modules.eventbus.event import Event
-from rich.progress import Progress
-
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -39,6 +24,20 @@ from askai.core.component.scheduler import scheduler
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from functools import partial
+from hspylib.modules.eventbus.event import Event
+from pathlib import Path
+from rich.progress import Progress
+from threading import Thread
+from typing import List, TypeAlias
+
+import logging as log
+import nltk
+import os
+import pause
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -166,7 +165,7 @@ class AskAiCli(AskAi):
             "Starting scheduler",
             "Setting up recorder",
             "Starting player delay",
-            "Finalizing startup"
+            "Finalizing startup",
         ]
         # Start and manage the progress bar
         askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)

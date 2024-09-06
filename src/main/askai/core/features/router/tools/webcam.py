@@ -1,3 +1,5 @@
+from hspylib.core.tools.text_tools import ensure_startswith, ensure_endswith
+
 from askai.core.askai_configs import configs
 from askai.core.component.camera import camera
 from askai.core.features.router.tools.vision import image_captioner, parse_caption
@@ -9,10 +11,10 @@ import os
 
 
 def webcam_capturer(photo_name: str | None, detect_faces: bool = False) -> str:
-    """This tool is used to take a photo (and save it locally) using the webcam. It also provide a captioning
-    of the image taken.
-    :param photo_name: The name of the photo file.
-    :param detect_faces: Whether to detect all faces in the photo.
+    """Capture a photo using the webcam and save it locally. Optionally detect faces in the photo.
+    :param photo_name: The name of the photo file. If None, a default name will be used.
+    :param detect_faces: Whether to detect faces in the photo.
+    :return: The file path of the saved photo.
     """
 
     pic_file, pic_data = camera.capture(photo_name, with_caption=False)
@@ -38,18 +40,27 @@ def webcam_capturer(photo_name: str | None, detect_faces: bool = False) -> str:
 
     image_description: str = parse_caption(image_captioner(pic_file.img_path))
 
-    return f">   Photo Taken -> {pic_file.img_path}\n\n" f"{image_description or ''}\n" f"{face_description or ''}"
+    # fmt: off
+    return ensure_endswith(ensure_startswith(
+        f"\n>   Photo Taken -> {pic_file.img_path}\n\n"
+        f"{image_description or ''}\n"
+        f"{face_description or ''}", "\n"
+    ), "\n")  # fmt: on
 
 
 def webcam_identifier(max_distance: int = configs.max_id_distance) -> str:
-    """This too is used to identify the person in front of the webcam. It also provide a description of him/her."""
+    """Identifies the person in front of the webcam and provides a description of them.
+    :param max_distance: The maximum distance for identifying the person based on image similarity.
+    :return: A description of the identified person.
+    """
     identity: str = "%ORANGE%  No identification was possible!%NC%"
     display_text("Look at the camera...")
     if photo := camera.identify(3, max_distance):
-        identity = (
-            f">   Person Identified -> {photo.uri}\n\n"
+        # fmt: off
+        identity = ensure_endswith(ensure_startswith(
+            f"\n>   Person Identified -> {photo.uri}\n\n"
             f"- **Distance:** `{round(photo.distance, 4):.4f}/{round(max_distance, 4):.4f}`\n"
-            f"{photo.caption}\n"
-        )
+            f"{photo.caption}", "\n"
+        ), "\n")  # fmt: on
 
     return identity

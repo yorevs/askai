@@ -157,6 +157,9 @@ class AskAiMessages(metaclass=Singleton):
     def final_query(self, query: str) -> str:
         return f"~~[DEBUG]~~ > Final query: `{query}`"
 
+    def refine_answer(self, answer: str) -> str:
+        return f"~~[DEBUG]~~ > Refining answer: `{answer}`"
+
     def no_caption(self) -> str:
         return "No caption available"
 

@@ -5,10 +5,5 @@
 # Package: demo
 """Package initialization."""
 
-__all__ = [
-    'components', 
-    'features', 
-    'others', 
-    'utils'
-]
-__version__ = '1.0.13'
+__all__ = ["components", "features", "others", "utils"]
+__version__ = "1.0.13"

@@ -12,6 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from hspylib.core.tools.text_tools import ensure_startswith, ensure_endswith
+
 from askai.core.askai_messages import msg
 from askai.core.features.router.tools.analysis import query_output
 from askai.core.features.router.tools.browser import browse
@@ -19,7 +21,7 @@ from askai.core.features.router.tools.general import display_tool
 from askai.core.features.router.tools.generation import generate_content, save_content
 from askai.core.features.router.tools.summarization import summarize
 from askai.core.features.router.tools.terminal import execute_command, list_contents, open_command
-from askai.core.features.router.tools.vision import image_captioner
+from askai.core.features.router.tools.vision import image_captioner, offline_captioner, parse_caption
 from askai.core.features.router.tools.webcam import webcam_capturer, webcam_identifier
 from askai.exception.exceptions import TerminatingQuery
 from clitt.core.tui.line_input.line_input import line_input
@@ -109,7 +111,8 @@ class AgentToolkit(metaclass=Singleton):
         :param image_path: The absolute path of the image file to be analyzed.
         :return: A string containing the generated caption describing the image.
         """
-        return image_captioner(image_path)
+        return ensure_endswith(ensure_startswith(
+            parse_caption(image_captioner(image_path)), f"\n>   Description of '{image_path}':\n"), "\n")
 
     def webcam_capturer(self, photo_name: str | None, detect_faces: bool = False) -> str:
         """Capture a photo using the webcam, and save it locally. This tool is useful for taking photos, detect people's

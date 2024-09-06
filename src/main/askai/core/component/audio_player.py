@@ -13,6 +13,7 @@
    Copyright (c) 2024, HomeSetup
 """
 from askai.__classpath__ import classpath
+from askai.core.askai_configs import configs
 from clitt.core.term.terminal import Terminal
 from functools import lru_cache
 from hspylib.core.metaclass.singleton import Singleton
@@ -26,8 +27,6 @@ from typing import Literal
 
 import logging as log
 import time
-
-from askai.core.askai_configs import configs
 
 
 class AudioPlayer(metaclass=Singleton):

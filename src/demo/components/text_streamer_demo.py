@@ -1,10 +1,10 @@
-from textwrap import dedent
-
 from askai.core.component.scheduler import scheduler
 from askai.core.component.text_streamer import streamer
+from textwrap import dedent
 
-if __name__ == '__main__':
-    text_big = dedent("""
+if __name__ == "__main__":
+    text_big = dedent(
+        """
     # Classic Pancake Recipe
 
     ## Ingredients:
@@ -40,7 +40,8 @@ if __name__ == '__main__':
 
     Enjoy your fluffy pancakes!
 
-    """)
+    """
+    )
     text_small = "This is just a simple test to tell that PI is 3.14159265"
     scheduler.start()
     streamer.stream_text(text_big)

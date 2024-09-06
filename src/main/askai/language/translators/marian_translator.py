@@ -1,17 +1,16 @@
-import re
-
 from askai.language.ai_translator import AITranslator
 from askai.language.language import Language
 from functools import lru_cache
 from transformers import MarianMTModel, MarianTokenizer
 
+import re
+
 
 class MarianTranslator(AITranslator):
-    """Provides a multilingual offline translation engine.
-    """
+    """Provides a multilingual offline translation engine."""
 
     # Specify the model name
-    MODEL_NAME = 'Helsinki-NLP/opus-mt-en-ROMANCE'
+    MODEL_NAME = "Helsinki-NLP/opus-mt-en-ROMANCE"
 
     def __init__(self, from_idiom: Language, to_idiom: Language):
         super().__init__(from_idiom, to_idiom)
@@ -28,8 +27,8 @@ class MarianTranslator(AITranslator):
         if self._source_lang == self._target_lang:
             return text
 
-        kwargs['return_tensors'] = "pt"
-        kwargs['padding'] = True
+        kwargs["return_tensors"] = "pt"
+        kwargs["padding"] = True
 
         return self._translate(f">>{self._target_lang.idiom}<<{text}", **kwargs)
 
@@ -39,21 +38,20 @@ class MarianTranslator(AITranslator):
         :return: The translated text.
         """
         # Replace formatting with placeholders
-        text_with_placeholders = re.sub(r'\*\*(.*?)\*\*', r'%BOLD%\1%BOLD%', text)
-        text_with_placeholders = re.sub(r'_(.*?)_', r'%ITALIC%\1%ITALIC%', text_with_placeholders)
-        text_with_placeholders = re.sub(r'\n', r'%LN%', text_with_placeholders)
+        text_with_placeholders = re.sub(r"\*\*(.*?)\*\*", r"%BOLD%\1%BOLD%", text)
+        text_with_placeholders = re.sub(r"_(.*?)_", r"%ITALIC%\1%ITALIC%", text_with_placeholders)
+        text_with_placeholders = re.sub(r"\n", r"%LN%", text_with_placeholders)
 
         # Prepare the text for the model
-        inputs = self._tokenizer.encode(
-            text_with_placeholders, **kwargs)
+        inputs = self._tokenizer.encode(text_with_placeholders, **kwargs)
 
         # Perform the translation
         translated_text = [self._tokenizer.decode(t) for t in self._model.generate(inputs)][0]
 
         # Reapply formatting
-        translated_text = re.sub(r'% ?BOLD%(.*?)% ?BOLD%', r'**\1**', translated_text)
-        translated_text = re.sub(r'% ?ITALIC%(.*?)% ?ITALIC%', r'_\1_', translated_text)
-        translated_text = re.sub(r'% ?LN%', r'\n', translated_text)
+        translated_text = re.sub(r"% ?BOLD%(.*?)% ?BOLD%", r"**\1**", translated_text)
+        translated_text = re.sub(r"% ?ITALIC%(.*?)% ?ITALIC%", r"_\1_", translated_text)
+        translated_text = re.sub(r"% ?LN%", r"\n", translated_text)
 
         return translated_text
 

@@ -1,18 +1,17 @@
-import os
-import sys
-from threading import Thread
-from typing import AnyStr
-
-import pause
+from askai.core.support.presets import Presets
+from askai.core.support.text_formatter import text_formatter
+from askai.language.language import Language
 from clitt.core.term.commons import Direction
 from clitt.core.term.cursor import cursor
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.modules.cli.keyboard import Keyboard
 from hspylib.modules.cli.vt100.vt_color import VtColor
+from threading import Thread
+from typing import AnyStr
 
-from askai.core.support.presets import Presets
-from askai.core.support.text_formatter import text_formatter
-from askai.language.language import Language
+import os
+import pause
+import sys
 
 
 class TextStreamer(metaclass=Singleton):
@@ -27,28 +26,14 @@ class TextStreamer(metaclass=Singleton):
     STREAM_THREAD: Thread = None
 
     def stream_text(
-        self,
-        text: AnyStr,
-        prefix: AnyStr = "",
-        tempo: int = 1,
-        language: Language = Language.EN_US
+        self, text: AnyStr, prefix: AnyStr = "", tempo: int = 1, language: Language = Language.EN_US
     ) -> None:
         """TODO"""
-        TextStreamer.STREAM_THREAD = Thread(
-            daemon=True,
-            target=self._stream,
-            args=(text, prefix, tempo, language)
-        )
+        TextStreamer.STREAM_THREAD = Thread(daemon=True, target=self._stream, args=(text, prefix, tempo, language))
         TextStreamer.STREAM_THREAD.start()
         TextStreamer.STREAM_THREAD.join()
 
-    def _stream(
-        self,
-        text: AnyStr,
-        prefix: AnyStr = "",
-        tempo: int = 1,
-        language: Language = Language.EN_US
-    ) -> None:
+    def _stream(self, text: AnyStr, prefix: AnyStr = "", tempo: int = 1, language: Language = Language.EN_US) -> None:
         """Stream the text on the screen with a typewriter effect. This method simulates the effect of text being typed out character by character, with the speed
         of the effect determined by the tempo parameter. The effect can be customized based on the selected
         language.
@@ -74,7 +59,7 @@ class TextStreamer(metaclass=Singleton):
                 break
             if char == "%" and (i + 1) < len(text):
                 try:
-                    if (color := text[i + 1: text.index("%", i + 1)]) in VtColor.names():
+                    if (color := text[i + 1 : text.index("%", i + 1)]) in VtColor.names():
                         hide, idx = True, text.index("%", i + 1)
                         cursor.write(f"%{color}%", end="")
                         continue
@@ -93,12 +78,16 @@ class TextStreamer(metaclass=Singleton):
                 if i - 1 >= 0 and not text[i - 1].isspace():
                     word_count += 1
                     pause.seconds(
-                        presets.breath_interval if word_count % presets.words_per_breath == 0 else presets.words_interval
+                        presets.breath_interval
+                        if word_count % presets.words_per_breath == 0
+                        else presets.words_interval
                     )
                 elif i - 1 >= 0 and not text[i - 1] in [".", "?", "!"]:
                     word_count += 1
                     pause.seconds(
-                        presets.period_interval if word_count % presets.words_per_breath == 0 else presets.punct_interval
+                        presets.period_interval
+                        if word_count % presets.words_per_breath == 0
+                        else presets.punct_interval
                     )
             elif char == "/":
                 pause.seconds(
@@ -117,7 +106,8 @@ class TextStreamer(metaclass=Singleton):
                 )
             elif char in [",", ";"]:
                 pause.seconds(
-                    presets.comma_interval if i + 1 < len(text) and text[i + 1].isspace() else presets.base_speed)
+                    presets.comma_interval if i + 1 < len(text) and text[i + 1].isspace() else presets.base_speed
+                )
             elif char in [".", "?", "!", ln]:
                 pause.seconds(presets.punct_interval)
                 word_count = 0

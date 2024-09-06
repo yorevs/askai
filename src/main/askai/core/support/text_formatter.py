@@ -122,19 +122,19 @@ class TextFormatter(metaclass=Singleton):
         """
         Remove Markdown formatting from a string.
         """
-        plain_text = re.sub(r'```(.*?)```', r'\1', str(text), flags=re.DOTALL)
-        plain_text = re.sub(r'`[^`]+`', '', plain_text)
-        plain_text = re.sub(r'^(#+\s+)', '', plain_text)
-        plain_text = re.sub(r'\*\*([^*]+)\*\*', r'\1', plain_text)
-        plain_text = re.sub(r'\*([^*]+)\*', r'\1', plain_text)
-        plain_text = re.sub(r'__([^_]+)__', r'\1', plain_text)
-        plain_text = re.sub(r'_([^_]+)_', r'\1', plain_text)
-        plain_text = re.sub(r'\[([^]]+)]\([^)]+\)', r'\1', plain_text)
-        plain_text = re.sub(r'!\[([^]]*)]\([^)]+\)', r'\1', plain_text)
-        plain_text = re.sub(r'---|___|\*\*\*', '', plain_text)
-        plain_text = re.sub(r'>\s+', '', plain_text)
-        plain_text = re.sub(r'[-*+]\s+', '', plain_text)
-        plain_text = re.sub(r'^\d+\.\s+', '', plain_text)
+        plain_text = re.sub(r"```(.*?)```", r"\1", str(text), flags=re.DOTALL)
+        plain_text = re.sub(r"`[^`]+`", "", plain_text)
+        plain_text = re.sub(r"^(#+\s+)", "", plain_text)
+        plain_text = re.sub(r"\*\*([^*]+)\*\*", r"\1", plain_text)
+        plain_text = re.sub(r"\*([^*]+)\*", r"\1", plain_text)
+        plain_text = re.sub(r"__([^_]+)__", r"\1", plain_text)
+        plain_text = re.sub(r"_([^_]+)_", r"\1", plain_text)
+        plain_text = re.sub(r"\[([^]]+)]\([^)]+\)", r"\1", plain_text)
+        plain_text = re.sub(r"!\[([^]]*)]\([^)]+\)", r"\1", plain_text)
+        plain_text = re.sub(r"---|___|\*\*\*", "", plain_text)
+        plain_text = re.sub(r">\s+", "", plain_text)
+        plain_text = re.sub(r"[-*+]\s+", "", plain_text)
+        plain_text = re.sub(r"^\d+\.\s+", "", plain_text)
 
         return plain_text.strip()
 

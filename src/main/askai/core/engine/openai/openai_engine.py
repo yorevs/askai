@@ -17,7 +17,6 @@ from askai.core.component.cache_service import cache
 from askai.core.component.recorder import Recorder
 from askai.core.component.text_streamer import streamer
 from askai.core.engine.ai_model import AIModel
-from askai.core.engine.ai_reply import AIReply
 from askai.core.engine.ai_vision import AIVision
 from askai.core.engine.openai.openai_configs import OpenAiConfigs
 from askai.core.engine.openai.openai_model import OpenAIModel
@@ -35,6 +34,8 @@ import logging as log
 import os
 import pause
 import tiktoken
+
+from askai.core.model.ai_reply import AIReply
 
 
 class OpenAIEngine:

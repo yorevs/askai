@@ -23,6 +23,7 @@ from langchain_core.messages import BaseMessage, HumanMessage
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.runnables import chain
 from langchain_openai import ChatOpenAI
+from retry import retry
 from textwrap import dedent
 from typing import TypeAlias
 
@@ -81,6 +82,7 @@ class OpenAIVision:
         {'- ' + question if question else ''}"""
         ).strip()
 
+    @retry()
     def caption(self, filename: AnyPath, load_dir: AnyPath | None, question: str | None = None) -> str:
         """Generate a caption for the provided image.
         :param filename: File name of the image for which the caption is to be generated.

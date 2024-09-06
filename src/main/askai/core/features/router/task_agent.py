@@ -4,12 +4,8 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_response import AccResponse
-from askai.core.enums.routing_model import RoutingModel
 from askai.core.features.router.task_toolkit import features
-from askai.core.features.router.tools.general import final_answer
 from askai.core.features.validation.accuracy import assert_accuracy
-from askai.core.model.action_plan import ActionPlan
-from askai.core.model.model_result import ModelResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from functools import lru_cache
@@ -23,7 +19,6 @@ from langchain_core.runnables.utils import Output
 from typing import AnyStr, Optional
 
 import logging as log
-import os
 
 
 class TaskAgent(metaclass=Singleton):
@@ -32,46 +27,6 @@ class TaskAgent(metaclass=Singleton):
     """
 
     INSTANCE: "TaskAgent"
-
-    @staticmethod
-    def wrap_answer(
-        query: str, answer: str, model_result: ModelResult = ModelResult.default(), rag: AccResponse | None = None
-    ) -> str:
-        """Provide a final answer to the user by wrapping the AI response with additional context.
-        :param query: The user's question.
-        :param answer: The AI's response to the question.
-        :param model_result: The result from the selected routing model (default is ModelResult.default()).
-        :param rag: The final accuracy check (RAG) response, if available.
-        :return: A formatted string containing the final answer.
-        """
-        output: str = answer
-        model: RoutingModel = RoutingModel.of_model(model_result.mid)
-        events.reply.emit(message=msg.model_select(str(model)), verbosity="debug")
-        args = {"user": shared.username, "idiom": shared.idiom, "context": answer, "question": query}
-        prompt_args: list[str] = [k for k in args.keys()]
-
-        match model, configs.is_speak:
-            case RoutingModel.TERMINAL_COMMAND, True:
-                output = final_answer("taius-stt", prompt_args, **args)
-            case RoutingModel.ASSISTIVE_TECH_HELPER, _:
-                output = final_answer("taius-stt", prompt_args, **args)
-            case RoutingModel.CHAT_MASTER, _:
-                output = final_answer("taius-jarvis", prompt_args, **args)
-            case RoutingModel.REFINER, _:
-                if rag and rag.reasoning:
-                    ctx: str = str(shared.context.flat("HISTORY"))
-                    args = {"improvements": rag.reasoning, "context": ctx, "response": answer, "question": query}
-                    prompt_args = [k for k in args.keys()]
-                    output = final_answer("taius-refiner", prompt_args, **args)
-            case _:
-                # Default is to leave the last AI response intact.
-                pass
-
-        shared.context.push("HISTORY", query)
-        shared.context.push("HISTORY", output, "assistant")
-        shared.memory.save_context({"input": query}, {"output": output})
-
-        return output
 
     def __init__(self):
         self._lc_agent: Runnable | None = None
@@ -94,48 +49,22 @@ class TaskAgent(metaclass=Singleton):
             ]
         )
 
-    def invoke(self, query: str, plan: ActionPlan) -> str:
+    def invoke(self, task: str) -> str:
         """Invoke the agent to respond to the given query using the specified action plan.
-        :param query: The user's question.
-        :param plan: The AI action plan that outlines the steps to generate the response.
+        :param task: The AI task that outlines the steps to generate the response.
         :return: The agent's response as a string.
         """
-        shared.context.push("HISTORY", query)
-        output: str = ""
-        accumulated: list[str] = []
-        if tasks := plan.tasks:
-            if plan.speak:
-                events.reply.emit(message=plan.speak)
-            for idx, action in enumerate(tasks, start=1):
-                path_str: str = (
-                    "Path: " + action.path
-                    if hasattr(action, "path") and action.path.upper() not in ["N/A", "NONE"]
-                    else ""
-                )
-                task: str = f"{action.task}  {path_str}"
-                events.reply.emit(message=msg.task(task), verbosity="debug")
-                if (response := self._exec_task(task)) and (output := response["output"]):
-                    log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
-                    if len(tasks) > 1:
-                        assert_accuracy(task, output, AccResponse.MODERATE)
-                        shared.context.push("HISTORY", task, "assistant")
-                        shared.context.push("HISTORY", output, "assistant")
-                        shared.memory.save_context({"input": task}, {"output": output})
-                        if len(tasks) > idx:
-                            # Print intermediary steps.
-                            events.reply.emit(message=output)
-                    accumulated.append(output)
-                else:
-                    output = msg.no_output("AI")
-                    accumulated.append(output)
+        events.reply.emit(message=msg.task(task), verbosity="debug")
+        if (response := self._exec_task(task)) and (output := response["output"]):
+            log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
+            shared.context.push("HISTORY", task, "assistant")
+            shared.context.push("HISTORY", output, "assistant")
+            shared.memory.save_context({"input": task}, {"output": output})
+            assert_accuracy(task, output, AccResponse.MODERATE)
         else:
-            output = plan.speak
-            accumulated.append(output)
+            output = msg.no_output("AI")
 
-        if (rag := assert_accuracy(query, os.linesep.join(accumulated), AccResponse.MODERATE)).is_moderate:
-            plan.model.mid = RoutingModel.REFINER.model
-
-        return self.wrap_answer(plan.primary_goal, output, plan.model, rag)
+        return output
 
     @lru_cache
     def _create_lc_agent(self, temperature: Temperature = Temperature.COLDEST) -> Runnable:

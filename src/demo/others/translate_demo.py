@@ -1,9 +1,8 @@
-from hspylib.core.tools.commons import sysout
-
 from askai.language.language import Language
 from askai.language.translators.argos_translator import ArgosTranslator
 from askai.language.translators.deepl_translator import DeepLTranslator
 from askai.language.translators.marian_translator import MarianTranslator
+from hspylib.core.tools.commons import sysout
 
 if __name__ == "__main__":
     text = """

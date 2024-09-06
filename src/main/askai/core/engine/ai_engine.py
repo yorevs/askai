@@ -14,12 +14,13 @@
 """
 from askai.core.askai_configs import AskAiConfigs
 from askai.core.engine.ai_model import AIModel
-from askai.core.engine.ai_reply import AIReply
 from askai.core.engine.ai_vision import AIVision
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models import BaseChatModel, BaseLLM
 from pathlib import Path
 from typing import Optional, Protocol
+
+from askai.core.model.ai_reply import AIReply
 
 
 class AIEngine(Protocol):

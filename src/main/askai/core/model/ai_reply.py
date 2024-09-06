@@ -16,12 +16,21 @@
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(frozen=True)
 class AIReply:
     """Data class that represents AI replies."""
 
     message: str = ""
-    is_success: bool = False
+    is_success: bool = True
+    is_debug: bool = False
+    is_verbose: bool = False
+    is_speakable: bool = True
 
     def __str__(self) -> str:
-        return f"Success = {self.is_success}\nMessage = {self.message}"
+        return (
+            f"Success: {self.is_success}\t"
+            f"Debug: {self.is_debug}\t"
+            f"Speakable: {self.is_speakable}\t"
+            f"Verbose: {self.is_verbose}\t"
+            f"Message: {self.message}\t"
+        )

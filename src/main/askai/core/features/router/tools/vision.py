@@ -80,8 +80,6 @@ def image_captioner(path_name: AnyPath, load_dir: AnyPath | None = None) -> str:
         events.reply.emit(message=msg.describe_image(str(posix_path)), verbosity="debug")
         vision: AIVision = shared.engine.vision()
         image_caption = vision.caption(posix_path.filename, load_dir or posix_path.abs_dir or PICTURE_DIR)
-        if result := ImageResult.of(image_caption):
-            image_caption = f"{result.env_description} {'. '.join(result.people_description)}"
 
     return image_caption
 
@@ -97,12 +95,13 @@ def parse_caption(image_caption: str) -> str:
         people_desc: str = ""
         if result.people_description:
             people_desc: str = f"- **People:** `({result.people_count})`\n" + indent(
-                f"- {'- '.join([f'`{ppl}{ln}`' for ppl in result.people_description])}", "    "
+                f"- {'- '.join([f'`{ppl}{ln}`' + ln for ppl in result.people_description])}", "    "
             )
+        # fmt: off
         return (
             f"- **Description:** `{result.env_description}`\n"
             f"- **Objects:** `{', '.join(result.main_objects)}`\n"
             f"{people_desc or ''}"
-        )
+        )  # fmt: on
 
     return msg.no_caption()
