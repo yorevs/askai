@@ -12,6 +12,23 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+from pathlib import Path
+
+import nltk
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import file_is_not_empty
+from hspylib.core.tools.text_tools import ensure_endswith
+from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
+from hspylib.modules.application.version import Version
+from hspylib.modules.cli.vt100.vt_color import VtColor
+from hspylib.modules.eventbus.event import Event
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.containers import ScrollableContainer
+from textual.widgets import Footer, Input, MarkdownViewer
+
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
@@ -32,22 +49,6 @@ from askai.tui.app_header import Header
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_suggester import InputSuggester
 from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import file_is_not_empty
-from hspylib.core.tools.text_tools import ensure_endswith
-from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
-from hspylib.modules.application.version import Version
-from hspylib.modules.cli.vt100.vt_color import VtColor
-from hspylib.modules.eventbus.event import Event
-from pathlib import Path
-from textual import on, work
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.widgets import Footer, Input, MarkdownViewer
-
-import logging as log
-import nltk
-import os
 
 SOURCE_DIR: Path = classpath.source_path()
 
@@ -228,7 +229,7 @@ class AskAiApp(App[None]):
             )
             f_console.flush()
             self._re_render = True
-        self._reply(f"{msg.welcome(prompt.user.title())}")
+        self._reply(AIReply.info(f"{msg.welcome(prompt.user.title())}"))
 
     async def action_speaking(self) -> None:
         """Toggle Speaking ON/OFF."""
@@ -293,27 +294,27 @@ class AskAiApp(App[None]):
             await self.md_console.go(self.console_path)
             self.md_console.scroll_end(animate=False)
 
-    def _reply(self, message: str) -> None:
+    def _reply(self, reply: AIReply) -> None:
         """Reply to the user with the AI-generated response.
-        :param message: The message to send as a reply to the user.
+        :param reply: The reply message to send as a reply to the user.
         """
         prev_msg: str = self._display_buffer[-1] if self._display_buffer else ""
-        if message and prev_msg != message:
-            log.debug(message)
-            self.display_text(f"{shared.nickname_md} {message}")
-            if configs.is_speak:
-                self.engine.text_to_speech(message, f"{shared.nickname_md} ")
+        if reply and prev_msg != reply.message:
+            log.debug(reply.message)
+            self.display_text(f"{shared.nickname_md} {reply.message}")
+            if configs.is_speak and reply.is_speakable:
+                self.engine.text_to_speech(reply.message, f"{shared.nickname_md} ")
 
-    def _reply_error(self, message: str) -> None:
+    def _reply_error(self, reply: AIReply) -> None:
         """Reply to the user with an AI-generated error message or system error.
-        :param message: The error message to be displayed to the user.
+        :param reply: The error reply message to be displayed to the user.
         """
         prev_msg: str = self._display_buffer[-1] if self._display_buffer else ""
-        if message and prev_msg != message:
-            log.error(message)
-            self.display_text(f"{shared.nickname_md} Error: {message}")
-            if configs.is_speak:
-                self.engine.text_to_speech(f"Error: {message}", f"{shared.nickname_md} ")
+        if reply and prev_msg != reply.message:
+            log.error(reply.message)
+            self.display_text(f"{shared.nickname_md} Error: {reply.message}")
+            if configs.is_speak and reply.is_speakable:
+                self.engine.text_to_speech(f"Error: {reply.message}", f"{shared.nickname_md} ")
 
     def display_text(self, markdown_text: str) -> None:
         """Send the text to the Markdown console.
@@ -328,10 +329,10 @@ class AskAiApp(App[None]):
         reply: AIReply
         if reply := ev.args.reply:
             if reply.is_error:
-                self._reply_error(str(reply))
+                self._reply_error(reply)
             else:
-                if ev.args.reply.verbosity <= 1 or configs.is_debug:
-                    self._reply(str(reply))
+                if ev.args.reply.verbosity.match(configs.verbosity) or configs.is_debug:
+                    self._reply(reply)
 
     def _cb_mic_listening_event(self, ev: Event) -> None:
         """Callback to handle microphone listening events.
@@ -353,12 +354,13 @@ class AskAiApp(App[None]):
         """
         self._mode: RouterMode = RouterMode.of_name(ev.args.mode)
         if not self._mode.is_default:
-            self._reply(
+            sum_msg: str = (
                 f"{msg.enter_qna()} \n"
                 f"```\nContext:  {ev.args.sum_path},   {ev.args.glob} \n```\n"
                 f"`{msg.press_esc_enter()}` \n\n"
                 f"> {msg.qna_welcome()}"
             )
+            events.reply.emit(reply=AIReply.info(sum_msg))
 
     @work(thread=True, exclusive=True)
     def ask_and_reply(self, question: str) -> tuple[bool, Optional[str]]:

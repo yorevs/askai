@@ -12,21 +12,21 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.__classpath__ import classpath
-from askai.core.askai_configs import configs
-from clitt.core.term.terminal import Terminal
+import logging as log
+import time
 from functools import lru_cache
+from pathlib import Path
+from shutil import which
+from typing import Literal
+
+from clitt.core.term.terminal import Terminal
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.tools.text_tools import ensure_endswith
 from hspylib.modules.application.exit_status import ExitStatus
-from pathlib import Path
-from shutil import which
-from typing import Literal
 
-import logging as log
-import time
+from askai.__classpath__ import classpath
 
 
 class AudioPlayer(metaclass=Singleton):
@@ -46,9 +46,7 @@ class AudioPlayer(metaclass=Singleton):
         :param tempo: The playback speed (default is 1).
         :return: True if the audio file is played successfully, otherwise False.
         """
-        if not configs.is_speak:
-            return True
-        elif file_is_not_empty(str(path_to_audio_file)):
+        if file_is_not_empty(str(path_to_audio_file)):
             try:
                 out, code = Terminal.shell_exec(
                     f'ffplay -af "atempo={tempo}" -v 0 -nodisp -autoexit {path_to_audio_file}'

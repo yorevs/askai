@@ -12,21 +12,22 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.__classpath__ import classpath
+import logging as log
+import os
+import re
 from contextlib import redirect_stdout
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.commons import console_out, to_bool
 from io import StringIO
 from pathlib import Path
+from typing import Any, Optional
+
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.commons import console_out, to_bool
 from rich.table import Table
 from setman.settings.settings import Settings
 from setman.settings.settings_config import SettingsConfig
 from setman.settings.settings_entry import SettingsEntry
-from typing import Any, Optional
 
-import logging as log
-import os
-import re
+from askai.__classpath__ import classpath
 
 # AskAI config directory.
 ASKAI_DIR: Path = Path(f'{os.getenv("ASKAI_DIR", os.getenv("HHS_DIR", str(Path.home())))}/askai')
@@ -43,7 +44,7 @@ class AskAiSettings(metaclass=Singleton):
     INSTANCE: "AskAiSettings"
 
     # Current settings version. Updating this value will trigger a database recreation using the defaults.
-    _ACTUAL_VERSION: str = "0.1.91"
+    _ACTUAL_VERSION: str = "0.1.92"
 
     RESOURCE_DIR = str(classpath.resource_path())
 
@@ -99,6 +100,7 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.preferred.language", "askai", "")
         self._settings.put("askai.default.engine", "askai", "openai")
         self._settings.put("askai.default.engine.model", "askai", "gpt-4o-mini")
+        self._settings.put("askai.verbosity.level", "askai", 3)
         self._settings.put("askai.text.to.speech.tempo", "askai", 1)
         self._settings.put("askai.text.splitter.chunk.size", "askai", 1000)
         self._settings.put("askai.text.splitter.chunk.overlap", "askai", 100)

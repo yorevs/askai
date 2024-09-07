@@ -12,15 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.__classpath__ import classpath
-from askai.core.askai_settings import settings
-from askai.language.language import Language
-from hspylib.core.enums.charset import Charset
-from hspylib.core.metaclass.singleton import Singleton
-from shutil import which
-
 import locale
 import os
+from shutil import which
+
+from hspylib.core.enums.charset import Charset
+from hspylib.core.metaclass.singleton import Singleton
+
+from askai.__classpath__ import classpath
+from askai.core.askai_settings import settings
+from askai.core.enums.verbosity import Verbosity
+from askai.language.language import Language
 
 
 class AskAiConfigs(metaclass=Singleton):
@@ -97,6 +99,10 @@ class AskAiConfigs(metaclass=Singleton):
     @ttl.setter
     def ttl(self, value: int) -> None:
         settings.put("askai.cache.ttl.minutes", value)
+
+    @property
+    def verbosity(self) -> Verbosity:
+        return Verbosity.of_value(settings.get_int("askai.verbosity.level"))
 
     @property
     def chunk_size(self) -> int:

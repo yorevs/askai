@@ -12,6 +12,20 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+from pathlib import Path
+from threading import Thread
+from typing import List, TypeAlias
+
+import nltk
+import pause
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.modules.eventbus.event import Event
+from rich.progress import Progress
+
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -25,19 +39,6 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.modules.eventbus.event import Event
-from pathlib import Path
-from rich.progress import Progress
-from threading import Thread
-from typing import AnyStr, List, TypeAlias
-
-import logging as log
-import nltk
-import os
-import pause
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -84,29 +85,29 @@ class AskAiCli(AskAi):
             if not configs.is_interactive:
                 break
         if question == "":
-            self._reply(msg.goodbye())
+            self._reply(AIReply.info(msg.goodbye()))
         display_text("", markdown=False)
 
-    def _reply(self, message: AnyStr) -> None:
+    def _reply(self, reply: AIReply) -> None:
         """Reply to the user with the AI-generated response.
-        :param message: The message to send as a reply to the user.
+        :param reply: The reply message to send as a reply to the user.
         """
-        if message and (text := msg.translate(message)):
-            log.debug(message)
-            if configs.is_speak:
+        if reply and (text := msg.translate(reply.message)):
+            log.debug(reply.message)
+            if configs.is_speak and reply.is_speakable:
                 self.engine.text_to_speech(text, f"{shared.nickname}")
             elif not configs.is_interactive:
                 display_text(text_formatter.strip_format(text), f"{shared.nickname}", markdown=False)
             else:
                 display_text(text, f"{shared.nickname}")
 
-    def _reply_error(self, message: AnyStr) -> None:
+    def _reply_error(self, reply: AIReply) -> None:
         """Reply to the user with an AI-generated error message or system error.
-        :param message: The error message to be displayed to the user.
+        :param reply: The error reply message to be displayed to the user.
         """
-        if message and (text := msg.translate(message)):
-            log.error(message)
-            if configs.is_speak:
+        if reply and (text := msg.translate(reply.message)):
+            log.error(reply.message)
+            if configs.is_speak and reply.is_speakable:
                 self.engine.text_to_speech(f"Error: {text}", f"{shared.nickname}")
             else:
                 display_text(f"%RED%Error: {text}%NC%", f"{shared.nickname}")
@@ -124,12 +125,12 @@ class AskAiCli(AskAi):
         reply: AIReply
         if reply := ev.args.reply:
             if reply.is_error:
-                self._reply_error(str(reply))
+                self._reply_error(reply)
             else:
-                if ev.args.reply.verbosity <= 1 or configs.is_debug:
+                if ev.args.reply.verbosity.match(configs.verbosity) or configs.is_debug:
                     if ev.args.erase_last:
                         cursor.erase_line()
-                    self._reply(str(reply))
+                    self._reply(reply)
 
     def _cb_mic_listening_event(self, ev: Event) -> None:
         """Callback to handle microphone listening events.
@@ -195,7 +196,7 @@ class AskAiCli(AskAi):
             askai_bus.subscribe(DEVICE_CHANGED_EVENT, self._cb_device_changed_event)
             askai_bus.subscribe(MODE_CHANGED_EVENT, self._cb_mode_changed_event)
             display_text(str(self), markdown=False)
-            self._reply(msg.welcome(os.getenv("USER", "you")))
+            self._reply(AIReply.info(msg.welcome(os.getenv("USER", "you"))))
         elif configs.is_speak:
             recorder.setup()
             player.start_delay()
