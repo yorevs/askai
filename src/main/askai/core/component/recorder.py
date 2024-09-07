@@ -12,29 +12,28 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.askai_configs import configs
-from askai.core.askai_events import events
-from askai.core.askai_messages import msg
-from askai.core.component.cache_service import REC_DIR
-from askai.core.component.scheduler import Scheduler
-from askai.core.support.utilities import display_text, seconds
-from askai.exception.exceptions import InvalidInputDevice, InvalidRecognitionApiError
-from askai.language.language import Language
-from clitt.core.tui.mselect.mselect import mselect
+import logging as log
+import operator
+import sys
+from pathlib import Path
+from typing import Callable, Optional, TypeAlias
+
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument, check_state
 from hspylib.core.zoned_datetime import now_ms
 from hspylib.modules.application.exit_status import ExitStatus
-from pathlib import Path
 from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
-from typing import Callable, Optional, TypeAlias
 
-import logging as log
-import operator
-import pause
-import sys
+from askai.core.askai_configs import configs
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
+from askai.core.component.cache_service import REC_DIR
+from askai.core.component.scheduler import Scheduler
+from askai.core.support.utilities import seconds, display_text
+from askai.exception.exceptions import InvalidInputDevice, InvalidRecognitionApiError
+from askai.language.language import Language
 
 InputDevice: TypeAlias = tuple[int, str]
 
@@ -240,23 +239,19 @@ class Recorder(metaclass=Singleton):
         available: list[str] = list(filter(lambda d: d, map(str.strip, configs.recorder_devices)))
         device: InputDevice | None = None
         devices: list[InputDevice] = list(reversed(self.devices))
-        while not device:
+        while devices and not device:
             if available:
                 for dev in devices:
                     if dev[1] in available and self.set_device(dev):
                         device = dev
                         break
             if not device:
-                device: InputDevice = mselect(
-                    devices, f"{'-=' * 40}%EOL%AskAI::Select the Audio Input device%EOL%{'=-' * 40}%EOL%"
-                )
-                if not device:
+                if not (device := next(devices.__iter__(), None)):
+                    display_text(f"%HOM%%ED2%Error: Unable to setup an Audio Input device!%NC%")
                     sys.exit(ExitStatus.FAILED.val)
-                elif not self.set_device(device):
-                    display_text(f"%HOM%%ED2%Error: '{device[1]}' is not an Audio Input device!%NC%")
-                    devices.remove(device)
-                    device = None
-                    pause.seconds(2)
+            if device and not self.set_device(device):
+                devices.remove(device)
+                device = None
 
 
 assert (recorder := Recorder().INSTANCE) is not None

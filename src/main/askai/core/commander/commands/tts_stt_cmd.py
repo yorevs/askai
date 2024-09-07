@@ -12,17 +12,20 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
 from abc import ABC
+from pathlib import Path
+
+import pause
+from clitt.core.tui.mselect.mselect import mselect
+
 from askai.core.askai_configs import configs
 from askai.core.askai_settings import settings
 from askai.core.component.audio_player import player
-from askai.core.component.recorder import recorder
+from askai.core.component.recorder import recorder, InputDevice
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import copy_file
-from pathlib import Path
-
-import os
 
 
 class TtsSttCmd(ABC):
@@ -101,15 +104,25 @@ class TtsSttCmd(ABC):
         :param name_or_index: The name or index of the audio input device to set. If None, the default device will be
                               used.
         """
+        device: InputDevice | None = None
         all_devices = recorder.devices
-        if name_or_index.isdecimal() and 0 <= int(name_or_index) <= len(all_devices):
+
+        def _set_device(_device) -> bool:
+            if recorder.set_device(_device):
+                text_formatter.cmd_print(f"`Text-To-Speech` device changed to %GREEN%{_device}%NC%")
+                return True
+            text_formatter.cmd_print(f"%HOM%%ED2%Error: '{_device}' is not an Audio Input device!%NC%")
+            all_devices.remove(_device)
+            pause.seconds(2)
+            return False
+
+        if not name_or_index:
+            device: InputDevice = mselect(
+                all_devices, f"{'-=' * 40}%EOL%AskAI::Select the Audio Input device%EOL%{'=-' * 40}%EOL%")
+        elif name_or_index.isdecimal() and 0 <= int(name_or_index) <= len(all_devices):
             name_or_index = all_devices[int(name_or_index)][1]
-        if device := next((dev for dev in all_devices if dev[1] == name_or_index), None):
-            if recorder.set_device(device):
-                text_formatter.cmd_print(f"`Text-To-Speech` device changed to %GREEN%{device[1]}%NC%")
-            else:
-                text_formatter.cmd_print(f"%RED%Device: '{name_or_index}' failed to initialize!%NC%")
-        else:
+            device = next((dev for dev in all_devices if dev[1] == name_or_index), None)
+        if not (device and _set_device(device)):
             text_formatter.cmd_print(f"%RED%Invalid audio input device: '{name_or_index}'%NC%")
 
     @staticmethod

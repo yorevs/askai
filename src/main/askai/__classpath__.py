@@ -12,24 +12,30 @@
 
    Copyright (c) 2024, HomeSetup
 """
-
-from askai.core.model.api_keys import ApiKeys
-from hspylib.core.metaclass.classpath import Classpath
-from hspylib.core.tools.commons import parent_path, root_dir
-
 import logging as log
 import os
-import pydantic
 import sys
 import warnings
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
+import pydantic
+from clitt.core.term.commons import is_a_tty
+from hspylib.core.metaclass.classpath import Classpath
+from hspylib.core.tools.commons import parent_path, root_dir, is_debugging
+
+from askai.core.model.api_keys import ApiKeys
+
+if not is_debugging():
+    warnings.simplefilter("ignore", category=FutureWarning)
+    warnings.simplefilter("ignore", category=UserWarning)
+    warnings.simplefilter("ignore", category=DeprecationWarning)
+
+if not is_a_tty():
+    log.getLogger().setLevel(log.ERROR)
 
 if not os.environ.get("USER_AGENT"):
     # The AskAI User Agent, required by the langchain framework
     ASKAI_USER_AGENT: str = "AskAI-User-Agent"
     os.environ["USER_AGENT"] = ASKAI_USER_AGENT
-
 
 try:
     API_KEYS: ApiKeys = ApiKeys()
@@ -40,7 +46,7 @@ except pydantic.v1.error_wrappers.ValidationError as err:
 
 
 class _Classpath(Classpath):
-    """TODO"""
+    """A class for managing classpath-related operations. Uses the Classpath metaclass."""
 
     def __init__(self):
         super().__init__(parent_path(__file__), parent_path(root_dir()), (parent_path(__file__) / "resources"))

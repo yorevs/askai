@@ -1,3 +1,13 @@
+import os
+from textwrap import indent
+
+import torch
+from PIL import Image
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.classpath import AnyPath
+from transformers import BlipForConditionalGeneration, BlipProcessor
+
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import PICTURE_DIR
@@ -5,34 +15,26 @@ from askai.core.engine.ai_vision import AIVision
 from askai.core.features.validation.accuracy import resolve_x_refs
 from askai.core.model.image_result import ImageResult
 from askai.core.support.shared_instances import shared
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.classpath import AnyPath
-from PIL import Image
-from textwrap import indent
-from transformers import BlipForConditionalGeneration, BlipProcessor
 
-import os
-import torch
+
+class HFModel(Enumeration):
+    """Available Hugging Face models"""
+
+    # fmt: off
+    SF_BLIP_BASE    = "Salesforce/blip-image-captioning-base"
+    SF_BLIP_LARGE   = "Salesforce/blip-image-captioning-large"
+    # fmt: on
+
+    @staticmethod
+    def default() -> "HFModel":
+        """Return the default HF model."""
+        return HFModel.SF_BLIP_BASE
 
 
 def offline_captioner(path_name: AnyPath) -> str:
     """This tool is used to describe an image.
     :param path_name: The path of the image to describe.
     """
-
-    class HFModel(Enumeration):
-        """Available Hugging Face models"""
-
-        # fmt: off
-        SF_BLIP_BASE            = "Salesforce/blip-image-captioning-base"
-        SF_BLIP_LARGE           = "Salesforce/blip-image-captioning-large"
-        # fmt: on
-
-        @staticmethod
-        def default() -> "HFModel":
-            """Return the default HF model."""
-            return HFModel.SF_BLIP_LARGE
 
     caption: str = "Not available"
 
@@ -46,12 +48,16 @@ def offline_captioner(path_name: AnyPath) -> str:
 
     if posix_path.exists:
         events.reply.emit(message=msg.describe_image(str(posix_path)))
-        hf_model: HFModel = HFModel.default()
         # Use GPU if it's available
         device = "cuda" if torch.cuda.is_available() else "cpu"
         image = Image.open(str(posix_path)).convert("RGB")
-        model = BlipForConditionalGeneration.from_pretrained(hf_model.value).to(device)
-        processor = BlipProcessor.from_pretrained(hf_model.value)
+        model_id: str = HFModel.default().value
+        match model_id.casefold():
+            case model if "blip-" in model:
+                model = BlipForConditionalGeneration.from_pretrained(model_id).to(device)
+                processor = BlipProcessor.from_pretrained(model_id)
+            case _:
+                raise ValueError(f"Unsupported model: '{model_id}'")
         inputs = processor(images=image, return_tensors="pt").to(device)
         outputs = model.generate(**inputs)
         caption = processor.decode(outputs[0], skip_special_tokens=True)

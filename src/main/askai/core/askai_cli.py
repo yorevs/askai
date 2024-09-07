@@ -12,6 +12,21 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+from functools import partial
+from pathlib import Path
+from threading import Thread
+from typing import List, TypeAlias
+
+import nltk
+import pause
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.modules.eventbus.event import Event
+from rich.progress import Progress
+
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -24,20 +39,6 @@ from askai.core.component.scheduler import scheduler
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from functools import partial
-from hspylib.modules.eventbus.event import Event
-from pathlib import Path
-from rich.progress import Progress
-from threading import Thread
-from typing import List, TypeAlias
-
-import logging as log
-import nltk
-import os
-import pause
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -161,7 +162,7 @@ class AskAiCli(AskAi):
         # List of tasks for progress tracking
         tasks = [
             "Downloading nltk data",
-            "Preloading input history",
+            "Loading input history",
             "Starting scheduler",
             "Setting up recorder",
             "Starting player delay",
@@ -180,7 +181,7 @@ class AskAiCli(AskAi):
                 self._progress.update(task, advance=1, description="[green]Downloading nltk data")
                 nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
                 cache.cache_enable = configs.is_cache
-                self._progress.update(task, advance=1, description="[green]Preloading input history")
+                self._progress.update(task, advance=1, description="[green]Loading input history")
                 KeyboardInput.preload_history(cache.load_input_history(commands()))
                 self._progress.update(task, advance=1, description="[green]Starting scheduler")
                 scheduler.start()
