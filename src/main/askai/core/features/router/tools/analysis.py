@@ -16,6 +16,7 @@ from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
+from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import TextFormatter
@@ -46,6 +47,6 @@ def query_output(query: str, context: str = None) -> str:
         log.info("Analysis::[QUERY] '%s'  context=%s", query, context)
         if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
             output = response.content
-            events.reply.emit(message=msg.analysis(output), verbosity="debug")
+            events.reply.emit(reply=AIReply.debug(msg.analysis(output)))
 
     return TextFormatter.ensure_ln(output or "Sorry, I don't know.")

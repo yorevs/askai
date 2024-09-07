@@ -13,7 +13,7 @@
    Copyright (c) 2024, HomeSetup
 """
 from askai.core.askai_configs import configs
-from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_ERROR_EVENT, REPLY_EVENT
+from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_EVENT
 from askai.core.commander.commands.cache_cmd import CacheCmd
 from askai.core.commander.commands.camera_cmd import CameraCmd
 from askai.core.commander.commands.general_cmd import GeneralCmd
@@ -26,7 +26,6 @@ from askai.core.support.utilities import display_text
 from askai.language.language import AnyLocale, Language
 from click import Command, Group
 from clitt.core.term.cursor import cursor
-from functools import partial
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import sysout, to_bool
 from hspylib.modules.eventbus.event import Event
@@ -154,7 +153,6 @@ def _init_context(context_size: int = 1000, engine_name: str = "openai", model_n
         shared.create_context(context_size)
         askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, _reply_event)
-        askai_bus.subscribe(REPLY_ERROR_EVENT, partial(_reply_event, error=True))
 
 
 @click.group()

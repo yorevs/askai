@@ -1,20 +1,20 @@
-import os
-from textwrap import indent
-
-import torch
-from PIL import Image
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.classpath import AnyPath
-from transformers import BlipForConditionalGeneration, BlipProcessor
-
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import PICTURE_DIR
 from askai.core.engine.ai_vision import AIVision
 from askai.core.features.validation.accuracy import resolve_x_refs
+from askai.core.model.ai_reply import AIReply
 from askai.core.model.image_result import ImageResult
 from askai.core.support.shared_instances import shared
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.classpath import AnyPath
+from PIL import Image
+from textwrap import indent
+from transformers import BlipForConditionalGeneration, BlipProcessor
+
+import os
+import torch
 
 
 class HFModel(Enumeration):
@@ -47,7 +47,7 @@ def offline_captioner(path_name: AnyPath) -> str:
                 posix_path: PathObject = x_ref_path if x_ref_path.exists else posix_path
 
     if posix_path.exists:
-        events.reply.emit(message=msg.describe_image(str(posix_path)))
+        events.reply.emit(reply=AIReply.debug(msg.describe_image(posix_path)))
         # Use GPU if it's available
         device = "cuda" if torch.cuda.is_available() else "cpu"
         image = Image.open(str(posix_path)).convert("RGB")
@@ -83,7 +83,7 @@ def image_captioner(path_name: AnyPath, load_dir: AnyPath | None = None) -> str:
                 posix_path: PathObject = x_ref_path if x_ref_path.exists else posix_path
 
     if posix_path.exists:
-        events.reply.emit(message=msg.describe_image(str(posix_path)), verbosity="debug")
+        events.reply.emit(reply=AIReply.debug(msg.describe_image(posix_path)))
         vision: AIVision = shared.engine.vision()
         image_caption = vision.caption(posix_path.filename, load_dir or posix_path.abs_dir or PICTURE_DIR)
 

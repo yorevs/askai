@@ -18,6 +18,7 @@ from askai.language.language import Language
 from askai.language.translators.deepl_translator import DeepLTranslator
 from functools import cached_property, lru_cache
 from hspylib.core.metaclass.singleton import Singleton
+from typing import AnyStr
 
 import re
 
@@ -50,15 +51,15 @@ class AskAiMessages(metaclass=Singleton):
         return AskAiMessages.get_translator(Language.EN_US, configs.language)
 
     @lru_cache(maxsize=256)
-    def translate(self, text: str) -> str:
+    def translate(self, text: AnyStr) -> str:
         """Translate text using the configured language.
         :param text: The text to be translated.
         :return: The translated text.
         """
         # Avoid translating debug messages.
-        if re.match(r"^~~\[DEBUG]~~.*", text, flags=re.IGNORECASE | re.MULTILINE):
+        if re.match(r"^~~\[DEBUG]~~.*", str(text), flags=re.IGNORECASE | re.MULTILINE):
             return text
-        return self.translator.translate(text)
+        return self.translator.translate(str(text))
 
     # Informational
 
@@ -179,10 +180,10 @@ class AskAiMessages(metaclass=Singleton):
     def no_query_string(self) -> str:
         return "No query string was provided in non-interactive mode !"
 
-    def invalid_response(self, response_text: str) -> str:
+    def invalid_response(self, response_text: AnyStr) -> str:
         return f"Invalid query response/type => '{response_text}' !"
 
-    def invalid_command(self, response_text: str) -> str:
+    def invalid_command(self, response_text: AnyStr) -> str:
         return f"Invalid **AskAI** command => '{response_text}' !"
 
     def cmd_no_exist(self, command: str) -> str:
@@ -200,25 +201,25 @@ class AskAiMessages(metaclass=Singleton):
     def summary_not_possible(self, err: BaseException = None) -> str:
         return f"Summarization was not possible {'=> ' + str(err) if err else ''}!"
 
-    def intelligible(self, reason: str) -> str:
+    def intelligible(self, reason: AnyStr) -> str:
         return f"Your speech was not intelligible => '{reason}' !"
 
-    def impossible(self, reason: str) -> str:
+    def impossible(self, reason: AnyStr) -> str:
         return f"Impossible to fulfill your request => `{reason}` !"
 
-    def timeout(self, reason: str) -> str:
+    def timeout(self, reason: AnyStr) -> str:
         return f"Time out while {reason} !"
 
-    def llm_error(self, error: str) -> str:
+    def llm_error(self, error: AnyStr) -> str:
         return f"**LLM** failed to reply: {error} !"
 
-    def fail_to_search(self, error: str) -> str:
+    def fail_to_search(self, error: AnyStr) -> str:
         return f"'Internet Search' failed: {error} !"
 
-    def too_many_actions(self) -> str:
+    def too_many_actions(self) -> AnyStr:
         return "Failed to complete the request => 'Max chained actions reached' !"
 
-    def unprocessable(self, reason: str) -> str:
+    def unprocessable(self, reason: AnyStr) -> str:
         return f"Sorry, {reason}"
 
     def quote_exceeded(self) -> str:

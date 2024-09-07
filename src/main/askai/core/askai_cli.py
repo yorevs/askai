@@ -12,21 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from functools import partial
-from pathlib import Path
-from threading import Thread
-from typing import List, TypeAlias
-
-import nltk
-import pause
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.modules.eventbus.event import Event
-from rich.progress import Progress
-
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -36,9 +21,23 @@ from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
+from askai.core.model.ai_reply import AIReply
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.modules.eventbus.event import Event
+from pathlib import Path
+from rich.progress import Progress
+from threading import Thread
+from typing import AnyStr, List, TypeAlias
+
+import logging as log
+import nltk
+import os
+import pause
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -88,7 +87,7 @@ class AskAiCli(AskAi):
             self._reply(msg.goodbye())
         display_text("", markdown=False)
 
-    def _reply(self, message: str) -> None:
+    def _reply(self, message: AnyStr) -> None:
         """Reply to the user with the AI-generated response.
         :param message: The message to send as a reply to the user.
         """
@@ -101,7 +100,7 @@ class AskAiCli(AskAi):
             else:
                 display_text(text, f"{shared.nickname}")
 
-    def _reply_error(self, message: str) -> None:
+    def _reply_error(self, message: AnyStr) -> None:
         """Reply to the user with an AI-generated error message or system error.
         :param message: The error message to be displayed to the user.
         """
@@ -118,19 +117,19 @@ class AskAiCli(AskAi):
         """
         return shared.input_text(f"{shared.username}", f"Message {self.engine.nickname()}")
 
-    def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
+    def _cb_reply_event(self, ev: Event) -> None:
         """Callback to handle reply events.
         :param ev: The event object representing the reply event.
-        :param error: Indicates whether the reply is an error (default is False).
         """
-        if message := ev.args.message:
-            if error:
-                self._reply_error(message)
+        reply: AIReply
+        if reply := ev.args.reply:
+            if reply.is_error:
+                self._reply_error(str(reply))
             else:
-                if ev.args.verbosity.casefold() == "normal" or configs.is_debug:
+                if ev.args.reply.verbosity <= 1 or configs.is_debug:
                     if ev.args.erase_last:
                         cursor.erase_line()
-                    self._reply(message)
+                    self._reply(str(reply))
 
     def _cb_mic_listening_event(self, ev: Event) -> None:
         """Callback to handle microphone listening events.
@@ -171,7 +170,6 @@ class AskAiCli(AskAi):
         # Start and manage the progress bar
         askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
-        askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
         if configs.is_interactive:
             splash_thread: Thread = Thread(daemon=True, target=self._splash)
             splash_thread.start()

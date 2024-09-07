@@ -20,6 +20,7 @@ from askai.core.component.audio_player import player
 from askai.core.component.cache_service import FACE_DIR, IMG_IMPORTS_DIR, PHOTO_DIR
 from askai.core.component.image_store import ImageData, ImageFile, ImageMetadata, store
 from askai.core.features.router.tools.vision import image_captioner, parse_caption
+from askai.core.model.ai_reply import AIReply
 from askai.core.model.image_result import ImageResult
 from askai.core.support.utilities import build_img_path
 from askai.exception.exceptions import CameraAccessFailure, WebCamInitializationFailure
@@ -63,13 +64,13 @@ class Camera(metaclass=Singleton):
         :param count: The number of seconds for the countdown.
         """
         if i := count:
-            events.reply.emit(message=msg.smile(i))
+            events.reply.emit(reply=AIReply.mute(msg.smile(i)))
             while (i := (i - 1)) >= 0:
                 player.play_sfx("click")
                 pause.seconds(1)
-                events.reply.emit(message=msg.smile(i), erase_last=True)
+                events.reply.emit(reply=AIReply.mute(msg.smile(i)), erase_last=True)
             player.play_sfx("camera-shutter")
-            events.reply.emit(message="  !!Click!!!", erase_last=True)
+            events.reply.emit(reply=AIReply.mute("  !!!Click!!!"), erase_last=True)
 
     def __init__(self):
         self._cam = None
@@ -109,7 +110,7 @@ class Camera(metaclass=Singleton):
         self.initialize()
 
         if not self._cam.isOpened():
-            events.reply_error.emit(message=msg.camera_not_open())
+            events.reply.emit(reply=AIReply.error(msg.camera_not_open()))
             return None
 
         self._countdown(countdown)
@@ -130,7 +131,7 @@ class Camera(metaclass=Singleton):
             )
             if store_image:
                 store.store_image(photo_file)
-            events.reply.emit(message=msg.photo_captured(photo_file.img_path), verbosity="debug")
+            events.reply.emit(reply=AIReply.debug(msg.photo_captured(photo_file.img_path)))
             return photo_file, photo
 
         return None

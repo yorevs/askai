@@ -12,28 +12,28 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import operator
-import sys
-from pathlib import Path
-from typing import Callable, Optional, TypeAlias
-
+from askai.core.askai_configs import configs
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
+from askai.core.component.cache_service import REC_DIR
+from askai.core.component.scheduler import Scheduler
+from askai.core.model.ai_reply import AIReply
+from askai.core.support.utilities import display_text, seconds
+from askai.exception.exceptions import InvalidInputDevice, InvalidRecognitionApiError
+from askai.language.language import Language
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument, check_state
 from hspylib.core.zoned_datetime import now_ms
 from hspylib.modules.application.exit_status import ExitStatus
+from pathlib import Path
 from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
+from typing import Callable, Optional, TypeAlias
 
-from askai.core.askai_configs import configs
-from askai.core.askai_events import events
-from askai.core.askai_messages import msg
-from askai.core.component.cache_service import REC_DIR
-from askai.core.component.scheduler import Scheduler
-from askai.core.support.utilities import seconds, display_text
-from askai.exception.exceptions import InvalidInputDevice, InvalidRecognitionApiError
-from askai.language.language import Language
+import logging as log
+import operator
+import sys
 
 InputDevice: TypeAlias = tuple[int, str]
 
@@ -164,12 +164,12 @@ class Recorder(metaclass=Singleton):
             except WaitTimeoutError as err:
                 err_msg: str = msg.timeout(f"waiting for a speech input => '{err}'")
                 log.warning("Timed out while waiting for a speech input!")
-                events.reply_error.emit(message=err_msg, erase_last=True)
+                events.reply.emit(reply=AIReply.error(message=err_msg), erase_last=True)
                 stt_text = None
             except UnknownValueError as err:
                 err_msg: str = msg.intelligible(err)
                 log.warning("Speech was not intelligible!")
-                events.reply_error.emit(message=err_msg, erase_last=True)
+                events.reply.emit(reply=AIReply.error(message=err_msg), erase_last=True)
                 stt_text = None
             except AttributeError as err:
                 raise InvalidInputDevice(str(err)) from err
@@ -195,7 +195,7 @@ class Recorder(metaclass=Singleton):
             f_rec.write(audio.get_wav_data())
             log.debug("Voice recorded and saved as %s", audio_path)
             if api := getattr(self._rec, recognition_api.value):
-                events.reply.emit(message=msg.transcribing(), verbosity="debug", erase_last=True)
+                events.reply.emit(reply=AIReply.debug(message=msg.transcribing()), erase_last=True)
                 log.debug("Recognizing voice using %s", recognition_api)
                 assert isinstance(api, Callable)
                 return api(audio, language=language.language)
@@ -232,7 +232,7 @@ class Recorder(metaclass=Singleton):
             except UnknownValueError as err:
                 err_msg: str = msg.intelligible(f"Unable to detect noise level => '{err}'")
                 log.warning("Timed out while waiting for a speech input!")
-                events.reply_error.emit(message=err_msg, erase_last=True)
+                events.reply.emit(reply=AIReply.error(err_msg), erase_last=True)
 
     def _select_device(self) -> None:
         """Select a device for recording."""

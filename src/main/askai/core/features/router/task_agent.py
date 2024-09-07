@@ -6,6 +6,7 @@ from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_response import AccResponse
 from askai.core.features.router.task_toolkit import features
 from askai.core.features.validation.accuracy import assert_accuracy
+from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from functools import lru_cache
@@ -54,7 +55,7 @@ class TaskAgent(metaclass=Singleton):
         :param task: The AI task that outlines the steps to generate the response.
         :return: The agent's response as a string.
         """
-        events.reply.emit(message=msg.task(task), verbosity="debug")
+        events.reply.emit(reply=AIReply.debug(msg.task(task)))
         if (response := self._exec_task(task)) and (output := response["output"]):
             log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
             shared.context.push("HISTORY", task, "assistant")

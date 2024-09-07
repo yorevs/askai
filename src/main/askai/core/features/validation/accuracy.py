@@ -18,6 +18,7 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_response import AccResponse
+from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.rag_provider import RAGProvider
 from askai.core.support.shared_instances import shared
@@ -65,7 +66,7 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: AccResponse
             if mat := AccResponse.matches(output):
                 status, details = mat.group(1), mat.group(2)
                 log.info("Accuracy check ->  status: '%s'  reason: '%s'", status, details)
-                events.reply.emit(message=msg.assert_acc(status, details), verbosity="debug")
+                events.reply.emit(reply=AIReply.debug(msg.assert_acc(status, details)))
                 if (rag_resp := AccResponse.of_status(status, details)).is_interrupt:
                     # AI flags that it can't continue interacting.
                     log.warning(msg.interruption_requested(output))
@@ -101,7 +102,7 @@ def resolve_x_refs(ref_name: str, context: str | None = None) -> str:
             runnable, shared.context.flat, input_messages_key="pathname", history_messages_key="context"
         )
         log.info("Analysis::[QUERY] '%s'  context=%s", ref_name, context)
-        events.reply.emit(message=msg.x_reference(ref_name), verbosity="debug")
+        events.reply.emit(reply=AIReply.debug(msg.x_reference(ref_name)))
         response = runnable.invoke({"pathname": ref_name}, config={"configurable": {"session_id": "HISTORY"}})
         if response and (output := response.content) and shared.UNCERTAIN_ID != output:
             output = response.content

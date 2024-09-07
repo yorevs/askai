@@ -15,6 +15,7 @@
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.features.validation.accuracy import resolve_x_refs
+from askai.core.model.ai_reply import AIReply
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_path, media_type_of
 from clitt.core.term.terminal import Terminal
@@ -114,7 +115,7 @@ def _execute_bash(command_line: str) -> Tuple[bool, str]:
     if (command := command_line.split(" ")[0].strip()) and which(command):
         command = expandvars(command_line.replace("~/", f"{os.getenv('HOME')}/").strip())
         log.info("Executing command `%s'", command)
-        events.reply.emit(message=msg.executing(command_line), verbosity="debug")
+        events.reply.emit(reply=AIReply.debug(msg.executing(command_line)))
         output, exit_code = Terminal.INSTANCE.shell_exec(command, shell=True)
         if exit_code == ExitStatus.SUCCESS:
             log.info("Command succeeded: \n|-CODE=%s \n|-PATH: %s \n|-CMD: %s ", exit_code, os.getcwd(), command)

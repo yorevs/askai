@@ -21,6 +21,7 @@ from askai.core.engine.ai_vision import AIVision
 from askai.core.engine.openai.openai_configs import OpenAiConfigs
 from askai.core.engine.openai.openai_model import OpenAIModel
 from askai.core.engine.openai.openai_vision import OpenAIVision
+from askai.core.model.ai_reply import AIReply
 from hspylib.core.preconditions import check_not_none
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models import BaseChatModel, BaseLLM
@@ -34,8 +35,6 @@ import logging as log
 import os
 import pause
 import tiktoken
-
-from askai.core.model.ai_reply import AIReply
 
 
 class OpenAIEngine:

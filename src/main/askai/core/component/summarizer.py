@@ -16,6 +16,7 @@ from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import PERSIST_DIR
+from askai.core.model.ai_reply import AIReply
 from askai.core.model.summary_result import SummaryResult
 from askai.core.support.langchain_support import lc_llm
 from askai.exception.exceptions import DocumentsNotFound
@@ -106,7 +107,7 @@ class Summarizer(metaclass=Singleton):
         """
         self._folder: str = str(PathObject.of(folder))
         self._glob: str = glob.strip()
-        events.reply.emit(message=msg.summarizing(self.sum_path))
+        events.reply.emit(reply=AIReply.info(msg.summarizing(self.sum_path)))
         embeddings: Embeddings = lc_llm.create_embeddings()
 
         try:
@@ -127,7 +128,7 @@ class Summarizer(metaclass=Singleton):
             return True
         except ImportError as err:
             log.error("Unable to summarize '%s' => %s", self.sum_path, err)
-            events.reply_error.emit(message=msg.missing_package(err))
+            events.reply.emit(reply=AIReply.error(msg.missing_package(err)))
 
         return False
 

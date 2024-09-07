@@ -22,6 +22,7 @@ from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.enums.router_mode import RouterMode
 from askai.core.features.router.ai_processor import AIProcessor
+from askai.core.model.ai_reply import AIReply
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import read_stdin
@@ -37,7 +38,7 @@ from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.eventbus.event import Event
 from openai import RateLimitError
 from pathlib import Path
-from typing import List, Optional, TypeAlias
+from typing import AnyStr, List, Optional, TypeAlias
 
 import logging as log
 import os
@@ -155,24 +156,24 @@ class AskAi:
                 ask_commander(args, standalone_mode=False)
             elif not (output := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
-                events.reply.emit(message=msg.wait(), verbosity="debug")
+                events.reply.emit(reply=AIReply.debug(msg.wait()))
                 output = processor.process(question, context=read_stdin(), query_prompt=self._query_prompt)
-                events.reply.emit(message=(output or msg.no_output("processor")))
+                events.reply.emit(reply=AIReply.info(output or msg.no_output("processor")))
             else:
                 log.debug("Reply found for '%s' in cache.", question)
-                events.reply.emit(message=output)
+                events.reply.emit(reply=AIReply.info(output))
                 shared.context.push("HISTORY", question)
                 shared.context.push("HISTORY", output, "assistant")
         except (NotImplementedError, ImpossibleQuery) as err:
-            events.reply_error.emit(message=str(err))
+            events.reply.emit(reply=AIReply.error(err))
         except (MaxInteractionsReached, InaccurateResponse) as err:
-            events.reply_error.emit(message=msg.unprocessable(str(err)))
+            events.reply.emit(reply=AIReply.error(msg.unprocessable(err)))
         except UsageError as err:
-            events.reply_error.emit(message=msg.invalid_command(err))
+            events.reply.emit(reply=AIReply.error(msg.invalid_command(err)))
         except IntelligibleAudioError as err:
-            events.reply_error.emit(message=msg.intelligible(err))
+            events.reply.emit(reply=AIReply.error(msg.intelligible(err)))
         except RateLimitError:
-            events.reply_error.emit(message=msg.quote_exceeded())
+            events.reply.emit(reply=AIReply.error(msg.quote_exceeded()))
             status = False
         except TerminatingQuery:
             status = False
@@ -195,13 +196,13 @@ class AskAi:
             )
             f_console.flush()
 
-    def _reply(self, message: str) -> None:
+    def _reply(self, message: AnyStr) -> None:
         """Reply to the user with the AI-generated response.
         :param message: The message to send as a reply to the user.
         """
         ...
 
-    def _reply_error(self, message: str) -> None:
+    def _reply_error(self, message: AnyStr) -> None:
         """Reply to the user with an AI-generated error message or system error.
         :param message: The error message to be displayed to the user.
         """
@@ -219,4 +220,4 @@ class AskAi:
                 f"`{msg.press_esc_enter()}` \n\n"
                 f"> {msg.qna_welcome()}"
             )
-            events.reply.emit(message=sum_msg)
+            events.reply.emit(reply=AIReply.info(sum_msg))

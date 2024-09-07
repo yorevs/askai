@@ -12,19 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from pathlib import Path
-from textwrap import dedent
-from typing import Any, Optional, Type, TypeAlias
-
-from hspylib.core.exception.exceptions import InvalidArgumentError
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from pydantic_core import ValidationError
-from retry import retry
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -36,11 +23,24 @@ from askai.core.enums.routing_model import RoutingModel
 from askai.core.features.router.task_agent import agent
 from askai.core.features.router.tools.general import final_answer
 from askai.core.model.action_plan import ActionPlan
+from askai.core.model.ai_reply import AIReply
 from askai.core.model.model_result import ModelResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.rag_provider import RAGProvider
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse, InterruptionRequest, TerminatingQuery
+from hspylib.core.exception.exceptions import InvalidArgumentError
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from pathlib import Path
+from pydantic_core import ValidationError
+from retry import retry
+from textwrap import dedent
+from typing import Any, Optional, Type, TypeAlias
+
+import logging as log
+import os
 
 AgentResponse: TypeAlias = dict[str, Any]
 
@@ -74,7 +74,7 @@ class TaskSplitter(metaclass=Singleton):
         """
         output: str = answer
         model: RoutingModel = RoutingModel.of_model(model_result.mid)
-        events.reply.emit(message=msg.model_select(str(model)), verbosity="debug")
+        events.reply.emit(reply=AIReply.debug(msg.model_select(model)))
         args = {"user": shared.username, "idiom": shared.idiom, "context": answer, "question": query}
         prompt_args: list[str] = [k for k in args.keys()]
 
@@ -90,7 +90,7 @@ class TaskSplitter(metaclass=Singleton):
                     ctx: str = str(shared.context.flat("HISTORY"))
                     args = {"improvements": rag.reasoning, "context": ctx, "response": answer, "question": query}
                     prompt_args = [k for k in args.keys()]
-                    events.reply.emit(message=msg.refine_answer(answer), verbosity="debug")
+                    events.reply.emit(reply=AIReply.debug(msg.refine_answer(answer)))
                     output = final_answer("taius-refiner", prompt_args, **args)
             case _:
                 # Default is to leave the last AI response intact.
@@ -155,11 +155,11 @@ class TaskSplitter(metaclass=Singleton):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
                 resp_history: list[str] = list()
                 plan: ActionPlan = ActionPlan.create(question, response, model)
-                events.reply.emit(message=msg.action_plan(str(plan)), verbosity="debug")
+                events.reply.emit(reply=AIReply.debug(msg.action_plan(str(plan))))
                 try:
                     if task_list := plan.tasks:
                         if plan.speak:
-                            events.reply.emit(message=plan.speak)
+                            events.reply.emit(reply=AIReply.info(plan.speak))
                         for idx, action in enumerate(task_list, start=1):
                             path_str: str | None = (
                                 "Path: " + action.path

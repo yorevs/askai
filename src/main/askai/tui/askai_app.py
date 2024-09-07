@@ -25,13 +25,13 @@ from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.enums.router_mode import RouterMode
+from askai.core.model.ai_reply import AIReply
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.tui.app_header import Header
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_suggester import InputSuggester
 from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash
-from functools import partial
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.tools.text_tools import ensure_endswith
@@ -321,17 +321,17 @@ class AskAiApp(App[None]):
         """
         self._display_buffer.append(msg.translate(markdown_text))
 
-    def _cb_reply_event(self, ev: Event, error: bool = False) -> None:
+    def _cb_reply_event(self, ev: Event) -> None:
         """Callback to handle reply events.
         :param ev: The event object representing the reply event.
-        :param error: Indicates whether the reply is an error (default is False).
         """
-        if message := ev.args.message:
-            if error:
-                self._reply_error(message)
+        reply: AIReply
+        if reply := ev.args.reply:
+            if reply.is_error:
+                self._reply_error(str(reply))
             else:
-                if ev.args.verbosity.casefold() == "normal" or configs.is_debug:
-                    self._reply(message)
+                if ev.args.reply.verbosity <= 1 or configs.is_debug:
+                    self._reply(str(reply))
 
     def _cb_mic_listening_event(self, ev: Event) -> None:
         """Callback to handle microphone listening events.
@@ -377,7 +377,6 @@ class AskAiApp(App[None]):
         os.chdir(Path.home())
         askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, self._cb_reply_event)
-        askai_bus.subscribe(REPLY_ERROR_EVENT, partial(self._cb_reply_event, error=True))
         nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
         recorder.setup()
         scheduler.start()

@@ -12,8 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from hspylib.core.tools.text_tools import ensure_startswith, ensure_endswith
-
 from askai.core.askai_messages import msg
 from askai.core.features.router.tools.analysis import query_output
 from askai.core.features.router.tools.browser import browse
@@ -28,6 +26,7 @@ from clitt.core.tui.line_input.line_input import line_input
 from functools import lru_cache
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
 from langchain_core.tools import BaseTool, StructuredTool
 from textwrap import dedent
 from typing import Callable, Optional
@@ -111,8 +110,10 @@ class AgentToolkit(metaclass=Singleton):
         :param image_path: The absolute path of the image file to be analyzed.
         :return: A string containing the generated caption describing the image.
         """
-        return ensure_endswith(ensure_startswith(
-            parse_caption(image_captioner(image_path)), f"\n>   Description of '{image_path}':\n"), "\n")
+        return ensure_endswith(
+            ensure_startswith(parse_caption(image_captioner(image_path)), f"\n>   Description of '{image_path}':\n"),
+            "\n",
+        )
 
     def webcam_capturer(self, photo_name: str | None, detect_faces: bool = False) -> str:
         """Capture a photo using the webcam, and save it locally. This tool is useful for taking photos, detect people's

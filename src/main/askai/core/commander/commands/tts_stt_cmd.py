@@ -12,20 +12,19 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
 from abc import ABC
-from pathlib import Path
-
-import pause
-from clitt.core.tui.mselect.mselect import mselect
-
 from askai.core.askai_configs import configs
 from askai.core.askai_settings import settings
 from askai.core.component.audio_player import player
-from askai.core.component.recorder import recorder, InputDevice
+from askai.core.component.recorder import InputDevice, recorder
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import copy_file
+from clitt.core.tui.mselect.mselect import mselect
+from pathlib import Path
+
+import os
+import pause
 
 
 class TtsSttCmd(ABC):
@@ -118,7 +117,8 @@ class TtsSttCmd(ABC):
 
         if not name_or_index:
             device: InputDevice = mselect(
-                all_devices, f"{'-=' * 40}%EOL%AskAI::Select the Audio Input device%EOL%{'=-' * 40}%EOL%")
+                all_devices, f"{'-=' * 40}%EOL%AskAI::Select the Audio Input device%EOL%{'=-' * 40}%EOL%"
+            )
         elif name_or_index.isdecimal() and 0 <= int(name_or_index) <= len(all_devices):
             name_or_index = all_devices[int(name_or_index)][1]
             device = next((dev for dev in all_devices if dev[1] == name_or_index), None)

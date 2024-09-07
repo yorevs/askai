@@ -22,8 +22,6 @@ ASKAI_BUS_NAME: str = "askai-reply-bus"
 
 REPLY_EVENT: str = "askai-reply-event"
 
-REPLY_ERROR_EVENT: str = "askai-reply-error-event"
-
 MIC_LISTENING_EVENT: str = "askai-mic-listening-event"
 
 DEVICE_CHANGED_EVENT: str = "askai-input-device-changed-event"
@@ -37,8 +35,7 @@ class AskAiEvents(Enumeration):
     # fmt: off
     ASKAI_BUS = FluidEventBus(
         ASKAI_BUS_NAME,
-        reply=FluidEvent(REPLY_EVENT, verbosity='normal', erase_last=False),
-        reply_error=FluidEvent(REPLY_ERROR_EVENT),
+        reply=FluidEvent(REPLY_EVENT, erase_last=False),
         listening=FluidEvent(MIC_LISTENING_EVENT, listening=True),
         device_changed=FluidEvent(DEVICE_CHANGED_EVENT, device=None),
         mode_changed=FluidEvent(MODE_CHANGED_EVENT, mode=None, sum_path=None, glob=None),

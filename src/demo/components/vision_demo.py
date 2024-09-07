@@ -1,6 +1,6 @@
-import os
-
 from askai.core.features.router.tools.vision import offline_captioner
+
+import os
 
 if __name__ == "__main__":
     # init_context("vision-demo")

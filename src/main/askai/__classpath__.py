@@ -12,17 +12,16 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-import sys
-import warnings
-
-import pydantic
+from askai.core.model.api_keys import ApiKeys
 from clitt.core.term.commons import is_a_tty
 from hspylib.core.metaclass.classpath import Classpath
-from hspylib.core.tools.commons import parent_path, root_dir, is_debugging
+from hspylib.core.tools.commons import is_debugging, parent_path, root_dir
 
-from askai.core.model.api_keys import ApiKeys
+import logging as log
+import os
+import pydantic
+import sys
+import warnings
 
 if not is_debugging():
     warnings.simplefilter("ignore", category=FutureWarning)

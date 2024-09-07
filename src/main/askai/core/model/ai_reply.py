@@ -14,6 +14,9 @@
 """
 
 from dataclasses import dataclass
+from typing import AnyStr, Literal, TypeAlias
+
+Verbosity: TypeAlias = Literal[1, 2, 3, 4, 5]
 
 
 @dataclass(frozen=True)
@@ -23,14 +26,32 @@ class AIReply:
     message: str = ""
     is_success: bool = True
     is_debug: bool = False
-    is_verbose: bool = False
+    verbosity: Verbosity = 1
     is_speakable: bool = True
 
     def __str__(self) -> str:
-        return (
-            f"Success: {self.is_success}\t"
-            f"Debug: {self.is_debug}\t"
-            f"Speakable: {self.is_speakable}\t"
-            f"Verbose: {self.is_verbose}\t"
-            f"Message: {self.message}\t"
-        )
+        return self.message
+
+    @staticmethod
+    def info(message: AnyStr, verbosity: Verbosity = 1, speakable: bool = True) -> "AIReply":
+        """TODO"""
+        return AIReply(str(message), True, False, verbosity, speakable)
+
+    @staticmethod
+    def error(message: AnyStr) -> "AIReply":
+        """TODO"""
+        return AIReply(str(message), True, False, 1, False)
+
+    @staticmethod
+    def debug(message: AnyStr) -> "AIReply":
+        """TODO"""
+        return AIReply(str(message), True, True, 1, False)
+
+    @staticmethod
+    def mute(message: AnyStr, verbosity: Verbosity = 1) -> "AIReply":
+        """TODO"""
+        return AIReply(str(message), True, False, verbosity, False)
+
+    @property
+    def is_error(self) -> bool:
+        return not self.is_success

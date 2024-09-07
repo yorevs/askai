@@ -20,6 +20,7 @@ from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.component.summarizer import summarizer
 from askai.core.engine.openai.temperature import Temperature
+from askai.core.model.ai_reply import AIReply
 from askai.core.model.search_result import SearchResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
@@ -116,12 +117,12 @@ class InternetService(metaclass=Singleton):
         :param search: The AI search parameters encapsulated in a SearchResult object.
         :return: A refined string containing the search results.
         """
-        events.reply.emit(message=msg.searching())
+        events.reply.emit(reply=AIReply.info(msg.searching()))
         search.sites = search.sites or ["google.com", "bing.com", "duckduckgo.com", "ask.com"]
         terms = self._build_google_query(search).strip()
         try:
             log.info("Searching Google for '%s'", terms)
-            events.reply.emit(message=msg.final_query(terms), verbosity="debug")
+            events.reply.emit(reply=AIReply.debug(msg.final_query(terms)))
             ctx = str(self._tool.run(terms))
             llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
             context: List[Document] = [Document(ctx)]
@@ -139,7 +140,7 @@ class InternetService(metaclass=Singleton):
         :param search: The AI search parameters encapsulated in a SearchResult object.
         :return: A string containing the summarized contents of the scraped web page.
         """
-        events.reply.emit(message=msg.scrapping())
+        events.reply.emit(reply=AIReply.info(msg.scrapping()))
         if len(search.sites) > 0:
             log.info("Scrapping sites: '%s'", str(", ".join(search.sites)))
             loader = WebBaseLoader(
