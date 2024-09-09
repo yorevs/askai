@@ -47,6 +47,6 @@ def query_output(query: str, context: str = None) -> str:
         log.info("Analysis::[QUERY] '%s'  context=%s", query, context)
         if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
             output = response.content
-            events.reply.emit(reply=AIReply.debug(msg.analysis(output)))
+            events.reply.emit(reply=AIReply.detailed(msg.analysis(output)))
 
     return TextFormatter.ensure_ln(output or "Sorry, I don't know.")

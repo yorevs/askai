@@ -47,7 +47,7 @@ def offline_captioner(path_name: AnyPath) -> str:
                 posix_path: PathObject = x_ref_path if x_ref_path.exists else posix_path
 
     if posix_path.exists:
-        events.reply.emit(reply=AIReply.debug(msg.describe_image(posix_path)))
+        events.reply.emit(reply=AIReply.full(msg.describe_image(posix_path)))
         # Use GPU if it's available
         device = "cuda" if torch.cuda.is_available() else "cpu"
         image = Image.open(str(posix_path)).convert("RGB")
@@ -83,7 +83,7 @@ def image_captioner(path_name: AnyPath, load_dir: AnyPath | None = None) -> str:
                 posix_path: PathObject = x_ref_path if x_ref_path.exists else posix_path
 
     if posix_path.exists:
-        events.reply.emit(reply=AIReply.debug(msg.describe_image(posix_path)))
+        events.reply.emit(reply=AIReply.full(msg.describe_image(posix_path)))
         vision: AIVision = shared.engine.vision()
         image_caption = vision.caption(posix_path.filename, load_dir or posix_path.abs_dir or PICTURE_DIR)
 

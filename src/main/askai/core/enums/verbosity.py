@@ -26,10 +26,9 @@ class Verbosity(Enumeration):
         """
         return int(self.value)
 
-    def match(self, level: 'Verbosity') -> bool:
+    def match(self, level: "Verbosity") -> bool:
         """Checks if the current verbosity level is less than or equal to the given level.
         :param level: The verbosity level to compare against.
         :return: True if the current level is less than or equal to the given level, otherwise False.
         """
         return self.val <= level.val
-

@@ -14,9 +14,9 @@
 """
 
 from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.exception.exceptions import InvalidArgumentError
 from hspylib.core.namespace import Namespace
 from hspylib.modules.eventbus.fluid import FluidEvent, FluidEventBus
-from typing import Optional
 
 ASKAI_BUS_NAME: str = "askai-reply-bus"
 
@@ -43,12 +43,14 @@ class AskAiEvents(Enumeration):
     # fmt: on
 
     @staticmethod
-    def bus(bus_name: str) -> Optional[FluidEventBus]:
+    def bus(bus_name: str) -> FluidEventBus:
         """Return an event bus instance for the given name.
         :param bus_name: The name of the event bus to retrieve.
         :return: An instance of FluidEventBus if found; otherwise, None.
         """
-        return next((b.bus for b in AskAiEvents.values() if b.name == bus_name), None)
+        if not (ret_bus := next((b.bus for b in AskAiEvents.values() if b.name == bus_name), None)):
+            raise InvalidArgumentError(f"bus '{bus_name}' does not exist!")
+        return ret_bus
 
     def __init__(self, bus: FluidEventBus):
         self._bus = bus

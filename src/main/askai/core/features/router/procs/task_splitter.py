@@ -74,7 +74,7 @@ class TaskSplitter(metaclass=Singleton):
         """
         output: str = answer
         model: RoutingModel = RoutingModel.of_model(model_result.mid)
-        events.reply.emit(reply=AIReply.debug(msg.model_select(model)))
+        events.reply.emit(reply=AIReply.full(msg.model_select(model)))
         args = {"user": shared.username, "idiom": shared.idiom, "context": answer, "question": query}
         prompt_args: list[str] = [k for k in args.keys()]
 
@@ -159,7 +159,7 @@ class TaskSplitter(metaclass=Singleton):
                 try:
                     if task_list := plan.tasks:
                         if plan.speak:
-                            events.reply.emit(reply=AIReply.info(plan.speak))
+                            events.reply.emit(reply=AIReply.detailed(plan.speak))
                         for idx, action in enumerate(task_list, start=1):
                             path_str: str | None = (
                                 "Path: " + action.path

@@ -13,10 +13,9 @@
    Copyright (c) 2024, HomeSetup
 """
 
+from askai.core.enums.verbosity import Verbosity
 from dataclasses import dataclass
 from typing import AnyStr
-
-from askai.core.enums.verbosity import Verbosity
 
 
 @dataclass(frozen=True)
@@ -47,6 +46,24 @@ class AIReply:
         :return: An AIReply instance with info settings.
         """
         return AIReply(str(message), True, False, verbosity, speakable)
+
+    @staticmethod
+    def detailed(message: AnyStr, speakable: bool = False) -> "AIReply":
+        """Creates a detailed verbosity reply.
+        :param message: The reply message.
+        :param speakable: Indicates whether the reply is speakable.
+        :return: An AIReply instance with detailed settings.
+        """
+        return AIReply(str(message), True, False, Verbosity.DETAILED, speakable)
+
+    @staticmethod
+    def full(message: AnyStr, speakable: bool = False) -> "AIReply":
+        """Creates a full verbose reply.
+        :param message: The reply message.
+        :param speakable: Indicates whether the reply is speakable.
+        :return: An AIReply instance with full settings.
+        """
+        return AIReply(str(message), True, False, Verbosity.FULL, speakable)
 
     @staticmethod
     def error(message: AnyStr) -> "AIReply":

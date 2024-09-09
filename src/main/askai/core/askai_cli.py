@@ -12,20 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from pathlib import Path
-from threading import Thread
-from typing import List, TypeAlias
-
-import nltk
-import pause
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.modules.eventbus.event import Event
-from rich.progress import Progress
-
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -39,6 +25,19 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.modules.eventbus.event import Event
+from pathlib import Path
+from rich.progress import Progress
+from threading import Thread
+from typing import List, TypeAlias, Optional
+
+import logging as log
+import nltk
+import os
+import pause
 
 QueryString: TypeAlias = str | List[str] | None
 

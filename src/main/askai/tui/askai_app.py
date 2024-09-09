@@ -12,23 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from pathlib import Path
-
-import nltk
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import file_is_not_empty
-from hspylib.core.tools.text_tools import ensure_endswith
-from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
-from hspylib.modules.application.version import Version
-from hspylib.modules.cli.vt100.vt_color import VtColor
-from hspylib.modules.eventbus.event import Event
-from textual import on, work
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.widgets import Footer, Input, MarkdownViewer
-
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
@@ -49,6 +32,22 @@ from askai.tui.app_header import Header
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_suggester import InputSuggester
 from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import file_is_not_empty
+from hspylib.core.tools.text_tools import ensure_endswith
+from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
+from hspylib.modules.application.version import Version
+from hspylib.modules.cli.vt100.vt_color import VtColor
+from hspylib.modules.eventbus.event import Event
+from pathlib import Path
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.containers import ScrollableContainer
+from textual.widgets import Footer, Input, MarkdownViewer
+
+import logging as log
+import nltk
+import os
 
 SOURCE_DIR: Path = classpath.source_path()
 
