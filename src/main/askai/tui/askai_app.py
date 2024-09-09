@@ -12,6 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from typing import Optional
+
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
