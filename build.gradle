@@ -69,7 +69,7 @@ tasks.register('pyGradleUpdate') {
       into "${gradleDir}"
     }
     copy {
-      from "${gradleDir}/py-gradle-master/src/main/groovy"
+      from "${gradleDir}/py-gradle-master/src/main/gradle"
       into "${gradleDir}"
       include '**/*.gradle'
     }
