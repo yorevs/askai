@@ -52,6 +52,7 @@ package: SpeechRecognition, version: 3.10.4, mode: ge
 
 /* Video */
 package: opencv-python, version: 4.10.0.84, mode: ge
+package: pyautogui, version: 0.9.54, mode: ge
 
 /* Pre-Trained and AI */
 package: torch, version: 2.2.0, mode: ge

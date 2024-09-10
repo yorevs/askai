@@ -1,3 +1,9 @@
+import os
+from textwrap import indent
+
+import pyautogui
+import torch
+from PIL import Image
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import PICTURE_DIR
@@ -9,12 +15,8 @@ from askai.core.support.shared_instances import shared
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.classpath import AnyPath
-from PIL import Image
-from textwrap import indent
+from hspylib.core.preconditions import check_argument
 from transformers import BlipForConditionalGeneration, BlipProcessor
-
-import os
-import torch
 
 
 class HFModel(Enumeration):
@@ -111,3 +113,24 @@ def parse_caption(image_caption: str) -> str:
         )  # fmt: on
 
     return msg.no_caption()
+
+
+def take_screenshot(path_name: AnyPath, load_dir: AnyPath | None = None) -> str:
+    """Takes a screenshot and saves it to the specified path.
+    :param path_name: The path where the screenshot will be saved.
+    :param load_dir: Optional directory to save the screenshot.
+    :return: The path to the saved screenshot.
+    """
+
+    posix_path: PathObject = PathObject.of(path_name)
+    check_argument(os.path.exists(posix_path.abs_dir))
+    screenshot = pyautogui.screenshot()
+    _, ext = os.path.splitext(posix_path.filename)
+    if ext.casefold().endswith((".jpg", ".jpeg")):
+        screenshot = screenshot.convert("RGB")
+    final_path: str = os.path.join(load_dir or posix_path.abs_dir or PICTURE_DIR, posix_path.filename)
+    screenshot.save(final_path)
+    events.reply.emit(reply=AIReply.full(msg.screenshot_saved(final_path)))
+    desktop_caption = image_captioner(final_path, load_dir)
+
+    return desktop_caption

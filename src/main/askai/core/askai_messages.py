@@ -117,13 +117,16 @@ class AskAiMessages(metaclass=Singleton):
     def device_switch(self, device_info: str) -> str:
         return f"\nSwitching to Audio Input device: `{device_info}`\n"
 
+    # Debug messages
+
     def photo_captured(self, photo: str) -> str:
         return f"~~[DEBUG]~~ WebCam photo captured: `{photo}`"
 
+    def screenshot_saved(self, screenshot: str) -> str:
+        return f"~~[DEBUG]~~ Screenshot saved: `{screenshot}`"
+
     def executing(self, command_line: str) -> str:
         return f"~~[DEBUG]~~ Executing: `{command_line}`…"
-
-    # Debug messages
 
     def analysis(self, result: str) -> str:
         return f"~~[DEBUG]~~ Analysis result => {result}"

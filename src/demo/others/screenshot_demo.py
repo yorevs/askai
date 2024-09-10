@@ -1,18 +1,8 @@
-import pyautogui
+from askai.core.features.router.tools.vision import take_screenshot
+from hspylib.core.tools.commons import sysout
 
-
-def take_screenshot(file_path):
-    # Take a screenshot using pyautogui
-    screenshot = pyautogui.screenshot()
-
-    # Check if saving as JPEG and convert to RGB if necessary
-    if file_path.lower().endswith(".jpg") or file_path.lower().endswith(".jpeg"):
-        screenshot = screenshot.convert("RGB")
-
-    # Save the screenshot to the specified file path
-    screenshot.save(file_path)
-    print(f"Screenshot saved at {file_path}")
-
+from utils import init_context
 
 if __name__ == "__main__":
-    take_screenshot("gabiroba.jpeg")
+    init_context(log_name="camera-demo")
+    sysout(take_screenshot("gabiroba.jpeg"))

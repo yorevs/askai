@@ -34,7 +34,7 @@ def init_context(
     KeyboardInput.preload_history(cache.load_input_history(commands()))
     shared.create_engine(engine_name=engine_name, model_name=model_name)
     shared.create_context(context_size)
-    events.reply.subscribe(cb_event_handler=lambda ev: display_text(ev.args.message))
+    events.reply.subscribe(cb_event_handler=lambda ev: display_text(ev.args.reply))
     atexit.register(cache.save_input_history)
 
 
