@@ -1,6 +1,6 @@
 ###### AUTO-GENERATED Requirements file for: AskAI ######
 
-hspylib>=1.12.46
+hspylib>=1.12.47
 hspylib-clitt>=0.9.132
 hspylib-setman>=0.10.35
 retry2>=0.9.5
@@ -28,6 +28,7 @@ soundfile>=0.12.1
 PyAudio>=0.2.14
 SpeechRecognition>=3.10.4
 opencv-python>=4.10.0.84
+pyautogui>=0.9.54
 torch>=2.2.0
 torchvision>=0.17.2
 open-clip-torch

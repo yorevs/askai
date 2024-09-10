@@ -4,5 +4,5 @@ from hspylib.core.tools.commons import sysout
 from utils import init_context
 
 if __name__ == "__main__":
-    init_context(log_name="camera-demo")
+    init_context("camera-demo")
     sysout(take_screenshot("gabiroba.jpeg"))

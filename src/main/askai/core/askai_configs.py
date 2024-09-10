@@ -205,5 +205,9 @@ class AskAiConfigs(metaclass=Singleton):
             self._recorder_devices.remove(device_name)
             settings.put("askai.recorder.devices", ", ".join(self._recorder_devices))
 
+    def clear_devices(self) -> None:
+        """Remove all devices from the configuration list."""
+        self._recorder_devices.clear()
+
 
 assert (configs := AskAiConfigs().INSTANCE) is not None

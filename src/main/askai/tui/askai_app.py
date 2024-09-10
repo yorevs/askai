@@ -341,13 +341,13 @@ class AskAiApp(App[None]):
         """
         self.header.notifications.listening = ev.args.listening
         if ev.args.listening:
-            self._reply(msg.listening())
+            self._reply(AIReply.info(msg.listening()))
 
     def _cb_device_changed_event(self, ev: Event) -> None:
         """Callback to handle audio input device change events.
         :param ev: The event object representing the device change.
         """
-        self._reply(msg.device_switch(str(ev.args.device)))
+        self._reply(AIReply.info(msg.device_switch(str(ev.args.device))))
 
     def _cb_mode_changed_event(self, ev: Event) -> None:
         """Callback to handle mode change events.

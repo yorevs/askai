@@ -1,14 +1,14 @@
-from askai.core.component.camera import camera
-from askai.core.component.image_store import ImageMetadata, store
-from askai.core.features.router.tools.terminal import open_command
-from askai.core.support.utilities import display_text
+import os
+from textwrap import dedent
+
 from clitt.core.term.cursor import cursor
 from clitt.core.tui.line_input.line_input import line_input
 from hspylib.core.tools.text_tools import strip_escapes
-from textwrap import dedent
-from utils import init_context
 
-import os
+from askai.core.component.camera import camera
+from askai.core.component.image_store import ImageMetadata, store
+from askai.core.features.router.tools.terminal import open_command
+from utils import init_context
 
 MENU = dedent(
     f"""Camera Demo options
@@ -27,7 +27,7 @@ MENU = dedent(
 
 
 if __name__ == "__main__":
-    init_context(log_name="camera-demo")
+    init_context("camera-demo")
     photo: ImageMetadata
     while opt := line_input(MENU, placeholder="Select an option"):
         cursor.write()

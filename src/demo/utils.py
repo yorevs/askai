@@ -22,15 +22,22 @@ RESOURCES: dict[str, any] = {"files": "ctx-files.txt", "reminders": "ctx-reminde
 
 def init_context(
     log_name: str | None = None,
-    context_size: int = 1000,
     log_level: int = log.NOTSET,
+    rich_logging: bool = False,
+    console_enable: bool = False,
+    context_size: int = 1000,
     engine_name: Literal["openai"] = "openai",
     model_name: Literal["gpt-3.5-turbo", "gpt-4", "gpt-4o"] = "gpt-3.5-turbo",
 ) -> None:
     """Initialize AskAI context and startup components."""
     if log_name:
         log_dir: str = os.environ.get("HHS_LOG_DIR", os.getcwd())
-        log_init(f"{os.path.join(log_dir, ensure_endswith(log_name, '.log'))}", level=log_level)
+        log_init(
+            filename=f"{os.path.join(log_dir, ensure_endswith(log_name, '.log'))}",
+            level=log_level,
+            rich_logging=rich_logging,
+            console_enable=console_enable,
+        )
     KeyboardInput.preload_history(cache.load_input_history(commands()))
     shared.create_engine(engine_name=engine_name, model_name=model_name)
     shared.create_context(context_size)

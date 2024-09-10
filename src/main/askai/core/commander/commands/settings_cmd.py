@@ -14,13 +14,14 @@
 """
 
 from abc import ABC
+from typing import Any, Optional
+
+from askai.core.askai_configs import configs
 from askai.core.askai_settings import settings
-from askai.core.component.recorder import recorder
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
 from hspylib.core.tools.commons import sysout
 from setman.settings.settings_entry import SettingsEntry
-from typing import Any, Optional
 
 
 class SettingsCmd(ABC):
@@ -65,6 +66,16 @@ class SettingsCmd(ABC):
     @staticmethod
     def reset() -> None:
         """Reset all settings to their default values."""
+        # Command arguments settings must be kept as it was.
+        is_interactive: bool = settings.get_bool("askai.interactive.enabled")
+        is_speak: bool = settings.get_bool("askai.speak.enabled")
+        is_debug: bool = settings.get_bool("askai.debug.enabled")
+        is_cache: bool = settings.get_bool("askai.cache.enabled")
         settings.defaults()
-        # Include the current audio input.
-        settings.put("askai.recorder.devices", recorder.input_device[1] or "")
+        configs.clear_devices()
+        # Put back the command argument settings.
+        settings.put("askai.interactive.enabled", is_interactive)
+        settings.put("askai.speak.enabled", is_speak)
+        settings.put("askai.debug.enabled", is_debug)
+        settings.put("askai.cache.enabled", is_cache)
+        text_formatter.cmd_print(f"%GREEN%Factory settings reset!%NC%")

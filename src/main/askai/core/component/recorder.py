@@ -12,11 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import operator
+import sys
+from pathlib import Path
+from typing import Callable, Optional, TypeAlias
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import REC_DIR
-from askai.core.component.scheduler import Scheduler
+from askai.core.component.scheduler import scheduler
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.utilities import display_text, seconds
 from askai.exception.exceptions import InvalidInputDevice, InvalidRecognitionApiError
@@ -27,13 +33,7 @@ from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument, check_state
 from hspylib.core.zoned_datetime import now_ms
 from hspylib.modules.application.exit_status import ExitStatus
-from pathlib import Path
 from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
-from typing import Callable, Optional, TypeAlias
-
-import logging as log
-import operator
-import sys
 
 InputDevice: TypeAlias = tuple[int, str]
 
@@ -63,21 +63,7 @@ class Recorder(metaclass=Singleton):
             devices.append((index, name))
         return devices
 
-    def __init__(self):
-        self._rec: Recognizer = Recognizer()
-        self._devices: list[InputDevice] = []
-        self._device_index: int | None = None
-        self._input_device: InputDevice | None = None
-        self._old_device = None
-
-    def setup(self) -> None:
-        """Setup the microphone recorder."""
-        self._devices = self.get_device_list()
-        log.debug("Available audio devices:\n%s", "\n".join([f"{d[0]} - {d[1]}" for d in self._devices]))
-        self._select_device()
-
     @staticmethod
-    @Scheduler.every(3000, 5000)
     def __device_watcher() -> None:
         """Monitor audio input devices for being plugged in or unplugged. This method periodically checks the status of
         audio input devices to detect any changes.
@@ -95,6 +81,19 @@ class Recorder(metaclass=Singleton):
                     if recorder.set_device(device):
                         break
             recorder.devices = new_list
+
+    def __init__(self):
+        self._rec: Recognizer = Recognizer()
+        self._devices: list[InputDevice] = []
+        self._device_index: int | None = None
+        self._input_device: InputDevice | None = None
+
+    def setup(self) -> None:
+        """Setup the microphone recorder."""
+        self._devices = self.get_device_list()
+        log.debug("Available audio devices:\n%s", "\n".join([f"{d[0]} - {d[1]}" for d in self._devices]))
+        self._select_device()
+        scheduler.set_interval(3000, self.__device_watcher, 5000)
 
     @property
     def devices(self) -> list[InputDevice]:
@@ -238,10 +237,10 @@ class Recorder(metaclass=Singleton):
         """Select a device for recording."""
         available: list[str] = list(filter(lambda d: d, map(str.strip, configs.recorder_devices)))
         device: InputDevice | None = None
-        devices: list[InputDevice] = list(reversed(self.devices))
+        devices: list[InputDevice] = self.devices
         while devices and not device:
             if available:
-                for dev in devices:
+                for dev in list(reversed(devices)):  # Reverse to get any headphone or external device
                     if dev[1] in available and self.set_device(dev):
                         device = dev
                         break

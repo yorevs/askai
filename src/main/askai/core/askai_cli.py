@@ -58,7 +58,7 @@ class AskAiCli(AskAi):
         query_string: QueryString,
     ):
 
-        configs.is_interactive = configs.is_interactive if not query_prompt else False
+        configs.is_interactive = interactive if not query_prompt else False
         super().__init__(interactive, speak, debug, cacheable, tempo, engine_name, model_name)
         os.environ["ASKAI_APP"] = (self.RunModes.ASKAI_CLI if interactive else self.RunModes.ASKAI_CMD).value
         self._ready: bool = False
@@ -136,14 +136,14 @@ class AskAiCli(AskAi):
         :param ev: The event object representing the microphone listening event.
         """
         if ev.args.listening:
-            self._reply(msg.listening())
+            self._reply(AIReply.info(msg.listening()))
 
     def _cb_device_changed_event(self, ev: Event) -> None:
         """Callback to handle audio input device change events.
         :param ev: The event object representing the device change.
         """
         cursor.erase_line()
-        self._reply(msg.device_switch(str(ev.args.device)))
+        self._reply(AIReply.info(msg.device_switch(str(ev.args.device))))
 
     def _splash(self, interval: int = 250) -> None:
         """Display the AskAI splash screen until the system is fully started and ready. This method shows the splash
