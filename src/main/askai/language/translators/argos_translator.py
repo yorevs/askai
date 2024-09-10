@@ -13,21 +13,23 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from argostranslate import package, translate
-from argostranslate.translate import ITranslation
-from askai.exception.exceptions import TranslationPackageError
-from askai.language.ai_translator import AITranslator
-from askai.language.language import Language
-from functools import lru_cache
-from typing import Optional
-
 import logging as log
 import os
 import sys
+from functools import lru_cache
+from typing import Optional
+
+from argostranslate import package, translate
+from argostranslate.translate import ITranslation
+
+from askai.exception.exceptions import TranslationPackageError
+from askai.language.ai_translator import AITranslator
+from askai.language.language import Language
 
 
 class ArgosTranslator(AITranslator):
-    """Provides a multilingual offline translation engine.
+    """Provides a multilingual offline translation engine using ARGOS translate.
+    Reference: https://github.com/argosopentech/argos-translate
     Language packages are downloaded at: ~/.local/share/argos-translate/packages
     """
 

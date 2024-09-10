@@ -12,16 +12,19 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.__classpath__ import API_KEYS
-from askai.language.ai_translator import AITranslator
-from askai.language.language import Language
 from functools import lru_cache
 
 import deepl
 
+from askai.__classpath__ import API_KEYS
+from askai.language.ai_translator import AITranslator
+from askai.language.language import Language
+
 
 class DeepLTranslator(AITranslator):
-    """Provides a multilingual online translation engine."""
+    """Provides a multilingual online translation engine using DeepL translator.
+    Reference: https://hnd.www.deepl.com/en/translator
+    """
 
     def __init__(self, source_lang: Language, target_lang: Language):
         super().__init__(source_lang, target_lang)
