@@ -23,20 +23,13 @@ class TextStreamer(metaclass=Singleton):
 
     STREAMING: bool = False
 
-    STREAM_THREAD: Thread = None
+    STREAMER_THREAD: Thread = None
 
-    def stream_text(
-        self, text: AnyStr, prefix: AnyStr = "", tempo: int = 1, language: Language = Language.EN_US
-    ) -> None:
-        """TODO"""
-        TextStreamer.STREAM_THREAD = Thread(daemon=True, target=self._stream, args=(text, prefix, tempo, language))
-        TextStreamer.STREAM_THREAD.start()
-        TextStreamer.STREAM_THREAD.join()
-
-    def _stream(self, text: AnyStr, prefix: AnyStr = "", tempo: int = 1, language: Language = Language.EN_US) -> None:
-        """Stream the text on the screen with a typewriter effect. This method simulates the effect of text being typed out character by character, with the speed
-        of the effect determined by the tempo parameter. The effect can be customized based on the selected
-        language.
+    @staticmethod
+    def _process(text: AnyStr, prefix: AnyStr = "", tempo: int = 1, language: Language = Language.EN_US) -> None:
+        """Stream the text on the screen with a typewriter effect. This method simulates the effect of text being typed
+        out character by character, with the speed of the effect determined by the tempo parameter. The effect can be
+        customized based on the selected language.
         :param text: The text to be streamed.
         :param prefix: A prefix to prepend to the streaming text (optional).
         :param tempo: The speed multiplier for the typewriter effect (default is 1).
@@ -117,6 +110,14 @@ class TextStreamer(metaclass=Singleton):
         cursor.write(f"{str(prefix)}{text_formatter.beautify(text)}", markdown=True)
         TextStreamer.STREAMING = False
         TextStreamer.DONE = True
+
+    def stream_text(
+        self, text: AnyStr, prefix: AnyStr = "", tempo: int = 1, language: Language = Language.EN_US
+    ) -> None:
+        """TODO"""
+        TextStreamer.STREAMER_THREAD = Thread(daemon=True, target=self._process, args=(text, prefix, tempo, language))
+        TextStreamer.STREAMER_THREAD.start()
+        TextStreamer.STREAMER_THREAD.join()
 
 
 assert (streamer := TextStreamer().INSTANCE) is not None

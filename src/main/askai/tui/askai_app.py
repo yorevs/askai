@@ -12,8 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from typing import Optional
-
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
@@ -46,6 +44,7 @@ from textual import on, work
 from textual.app import App, ComposeResult
 from textual.containers import ScrollableContainer
 from textual.widgets import Footer, Input, MarkdownViewer
+from typing import Optional
 
 import logging as log
 import nltk
@@ -335,20 +334,6 @@ class AskAiApp(App[None]):
                 if ev.args.reply.verbosity.match(configs.verbosity) or configs.is_debug:
                     self._reply(reply)
 
-    def _cb_mic_listening_event(self, ev: Event) -> None:
-        """Callback to handle microphone listening events.
-        :param ev: The event object representing the microphone listening event.
-        """
-        self.header.notifications.listening = ev.args.listening
-        if ev.args.listening:
-            self._reply(AIReply.info(msg.listening()))
-
-    def _cb_device_changed_event(self, ev: Event) -> None:
-        """Callback to handle audio input device change events.
-        :param ev: The event object representing the device change.
-        """
-        self._reply(AIReply.info(msg.device_switch(str(ev.args.device))))
-
     def _cb_mode_changed_event(self, ev: Event) -> None:
         """Callback to handle mode change events.
         :param ev: The event object representing the mode change.
@@ -362,6 +347,20 @@ class AskAiApp(App[None]):
                 f"> {msg.qna_welcome()}"
             )
             events.reply.emit(reply=AIReply.info(sum_msg))
+
+    def _cb_mic_listening_event(self, ev: Event) -> None:
+        """Callback to handle microphone listening events.
+        :param ev: The event object representing the microphone listening event.
+        """
+        self.header.notifications.listening = ev.args.listening
+        if ev.args.listening:
+            self._reply(AIReply.info(msg.listening()))
+
+    def _cb_device_changed_event(self, ev: Event) -> None:
+        """Callback to handle audio input device change events.
+        :param ev: The event object representing the device change.
+        """
+        self._reply(AIReply.info(msg.device_switch(str(ev.args.device))))
 
     @work(thread=True, exclusive=True)
     def ask_and_reply(self, question: str) -> tuple[bool, Optional[str]]:

@@ -8,8 +8,8 @@
 */
 
 /* HSPyLib projects */
-package: hspylib, version: 1.12.47, mode: ge
-package: hspylib-clitt, version: 0.9.132, mode: ge
+package: hspylib, version: 1.12.49, mode: ge
+package: hspylib-clitt, version: 0.9.133, mode: ge
 package: hspylib-setman, version: 0.10.35, mode: ge
 
 /* General */

@@ -1,9 +1,3 @@
-import os
-from textwrap import indent
-
-import pyautogui
-import torch
-from PIL import Image
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import PICTURE_DIR
@@ -16,7 +10,13 @@ from hspylib.core.config.path_object import PathObject
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.preconditions import check_argument
+from PIL import Image
+from textwrap import indent
 from transformers import BlipForConditionalGeneration, BlipProcessor
+
+import os
+import pyautogui
+import torch
 
 
 class HFModel(Enumeration):

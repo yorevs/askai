@@ -60,9 +60,9 @@ def after_20_seconds():
 
 
 if __name__ == "__main__":
-    init_context("scheduler-demo", rich_logging=False, console_enable=True, log_level=log.INFO)
-    log.info("-=" * 40)
-    log.info(f"AskAI Scheduler Demo - {scheduler.now.strftime(SIMPLE_DATETIME_FORMAT)}")
-    log.info("-=" * 40)
+    init_context("scheduler-demo", rich_logging=True, console_enable=True, log_level=log.INFO)
+    echo("-=" * 40)
+    echo(f"AskAI Scheduler Demo - {scheduler.now.strftime(SIMPLE_DATETIME_FORMAT)}")
+    echo("-=" * 40)
     scheduler.start()
     scheduler.join()

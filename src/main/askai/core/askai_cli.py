@@ -21,6 +21,7 @@ from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
+from askai.core.enums.router_mode import RouterMode
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
@@ -32,7 +33,7 @@ from hspylib.modules.eventbus.event import Event
 from pathlib import Path
 from rich.progress import Progress
 from threading import Thread
-from typing import List, TypeAlias, Optional
+from typing import List, Optional, TypeAlias
 
 import logging as log
 import nltk
@@ -130,6 +131,20 @@ class AskAiCli(AskAi):
                     if ev.args.erase_last:
                         cursor.erase_line()
                     self._reply(reply)
+
+    def _cb_mode_changed_event(self, ev: Event) -> None:
+        """Callback to handle mode change events.
+        :param ev: The event object representing the mode change.
+        """
+        self._mode: RouterMode = RouterMode.of_name(ev.args.mode)
+        if not self._mode.is_default:
+            sum_msg: str = (
+                f"{msg.enter_qna()} \n"
+                f"```\nContext:  {ev.args.sum_path},   {ev.args.glob} \n```\n"
+                f"`{msg.press_esc_enter()}` \n\n"
+                f"> {msg.qna_welcome()}"
+            )
+            events.reply.emit(reply=AIReply.info(sum_msg))
 
     def _cb_mic_listening_event(self, ev: Event) -> None:
         """Callback to handle microphone listening events.

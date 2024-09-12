@@ -14,14 +14,13 @@
 """
 
 from abc import ABC
-from typing import Any, Optional
-
 from askai.core.askai_configs import configs
 from askai.core.askai_settings import settings
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
 from hspylib.core.tools.commons import sysout
 from setman.settings.settings_entry import SettingsEntry
+from typing import Any, Optional
 
 
 class SettingsCmd(ABC):

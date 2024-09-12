@@ -12,18 +12,20 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import inspect
-import os
-import threading
 from datetime import datetime, timedelta
+from functools import wraps
+
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_argument
+from hspylib.core.zoned_datetime import SIMPLE_DATETIME_FORMAT
 from threading import Thread
 from time import monotonic
 from typing import Any, Callable, Iterable, Mapping
 
+import inspect
+import os
 import pause
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_argument
-from hspylib.core.zoned_datetime import SIMPLE_DATETIME_FORMAT
+import threading
 
 
 class Scheduler(Thread, metaclass=Singleton):
@@ -48,9 +50,10 @@ class Scheduler(Thread, metaclass=Singleton):
         :return: The decorated function.
         """
 
-        def every_wrapper(func: Callable):
+        def helper(func: Callable):
             """Wrapper to handle both instance methods and static functions."""
 
+            @wraps(func)
             def wrapped_function(*args, **kwargs):
                 # Check if the first argument is likely to be 'self' (i.e., method bound to an instance)
                 if len(args) > 0 and inspect.isclass(type(args[0])):
@@ -62,7 +65,7 @@ class Scheduler(Thread, metaclass=Singleton):
 
             return wrapped_function()
 
-        return every_wrapper
+        return helper
 
     @staticmethod
     def at(hour: int, minute: int, second: int, millis: int = 0):
@@ -77,9 +80,10 @@ class Scheduler(Thread, metaclass=Singleton):
         :return: A decorator that schedules the function to run at the specified time.
         """
 
-        def at_wrapper(func: Callable):
+        def helper(func: Callable):
             """Wrapper to handle both instance methods and static functions."""
 
+            @wraps(func)
             def wrapped_function(*args, **kwargs):
                 # Check if the first argument is likely to be 'self' (i.e., method bound to an instance)
                 if len(args) > 0 and inspect.isclass(type(args[0])):
@@ -91,7 +95,7 @@ class Scheduler(Thread, metaclass=Singleton):
 
             return wrapped_function()
 
-        return at_wrapper
+        return helper
 
     @staticmethod
     def after(hour: int = 0, minute: int = 0, second: int = 0, microsecond: int = 0):
@@ -106,9 +110,10 @@ class Scheduler(Thread, metaclass=Singleton):
         :return: A decorator that schedules the function to run after the specified delay.
         """
 
-        def after_wrapper(func: Callable):
+        def helper(func: Callable):
             """Wrapper to handle both instance methods and static functions."""
 
+            @wraps(func)
             def wrapped_function(*args, **kwargs):
                 # Check if the first argument is likely to be 'self' (i.e., method bound to an instance)
                 if len(args) > 0 and inspect.isclass(type(args[0])):
@@ -120,7 +125,7 @@ class Scheduler(Thread, metaclass=Singleton):
 
             return wrapped_function()
 
-        return after_wrapper
+        return helper
 
     def __init__(self):
         super().__init__()
@@ -141,8 +146,12 @@ class Scheduler(Thread, metaclass=Singleton):
     def now(self) -> datetime:
         return self._now
 
+    @property
+    def alive(self) -> bool:
+        return not self._DONE and threading.main_thread().is_alive()
+
     def run(self) -> None:
-        while not self._DONE and threading.main_thread().is_alive():
+        while self.alive:
             if not_started := next((th for th in self._not_started if not th.is_alive()), None):
                 not_started.start()
                 self._remove(not_started)
@@ -185,7 +194,7 @@ class Scheduler(Thread, metaclass=Singleton):
             """Continuously checks if the scheduled time has been reached and executes the callback function. The
             method uses a pause between checks to avoid excessive CPU usage.
             """
-            while not self._DONE and threading.main_thread().is_alive():
+            while self.alive:
                 if monotonic() - self._start_time >= secs:
                     args = cb_fn_args if cb_fn_args else []
                     xargs = cb_fn_kwargs if cb_fn_kwargs else {}
@@ -244,7 +253,7 @@ class Scheduler(Thread, metaclass=Singleton):
             `pause.milliseconds()` method to handle the waiting periods between each invocation.
             """
             pause.milliseconds(interval_ms if delay_ms > 0 else 0)
-            while not self._DONE and threading.main_thread().is_alive():
+            while self.alive:
                 args = cb_fn_args if cb_fn_args else []
                 xargs = cb_fn_kwargs if cb_fn_kwargs else {}
                 callback(*args, **xargs)

@@ -12,12 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import operator
-import sys
-from pathlib import Path
-from typing import Callable, Optional, TypeAlias
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -33,7 +27,13 @@ from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument, check_state
 from hspylib.core.zoned_datetime import now_ms
 from hspylib.modules.application.exit_status import ExitStatus
+from pathlib import Path
 from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
+from typing import Callable, Optional, TypeAlias
+
+import logging as log
+import operator
+import sys
 
 InputDevice: TypeAlias = tuple[int, str]
 

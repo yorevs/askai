@@ -26,13 +26,8 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import read_stdin
-from askai.exception.exceptions import (
-    ImpossibleQuery,
-    InaccurateResponse,
-    IntelligibleAudioError,
-    MaxInteractionsReached,
-    TerminatingQuery,
-)
+from askai.exception.exceptions import (ImpossibleQuery, InaccurateResponse, IntelligibleAudioError,
+                                        MaxInteractionsReached, TerminatingQuery)
 from askai.tui.app_icons import AppIcons
 from click import UsageError
 from enum import Enum
@@ -40,7 +35,6 @@ from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import file_is_not_empty, is_debugging
 from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
 from hspylib.modules.application.exit_status import ExitStatus
-from hspylib.modules.eventbus.event import Event
 from openai import RateLimitError
 from pathlib import Path
 from typing import List, Optional, TypeAlias
@@ -212,17 +206,3 @@ class AskAi:
         :param reply: The error reply message to be displayed to the user.
         """
         ...
-
-    def _cb_mode_changed_event(self, ev: Event) -> None:
-        """Callback to handle mode change events.
-        :param ev: The event object representing the mode change.
-        """
-        self._mode: RouterMode = RouterMode.of_name(ev.args.mode)
-        if not self._mode.is_default:
-            sum_msg: str = (
-                f"{msg.enter_qna()} \n"
-                f"```\nContext:  {ev.args.sum_path},   {ev.args.glob} \n```\n"
-                f"`{msg.press_esc_enter()}` \n\n"
-                f"> {msg.qna_welcome()}"
-            )
-            events.reply.emit(reply=AIReply.info(sum_msg))

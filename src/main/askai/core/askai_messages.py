@@ -134,14 +134,16 @@ class AskAiMessages(metaclass=Singleton):
     def assert_acc(self, status: str, details: str) -> str:
         match status.casefold():
             case "red":
-                cl = "~~"
+                cl = "%RED%"
             case "yellow":
-                cl = "`"
+                cl = "%YELLOW%"
             case "green":
-                cl = "*"
+                cl = "%GREEN%"
+            case "blue":
+                cl = "%BLUE%"
             case _:
                 cl = ""
-        return f"~~[DEBUG]~~ Accuracy result => {cl}{status}:{cl} {details}"
+        return f"~~[DEBUG]~~ Accuracy result => {cl}{status}:%NC% {details}"
 
     def action_plan(self, plan_text: str) -> str:
         return f"~~[DEBUG]~~ Action plan > {plan_text}"

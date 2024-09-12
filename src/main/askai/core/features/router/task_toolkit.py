@@ -12,18 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import inspect
-import logging as log
-from functools import lru_cache
-from textwrap import dedent
-from typing import Callable, Optional
-
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.metaclass.classpath import AnyPath
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
-from langchain_core.tools import BaseTool, StructuredTool
-
 from askai.core.askai_messages import msg
 from askai.core.features.router.tools.analysis import query_output
 from askai.core.features.router.tools.browser import browse
@@ -34,6 +22,17 @@ from askai.core.features.router.tools.terminal import execute_command, list_cont
 from askai.core.features.router.tools.vision import image_captioner, parse_caption
 from askai.core.features.router.tools.webcam import webcam_capturer, webcam_identifier
 from askai.exception.exceptions import TerminatingQuery
+from clitt.core.tui.line_input.line_input import line_input
+from functools import lru_cache
+from hspylib.core.metaclass.classpath import AnyPath
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
+from langchain_core.tools import BaseTool, StructuredTool
+from textwrap import dedent
+from typing import Callable, Optional
+
+import inspect
+import logging as log
 
 
 class AgentToolkit(metaclass=Singleton):

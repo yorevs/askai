@@ -12,13 +12,12 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from functools import lru_cache
-
-import deepl
-
 from askai.__classpath__ import API_KEYS
 from askai.language.ai_translator import AITranslator
 from askai.language.language import Language
+from functools import lru_cache
+
+import deepl
 
 
 class DeepLTranslator(AITranslator):
