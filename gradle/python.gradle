@@ -266,25 +266,29 @@ task uninstall(type: Task) {
 
 /***** Verification Group */
 
-/* Run all python tests from testRoot */
+/* Run all python unittests from sourceRoot */
 task check(type: Task) {
   group = 'Verification'
-  description = "Run all python tests from testRoot"
+  description = "Run all python unittests from sourceRoot"
   dependsOn compilePython
   dependsOn compileQrc
   doLast {
     println "Executing all unittests from ${sourceRoot}"
-    if (verbose) {
-        println ""
-        println "  PYTHON_PATHS: "
-        println "\t|- ${project.ext.pythonPath.split(':').join('\n\t|- ')}"
-        println "Executing unittests from -> ${file.name}"
-        println ""
-      }
-      exec {
-        workingDir = "${sourceRoot}/test"
-        environment PYTHONPATH: pythonPath
-        commandLine project.python, '-m', 'pytest', '--no-header', '-vv'
+    fileTree("${sourceRoot}/test").matching {
+      include "**/test_*.py"
+    }.each { File file ->
+      if (verbose) {
+          println ""
+          println "  PYTHONPATH: "
+          println "\t|- ${project.ext.pythonPath.split(':').join('\n\t|- ')}"
+          println "Executing unittests from -> ${file.name}"
+          println ""
+        }
+        exec {
+          workingDir = dirName(file)
+          environment PYTHONPATH: pythonPath
+          commandLine project.python, '-m', 'unittest', '-b', '-f', '-v' , file.path
+        }
       }
   }
 }
