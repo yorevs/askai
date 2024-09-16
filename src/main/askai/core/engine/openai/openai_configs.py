@@ -12,20 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.__classpath__ import classpath
+from typing import Literal
+
 from askai.core.askai_configs import AskAiConfigs
 from askai.core.askai_settings import settings
 from hspylib.core.metaclass.singleton import Singleton
-from typing import Literal
 
 
 class OpenAiConfigs(AskAiConfigs, metaclass=Singleton):
     """Provides access to OpenAI configurations."""
 
     INSTANCE: "OpenAiConfigs"
-
-    # The resources folder
-    RESOURCE_DIR = str(classpath.resource_path())
 
     def __init__(self):
         super().__init__()

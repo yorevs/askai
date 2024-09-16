@@ -51,7 +51,7 @@ class AskAiPrompt(metaclass=Singleton):
 
     @lru_cache
     def read_prompt(self, template_file: str, prompt_dir: str = None) -> str:
-        """Read a processor prompt template and set its persona.
+        """Read a processor prompt template.
         :param template_file: The name of the template file to read.
         :param prompt_dir: Optional directory where the template file is located.
         :return: The content of the prompt template as a string.
