@@ -21,13 +21,18 @@ from askai.core.commander.commander import ask_commander, RE_ASKAI_CMD
 from askai.core.component.cache_service import cache, CACHE_DIR
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.enums.router_mode import RouterMode
-from askai.core.features.router.ai_processor import AIProcessor
+from askai.core.features.processors.ai_processor import AIProcessor
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import read_stdin
-from askai.exception.exceptions import (ImpossibleQuery, InaccurateResponse, IntelligibleAudioError,
-                                        MaxInteractionsReached, TerminatingQuery)
+from askai.exception.exceptions import (
+    ImpossibleQuery,
+    InaccurateResponse,
+    IntelligibleAudioError,
+    MaxInteractionsReached,
+    TerminatingQuery,
+)
 from askai.tui.app_icons import AppIcons
 from click import UsageError
 from enum import Enum

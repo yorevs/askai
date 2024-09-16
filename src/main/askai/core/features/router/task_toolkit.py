@@ -13,14 +13,14 @@
    Copyright (c) 2024, HomeSetup
 """
 from askai.core.askai_messages import msg
-from askai.core.features.router.tools.analysis import query_output
-from askai.core.features.router.tools.browser import browse
-from askai.core.features.router.tools.general import display_tool
-from askai.core.features.router.tools.generation import generate_content, save_content
-from askai.core.features.router.tools.summarization import summarize
-from askai.core.features.router.tools.terminal import execute_command, list_contents, open_command
-from askai.core.features.router.tools.vision import image_captioner, parse_caption
-from askai.core.features.router.tools.webcam import webcam_capturer, webcam_identifier
+from askai.core.features.tools.analysis import query_output
+from askai.core.features.tools.browser import browse
+from askai.core.features.tools.general import display_tool
+from askai.core.features.tools.generation import generate_content, save_content
+from askai.core.features.tools.summarization import summarize
+from askai.core.features.tools.terminal import execute_command, list_contents, open_command
+from askai.core.features.tools.vision import image_captioner, parse_caption
+from askai.core.features.tools.webcam import webcam_capturer, webcam_identifier
 from askai.exception.exceptions import TerminatingQuery
 from clitt.core.tui.line_input.line_input import line_input
 from functools import lru_cache

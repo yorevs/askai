@@ -1,4 +1,4 @@
-from askai.core.features.router.tools.vision import offline_captioner
+from askai.core.features.tools.vision import offline_captioner
 
 import os
 

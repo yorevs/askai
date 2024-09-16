@@ -5,7 +5,7 @@ from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_response import AccResponse
 from askai.core.features.router.task_toolkit import features
-from askai.core.features.validation.accuracy import assert_accuracy
+from askai.core.features.router.task_accuracy import assert_accuracy
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
@@ -81,7 +81,7 @@ class TaskAgent(metaclass=Singleton):
         self._lc_agent: Runnable = AgentExecutor(
             agent=lc_agent,
             tools=tools,
-            max_iteraction=configs.max_router_retries,
+            max_iterations=configs.max_router_retries,
             memory=chat_memory,
             handle_parsing_errors=True,
             max_execution_time=configs.max_agent_execution_time_seconds,

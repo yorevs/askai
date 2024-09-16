@@ -2,7 +2,7 @@ from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import PICTURE_DIR
 from askai.core.engine.ai_vision import AIVision
-from askai.core.features.validation.accuracy import resolve_x_refs
+from askai.core.features.router.task_accuracy import resolve_x_refs
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.image_result import ImageResult
 from askai.core.support.shared_instances import shared

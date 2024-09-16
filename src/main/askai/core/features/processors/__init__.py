@@ -2,7 +2,7 @@
 #
 # hspylib-askai v1.0.13
 #
-# Package: main.askai.core.features.router.procs
+# Package: main.askai.core.features.router.processors
 """Package initialization."""
 
 __all__ = ["qna", "qstring", "rag", "task_splitter"]

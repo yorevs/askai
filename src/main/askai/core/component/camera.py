@@ -19,7 +19,7 @@ from askai.core.askai_messages import msg
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import FACE_DIR, IMG_IMPORTS_DIR, PHOTO_DIR
 from askai.core.component.image_store import ImageData, ImageFile, ImageMetadata, store
-from askai.core.features.router.tools.vision import image_captioner, parse_caption
+from askai.core.features.tools.vision import image_captioner, parse_caption
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.image_result import ImageResult
 from askai.core.support.utilities import build_img_path

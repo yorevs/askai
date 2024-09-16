@@ -13,11 +13,11 @@
    Copyright (c) 2024, HomeSetup
 """
 from askai.core.askai_configs import configs
-from askai.core.features.router.ai_processor import AIProcessor
-from askai.core.features.router.procs.qna import qna
-from askai.core.features.router.procs.qstring import qstring
-from askai.core.features.router.procs.rag import rag
-from askai.core.features.router.procs.task_splitter import splitter
+from askai.core.features.processors.ai_processor import AIProcessor
+from askai.core.features.processors.qna import qna
+from askai.core.features.processors.qstring import qstring
+from askai.core.features.processors.rag import rag
+from askai.core.features.processors.task_splitter import splitter
 from hspylib.core.enums.enumeration import Enumeration
 from typing import Optional
 

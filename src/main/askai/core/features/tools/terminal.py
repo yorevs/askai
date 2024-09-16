@@ -14,7 +14,7 @@
 """
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
-from askai.core.features.validation.accuracy import resolve_x_refs
+from askai.core.features.router.task_accuracy import resolve_x_refs
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_path, media_type_of
