@@ -26,10 +26,10 @@ class OpenAiConfigs(AskAiConfigs, metaclass=Singleton):
 
     def __init__(self):
         super().__init__()
-        self._stt_model = settings.get("openai.speech.to.text.model")
-        self._tts_model = settings.get("openai.text.to.speech.model")
-        self._tts_voice = settings.get("openai.text.to.speech.voice")
-        self._tts_format = settings.get("openai.text.to.speech.audio.format")
+        self._stt_model = settings.get("askai.openai.speech.to.text.model")
+        self._tts_model = settings.get("askai.openai.text.to.speech.model")
+        self._tts_voice = settings.get("askai.openai.text.to.speech.voice")
+        self._tts_format = settings.get("askai.openai.text.to.speech.audio.format")
 
     @property
     def stt_model(self) -> Literal["whisper-1"]:
