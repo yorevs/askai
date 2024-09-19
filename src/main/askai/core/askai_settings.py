@@ -43,7 +43,7 @@ class AskAiSettings(metaclass=Singleton):
     INSTANCE: "AskAiSettings"
 
     # Current settings version. Updating this value will trigger a database recreation using the defaults.
-    _ACTUAL_VERSION: str = "0.2.0"
+    _ACTUAL_VERSION: str = "0.2.1"
 
     RESOURCE_DIR = str(classpath.resource_path())
 
@@ -123,10 +123,10 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.camera.min-max.size", "askai", "100, 100")
         self._settings.put("askai.camera.identity.max.distance", "askai", 0.70)
         # OpenAI
-        self._settings.put("askai.openai.speech.to.text.model", "openai", "whisper-1")
-        self._settings.put("askai.openai.text.to.speech.model", "openai", "tts-1")
-        self._settings.put("askai.openai.text.to.speech.voice", "openai", "onyx")
-        self._settings.put("askai.openai.text.to.speech.audio.format", "openai", "mp3")
+        self._settings.put("askai.openai.speech.to.text.model", "askai", "whisper-1")
+        self._settings.put("askai.openai.text.to.speech.model", "askai", "tts-1")
+        self._settings.put("askai.openai.text.to.speech.voice", "askai", "onyx")
+        self._settings.put("askai.openai.text.to.speech.audio.format", "askai", "mp3")
         log.debug(f"Settings database created !")
 
     def get(self, key: str, default_value: str | None = "") -> str:
