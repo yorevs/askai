@@ -101,6 +101,16 @@ def build_img_path(base_dir: Path, filename: str, suffix: str) -> Optional[str]:
     return strip_escapes(img_path)
 
 
+def join_path(dir_name: AnyPath, path_name: AnyPath) -> str:
+    """Join the the given path name with the specified directory name.
+    :param dir_name: The new directory name to replace the existing one.
+    :param path_name: The original path where the directory will be replaced.
+    :return: The modified path with the new directory name.
+    """
+
+    return os.path.join(str(dir_name), str(path_name))
+
+
 def read_resource(base_dir: AnyPath, filename: AnyPath, file_ext: str = ".txt") -> str:
     """Read the resource file specified by the filename and return its content.
     :param base_dir: The base directory, relative to the resources folder.
@@ -108,9 +118,20 @@ def read_resource(base_dir: AnyPath, filename: AnyPath, file_ext: str = ".txt") 
     :param file_ext: The file extension of the file (default is ".txt").
     :return: The content of the file as a string.
     """
-    filename = f"{str(base_dir)}/{ensure_endswith(basename(str(filename)), file_ext)}"
-    check_argument(file_is_not_empty(str(filename)), f"Resource file is empty does not exist: {filename}")
+    _, ext = os.path.splitext(filename)
+    filename = f"{str(base_dir)}/{ensure_endswith(basename(str(filename)), ext or file_ext)}"
+    check_argument(file_is_not_empty(str(filename)), f"Resource file is empty or does not exist: {filename}")
     return Path(filename).read_text(encoding=Charset.UTF_8.val)
+
+
+def read_file(load_dir: AnyPath, path_name: str) -> Optional[str]:
+    """Reads the contents of a file from the specified directory.
+    :param load_dir: The directory where the file is located.
+    :param path_name: The path name of the file to read.
+    :return: The contents of the file as a string, or None if the file cannot be read.
+    """
+    file: Path = find_file(Path(join_path(load_dir, path_name)))
+    return file.read_text(encoding=Charset.UTF_8.val) if file_is_not_empty(str(file)) else ""
 
 
 def encode_image(file_path: str):
