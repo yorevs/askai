@@ -101,15 +101,15 @@ def build_img_path(base_dir: Path, filename: str, suffix: str) -> Optional[str]:
     return strip_escapes(img_path)
 
 
-def read_resource(base_dir: str, filename: str, file_ext: str = ".txt") -> str:
+def read_resource(base_dir: AnyPath, filename: AnyPath, file_ext: str = ".txt") -> str:
     """Read the resource file specified by the filename and return its content.
     :param base_dir: The base directory, relative to the resources folder.
     :param filename: The name of the file to read.
     :param file_ext: The file extension of the file (default is ".txt").
     :return: The content of the file as a string.
     """
-    filename = f"{base_dir}/{ensure_endswith(basename(filename), file_ext)}"
-    check_argument(file_is_not_empty(filename), f"Resource file is empty does not exist: {filename}")
+    filename = f"{str(base_dir)}/{ensure_endswith(basename(str(filename)), file_ext)}"
+    check_argument(file_is_not_empty(str(filename)), f"Resource file is empty does not exist: {filename}")
     return Path(filename).read_text(encoding=Charset.UTF_8.val)
 
 

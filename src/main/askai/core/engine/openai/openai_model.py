@@ -32,8 +32,8 @@ class OpenAIModel(Enumeration):
     GPT_4_TURBO             = "gpt-4-turbo", 128000
     GPT_4_O                 = "gpt-4o", 128000
     GPT_4_O_MINI            = "gpt-4o-mini", 128000
-    GPT_O1_PREVIEW          = "gpt-o1-preview", 128000
-    GPT_O1_MINI             = "gpt-o1-mini", 128000
+    O1_PREVIEW              = "o1-preview", 128000
+    O1_MINI                 = "o1-mini", 128000
 
     # fmt: on
 
