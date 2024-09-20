@@ -18,6 +18,7 @@ from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import console_out, to_bool
 from io import StringIO
 from pathlib import Path
+from rich import box
 from rich.table import Table
 from setman.settings.settings import Settings
 from setman.settings.settings_config import SettingsConfig
@@ -76,7 +77,7 @@ class AskAiSettings(metaclass=Singleton):
         """
         data = [(s.name, s.value) for s in self._settings.search(filters)]
         if data:
-            table = Table(title="AskAI - Settings")
+            table = Table(title="AskAI - Settings", box=box.SQUARE_DOUBLE_HEAD)
             table.add_column("No.", style="white", no_wrap=True)
             table.add_column("Name", style="cyan", no_wrap=True)
             table.add_column("Value", style="green", no_wrap=True)

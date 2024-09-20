@@ -13,24 +13,24 @@
    Copyright (c) 2024, HomeSetup
 """
 from askai.__classpath__ import classpath
-from askai.core.askai import AskAi
-from askai.core.askai_cli import AskAiCli
 from askai.core.askai_configs import configs
+from askai.core.commander.commander import ask_commander, is_command, RE_ASKAI_CMD
 from askai.core.support.shared_instances import shared
-from askai.tui.askai_app import AskAiApp
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import to_bool
+from hspylib.core.tools.commons import syserr, to_bool
 from hspylib.core.tools.dict_tools import get_or_default
 from hspylib.core.zoned_datetime import now
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
 from textwrap import dedent
-from typing import Any, Optional
+from typing import Any, AnyStr, Optional
 
+import click
 import logging as log
 import os
+import re
 import sys
 
 
@@ -50,10 +50,10 @@ class Main(TUIApplication):
 
     def __init__(self, app_name: str):
         super().__init__(app_name, self.VERSION, self.DESCRIPTION.format(self.VERSION), resource_dir=self.RESOURCE_DIR)
-        self._askai: AskAi | AskAiApp
+        self._askai: Any
 
     @property
-    def askai(self) -> AskAi | AskAiApp:
+    def askai(self) -> Any:
         return self._askai
 
     def _setup_arguments(self) -> None:
@@ -107,10 +107,15 @@ class Main(TUIApplication):
         """Run the application with the command line arguments."""
         os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
         is_new_ui: bool = to_bool(self._get_argument("ui", False))
-        if not is_new_ui:
-            interactive: bool = to_bool(self._get_argument("interactive", False))
+        is_interactive: bool = to_bool(self._get_argument("interactive", False))
+        query_string: str | None = self._get_query_string()
+        if not is_interactive and query_string and is_command(query_string):
+            return self._execute_command(query_string)
+        elif not is_new_ui:
+            from askai.core.askai_cli import AskAiCli
+
             self._askai = AskAiCli(
-                interactive,
+                is_interactive,
                 to_bool(self._get_argument("speak")),
                 to_bool(self._get_argument("debug")),
                 to_bool(self._get_argument("cache", configs.is_cache)),
@@ -118,9 +123,11 @@ class Main(TUIApplication):
                 self._get_argument("prompt"),
                 self._get_argument("engine", configs.engine),
                 self._get_argument("model", configs.model),
-                self._get_query_string(),
+                query_string,
             )
         else:
+            from askai.tui.askai_app import AskAiApp
+
             self._askai = AskAiApp(
                 to_bool(self._get_argument("speak")),
                 to_bool(self._get_argument("debug")),
@@ -170,6 +177,21 @@ class Main(TUIApplication):
         """Return the query_string parameter."""
         query_string: str | list[str] = self.get_arg("query_string")
         return query_string if isinstance(query_string, str) else " ".join(query_string)
+
+    def _execute_command(self, query_string: AnyStr) -> ExitStatus:
+        """TODO"""
+        try:
+            if command := re.search(RE_ASKAI_CMD, query_string):
+                args: list[str] = list(
+                    filter(lambda a: a and a != "None", re.split(r"\s", f"{command.group(1)} {command.group(2)}"))
+                )
+                ask_commander(args, standalone_mode=False)
+            # If no exception is raised, the command executed successfully
+            return ExitStatus.SUCCESS
+        except click.ClickException as ce:
+            ce.show()
+            syserr("Command failed due to a ClickException.")
+            return ExitStatus.FAILED
 
 
 # Application entry point

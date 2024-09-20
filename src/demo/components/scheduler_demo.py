@@ -12,12 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-
 from askai.core.component.scheduler import scheduler
 from hspylib.core.zoned_datetime import now, SIMPLE_DATETIME_FORMAT
-
 from utils import init_context
+
+import logging as log
 
 
 def echo(msg: str):

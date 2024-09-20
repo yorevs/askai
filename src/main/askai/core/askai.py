@@ -26,13 +26,8 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import read_stdin
-from askai.exception.exceptions import (
-    ImpossibleQuery,
-    InaccurateResponse,
-    IntelligibleAudioError,
-    MaxInteractionsReached,
-    TerminatingQuery,
-)
+from askai.exception.exceptions import (ImpossibleQuery, InaccurateResponse, IntelligibleAudioError,
+                                        MaxInteractionsReached, TerminatingQuery)
 from askai.tui.app_icons import AppIcons
 from click import UsageError
 from enum import Enum

@@ -26,6 +26,7 @@ from askai.core.support.utilities import display_text
 from askai.language.language import AnyLocale, Language
 from click import Command, Group
 from clitt.core.term.cursor import cursor
+from functools import lru_cache
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import sysout, to_bool
 from hspylib.modules.eventbus.event import Event
@@ -81,6 +82,7 @@ RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"
 __module__ = locals()
 
 
+@lru_cache
 def commands() -> list[str]:
     """Return the list of all available commander commands.
     :return: A list of strings representing the available commands.
@@ -92,6 +94,7 @@ def commands() -> list[str]:
     return sorted(all_commands, reverse=True)
 
 
+@lru_cache
 def commander_help(command: str | None = None) -> str:
     """Return the help string for the specified commander command.
     :param command: The command for which to retrieve help.
@@ -108,6 +111,14 @@ def commander_help(command: str | None = None) -> str:
         h_str: str = f"| {'**Command**':<9} | {'**Description**':<45} |\n"
         h_str += f"| {'-' * 9} | {'-' * 45} |\n"
         return COMMANDER_HELP_TPL.substitute(commands=f"{h_str}{help_str}")
+
+
+def is_command(string: str) -> bool:
+    """Check if the given string is a command.
+    :param string: The string to check.
+    :return: True if the string is a command, False otherwise.
+    """
+    return string.startswith("/") and string in commands()
 
 
 def _format_help(command: Command) -> str:

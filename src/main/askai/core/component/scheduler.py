@@ -14,7 +14,6 @@
 """
 from datetime import datetime, timedelta
 from functools import wraps
-
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_argument
 from hspylib.core.zoned_datetime import SIMPLE_DATETIME_FORMAT
