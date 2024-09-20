@@ -86,3 +86,4 @@ settings.db
 Desktop.ini
 *egg-info/
 py-gradle-master/
+build/
