@@ -44,14 +44,14 @@ class AskAiSettings(metaclass=Singleton):
     INSTANCE: "AskAiSettings"
 
     # Current settings version. Updating this value will trigger a database recreation using the defaults.
-    _ACTUAL_VERSION: str = "0.2.1"
+    __ACTUAL_VERSION: str = "0.2.1"
 
-    RESOURCE_DIR = str(classpath.resource_path())
+    __RESOURCE_DIR = str(classpath.resource_path())
 
     def __init__(self) -> None:
-        self._configs = SettingsConfig(self.RESOURCE_DIR, "application.properties")
+        self._configs = SettingsConfig(self.__RESOURCE_DIR, "application.properties")
         self._settings = Settings(self._configs)
-        if not self._settings.count() or self.get("askai.settings.version.id") != self._ACTUAL_VERSION:
+        if not self._settings.count() or self.get("askai.settings.version.id") != self.__ACTUAL_VERSION:
             self.defaults()
 
     def __str__(self) -> str:
@@ -92,7 +92,7 @@ class AskAiSettings(metaclass=Singleton):
         """Create the default settings database."""
         # AskAI General
         self._settings.clear("askai.*")
-        self._settings.put("askai.settings.version.id", "askai", self._ACTUAL_VERSION)
+        self._settings.put("askai.settings.version.id", "askai", self.__ACTUAL_VERSION)
         self._settings.put("askai.debug.enabled", "askai", False)
         self._settings.put("askai.speak.enabled", "askai", False)
         self._settings.put("askai.cache.enabled", "askai", False)
