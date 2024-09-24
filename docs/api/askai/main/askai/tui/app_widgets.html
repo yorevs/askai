@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 14.6.0"/>
+    <meta name="generator" content="pdoc 14.7.0"/>
     <title>main.askai.tui.app_widgets API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -465,10 +465,10 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../tui.html">tu
 
     </div>
     <a class="headerlink" href="#MenuIcon.tooltip"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="MenuIcon.tooltip-600"><a href="#MenuIcon.tooltip-600"><span class="linenos">600</span></a>    <span class="nd">@property</span>
-</span><span id="MenuIcon.tooltip-601"><a href="#MenuIcon.tooltip-601"><span class="linenos">601</span></a>    <span class="k">def</span> <span class="nf">tooltip</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RenderableType</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="MenuIcon.tooltip-602"><a href="#MenuIcon.tooltip-602"><span class="linenos">602</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Tooltip for the widget, or `None` for no tooltip.&quot;&quot;&quot;</span>
-</span><span id="MenuIcon.tooltip-603"><a href="#MenuIcon.tooltip-603"><span class="linenos">603</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tooltip</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="MenuIcon.tooltip-625"><a href="#MenuIcon.tooltip-625"><span class="linenos">625</span></a>    <span class="nd">@property</span>
+</span><span id="MenuIcon.tooltip-626"><a href="#MenuIcon.tooltip-626"><span class="linenos">626</span></a>    <span class="k">def</span> <span class="nf">tooltip</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RenderableType</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="MenuIcon.tooltip-627"><a href="#MenuIcon.tooltip-627"><span class="linenos">627</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Tooltip for the widget, or `None` for no tooltip.&quot;&quot;&quot;</span>
+</span><span id="MenuIcon.tooltip-628"><a href="#MenuIcon.tooltip-628"><span class="linenos">628</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tooltip</span>
 </span></pre></div>
 
 
@@ -573,6 +573,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../tui.html">tu
                 <dd id="MenuIcon.COMPONENT_CLASSES" class="variable">COMPONENT_CLASSES</dd>
                 <dd id="MenuIcon.BORDER_TITLE" class="variable">BORDER_TITLE</dd>
                 <dd id="MenuIcon.BORDER_SUBTITLE" class="variable">BORDER_SUBTITLE</dd>
+                <dd id="MenuIcon.ALLOW_MAXIMIZE" class="variable">ALLOW_MAXIMIZE</dd>
                 <dd id="MenuIcon.expand" class="variable">expand</dd>
                 <dd id="MenuIcon.shrink" class="variable">shrink</dd>
                 <dd id="MenuIcon.auto_links" class="variable">auto_links</dd>
@@ -599,10 +600,12 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../tui.html">tu
                 <dd id="MenuIcon.visible_siblings" class="variable">visible_siblings</dd>
                 <dd id="MenuIcon.allow_vertical_scroll" class="variable">allow_vertical_scroll</dd>
                 <dd id="MenuIcon.allow_horizontal_scroll" class="variable">allow_horizontal_scroll</dd>
+                <dd id="MenuIcon.allow_maximize" class="variable">allow_maximize</dd>
                 <dd id="MenuIcon.offset" class="variable">offset</dd>
                 <dd id="MenuIcon.opacity" class="variable">opacity</dd>
                 <dd id="MenuIcon.is_anchored" class="variable">is_anchored</dd>
                 <dd id="MenuIcon.is_mouse_over" class="variable">is_mouse_over</dd>
+                <dd id="MenuIcon.is_maximized" class="variable">is_maximized</dd>
                 <dd id="MenuIcon.anchor" class="function">anchor</dd>
                 <dd id="MenuIcon.clear_anchor" class="function">clear_anchor</dd>
                 <dd id="MenuIcon.allow_focus" class="function">allow_focus</dd>
@@ -729,8 +732,10 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../tui.html">tu
             </div>
             <div><dt>textual.dom.DOMNode</dt>
                                 <dd id="MenuIcon.DEFAULT_CLASSES" class="variable">DEFAULT_CLASSES</dd>
+                <dd id="MenuIcon.BINDING_GROUP_TITLE" class="variable">BINDING_GROUP_TITLE</dd>
                 <dd id="MenuIcon.BINDINGS" class="variable">BINDINGS</dd>
                 <dd id="MenuIcon.SCOPED_CSS" class="variable">SCOPED_CSS</dd>
+                <dd id="MenuIcon.HELP" class="variable">HELP</dd>
                 <dd id="MenuIcon.styles" class="variable">styles</dd>
                 <dd id="MenuIcon.set_reactive" class="function">set_reactive</dd>
                 <dd id="MenuIcon.mutate_reactive" class="function">mutate_reactive</dd>
@@ -758,6 +763,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../tui.html">tu
                 <dd id="MenuIcon.css_tree" class="variable">css_tree</dd>
                 <dd id="MenuIcon.text_style" class="variable">text_style</dd>
                 <dd id="MenuIcon.rich_style" class="variable">rich_style</dd>
+                <dd id="MenuIcon.check_consume_key" class="function">check_consume_key</dd>
                 <dd id="MenuIcon.background_colors" class="variable">background_colors</dd>
                 <dd id="MenuIcon.colors" class="variable">colors</dd>
                 <dd id="MenuIcon.ancestors_with_self" class="variable">ancestors_with_self</dd>
@@ -769,6 +775,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../tui.html">tu
                 <dd id="MenuIcon.query" class="function">query</dd>
                 <dd id="MenuIcon.query_children" class="function">query_children</dd>
                 <dd id="MenuIcon.query_one" class="function">query_one</dd>
+                <dd id="MenuIcon.query_exactly_one" class="function">query_exactly_one</dd>
                 <dd id="MenuIcon.set_styles" class="function">set_styles</dd>
                 <dd id="MenuIcon.has_class" class="function">has_class</dd>
                 <dd id="MenuIcon.set_class" class="function">set_class</dd>
@@ -990,6 +997,7 @@ calling [<code><a href="#Splash.refresh">refresh()</a></code>][textual.widget.Wi
                                 <dd id="Splash.COMPONENT_CLASSES" class="variable">COMPONENT_CLASSES</dd>
                 <dd id="Splash.BORDER_TITLE" class="variable">BORDER_TITLE</dd>
                 <dd id="Splash.BORDER_SUBTITLE" class="variable">BORDER_SUBTITLE</dd>
+                <dd id="Splash.ALLOW_MAXIMIZE" class="variable">ALLOW_MAXIMIZE</dd>
                 <dd id="Splash.expand" class="variable">expand</dd>
                 <dd id="Splash.shrink" class="variable">shrink</dd>
                 <dd id="Splash.auto_links" class="variable">auto_links</dd>
@@ -1016,10 +1024,12 @@ calling [<code><a href="#Splash.refresh">refresh()</a></code>][textual.widget.Wi
                 <dd id="Splash.visible_siblings" class="variable">visible_siblings</dd>
                 <dd id="Splash.allow_vertical_scroll" class="variable">allow_vertical_scroll</dd>
                 <dd id="Splash.allow_horizontal_scroll" class="variable">allow_horizontal_scroll</dd>
+                <dd id="Splash.allow_maximize" class="variable">allow_maximize</dd>
                 <dd id="Splash.offset" class="variable">offset</dd>
                 <dd id="Splash.opacity" class="variable">opacity</dd>
                 <dd id="Splash.is_anchored" class="variable">is_anchored</dd>
                 <dd id="Splash.is_mouse_over" class="variable">is_mouse_over</dd>
+                <dd id="Splash.is_maximized" class="variable">is_maximized</dd>
                 <dd id="Splash.anchor" class="function">anchor</dd>
                 <dd id="Splash.clear_anchor" class="function">clear_anchor</dd>
                 <dd id="Splash.tooltip" class="variable">tooltip</dd>
@@ -1147,8 +1157,10 @@ calling [<code><a href="#Splash.refresh">refresh()</a></code>][textual.widget.Wi
             </div>
             <div><dt>textual.dom.DOMNode</dt>
                                 <dd id="Splash.DEFAULT_CLASSES" class="variable">DEFAULT_CLASSES</dd>
+                <dd id="Splash.BINDING_GROUP_TITLE" class="variable">BINDING_GROUP_TITLE</dd>
                 <dd id="Splash.BINDINGS" class="variable">BINDINGS</dd>
                 <dd id="Splash.SCOPED_CSS" class="variable">SCOPED_CSS</dd>
+                <dd id="Splash.HELP" class="variable">HELP</dd>
                 <dd id="Splash.styles" class="variable">styles</dd>
                 <dd id="Splash.set_reactive" class="function">set_reactive</dd>
                 <dd id="Splash.mutate_reactive" class="function">mutate_reactive</dd>
@@ -1176,6 +1188,7 @@ calling [<code><a href="#Splash.refresh">refresh()</a></code>][textual.widget.Wi
                 <dd id="Splash.css_tree" class="variable">css_tree</dd>
                 <dd id="Splash.text_style" class="variable">text_style</dd>
                 <dd id="Splash.rich_style" class="variable">rich_style</dd>
+                <dd id="Splash.check_consume_key" class="function">check_consume_key</dd>
                 <dd id="Splash.background_colors" class="variable">background_colors</dd>
                 <dd id="Splash.colors" class="variable">colors</dd>
                 <dd id="Splash.ancestors_with_self" class="variable">ancestors_with_self</dd>
@@ -1187,6 +1200,7 @@ calling [<code><a href="#Splash.refresh">refresh()</a></code>][textual.widget.Wi
                 <dd id="Splash.query" class="function">query</dd>
                 <dd id="Splash.query_children" class="function">query_children</dd>
                 <dd id="Splash.query_one" class="function">query_one</dd>
+                <dd id="Splash.query_exactly_one" class="function">query_exactly_one</dd>
                 <dd id="Splash.set_styles" class="function">set_styles</dd>
                 <dd id="Splash.has_class" class="function">has_class</dd>
                 <dd id="Splash.set_class" class="function">set_class</dd>
@@ -1366,6 +1380,7 @@ calling [<code><a href="#Splash.refresh">refresh()</a></code>][textual.widget.Wi
             <div><dt>textual.widget.Widget</dt>
                                 <dd id="AppHelp.BORDER_TITLE" class="variable">BORDER_TITLE</dd>
                 <dd id="AppHelp.BORDER_SUBTITLE" class="variable">BORDER_SUBTITLE</dd>
+                <dd id="AppHelp.ALLOW_MAXIMIZE" class="variable">ALLOW_MAXIMIZE</dd>
                 <dd id="AppHelp.expand" class="variable">expand</dd>
                 <dd id="AppHelp.shrink" class="variable">shrink</dd>
                 <dd id="AppHelp.auto_links" class="variable">auto_links</dd>
@@ -1392,10 +1407,12 @@ calling [<code><a href="#Splash.refresh">refresh()</a></code>][textual.widget.Wi
                 <dd id="AppHelp.visible_siblings" class="variable">visible_siblings</dd>
                 <dd id="AppHelp.allow_vertical_scroll" class="variable">allow_vertical_scroll</dd>
                 <dd id="AppHelp.allow_horizontal_scroll" class="variable">allow_horizontal_scroll</dd>
+                <dd id="AppHelp.allow_maximize" class="variable">allow_maximize</dd>
                 <dd id="AppHelp.offset" class="variable">offset</dd>
                 <dd id="AppHelp.opacity" class="variable">opacity</dd>
                 <dd id="AppHelp.is_anchored" class="variable">is_anchored</dd>
                 <dd id="AppHelp.is_mouse_over" class="variable">is_mouse_over</dd>
+                <dd id="AppHelp.is_maximized" class="variable">is_maximized</dd>
                 <dd id="AppHelp.anchor" class="function">anchor</dd>
                 <dd id="AppHelp.clear_anchor" class="function">clear_anchor</dd>
                 <dd id="AppHelp.tooltip" class="variable">tooltip</dd>
@@ -1524,8 +1541,10 @@ calling [<code><a href="#Splash.refresh">refresh()</a></code>][textual.widget.Wi
             </div>
             <div><dt>textual.dom.DOMNode</dt>
                                 <dd id="AppHelp.DEFAULT_CLASSES" class="variable">DEFAULT_CLASSES</dd>
+                <dd id="AppHelp.BINDING_GROUP_TITLE" class="variable">BINDING_GROUP_TITLE</dd>
                 <dd id="AppHelp.BINDINGS" class="variable">BINDINGS</dd>
                 <dd id="AppHelp.SCOPED_CSS" class="variable">SCOPED_CSS</dd>
+                <dd id="AppHelp.HELP" class="variable">HELP</dd>
                 <dd id="AppHelp.styles" class="variable">styles</dd>
                 <dd id="AppHelp.set_reactive" class="function">set_reactive</dd>
                 <dd id="AppHelp.mutate_reactive" class="function">mutate_reactive</dd>
@@ -1553,6 +1572,7 @@ calling [<code><a href="#Splash.refresh">refresh()</a></code>][textual.widget.Wi
                 <dd id="AppHelp.css_tree" class="variable">css_tree</dd>
                 <dd id="AppHelp.text_style" class="variable">text_style</dd>
                 <dd id="AppHelp.rich_style" class="variable">rich_style</dd>
+                <dd id="AppHelp.check_consume_key" class="function">check_consume_key</dd>
                 <dd id="AppHelp.background_colors" class="variable">background_colors</dd>
                 <dd id="AppHelp.colors" class="variable">colors</dd>
                 <dd id="AppHelp.ancestors_with_self" class="variable">ancestors_with_self</dd>
@@ -1564,6 +1584,7 @@ calling [<code><a href="#Splash.refresh">refresh()</a></code>][textual.widget.Wi
                 <dd id="AppHelp.query" class="function">query</dd>
                 <dd id="AppHelp.query_children" class="function">query_children</dd>
                 <dd id="AppHelp.query_one" class="function">query_one</dd>
+                <dd id="AppHelp.query_exactly_one" class="function">query_exactly_one</dd>
                 <dd id="AppHelp.set_styles" class="function">set_styles</dd>
                 <dd id="AppHelp.has_class" class="function">has_class</dd>
                 <dd id="AppHelp.set_class" class="function">set_class</dd>
@@ -1864,6 +1885,7 @@ calling [<code><a href="#AppInfo.refresh">refresh()</a></code>][textual.widget.W
                                 <dd id="AppInfo.COMPONENT_CLASSES" class="variable">COMPONENT_CLASSES</dd>
                 <dd id="AppInfo.BORDER_TITLE" class="variable">BORDER_TITLE</dd>
                 <dd id="AppInfo.BORDER_SUBTITLE" class="variable">BORDER_SUBTITLE</dd>
+                <dd id="AppInfo.ALLOW_MAXIMIZE" class="variable">ALLOW_MAXIMIZE</dd>
                 <dd id="AppInfo.auto_links" class="variable">auto_links</dd>
                 <dd id="AppInfo.disabled" class="variable">disabled</dd>
                 <dd id="AppInfo.hover_style" class="variable">hover_style</dd>
@@ -1888,10 +1910,12 @@ calling [<code><a href="#AppInfo.refresh">refresh()</a></code>][textual.widget.W
                 <dd id="AppInfo.visible_siblings" class="variable">visible_siblings</dd>
                 <dd id="AppInfo.allow_vertical_scroll" class="variable">allow_vertical_scroll</dd>
                 <dd id="AppInfo.allow_horizontal_scroll" class="variable">allow_horizontal_scroll</dd>
+                <dd id="AppInfo.allow_maximize" class="variable">allow_maximize</dd>
                 <dd id="AppInfo.offset" class="variable">offset</dd>
                 <dd id="AppInfo.opacity" class="variable">opacity</dd>
                 <dd id="AppInfo.is_anchored" class="variable">is_anchored</dd>
                 <dd id="AppInfo.is_mouse_over" class="variable">is_mouse_over</dd>
+                <dd id="AppInfo.is_maximized" class="variable">is_maximized</dd>
                 <dd id="AppInfo.anchor" class="function">anchor</dd>
                 <dd id="AppInfo.clear_anchor" class="function">clear_anchor</dd>
                 <dd id="AppInfo.tooltip" class="variable">tooltip</dd>
@@ -2018,8 +2042,10 @@ calling [<code><a href="#AppInfo.refresh">refresh()</a></code>][textual.widget.W
             </div>
             <div><dt>textual.dom.DOMNode</dt>
                                 <dd id="AppInfo.DEFAULT_CLASSES" class="variable">DEFAULT_CLASSES</dd>
+                <dd id="AppInfo.BINDING_GROUP_TITLE" class="variable">BINDING_GROUP_TITLE</dd>
                 <dd id="AppInfo.BINDINGS" class="variable">BINDINGS</dd>
                 <dd id="AppInfo.SCOPED_CSS" class="variable">SCOPED_CSS</dd>
+                <dd id="AppInfo.HELP" class="variable">HELP</dd>
                 <dd id="AppInfo.styles" class="variable">styles</dd>
                 <dd id="AppInfo.set_reactive" class="function">set_reactive</dd>
                 <dd id="AppInfo.mutate_reactive" class="function">mutate_reactive</dd>
@@ -2047,6 +2073,7 @@ calling [<code><a href="#AppInfo.refresh">refresh()</a></code>][textual.widget.W
                 <dd id="AppInfo.css_tree" class="variable">css_tree</dd>
                 <dd id="AppInfo.text_style" class="variable">text_style</dd>
                 <dd id="AppInfo.rich_style" class="variable">rich_style</dd>
+                <dd id="AppInfo.check_consume_key" class="function">check_consume_key</dd>
                 <dd id="AppInfo.background_colors" class="variable">background_colors</dd>
                 <dd id="AppInfo.colors" class="variable">colors</dd>
                 <dd id="AppInfo.ancestors_with_self" class="variable">ancestors_with_self</dd>
@@ -2058,6 +2085,7 @@ calling [<code><a href="#AppInfo.refresh">refresh()</a></code>][textual.widget.W
                 <dd id="AppInfo.query" class="function">query</dd>
                 <dd id="AppInfo.query_children" class="function">query_children</dd>
                 <dd id="AppInfo.query_one" class="function">query_one</dd>
+                <dd id="AppInfo.query_exactly_one" class="function">query_exactly_one</dd>
                 <dd id="AppInfo.set_styles" class="function">set_styles</dd>
                 <dd id="AppInfo.has_class" class="function">has_class</dd>
                 <dd id="AppInfo.set_class" class="function">set_class</dd>
@@ -2332,6 +2360,7 @@ calling [<code><a href="#AppSettings.refresh">refresh()</a></code>][textual.widg
                                 <dd id="AppSettings.COMPONENT_CLASSES" class="variable">COMPONENT_CLASSES</dd>
                 <dd id="AppSettings.BORDER_TITLE" class="variable">BORDER_TITLE</dd>
                 <dd id="AppSettings.BORDER_SUBTITLE" class="variable">BORDER_SUBTITLE</dd>
+                <dd id="AppSettings.ALLOW_MAXIMIZE" class="variable">ALLOW_MAXIMIZE</dd>
                 <dd id="AppSettings.auto_links" class="variable">auto_links</dd>
                 <dd id="AppSettings.disabled" class="variable">disabled</dd>
                 <dd id="AppSettings.hover_style" class="variable">hover_style</dd>
@@ -2356,10 +2385,12 @@ calling [<code><a href="#AppSettings.refresh">refresh()</a></code>][textual.widg
                 <dd id="AppSettings.visible_siblings" class="variable">visible_siblings</dd>
                 <dd id="AppSettings.allow_vertical_scroll" class="variable">allow_vertical_scroll</dd>
                 <dd id="AppSettings.allow_horizontal_scroll" class="variable">allow_horizontal_scroll</dd>
+                <dd id="AppSettings.allow_maximize" class="variable">allow_maximize</dd>
                 <dd id="AppSettings.offset" class="variable">offset</dd>
                 <dd id="AppSettings.opacity" class="variable">opacity</dd>
                 <dd id="AppSettings.is_anchored" class="variable">is_anchored</dd>
                 <dd id="AppSettings.is_mouse_over" class="variable">is_mouse_over</dd>
+                <dd id="AppSettings.is_maximized" class="variable">is_maximized</dd>
                 <dd id="AppSettings.anchor" class="function">anchor</dd>
                 <dd id="AppSettings.clear_anchor" class="function">clear_anchor</dd>
                 <dd id="AppSettings.tooltip" class="variable">tooltip</dd>
@@ -2486,8 +2517,10 @@ calling [<code><a href="#AppSettings.refresh">refresh()</a></code>][textual.widg
             </div>
             <div><dt>textual.dom.DOMNode</dt>
                                 <dd id="AppSettings.DEFAULT_CLASSES" class="variable">DEFAULT_CLASSES</dd>
+                <dd id="AppSettings.BINDING_GROUP_TITLE" class="variable">BINDING_GROUP_TITLE</dd>
                 <dd id="AppSettings.BINDINGS" class="variable">BINDINGS</dd>
                 <dd id="AppSettings.SCOPED_CSS" class="variable">SCOPED_CSS</dd>
+                <dd id="AppSettings.HELP" class="variable">HELP</dd>
                 <dd id="AppSettings.styles" class="variable">styles</dd>
                 <dd id="AppSettings.set_reactive" class="function">set_reactive</dd>
                 <dd id="AppSettings.mutate_reactive" class="function">mutate_reactive</dd>
@@ -2515,6 +2548,7 @@ calling [<code><a href="#AppSettings.refresh">refresh()</a></code>][textual.widg
                 <dd id="AppSettings.css_tree" class="variable">css_tree</dd>
                 <dd id="AppSettings.text_style" class="variable">text_style</dd>
                 <dd id="AppSettings.rich_style" class="variable">rich_style</dd>
+                <dd id="AppSettings.check_consume_key" class="function">check_consume_key</dd>
                 <dd id="AppSettings.background_colors" class="variable">background_colors</dd>
                 <dd id="AppSettings.colors" class="variable">colors</dd>
                 <dd id="AppSettings.ancestors_with_self" class="variable">ancestors_with_self</dd>
@@ -2526,6 +2560,7 @@ calling [<code><a href="#AppSettings.refresh">refresh()</a></code>][textual.widg
                 <dd id="AppSettings.query" class="function">query</dd>
                 <dd id="AppSettings.query_children" class="function">query_children</dd>
                 <dd id="AppSettings.query_one" class="function">query_one</dd>
+                <dd id="AppSettings.query_exactly_one" class="function">query_exactly_one</dd>
                 <dd id="AppSettings.set_styles" class="function">set_styles</dd>
                 <dd id="AppSettings.has_class" class="function">has_class</dd>
                 <dd id="AppSettings.set_class" class="function">set_class</dd>

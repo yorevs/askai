@@ -116,7 +116,7 @@ def _execute_bash(command_line: str) -> Tuple[bool, str]:
         command = expandvars(command_line.replace("~/", f"{os.getenv('HOME')}/").strip())
         log.info("Executing command `%s'", command)
         events.reply.emit(reply=AIReply.full(msg.executing(command_line)))
-        output, exit_code = Terminal.INSTANCE.shell_exec(command, shell=True)
+        output, err_out, exit_code = Terminal.INSTANCE.shell_exec(command, shell=True)
         if exit_code == ExitStatus.SUCCESS:
             log.info("Command succeeded: \n|-CODE=%s \n|-PATH: %s \n|-CMD: %s ", exit_code, os.getcwd(), command)
             if _path_ := extract_path(command):
@@ -129,7 +129,7 @@ def _execute_bash(command_line: str) -> Tuple[bool, str]:
             status = True
         else:
             log.error("Command failed.\nCODE=%s \nPATH=%s \nCMD=%s ", exit_code, os.getcwd(), command)
-            output = msg.cmd_failed(command)
+            output = msg.cmd_failed(command, err_out)
     else:
         output = msg.cmd_no_exist(command)
 

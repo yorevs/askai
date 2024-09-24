@@ -5,5 +5,10 @@
 # Package: main.askai.core.enums
 """Package initialization."""
 
-__all__ = ["acc_response", "router_mode", "routing_model"]
-__version__ = "1.0.13"
+__all__ = [
+    'acc_response', 
+    'router_mode', 
+    'routing_model', 
+    'verbosity'
+]
+__version__ = '1.0.13'

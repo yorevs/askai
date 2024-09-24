@@ -194,8 +194,8 @@ class AskAiMessages(metaclass=Singleton):
     def cmd_no_exist(self, command: str) -> str:
         return f"Command: `{command}' does not exist !"
 
-    def cmd_failed(self, cmd_line: str) -> str:
-        return f"Command: `{cmd_line}' failed to execute !"
+    def cmd_failed(self, cmd_line: str, error_msg: str) -> str:
+        return f"Command: `{cmd_line}' failed to execute -> {error_msg}!"
 
     def camera_not_open(self) -> str:
         return "Camera is not open, or unauthorized!"

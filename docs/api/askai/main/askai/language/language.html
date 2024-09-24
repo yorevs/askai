@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 14.6.0"/>
+    <meta name="generator" content="pdoc 14.7.0"/>
     <title>main.askai.language.language API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -499,7 +499,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../language.htm
 </span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>
 </span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="k">class</span> <span class="nc">Language</span><span class="p">(</span><span class="n">Enumeration</span><span class="p">):</span>
 </span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration to wrap all standard languages.</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a><span class="sd">    Ref:. https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a><span class="sd">    Reference: https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html</span>
 </span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>
 </span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>    <span class="c1"># fmt: off</span>
@@ -635,92 +635,93 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../language.htm
 </span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>    <span class="k">def</span> <span class="nf">of_locale</span><span class="p">(</span><span class="n">loc</span><span class="p">:</span> <span class="n">AnyLocale</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Language&quot;</span><span class="p">:</span>
 </span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a Language object based on a locale string or tuple containing the language code and encoding.</span>
 </span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a><span class="sd">        :param loc: The locale to parse.</span>
-</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>        <span class="c1"># Replace possible &#39;loc[:.]charset&#39; values</span>
-</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>        <span class="n">loc_enc</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
-</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>            <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(/C|C/|</span><span class="se">\&#39;</span><span class="s1">|\&quot;)+&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="n">loc</span>
-</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
-</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>            <span class="k">else</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[:.]&quot;</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span>
-</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>        <span class="p">))</span>
-</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>        <span class="c1"># fmt: off</span>
-</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>        <span class="n">lang</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span>
-</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>            <span class="n">Language</span><span class="p">[</span><span class="n">ln</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
-</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>            <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
-</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>                <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">Language</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="k">if</span> <span class="n">ln</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="o">==</span> <span class="n">loc_enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
-</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>        <span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
-</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>        <span class="c1"># fmt: on</span>
-</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>        <span class="n">check_not_none</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unable to create Language from locale: &#39;</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>        <span class="n">lang</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">get_or_default</span><span class="p">(</span><span class="n">loc_enc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Charset</span><span class="o">.</span><span class="n">UTF_8</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
-</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>        <span class="k">return</span> <span class="n">lang</span>
-</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a>
-</span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locale_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">country</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a>        <span class="n">loc_enc</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[:.]&quot;</span><span class="p">,</span> <span class="n">locale_str</span><span class="p">)</span>
-</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_locale</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="n">loc_enc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">get_or_default</span><span class="p">(</span><span class="n">loc_enc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Charset</span><span class="o">.</span><span class="n">UTF_8</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
-</span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
-</span><span id="L-186"><a href="#L-186"><span class="linenos">186</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_country</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">country</span>
-</span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span><span class="p">:</span> <span class="n">Charset</span> <span class="o">=</span> <span class="n">Charset</span><span class="o">.</span><span class="n">of_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_locale</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-</span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_idiom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locale</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a>        <span class="n">lang</span> <span class="o">=</span> <span class="n">locale_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
-</span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_language</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_territory</span> <span class="o">=</span> <span class="n">lang</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lang</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a>
-</span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">country</span><span class="si">}</span><span class="s2">&#39; &#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-</span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a>
-</span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a>    <span class="nd">@property</span>
-</span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a>    <span class="k">def</span> <span class="nf">locale</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-</span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a tuple containing the locale attributes.</span>
-</span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a><span class="sd">        E.g:. (en_US, utf-8)</span>
-</span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locale</span>
-</span><span id="L-201"><a href="#L-201"><span class="linenos">201</span></a>
-</span><span id="L-202"><a href="#L-202"><span class="linenos">202</span></a>    <span class="nd">@property</span>
-</span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a>    <span class="k">def</span> <span class="nf">idiom</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representing the idiom.</span>
-</span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a><span class="sd">        E.g:. en_US</span>
-</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idiom</span>
-</span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>
-</span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a>    <span class="nd">@property</span>
-</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a>    <span class="k">def</span> <span class="nf">encoding</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Charset</span><span class="p">:</span>
-</span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the charset (encoding) required for the language to be properly displayed.</span>
-</span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a><span class="sd">        E.g:. utf-8</span>
-</span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span>
-</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a>
-</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a>    <span class="nd">@encoding</span><span class="o">.</span><span class="n">setter</span>
-</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a>    <span class="k">def</span> <span class="nf">encoding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Charset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the charset (encoding) required for the language to be properly displayed.</span>
-</span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a><span class="sd">        E.g:. utf-8</span>
-</span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Charset</span><span class="p">)</span> <span class="k">else</span> <span class="n">Charset</span><span class="o">.</span><span class="n">of_value</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">casefold</span><span class="p">())</span>
-</span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a>
-</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a>    <span class="nd">@property</span>
-</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the language name.</span>
-</span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a><span class="sd">        E.g:. English</span>
-</span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
-</span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a>
-</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a>    <span class="nd">@property</span>
-</span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a>    <span class="k">def</span> <span class="nf">country</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the country where the language is spoken.</span>
-</span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a><span class="sd">        E.g:. U.S.A.</span>
-</span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_country</span>
-</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>
-</span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>    <span class="nd">@property</span>
-</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a mnemonic representing the language.</span>
-</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a><span class="sd">        E.g:. en</span>
-</span><span id="L-241"><a href="#L-241"><span class="linenos">241</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-242"><a href="#L-242"><span class="linenos">242</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_language</span>
-</span><span id="L-243"><a href="#L-243"><span class="linenos">243</span></a>
-</span><span id="L-244"><a href="#L-244"><span class="linenos">244</span></a>    <span class="nd">@property</span>
-</span><span id="L-245"><a href="#L-245"><span class="linenos">245</span></a>    <span class="k">def</span> <span class="nf">territory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="L-246"><a href="#L-246"><span class="linenos">246</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a mnemonic representing the territory (Alpha-2 code).</span>
-</span><span id="L-247"><a href="#L-247"><span class="linenos">247</span></a><span class="sd">        E.g:. US</span>
-</span><span id="L-248"><a href="#L-248"><span class="linenos">248</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-249"><a href="#L-249"><span class="linenos">249</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_territory</span>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a><span class="sd">        :return: A Language instance corresponding to the provided locale.</span>
+</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>        <span class="c1"># Replace possible &#39;loc[:.]charset&#39; values</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>        <span class="n">loc_enc</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>            <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(/C|C/|</span><span class="se">\&#39;</span><span class="s1">|\&quot;)+&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="n">loc</span>
+</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>            <span class="k">else</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[:.]&quot;</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span>
+</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>        <span class="p">))</span>
+</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>        <span class="c1"># fmt: off</span>
+</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>        <span class="n">lang</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span>
+</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>            <span class="n">Language</span><span class="p">[</span><span class="n">ln</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>            <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>                <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">Language</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="k">if</span> <span class="n">ln</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="o">==</span> <span class="n">loc_enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>        <span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>        <span class="c1"># fmt: on</span>
+</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>        <span class="n">check_not_none</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unable to create Language from locale: &#39;</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>        <span class="n">lang</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">get_or_default</span><span class="p">(</span><span class="n">loc_enc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Charset</span><span class="o">.</span><span class="n">UTF_8</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a>        <span class="k">return</span> <span class="n">lang</span>
+</span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a>
+</span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locale_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">country</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a>        <span class="n">loc_enc</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[:.]&quot;</span><span class="p">,</span> <span class="n">locale_str</span><span class="p">)</span>
+</span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_locale</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Charset</span><span class="p">]</span> <span class="o">=</span> <span class="n">loc_enc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">get_or_default</span><span class="p">(</span><span class="n">loc_enc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Charset</span><span class="o">.</span><span class="n">UTF_8</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+</span><span id="L-186"><a href="#L-186"><span class="linenos">186</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
+</span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_country</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">country</span>
+</span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span><span class="p">:</span> <span class="n">Charset</span> <span class="o">=</span> <span class="n">Charset</span><span class="o">.</span><span class="n">of_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_locale</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_idiom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locale</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a>        <span class="n">lang</span> <span class="o">=</span> <span class="n">locale_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_language</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_territory</span> <span class="o">=</span> <span class="n">lang</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lang</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a>
+</span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">country</span><span class="si">}</span><span class="s2">&#39; &#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+</span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a>
+</span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a>    <span class="nd">@property</span>
+</span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a>    <span class="k">def</span> <span class="nf">locale</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Charset</span><span class="p">]:</span>
+</span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a tuple containing the locale attributes.</span>
+</span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a><span class="sd">        :return: A tuple with locale attributes, e.g., (en_US, utf-8).</span>
+</span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-201"><a href="#L-201"><span class="linenos">201</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locale</span>
+</span><span id="L-202"><a href="#L-202"><span class="linenos">202</span></a>
+</span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a>    <span class="nd">@property</span>
+</span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a>    <span class="k">def</span> <span class="nf">idiom</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representing the idiom.</span>
+</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a><span class="sd">        :return: The idiom as a string, e.g., en_US.</span>
+</span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idiom</span>
+</span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a>
+</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a>    <span class="nd">@property</span>
+</span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a>    <span class="k">def</span> <span class="nf">encoding</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Charset</span><span class="p">:</span>
+</span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the charset (encoding) required for the language to be properly displayed.</span>
+</span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a><span class="sd">        :return: The charset (encoding), e.g., utf-8.</span>
+</span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span>
+</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a>
+</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a>    <span class="nd">@encoding</span><span class="o">.</span><span class="n">setter</span>
+</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a>    <span class="k">def</span> <span class="nf">encoding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Charset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the charset (encoding) required for the language to be properly displayed.</span>
+</span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a><span class="sd">        :param value: The charset (encoding) as a string or Charset instance, e.g., utf-8.</span>
+</span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Charset</span><span class="p">)</span> <span class="k">else</span> <span class="n">Charset</span><span class="o">.</span><span class="n">of_value</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">casefold</span><span class="p">())</span>
+</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a>
+</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a>    <span class="nd">@property</span>
+</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the language name.</span>
+</span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a><span class="sd">        :return: The name of the language, e.g., English.</span>
+</span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a>
+</span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a>    <span class="nd">@property</span>
+</span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a>    <span class="k">def</span> <span class="nf">country</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the country where the language is spoken.</span>
+</span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a><span class="sd">        :return: The country where the language is spoken, e.g., U.S.A.</span>
+</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_country</span>
+</span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>
+</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>    <span class="nd">@property</span>
+</span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a>    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a mnemonic representing the language.</span>
+</span><span id="L-241"><a href="#L-241"><span class="linenos">241</span></a><span class="sd">        :return: The mnemonic representing the language, e.g., en.</span>
+</span><span id="L-242"><a href="#L-242"><span class="linenos">242</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-243"><a href="#L-243"><span class="linenos">243</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_language</span>
+</span><span id="L-244"><a href="#L-244"><span class="linenos">244</span></a>
+</span><span id="L-245"><a href="#L-245"><span class="linenos">245</span></a>    <span class="nd">@property</span>
+</span><span id="L-246"><a href="#L-246"><span class="linenos">246</span></a>    <span class="k">def</span> <span class="nf">territory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-247"><a href="#L-247"><span class="linenos">247</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a mnemonic representing the territory (Alpha-2 code).</span>
+</span><span id="L-248"><a href="#L-248"><span class="linenos">248</span></a><span class="sd">        :return: The mnemonic representing the territory, e.g., US.</span>
+</span><span id="L-249"><a href="#L-249"><span class="linenos">249</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-250"><a href="#L-250"><span class="linenos">250</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_territory</span>
 </span></pre></div>
 
 
@@ -750,7 +751,7 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../language.htm
     <a class="headerlink" href="#Language"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Language-27"><a href="#Language-27"><span class="linenos"> 27</span></a><span class="k">class</span> <span class="nc">Language</span><span class="p">(</span><span class="n">Enumeration</span><span class="p">):</span>
 </span><span id="Language-28"><a href="#Language-28"><span class="linenos"> 28</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration to wrap all standard languages.</span>
-</span><span id="Language-29"><a href="#Language-29"><span class="linenos"> 29</span></a><span class="sd">    Ref:. https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html</span>
+</span><span id="Language-29"><a href="#Language-29"><span class="linenos"> 29</span></a><span class="sd">    Reference: https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html</span>
 </span><span id="Language-30"><a href="#Language-30"><span class="linenos"> 30</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="Language-31"><a href="#Language-31"><span class="linenos"> 31</span></a>
 </span><span id="Language-32"><a href="#Language-32"><span class="linenos"> 32</span></a>    <span class="c1"># fmt: off</span>
@@ -886,97 +887,98 @@ main<wbr>.<a href="./../../askai.html">askai</a><wbr>.<a href="./../language.htm
 </span><span id="Language-162"><a href="#Language-162"><span class="linenos">162</span></a>    <span class="k">def</span> <span class="nf">of_locale</span><span class="p">(</span><span class="n">loc</span><span class="p">:</span> <span class="n">AnyLocale</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Language&quot;</span><span class="p">:</span>
 </span><span id="Language-163"><a href="#Language-163"><span class="linenos">163</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a Language object based on a locale string or tuple containing the language code and encoding.</span>
 </span><span id="Language-164"><a href="#Language-164"><span class="linenos">164</span></a><span class="sd">        :param loc: The locale to parse.</span>
-</span><span id="Language-165"><a href="#Language-165"><span class="linenos">165</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language-166"><a href="#Language-166"><span class="linenos">166</span></a>        <span class="c1"># Replace possible &#39;loc[:.]charset&#39; values</span>
-</span><span id="Language-167"><a href="#Language-167"><span class="linenos">167</span></a>        <span class="n">loc_enc</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
-</span><span id="Language-168"><a href="#Language-168"><span class="linenos">168</span></a>            <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(/C|C/|</span><span class="se">\&#39;</span><span class="s1">|\&quot;)+&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="n">loc</span>
-</span><span id="Language-169"><a href="#Language-169"><span class="linenos">169</span></a>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
-</span><span id="Language-170"><a href="#Language-170"><span class="linenos">170</span></a>            <span class="k">else</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[:.]&quot;</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span>
-</span><span id="Language-171"><a href="#Language-171"><span class="linenos">171</span></a>        <span class="p">))</span>
-</span><span id="Language-172"><a href="#Language-172"><span class="linenos">172</span></a>        <span class="c1"># fmt: off</span>
-</span><span id="Language-173"><a href="#Language-173"><span class="linenos">173</span></a>        <span class="n">lang</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span>
-</span><span id="Language-174"><a href="#Language-174"><span class="linenos">174</span></a>            <span class="n">Language</span><span class="p">[</span><span class="n">ln</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
-</span><span id="Language-175"><a href="#Language-175"><span class="linenos">175</span></a>            <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
-</span><span id="Language-176"><a href="#Language-176"><span class="linenos">176</span></a>                <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">Language</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="k">if</span> <span class="n">ln</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="o">==</span> <span class="n">loc_enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
-</span><span id="Language-177"><a href="#Language-177"><span class="linenos">177</span></a>        <span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
-</span><span id="Language-178"><a href="#Language-178"><span class="linenos">178</span></a>        <span class="c1"># fmt: on</span>
-</span><span id="Language-179"><a href="#Language-179"><span class="linenos">179</span></a>        <span class="n">check_not_none</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unable to create Language from locale: &#39;</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-</span><span id="Language-180"><a href="#Language-180"><span class="linenos">180</span></a>        <span class="n">lang</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">get_or_default</span><span class="p">(</span><span class="n">loc_enc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Charset</span><span class="o">.</span><span class="n">UTF_8</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
-</span><span id="Language-181"><a href="#Language-181"><span class="linenos">181</span></a>        <span class="k">return</span> <span class="n">lang</span>
-</span><span id="Language-182"><a href="#Language-182"><span class="linenos">182</span></a>
-</span><span id="Language-183"><a href="#Language-183"><span class="linenos">183</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locale_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">country</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="Language-184"><a href="#Language-184"><span class="linenos">184</span></a>        <span class="n">loc_enc</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[:.]&quot;</span><span class="p">,</span> <span class="n">locale_str</span><span class="p">)</span>
-</span><span id="Language-185"><a href="#Language-185"><span class="linenos">185</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_locale</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="n">loc_enc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">get_or_default</span><span class="p">(</span><span class="n">loc_enc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Charset</span><span class="o">.</span><span class="n">UTF_8</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
-</span><span id="Language-186"><a href="#Language-186"><span class="linenos">186</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
-</span><span id="Language-187"><a href="#Language-187"><span class="linenos">187</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_country</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">country</span>
-</span><span id="Language-188"><a href="#Language-188"><span class="linenos">188</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span><span class="p">:</span> <span class="n">Charset</span> <span class="o">=</span> <span class="n">Charset</span><span class="o">.</span><span class="n">of_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_locale</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-</span><span id="Language-189"><a href="#Language-189"><span class="linenos">189</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_idiom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locale</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="Language-190"><a href="#Language-190"><span class="linenos">190</span></a>        <span class="n">lang</span> <span class="o">=</span> <span class="n">locale_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
-</span><span id="Language-191"><a href="#Language-191"><span class="linenos">191</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_language</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_territory</span> <span class="o">=</span> <span class="n">lang</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lang</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-</span><span id="Language-192"><a href="#Language-192"><span class="linenos">192</span></a>
-</span><span id="Language-193"><a href="#Language-193"><span class="linenos">193</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Language-194"><a href="#Language-194"><span class="linenos">194</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">country</span><span class="si">}</span><span class="s2">&#39; &#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-</span><span id="Language-195"><a href="#Language-195"><span class="linenos">195</span></a>
-</span><span id="Language-196"><a href="#Language-196"><span class="linenos">196</span></a>    <span class="nd">@property</span>
-</span><span id="Language-197"><a href="#Language-197"><span class="linenos">197</span></a>    <span class="k">def</span> <span class="nf">locale</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-</span><span id="Language-198"><a href="#Language-198"><span class="linenos">198</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a tuple containing the locale attributes.</span>
-</span><span id="Language-199"><a href="#Language-199"><span class="linenos">199</span></a><span class="sd">        E.g:. (en_US, utf-8)</span>
-</span><span id="Language-200"><a href="#Language-200"><span class="linenos">200</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language-201"><a href="#Language-201"><span class="linenos">201</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locale</span>
-</span><span id="Language-202"><a href="#Language-202"><span class="linenos">202</span></a>
-</span><span id="Language-203"><a href="#Language-203"><span class="linenos">203</span></a>    <span class="nd">@property</span>
-</span><span id="Language-204"><a href="#Language-204"><span class="linenos">204</span></a>    <span class="k">def</span> <span class="nf">idiom</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Language-205"><a href="#Language-205"><span class="linenos">205</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representing the idiom.</span>
-</span><span id="Language-206"><a href="#Language-206"><span class="linenos">206</span></a><span class="sd">        E.g:. en_US</span>
-</span><span id="Language-207"><a href="#Language-207"><span class="linenos">207</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language-208"><a href="#Language-208"><span class="linenos">208</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idiom</span>
-</span><span id="Language-209"><a href="#Language-209"><span class="linenos">209</span></a>
-</span><span id="Language-210"><a href="#Language-210"><span class="linenos">210</span></a>    <span class="nd">@property</span>
-</span><span id="Language-211"><a href="#Language-211"><span class="linenos">211</span></a>    <span class="k">def</span> <span class="nf">encoding</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Charset</span><span class="p">:</span>
-</span><span id="Language-212"><a href="#Language-212"><span class="linenos">212</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the charset (encoding) required for the language to be properly displayed.</span>
-</span><span id="Language-213"><a href="#Language-213"><span class="linenos">213</span></a><span class="sd">        E.g:. utf-8</span>
-</span><span id="Language-214"><a href="#Language-214"><span class="linenos">214</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language-215"><a href="#Language-215"><span class="linenos">215</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span>
-</span><span id="Language-216"><a href="#Language-216"><span class="linenos">216</span></a>
-</span><span id="Language-217"><a href="#Language-217"><span class="linenos">217</span></a>    <span class="nd">@encoding</span><span class="o">.</span><span class="n">setter</span>
-</span><span id="Language-218"><a href="#Language-218"><span class="linenos">218</span></a>    <span class="k">def</span> <span class="nf">encoding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Charset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Language-219"><a href="#Language-219"><span class="linenos">219</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the charset (encoding) required for the language to be properly displayed.</span>
-</span><span id="Language-220"><a href="#Language-220"><span class="linenos">220</span></a><span class="sd">        E.g:. utf-8</span>
-</span><span id="Language-221"><a href="#Language-221"><span class="linenos">221</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language-222"><a href="#Language-222"><span class="linenos">222</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Charset</span><span class="p">)</span> <span class="k">else</span> <span class="n">Charset</span><span class="o">.</span><span class="n">of_value</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">casefold</span><span class="p">())</span>
-</span><span id="Language-223"><a href="#Language-223"><span class="linenos">223</span></a>
-</span><span id="Language-224"><a href="#Language-224"><span class="linenos">224</span></a>    <span class="nd">@property</span>
-</span><span id="Language-225"><a href="#Language-225"><span class="linenos">225</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Language-226"><a href="#Language-226"><span class="linenos">226</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the language name.</span>
-</span><span id="Language-227"><a href="#Language-227"><span class="linenos">227</span></a><span class="sd">        E.g:. English</span>
-</span><span id="Language-228"><a href="#Language-228"><span class="linenos">228</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language-229"><a href="#Language-229"><span class="linenos">229</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
-</span><span id="Language-230"><a href="#Language-230"><span class="linenos">230</span></a>
-</span><span id="Language-231"><a href="#Language-231"><span class="linenos">231</span></a>    <span class="nd">@property</span>
-</span><span id="Language-232"><a href="#Language-232"><span class="linenos">232</span></a>    <span class="k">def</span> <span class="nf">country</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Language-233"><a href="#Language-233"><span class="linenos">233</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the country where the language is spoken.</span>
-</span><span id="Language-234"><a href="#Language-234"><span class="linenos">234</span></a><span class="sd">        E.g:. U.S.A.</span>
-</span><span id="Language-235"><a href="#Language-235"><span class="linenos">235</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language-236"><a href="#Language-236"><span class="linenos">236</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_country</span>
-</span><span id="Language-237"><a href="#Language-237"><span class="linenos">237</span></a>
-</span><span id="Language-238"><a href="#Language-238"><span class="linenos">238</span></a>    <span class="nd">@property</span>
-</span><span id="Language-239"><a href="#Language-239"><span class="linenos">239</span></a>    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Language-240"><a href="#Language-240"><span class="linenos">240</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a mnemonic representing the language.</span>
-</span><span id="Language-241"><a href="#Language-241"><span class="linenos">241</span></a><span class="sd">        E.g:. en</span>
-</span><span id="Language-242"><a href="#Language-242"><span class="linenos">242</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language-243"><a href="#Language-243"><span class="linenos">243</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_language</span>
-</span><span id="Language-244"><a href="#Language-244"><span class="linenos">244</span></a>
-</span><span id="Language-245"><a href="#Language-245"><span class="linenos">245</span></a>    <span class="nd">@property</span>
-</span><span id="Language-246"><a href="#Language-246"><span class="linenos">246</span></a>    <span class="k">def</span> <span class="nf">territory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Language-247"><a href="#Language-247"><span class="linenos">247</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a mnemonic representing the territory (Alpha-2 code).</span>
-</span><span id="Language-248"><a href="#Language-248"><span class="linenos">248</span></a><span class="sd">        E.g:. US</span>
-</span><span id="Language-249"><a href="#Language-249"><span class="linenos">249</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language-250"><a href="#Language-250"><span class="linenos">250</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_territory</span>
+</span><span id="Language-165"><a href="#Language-165"><span class="linenos">165</span></a><span class="sd">        :return: A Language instance corresponding to the provided locale.</span>
+</span><span id="Language-166"><a href="#Language-166"><span class="linenos">166</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language-167"><a href="#Language-167"><span class="linenos">167</span></a>        <span class="c1"># Replace possible &#39;loc[:.]charset&#39; values</span>
+</span><span id="Language-168"><a href="#Language-168"><span class="linenos">168</span></a>        <span class="n">loc_enc</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+</span><span id="Language-169"><a href="#Language-169"><span class="linenos">169</span></a>            <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(/C|C/|</span><span class="se">\&#39;</span><span class="s1">|\&quot;)+&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="n">loc</span>
+</span><span id="Language-170"><a href="#Language-170"><span class="linenos">170</span></a>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+</span><span id="Language-171"><a href="#Language-171"><span class="linenos">171</span></a>            <span class="k">else</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[:.]&quot;</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span>
+</span><span id="Language-172"><a href="#Language-172"><span class="linenos">172</span></a>        <span class="p">))</span>
+</span><span id="Language-173"><a href="#Language-173"><span class="linenos">173</span></a>        <span class="c1"># fmt: off</span>
+</span><span id="Language-174"><a href="#Language-174"><span class="linenos">174</span></a>        <span class="n">lang</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span>
+</span><span id="Language-175"><a href="#Language-175"><span class="linenos">175</span></a>            <span class="n">Language</span><span class="p">[</span><span class="n">ln</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+</span><span id="Language-176"><a href="#Language-176"><span class="linenos">176</span></a>            <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+</span><span id="Language-177"><a href="#Language-177"><span class="linenos">177</span></a>                <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">Language</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="k">if</span> <span class="n">ln</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="o">==</span> <span class="n">loc_enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+</span><span id="Language-178"><a href="#Language-178"><span class="linenos">178</span></a>        <span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="Language-179"><a href="#Language-179"><span class="linenos">179</span></a>        <span class="c1"># fmt: on</span>
+</span><span id="Language-180"><a href="#Language-180"><span class="linenos">180</span></a>        <span class="n">check_not_none</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unable to create Language from locale: &#39;</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+</span><span id="Language-181"><a href="#Language-181"><span class="linenos">181</span></a>        <span class="n">lang</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">get_or_default</span><span class="p">(</span><span class="n">loc_enc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Charset</span><span class="o">.</span><span class="n">UTF_8</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+</span><span id="Language-182"><a href="#Language-182"><span class="linenos">182</span></a>        <span class="k">return</span> <span class="n">lang</span>
+</span><span id="Language-183"><a href="#Language-183"><span class="linenos">183</span></a>
+</span><span id="Language-184"><a href="#Language-184"><span class="linenos">184</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locale_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">country</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="Language-185"><a href="#Language-185"><span class="linenos">185</span></a>        <span class="n">loc_enc</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[:.]&quot;</span><span class="p">,</span> <span class="n">locale_str</span><span class="p">)</span>
+</span><span id="Language-186"><a href="#Language-186"><span class="linenos">186</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_locale</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Charset</span><span class="p">]</span> <span class="o">=</span> <span class="n">loc_enc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">get_or_default</span><span class="p">(</span><span class="n">loc_enc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Charset</span><span class="o">.</span><span class="n">UTF_8</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+</span><span id="Language-187"><a href="#Language-187"><span class="linenos">187</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
+</span><span id="Language-188"><a href="#Language-188"><span class="linenos">188</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_country</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">country</span>
+</span><span id="Language-189"><a href="#Language-189"><span class="linenos">189</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span><span class="p">:</span> <span class="n">Charset</span> <span class="o">=</span> <span class="n">Charset</span><span class="o">.</span><span class="n">of_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_locale</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</span><span id="Language-190"><a href="#Language-190"><span class="linenos">190</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_idiom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locale</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="Language-191"><a href="#Language-191"><span class="linenos">191</span></a>        <span class="n">lang</span> <span class="o">=</span> <span class="n">locale_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+</span><span id="Language-192"><a href="#Language-192"><span class="linenos">192</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_language</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_territory</span> <span class="o">=</span> <span class="n">lang</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lang</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span id="Language-193"><a href="#Language-193"><span class="linenos">193</span></a>
+</span><span id="Language-194"><a href="#Language-194"><span class="linenos">194</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Language-195"><a href="#Language-195"><span class="linenos">195</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">country</span><span class="si">}</span><span class="s2">&#39; &#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+</span><span id="Language-196"><a href="#Language-196"><span class="linenos">196</span></a>
+</span><span id="Language-197"><a href="#Language-197"><span class="linenos">197</span></a>    <span class="nd">@property</span>
+</span><span id="Language-198"><a href="#Language-198"><span class="linenos">198</span></a>    <span class="k">def</span> <span class="nf">locale</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Charset</span><span class="p">]:</span>
+</span><span id="Language-199"><a href="#Language-199"><span class="linenos">199</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a tuple containing the locale attributes.</span>
+</span><span id="Language-200"><a href="#Language-200"><span class="linenos">200</span></a><span class="sd">        :return: A tuple with locale attributes, e.g., (en_US, utf-8).</span>
+</span><span id="Language-201"><a href="#Language-201"><span class="linenos">201</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language-202"><a href="#Language-202"><span class="linenos">202</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locale</span>
+</span><span id="Language-203"><a href="#Language-203"><span class="linenos">203</span></a>
+</span><span id="Language-204"><a href="#Language-204"><span class="linenos">204</span></a>    <span class="nd">@property</span>
+</span><span id="Language-205"><a href="#Language-205"><span class="linenos">205</span></a>    <span class="k">def</span> <span class="nf">idiom</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Language-206"><a href="#Language-206"><span class="linenos">206</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representing the idiom.</span>
+</span><span id="Language-207"><a href="#Language-207"><span class="linenos">207</span></a><span class="sd">        :return: The idiom as a string, e.g., en_US.</span>
+</span><span id="Language-208"><a href="#Language-208"><span class="linenos">208</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language-209"><a href="#Language-209"><span class="linenos">209</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idiom</span>
+</span><span id="Language-210"><a href="#Language-210"><span class="linenos">210</span></a>
+</span><span id="Language-211"><a href="#Language-211"><span class="linenos">211</span></a>    <span class="nd">@property</span>
+</span><span id="Language-212"><a href="#Language-212"><span class="linenos">212</span></a>    <span class="k">def</span> <span class="nf">encoding</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Charset</span><span class="p">:</span>
+</span><span id="Language-213"><a href="#Language-213"><span class="linenos">213</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the charset (encoding) required for the language to be properly displayed.</span>
+</span><span id="Language-214"><a href="#Language-214"><span class="linenos">214</span></a><span class="sd">        :return: The charset (encoding), e.g., utf-8.</span>
+</span><span id="Language-215"><a href="#Language-215"><span class="linenos">215</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language-216"><a href="#Language-216"><span class="linenos">216</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span>
+</span><span id="Language-217"><a href="#Language-217"><span class="linenos">217</span></a>
+</span><span id="Language-218"><a href="#Language-218"><span class="linenos">218</span></a>    <span class="nd">@encoding</span><span class="o">.</span><span class="n">setter</span>
+</span><span id="Language-219"><a href="#Language-219"><span class="linenos">219</span></a>    <span class="k">def</span> <span class="nf">encoding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Charset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Language-220"><a href="#Language-220"><span class="linenos">220</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the charset (encoding) required for the language to be properly displayed.</span>
+</span><span id="Language-221"><a href="#Language-221"><span class="linenos">221</span></a><span class="sd">        :param value: The charset (encoding) as a string or Charset instance, e.g., utf-8.</span>
+</span><span id="Language-222"><a href="#Language-222"><span class="linenos">222</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language-223"><a href="#Language-223"><span class="linenos">223</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Charset</span><span class="p">)</span> <span class="k">else</span> <span class="n">Charset</span><span class="o">.</span><span class="n">of_value</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">casefold</span><span class="p">())</span>
+</span><span id="Language-224"><a href="#Language-224"><span class="linenos">224</span></a>
+</span><span id="Language-225"><a href="#Language-225"><span class="linenos">225</span></a>    <span class="nd">@property</span>
+</span><span id="Language-226"><a href="#Language-226"><span class="linenos">226</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Language-227"><a href="#Language-227"><span class="linenos">227</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the language name.</span>
+</span><span id="Language-228"><a href="#Language-228"><span class="linenos">228</span></a><span class="sd">        :return: The name of the language, e.g., English.</span>
+</span><span id="Language-229"><a href="#Language-229"><span class="linenos">229</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language-230"><a href="#Language-230"><span class="linenos">230</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+</span><span id="Language-231"><a href="#Language-231"><span class="linenos">231</span></a>
+</span><span id="Language-232"><a href="#Language-232"><span class="linenos">232</span></a>    <span class="nd">@property</span>
+</span><span id="Language-233"><a href="#Language-233"><span class="linenos">233</span></a>    <span class="k">def</span> <span class="nf">country</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Language-234"><a href="#Language-234"><span class="linenos">234</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the country where the language is spoken.</span>
+</span><span id="Language-235"><a href="#Language-235"><span class="linenos">235</span></a><span class="sd">        :return: The country where the language is spoken, e.g., U.S.A.</span>
+</span><span id="Language-236"><a href="#Language-236"><span class="linenos">236</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language-237"><a href="#Language-237"><span class="linenos">237</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_country</span>
+</span><span id="Language-238"><a href="#Language-238"><span class="linenos">238</span></a>
+</span><span id="Language-239"><a href="#Language-239"><span class="linenos">239</span></a>    <span class="nd">@property</span>
+</span><span id="Language-240"><a href="#Language-240"><span class="linenos">240</span></a>    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Language-241"><a href="#Language-241"><span class="linenos">241</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a mnemonic representing the language.</span>
+</span><span id="Language-242"><a href="#Language-242"><span class="linenos">242</span></a><span class="sd">        :return: The mnemonic representing the language, e.g., en.</span>
+</span><span id="Language-243"><a href="#Language-243"><span class="linenos">243</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language-244"><a href="#Language-244"><span class="linenos">244</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_language</span>
+</span><span id="Language-245"><a href="#Language-245"><span class="linenos">245</span></a>
+</span><span id="Language-246"><a href="#Language-246"><span class="linenos">246</span></a>    <span class="nd">@property</span>
+</span><span id="Language-247"><a href="#Language-247"><span class="linenos">247</span></a>    <span class="k">def</span> <span class="nf">territory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Language-248"><a href="#Language-248"><span class="linenos">248</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a mnemonic representing the territory (Alpha-2 code).</span>
+</span><span id="Language-249"><a href="#Language-249"><span class="linenos">249</span></a><span class="sd">        :return: The mnemonic representing the territory, e.g., US.</span>
+</span><span id="Language-250"><a href="#Language-250"><span class="linenos">250</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language-251"><a href="#Language-251"><span class="linenos">251</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_territory</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Enumeration to wrap all standard languages.
-Ref:. <a href="https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html">https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html</a></p>
+Reference: <a href="https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html">https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html</a></p>
 </div>
 
 
@@ -2508,23 +2510,24 @@ Ref:. <a href="https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html">http
 </span><span id="Language.of_locale-162"><a href="#Language.of_locale-162"><span class="linenos">162</span></a>    <span class="k">def</span> <span class="nf">of_locale</span><span class="p">(</span><span class="n">loc</span><span class="p">:</span> <span class="n">AnyLocale</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Language&quot;</span><span class="p">:</span>
 </span><span id="Language.of_locale-163"><a href="#Language.of_locale-163"><span class="linenos">163</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a Language object based on a locale string or tuple containing the language code and encoding.</span>
 </span><span id="Language.of_locale-164"><a href="#Language.of_locale-164"><span class="linenos">164</span></a><span class="sd">        :param loc: The locale to parse.</span>
-</span><span id="Language.of_locale-165"><a href="#Language.of_locale-165"><span class="linenos">165</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language.of_locale-166"><a href="#Language.of_locale-166"><span class="linenos">166</span></a>        <span class="c1"># Replace possible &#39;loc[:.]charset&#39; values</span>
-</span><span id="Language.of_locale-167"><a href="#Language.of_locale-167"><span class="linenos">167</span></a>        <span class="n">loc_enc</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
-</span><span id="Language.of_locale-168"><a href="#Language.of_locale-168"><span class="linenos">168</span></a>            <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(/C|C/|</span><span class="se">\&#39;</span><span class="s1">|\&quot;)+&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="n">loc</span>
-</span><span id="Language.of_locale-169"><a href="#Language.of_locale-169"><span class="linenos">169</span></a>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
-</span><span id="Language.of_locale-170"><a href="#Language.of_locale-170"><span class="linenos">170</span></a>            <span class="k">else</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[:.]&quot;</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span>
-</span><span id="Language.of_locale-171"><a href="#Language.of_locale-171"><span class="linenos">171</span></a>        <span class="p">))</span>
-</span><span id="Language.of_locale-172"><a href="#Language.of_locale-172"><span class="linenos">172</span></a>        <span class="c1"># fmt: off</span>
-</span><span id="Language.of_locale-173"><a href="#Language.of_locale-173"><span class="linenos">173</span></a>        <span class="n">lang</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span>
-</span><span id="Language.of_locale-174"><a href="#Language.of_locale-174"><span class="linenos">174</span></a>            <span class="n">Language</span><span class="p">[</span><span class="n">ln</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
-</span><span id="Language.of_locale-175"><a href="#Language.of_locale-175"><span class="linenos">175</span></a>            <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
-</span><span id="Language.of_locale-176"><a href="#Language.of_locale-176"><span class="linenos">176</span></a>                <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">Language</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="k">if</span> <span class="n">ln</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="o">==</span> <span class="n">loc_enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
-</span><span id="Language.of_locale-177"><a href="#Language.of_locale-177"><span class="linenos">177</span></a>        <span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
-</span><span id="Language.of_locale-178"><a href="#Language.of_locale-178"><span class="linenos">178</span></a>        <span class="c1"># fmt: on</span>
-</span><span id="Language.of_locale-179"><a href="#Language.of_locale-179"><span class="linenos">179</span></a>        <span class="n">check_not_none</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unable to create Language from locale: &#39;</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-</span><span id="Language.of_locale-180"><a href="#Language.of_locale-180"><span class="linenos">180</span></a>        <span class="n">lang</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">get_or_default</span><span class="p">(</span><span class="n">loc_enc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Charset</span><span class="o">.</span><span class="n">UTF_8</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
-</span><span id="Language.of_locale-181"><a href="#Language.of_locale-181"><span class="linenos">181</span></a>        <span class="k">return</span> <span class="n">lang</span>
+</span><span id="Language.of_locale-165"><a href="#Language.of_locale-165"><span class="linenos">165</span></a><span class="sd">        :return: A Language instance corresponding to the provided locale.</span>
+</span><span id="Language.of_locale-166"><a href="#Language.of_locale-166"><span class="linenos">166</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language.of_locale-167"><a href="#Language.of_locale-167"><span class="linenos">167</span></a>        <span class="c1"># Replace possible &#39;loc[:.]charset&#39; values</span>
+</span><span id="Language.of_locale-168"><a href="#Language.of_locale-168"><span class="linenos">168</span></a>        <span class="n">loc_enc</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+</span><span id="Language.of_locale-169"><a href="#Language.of_locale-169"><span class="linenos">169</span></a>            <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(/C|C/|</span><span class="se">\&#39;</span><span class="s1">|\&quot;)+&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="n">loc</span>
+</span><span id="Language.of_locale-170"><a href="#Language.of_locale-170"><span class="linenos">170</span></a>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+</span><span id="Language.of_locale-171"><a href="#Language.of_locale-171"><span class="linenos">171</span></a>            <span class="k">else</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[:.]&quot;</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span>
+</span><span id="Language.of_locale-172"><a href="#Language.of_locale-172"><span class="linenos">172</span></a>        <span class="p">))</span>
+</span><span id="Language.of_locale-173"><a href="#Language.of_locale-173"><span class="linenos">173</span></a>        <span class="c1"># fmt: off</span>
+</span><span id="Language.of_locale-174"><a href="#Language.of_locale-174"><span class="linenos">174</span></a>        <span class="n">lang</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span>
+</span><span id="Language.of_locale-175"><a href="#Language.of_locale-175"><span class="linenos">175</span></a>            <span class="n">Language</span><span class="p">[</span><span class="n">ln</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+</span><span id="Language.of_locale-176"><a href="#Language.of_locale-176"><span class="linenos">176</span></a>            <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+</span><span id="Language.of_locale-177"><a href="#Language.of_locale-177"><span class="linenos">177</span></a>                <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">Language</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="k">if</span> <span class="n">ln</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="o">==</span> <span class="n">loc_enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+</span><span id="Language.of_locale-178"><a href="#Language.of_locale-178"><span class="linenos">178</span></a>        <span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="Language.of_locale-179"><a href="#Language.of_locale-179"><span class="linenos">179</span></a>        <span class="c1"># fmt: on</span>
+</span><span id="Language.of_locale-180"><a href="#Language.of_locale-180"><span class="linenos">180</span></a>        <span class="n">check_not_none</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unable to create Language from locale: &#39;</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+</span><span id="Language.of_locale-181"><a href="#Language.of_locale-181"><span class="linenos">181</span></a>        <span class="n">lang</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">get_or_default</span><span class="p">(</span><span class="n">loc_enc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Charset</span><span class="o">.</span><span class="n">UTF_8</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+</span><span id="Language.of_locale-182"><a href="#Language.of_locale-182"><span class="linenos">182</span></a>        <span class="k">return</span> <span class="n">lang</span>
 </span></pre></div>
 
 
@@ -2535,6 +2538,12 @@ Ref:. <a href="https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html">http
 <ul>
 <li><strong>loc</strong>:  The locale to parse.</li>
 </ul>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>A Language instance corresponding to the provided locale.</p>
+</blockquote>
 </div>
 
 
@@ -2542,23 +2551,28 @@ Ref:. <a href="https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html">http
                             <div id="Language.locale" class="classattr">
                                         <input id="Language.locale-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr variable">
-            <span class="name">locale</span><span class="annotation">: tuple</span>
+            <span class="name">locale</span><span class="annotation">: tuple[str, hspylib.core.enums.charset.Charset]</span>
 
                 <label class="view-source-button" for="Language.locale-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#Language.locale"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Language.locale-196"><a href="#Language.locale-196"><span class="linenos">196</span></a>    <span class="nd">@property</span>
-</span><span id="Language.locale-197"><a href="#Language.locale-197"><span class="linenos">197</span></a>    <span class="k">def</span> <span class="nf">locale</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-</span><span id="Language.locale-198"><a href="#Language.locale-198"><span class="linenos">198</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a tuple containing the locale attributes.</span>
-</span><span id="Language.locale-199"><a href="#Language.locale-199"><span class="linenos">199</span></a><span class="sd">        E.g:. (en_US, utf-8)</span>
-</span><span id="Language.locale-200"><a href="#Language.locale-200"><span class="linenos">200</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language.locale-201"><a href="#Language.locale-201"><span class="linenos">201</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locale</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Language.locale-197"><a href="#Language.locale-197"><span class="linenos">197</span></a>    <span class="nd">@property</span>
+</span><span id="Language.locale-198"><a href="#Language.locale-198"><span class="linenos">198</span></a>    <span class="k">def</span> <span class="nf">locale</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Charset</span><span class="p">]:</span>
+</span><span id="Language.locale-199"><a href="#Language.locale-199"><span class="linenos">199</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a tuple containing the locale attributes.</span>
+</span><span id="Language.locale-200"><a href="#Language.locale-200"><span class="linenos">200</span></a><span class="sd">        :return: A tuple with locale attributes, e.g., (en_US, utf-8).</span>
+</span><span id="Language.locale-201"><a href="#Language.locale-201"><span class="linenos">201</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language.locale-202"><a href="#Language.locale-202"><span class="linenos">202</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locale</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Return a tuple containing the locale attributes.
-E.g:. (en_US, utf-8)</p>
+            <div class="docstring"><p>Return a tuple containing the locale attributes.</p>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>A tuple with locale attributes, e.g., (en_US, utf-8).</p>
+</blockquote>
 </div>
 
 
@@ -2572,17 +2586,22 @@ E.g:. (en_US, utf-8)</p>
 
     </div>
     <a class="headerlink" href="#Language.idiom"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Language.idiom-203"><a href="#Language.idiom-203"><span class="linenos">203</span></a>    <span class="nd">@property</span>
-</span><span id="Language.idiom-204"><a href="#Language.idiom-204"><span class="linenos">204</span></a>    <span class="k">def</span> <span class="nf">idiom</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Language.idiom-205"><a href="#Language.idiom-205"><span class="linenos">205</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representing the idiom.</span>
-</span><span id="Language.idiom-206"><a href="#Language.idiom-206"><span class="linenos">206</span></a><span class="sd">        E.g:. en_US</span>
-</span><span id="Language.idiom-207"><a href="#Language.idiom-207"><span class="linenos">207</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language.idiom-208"><a href="#Language.idiom-208"><span class="linenos">208</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idiom</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Language.idiom-204"><a href="#Language.idiom-204"><span class="linenos">204</span></a>    <span class="nd">@property</span>
+</span><span id="Language.idiom-205"><a href="#Language.idiom-205"><span class="linenos">205</span></a>    <span class="k">def</span> <span class="nf">idiom</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Language.idiom-206"><a href="#Language.idiom-206"><span class="linenos">206</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representing the idiom.</span>
+</span><span id="Language.idiom-207"><a href="#Language.idiom-207"><span class="linenos">207</span></a><span class="sd">        :return: The idiom as a string, e.g., en_US.</span>
+</span><span id="Language.idiom-208"><a href="#Language.idiom-208"><span class="linenos">208</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language.idiom-209"><a href="#Language.idiom-209"><span class="linenos">209</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idiom</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Return a string representing the idiom.
-E.g:. en_US</p>
+            <div class="docstring"><p>Return a string representing the idiom.</p>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>The idiom as a string, e.g., en_US.</p>
+</blockquote>
 </div>
 
 
@@ -2596,17 +2615,22 @@ E.g:. en_US</p>
 
     </div>
     <a class="headerlink" href="#Language.encoding"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Language.encoding-210"><a href="#Language.encoding-210"><span class="linenos">210</span></a>    <span class="nd">@property</span>
-</span><span id="Language.encoding-211"><a href="#Language.encoding-211"><span class="linenos">211</span></a>    <span class="k">def</span> <span class="nf">encoding</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Charset</span><span class="p">:</span>
-</span><span id="Language.encoding-212"><a href="#Language.encoding-212"><span class="linenos">212</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the charset (encoding) required for the language to be properly displayed.</span>
-</span><span id="Language.encoding-213"><a href="#Language.encoding-213"><span class="linenos">213</span></a><span class="sd">        E.g:. utf-8</span>
-</span><span id="Language.encoding-214"><a href="#Language.encoding-214"><span class="linenos">214</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language.encoding-215"><a href="#Language.encoding-215"><span class="linenos">215</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Language.encoding-211"><a href="#Language.encoding-211"><span class="linenos">211</span></a>    <span class="nd">@property</span>
+</span><span id="Language.encoding-212"><a href="#Language.encoding-212"><span class="linenos">212</span></a>    <span class="k">def</span> <span class="nf">encoding</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Charset</span><span class="p">:</span>
+</span><span id="Language.encoding-213"><a href="#Language.encoding-213"><span class="linenos">213</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the charset (encoding) required for the language to be properly displayed.</span>
+</span><span id="Language.encoding-214"><a href="#Language.encoding-214"><span class="linenos">214</span></a><span class="sd">        :return: The charset (encoding), e.g., utf-8.</span>
+</span><span id="Language.encoding-215"><a href="#Language.encoding-215"><span class="linenos">215</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language.encoding-216"><a href="#Language.encoding-216"><span class="linenos">216</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encoding</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Return the charset (encoding) required for the language to be properly displayed.
-E.g:. utf-8</p>
+            <div class="docstring"><p>Return the charset (encoding) required for the language to be properly displayed.</p>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>The charset (encoding), e.g., utf-8.</p>
+</blockquote>
 </div>
 
 
@@ -2620,17 +2644,22 @@ E.g:. utf-8</p>
 
     </div>
     <a class="headerlink" href="#Language.name"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Language.name-224"><a href="#Language.name-224"><span class="linenos">224</span></a>    <span class="nd">@property</span>
-</span><span id="Language.name-225"><a href="#Language.name-225"><span class="linenos">225</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Language.name-226"><a href="#Language.name-226"><span class="linenos">226</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the language name.</span>
-</span><span id="Language.name-227"><a href="#Language.name-227"><span class="linenos">227</span></a><span class="sd">        E.g:. English</span>
-</span><span id="Language.name-228"><a href="#Language.name-228"><span class="linenos">228</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language.name-229"><a href="#Language.name-229"><span class="linenos">229</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Language.name-225"><a href="#Language.name-225"><span class="linenos">225</span></a>    <span class="nd">@property</span>
+</span><span id="Language.name-226"><a href="#Language.name-226"><span class="linenos">226</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Language.name-227"><a href="#Language.name-227"><span class="linenos">227</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the language name.</span>
+</span><span id="Language.name-228"><a href="#Language.name-228"><span class="linenos">228</span></a><span class="sd">        :return: The name of the language, e.g., English.</span>
+</span><span id="Language.name-229"><a href="#Language.name-229"><span class="linenos">229</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language.name-230"><a href="#Language.name-230"><span class="linenos">230</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Return the language name.
-E.g:. English</p>
+            <div class="docstring"><p>Return the language name.</p>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>The name of the language, e.g., English.</p>
+</blockquote>
 </div>
 
 
@@ -2644,17 +2673,22 @@ E.g:. English</p>
 
     </div>
     <a class="headerlink" href="#Language.country"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Language.country-231"><a href="#Language.country-231"><span class="linenos">231</span></a>    <span class="nd">@property</span>
-</span><span id="Language.country-232"><a href="#Language.country-232"><span class="linenos">232</span></a>    <span class="k">def</span> <span class="nf">country</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Language.country-233"><a href="#Language.country-233"><span class="linenos">233</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the country where the language is spoken.</span>
-</span><span id="Language.country-234"><a href="#Language.country-234"><span class="linenos">234</span></a><span class="sd">        E.g:. U.S.A.</span>
-</span><span id="Language.country-235"><a href="#Language.country-235"><span class="linenos">235</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language.country-236"><a href="#Language.country-236"><span class="linenos">236</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_country</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Language.country-232"><a href="#Language.country-232"><span class="linenos">232</span></a>    <span class="nd">@property</span>
+</span><span id="Language.country-233"><a href="#Language.country-233"><span class="linenos">233</span></a>    <span class="k">def</span> <span class="nf">country</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Language.country-234"><a href="#Language.country-234"><span class="linenos">234</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the country where the language is spoken.</span>
+</span><span id="Language.country-235"><a href="#Language.country-235"><span class="linenos">235</span></a><span class="sd">        :return: The country where the language is spoken, e.g., U.S.A.</span>
+</span><span id="Language.country-236"><a href="#Language.country-236"><span class="linenos">236</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language.country-237"><a href="#Language.country-237"><span class="linenos">237</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_country</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Return the country where the language is spoken.
-E.g:. U.S.A.</p>
+            <div class="docstring"><p>Return the country where the language is spoken.</p>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>The country where the language is spoken, e.g., U.S.A.</p>
+</blockquote>
 </div>
 
 
@@ -2668,17 +2702,22 @@ E.g:. U.S.A.</p>
 
     </div>
     <a class="headerlink" href="#Language.language"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Language.language-238"><a href="#Language.language-238"><span class="linenos">238</span></a>    <span class="nd">@property</span>
-</span><span id="Language.language-239"><a href="#Language.language-239"><span class="linenos">239</span></a>    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Language.language-240"><a href="#Language.language-240"><span class="linenos">240</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a mnemonic representing the language.</span>
-</span><span id="Language.language-241"><a href="#Language.language-241"><span class="linenos">241</span></a><span class="sd">        E.g:. en</span>
-</span><span id="Language.language-242"><a href="#Language.language-242"><span class="linenos">242</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language.language-243"><a href="#Language.language-243"><span class="linenos">243</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_language</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Language.language-239"><a href="#Language.language-239"><span class="linenos">239</span></a>    <span class="nd">@property</span>
+</span><span id="Language.language-240"><a href="#Language.language-240"><span class="linenos">240</span></a>    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Language.language-241"><a href="#Language.language-241"><span class="linenos">241</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a mnemonic representing the language.</span>
+</span><span id="Language.language-242"><a href="#Language.language-242"><span class="linenos">242</span></a><span class="sd">        :return: The mnemonic representing the language, e.g., en.</span>
+</span><span id="Language.language-243"><a href="#Language.language-243"><span class="linenos">243</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language.language-244"><a href="#Language.language-244"><span class="linenos">244</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_language</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Return a mnemonic representing the language.
-E.g:. en</p>
+            <div class="docstring"><p>Return a mnemonic representing the language.</p>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>The mnemonic representing the language, e.g., en.</p>
+</blockquote>
 </div>
 
 
@@ -2692,17 +2731,22 @@ E.g:. en</p>
 
     </div>
     <a class="headerlink" href="#Language.territory"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Language.territory-245"><a href="#Language.territory-245"><span class="linenos">245</span></a>    <span class="nd">@property</span>
-</span><span id="Language.territory-246"><a href="#Language.territory-246"><span class="linenos">246</span></a>    <span class="k">def</span> <span class="nf">territory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Language.territory-247"><a href="#Language.territory-247"><span class="linenos">247</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a mnemonic representing the territory (Alpha-2 code).</span>
-</span><span id="Language.territory-248"><a href="#Language.territory-248"><span class="linenos">248</span></a><span class="sd">        E.g:. US</span>
-</span><span id="Language.territory-249"><a href="#Language.territory-249"><span class="linenos">249</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Language.territory-250"><a href="#Language.territory-250"><span class="linenos">250</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_territory</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Language.territory-246"><a href="#Language.territory-246"><span class="linenos">246</span></a>    <span class="nd">@property</span>
+</span><span id="Language.territory-247"><a href="#Language.territory-247"><span class="linenos">247</span></a>    <span class="k">def</span> <span class="nf">territory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Language.territory-248"><a href="#Language.territory-248"><span class="linenos">248</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a mnemonic representing the territory (Alpha-2 code).</span>
+</span><span id="Language.territory-249"><a href="#Language.territory-249"><span class="linenos">249</span></a><span class="sd">        :return: The mnemonic representing the territory, e.g., US.</span>
+</span><span id="Language.territory-250"><a href="#Language.territory-250"><span class="linenos">250</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Language.territory-251"><a href="#Language.territory-251"><span class="linenos">251</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_territory</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Return a mnemonic representing the territory (Alpha-2 code).
-E.g:. US</p>
+            <div class="docstring"><p>Return a mnemonic representing the territory (Alpha-2 code).</p>
+
+<h6 id="returns">Returns</h6>
+
+<blockquote>
+  <p>The mnemonic representing the territory, e.g., US.</p>
+</blockquote>
 </div>
 
 

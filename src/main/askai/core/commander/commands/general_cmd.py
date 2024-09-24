@@ -36,11 +36,11 @@ class GeneralCmd(ABC):
         """Execute a terminal command.
         :param cmd_line: The command line to execute (optional).
         """
-        output, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
+        output, err_out, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
         if exit_code == ExitStatus.SUCCESS:
             text_formatter.cmd_print(output)
         else:
-            display_text(f"\n%RED%-=- Command `{cmd_line}` failed to execute: Code ({exit_code}) -=-%NC%")
+            display_text(f"\n%RED%Command `{cmd_line}` failed. Error({err_out})  Code ({exit_code})%NC%")
 
     @staticmethod
     def summarize(folder: str, glob: str) -> None:

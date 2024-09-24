@@ -6,19 +6,19 @@
 """Package initialization."""
 
 __all__ = [
-    "askai",
-    "askai_cli",
-    "askai_configs",
-    "askai_events",
-    "askai_messages",
-    "askai_prompt",
-    "askai_settings",
-    "commander",
-    "component",
-    "engine",
-    "enums",
-    "features",
-    "model",
-    "support",
+    'askai', 
+    'askai_cli', 
+    'askai_configs', 
+    'askai_events', 
+    'askai_messages', 
+    'askai_prompt', 
+    'askai_settings', 
+    'commander', 
+    'component', 
+    'engine', 
+    'enums', 
+    'features', 
+    'model', 
+    'support'
 ]
-__version__ = "1.0.13"
+__version__ = '1.0.13'

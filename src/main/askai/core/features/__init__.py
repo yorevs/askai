@@ -5,5 +5,9 @@
 # Package: main.askai.core.features
 """Package initialization."""
 
-__all__ = ["router", "validation"]
-__version__ = "1.0.13"
+__all__ = [
+    'processors', 
+    'router', 
+    'tools'
+]
+__version__ = '1.0.13'

@@ -13,18 +13,18 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.core.askai import AskAi
-from askai.core.component.audio_player import AudioPlayer
-from askai.core.support.shared_instances import shared
-from clitt.core.term.terminal import Terminal
+import sys
 from datetime import datetime, timedelta
-from hspylib.core.tools.commons import sysout
-from hspylib.core.tools.dict_tools import get_or_default
 from pathlib import Path
 from threading import Timer
 
 import pause
-import sys
+from askai.core.askai_cli import AskAiCli
+from askai.core.component.audio_player import AudioPlayer
+from askai.core.support.shared_instances import shared
+from clitt.core.term.terminal import Terminal
+from hspylib.core.tools.commons import sysout
+from hspylib.core.tools.dict_tools import get_or_default
 
 today = datetime.today()
 th_dir: str = f"{Path.home()}/TechWeek"
@@ -69,7 +69,7 @@ def taius_intro() -> None:
     with open(welcome_file) as f_pt:
         Terminal.clear()
         sysout(f"%GREEN%{intro}%NC%")
-        ai = AskAi(False, False, False, 1, "taius", "openai", "gpt-3.5-turbo", f_pt.readlines())
+        ai = AskAiCli(False, False, False, False, 1, "taius", "openai", "gpt-3.5-turbo", f_pt.readlines())
         ai.run()
         pause.seconds(1)
         Terminal.shell_exec(f"open {ppt_url}")

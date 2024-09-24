@@ -92,7 +92,7 @@ class ChatContext:
         """
         if (token_length := (self.length(key)) + len(content)) > self._token_limit:
             raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
-        if (entry := ContextEntry(role, str(content))) not in (ctx := self._store[key]):
+        if (entry := ContextEntry(role, content)) not in (ctx := self._store[key]):
             ctx.append(entry)
 
         return self.get(key)

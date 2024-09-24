@@ -47,7 +47,7 @@ class AudioPlayer(metaclass=Singleton):
         """
         if file_is_not_empty(str(path_to_audio_file)):
             try:
-                out, code = Terminal.shell_exec(
+                _, _, code = Terminal.shell_exec(
                     f'ffplay -af "atempo={tempo}" -v 0 -nodisp -autoexit {path_to_audio_file}'
                 )
                 return code == ExitStatus.SUCCESS
@@ -78,18 +78,18 @@ class AudioPlayer(metaclass=Singleton):
         :return: The length of the audio file in seconds as a float.
         """
         check_argument(which("ffprobe") and file_is_not_empty(path_to_audio_file))
-        ret: float = 0.0
+        out: float = 0.0
         try:
-            ret, code = Terminal.shell_exec(
+            out, _, code = Terminal.shell_exec(
                 f'ffprobe -i {path_to_audio_file} -show_entries format=duration -v quiet -of csv="p=0"'
             )
-            return float(ret) if code == ExitStatus.SUCCESS else 0.0
+            return float(out) if code == ExitStatus.SUCCESS else 0.0
         except FileNotFoundError:
             log.error("Audio file was not found: %s !", path_to_audio_file)
         except TypeError:
             log.error("Could not determine audio duration !")
 
-        return ret
+        return out
 
     def play_sfx(self, filename: str, file_ext: Literal[".mp3", ".wav", ".m4a"] = ".mp3") -> bool:
         """Play a sound effect audio file.
