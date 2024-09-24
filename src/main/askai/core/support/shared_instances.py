@@ -52,7 +52,6 @@ class SharedInstances(metaclass=Singleton):
         self._context: ChatContext | None = None
         self._memory: ConversationBufferWindowMemory | None = None
         self._idiom: str = configs.language.idiom
-        self._max_short_memory_size: int = configs.max_short_memory_size
         self._max_iteractions: int = configs.max_iteractions
 
     @property
@@ -98,10 +97,6 @@ class SharedInstances(metaclass=Singleton):
         return self.create_memory()
 
     @property
-    def max_short_memory_size(self) -> int:
-        return self._max_short_memory_size
-
-    @property
     def max_iteractions(self) -> int:
         return self._max_iteractions
 
@@ -139,19 +134,25 @@ class SharedInstances(metaclass=Singleton):
             self._engine = EngineFactory.create_engine(engine_name, model_name)
         return self._engine
 
-    def create_context(self, token_limit: int) -> ChatContext:
+    def create_context(
+        self,
+        token_limit: int,
+    ) -> ChatContext:
         """Create or retrieve a chat context with the specified token limit.
         :param token_limit: The maximum number of tokens allowed in the chat context.
         :return: An instance of the ChatContext configured with the specified token limit.
         """
         if self._context is None:
             if configs.is_cache:
-                self._context = ChatContext.of(cache.read_context(), token_limit, self.max_short_memory_size)
+                self._context = ChatContext.of(cache.read_context(), token_limit, configs.max_short_memory_size)
             else:
-                self._context = ChatContext(token_limit, self.max_short_memory_size)
+                self._context = ChatContext(token_limit, configs.max_short_memory_size)
         return self._context
 
-    def create_memory(self, memory_key: str = "chat_history") -> BaseChatMemory:
+    def create_memory(
+        self,
+        memory_key: str = "chat_history",
+    ) -> BaseChatMemory:
         """Create or retrieve the conversation window memory.
         :param memory_key: The key used to identify the memory (default is "chat_history").
         :return: An instance of BaseChatMemory associated with the specified memory key.
