@@ -12,6 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import base64
+import mimetypes
+import os
+import re
+import shlex
+import shutil
+import sys
+from os.path import basename, dirname
+from pathlib import Path
+from typing import AnyStr, Optional
+
 from askai.core.support.text_formatter import text_formatter
 from clitt.core.term.cursor import Cursor
 from hspylib.core.config.path_object import PathObject
@@ -21,16 +32,6 @@ from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.tools.text_tools import ensure_endswith, strip_escapes
 from hspylib.core.zoned_datetime import now_ms
-from os.path import basename, dirname
-from pathlib import Path
-from typing import AnyStr, Optional
-
-import base64
-import mimetypes
-import os
-import re
-import shutil
-import sys
 
 
 def read_stdin() -> Optional[str]:
@@ -143,45 +144,50 @@ def encode_image(file_path: str):
         return base64.b64encode(f_image.read()).decode(Charset.UTF_8.val)
 
 
-def extract_path(command_line: str, flags: int = re.IGNORECASE | re.MULTILINE) -> Optional[str]:
+def extract_path(command_line: str) -> Optional[str]:
     """Extract the first identifiable path from the provided command line text.
     :param command_line: The command line text from which to extract the path.
-    :param flags: Regex match flags to control the extraction process (default is re.IGNORECASE | re.MULTILINE).
     :return: The first identified path as a string, or None if no path could be extracted.
     """
-    command_line = re.sub("([12&]>|2>&1|1>&2).+", "", command_line.split("|")[0])
-    re_path = r'(?:\w)\s+(?:-[\w\d]+\s)*(?:([\/\w\d\s"-]+)|(".*?"))'
-    if command_line and (cmd_path := re.search(re_path, command_line, flags)):
-        if (extracted := cmd_path.group(1).strip().replace("\\ ", " ")) and (_path_ := Path(extracted)).exists():
-            if _path_.is_dir() or (extracted := dirname(extracted)):
-                return extracted if extracted and Path(extracted).is_dir() else None
+    if not (tokens := shlex.split(os.path.expanduser(os.path.expandvars(command_line)))):
+        return None
+    # Remove the command itself
+    tokens = tokens[1:]
+    # Remove options (tokens starting with '-')
+    args = [arg for arg in tokens if not arg.startswith('-')]
+    for arg in args:
+        arg = arg.replace("\\ ", " ")  # Replace space escapes
+        arg = arg[:-1] if arg.endswith(';') else arg  # Remove semi-colon endings
+        if (_path_ := Path(arg)) and _path_.exists() and _path_.is_dir():
+            return arg
+        elif os.path.exists(dirname(arg)) and os.path.isdir(dirname(arg)):
+            return dirname(arg)
     return None
 
 
-def extract_codeblock(text: str, flags: int = re.IGNORECASE | re.MULTILINE) -> tuple[Optional[str], str]:
+def extract_codeblock(text: str) -> tuple[str | None, str]:
     """Extract the programming language and actual code from a markdown multi-line code block.
     :param text: The markdown-formatted text containing the code block.
-    :param flags: Regex match flags to control the extraction process (default is re.IGNORECASE | re.MULTILINE).
     :return: A tuple where the first element is the programming language (or None if not specified),
              and the second element is the extracted code as a string.
     """
-    # Match a terminal command formatted in a markdown code block.
-    re_command = r".*```((?:\w+)?\s*)\n(.*?)(?=^```)\s*\n?```.*"
-    if text and (mat := re.search(re_command, text, flags=flags)):
-        if mat and len(mat.groups()) == 2:
-            lang, code = mat.group(1) or "", mat.group(2) or ""
-            return lang, code
-    return None, text
+    flags: int = re.IGNORECASE | re.MULTILINE | re.DOTALL
+    # Match a markdown code block with an optional language specifier
+    re_command = r"\s*```([\w+-]*)\s*\n(.*?)\s*\n```\s*"
+    if mat := re.search(re_command, text, flags=flags):
+        lang = mat.group(1)
+        code = mat.group(2)
+        return lang.strip() if lang else None, code.strip() if code else ''
+    return None, ''
 
 
-def media_type_of(pathname: str) -> Optional[Optional[tuple[str, ...]]]:
+def media_type_of(pathname: str) -> Optional[tuple[str | None, ...]]:
     """Return the media type of the specified file, or None if the type could not be determined.
     :param pathname: The file path to check.
-    :return: A tuple representing the media type (e.g., ("image", "jpeg")), or None if guessing was not possible.
+    :return: A tuple representing the media type (e.g., ("text/plain")), or None if guessing was not possible.
     """
-    mimetypes.init()
-    mtype, _ = mimetypes.guess_type(basename(pathname))
-    if mtype is not None:
+    mtype, _ = mimetypes.guess_type(os.path.basename(pathname))
+    if mtype:
         return tuple(mtype.split("/"))
     return None
 
