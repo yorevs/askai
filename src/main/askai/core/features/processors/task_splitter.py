@@ -12,6 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+from pathlib import Path
+from textwrap import dedent
+from types import SimpleNamespace
+from typing import Any, Optional, Type, TypeAlias
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -21,6 +28,7 @@ from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_response import AccResponse
 from askai.core.enums.routing_model import RoutingModel
 from askai.core.features.router.agent_tools import features
+from askai.core.features.router.task_accuracy import assert_accuracy
 from askai.core.features.router.task_agent import agent
 from askai.core.features.tools.general import final_answer
 from askai.core.model.action_plan import ActionPlan
@@ -34,14 +42,8 @@ from hspylib.core.exception.exceptions import InvalidArgumentError
 from hspylib.core.metaclass.singleton import Singleton
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from pathlib import Path
 from pydantic_core import ValidationError
 from retry import retry
-from textwrap import dedent
-from typing import Any, Optional, Type, TypeAlias
-
-import logging as log
-import os
 
 AgentResponse: TypeAlias = dict[str, Any]
 
@@ -64,13 +66,16 @@ class TaskSplitter(metaclass=Singleton):
 
     @staticmethod
     def wrap_answer(
-        query: str, answer: str, model_result: ModelResult = ModelResult.default(), rag: AccResponse | None = None
+        query: str,
+        answer: str,
+        model_result: ModelResult = ModelResult.default(),
+        acc_threshold: AccResponse | None = None,
     ) -> str:
         """Provide a final answer to the user by wrapping the AI response with additional context.
         :param query: The user's question.
         :param answer: The AI's response to the question.
         :param model_result: The result from the selected routing model (default is ModelResult.default()).
-        :param rag: The final accuracy check (RAG) response, if available.
+        :param acc_threshold: The final accuracy threshold, if available.
         :return: A formatted string containing the final answer.
         """
         output: str = answer
@@ -87,9 +92,14 @@ class TaskSplitter(metaclass=Singleton):
             case RoutingModel.CHAT_MASTER, _:
                 output = final_answer("taius-jarvis", prompt_args, **args)
             case RoutingModel.REFINER, _:
-                if rag and rag.reasoning:
+                if acc_threshold and acc_threshold.reasoning:
                     ctx: str = str(shared.context.flat("HISTORY"))
-                    args = {"improvements": rag.reasoning, "context": ctx, "response": answer, "question": query}
+                    args = {
+                        "improvements": acc_threshold.reasoning,
+                        "context": ctx,
+                        "response": answer,
+                        "question": query,
+                    }
                     prompt_args = [k for k in args.keys()]
                     events.reply.emit(reply=AIReply.debug(msg.refine_answer(answer)))
                     output = final_answer("taius-refiner", prompt_args, **args)
@@ -106,15 +116,6 @@ class TaskSplitter(metaclass=Singleton):
     def __init__(self):
         self._approved: bool = False
         self._rag: RAGProvider = RAGProvider("task-splitter.csv")
-        self._plan: ActionPlan | None = None
-
-    @property
-    def plan(self) -> Optional[ActionPlan]:
-        return self._plan
-
-    @plan.setter
-    def plan(self, value: ActionPlan) -> None:
-        self._plan = value
 
     def template(self, query: str) -> ChatPromptTemplate:
         """Retrieve the processor Template."""
@@ -151,51 +152,69 @@ class TaskSplitter(metaclass=Singleton):
         os.chdir(Path.home())
         shared.context.forget("EVALUATION")  # Erase previous evaluation notes.
         model: ModelResult = ModelResult.default()  # Hard-coding the result model for now.
+        log.info("Router::[QUESTION] '%s'", question)
+        # Invoke the LLM to split the tasks and create an action plan.
+        runnable = self.template(question) | lc_llm.create_chat_model(Temperature.COLDEST.temp)
+        runnable = RunnableWithMessageHistory(
+            runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
+        )
 
-        @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=1)
-        def _process_wrapper() -> Optional[str]:
-            """Wrapper to allow accuracy retries."""
-            log.info("Router::[QUESTION] '%s'", question)
-            runnable = self.template(question) | lc_llm.create_chat_model(Temperature.COLDEST.temp)
-            runnable = RunnableWithMessageHistory(
-                runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
-            )
-            output: str = msg.no_output("task-splitter")
-
-            if response := runnable.invoke({"input": question}, config={"configurable": {"session_id": "HISTORY"}}):
-                log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
-                resp_history: list[str] = list()
-                if not self.plan:
-                    self.plan = ActionPlan.create(question, response, model)
-                    events.reply.emit(reply=AIReply.debug(msg.action_plan(str(self.plan))))
-                    if self.plan.speak:
-                        events.reply.emit(reply=AIReply.detailed(self.plan.speak))
-                try:
-                    if task_list := self.plan.tasks:
-                        for idx, action in enumerate(task_list):
-                            path_str: str | None = (
-                                "Path: " + action.path
-                                if hasattr(action, "path") and action.path.upper() not in ["N/A", "NONE", ""]
-                                else None
-                            )
-                            task: str = f"{action.task}  {path_str or ''}"
-                            if output := agent.invoke(task):
-                                resp_history.append(output)
-                    else:
-                        if output := self.plan.speak:
-                            resp_history.append(output)
-                        else:
-                            output = msg.no_output("Task-Agent")
-                except (InterruptionRequest, TerminatingQuery) as err:
-                    output = str(err)
-                finally:
-                    shared.context.push("HISTORY", question)
+        if response := runnable.invoke({"input": question}, config={"configurable": {"session_id": "HISTORY"}}):
+            log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
+            plan = ActionPlan.create(question, response, model)
+            task_list = plan.tasks
+            if task_list:
+                events.reply.emit(reply=AIReply.debug(msg.action_plan(str(plan))))
+                if plan.speak:
+                    events.reply.emit(reply=AIReply.info(plan.speak))
             else:
-                output = response  # Most of the times, this indicates a failure.
+                # Most of the times, indicates the LLM responded directly.
+                if output := plan.speak:
+                    shared.context.push("HISTORY", question)
+                    shared.context.push("HISTORY", output, "assistant")
+                else:
+                    output = msg.no_output("Task-Splitter")
+                return output
+        else:
+            return response  # Most of the times, indicates a failure.
 
-            return output
+        @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=1, jitter=1)
+        def _splitter_wrapper_() -> Optional[str]:
+            wrapper_output = self._process_tasks(task_list)
+            assert_accuracy(question, wrapper_output, AccResponse.GOOD)
+            return wrapper_output
 
-        return _process_wrapper()
+        return _splitter_wrapper_()
+
+    @retry(exceptions=RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=1, jitter=1)
+    def _process_tasks(self, task_list: list[SimpleNamespace]) -> Optional[str]:
+        """Wrapper to allow accuracy retries."""
+
+        resp_history: list[str] = list()
+
+        if not task_list:
+            return None
+
+        try:
+            _iter_ = task_list.copy().__iter__()
+            while action := next(_iter_, None):
+                path_str: str | None = (
+                    "Path: " + action.path
+                    if hasattr(action, "path") and action.path.upper() not in ["N/A", "NONE", ""]
+                    else None
+                )
+                task: str = f"{action.task}  {path_str or ''}"
+                if agent_output := agent.invoke(task):
+                    resp_history.append(agent_output)
+                    shared.context.push("HISTORY", task)
+                    shared.context.push("HISTORY", agent_output, "assistant")
+                    task_list.pop(0)
+        except (InterruptionRequest, TerminatingQuery) as err:
+            return str(err)
+        except Exception:
+            raise
+
+        return os.linesep.join(resp_history) if resp_history else msg.no_output("Task-Splitter")
 
 
 assert (splitter := TaskSplitter().INSTANCE) is not None

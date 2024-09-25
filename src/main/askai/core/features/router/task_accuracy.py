@@ -53,7 +53,7 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: AccResponse
     :return: The accuracy classification of the AI's response as an AccResponse enum value.
     """
     if ai_response and ai_response not in msg.accurate_responses:
-        issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("assert"))
+        issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("evaluation"))
         assert_template = PromptTemplate(
             input_variables=["rag", "input", "response"], template=prompt.read_prompt("accuracy")
         )

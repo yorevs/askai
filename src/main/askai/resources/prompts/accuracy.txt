@@ -8,6 +8,8 @@ Check if the AI response explicitly and directly addresses the user's request by
 
 Evaluate using percentage as your color threshold reference (from 0% to 100%).
 
+Avoid using markdown or any special formatting in your response.
+
 Use the following criteria for classification:
 
 1. **Blue**: Level of accuracy [100%-95%]. Reasoning: The AI response is perfect responding to the question posed, including a detailed and accurate information.
@@ -21,9 +23,6 @@ Use the following criteria for classification:
 4. **Red**: Level of accuracy [29%-0%]. Reasoning: The AI response fails to adequately address the question, indicating a misunderstanding or incorrect analysis.
 
 5. **Black**: Level of accuracy [Any]. Reasoning: The AI responds that it cannot continue with further interactions due to a specified reason.
-
-
-Response format is: "<Color>: <level of accuracy %> <reasoning to the Human> <how the answer can be improved when 94% or less>".
 
 
 **When evaluating responses, classify 'Black' (Interrupt Responses) when:**
@@ -78,12 +77,19 @@ as 'Red' if it does not align with known facts.
 
 - Before returning a classification, check the chat history and all provided context, as that may lead to a different classification, and to double check the classification is accurate.
 
-
+---
 {rag}
+---
+
+When have an answer, format like:
+
+<Color>: <level of accuracy %> <reasoning to the Human> <how the answer can be improved when 94% or less>
 
 
 Human Input: "{input}"
 
+
 AI Response: "{response}"
 
-Begin:
+
+Begin the classification!

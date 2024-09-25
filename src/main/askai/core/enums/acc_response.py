@@ -12,10 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from hspylib.core.enums.enumeration import Enumeration
-from typing import Literal
 
 import re
+from typing import Literal
+
+from hspylib.core.enums.enumeration import Enumeration
 
 
 class AccResponse(Enumeration):
@@ -46,7 +47,8 @@ class AccResponse(Enumeration):
         :return: A match object if a match is found.
         :raises: re.error if an error occurs during the matching process.
         """
-        return re.search(cls._re(), output.replace("\n", " "), flags=re.IGNORECASE)
+        flags: int = re.IGNORECASE | re.MULTILINE | re.DOTALL
+        return re.search(cls._re(), output.replace("\n", " "), flags=flags)
 
     @classmethod
     def _re(cls) -> str:
