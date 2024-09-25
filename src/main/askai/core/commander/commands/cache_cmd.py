@@ -76,7 +76,7 @@ class CacheCmd(ABC):
                     deleted = cache.del_reply(name)
         else:
             deleted = str(cache.clear_replies())
-        text_formatter.cmd_print(f"*{deleted if deleted else 'No'}* cache(s) has been cleared!")
+        text_formatter.commander_print(f"*{deleted if deleted else 'No'}* cache(s) has been cleared!")
 
     @staticmethod
     def files(cleanup: bool = False, *args: str | int) -> None:
@@ -92,10 +92,10 @@ class CacheCmd(ABC):
                         f_join = partial(os.path.join, f"{CACHE_DIR}/{arg}")
                         if os.path.isdir(cached):
                             set(map(os.remove, map(f_join, os.listdir(cached))))
-                            text_formatter.cmd_print(f"Folder *{cached}* has been cleared!")
+                            text_formatter.commander_print(f"Folder *{cached}* has been cleared!")
                         elif os.path.isfile(cached):
                             os.remove(cached)
-                            text_formatter.cmd_print(f"File **{cached}** was removed!")
+                            text_formatter.commander_print(f"File **{cached}** was removed!")
             else:
                 display_text(f"### Listing cached files from '{CACHE_DIR}':\n\n---\n\n")
                 files, dirs = "", ""

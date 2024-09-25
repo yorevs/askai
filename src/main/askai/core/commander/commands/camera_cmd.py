@@ -19,7 +19,7 @@ class CameraCmd(ABC):
         if photo_description := webcam_capturer(filename, detect_faces):
             display_text(photo_description)
         else:
-            text_formatter.cmd_print("%RED%Unable to take photo!%NC%")
+            text_formatter.commander_print("%RED%Unable to take photo!%NC%")
 
     @staticmethod
     def identify(max_distance: int = configs.max_id_distance) -> None:
@@ -36,4 +36,4 @@ class CameraCmd(ABC):
         :param detect_faces: Whether to detect faces in the imported images (default is True).
         """
         imports: tuple[int, ...] = camera.import_images(str(pathname), detect_faces)
-        text_formatter.cmd_print(f"`Imports:` {imports[0]}  `Faces:` {imports[1]}")
+        text_formatter.commander_print(f"`Imports:` {imports[0]}  `Faces:` {imports[1]}")

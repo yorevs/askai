@@ -46,9 +46,9 @@ class SettingsCmd(ABC):
             name = all_settings[int(name)].name
         if settings[name]:
             settings.put(name, value if value not in ["''", '""'] else None)
-            text_formatter.cmd_print(f"Setting `{name}` changed to %GREEN%{value}%NC%")
+            text_formatter.commander_print(f"Setting `{name}` changed to %GREEN%{value}%NC%")
         else:
-            text_formatter.cmd_print(f"%RED%Setting: '{name}' was not found!%NC%")
+            text_formatter.commander_print(f"%RED%Setting: '{name}' was not found!%NC%")
 
     @staticmethod
     def get(key: str) -> Optional[SettingsEntry]:
@@ -57,9 +57,9 @@ class SettingsCmd(ABC):
         :return: The corresponding SettingsEntry if found, otherwise None.
         """
         if ss := settings[key]:
-            text_formatter.cmd_print(f"%WHITE%Name: %BLUE%{ss.name}\t%WHITE%Value: %GREEN%{ss.value}%NC%")
+            text_formatter.commander_print(f"%WHITE%Name: %BLUE%{ss.name}\t%WHITE%Value: %GREEN%{ss.value}%NC%")
             return ss
-        text_formatter.cmd_print(f"%RED%Setting: '{key}' was not found!%NC%")
+        text_formatter.commander_print(f"%RED%Setting: '{key}' was not found!%NC%")
         return None
 
     @staticmethod
@@ -77,4 +77,4 @@ class SettingsCmd(ABC):
         settings.put("askai.speak.enabled", is_speak)
         settings.put("askai.debug.enabled", is_debug)
         settings.put("askai.cache.enabled", is_cache)
-        text_formatter.cmd_print(f"%GREEN%Factory settings reset!%NC%")
+        text_formatter.commander_print(f"%GREEN%Factory settings reset!%NC%")

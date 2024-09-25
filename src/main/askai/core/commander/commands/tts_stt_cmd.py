@@ -35,7 +35,7 @@ class TtsSttCmd(ABC):
         """List all available voices for the current engine/model."""
         all_voices = shared.engine.voices()
         str_voices = "\n".join([f"{i}. {v.title()}" for i, v in enumerate(all_voices)])
-        text_formatter.cmd_print(
+        text_formatter.commander_print(
             f"Available `{shared.engine.configs().stt_model}` voices: \n"
             f"\n{str_voices}\n> Hint: Type: '/voices set \\<number|voice_name\\>' to select a voice. "
             f"To hear a sample use: '/voices play \\<number|voice_name\\>'"
@@ -52,9 +52,9 @@ class TtsSttCmd(ABC):
         if name_or_index in all_voices:
             settings.put("openai.text.to.speech.voice", name_or_index)
             shared.engine.configs().tts_voice = name_or_index
-            text_formatter.cmd_print(f"`Speech-To-Text` voice changed to %GREEN%{name_or_index.title()}%NC%")
+            text_formatter.commander_print(f"`Speech-To-Text` voice changed to %GREEN%{name_or_index.title()}%NC%")
         else:
-            text_formatter.cmd_print(f"%RED%Invalid voice: '{name_or_index}'%NC%")
+            text_formatter.commander_print(f"%RED%Invalid voice: '{name_or_index}'%NC%")
 
     @staticmethod
     def voice_play(name_or_index: str | int | None = None) -> None:
@@ -66,10 +66,10 @@ class TtsSttCmd(ABC):
         if name_or_index.isdecimal() and 0 <= int(name_or_index) <= len(all_voices):
             name_or_index = all_voices[int(name_or_index)]
         if name_or_index in all_voices:
-            text_formatter.cmd_print(f"Sampling voice `{name_or_index}` …")
+            text_formatter.commander_print(f"Sampling voice `{name_or_index}` …")
             player.play_sfx(f"voices/{ai_name}-{name_or_index}-sample")
         else:
-            text_formatter.cmd_print(f"%RED%Invalid voice: '{name_or_index}'%NC%")
+            text_formatter.commander_print(f"%RED%Invalid voice: '{name_or_index}'%NC%")
 
     @staticmethod
     def tempo(speed: int | None = None) -> None:
@@ -82,16 +82,16 @@ class TtsSttCmd(ABC):
             settings.put("askai.text.to.speech.tempo", speed)
             configs.tempo = speed
             tempo_str: str = "Normal" if speed == 1 else ("Fast" if speed == 2 else "Ultra")
-            text_formatter.cmd_print(f"`Speech-To-Text` **tempo** changed to %GREEN%{tempo_str} ({speed})%NC%")
+            text_formatter.commander_print(f"`Speech-To-Text` **tempo** changed to %GREEN%{tempo_str} ({speed})%NC%")
         else:
-            text_formatter.cmd_print(f"%RED%Invalid tempo value: '{speed}'. Please choose between [1..3].%NC%")
+            text_formatter.commander_print(f"%RED%Invalid tempo value: '{speed}'. Please choose between [1..3].%NC%")
 
     @staticmethod
     def device_list() -> None:
         """List the available audio input devices."""
         all_devices = recorder.devices
         str_devices = "\n".join([f"{d[0]}. {d[1]}" for d in all_devices])
-        text_formatter.cmd_print(
+        text_formatter.commander_print(
             f"Current audio input device: {recorder.input_device} \n"
             f"\nAvailable audio input devices: \n"
             f"\n{str_devices}\n> Hint: Type: '/devices set \\<number\\>' to select a device."
@@ -108,9 +108,9 @@ class TtsSttCmd(ABC):
 
         def _set_device(_device) -> bool:
             if recorder.set_device(_device):
-                text_formatter.cmd_print(f"`Text-To-Speech` device changed to %GREEN%{_device}%NC%")
+                text_formatter.commander_print(f"`Text-To-Speech` device changed to %GREEN%{_device}%NC%")
                 return True
-            text_formatter.cmd_print(f"%HOM%%ED2%Error: '{_device}' is not an Audio Input device!%NC%")
+            text_formatter.commander_print(f"%HOM%%ED2%Error: '{_device}' is not an Audio Input device!%NC%")
             all_devices.remove(_device)
             pause.seconds(2)
             return False
@@ -123,7 +123,7 @@ class TtsSttCmd(ABC):
             name_or_index = all_devices[int(name_or_index)][1]
             device = next((dev for dev in all_devices if dev[1] == name_or_index), None)
         if not (device and _set_device(device)):
-            text_formatter.cmd_print(f"%RED%Invalid audio input device: '{name_or_index}'%NC%")
+            text_formatter.commander_print(f"%RED%Invalid audio input device: '{name_or_index}'%NC%")
 
     @staticmethod
     def tts(text: str, dest_dir: str = os.getcwd(), playback: bool = True) -> None:
@@ -135,6 +135,6 @@ class TtsSttCmd(ABC):
         if (audio_path := shared.engine.text_to_speech(text, stream=False, playback=playback)) and audio_path.exists():
             if dest_dir and ((dest_path := Path(dest_dir)) and dest_path.exists()):
                 audio_path = copy_file(audio_path, dest_dir)
-            text_formatter.cmd_print(f"File %GREEN%'{audio_path}' was successfully saved!%NC%")
+            text_formatter.commander_print(f"File %GREEN%'{audio_path}' was successfully saved!%NC%")
         else:
-            text_formatter.cmd_print(f"%RED%Unable to convert text to file !%NC%")
+            text_formatter.commander_print(f"%RED%Unable to convert text to file !%NC%")

@@ -38,7 +38,7 @@ class GeneralCmd(ABC):
         """
         output, err_out, exit_code = Terminal.INSTANCE.shell_exec(cmd_line, shell=True)
         if exit_code == ExitStatus.SUCCESS:
-            text_formatter.cmd_print(output)
+            text_formatter.commander_print(output)
         else:
             display_text(f"\n%RED%Command `{cmd_line}` failed. Error({err_out})  Code ({exit_code})%NC%")
 
@@ -51,7 +51,7 @@ class GeneralCmd(ABC):
         sum_dir: PathObject = PathObject.of(folder)
         if os.path.exists(sum_dir.abs_dir):
             if summarizer.generate(sum_dir.abs_dir, glob):
-                text_formatter.cmd_print(f"Summarization complete. Folder: *{folder}*  Glob: *{glob}* !")
+                text_formatter.commander_print(f"Summarization complete. Folder: *{folder}*  Glob: *{glob}* !")
             else:
                 display_text(f"\n%RED%-=- Failed to summarize. Folder: {folder}  Glob: {glob} ! -=-%NC%")
         else:
@@ -66,10 +66,10 @@ class GeneralCmd(ABC):
             if locale_str and (language := Language.of_locale(locale_str)):
                 locale.setlocale(locale.LC_ALL, (language.idiom, language.encoding.val))
                 settings.put("askai.preferred.language", language.idiom)
-                text_formatter.cmd_print(f"Locale changed to: {language}")
+                text_formatter.commander_print(f"Locale changed to: {language}")
             else:
                 language = Language.of_locale(locale.getlocale(locale.LC_ALL))
-                text_formatter.cmd_print(f"Current locale: {language}")
+                text_formatter.commander_print(f"Current locale: {language}")
         except (ValueError, TypeError) as err:
             display_text(f"\n%RED%-=- Failed to set idiom: '{str(err)}'! -=-%NC%")
 

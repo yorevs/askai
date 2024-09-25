@@ -153,7 +153,7 @@ def _init_context(context_size: int = 1000, engine_name: str = "openai", model_n
         """
         if message := ev.args.message:
             if error:
-                text_formatter.cmd_print(f"%RED%{message}!%NC%")
+                text_formatter.commander_print(f"%RED%{message}!%NC%")
             else:
                 if ev.args.erase_last:
                     cursor.erase_line()
@@ -189,14 +189,14 @@ def help(command: str | None) -> None:
 def debug() -> None:
     """Toggle debug mode ON/OFF."""
     configs.is_debug = not configs.is_debug
-    text_formatter.cmd_print(f"`Debugging` is {'%GREEN%ON' if configs.is_debug else '%RED%OFF'}%NC%")
+    text_formatter.commander_print(f"`Debugging` is {'%GREEN%ON' if configs.is_debug else '%RED%OFF'}%NC%")
 
 
 @ask_commander.command()
 def speak() -> None:
     """Toggle speak mode ON/OFF."""
     configs.is_speak = not configs.is_speak
-    text_formatter.cmd_print(f"`Speech-To-Text` is {'%GREEN%ON' if configs.is_speak else '%RED%OFF'}%NC%")
+    text_formatter.commander_print(f"`Speech-To-Text` is {'%GREEN%ON' if configs.is_speak else '%RED%OFF'}%NC%")
 
 
 @ask_commander.command()
@@ -214,7 +214,7 @@ def context(operation: str, name: str | None = None) -> None:
             HistoryCmd.context_forget(name)
         case _:
             err = str(click.BadParameter(f"Invalid settings operation: '{operation}'"))
-            text_formatter.cmd_print(f"Error: {err}")
+            text_formatter.commander_print(f"Error: {err}")
 
 
 @ask_commander.command()
@@ -230,7 +230,7 @@ def history(operation: str) -> None:
             HistoryCmd.history_forget()
         case _:
             err = str(click.BadParameter(f"Invalid settings operation: '{operation}'"))
-            text_formatter.cmd_print(f"Error: {err}")
+            text_formatter.commander_print(f"Error: {err}")
 
 
 @ask_commander.command()
@@ -257,7 +257,7 @@ def devices(operation: str, name: str | None = None) -> None:
             TtsSttCmd.device_set(name)
         case _:
             err = str(click.BadParameter(f"Invalid settings operation: '{operation}'"))
-            text_formatter.cmd_print(f"Error: {err}")
+            text_formatter.commander_print(f"Error: {err}")
 
 
 @ask_commander.command()
@@ -281,7 +281,7 @@ def settings(operation: str, name: str | None = None, value: str | None = None) 
             SettingsCmd.reset()
         case _:
             err = str(click.BadParameter(f"Invalid settings operation: '{operation}'"))
-            text_formatter.cmd_print(f"Error: {err}")
+            text_formatter.commander_print(f"Error: {err}")
 
 
 @ask_commander.command()
@@ -298,13 +298,13 @@ def cache(operation: str, args: tuple[str, ...]) -> None:
         case "get":
             if not args:
                 err: str = str(click.MissingParameter(f"Argument 'name' is required. Usage /cache get \\<name\\>"))
-                text_formatter.cmd_print(f"Error: {err}")
+                text_formatter.commander_print(f"Error: {err}")
             else:
                 set(map(sysout, map(CacheCmd.get, args)))
         case "clear":
             if args and (invalid := next((a for a in args if not isinstance(a, str | int)), None)):
                 err: str = str(click.BadParameter(f"Invalid argument: '{invalid}'"))
-                text_formatter.cmd_print(f"Error: {err}")
+                text_formatter.commander_print(f"Error: {err}")
             elif args:
                 set(map(CacheCmd.clear, args))
             else:
@@ -314,22 +314,22 @@ def cache(operation: str, args: tuple[str, ...]) -> None:
         case "enable":
             if not args:
                 err: str = str(click.MissingParameter(f"Arguments missing. Usage /cache enable \\<0|1\\>"))
-                text_formatter.cmd_print(f"Error: {err}")
+                text_formatter.commander_print(f"Error: {err}")
             else:
                 configs.is_cache = to_bool(args[0])
-                text_formatter.cmd_print(f"Caching has been *{'en' if configs.is_cache else 'dis'}abled* !")
+                text_formatter.commander_print(f"Caching has been *{'en' if configs.is_cache else 'dis'}abled* !")
         case "ttl":
             if not args:
-                text_formatter.cmd_print(f"Cache TTL is set to *{configs.ttl} minutes* !")
+                text_formatter.commander_print(f"Cache TTL is set to *{configs.ttl} minutes* !")
             elif not args[0].isdigit():
                 err: str = str(click.MissingParameter(f"Argument 'minutes' is invalid. Usage /cache ttl \\<minutes\\>"))
-                text_formatter.cmd_print(f"Error: {err}")
+                text_formatter.commander_print(f"Error: {err}")
             else:
                 configs.ttl = int(args[0])
-                text_formatter.cmd_print(f"Cache TTL was set to *{args[0]} minutes* !")
+                text_formatter.commander_print(f"Cache TTL was set to *{args[0]} minutes* !")
         case _:
             err: str = str(click.BadParameter(f"Invalid cache operation: '{operation}'"))
-            text_formatter.cmd_print(f"Error: {err}")
+            text_formatter.commander_print(f"Error: {err}")
 
 
 @ask_commander.command()
@@ -358,7 +358,7 @@ def voices(operation: str, name: str | int | None = None) -> None:
             TtsSttCmd.voice_play(name)
         case _:
             err = str(click.BadParameter(f"Invalid voices operation: '{operation}'"))
-            text_formatter.cmd_print(f"%RED%{err}%NC%")
+            text_formatter.commander_print(f"%RED%{err}%NC%")
 
 
 @ask_commander.command()
@@ -402,7 +402,7 @@ def info() -> None:
     if os.getenv("ASKAI_APP"):
         GeneralCmd.app_info()
     else:
-        text_formatter.cmd_print("No information available (offline)!")
+        text_formatter.commander_print("No information available (offline)!")
 
 
 @ask_commander.command()
@@ -435,4 +435,4 @@ def camera(operation: str, args: tuple[str, ...]) -> None:
             CameraCmd.import_images(*args)
         case _:
             err = str(click.BadParameter(f"Invalid camera operation: '{operation}'"))
-            text_formatter.cmd_print(f"%RED%{err}%NC%")
+            text_formatter.commander_print(f"%RED%{err}%NC%")

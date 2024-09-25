@@ -50,7 +50,7 @@ class HistoryCmd(ABC):
                 )
             display_text(f"> Hint: Type: '/context forget [context] to forget a it.")
         else:
-            text_formatter.cmd_print(f"%YELLOW% Context is empty %NC%")
+            text_formatter.commander_print(f"%YELLOW% Context is empty %NC%")
 
     @staticmethod
     def context_forget(context: str | None = None) -> None:
@@ -61,7 +61,9 @@ class HistoryCmd(ABC):
             shared.context.clear(*(re.split(r"[;,|]", context.upper())))
         else:
             shared.context.forget()
-        text_formatter.cmd_print(f"Context %GREEN%'{context.upper() if context else 'ALL'}'%NC% has been cleared!")
+        text_formatter.commander_print(
+            f"Context %GREEN%'{context.upper() if context else 'ALL'}'%NC% has been cleared!"
+        )
 
     @staticmethod
     def context_copy(name: str | None = None) -> None:
@@ -73,11 +75,11 @@ class HistoryCmd(ABC):
                 stripped_role := re.sub(r"^((system|human|assistant):\s*)", "", ctx, flags=re.MULTILINE | re.IGNORECASE)
             ):
                 pyperclip.copy(stripped_role)
-                text_formatter.cmd_print(f"`{name}` copied to the clipboard!")
+                text_formatter.commander_print(f"`{name}` copied to the clipboard!")
             else:
-                text_formatter.cmd_print(f"There is nothing to copy from `{name}`!")
+                text_formatter.commander_print(f"There is nothing to copy from `{name}`!")
         else:
-            text_formatter.cmd_print(f"Context name not found: `{name}`!")
+            text_formatter.commander_print(f"Context name not found: `{name}`!")
 
     @staticmethod
     def history_list() -> None:

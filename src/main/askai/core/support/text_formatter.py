@@ -72,6 +72,36 @@ class TextFormatter(metaclass=Singleton):
         """
         return ensure_endswith(ensure_startswith(text, separator), separator * 2)
 
+    @staticmethod
+    def remove_markdown(text: AnyStr) -> str:
+        """Remove Markdown formatting from a string.
+        :param text: The input string potentially containing Markdown formatting.
+        :return: The input string with Markdown formatting removed.
+        """
+        plain_text = re.sub(r"```(.*?)```", r"\1", str(text), flags=re.DOTALL)
+        plain_text = re.sub(r"`[^`]+`", "", plain_text)
+        plain_text = re.sub(r"^(#+\s+)", "", plain_text)
+        plain_text = re.sub(r"\*\*([^*]+)\*\*", r"\1", plain_text)
+        plain_text = re.sub(r"\*([^*]+)\*", r"\1", plain_text)
+        plain_text = re.sub(r"__([^_]+)__", r"\1", plain_text)
+        plain_text = re.sub(r"_([^_]+)_", r"\1", plain_text)
+        plain_text = re.sub(r"\[([^]]+)]\([^)]+\)", r"\1", plain_text)
+        plain_text = re.sub(r"!\[([^]]*)]\([^)]+\)", r"\1", plain_text)
+        plain_text = re.sub(r"---|___|\*\*\*", "", plain_text)
+        plain_text = re.sub(r">\s+", "", plain_text)
+        plain_text = re.sub(r"[-*+]\s+", "", plain_text)
+        plain_text = re.sub(r"^\d+\.\s+", "", plain_text)
+
+        return plain_text.strip()
+
+    @staticmethod
+    def strip_format(text: AnyStr) -> str:
+        """Remove the markdown formatting and ANSI escape codes from the text.
+        :param text: The input string containing markdown formatting and ANSI escape codes.
+        :return: A string with the formatting removed.
+        """
+        return strip_escapes(TextFormatter.remove_markdown(text))
+
     def beautify(self, text: Any) -> str:
         """Beautify the provided text with icons and other formatting enhancements.
         :param text: The text to be beautified.
@@ -79,7 +109,7 @@ class TextFormatter(metaclass=Singleton):
         """
         # fmt: off
 
-        text = dedent(str(text))
+        text = dedent(str(text)).strip()
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
@@ -88,9 +118,7 @@ class TextFormatter(metaclass=Singleton):
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
         text = re.sub(self.RE_TYPES['﬽'], self.CHAT_ICONS['﬽'], text)
-        # Improve links
         text = re.sub(self.RE_TYPES[''], r" [\1](\1)", text)
-        # Make sure markdown is prefixed and suffixed with new lines
         text = re.sub(self.RE_TYPES['MD'], r"\n\1\n", text)
         text = re.sub(r'```(.+)```\s+', r"\n```\1```\n", text)
 
@@ -112,38 +140,11 @@ class TextFormatter(metaclass=Singleton):
         colorized: str = VtColor.colorize(VtCode.decode(self.beautify(str(text))))
         cursor.write(colorized)
 
-    def cmd_print(self, text: AnyStr):
-        """Display an AskAI commander formatted text.
+    def commander_print(self, text: AnyStr) -> None:
+        """Display an AskAI-commander formatted text.
         :param text: The text to be displayed.
         """
         self.display_markdown(f"%ORANGE%  Commander%NC%: {self.beautify(str(text))}")
-
-    def remove_markdown(self, text: AnyStr) -> str:
-        """
-        Remove Markdown formatting from a string.
-        """
-        plain_text = re.sub(r"```(.*?)```", r"\1", str(text), flags=re.DOTALL)
-        plain_text = re.sub(r"`[^`]+`", "", plain_text)
-        plain_text = re.sub(r"^(#+\s+)", "", plain_text)
-        plain_text = re.sub(r"\*\*([^*]+)\*\*", r"\1", plain_text)
-        plain_text = re.sub(r"\*([^*]+)\*", r"\1", plain_text)
-        plain_text = re.sub(r"__([^_]+)__", r"\1", plain_text)
-        plain_text = re.sub(r"_([^_]+)_", r"\1", plain_text)
-        plain_text = re.sub(r"\[([^]]+)]\([^)]+\)", r"\1", plain_text)
-        plain_text = re.sub(r"!\[([^]]*)]\([^)]+\)", r"\1", plain_text)
-        plain_text = re.sub(r"---|___|\*\*\*", "", plain_text)
-        plain_text = re.sub(r">\s+", "", plain_text)
-        plain_text = re.sub(r"[-*+]\s+", "", plain_text)
-        plain_text = re.sub(r"^\d+\.\s+", "", plain_text)
-
-        return plain_text.strip()
-
-    def strip_format(self, text: AnyStr) -> str:
-        """Remove the markdown code block formatting from the text.
-        :param text: The text containing the markdown code block formatting.
-        :return: The text with the markdown code block formatting stripped away.
-        """
-        return strip_escapes(self.remove_markdown(text))
 
 
 assert (text_formatter := TextFormatter().INSTANCE) is not None
