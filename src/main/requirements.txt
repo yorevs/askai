@@ -1,28 +1,28 @@
 ###### AUTO-GENERATED Requirements file for: AskAI ######
 
 hspylib>=1.12.49
-hspylib-clitt>=0.9.135
-hspylib-setman>=0.10.35
+hspylib-clitt>=0.9.136
+hspylib-setman>=0.10.39
 retry2>=0.9.5
 pause>=0.3
 tqdm>=4.66.5
 pyperclip>=1.9.0
 python-magic>=0.4.27
 pytz>=2024.1
-langchain>=0.2.15
-langchain-openai>=0.1.23
-langchain-community>=0.2.14
-langchain-google-community>=1.0.8
+langchain>=0.3.0
+langchain-openai>=0.2.0
+langchain-community>=0.3.1
+langchain-google-community>=2.0.0
 openai-whisper>=20231117
-openai>=1.42.0
-google-api-python-client>=2.143.0
+openai>=1.48.0
+google-api-python-client>=2.147.0
 fake_useragent>=1.5.1
 requests>=2.32.3
 urllib3>=1.26.20
 protobuf>=4.25.4
 aiohttp>=3.10.5
 html2text>=2024.2.26
-rich>=13.8.0
+rich>=13.8.1
 textual>=0.80.1
 soundfile>=0.12.1
 PyAudio>=0.2.14

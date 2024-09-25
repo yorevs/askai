@@ -20,6 +20,7 @@ from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_response import AccResponse
 from askai.core.enums.routing_model import RoutingModel
+from askai.core.features.router.agent_tools import features
 from askai.core.features.router.task_agent import agent
 from askai.core.features.tools.general import final_answer
 from askai.core.model.action_plan import ActionPlan
@@ -105,13 +106,22 @@ class TaskSplitter(metaclass=Singleton):
     def __init__(self):
         self._approved: bool = False
         self._rag: RAGProvider = RAGProvider("task-splitter.csv")
+        self._plan: ActionPlan | None = None
+
+    @property
+    def plan(self) -> Optional[ActionPlan]:
+        return self._plan
+
+    @plan.setter
+    def plan(self, value: ActionPlan) -> None:
+        self._plan = value
 
     def template(self, query: str) -> ChatPromptTemplate:
         """Retrieve the processor Template."""
 
         evaluation: str = str(shared.context.flat("EVALUATION"))
         template = PromptTemplate(
-            input_variables=["os_type", "shell", "datetime", "home", "rag"],
+            input_variables=["os_type", "shell", "datetime", "home", "agent_tools", "rag"],
             template=prompt.read_prompt("task-splitter.txt"),
         )
         return ChatPromptTemplate.from_messages(
@@ -123,6 +133,7 @@ class TaskSplitter(metaclass=Singleton):
                         shell=prompt.shell,
                         datetime=geo_location.datetime,
                         home=Path.home(),
+                        agent_tools=features.available_tools,
                         rag=self._rag.get_rag_examples(query),
                     ),
                 ),
@@ -154,24 +165,27 @@ class TaskSplitter(metaclass=Singleton):
             if response := runnable.invoke({"input": question}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
                 resp_history: list[str] = list()
-                plan: ActionPlan = ActionPlan.create(question, response, model)
-                events.reply.emit(reply=AIReply.debug(msg.action_plan(str(plan))))
+                if not self.plan:
+                    self.plan = ActionPlan.create(question, response, model)
+                    events.reply.emit(reply=AIReply.debug(msg.action_plan(str(self.plan))))
+                    if self.plan.speak:
+                        events.reply.emit(reply=AIReply.detailed(self.plan.speak))
                 try:
-                    if task_list := plan.tasks:
-                        if plan.speak:
-                            events.reply.emit(reply=AIReply.detailed(plan.speak))
-                        for idx, action in enumerate(task_list, start=1):
+                    if task_list := self.plan.tasks:
+                        for idx, action in enumerate(task_list):
                             path_str: str | None = (
                                 "Path: " + action.path
-                                if hasattr(action, "path") and action.path.upper() not in ["N/A", "NONE"]
+                                if hasattr(action, "path") and action.path.upper() not in ["N/A", "NONE", ""]
                                 else None
                             )
                             task: str = f"{action.task}  {path_str or ''}"
                             if output := agent.invoke(task):
                                 resp_history.append(output)
                     else:
-                        output = plan.speak
-                        resp_history.append(output)
+                        if output := self.plan.speak:
+                            resp_history.append(output)
+                        else:
+                            output = msg.no_output("Task-Agent")
                 except (InterruptionRequest, TerminatingQuery) as err:
                     output = str(err)
                 finally:

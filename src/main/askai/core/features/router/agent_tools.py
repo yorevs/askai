@@ -4,7 +4,7 @@
 """
    @project: HsPyLib-AskAI
    @package: askai.core.features.actions
-      @file: task_toolkit.py
+      @file: agent_tools.py
    @created: Mon, 01 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
@@ -12,6 +12,9 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
+import re
+
 from askai.core.askai_messages import msg
 from askai.core.features.tools.analysis import query_output
 from askai.core.features.tools.browser import browse
@@ -35,12 +38,12 @@ import inspect
 import logging as log
 
 
-class AgentToolkit(metaclass=Singleton):
+class AgentTools(metaclass=Singleton):
     """This class serves as the toolkit for AskAI task agents, providing essential tools and functionalities required
     for their tasks.
     """
 
-    INSTANCE: "AgentToolkit"
+    INSTANCE: "AgentTools"
 
     RESERVED: list[str] = ["tools"]
 
@@ -62,6 +65,14 @@ class AgentToolkit(metaclass=Singleton):
         log.debug("Available tools: are: '%s'", tools)
 
         return tools
+
+    @property
+    def available_tools(self) -> str:
+        avail_list: list[str] = list()
+        for t in self.tools():
+            if match := re.search(r"^```(.*?)^\s*Usage:", t.description, re.DOTALL | re.MULTILINE):
+                avail_list.append(f"**{t.name}::** " + re.sub(r"\s{2,}", " ", match.group(1).strip()))
+        return os.linesep.join(avail_list)
 
     def _human_approval(self) -> bool:
         """Prompt for human approval."""
@@ -211,4 +222,4 @@ class AgentToolkit(metaclass=Singleton):
         raise TerminatingQuery(reason)
 
 
-assert (features := AgentToolkit().INSTANCE) is not None
+assert (features := AgentTools().INSTANCE) is not None

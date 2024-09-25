@@ -127,7 +127,7 @@ class AskAiCli(AskAi):
             if reply.is_error:
                 self._reply_error(reply)
             else:
-                if ev.args.reply.verbosity.match(configs.verbosity) or configs.is_debug:
+                if ev.args.reply.match(configs.verbosity, configs.is_debug):
                     if ev.args.erase_last:
                         cursor.erase_line()
                     self._reply(reply)

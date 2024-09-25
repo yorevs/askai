@@ -5,10 +5,5 @@
 # Package: main.askai.core.features.router
 """Package initialization."""
 
-__all__ = [
-    'model_selector', 
-    'task_accuracy', 
-    'task_agent', 
-    'task_toolkit'
-]
-__version__ = '1.0.13'
+__all__ = ["model_selector", "task_accuracy", "task_agent", "agent_tools.py"]
+__version__ = "1.0.13"

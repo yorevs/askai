@@ -54,11 +54,6 @@ Notes:
 - Think step by step.
 """
 
-Step 7. The following examples can be used as a base for your decisions (but not a source of truth).
-
-
-{rag}
-
 
 **Task Requirements:**
 
@@ -83,6 +78,32 @@ Step 7. The following examples can be used as a base for your decisions (but not
 10. When the question is a well-known fact, you have enough context to answer, or when the user query does not require the execution of tasks, the "tasks" field will be: ["{{{{ "id": "id", "task": "Direct: '<final answer to the user>'" }}}}]".
 
 11. When you lack an answer, need user assistance, or require real-time access, the "tasks" field will be: "[{{{{ "id": "id", "task": "Search google for: '<Your advanced google search query with filters> <Current Month> <Current Year>'" }}}}]".
+
+
+**Available Resources:**
+
+1. WebCam access (photos and videos).
+2. Desktop screenshots.
+3. Filesystem access (read & write).
+4. Internet browser (search the internet).
+5. Document summarizer (files and folders).
+6. Terminal access (execute bash/zsh commands).
+
+
+**Available Agent Tools:**
+
+---
+{agent_tools}
+---
+
+
+**Examples:**
+
+The following examples can be used to help your decisions (note that it is not a source of truth).
+
+---
+{rag}
+---
 
 
 **Response Format:**

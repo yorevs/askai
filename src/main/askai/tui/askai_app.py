@@ -331,7 +331,7 @@ class AskAiApp(App[None]):
             if reply.is_error:
                 self._reply_error(reply)
             else:
-                if ev.args.reply.verbosity.match(configs.verbosity) or configs.is_debug:
+                if ev.args.reply.match(configs.verbosity, configs.is_debug):
                     self._reply(reply)
 
     def _cb_mode_changed_event(self, ev: Event) -> None:

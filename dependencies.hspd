@@ -21,17 +21,17 @@ package: python-magic, version: 0.4.27, mode: ge
 package: pytz, version: 2024.1, mode: ge
 
 /* LangChain */
-package: langchain, version: 0.2.15, mode: ge
-package: langchain-openai, version: 0.1.23, mode: ge
-package: langchain-community, version: 0.2.14, mode: ge
-package: langchain-google-community, version: 1.0.8, mode: ge
+package: langchain, version: 0.3.0, mode: ge
+package: langchain-openai, version: 0.2.0, mode: ge
+package: langchain-community, version: 0.3.1, mode: ge
+package: langchain-google-community, version: 2.0.0, mode: ge
 
 /* OpenAI */
 package: openai-whisper, version: 20231117, mode: ge
-package: openai, version: 1.42.0, mode: ge
+package: openai, version: 1.48.0, mode: ge
 
 /* Google */
-package: google-api-python-client, version: 2.143.0, mode: ge
+package: google-api-python-client, version: 2.147.0, mode: ge
 
 /* Web */
 package: fake_useragent, version: 1.5.1, mode: ge
@@ -42,7 +42,7 @@ package: aiohttp, version: 3.10.5, mode: ge
 package: html2text, version: 2024.2.26, mode: ge
 
 /* CLI/TUI */
-package: rich, version: 13.8.0, mode: ge
+package: rich, version: 13.8.1, mode: ge
 package: textual, version: 0.80.1, mode: ge
 
 /* Audio */

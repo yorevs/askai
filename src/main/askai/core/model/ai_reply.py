@@ -28,11 +28,11 @@ class AIReply:
     :param is_speakable: Indicates whether the reply is speakable.
     """
 
-    message: str = ""
-    is_success: bool = True
-    is_debug: bool = False
-    verbosity: Verbosity = Verbosity.MINIMUM
-    is_speakable: bool = True
+    message: str
+    is_success: bool
+    is_debug: bool
+    verbosity: Verbosity
+    is_speakable: bool
 
     def __str__(self) -> str:
         return self.message
@@ -71,7 +71,7 @@ class AIReply:
         :param message: The reply message.
         :return: An AIReply instance with error settings.
         """
-        return AIReply(str(message), False, False, Verbosity.NORMAL, False)
+        return AIReply(str(message), False, False, Verbosity.MINIMUM, False)
 
     @staticmethod
     def debug(message: AnyStr) -> "AIReply":
@@ -96,3 +96,11 @@ class AIReply:
         :return: True if the reply is not successful, otherwise False.
         """
         return not self.is_success
+
+    def match(self, threshold: "Verbosity" = Verbosity.NORMAL, is_debug: bool = False) -> bool:
+        """Checks if the current verbosity level is less than or equal to the given level.
+        :param threshold: The verbosity threshold to compare against.
+        :param is_debug:
+        :return: True if the current level is less than or equal to the given level, otherwise False.
+        """
+        return (is_debug and self.is_debug) or (not self.is_debug and self.verbosity <= threshold)

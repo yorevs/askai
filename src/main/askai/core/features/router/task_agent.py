@@ -1,15 +1,17 @@
+import logging as log
+from typing import AnyStr, Optional
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_response import AccResponse
+from askai.core.features.router.agent_tools import features
 from askai.core.features.router.task_accuracy import assert_accuracy
-from askai.core.features.router.task_toolkit import features
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from functools import lru_cache
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.agents import AgentExecutor, create_structured_chat_agent
@@ -17,9 +19,6 @@ from langchain.memory.chat_memory import BaseChatMemory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.utils import Output
-from typing import AnyStr, Optional
-
-import logging as log
 
 
 class TaskAgent(metaclass=Singleton):
@@ -67,7 +66,6 @@ class TaskAgent(metaclass=Singleton):
 
         return output
 
-    @lru_cache
     def _create_lc_agent(self, temperature: Temperature = Temperature.COLDEST) -> Runnable:
         """Create and return a LangChain agent.
         :param temperature: The LLM temperature, which controls the randomness of the responses (default is
@@ -90,7 +88,6 @@ class TaskAgent(metaclass=Singleton):
 
         return self._lc_agent
 
-    @lru_cache
     def _exec_task(self, task: AnyStr) -> Optional[Output]:
         """Execute the specified agent task.
         :param task: The task to be executed by the agent.

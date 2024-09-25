@@ -19,16 +19,24 @@ class Verbosity(Enumeration):
     FULL        = 5
     # fmt: on
 
+    def __eq__(self, other: "Verbosity") -> bool:
+        return self.val == other.val
+
+    def __lt__(self, other) -> bool:
+        return self.val < other.val
+
+    def __le__(self, other) -> bool:
+        return self.val <= other.val
+
+    def __gt__(self, other) -> bool:
+        return self.val > other.val
+
+    def __ge__(self, other) -> bool:
+        return self.val >= other.val
+
     @property
     def val(self) -> int:
         """Gets the integer value of the verbosity level.
         :return: The integer representation of the verbosity level.
         """
         return int(self.value)
-
-    def match(self, level: "Verbosity") -> bool:
-        """Checks if the current verbosity level is less than or equal to the given level.
-        :param level: The verbosity level to compare against.
-        :return: True if the current level is less than or equal to the given level, otherwise False.
-        """
-        return self.val <= level.val
