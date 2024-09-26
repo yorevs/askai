@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from types import SimpleNamespace
 
 from askai.core.model.model_result import ModelResult
-from askai.core.support.utilities import parse_field, parse_list, parse_word
+from askai.core.support.llm_parser import parse_field, parse_list, parse_word
 from hspylib.core.preconditions import check_state
 from langchain_core.messages import AIMessage
 

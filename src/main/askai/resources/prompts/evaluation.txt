@@ -88,7 +88,6 @@ The response should follow this format:
 @observation: "<your observations>"
 @criticism: "<your criticism>"
 ... (repeat thought/observation/criticism N times)
-@thought: "Everything is looking good."
 @conclusion: "I know what to respond."
 @color: "<your color classification>"
 @accuracy: "<level of accuracy >%"

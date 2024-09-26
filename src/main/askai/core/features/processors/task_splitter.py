@@ -26,7 +26,7 @@ from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_color import AccColor
-from askai.core.enums.acc_response import AccResponse
+from askai.core.model.acc_response import AccResponse
 from askai.core.enums.routing_model import RoutingModel
 from askai.core.features.router.agent_tools import features
 from askai.core.features.router.evaluation import assert_accuracy

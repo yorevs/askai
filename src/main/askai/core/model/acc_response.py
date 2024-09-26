@@ -16,7 +16,7 @@ import os
 from dataclasses import dataclass
 
 from askai.core.enums.acc_color import AccColor, AccuracyColors
-from askai.core.support.utilities import parse_field
+from askai.core.support.llm_parser import parse_field
 from hspylib.core.tools.text_tools import ensure_endswith
 
 
@@ -51,6 +51,15 @@ class AccResponse:
     def __str__(self):
         return f"{self.status} -> {self.details}"
 
+    def __eq__(self, other: "AccResponse") -> bool:
+        """TODO"""
+        return (
+            self.acc_color == other.acc_color
+            and self.accuracy == other.accuracy
+            and self.reasoning == other.reasoning
+            and self.tips == other.tips
+        )
+
     @property
     def color(self) -> AccuracyColors:
         return self.acc_color.color
@@ -65,9 +74,11 @@ class AccResponse:
 
     @property
     def is_interrupt(self) -> bool:
-        """TODO"""
         return self.acc_color.is_interrupt
 
     def is_pass(self, threshold: AccColor) -> bool:
-        """TODO"""
+        """Determine whether the response matches a 'PASS' classification.
+        :param threshold: The threshold or criteria used to determine a 'PASS' classification.
+        :return: True if the response meets or exceeds the 'PASS' threshold, otherwise False.
+        """
         return self.acc_color.passed(threshold)

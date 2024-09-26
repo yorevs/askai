@@ -13,7 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 import base64
-import json
 import mimetypes
 import os
 import re
@@ -22,7 +21,6 @@ import shutil
 import sys
 from os.path import basename, dirname
 from pathlib import Path
-from types import SimpleNamespace
 from typing import AnyStr, Optional
 
 from askai.core.support.text_formatter import text_formatter
@@ -200,50 +198,3 @@ def seconds(millis: int) -> float:
     :return: The equivalent time in seconds as a float.
     """
     return millis / 1000
-
-
-def ensure_parseable(content: str) -> str:
-    """TODO"""
-    if content.startswith('['):
-        # Content is already a JSON array
-        return content
-    # Process lines to extract JSON objects
-    lines = content.split('\n')
-    json_objects: list[str] = list()
-    for line in lines:
-        if not (line := line.strip()):
-            continue  # Skip empty lines
-        if line.startswith('-'):
-            line = line.lstrip('-').strip()
-        json_objects.append(line)
-    # Wrap in square brackets to form a JSON array
-    json_array_str = f"[{','.join(json_objects)}]"
-    return json_array_str
-
-
-def parse_field(field_name: str, text: str) -> Optional[str]:
-    """TODO"""
-    flags: int = re.IGNORECASE | re.DOTALL
-    field_pattern: str = field_name + r':\s*\"?(.+?)["@]'
-    field_matcher: re.Match[str] | None = re.search(field_pattern, text, flags)
-    field_value: str = field_matcher.group(1) if field_matcher else None
-    return field_value.strip() if field_value else None
-
-
-def parse_word(word: str, text: str) -> Optional[str]:
-    """TODO"""
-    flags: int = re.IGNORECASE | re.DOTALL
-    word_pattern: str = r'[*_\s]*' + word + r':[*_\s]*(.+)["@]'
-    word_matcher: re.Match[str] | None = re.search(word_pattern, text, flags)
-    word_value: str = word_matcher.group(1) if word_matcher else None
-    return word_value.strip() if word_value else None
-
-
-def parse_list(field_name: str, text: str) -> list[SimpleNamespace]:
-    """TODO"""
-    flags: int = re.IGNORECASE | re.DOTALL
-    list_pattern: str = field_name + r':\s*(.*?)(?:\n@|$)'
-    list_matcher: re.Match[str] | None = re.search(list_pattern, text, flags)
-    list_value: list[str] = json.loads(ensure_parseable(list_matcher.group(1))) if list_matcher else []
-    assert isinstance(list_value, list), f"Parse error: Could not parse a list: {list_matcher.group(1)}"
-    return list(map(lambda t: SimpleNamespace(**t), list_value)) if list_value else []

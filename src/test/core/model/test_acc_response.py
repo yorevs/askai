@@ -16,12 +16,10 @@ import sys
 import unittest
 from pathlib import Path
 
-from askai.core.model.action_plan import ActionPlan
-from askai.core.model.model_result import ModelResult
+from askai.core.model.acc_response import AccResponse
 from hspylib.core.tools.commons import dirname
-from langchain_core.messages import AIMessage
 
-from fixtures.action_plan_stubs import stub_response
+from fixtures.acc_response_stubs import stub_response
 
 
 class TestClass(unittest.TestCase):
@@ -29,7 +27,7 @@ class TestClass(unittest.TestCase):
 
     TEST_DIR = dirname(__file__)
 
-    RESPONSE_FILE: Path = Path(TEST_DIR + "/resources/llm-responses/task-splitter.txt")
+    RESPONSE_FILE: Path = Path(TEST_DIR + "/resources/llm-responses/acc-response.txt")
 
     RESPONSE_FILE_TEXT: str = RESPONSE_FILE.read_text()
 
@@ -49,17 +47,13 @@ class TestClass(unittest.TestCase):
         # fmt: off
         # Question, AI response, expected ActionPlan object.
         test_cases = [
-            ('list my downloads', self.RESPONSES[0], stub_response(0)),
-            ('list my downloads', self.RESPONSES[1], stub_response(0)),
-            ('hello', self.RESPONSES[2], stub_response(1)),
-            ('List my downloads and let me know if there is any image.', self.RESPONSES[3], stub_response(2)),
-            ('List my downloads and let me know if there is any image.', self.RESPONSES[4], stub_response(2)),
+            (self.RESPONSES[0], stub_response(0)),
         ]
         # fmt: on
 
-        for question, response, expected in test_cases:
+        for response, expected in test_cases:
             with self.subTest(response=response):
-                result = ActionPlan.create(question, AIMessage(response), ModelResult.default())
+                result = AccResponse.parse_response(response)
                 self.assertEqual(result, expected)
 
 
