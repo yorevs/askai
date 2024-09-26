@@ -94,7 +94,7 @@ class InternetService(metaclass=Singleton):
             {output}
             \n---\n
             Sources: {', '.join(sites)}
-            *{method_icon[method]} Accessed: {geo_location.location} {now('%d %B, %Y')}*
+            *{method_icon[method.casefold()]} Accessed: {geo_location.location} {now('%d %B, %Y')}*
             >  Terms: {terms}"""
         ).strip()
 

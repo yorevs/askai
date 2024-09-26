@@ -26,12 +26,12 @@ from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_color import AccColor
-from askai.core.model.acc_response import AccResponse
 from askai.core.enums.routing_model import RoutingModel
 from askai.core.features.router.agent_tools import features
 from askai.core.features.router.evaluation import assert_accuracy
 from askai.core.features.router.task_agent import agent
 from askai.core.features.tools.general import final_answer
+from askai.core.model.acc_response import AccResponse
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.model_result import ModelResult
@@ -70,20 +70,24 @@ class TaskSplitter(metaclass=Singleton):
         query: str,
         answer: str,
         model_result: ModelResult = ModelResult.default(),
-        acc_threshold: AccResponse | None = None,
+        acc_response: AccResponse | None = None,
     ) -> str:
         """Provide a final answer to the user by wrapping the AI response with additional context.
         :param query: The user's question.
         :param answer: The AI's response to the question.
         :param model_result: The result from the selected routing model (default is ModelResult.default()).
-        :param acc_threshold: The final accuracy threshold, if available.
+        :param acc_response: The final accuracy response, if available.
         :return: A formatted string containing the final answer.
         """
         output: str = answer
-        model: RoutingModel = RoutingModel.of_model(model_result.mid)
-        events.reply.emit(reply=AIReply.full(msg.model_select(model)))
         args = {"user": shared.username, "idiom": shared.idiom, "context": answer, "question": query}
         prompt_args: list[str] = [k for k in args.keys()]
+        model: RoutingModel = (
+            RoutingModel.REFINER
+            if acc_response and (acc_response.acc_color > AccColor.GOOD)
+            else RoutingModel.of_model(model_result.mid)
+        )
+        events.reply.emit(reply=AIReply.full(msg.model_select(model)))
 
         match model, configs.is_speak:
             case RoutingModel.TERMINAL_COMMAND, True:
@@ -93,20 +97,14 @@ class TaskSplitter(metaclass=Singleton):
             case RoutingModel.CHAT_MASTER, _:
                 output = final_answer("taius-jarvis", prompt_args, **args)
             case RoutingModel.REFINER, _:
-                if acc_threshold and acc_threshold.reasoning:
+                if acc_response and acc_response.reasoning:
                     ctx: str = str(shared.context.flat("HISTORY"))
-                    args = {
-                        "improvements": acc_threshold.reasoning,
-                        "context": ctx,
-                        "response": answer,
-                        "question": query,
-                    }
+                    args = {"improvements": acc_response.details, "context": ctx, "response": answer, "question": query}
                     prompt_args = [k for k in args.keys()]
                     events.reply.emit(reply=AIReply.debug(msg.refine_answer(answer)))
                     output = final_answer("taius-refiner", prompt_args, **args)
             case _:
-                # Default is to leave the last AI response intact.
-                pass
+                pass  # Default is to leave the last AI response as is
 
         shared.context.push("HISTORY", query)
         shared.context.push("HISTORY", output, "assistant")
@@ -172,25 +170,26 @@ class TaskSplitter(metaclass=Singleton):
                         events.reply.emit(reply=AIReply.info(plan.speak))
                 else:
                     # Most of the times, indicates the LLM responded directly.
+                    acc_response: AccResponse = assert_accuracy(question, response, AccColor.MODERATE)
                     if output := plan.speak:
                         shared.context.push("HISTORY", question)
                         shared.context.push("HISTORY", output, "assistant")
                     else:
                         output = msg.no_output("Task-Splitter")
-                    return output
+                    return self.wrap_answer(question, output, plan.model, acc_response)
             else:
                 return response  # Most of the times, indicates a failure.
 
             try:
-                wrapper_output = self._process_tasks(task_list)
-                assert_accuracy(question, wrapper_output, AccColor.MODERATE)
+                agent_output = self._process_tasks(task_list)
+                acc_response: AccResponse = assert_accuracy(question, agent_output, AccColor.MODERATE)
             except (InterruptionRequest, TerminatingQuery) as err:
                 return str(err)
             except self.RETRIABLE_ERRORS:
                 events.reply.emit(reply=AIReply.error(msg.sorry_retry()))
                 raise
 
-            return wrapper_output
+            return self.wrap_answer(question, agent_output, plan.model, acc_response)
 
         return _splitter_wrapper_()
 
