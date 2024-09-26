@@ -6,9 +6,9 @@ from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.enums.acc_response import AccResponse
+from askai.core.enums.acc_color import AccColor
 from askai.core.features.router.agent_tools import features
-from askai.core.features.router.task_accuracy import assert_accuracy
+from askai.core.features.router.evaluation import assert_accuracy
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
@@ -60,7 +60,7 @@ class TaskAgent(metaclass=Singleton):
             shared.context.push("HISTORY", task, "assistant")
             shared.context.push("HISTORY", output, "assistant")
             shared.memory.save_context({"input": task}, {"output": output})
-            assert_accuracy(task, output, AccResponse.MODERATE)
+            assert_accuracy(task, output, AccColor.MODERATE)
         else:
             output = msg.no_output("AI")
 

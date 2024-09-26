@@ -17,6 +17,7 @@ from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
+from askai.core.enums.acc_color import AccColor
 from askai.core.enums.acc_response import AccResponse
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
@@ -30,21 +31,21 @@ from textwrap import dedent
 
 import logging as log
 
-EVALUATION_GUIDE: str = dedent(
-    """
+# fmt: off
+EVALUATION_GUIDE: str = dedent("""
 **Accuracy Evaluation Guidelines:**
 
 1. Analyze past responses to ensure accuracy.
 2. Regularly self-critique overall responses.
 3. Reflect on past strategies to refine your approach.
 4. Experiment with different methods or solutions.
-"""
-).strip()
+""").strip()
+# fmt: on
 
 RAG: RAGProvider = RAGProvider("accuracy.csv")
 
 
-def assert_accuracy(question: str, ai_response: str, pass_threshold: AccResponse = AccResponse.MODERATE) -> AccResponse:
+def assert_accuracy(question: str, ai_response: str, pass_threshold: AccColor = AccColor.MODERATE) -> AccResponse:
     """Assert that the AI's response to the question meets the required accuracy threshold.
     :param question: The user's question.
     :param ai_response: The AI's response to be analyzed for accuracy.
@@ -53,32 +54,31 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: AccResponse
     :return: The accuracy classification of the AI's response as an AccResponse enum value.
     """
     if ai_response and ai_response not in msg.accurate_responses:
-        issues_prompt = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("evaluation"))
-        assert_template = PromptTemplate(
-            input_variables=["rag", "input", "response"], template=prompt.read_prompt("accuracy")
+        acc_template = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("acc-report"))
+        eval_template = PromptTemplate(
+            input_variables=["rag", "input", "response"], template=prompt.read_prompt("evaluation")
         )
-        final_prompt = assert_template.format(rag=RAG.get_rag_examples(question), input=question, response=ai_response)
+        final_prompt = eval_template.format(rag=RAG.get_rag_examples(question), input=question, response=ai_response)
         log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
         llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
         response: AIMessage = llm.invoke(final_prompt)
 
         if response and (output := response.content):
-            if mat := AccResponse.matches(output):
-                status, details = mat.group(1), mat.group(2)
-                log.info("Accuracy check ->  status: '%s'  reason: '%s'", status, details)
-                events.reply.emit(reply=AIReply.debug(msg.assert_acc(status, details)))
-                if (rag_resp := AccResponse.of_status(status, details)).is_interrupt:
+            if acc := AccResponse.parse_response(output):
+                log.info("Accuracy check ->  status: '%s'  details: '%s'", acc.status, acc.details)
+                events.reply.emit(reply=AIReply.debug(msg.assert_acc(acc.status, acc.details)))
+                if acc.is_interrupt:
                     # AI flags that it can't continue interacting.
                     log.warning(msg.interruption_requested(output))
                     raise InterruptionRequest(ai_response)
-                elif not rag_resp.passed(pass_threshold):
+                elif not acc.is_pass(pass_threshold):
                     # Include the guidelines for the first mistake.
                     if not shared.context.get("EVALUATION"):
                         shared.context.push("EVALUATION", EVALUATION_GUIDE)
-                    shared.context.push("EVALUATION", issues_prompt.format(problems=AccResponse.strip_code(output)))
+                    shared.context.push("EVALUATION", acc_template.format(problems=acc.details))
                     raise InaccurateResponse(f"AI Assistant failed to respond => '{response.content}'")
-                return rag_resp
-        # At this point, the response was not Good.
+                return acc
+        # At this point, the response was inaccurate.
         raise InaccurateResponse(f"AI Assistant didn't respond accurately. Response: '{response}'")
 
 

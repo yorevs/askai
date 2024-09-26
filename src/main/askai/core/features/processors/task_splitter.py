@@ -25,10 +25,11 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
+from askai.core.enums.acc_color import AccColor
 from askai.core.enums.acc_response import AccResponse
 from askai.core.enums.routing_model import RoutingModel
 from askai.core.features.router.agent_tools import features
-from askai.core.features.router.task_accuracy import assert_accuracy
+from askai.core.features.router.evaluation import assert_accuracy
 from askai.core.features.router.task_agent import agent
 from askai.core.features.tools.general import final_answer
 from askai.core.model.action_plan import ActionPlan
@@ -165,8 +166,7 @@ class TaskSplitter(metaclass=Singleton):
             if response := runnable.invoke({"input": question}, config={"configurable": {"session_id": "HISTORY"}}):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
                 plan = ActionPlan.create(question, response, model)
-                task_list = plan.tasks
-                if task_list:
+                if task_list := plan.tasks:
                     events.reply.emit(reply=AIReply.debug(msg.action_plan(str(plan))))
                     if plan.speak:
                         events.reply.emit(reply=AIReply.info(plan.speak))
@@ -183,7 +183,7 @@ class TaskSplitter(metaclass=Singleton):
 
             try:
                 wrapper_output = self._process_tasks(task_list)
-                assert_accuracy(question, wrapper_output, AccResponse.MODERATE)
+                assert_accuracy(question, wrapper_output, AccColor.MODERATE)
             except (InterruptionRequest, TerminatingQuery) as err:
                 return str(err)
             except self.RETRIABLE_ERRORS:

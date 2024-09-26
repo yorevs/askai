@@ -1,0 +1,8 @@
+The (AI-Assistant) provided a bad answer.
+Improve subsequent responses by addressing the following:
+
+---
+{problems}
+---
+
+If you don't have an answer, simply say: "I don't know". Don't try do make up an answer.

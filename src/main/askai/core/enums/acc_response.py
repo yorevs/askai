@@ -12,107 +12,62 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
+from dataclasses import dataclass
 
-import re
-from typing import Literal
+from askai.core.enums.acc_color import AccColor, AccuracyColors
+from askai.core.support.utilities import parse_field
+from hspylib.core.tools.text_tools import ensure_endswith
 
-from hspylib.core.enums.enumeration import Enumeration
 
-
-class AccResponse(Enumeration):
+@dataclass(frozen=True)
+class AccResponse:
     """Track and classify accuracy responses based on color classifications. This class provides an enumeration of
     possible accuracy responses, which are typically represented by different colors.
     """
 
-    # fmt: off
-
-    EXCELLENT   = 'Blue'
-
-    GOOD        = 'Green'
-
-    MODERATE    = 'Yellow'
-
-    INCOMPLETE  = 'Orange'
-
-    BAD         = 'Red'
-
-    INTERRUPT   = 'Black'
-
-    # fmt: on
+    acc_color: AccColor
+    accuracy: float
+    reasoning: str
+    tips: str
 
     @classmethod
-    def matches(cls, output: str) -> re.Match:
-        """Find a match in the given output string.
-        :param output: The string to search for a match.
-        :return: A match object if a match is found.
-        :raises: re.error if an error occurs during the matching process.
-        """
-        flags: int = re.IGNORECASE | re.MULTILINE | re.DOTALL
-        return re.search(cls._re(), output.replace("\n", " "), flags=flags)
-
-    @classmethod
-    def _re(cls) -> str:
+    def parse_response(cls, response: str) -> "AccResponse":
         """TODO"""
-        return rf"^\$?({'|'.join(cls.values())})[:,-]\s*[0-9]+%\s+(.+)"
 
-    @classmethod
-    def strip_code(cls, message: str) -> str:
-        """Strip the color code from the message.
-        :param message: The message from which to strip color codes.
-        :return: The message with color codes removed.
-        """
-        mat = cls.matches(message)
-        return str(mat.group(2)).strip() if mat else message.strip()
+        # FIXME: Remove log the response
+        with open("/Users/hjunior/Desktop/acc-response-resp.txt", "w") as f_bosta:
+            f_bosta.write(response + os.linesep)
+            f_bosta.flush()
 
-    @classmethod
-    def of_status(cls, status: str, reasoning: str | None) -> "AccResponse":
-        """Create an AccResponse instance based on status and optional reasoning.
-        :param status: The status as a string.
-        :param reasoning: Optional reasoning for the status, formatted as '<percentage>% <details>'.
-        :return: An instance of AccResponse with the given status and reasoning.
-        """
-        resp = cls.of_value(status.title())
-        if reasoning and (mat := re.match(r"(^[0-9]{1,3})%\s+(.*)", reasoning)):
-            resp.rate = float(mat.group(1))
-            resp.reasoning = mat.group(2)
-        return resp
+        # Parse fields
+        acc_color: AccColor = AccColor.of_color(parse_field("@color", response))
+        accuracy: float = float(parse_field("@accuracy", response).strip("%"))
+        reasoning: str = parse_field("@reasoning", response)
+        tips: str = parse_field("@tips", response)
 
-    def __init__(self, color: Literal["Blue", "Green", "Yellow", "Orange", "Red"]):
-        self.color = color
-        self.reasoning: str | None = None
-        self.rate: float | None = None
+        return AccResponse(acc_color, accuracy, reasoning, tips)
 
     def __str__(self):
-        details: str = f"{' -> ' + str(self.rate) + '% ' + self.reasoning if self.reasoning else ''}"
-        return f"{self.name}{details}"
+        return f"{self.status} -> {self.details}"
 
     @property
-    def is_bad(self) -> bool:
-        return self in [self.BAD, self.INCOMPLETE]
+    def color(self) -> AccuracyColors:
+        return self.acc_color.color
 
     @property
-    def is_moderate(self) -> bool:
-        return self == self.MODERATE
+    def status(self) -> str:
+        return f"{self.color}, {str(self.accuracy)}%"
 
     @property
-    def is_good(self) -> bool:
-        return self in [self.GOOD, self.EXCELLENT]
+    def details(self) -> str:
+        return f"{ensure_endswith(self.reasoning, '.')} {'**' + self.tips + '**' if self.tips else ''}"
 
     @property
     def is_interrupt(self) -> bool:
-        return self == self.INTERRUPT
+        """TODO"""
+        return self.acc_color.is_interrupt
 
-    def passed(self, threshold: "AccResponse") -> bool:
-        """Determine whether the response matches a 'PASS' classification.
-        :param threshold: The threshold or criteria used to determine a 'PASS' classification.
-        :return: True if the response meets or exceeds the 'PASS' threshold, otherwise False.
-        """
-        if isinstance(threshold, AccResponse):
-            idx_self, idx_threshold = None, None
-            for i, v in enumerate(AccResponse.values()):
-                if v == self.value:
-                    idx_self = i
-                if v == threshold.value:
-                    idx_threshold = i
-            return idx_self is not None and idx_threshold is not None and idx_self <= idx_threshold
-        return False
+    def is_pass(self, threshold: AccColor) -> bool:
+        """TODO"""
+        return self.acc_color.passed(threshold)

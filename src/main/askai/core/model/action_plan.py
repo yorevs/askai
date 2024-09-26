@@ -12,12 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import ast
+import os
 import re
 from dataclasses import dataclass, field
 from types import SimpleNamespace
 
 from askai.core.model.model_result import ModelResult
+from askai.core.support.utilities import parse_field, parse_list, parse_word
 from hspylib.core.preconditions import check_state
 from langchain_core.messages import AIMessage
 
@@ -31,7 +32,7 @@ class ActionPlan:
     question: str = None
     speak: str = None
     primary_goal: str = None
-    sub_goals: list[str] = field(default_factory=list)
+    sub_goals: list[SimpleNamespace] = field(default_factory=list)
     tasks: list[SimpleNamespace] = field(default_factory=list)
     model: ModelResult = field(default_factory=ModelResult.default)
 
@@ -58,34 +59,19 @@ class ActionPlan:
         :param response: The router's response.
         :return: An instance of ActionPlan created from the parsed response.
         """
-        flags: int = re.IGNORECASE | re.MULTILINE | re.DOTALL
+        # FIXME: Remove log the response
+        with open("/Users/hjunior/Desktop/task-splitter-resp.txt", "w") as f_bosta:
+            f_bosta.write(response + os.linesep)
+            f_bosta.flush()
 
-        # Define patterns for the required fields
-        speak_pattern = r"@speak:\s*\"(.+?)\""
-        primary_goal_pattern = r"@primary_goal:\s*(.+)"
-        sub_goals_pattern = r"@sub_goals:\s*\[(.+?)\]"
-        tasks_pattern = r"@tasks:\s*\[(.+?)\]"
-        direct_pattern = r"\**Direct:\**\s*(.+?)"
-
-        # Extract using regex
-        speak_match = re.search(speak_pattern, response, flags)
-        primary_goal_match = re.search(primary_goal_pattern, response, flags)
-        sub_goals_match = re.search(sub_goals_pattern, response, flags)
-        tasks_match = re.search(tasks_pattern, response, flags)
-        direct_match = re.search(direct_pattern, response, flags)
-
-        # Parse fields
-        speak = speak_match.group(1) if speak_match else None
-        primary_goal = primary_goal_match.group(1) if primary_goal_match else None
-        sub_goals = ast.literal_eval(f"[{sub_goals_match.group(1)}]") if sub_goals_match else []
-        tasks = ast.literal_eval(f"[{tasks_match.group(1)}]") if tasks_match else []
-        tasks = list(map(lambda t: SimpleNamespace(**t), tasks))
-        direct = direct_match.group(1) if direct_match else None
+        speak: str = parse_field("@speak", response)
+        primary_goal: str = parse_field("@primary_goal", response)
+        sub_goals: list[SimpleNamespace] = parse_list("@sub_goals", response)
+        tasks: list[SimpleNamespace] = parse_list("@tasks", response)
+        direct: str = parse_word("direct", response)
 
         # fmt: off
-        if direct:
-            plan = ActionPlan._direct_answer(question, response, ModelResult.default())
-        elif speak and primary_goal and tasks:
+        if primary_goal and tasks:
             plan = ActionPlan(
                 question=question,
                 speak=speak,
@@ -93,6 +79,8 @@ class ActionPlan:
                 sub_goals=sub_goals,
                 tasks=tasks
             )
+        elif direct and len(direct) > 1:
+            plan = ActionPlan._direct_answer(question, response, ModelResult.default())
         else:
             plan = ActionPlan._direct_task(question, response, ModelResult.default())
         # fmt: on
@@ -137,3 +125,13 @@ class ActionPlan:
 
     def __len__(self):
         return len(self.tasks)
+
+    def __eq__(self, other: "ActionPlan") -> bool:
+        """TODO"""
+        return (
+            self.question == other.question
+            and self.speak == other.speak
+            and self.primary_goal == other.primary_goal
+            and self.sub_goals == other.sub_goals
+            and self.tasks == other.tasks
+        )
