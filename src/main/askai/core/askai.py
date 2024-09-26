@@ -12,6 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+import re
+import sys
+from enum import Enum
+from pathlib import Path
+from typing import List, Optional, TypeAlias
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -26,23 +34,20 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import read_stdin
-from askai.exception.exceptions import (ImpossibleQuery, InaccurateResponse, IntelligibleAudioError,
-                                        MaxInteractionsReached, TerminatingQuery)
+from askai.exception.exceptions import (
+    ImpossibleQuery,
+    InaccurateResponse,
+    IntelligibleAudioError,
+    MaxInteractionsReached,
+    TerminatingQuery,
+)
 from askai.tui.app_icons import AppIcons
 from click import UsageError
-from enum import Enum
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import file_is_not_empty, is_debugging
 from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
 from hspylib.modules.application.exit_status import ExitStatus
 from openai import RateLimitError
-from pathlib import Path
-from typing import List, Optional, TypeAlias
-
-import logging as log
-import os
-import re
-import sys
 
 QueryString: TypeAlias = str | List[str] | None
 

@@ -172,9 +172,6 @@ class AskAiMessages(metaclass=Singleton):
     def no_good_result(self) -> str:
         return "The search did not bring any good result"
 
-    def consider_done(self) -> str:
-        return "Sure! Consider it done."
-
     # Warnings and alerts
 
     def no_output(self, source: str) -> str:

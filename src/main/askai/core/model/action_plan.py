@@ -17,7 +17,6 @@ import re
 from dataclasses import dataclass, field
 from types import SimpleNamespace
 
-from askai.core.askai_messages import msg
 from askai.core.model.model_result import ModelResult
 from hspylib.core.preconditions import check_state
 from langchain_core.messages import AIMessage
@@ -109,8 +108,9 @@ class ActionPlan:
         :return: An instance of ActionPlan created from the direct response.
         """
         flags: int = re.IGNORECASE | re.MULTILINE | re.DOTALL
+        speak: str = re.sub(r"\*\*Direct:\*\*(.+?)", "\1", response, flags)
 
-        return ActionPlan(question, re.sub(r"\*\*Direct:\*\*(.+?)", "\1", response, flags), "N/A", [], [], model)
+        return ActionPlan(question, speak, "N/A", [], [], model)
 
     @staticmethod
     def _direct_task(question: str, response: str, model: ModelResult) -> "ActionPlan":
@@ -120,8 +120,9 @@ class ActionPlan:
         :param model: The result model.
         :return: An instance of ActionPlan created from the direct response.
         """
+        tasks: list[SimpleNamespace] = [SimpleNamespace(id="1", task=response)]
 
-        return ActionPlan(question, msg.consider_done(), "N/A", [], [SimpleNamespace(id="1", task=response)], model)
+        return ActionPlan(question, "", "N/A", [], tasks, model)
 
     def __str__(self):
         sub_goals: str = "  ".join(f"{i + 1}. {g}" for i, g in enumerate(self.sub_goals)) if self.sub_goals else "N/A"

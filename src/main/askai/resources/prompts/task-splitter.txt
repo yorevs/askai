@@ -109,14 +109,14 @@ The following examples can be used to help your decisions (note that it is not a
 The response should follow this format:
 
 
-@thought: <your thoughts>
-@observation: <your observations>
-@criticism: <your criticism>
-@check_history: <thoughts about the conversation history; if applicable>
+@thought: "<your thoughts>"
+@observation: "<your observations>"
+@criticism: "<your criticism>"
+@check_history: "<quietly review the conversation history>"
 ... (repeat thought/observation/criticism/check_history N times)
-@thought: Everything is looking good.
-@conclusion: I know what to respond.
-@primary_goal: <identified primary goal>
+@thought: "Everything is looking good."
+@conclusion: "I know what to respond."
+@primary_goal: "<identified primary goal>"
 @sub_goals: [
     {{{{ "id": "<num>", "sub_goal": "<identified sub-goal>" }}}},
     ... (repeat N times)
@@ -130,7 +130,7 @@ The response should follow this format:
 
 <<IMPORTANT>>
 
-Always remember to include at least @primary_goal, @sub_goals, @speak, and @tasks. Ensure that @sub_goals and @tasks are parseable by ast.literal_eval, so make sure to include the '[..]' brackets around them. Retain all '@' symbols and avoid reformatting '@words', as altering them will cause the parser to fail.
+Always remember to include at least @primary_goal, @sub_goals, @speak, and @tasks. Ensure that @sub_goals and @tasks are parseable by ast.literal_eval, so make sure to include the '[..]' brackets around them. Retain all '@' and '"' symbols and avoid reformatting '@words', as altering them will cause the parser to fail.
 
 
 Begin!
