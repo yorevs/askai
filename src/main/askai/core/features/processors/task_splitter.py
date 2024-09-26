@@ -153,35 +153,43 @@ class TaskSplitter(metaclass=Singleton):
         shared.context.forget("EVALUATION")  # Erase previous evaluation notes.
         model: ModelResult = ModelResult.default()  # Hard-coding the result model for now.
         log.info("Router::[QUESTION] '%s'", question)
-        # Invoke the LLM to split the tasks and create an action plan.
-        runnable = self.template(question) | lc_llm.create_chat_model(Temperature.COLDEST.temp)
-        runnable = RunnableWithMessageHistory(
-            runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
-        )
-
-        if response := runnable.invoke({"input": question}, config={"configurable": {"session_id": "HISTORY"}}):
-            log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
-            plan = ActionPlan.create(question, response, model)
-            task_list = plan.tasks
-            if task_list:
-                events.reply.emit(reply=AIReply.debug(msg.action_plan(str(plan))))
-                if plan.speak:
-                    events.reply.emit(reply=AIReply.info(plan.speak))
-            else:
-                # Most of the times, indicates the LLM responded directly.
-                if output := plan.speak:
-                    shared.context.push("HISTORY", question)
-                    shared.context.push("HISTORY", output, "assistant")
-                else:
-                    output = msg.no_output("Task-Splitter")
-                return output
-        else:
-            return response  # Most of the times, indicates a failure.
 
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=1, jitter=1)
         def _splitter_wrapper_() -> Optional[str]:
-            wrapper_output = self._process_tasks(task_list)
-            assert_accuracy(question, wrapper_output, AccResponse.GOOD)
+            # Invoke the LLM to split the tasks and create an action plan.
+            runnable = self.template(question) | lc_llm.create_chat_model(Temperature.COLDEST.temp)
+            runnable = RunnableWithMessageHistory(
+                runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
+            )
+
+            if response := runnable.invoke({"input": question}, config={"configurable": {"session_id": "HISTORY"}}):
+                log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
+                plan = ActionPlan.create(question, response, model)
+                task_list = plan.tasks
+                if task_list:
+                    events.reply.emit(reply=AIReply.debug(msg.action_plan(str(plan))))
+                    if plan.speak:
+                        events.reply.emit(reply=AIReply.info(plan.speak))
+                else:
+                    # Most of the times, indicates the LLM responded directly.
+                    if output := plan.speak:
+                        shared.context.push("HISTORY", question)
+                        shared.context.push("HISTORY", output, "assistant")
+                    else:
+                        output = msg.no_output("Task-Splitter")
+                    return output
+            else:
+                return response  # Most of the times, indicates a failure.
+
+            try:
+                wrapper_output = self._process_tasks(task_list)
+                assert_accuracy(question, wrapper_output, AccResponse.MODERATE)
+            except (InterruptionRequest, TerminatingQuery) as err:
+                return str(err)
+            except self.RETRIABLE_ERRORS:
+                events.reply.emit(reply=AIReply.error(msg.sorry_retry()))
+                raise
+
             return wrapper_output
 
         return _splitter_wrapper_()
@@ -211,7 +219,8 @@ class TaskSplitter(metaclass=Singleton):
                     task_list.pop(0)
         except (InterruptionRequest, TerminatingQuery) as err:
             return str(err)
-        except Exception:
+        except self.RETRIABLE_ERRORS:
+            events.reply.emit(reply=AIReply.error(msg.sorry_retry()))
             raise
 
         return os.linesep.join(resp_history) if resp_history else msg.no_output("Task-Splitter")

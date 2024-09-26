@@ -172,6 +172,9 @@ class AskAiMessages(metaclass=Singleton):
     def no_good_result(self) -> str:
         return "The search did not bring any good result"
 
+    def consider_done(self) -> str:
+        return "Sure! Consider it done."
+
     # Warnings and alerts
 
     def no_output(self, source: str) -> str:
@@ -179,6 +182,9 @@ class AskAiMessages(metaclass=Singleton):
 
     def access_grant(self) -> str:
         return "Do you approve executing this command on you terminal (~~yes/[no]~~)?"
+
+    def sorry_retry(self) -> str:
+        return "Sorry, I failed to respond. Let me try again."
 
     # Failures
 
