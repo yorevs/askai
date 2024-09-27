@@ -93,11 +93,11 @@ class AskAi:
         configs.model = model_name
 
         self._session_id = now("%Y%m%d")[:8]
-        self._engine: AIEngine = shared.create_engine(engine_name, model_name)
+        self._engine: AIEngine = shared.create_engine(engine_name, model_name, RouterMode.RAG)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
+        self._mode: RouterMode = shared.mode
         self._console_path = Path(f"{CACHE_DIR}/askai-{self.session_id}.md")
         self._query_prompt: str | None = None
-        self._mode: RouterMode = RouterMode.default()
 
         if not self._console_path.exists():
             self._console_path.touch()
@@ -115,7 +115,11 @@ class AskAi:
 
     @property
     def mode(self) -> RouterMode:
-        return self._mode
+        return shared.mode
+
+    @mode.setter
+    def mode(self, value: RouterMode):
+        shared.mode = value
 
     @property
     def query_prompt(self) -> str:

@@ -136,8 +136,8 @@ class AskAiCli(AskAi):
         """Callback to handle mode change events.
         :param ev: The event object representing the mode change.
         """
-        self._mode: RouterMode = RouterMode.of_name(ev.args.mode)
-        if not self._mode.is_default:
+        self.mode: RouterMode = RouterMode.of_name(ev.args.mode)
+        if self.mode == RouterMode.QNA:
             sum_msg: str = (
                 f"{msg.enter_qna()} \n"
                 f"```\nContext:  {ev.args.sum_path},   {ev.args.glob} \n```\n"

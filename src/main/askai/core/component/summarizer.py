@@ -19,12 +19,14 @@ from askai.core.component.cache_service import PERSIST_DIR
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.summary_result import SummaryResult
 from askai.core.support.langchain_support import lc_llm
+from askai.core.support.spinner import Spinner
 from askai.exception.exceptions import DocumentsNotFound
 from functools import lru_cache
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import ensure_endswith, hash_text
+from hspylib.modules.cli.vt100.vt_color import VtColor
 from langchain.chains import RetrievalQA
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores.chroma import Chroma
@@ -116,7 +118,10 @@ class Summarizer(metaclass=Singleton):
                 v_store = Chroma(persist_directory=str(self.persist_dir), embedding_function=embeddings)
             else:
                 log.info("Summarizing documents from '%s'", self.sum_path)
-                documents: list[Document] = DirectoryLoader(self.folder, glob=self.glob).load()
+                with Spinner.COLIMA.run(suffix=msg.loading("documents"), color=VtColor.GREEN) as spinner:
+                    spinner.start()
+                    documents: list[Document] = DirectoryLoader(self.folder, glob=self.glob).load()
+                    spinner.stop()
                 if len(documents) <= 0:
                     raise DocumentsNotFound(f"Unable to find any document to summarize at: '{self.sum_path}'")
                 texts: list[Document] = self._text_splitter.split_documents(documents)

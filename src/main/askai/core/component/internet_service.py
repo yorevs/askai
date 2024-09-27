@@ -58,7 +58,7 @@ class InternetService(metaclass=Singleton):
     # fmt: off
     CATEGORY_ICONS = {
         "Weather": "",
-        "Sports": "",
+        "Sports": "醴",
         "News": "",
         "Celebrities": "",
         "People": "",

@@ -29,13 +29,13 @@ class RouterMode(Enumeration):
 
     # fmt: on
 
-    TASK_SPLIT = "Task Splitter", splitter
+    TASK_SPLIT = "Task Splitter", "", splitter
 
-    QNA = "Questions and Answers", qna
+    QNA = "Questions and Answers", "", qna
 
-    QSTRING = "Non-Interactive", qstring
+    QSTRING = "Non-Interactive", "", qstring
 
-    RAG = "Retrieval-Augmented Generation", rag
+    RAG = "Retrieval-Augmented Generation", "ﮐ", rag
 
     # fmt: off
 
@@ -63,15 +63,22 @@ class RouterMode(Enumeration):
         return cls[name] if name.casefold() != 'default' else cls.default()
 
     def __str__(self):
-        return self.value[0]
+        return f"{self.icon}  {self.name}"
+
+    def __eq__(self, other: 'RouterMode') -> bool:
+        return self.name == other.name
 
     @property
     def name(self) -> str:
         return self.value[0]
 
     @property
-    def processor(self) -> AIProcessor:
+    def icon(self) -> str:
         return self.value[1]
+
+    @property
+    def processor(self) -> AIProcessor:
+        return self.value[2]
 
     @property
     def is_default(self) -> bool:

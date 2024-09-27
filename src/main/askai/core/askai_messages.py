@@ -76,6 +76,9 @@ class AskAiMessages(metaclass=Singleton):
     def wait(self) -> str:
         return "I'm thinking…"
 
+    def loading(self, what: str) -> str:
+        return f"Loading {what}…"
+
     def welcome_back(self) -> str:
         return "How may I further assist you ?"
 

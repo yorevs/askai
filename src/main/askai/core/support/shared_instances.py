@@ -13,6 +13,10 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import os
+from pathlib import Path
+from typing import Optional, Any
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
@@ -33,10 +37,6 @@ from hspylib.modules.application.version import Version
 from hspylib.modules.cli.keyboard import Keyboard
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.memory.chat_memory import BaseChatMemory
-from pathlib import Path
-from typing import Optional
-
-import os
 
 
 class SharedInstances(metaclass=Singleton):
@@ -48,20 +48,12 @@ class SharedInstances(metaclass=Singleton):
     UNCERTAIN_ID: str = "bde6f44d-c1a0-4b0c-bd74-8278e468e50c"
 
     def __init__(self) -> None:
-        self._engine: AIEngine | None = None
         self._context: ChatContext | None = None
+        self._engine: AIEngine | None = None
+        self._mode: Any | None = None
         self._memory: ConversationBufferWindowMemory | None = None
         self._idiom: str = configs.language.idiom
         self._max_iteractions: int = configs.max_iteractions
-
-    @property
-    def engine(self) -> Optional[AIEngine]:
-        return self._engine
-
-    @engine.setter
-    def engine(self, value: AIEngine) -> None:
-        check_state(self._engine is None, "Once set, this instance is immutable.")
-        self._engine = value
 
     @property
     def context(self) -> Optional[ChatContext]:
@@ -73,8 +65,28 @@ class SharedInstances(metaclass=Singleton):
         self._context = value
 
     @property
+    def engine(self) -> Optional[AIEngine]:
+        return self._engine
+
+    @engine.setter
+    def engine(self, value: AIEngine) -> None:
+        check_state(self._engine is None, "Once set, this instance is immutable.")
+        self._engine = value
+
+    @property
+    def mode(self) -> Any:
+        return self._mode
+
+    @mode.setter
+    def mode(self, value: Any) -> None:
+        self._mode = value
+
+    def mode_icon(self) -> str:
+        return self._mode.icon
+
+    @property
     def nickname(self) -> str:
-        return f"%GREEN%  Taius:%NC% "
+        return f"%GREEN%{self.mode.icon}  Taius:%NC% "
 
     @property
     def username(self) -> str:
@@ -82,7 +94,7 @@ class SharedInstances(metaclass=Singleton):
 
     @property
     def nickname_md(self) -> str:
-        return f"*  Taius:* "
+        return f"*{self.mode.icon}  Taius:* "
 
     @property
     def username_md(self) -> str:
@@ -114,6 +126,7 @@ class SharedInstances(metaclass=Singleton):
             f"{dtm.center(80, '=')} %EOL%"
             f"   Language: {configs.language} {translator} %EOL%"
             f"     Engine: {shared.engine} %EOL%"
+            f"       Mode: {self.mode} %EOL%"
             f"        Dir: {cur_dir} %EOL%"
             f"         OS: {prompt.os_type}/{prompt.shell} %EOL%"
             f"{'-' * 80} %EOL%"
@@ -124,14 +137,16 @@ class SharedInstances(metaclass=Singleton):
             f"{'=' * 80}%EOL%%NC%"
         )
 
-    def create_engine(self, engine_name: str, model_name: str) -> AIEngine:
+    def create_engine(self, engine_name: str, model_name: str, mode: Any) -> AIEngine:
         """Create or retrieve an AI engine instance based on the specified engine and model names.
         :param engine_name: The name of the AI engine to create or retrieve.
         :param model_name: The name of the model to use with the AI engine.
+        :param mode: The engine routing mode.
         :return: An instance of the AIEngine configured with the specified engine and model.
         """
         if self._engine is None:
             self._engine = EngineFactory.create_engine(engine_name, model_name)
+            self._mode = mode
         return self._engine
 
     def create_context(

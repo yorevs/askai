@@ -40,7 +40,7 @@ class TextFormatter(metaclass=Singleton):
     RE_MD_CODE_BLOCK = r"(```.+```)"
 
     CHAT_ICONS = {
-        "": ">  Oops: ",
+        "": " Oops! %NC%",
         "": "\n>   *Tip:* ",
         "": "\n>   *Analysis:* ",
         "": "\n>   *Summary:* ",
