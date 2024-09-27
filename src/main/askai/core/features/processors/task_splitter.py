@@ -26,7 +26,7 @@ from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_color import AccColor
-from askai.core.enums.routing_model import RoutingModel
+from askai.core.enums.response_model import ResponseModel
 from askai.core.features.router.agent_tools import features
 from askai.core.features.router.evaluation import assert_accuracy
 from askai.core.features.router.task_agent import agent
@@ -80,23 +80,23 @@ class TaskSplitter(metaclass=Singleton):
         :return: A formatted string containing the final answer.
         """
         output: str = answer
-        args = {"user": shared.username, "idiom": shared.idiom, "context": answer, "question": query}
+        args = {"user": prompt.user.title(), "idiom": shared.idiom, "context": answer, "question": query}
         prompt_args: list[str] = [k for k in args.keys()]
-        model: RoutingModel = (
-            RoutingModel.REFINER
+        model: ResponseModel = (
+            ResponseModel.REFINER
             if acc_response and (acc_response.acc_color > AccColor.GOOD)
-            else RoutingModel.of_model(model_result.mid)
+            else ResponseModel.of_model(model_result.mid)
         )
         events.reply.emit(reply=AIReply.full(msg.model_select(model)))
 
         match model, configs.is_speak:
-            case RoutingModel.TERMINAL_COMMAND, True:
+            case ResponseModel.TERMINAL_COMMAND, True:
                 output = final_answer("taius-stt", prompt_args, **args)
-            case RoutingModel.ASSISTIVE_TECH_HELPER, _:
+            case ResponseModel.ASSISTIVE_TECH_HELPER, _:
                 output = final_answer("taius-stt", prompt_args, **args)
-            case RoutingModel.CHAT_MASTER, _:
+            case ResponseModel.CHAT_MASTER, _:
                 output = final_answer("taius-jarvis", prompt_args, **args)
-            case RoutingModel.REFINER, _:
+            case ResponseModel.REFINER, _:
                 if acc_response and acc_response.reasoning:
                     ctx: str = str(shared.context.flat("HISTORY"))
                     args = {"improvements": acc_response.details, "context": ctx, "response": answer, "question": query}

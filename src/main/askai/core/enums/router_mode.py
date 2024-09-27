@@ -18,6 +18,7 @@ from askai.core.features.processors.qna import qna
 from askai.core.features.processors.qstring import qstring
 from askai.core.features.processors.rag import rag
 from askai.core.features.processors.task_splitter import splitter
+from askai.core.features.processors.chat import chat
 from hspylib.core.enums.enumeration import Enumeration
 from typing import Optional
 
@@ -27,17 +28,19 @@ class RouterMode(Enumeration):
     defines the different modes that the router can operate in, each affecting how answers are generated and delivered.
     """
 
-    # fmt: on
-
-    TASK_SPLIT = "Task Splitter", "", splitter
-
-    QNA = "Questions and Answers", "", qna
-
-    QSTRING = "Non-Interactive", "", qstring
-
-    RAG = "Retrieval-Augmented Generation", "ﮐ", rag
-
     # fmt: off
+
+    TASK_SPLIT = "Task Splitter",               "", splitter
+
+    QNA = "Questions & Answers",                "", qna
+
+    QSTRING = "Non-Interactive",                "", qstring
+
+    RAG = "Retrieval-Augmented-Generation",     "ﮐ", rag
+
+    CHAT = "Taius Chat",                        "", chat
+
+    # fmt: on
 
     @classmethod
     def modes(cls) -> list[str]:
@@ -47,25 +50,25 @@ class RouterMode(Enumeration):
         return RouterMode.names()
 
     @staticmethod
-    def default() -> 'RouterMode':
+    def default() -> "RouterMode":
         """Return the default routing mode.
         :return: The default RouterMode instance.
         """
         return RouterMode.TASK_SPLIT if configs.is_interactive else RouterMode.QSTRING
 
     @classmethod
-    def of_name(cls, name: str) -> 'RouterMode':
+    def of_name(cls, name: str) -> "RouterMode":
         """Retrieve the RouterMode instance corresponding to the given name.
         :param name: The name of the router mode to retrieve.
         :return: The RouterMode instance that matches the given name.
         :raises ValueError: If no matching RouterMode is found.
         """
-        return cls[name] if name.casefold() != 'default' else cls.default()
+        return cls[name] if name.casefold() != "default" else cls.default()
 
     def __str__(self):
         return f"{self.icon}  {self.name}"
 
-    def __eq__(self, other: 'RouterMode') -> bool:
+    def __eq__(self, other: "RouterMode") -> bool:
         return self.name == other.name
 
     @property

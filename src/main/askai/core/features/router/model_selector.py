@@ -15,7 +15,7 @@
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.enums.routing_model import RoutingModel
+from askai.core.enums.response_model import ResponseModel
 from askai.core.model.model_result import ModelResult
 from askai.core.support.langchain_support import lc_llm
 from hspylib.core.metaclass.singleton import Singleton
@@ -45,7 +45,7 @@ class ModelSelector(metaclass=Singleton):
         :return: An instance of ModelResult representing the selected model.
         """
         final_prompt: str = self.model_template.format(
-            datetime=geo_location.datetime, models=RoutingModel.enlist(), question=question
+            datetime=geo_location.datetime, models=ResponseModel.enlist(), question=question
         )
         llm: BaseChatModel = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
         if response := llm.invoke(final_prompt):

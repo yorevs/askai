@@ -4,7 +4,7 @@
 """
    @project: HsPyLib-AskAI
    @package: askai.core.enums.routing_model
-      @file: routing_model.py
+      @file: response_model.py
    @created: Tue, 11 Jun 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
@@ -19,7 +19,7 @@ import logging as log
 import os
 
 
-class RoutingModel(Enumeration):
+class ResponseModel(Enumeration):
     """Enumeration representing the model used to provide the final answer to the user.
     This class defines the different models that can be used in the routing process to generate and deliver the
     final response.
@@ -93,11 +93,11 @@ class RoutingModel(Enumeration):
     # fmt: on
 
     @classmethod
-    def of_model(cls, model_id: str) -> "RoutingModel":
-        """Return the RoutingModel instance that matches the given model ID.
+    def of_model(cls, model_id: str) -> "ResponseModel":
+        """Return the ResponseModel instance that matches the given model ID.
         :param model_id: The ID of the model to retrieve.
-        :return: The RoutingModel instance corresponding to the specified model ID.
-        :raises ValueError: If no matching RoutingModel is found.
+        :return: The ResponseModel instance corresponding to the specified model ID.
+        :raises ValueError: If no matching ResponseModel is found.
         """
         for v in cls.values():
             if v[0] == model_id:

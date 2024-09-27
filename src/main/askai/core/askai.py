@@ -93,7 +93,7 @@ class AskAi:
         configs.model = model_name
 
         self._session_id = now("%Y%m%d")[:8]
-        self._engine: AIEngine = shared.create_engine(engine_name, model_name, RouterMode.RAG)
+        self._engine: AIEngine = shared.create_engine(engine_name, model_name, RouterMode.CHAT)
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         self._mode: RouterMode = shared.mode
         self._console_path = Path(f"{CACHE_DIR}/askai-{self.session_id}.md")
