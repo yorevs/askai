@@ -112,14 +112,23 @@ class AskAiMessages(metaclass=Singleton):
     def enter_qna(self) -> str:
         return "You have *entered* the **Summarization Q & A**"
 
+    def qna_welcome(self) -> str:
+        return "  What specific information are you seeking about this content ?"
+
+    def enter_rag(self) -> str:
+        return "You have *entered* the **RAG Mode**"
+
+    def enter_chat(self) -> str:
+        return "Welcome back, Sir! Ready for more epic adventures?"
+
     def leave_qna(self) -> str:
         return "You have *left* the **Summarization Q & A**"
 
     def leave_rag(self) -> str:
         return "You have *left* the **RAG Mode**"
 
-    def qna_welcome(self) -> str:
-        return "  What specific information are you seeking about this content ?"
+    def leave_chat(self) -> str:
+        return f"Bye, Sir! If you need anything else, **just let me rock**!"
 
     def press_esc_enter(self) -> str:
         return "Type [exit] to exit Q & A mode"

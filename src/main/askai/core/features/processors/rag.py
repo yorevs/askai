@@ -1,6 +1,7 @@
 import logging as log
 import os
 from pathlib import Path
+from typing import Optional
 
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -8,9 +9,10 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import RAG_DIR, PERSIST_DIR
 from askai.core.engine.openai.temperature import Temperature
+from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.spinner import Spinner
-from askai.exception.exceptions import DocumentsNotFound
+from askai.exception.exceptions import DocumentsNotFound, TerminatingQuery
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
@@ -50,20 +52,25 @@ class Rag(metaclass=Singleton):
         # fmt: on
 
     def persist_dir(self, file_glob: AnyPath) -> Path:
+        """TODO"""
         summary_hash = hash_text(file_glob)
         return Path(f"{PERSIST_DIR}/{summary_hash}")
 
-    def process(self, question: str, **_) -> str:
+    def process(self, question: str, **_) -> Optional[str]:
         """Process the user question to retrieve the final response.
         :param question: The user question to process.
         :return: The final response after processing the question.
         """
+        if not question:
+            raise TerminatingQuery("The user wants to exit!")
+        if question.casefold() in ["exit", "leave", "quit", "q"]:
+            events.reply.emit(reply=AIReply.info(msg.leave_rag()))
+            events.mode_changed.emit(mode="DEFAULT")
+            return None
+
         self.generate()
 
-        if question.casefold() == "exit":
-            events.mode_changed.emit(mode="DEFAULT")
-            output = msg.leave_rag()
-        elif not (output := self._rag_chain.invoke(question)):
+        if not (output := self._rag_chain.invoke(question)):
             output = msg.invalid_response(output)
 
         return output

@@ -16,6 +16,7 @@ from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
 from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import commands
 from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache, CACHE_DIR
@@ -138,13 +139,11 @@ class AskAiCli(AskAi):
         """
         self.mode: RouterMode = RouterMode.of_name(ev.args.mode)
         if self.mode == RouterMode.QNA:
-            sum_msg: str = (
-                f"{msg.enter_qna()} \n"
-                f"```\nContext:  {ev.args.sum_path},   {ev.args.glob} \n```\n"
-                f"`{msg.press_esc_enter()}` \n\n"
-                f"> {msg.qna_welcome()}"
-            )
-            events.reply.emit(reply=AIReply.info(sum_msg))
+            welcome_msg = self.mode.welcome(sum_path=ev.args.sum_path, sum_glob=ev.args.glob)
+        else:
+            welcome_msg = self.mode.welcome()
+
+        events.reply.emit(reply=AIReply.info(welcome_msg or msg.welcome(prompt.user.title())))
 
     def _cb_mic_listening_event(self, ev: Event) -> None:
         """Callback to handle microphone listening events.
@@ -210,7 +209,7 @@ class AskAiCli(AskAi):
             askai_bus.subscribe(DEVICE_CHANGED_EVENT, self._cb_device_changed_event)
             askai_bus.subscribe(MODE_CHANGED_EVENT, self._cb_mode_changed_event)
             display_text(str(self), markdown=False)
-            self._reply(AIReply.info(msg.welcome(os.getenv("USER", "you"))))
+            self._reply(AIReply.info(self.mode.welcome()))
         elif configs.is_speak:
             recorder.setup()
             player.start_delay()

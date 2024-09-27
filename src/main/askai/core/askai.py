@@ -93,7 +93,7 @@ class AskAi:
         configs.model = model_name
 
         self._session_id = now("%Y%m%d")[:8]
-        self._engine: AIEngine = shared.create_engine(engine_name, model_name, RouterMode.CHAT)
+        self._engine: AIEngine = shared.create_engine(engine_name, model_name, RouterMode.default())
         self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
         self._mode: RouterMode = shared.mode
         self._console_path = Path(f"{CACHE_DIR}/askai-{self.session_id}.md")
@@ -165,8 +165,8 @@ class AskAi:
             elif not (output := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
                 events.reply.emit(reply=AIReply.detailed(msg.wait()))
-                output = processor.process(question, context=read_stdin(), query_prompt=self._query_prompt)
-                events.reply.emit(reply=AIReply.info(output or msg.no_output("processor")))
+                if output := processor.process(question, context=read_stdin(), query_prompt=self._query_prompt):
+                    events.reply.emit(reply=AIReply.info(output or msg.no_output("processor")))
             else:
                 log.debug("Reply found for '%s' in cache.", question)
                 events.reply.emit(reply=AIReply.info(output))
@@ -184,6 +184,7 @@ class AskAi:
             events.reply.emit(reply=AIReply.error(msg.quote_exceeded()))
             status = False
         except TerminatingQuery:
+            self._reply(AIReply.info(msg.goodbye()))
             status = False
         finally:
             if output:

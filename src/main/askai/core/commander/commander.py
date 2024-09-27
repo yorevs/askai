@@ -12,8 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
+import re
+from functools import lru_cache
+from os.path import dirname
+from pathlib import Path
+from string import Template
+from textwrap import dedent
+
+import click
 from askai.core.askai_configs import configs
-from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_EVENT
+from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_EVENT, events
 from askai.core.commander.commands.cache_cmd import CacheCmd
 from askai.core.commander.commands.camera_cmd import CameraCmd
 from askai.core.commander.commands.general_cmd import GeneralCmd
@@ -26,18 +35,9 @@ from askai.core.support.utilities import display_text
 from askai.language.language import AnyLocale, Language
 from click import Command, Group
 from clitt.core.term.cursor import cursor
-from functools import lru_cache
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import sysout, to_bool
 from hspylib.modules.eventbus.event import Event
-from os.path import dirname
-from pathlib import Path
-from string import Template
-from textwrap import dedent
-
-import click
-import os
-import re
 
 COMMANDER_HELP_TPL = Template(
     dedent(
@@ -207,7 +207,7 @@ def context(operation: str, name: str | None = None) -> None:
     :param operation: The operation to perform on contexts. Options: [list | forget].
     :param name: The name of the context to target (default is "ALL").
     """
-    match operation:
+    match operation.casefold():
         case "list":
             HistoryCmd.context_list()
         case "forget":
@@ -223,7 +223,7 @@ def history(operation: str) -> None:
     """Manages the current input history.
     :param operation: The operation to perform on contexts. Options: [list|forget].
     """
-    match operation:
+    match operation.casefold():
         case "list":
             HistoryCmd.history_list()
         case "forget":
@@ -250,7 +250,7 @@ def devices(operation: str, name: str | None = None) -> None:
     :param operation: Specifies the device operation. Options: [list|set].
     :param name: The target device name for setting.
     """
-    match operation:
+    match operation.casefold():
         case "list":
             TtsSttCmd.device_list()
         case "set":
@@ -270,7 +270,7 @@ def settings(operation: str, name: str | None = None, value: str | None = None) 
     :param name: The key for the setting to modify.
     :param value: The new value for the specified setting.
     """
-    match operation:
+    match operation.casefold():
         case "list":
             SettingsCmd.list(name)
         case "get":
@@ -292,7 +292,7 @@ def cache(operation: str, args: tuple[str, ...]) -> None:
     :param operation: Specifies the cache operation. Options: [list|get|clear|files|enable|ttl]
     :param args: Arguments relevant to the chosen operation.
     """
-    match operation:
+    match operation.casefold():
         case "list":
             CacheCmd.list()
         case "get":
@@ -349,7 +349,7 @@ def voices(operation: str, name: str | int | None = None) -> None:
     :param operation: The action to perform on voices. Options: [list/set/play]
     :param name: The voice name.
     """
-    match operation:
+    match operation.casefold():
         case "list":
             TtsSttCmd.voice_list()
         case "set":
@@ -426,7 +426,7 @@ def camera(operation: str, args: tuple[str, ...]) -> None:
     :param operation: The camera operation to perform. Options: [capture|identify|import]
     :param args: The arguments required for the operation.
     """
-    match operation:
+    match operation.casefold():
         case "capture" | "photo":
             CameraCmd.capture(*args)
         case "identify" | "id":
@@ -436,3 +436,23 @@ def camera(operation: str, args: tuple[str, ...]) -> None:
         case _:
             err = str(click.BadParameter(f"Invalid camera operation: '{operation}'"))
             text_formatter.commander_print(f"%RED%{err}%NC%")
+
+
+@ask_commander.command()
+@click.argument("router_mode", default="")
+def mode(router_mode: str) -> None:
+    """Change the AskAI routing mode.
+    :param router_mode: The routing mode. Options: [rag|chat|splitter|qstring]
+    """
+    if not router_mode:
+        text_formatter.commander_print(f"Available routing modes: **[rag|chat|splitter]**. Current: `{shared.mode}`")
+    else:
+        match router_mode.casefold():
+            case "rag":
+                events.mode_changed.emit(mode="RAG")
+            case "chat":
+                events.mode_changed.emit(mode="CHAT")
+            case "splitter":
+                events.mode_changed.emit(mode="TASK_SPLIT")
+            case _:
+                events.mode_changed.emit(mode="DEFAULT")

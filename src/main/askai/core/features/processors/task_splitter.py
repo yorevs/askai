@@ -148,6 +148,9 @@ class TaskSplitter(metaclass=Singleton):
         :param question: The user question to process.
         """
 
+        if not question or question.casefold() in ["exit", "leave", "quit", "q"]:
+            raise TerminatingQuery("The user wants to exit!")
+
         os.chdir(Path.home())
         shared.context.forget("EVALUATION")  # Erase previous evaluation notes.
         model: ModelResult = ModelResult.default()  # Hard-coding the result model for now.

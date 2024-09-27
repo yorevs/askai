@@ -12,7 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
+from functools import lru_cache
+
 from askai.core.askai_configs import configs
+from askai.core.askai_messages import msg
 from askai.core.features.processors.ai_processor import AIProcessor
 from askai.core.features.processors.qna import qna
 from askai.core.features.processors.qstring import qstring
@@ -21,6 +25,8 @@ from askai.core.features.processors.task_splitter import splitter
 from askai.core.features.processors.chat import chat
 from hspylib.core.enums.enumeration import Enumeration
 from typing import Optional
+
+from hspylib.core.tools.dict_tools import get_or_default_by_key
 
 
 class RouterMode(Enumeration):
@@ -50,6 +56,7 @@ class RouterMode(Enumeration):
         return RouterMode.names()
 
     @staticmethod
+    @lru_cache
     def default() -> "RouterMode":
         """Return the default routing mode.
         :return: The default RouterMode instance.
@@ -86,6 +93,27 @@ class RouterMode(Enumeration):
     @property
     def is_default(self) -> bool:
         return self == RouterMode.default()
+
+    def welcome(self, **kwargs) -> Optional[str]:
+        """TODO"""
+        match self:
+            case RouterMode.QNA:
+                sum_path: str = get_or_default_by_key(kwargs, "sum_path", None)
+                sum_glob: str = get_or_default_by_key(kwargs, "sum_glob", None)
+                welcome_msg = msg.t(
+                    f"{msg.enter_qna()} \n"
+                    f"```\nContext:  {sum_path},   {sum_glob} \n```\n"
+                    f"`{msg.press_esc_enter()}` \n\n"
+                    f"> {msg.qna_welcome()}"
+                )
+            case RouterMode.RAG:
+                welcome_msg = msg.enter_rag()
+            case RouterMode.CHAT:
+                welcome_msg = msg.enter_chat()
+            case _:
+                welcome_msg = msg.welcome(os.getenv("USER", "user"))
+
+        return welcome_msg
 
     def process(self, question: str, **kwargs) -> Optional[str]:
         """Invoke the processor associated with the current mode to handle the given question.

@@ -126,7 +126,7 @@ class SharedInstances(metaclass=Singleton):
             f"{dtm.center(80, '=')} %EOL%"
             f"   Language: {configs.language} {translator} %EOL%"
             f"     Engine: {shared.engine} %EOL%"
-            f"       Mode: {self.mode} %EOL%"
+            f"       Mode: %CYAN%{self.mode}%GREEN% %EOL%"
             f"        Dir: {cur_dir} %EOL%"
             f"         OS: {prompt.os_type}/{prompt.shell} %EOL%"
             f"{'-' * 80} %EOL%"

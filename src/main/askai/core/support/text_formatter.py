@@ -121,6 +121,8 @@ class TextFormatter(metaclass=Singleton):
         text = re.sub(self.RE_TYPES[''], r" [\1](\1)", text)
         text = re.sub(self.RE_TYPES['MD'], r"\n\1\n", text)
         text = re.sub(r'```(.+)```\s+', r"\n```\1```\n", text)
+        text = text.replace(os.getenv("USER", "user"), f'`{os.getenv("USER", "user")}`')
+        text = text.replace("Taius", f'**Taius**')
 
         # fmt: on
 

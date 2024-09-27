@@ -14,10 +14,14 @@
 """
 from typing import Optional, Any
 
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
+from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from askai.exception.exceptions import TerminatingQuery
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.dict_tools import get_or_default_by_key
@@ -48,6 +52,13 @@ class ChatProcessor(metaclass=Singleton):
         :param question: The user question to process.
         :return: The final response after processing the question.
         """
+
+        if not question:
+            raise TerminatingQuery("The user wants to exit!")
+        if question.casefold() in ["exit", "leave", "quit", "q"]:
+            events.reply.emit(reply=AIReply.info(msg.leave_chat()))
+            events.mode_changed.emit(mode="DEFAULT")
+            return None
 
         response = None
         prompt_file: str = get_or_default_by_key(kwargs, "prompt_file", None)
