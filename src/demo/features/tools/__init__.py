@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.0.13
+# hspylib-askai v1.0.14
 #
 # Package: demo.features.tools
 """Package initialization."""
@@ -8,4 +8,4 @@
 __all__ = [
     'query_output_demo'
 ]
-__version__ = '1.0.13'
+__version__ = '1.0.14'
