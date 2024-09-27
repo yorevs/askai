@@ -12,16 +12,16 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
+from shutil import which
+
+from hspylib.core.enums.charset import Charset
+from hspylib.core.metaclass.singleton import Singleton
+
 from askai.__classpath__ import classpath
 from askai.core.askai_settings import settings
 from askai.core.enums.verbosity import Verbosity
 from askai.language.language import Language
-from hspylib.core.enums.charset import Charset
-from hspylib.core.metaclass.singleton import Singleton
-from shutil import which
-
-import locale
-import os
 
 
 class AskAiConfigs(metaclass=Singleton):
@@ -124,7 +124,6 @@ class AskAiConfigs(metaclass=Singleton):
         """Lookup order: Settings -> Locale -> Environment."""
         return Language.of_locale(
             settings.get("askai.preferred.language")
-            or locale.getlocale(locale.LC_ALL)
             or os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG")))
             or Language.EN_US.idiom
         )

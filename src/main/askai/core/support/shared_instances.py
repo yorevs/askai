@@ -171,7 +171,7 @@ class SharedInstances(metaclass=Singleton):
         """
         ret = None
         while ret is None:
-            if (ret := line_input(input_prompt, placeholder)) == Keyboard.VK_CTRL_L:  # Use STT as input method.
+            if (ret := line_input(input_prompt, placeholder)) == Keyboard.VK_CTRL_L:  # Use voice input.
                 terminal.cursor.erase_line()
                 if spoken_text := self.engine.speech_to_text():
                     display_text(f"{self.username}: {spoken_text}")

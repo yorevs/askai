@@ -116,7 +116,7 @@ class AskAiCli(AskAi):
         """Read the user input from stdin.
         :return: The user's input as a string, or None if no input is provided.
         """
-        return shared.input_text(f"{shared.username}", f"Message {self.engine.nickname()}")
+        return shared.input_text(f"{shared.username}", f"{msg.t('Message')} {self.engine.nickname()}")
 
     def _cb_reply_event(self, ev: Event) -> None:
         """Callback to handle reply events.
@@ -188,21 +188,21 @@ class AskAiCli(AskAi):
         if configs.is_interactive:
             splash_thread: Thread = Thread(daemon=True, target=self._splash)
             splash_thread.start()
-            task = self._progress.add_task("[green]Starting up...", total=len(tasks))
+            task = self._progress.add_task(f'[green] {msg.t("Starting up...")}', total=len(tasks))
             with self._progress:
                 os.chdir(Path.home())
-                self._progress.update(task, advance=1, description="[green]Downloading nltk data")
+                self._progress.update(task, advance=1, description=f'[green] {msg.t("Downloading nltk data")}')
                 nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
                 cache.cache_enable = configs.is_cache
-                self._progress.update(task, advance=1, description="[green]Loading input history")
+                self._progress.update(task, advance=1, description=f'[green] {msg.t("Loading input history")}')
                 KeyboardInput.preload_history(cache.load_input_history(commands()))
-                self._progress.update(task, advance=1, description="[green]Starting scheduler")
+                self._progress.update(task, advance=1, description=f'[green] {msg.t("Starting scheduler")}')
                 scheduler.start()
-                self._progress.update(task, advance=1, description="[green]Setting up recorder")
+                self._progress.update(task, advance=1, description=f'[green] {msg.t("Setting up recorder")}')
                 recorder.setup()
-                self._progress.update(task, advance=1, description="[green]Starting player delay")
+                self._progress.update(task, advance=1, description=f'[green] {msg.t("Starting player delay")}')
                 player.start_delay()
-                self._progress.update(task, advance=1, description="[green]Finalizing startup")
+                self._progress.update(task, advance=1, description=f'[green] {msg.t("Finalizing startup")}')
                 pause.seconds(1)
             self._ready = True
             splash_thread.join()

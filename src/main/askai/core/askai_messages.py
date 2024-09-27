@@ -61,6 +61,13 @@ class AskAiMessages(metaclass=Singleton):
             return text
         return self.translator.translate(str(text))
 
+    def t(self, text: AnyStr) -> str:
+        """Wrapper to translate.
+        :param text: The text to be translated.
+        :return: The translated text.
+        """
+        return self.translate(text)
+
     # Informational
 
     def welcome(self, username: str) -> str:
