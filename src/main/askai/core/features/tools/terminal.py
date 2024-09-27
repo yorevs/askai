@@ -12,7 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from urllib.parse import urlparse
+
+import logging as log
+import os
+import re
+from functools import partial
+from os.path import expandvars
+from shutil import which
+from typing import Tuple
 
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -21,22 +28,15 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_path, media_type_of
 from clitt.core.term.terminal import Terminal
-from functools import partial
 from hspylib.core.config.path_object import PathObject
 from hspylib.modules.application.exit_status import ExitStatus
-from os.path import expandvars
-from shutil import which
-from typing import Tuple
-
-import logging as log
-import os
-import re
 
 
-def list_contents(folder: str, filters: str) -> str:
+def list_contents(folder: str, filters: str = None) -> str:
     """List the contents of a folder.
     :param folder: The folder to list contents from.
     :param filters: The optional listing filters (file glob).
+    :return: A list of the contents in the folder that match the filters.
     """
 
     def _build_filters_() -> str:
@@ -48,7 +48,7 @@ def list_contents(folder: str, filters: str) -> str:
             f'find {folder} -maxdepth 1 -type f {_build_filters_() if filters else ""} '
             f"-exec ls -lLht {{}} + 2>/dev/null | sort -k9,9"
         )
-        status, output = _execute_bash(cmd_line)
+        status, output = execute_bash(cmd_line)
         if status:
             if output:
                 return f"Listing the contents of: `{folder}`:\n\n{output}\n"
@@ -60,13 +60,8 @@ def list_contents(folder: str, filters: str) -> str:
 def open_command(path_name: str) -> str:
     """Open the specified path, regardless if it's a file, folder or application.
     :param path_name: The file path to open.
+    :return: A string telling whether the path was successfully opened or not.
     """
-
-    # Check if it's a valid URL
-    if (parsed_url := urlparse(path_name)) and parsed_url.scheme and parsed_url.netloc:
-        status, _ = _execute_bash(f"open {path_name}")
-        if status:
-            return f"`{path_name}` was successfully opened!"
 
     posix_path: PathObject = PathObject.of(path_name)
     if not posix_path.exists:
@@ -82,13 +77,13 @@ def open_command(path_name: str) -> str:
         mtype: tuple[str, ...] = media_type_of(path_name) or ("text", "plain")
         match mtype:
             case ("audio", _) | ("video", _):
-                fn_open = partial(_execute_bash, f"ffplay -v 0 -autoexit {path_name} &>/dev/null")
+                fn_open = partial(execute_bash, f"ffplay -v 0 -autoexit {path_name} &>/dev/null")
             case ("text", _):
-                fn_open = partial(_execute_bash, f"cat {path_name}")
+                fn_open = partial(execute_bash, f"cat {path_name}")
             case ("inode", "directory"):
                 fn_open = partial(list_contents, path_name)
             case _:
-                fn_open = partial(_execute_bash, f"open {path_name} 2>/dev/null")
+                fn_open = partial(execute_bash, f"open {path_name} 2>/dev/null")
         status, output = fn_open()
         if status:
             if not output:
@@ -103,22 +98,24 @@ def open_command(path_name: str) -> str:
 
 
 def execute_command(shell: str, command_line: str) -> str:
-    """Execute a terminal command using the specified language.
+    """Execute a terminal command using the specified shell.
     :param shell: The shell type to be used.
     :param command_line: The command line to be executed.
+    :return: The output of the executed command.
     """
     match shell:
         case "bash":
-            status, output = _execute_bash(command_line)
+            status, output = execute_bash(command_line)
         case _:
             raise NotImplementedError(f"'{shell}' is not supported!")
 
     return output or (msg.cmd_success(command_line) if status else msg.cmd_failed(command_line))
 
 
-def _execute_bash(command_line: str) -> Tuple[bool, str]:
+def execute_bash(command_line: str) -> Tuple[bool, str]:
     """Execute the provided command line using bash.
     :param command_line: The command line to be executed in bash.
+    :return: A tuple containing a boolean indicating success or failure and the output or error message.
     """
     status, output = False, ""
     if (command := command_line.split(" ")[0].strip()) and which(command):

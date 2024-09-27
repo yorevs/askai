@@ -13,7 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 import os
-from functools import lru_cache
 from pathlib import Path
 
 from askai.__classpath__ import classpath
@@ -39,7 +38,6 @@ class RAGProvider:
         self._rag_db: VectorStore | None = None
         check_state(file_is_not_empty(self._rag_path))
 
-    @lru_cache
     def get_rag_examples(self, query: str, k: int = configs.rag_retrival_amount) -> str:
         """Retrieve a list of relevant examples based on the provided query.
         :param query: The search query used to retrieve examples.

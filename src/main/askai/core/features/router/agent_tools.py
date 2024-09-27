@@ -17,7 +17,7 @@ import re
 
 from askai.core.askai_messages import msg
 from askai.core.features.tools.analysis import query_output
-from askai.core.features.tools.browser import browse
+from askai.core.features.tools.browser import browse, open_url
 from askai.core.features.tools.general import display_tool
 from askai.core.features.tools.generation import generate_content, save_content
 from askai.core.features.tools.summarization import summarize
@@ -100,10 +100,18 @@ class AgentTools(metaclass=Singleton):
         information is needed quickly. This tool is especially effective for accessing the most recent data available
         online.
         Usage: `browse(search_query)`
-        :param search_query: The web search query as a string.
+        :param search_query: The user search query as a string. It's important to keep the user keywords as is.
         :return: A string containing the results of the web search, or None if no relevant results are found.
         """
         return browse(search_query)
+
+    def open_url(self, url: str) -> str:
+        """Use this tool to open a website specified by the given URL.
+        Usage: `open_url(url)`
+        :param url: The URL to be opened.
+        :return: A string telling whether the URL was successfully opened or not.
+        """
+        return open_url(url)
 
     def query_output(self, output_query: str) -> str:
         """Use this tool to analyze textual content and identify the presence of files, folders, and applications. This

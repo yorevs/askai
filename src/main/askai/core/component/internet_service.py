@@ -15,7 +15,7 @@
 
 import logging as log
 import re
-from typing import List, Literal
+from typing import List
 
 import bs4
 from askai.__classpath__ import API_KEYS
@@ -55,6 +55,28 @@ class InternetService(metaclass=Singleton):
 
     ASKAI_INTERNET_DATA_KEY = "askai-internet-data"
 
+    # fmt: off
+    CATEGORY_ICONS = {
+        "Weather": "",
+        "Sports": "",
+        "News": "",
+        "Celebrities": "",
+        "People": "",
+        "Programming": "",
+        "Travel": "",
+        "General": "",
+    }
+
+    SITE_ICONS = {
+        "linkedin.com": "",
+        "github.com": "",
+        "instagram": "",
+        "x.com": "",
+        "stackoverflow.com": "",
+        "default": ""
+    }
+    # fmt: on
+
     @staticmethod
     def _build_google_query(search: SearchResult) -> str:
         """Build a Google Search query from the provided search parameters.
@@ -63,35 +85,44 @@ class InternetService(metaclass=Singleton):
         """
         # The order of conditions is important here, as the execution may stop early if a condition is met.
         final_query = ""
-        # Gather the sites to be used in the search.
-        if search.sites:
-            final_query += f" {' OR '.join(['site:' + url for url in search.sites])}"
-        # Weather is a filter that does not require any other search parameters.
-        if search.filters and any(f.find("weather:") >= 0 for f in search.filters):
-            return final_query + " " + re.sub(r"^weather:(.*)", r'weather:"\1"', " AND ".join(search.filters))
-        # Make the search query using the provided keywords.
+        match search.category.casefold():
+            case "people":
+                search.sites += ["github.com", "linkedin.com", "facebook.com", "instagram.com", "tiktok.com", "x.com"]
+                if any((f.find("people:") >= 0 for f in search.filters)):
+                    final_query = f' intext:"{next((f for f in search.filters if f.startswith("people:")), None)}"'
+                    final_query += " AND description AND information AND background"
+            case "weather":
+                search.sites += ["weather.com", "accuweather.com", "weather.gov"]
+                if any((f.find("weather:") >= 0 for f in search.filters)):
+                    final_query = f' weather:"{next((f for f in search.filters if f.startswith("weather:")), None)}"'
+                    final_query += " AND forecast"
+            case "programming":
+                search.sites += ["stackoverflow.com", "stackexchange.com", "github.com"]
+            # Gather the sites to be used in the search.
+        sites = f"{' OR '.join(set('site:' + url for url in search.sites))}"
+        # Make the final search query use the provided keywords.
         if search.keywords:
-            return f"{' '.join(search.keywords)} {final_query} "
+            final_query = f"{' '.join(set(search.keywords))} {sites} {final_query}"
 
         return final_query
 
-    @staticmethod
-    def wrap_response(terms: str, output: str, sites: list[str], method: Literal["Google", "Other"] = "Google") -> str:
+    @classmethod
+    def wrap_response(cls, terms: str, output: str, result: SearchResult) -> str:
         """Format and wrap the search response based on the search terms, output, and method used.
         :param terms: The search terms used in the query.
         :param output: The raw output or results from the search.
-        :param sites: A list of websites included in or relevant to the search results.
-        :param method: The search method used, either 'Google' or 'Other'.
+        :param result: The search result.
         :return: A formatted string that encapsulates the search response.
         """
-        method_icon = {"google": "", "other": ""}
+        engine_icon = {"google": "", "other": ""}
+        terms: str = re.sub(r"\s{2,}", " ", terms)
         # fmt: off
         return (
-            f"Your {method.title()} search returned the following:\n\n"
+            f"Your {result.engine.title()} search returned the following:\n\n"
             f"{output}\n\n---\n\n"
-            f"Sources: {', '.join(sites)} - "
-            f"*{method_icon[method.casefold()]} Accessed: {geo_location.location} {now('%d %B, %Y')}*\n\n"
-            f">  Terms: {terms}").strip()
+            f"`{cls.CATEGORY_ICONS[result.category]} {result.category}`  Sources: {', '.join(result.sites)}  "
+            f"*{engine_icon[result.engine.casefold()]} Accessed: {geo_location.location} {now('%d %B, %Y')}*\n\n"
+            f">  Terms: {terms}")
         # fmt: on
 
     def __init__(self):
@@ -115,7 +146,7 @@ class InternetService(metaclass=Singleton):
         """
         events.reply.emit(reply=AIReply.info(msg.searching()))
         search.sites = search.sites or ["google.com", "bing.com", "duckduckgo.com", "ask.com"]
-        terms = self._build_google_query(search).strip()
+        terms: str = self._build_google_query(search).strip()
         try:
             log.info("Searching Google for '%s'", terms)
             events.reply.emit(reply=AIReply.debug(msg.final_query(terms)))
@@ -129,7 +160,7 @@ class InternetService(metaclass=Singleton):
         except HttpError as err:
             return msg.fail_to_search(str(err))
 
-        return self.refine_search(search.question, output, terms, search.sites)
+        return self.refine_search(terms, output, search)
 
     def scrap_sites(self, search: SearchResult) -> str:
         """Scrape a web page and summarize its contents.
@@ -164,30 +195,29 @@ class InternetService(metaclass=Singleton):
                 output: Output = rag_chain.invoke(search.question)
                 v_store.delete_collection()  # cleanup
                 log.info("Scrapping sites returned: '%s'", str(output))
-                return self.refine_search(search.question, str(output), "", search.sites)
+                return self.refine_search(search.question, str(output), search)
         return msg.no_output("search")
 
-    def refine_search(self, question: str, result: str, terms: str, sites: list[str]) -> str:
+    def refine_search(self, terms: str, response: str, search: SearchResult) -> str:
         """Refine the text retrieved by the search engine.
-        :param question: The user's question, used to refine and contextualize the search results.
-        :param result: The raw search result text that needs refinement.
-        :param terms: The search terms used in the Google search.
-        :param sites: The list of source sites that were included in the search.
+        :param terms: The search terms used in the search.
+        :param response: The internet search response.
+        :param search: The search result object.
         :return: A refined version of the search result text, tailored to better answer the user's question.
         """
         refine_prompt = PromptTemplate.from_template(self.refine_template).format(
             idiom=shared.idiom,
-            sources=sites,
+            sources=search.sites,
             location=geo_location.location,
             datetime=geo_location.datetime,
-            result=result,
-            question=question,
+            result=response,
+            question=search.question,
         )
-        log.info("STT::[QUESTION] '%s'", result)
+        log.info("STT::[QUESTION] '%s'", response)
         llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)
 
         if (response := llm.invoke(refine_prompt)) and (output := response.content):
-            return self.wrap_response(terms, output, sites)
+            return self.wrap_response(terms, output, search)
 
         return msg.no_good_result()
 

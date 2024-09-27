@@ -12,37 +12,55 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+from typing import Optional
+from urllib.parse import urlparse
+
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.component.internet_service import internet
 from askai.core.engine.openai.temperature import Temperature
+from askai.core.features.tools.terminal import execute_bash
 from askai.core.model.search_result import SearchResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from hspylib.core.object_mapper import object_mapper
 from langchain_core.prompts import PromptTemplate
-from typing import Optional
 
-import logging as log
+
+def open_url(url: str) -> str:
+    """Opens a URL specified by the given path name.
+    :param url: The URL to be opened.
+    :return: A string telling whether the URL was successfully opened or not.
+    """
+    # Check if it's a valid URL
+    if (parsed_url := urlparse(url)) and parsed_url.scheme and parsed_url.netloc:
+        status, _ = execute_bash(f"open {url}")
+        if status:
+            return f"`{url}` was successfully opened!"
+    return f"Unable to open URL: '{url}'"
 
 
 def browse(query: str) -> Optional[str]:
     """Fetch the information from the Internet.
     :param query: The search query.
     """
+    # fmt: off
     template = PromptTemplate(
-        input_variables=["idiom", "datetime", "location", "question"], template=prompt.read_prompt("search-builder")
+        input_variables=["idiom", "datetime", "location", "question"],
+        template=prompt.read_prompt("search-builder")
     )
     final_prompt: str = template.format(
-        idiom=shared.idiom, datetime=geo_location.datetime, location=geo_location.location, question=query
+        idiom=shared.idiom, datetime=geo_location.datetime,
+        location=geo_location.location, question=query
     )
+    # fmt: on
     log.info("Browser::[QUESTION] '%s'  context=''", final_prompt)
     llm = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
     response: str = llm.invoke(final_prompt).content
 
     if response and shared.UNCERTAIN_ID not in response:
-        search: SearchResult = object_mapper.of_json(response, SearchResult)
+        search: SearchResult = SearchResult.parse_response(query, response)
         if not isinstance(search, SearchResult):
             log.error(msg.invalid_response(search))
             output = response.strip()

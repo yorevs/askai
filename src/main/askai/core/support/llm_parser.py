@@ -68,10 +68,11 @@ def parse_word(word: str, text: str) -> Optional[str]:
     return word_value.strip() if word_value else None
 
 
-def parse_list(field_name: str, text: str) -> list[SimpleNamespace | str]:
+def parse_list(field_name: str, text: str, is_dict=True) -> list[SimpleNamespace | str]:
     """Parse the LLM response and extract a specified list.
     :param field_name: The name of the field to extract from the text.
     :param text: The text response from the LLM to parse.
+    :param is_dict: Whether list list contains dicts or strings.
     :return: A list of SimpleNamespace objects or strings.
     """
     flags: int = re.IGNORECASE | re.DOTALL
@@ -82,7 +83,7 @@ def parse_list(field_name: str, text: str) -> list[SimpleNamespace | str]:
         list_value: list[str | dict] = json.loads(ensure_parseable(extracted_list))
         if list_value:
             assert isinstance(list_value, list), f"Parse error: Could not parse list: {extracted_list}"
-            if all(isinstance(val, dict) for val in list_value):
+            if is_dict and all(isinstance(val, dict) for val in list_value):
                 return list(map(lambda t: SimpleNamespace(**t), list_value))
             return list_value
     return list()
