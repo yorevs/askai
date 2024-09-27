@@ -170,7 +170,7 @@ class TaskSplitter(metaclass=Singleton):
                         events.reply.emit(reply=AIReply.info(plan.speak))
                 else:
                     # Most of the times, indicates the LLM responded directly.
-                    acc_response: AccResponse = assert_accuracy(question, response, AccColor.MODERATE)
+                    acc_response: AccResponse = assert_accuracy(question, response, AccColor.GOOD)
                     if output := plan.speak:
                         shared.context.push("HISTORY", question)
                         shared.context.push("HISTORY", output, "assistant")

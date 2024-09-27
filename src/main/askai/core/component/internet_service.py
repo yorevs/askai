@@ -12,6 +12,12 @@
 
    Copyright (c) 2024, HomeSetup
 """
+
+import logging as log
+import re
+from typing import List, Literal
+
+import bs4
 from askai.__classpath__ import API_KEYS
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -38,12 +44,6 @@ from langchain_core.runnables.utils import Output
 from langchain_core.tools import Tool
 from langchain_google_community import GoogleSearchAPIWrapper
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from textwrap import dedent
-from typing import List, Literal
-
-import bs4
-import logging as log
-import re
 
 
 class InternetService(metaclass=Singleton):
@@ -69,17 +69,14 @@ class InternetService(metaclass=Singleton):
         # Weather is a filter that does not require any other search parameters.
         if search.filters and any(f.find("weather:") >= 0 for f in search.filters):
             return final_query + " " + re.sub(r"^weather:(.*)", r'weather:"\1"', " AND ".join(search.filters))
-        # We want to find pages containing the exact name of the person.
-        if search.filters and any(f.find("people:") >= 0 for f in search.filters):
-            return final_query + " " + f" intext:\"{'+'.join([f.split(':')[1] for f in search.filters])}\" "
         # Make the search query using the provided keywords.
         if search.keywords:
-            final_query = f"{' '.join(search.keywords)} {final_query} "
+            return f"{' '.join(search.keywords)} {final_query} "
 
         return final_query
 
     @staticmethod
-    def _wrap_response(terms: str, output: str, sites: list[str], method: Literal["Google", "Other"] = "Google") -> str:
+    def wrap_response(terms: str, output: str, sites: list[str], method: Literal["Google", "Other"] = "Google") -> str:
         """Format and wrap the search response based on the search terms, output, and method used.
         :param terms: The search terms used in the query.
         :param output: The raw output or results from the search.
@@ -88,15 +85,14 @@ class InternetService(metaclass=Singleton):
         :return: A formatted string that encapsulates the search response.
         """
         method_icon = {"google": "", "other": ""}
-        return dedent(
-            f"""
-            Your {method.title()} search returned the following:
-            {output}
-            \n---\n
-            Sources: {', '.join(sites)}
-            *{method_icon[method.casefold()]} Accessed: {geo_location.location} {now('%d %B, %Y')}*
-            >  Terms: {terms}"""
-        ).strip()
+        # fmt: off
+        return (
+            f"Your {method.title()} search returned the following:\n\n"
+            f"{output}\n\n---\n\n"
+            f"Sources: {', '.join(sites)} - "
+            f"*{method_icon[method.casefold()]} Accessed: {geo_location.location} {now('%d %B, %Y')}*\n\n"
+            f">  Terms: {terms}").strip()
+        # fmt: on
 
     def __init__(self):
         API_KEYS.ensure("GOOGLE_API_KEY", "google_search")
@@ -191,7 +187,7 @@ class InternetService(metaclass=Singleton):
         llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)
 
         if (response := llm.invoke(refine_prompt)) and (output := response.content):
-            return self._wrap_response(terms, output, sites)
+            return self.wrap_response(terms, output, sites)
 
         return msg.no_good_result()
 

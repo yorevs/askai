@@ -12,6 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from urllib.parse import urlparse
+
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.features.router.evaluation import resolve_x_refs
@@ -59,6 +61,13 @@ def open_command(path_name: str) -> str:
     """Open the specified path, regardless if it's a file, folder or application.
     :param path_name: The file path to open.
     """
+
+    # Check if it's a valid URL
+    if (parsed_url := urlparse(path_name)) and parsed_url.scheme and parsed_url.netloc:
+        status, _ = _execute_bash(f"open {path_name}")
+        if status:
+            return f"`{path_name}` was successfully opened!"
+
     posix_path: PathObject = PathObject.of(path_name)
     if not posix_path.exists:
         # Attempt to resolve cross-references
