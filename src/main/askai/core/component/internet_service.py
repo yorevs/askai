@@ -19,6 +19,7 @@ from collections import defaultdict
 from typing import List
 
 import bs4
+import openai
 from askai.__classpath__ import API_KEYS
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -60,16 +61,17 @@ class InternetService(metaclass=Singleton):
     CATEGORY_ICONS = {
         "Weather": "",
         "Sports": "醴",
-        "News": "",
+        "News": "",
         "Celebrities": "",
         "People": "",
         "Programming": "",
         "Travel": "",
         "General": "",
+        "Maps": "",
     }
 
     SITE_ICONS = defaultdict(str, {
-        "linkedin.com": "",
+        "linkedin.com": "",
         "github.com": "",
         "instagram.com": "",
         "x.com": "X",
@@ -100,15 +102,16 @@ class InternetService(metaclass=Singleton):
         :return: A formatted string that encapsulates the search response.
         """
         terms: str = re.sub(r"\s{2,}", " ", terms)
+        sites: set[str] = set(re.findall(r"site:(.+?\..+?)\s+", terms) + result.sites)
         sources: str = " ".join(
-            filter(len, sorted(set(f"{s.replace(s, cls.SITE_ICONS[s]):<2}" or s for s in result.sites), key=len))
+            filter(len, set(sorted([f"{s.replace(s, cls.SITE_ICONS[s]):<2}".strip() or s for s in sites], key=len)))
         )
         # fmt: off
         return (
-            f"Your {result.engine.title()} search returned the following:\n\n"
-            f"{output}\n\n---\n\n"
-            f"`{cls.CATEGORY_ICONS[result.category]} {result.category}`  Sources: {sources}  "
-            f"*Accessed: {geo_location.location} {now('%d %B, %Y')}*\n\n"
+            f"Your {result.engine.title()} search has returned the following results:"
+            f"\n\n{output}\n\n---\n\n"
+            f"`{cls.CATEGORY_ICONS[result.category]:<2} {result.category}`  **Sources:** {sources}  "
+            f"**Access:** {geo_location.location} - *{now('%B %d, %Y')}*\n\n"
             f">   Terms: {terms}")
         # fmt: on
 
@@ -119,27 +122,30 @@ class InternetService(metaclass=Singleton):
         :return: A string representing the constructed Google Search query.
         """
         # The order of conditions is important here, as the execution may stop early if a condition is met.
-        final_query = ""
+        google_query = ""
         match search.category.casefold():
             case "people":
-                if any((f.find("people:") >= 0 for f in search.filters)):
-                    final_query = f' intext:"{next((f for f in search.filters if f.startswith("people:")), None)}"'
-                    final_query += " AND description AND information AND background"
+                if any((f.find("intext:") >= 0 for f in search.filters)):
+                    google_query = (
+                        "description AND background AND work AND achievements "
+                        f'{next((f for f in search.filters if f.startswith("intext:")), None)}'
+                    )
             case "weather":
                 if any((f.find("weather:") >= 0 for f in search.filters)):
-                    final_query = f' weather:"{next((f for f in search.filters if f.startswith("weather:")), None)}"'
-                    final_query += " AND forecast"
-            # Gather the sites to be used in the search.
-        sites = f"{' OR '.join(set('site:' + url for url in search.sites))}"
-        # Make the final search query use the provided keywords.
-        if search.keywords:
-            final_query = f"{' '.join(set(search.keywords))} {sites} {final_query}"
+                    google_query = (
+                        f'{now("%B %d %Y")} {next((f for f in search.filters if f.startswith("weather:")), None)}'
+                    )
+            case _:
+                if search.keywords:
+                    # Gather the sites to be used in the search.
+                    sites = f"{' OR '.join(set('site:' + url for url in search.sites))}"
+                    google_query = f"{' '.join(set(sorted(search.keywords)))} {sites}"
 
-        return final_query
+        return google_query
 
     def __init__(self):
         API_KEYS.ensure("GOOGLE_API_KEY", "google_search")
-        self._google = GoogleSearchAPIWrapper(google_api_key=API_KEYS.GOOGLE_API_KEY)
+        self._google = GoogleSearchAPIWrapper(k=10, google_api_key=API_KEYS.GOOGLE_API_KEY)
         self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
         self._text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap
@@ -159,20 +165,49 @@ class InternetService(metaclass=Singleton):
         events.reply.emit(reply=AIReply.info(msg.searching()))
         search.sites = search.sites or ["google.com", "bing.com", "duckduckgo.com", "ask.com"]
         terms: str = self._build_google_query(search).strip()
+        question: str = re.sub(r"(\w+:)*|((\w+\.\w+)*)", "", terms, flags=re.DOTALL | re.MULTILINE)
         try:
             log.info("Searching Google for '%s'", terms)
             events.reply.emit(reply=AIReply.debug(msg.final_query(terms)))
-            ctx = str(self._tool.run(terms))
-            llm_prompt = ChatPromptTemplate.from_messages([("system", "{query}\n\n{context}")])
-            context: List[Document] = [Document(ctx)]
-            chain = create_stuff_documents_chain(
-                lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp), llm_prompt
+            results: list[str] = str(self._tool.run(terms, verbose=configs.is_debug)).split(" ")
+            llm_prompt = ChatPromptTemplate.from_messages(
+                [
+                    ("system", "Use the following context to answer the question at the end:\\n\\n{context}"),
+                    ("human", "{question}"),
+                ]
             )
-            output = chain.invoke({"query": search.question, "context": context})
-        except HttpError as err:
+            docs: List[Document] = [Document(d) for d in results]
+            chain = create_stuff_documents_chain(
+                lc_llm.create_chat_model(temperature=Temperature.COLDEST.temp), llm_prompt
+            )
+            output = chain.invoke({"question": question, "context": docs})
+        except (HttpError, openai.APIError) as err:
             return msg.fail_to_search(str(err))
 
         return self.refine_search(terms, output, search)
+
+    def refine_search(self, terms: str, response: str, search: SearchResult) -> str:
+        """Refine the text retrieved by the search engine.
+        :param terms: The search terms used in the search.
+        :param response: The internet search response.
+        :param search: The search result object.
+        :return: A refined version of the search result text, tailored to better answer the user's question.
+        """
+        refine_prompt = PromptTemplate.from_template(self.refine_template).format(
+            idiom=shared.idiom,
+            sources=search.sites,
+            location=geo_location.location,
+            datetime=geo_location.datetime,
+            result=response,
+            question=search.question,
+        )
+        log.info("STT::[QUESTION] '%s'", response)
+        llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)
+
+        if (response := llm.invoke(refine_prompt)) and (output := response.content):
+            return self.wrap_response(terms, output, search)
+
+        return msg.no_good_result()
 
     def scrap_sites(self, search: SearchResult) -> str:
         """Scrape a web page and summarize its contents.
@@ -209,29 +244,6 @@ class InternetService(metaclass=Singleton):
                 log.info("Scrapping sites returned: '%s'", str(output))
                 return self.refine_search(search.question, str(output), search)
         return msg.no_output("search")
-
-    def refine_search(self, terms: str, response: str, search: SearchResult) -> str:
-        """Refine the text retrieved by the search engine.
-        :param terms: The search terms used in the search.
-        :param response: The internet search response.
-        :param search: The search result object.
-        :return: A refined version of the search result text, tailored to better answer the user's question.
-        """
-        refine_prompt = PromptTemplate.from_template(self.refine_template).format(
-            idiom=shared.idiom,
-            sources=search.sites,
-            location=geo_location.location,
-            datetime=geo_location.datetime,
-            result=response,
-            question=search.question,
-        )
-        log.info("STT::[QUESTION] '%s'", response)
-        llm = lc_llm.create_chat_model(temperature=Temperature.CREATIVE_WRITING.temp)
-
-        if (response := llm.invoke(refine_prompt)) and (output := response.content):
-            return self.wrap_response(terms, output, search)
-
-        return msg.no_good_result()
 
 
 assert (internet := InternetService().INSTANCE) is not None

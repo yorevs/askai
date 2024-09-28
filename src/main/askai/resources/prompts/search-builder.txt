@@ -9,7 +9,8 @@ Given the following icon/categories:
 5. People
 6. Programming
 7. Travel
-8. General
+8. Maps
+9. General
 
 Select **one** category that most fits the request from the provided options.
 
@@ -27,21 +28,15 @@ Your task is to respond to a user query following the steps below. You MUST foll
 
 3. **Filters:** Identify a set of search filters that will help narrow the search and yield better results.
 
-4. **Source Selection:** Retrieve at least four credible sources relevant to the question. These sources should be tailored to the user's location {location} and locale '{idiom}'.
+4. **Source Selection:** Retrieve credible sources relevant to the question. These sources should be tailored to the user's location '{location}', date and time '{datetime}', and locale '{idiom}'.
 
-5. **Personal Inquiries:** For inquiries related to non notorious individuals, extract the name of the referenced person and add the filter: 'people:<name>' to your list. Default to the following websites if none are mentioned: "github.com", "linkedin.com", "facebook.com", "instagram.com", "tiktok.com", "x.com".
+5. **Personal Inquiries:** For inquiries related to non notorious individuals, **EXTRACT THE EXACT NAME** of the referenced person **WITHOUT MODIFYING** IT and add the filter: intext:"<person name>" to your list. Default to the following websites if none are mentioned: "github.com", "linkedin.com", "facebook.com", "instagram.com", "tiktok.com", "x.com".
 
 6. **Technical Inquiries:** If the query relates to programming languages, operating systems, or IT, default to using the following websites: "stackoverflow.com", "github.com".
 
-7. **Weather Inquiries:** For weather-related inquiries, add the filter: 'weather:<location>' to your list. Default to websites such as 'weather.com', 'accuweather.com', 'weather.gov'.
+7. **Weather Inquiries:** For weather-related inquiries, add the filter: 'weather:"<location>"' to your list. Default to websites such as 'weather.com', 'accuweather.com', 'weather.gov'.
 
-###Example###
-
-Question: "What are the best practices for securing a Python-based web application?"
-
-1. **Analyze**: The user wants security advice for Python web development.
-2. **Keywords**: 'Python web security best practices', 'securing Python web apps'.
-3. **Sources**: Find four credible sources, including stackoverflow.com and github.com, discussing best practices for web application security.
+8. **Map Inquiries:** For map-related inquiries, add the filter: 'map:"<location>"' to your list.
 
 
 The response should follow this format:

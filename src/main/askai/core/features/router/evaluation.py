@@ -23,7 +23,7 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.rag_provider import RAGProvider
 from askai.core.support.shared_instances import shared
-from askai.exception.exceptions import InaccurateResponse, InterruptionRequest
+from askai.exception.exceptions import InaccurateResponse, InterruptionRequest, TerminatingQuery
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -71,6 +71,9 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: AccColor = 
                     # AI flags that it can't continue interacting.
                     log.warning(msg.interruption_requested(output))
                     raise InterruptionRequest(ai_response)
+                elif acc.is_terminate:
+                    # AI flags that the user wants to end the session.
+                    raise TerminatingQuery(ai_response)
                 elif not acc.is_pass(pass_threshold):
                     # Include the guidelines for the first mistake.
                     if not shared.context.get("EVALUATION"):

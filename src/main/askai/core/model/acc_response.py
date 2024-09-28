@@ -76,6 +76,10 @@ class AccResponse:
     def is_interrupt(self) -> bool:
         return self.acc_color.is_interrupt
 
+    @property
+    def is_terminate(self) -> bool:
+        return self.acc_color.is_terminate
+
     def is_pass(self, threshold: AccColor) -> bool:
         """Determine whether the response matches a 'PASS' classification.
         :param threshold: The threshold or criteria used to determine a 'PASS' classification.

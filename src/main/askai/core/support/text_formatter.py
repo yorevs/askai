@@ -40,7 +40,7 @@ class TextFormatter(metaclass=Singleton):
     RE_MD_CODE_BLOCK = r"(```.+```)"
 
     CHAT_ICONS = {
-        "": " Oops! %NC%",
+        "": "%RED% Oops! %NC%",
         "": "\n>   *Tip:* ",
         "": "\n>   *Analysis:* ",
         "": "\n>   *Summary:* ",
@@ -53,7 +53,7 @@ class TextFormatter(metaclass=Singleton):
     RE_TYPES = {
         "MD": RE_MD_CODE_BLOCK,
         "": RE_URL,
-        "": r"[\s*_]*Errors?[_*-:\s]+",
+        "": r"[\s*_]*Errors?[_*-:\s]+",
         "": r"[\s*_]*Hints?( ([Aa]nd|&) [Tt]ips?)?[_*-:\s]+",
         "": r"[\s*_]*Analysis[_*-:\s]+",
         "": r"[\s*_]*Summary[_*-:\s]+",
@@ -110,7 +110,7 @@ class TextFormatter(metaclass=Singleton):
         # fmt: off
 
         text = dedent(str(text)).strip()
-        text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
+        text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
@@ -121,8 +121,8 @@ class TextFormatter(metaclass=Singleton):
         text = re.sub(self.RE_TYPES[''], r" [\1](\1)", text)
         text = re.sub(self.RE_TYPES['MD'], r"\n\1\n", text)
         text = re.sub(r'```(.+)```\s+', r"\n```\1```\n", text)
-        text = text.replace(os.getenv("USER", "user"), f'`{os.getenv("USER", "user")}`')
-        text = text.replace("Taius", f'**Taius**')
+        text = re.sub(rf"\s+{os.getenv('USER', 'user')}", f'` {os.getenv("USER", "user")}`', text)
+        text = re.sub(r"\s+Taius", f' **Taius**', text)
 
         # fmt: on
 

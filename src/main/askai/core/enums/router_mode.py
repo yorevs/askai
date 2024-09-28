@@ -44,7 +44,7 @@ class RouterMode(Enumeration):
 
     RAG = "Retrieval-Augmented-Generation",     "", rag
 
-    CHAT = "Taius Chat",                        "", chat
+    CHAT = "Taius Chat",                        "", chat
 
     # fmt: on
 

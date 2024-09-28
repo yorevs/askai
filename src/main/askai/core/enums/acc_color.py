@@ -26,13 +26,13 @@ class AccColor(Enumeration):
 
     INTERRUPT   = 'Black', -1
 
-    EXCELLENT   = 'Blue',   0
+    TERMINATE   = 'White',  0
 
-    GOOD        = 'Green',  1
+    EXCELLENT   = 'Blue',   1
 
-    MODERATE    = 'Yellow', 2
+    GOOD        = 'Green',  2
 
-    INCOMPLETE  = 'Orange', 3
+    MODERATE    = 'Yellow', 3
 
     BAD         = 'Red',    4
 
@@ -81,8 +81,16 @@ class AccColor(Enumeration):
         return int(self.value[1])
 
     @property
+    def is_terminate(self) -> bool:
+        return self == self.TERMINATE
+
+    @property
+    def is_interrupt(self) -> bool:
+        return self == self.INTERRUPT
+
+    @property
     def is_bad(self) -> bool:
-        return self in [self.BAD, self.INCOMPLETE]
+        return self == self.BAD
 
     @property
     def is_moderate(self) -> bool:
@@ -91,10 +99,6 @@ class AccColor(Enumeration):
     @property
     def is_good(self) -> bool:
         return self in [self.GOOD, self.EXCELLENT]
-
-    @property
-    def is_interrupt(self) -> bool:
-        return self == self.INTERRUPT
 
     def passed(self, threshold: "AccColor") -> bool:
         """Determine whether the response matches a 'PASS' classification.

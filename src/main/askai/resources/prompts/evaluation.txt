@@ -12,27 +12,38 @@ Avoid using markdown or any special formatting in your response.
 
 Use the following criteria for classification:
 
-1. **Blue**: Level of accuracy [100%-95%]. Reasoning: The AI response is perfect responding to the question posed, including a detailed and accurate information.
+1. **Black:** Level of accuracy [0%-100%]. Reasoning: The AI responds that it cannot continue with further interactions due to a specified reason.
 
-1. **Green**: Level of accuracy [94%-70%]. Reasoning: The AI response successfully addresses the question posed, indicating a full understanding and appropriate analysis.
+2. **White:** Level of accuracy [0%-100%]. Reasoning: Only used when the user has clearly requested to end the session; this is the code that will cause the application to exit.
 
-2. **Yellow**: Level of accuracy [69%-50%]. Reasoning: The AI response partially addresses the question but lacks full depth or detail, suggesting moderate understanding.
+3. **Blue:** Level of accuracy [100%-95%]. Reasoning: The AI response is perfect responding to the question posed, including a detailed and accurate information.
 
-3. **Orange**: Level of accuracy [49%-30%]. Reasoning: The AI response is incomplete or if you have low confidence of the classification.
+4. **Green:** Level of accuracy [94%-70%]. Reasoning: The AI response successfully addresses the question posed, indicating a full understanding and appropriate analysis.
 
-4. **Red**: Level of accuracy [29%-0%]. Reasoning: The AI response fails to adequately address the question, indicating a misunderstanding or incorrect analysis.
+5. **Yellow:** Level of accuracy [69%-50%]. Reasoning: The AI response partially addresses the question but lacks full depth or detail, suggesting moderate understanding.
 
-5. **Black**: Level of accuracy [Any]. Reasoning: The AI responds that it cannot continue with further interactions due to a specified reason.
-
-
-**When evaluating responses, classify 'Black' (Interrupt Responses) when:**
-
-- The response explains the lack of information, context, or when the AI is clearly having trouble understanding the user input.
-
-- The response is a negative answer to the question.
+6. **Red:** Level of accuracy [29%-0%]. Reasoning: The AI response fails to adequately address the question, indicating a misunderstanding or incorrect analysis.
 
 
-**When evaluating responses, classify 'Green' or 'Blue' (Known Good/Excellent Responses) when:**
+**When evaluating responses, classify 'Black' when:**
+
+- If the response indicates a lack of information or context, ask clarifying questions to gather more details.
+
+- When the AI struggles to understand user input, guide the conversation by requesting clarification, examples, or rephrasing of the question.
+
+- If more context is needed, ask the user to expand or provide specific information to ensure an accurate response.
+
+- When the AI responds "negatively" to the question.
+
+- When providing search results or insights, focus on neutral and helpful responses rather than stating that no information is available.
+
+
+**When evaluating responses, classify 'White' when:**
+
+- The user intends to terminate the session.
+
+
+**When evaluating responses, classify 'Green' or 'Blue' when:**
 
 - 'Blue' if it detects a successful command execution, e.g., "OK, command <any command> succeeded". The "command output" can be disregarded for this classification.
 
@@ -43,7 +54,7 @@ Use the following criteria for classification:
 - Regardless of the question, if the response includes the phrase: "Your search returned the following:".
 
 
-**When evaluating responses, classify 'Red' (Known Bad Responses) when:**
+**When evaluating responses, classify 'Red' when:**
 
 - The response fails to resolve the primary goal; 'Orange' if the response fails to resolve any of the sub goals.
 
@@ -59,7 +70,11 @@ as 'Red' if it does not align with known facts.
 - The AI is seeking user assistance.
 
 
+<<ATTENTION>> If a classification has already been determined (i.e., if any of the above criteria have been met), return immediately to the user.
+
+
 **Classification Guidelines (rate from 0% to 100%):**
+
 
 - Assess the AI's response for correctness by considering its ability to effectively address and correct syntax errors or misinterpretations in the user's input, rather than focusing solely on literal repetitions or minor discrepancies in terminology.
 

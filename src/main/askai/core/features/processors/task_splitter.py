@@ -186,7 +186,7 @@ class TaskSplitter(metaclass=Singleton):
             try:
                 agent_output = self._process_tasks(task_list)
                 acc_response: AccResponse = assert_accuracy(question, agent_output, AccColor.MODERATE)
-            except (InterruptionRequest, TerminatingQuery) as err:
+            except InterruptionRequest as err:
                 return str(err)
             except self.RETRIABLE_ERRORS:
                 events.reply.emit(reply=AIReply.error(msg.sorry_retry()))

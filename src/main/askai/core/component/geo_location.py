@@ -110,7 +110,7 @@ class GeoLocation(metaclass=Singleton):
 
     @property
     def location(self) -> str:
-        return f"{self.city}, {self.region_name} {self.country}"
+        return f"%CYAN%{self.city}, {self.region_name}, {self.country}%NC%"
 
     @property
     def datetime(self) -> str:
