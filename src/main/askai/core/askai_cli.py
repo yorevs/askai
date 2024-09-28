@@ -12,6 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+from pathlib import Path
+from threading import Thread
+from typing import List, Optional, TypeAlias
+
+import nltk
+import pause
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -27,19 +35,14 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
+from askai.tui.app_icons import AppIcons
 from clitt.core.term.cursor import cursor
 from clitt.core.term.screen import screen
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.core.enums.charset import Charset
+from hspylib.core.zoned_datetime import now, TIME_FORMAT
 from hspylib.modules.eventbus.event import Event
-from pathlib import Path
 from rich.progress import Progress
-from threading import Thread
-from typing import List, Optional, TypeAlias
-
-import logging as log
-import nltk
-import os
-import pause
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -79,7 +82,7 @@ class AskAiCli(AskAi):
             elif output:
                 cache.save_reply(question, output)
                 cache.save_input_history()
-                with open(self._console_path, "a+") as f_console:
+                with open(self.console_path, "a+", encoding=Charset.UTF_8.val) as f_console:
                     f_console.write(f"{shared.username_md}{question}\n\n")
                     f_console.write(f"{shared.nickname_md}{output}\n\n")
                     f_console.flush()
@@ -209,8 +212,12 @@ class AskAiCli(AskAi):
             askai_bus.subscribe(DEVICE_CHANGED_EVENT, self._cb_device_changed_event)
             askai_bus.subscribe(MODE_CHANGED_EVENT, self._cb_mode_changed_event)
             display_text(str(self), markdown=False)
-            self._reply(AIReply.info(self.mode.welcome()))
         elif configs.is_speak:
             recorder.setup()
             player.start_delay()
+        # Register the startup
+        with open(self.console_path, "a+", encoding=Charset.UTF_8.val) as f_console:
+            f_console.write(f"\n\n## {AppIcons.STARTED} {now(TIME_FORMAT)}\n\n")
+            f_console.flush()
+        self._reply(AIReply.info(self.mode.welcome()))
         log.info("AskAI is ready to use!")

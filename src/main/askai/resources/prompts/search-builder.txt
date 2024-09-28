@@ -38,6 +38,7 @@ Your task is to respond to a user query following the steps below. You MUST foll
 
 8. **Map Inquiries:** For map-related inquiries, add the filter: 'map:"<location>"' to your list.
 
+9. **General Search:** For broad inquiries or searches where the nature of the query cannot be determined, avoid using restrictive filters. Instead, rely on general search engines such as "google.com", "bing.com", "duckduckgo.com", and "ask.com."
 
 The response should follow this format:
 

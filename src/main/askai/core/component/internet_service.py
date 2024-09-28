@@ -19,7 +19,6 @@ from collections import defaultdict
 from typing import List
 
 import bs4
-import openai
 from askai.__classpath__ import API_KEYS
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -46,6 +45,7 @@ from langchain_core.runnables.utils import Output
 from langchain_core.tools import Tool
 from langchain_google_community import GoogleSearchAPIWrapper
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from openai import APIError
 
 
 class InternetService(metaclass=Singleton):
@@ -110,7 +110,7 @@ class InternetService(metaclass=Singleton):
         return (
             f"Your {result.engine.title()} search has returned the following results:"
             f"\n\n{output}\n\n---\n\n"
-            f"`{cls.CATEGORY_ICONS[result.category]:<2} {result.category}`  **Sources:** {sources}  "
+            f"`{cls.CATEGORY_ICONS[result.category]:<2}{result.category}`  **Sources:** {sources}  "
             f"**Access:** {geo_location.location} - *{now('%B %d, %Y')}*\n\n"
             f">   Terms: {terms}")
         # fmt: on
@@ -181,7 +181,7 @@ class InternetService(metaclass=Singleton):
                 lc_llm.create_chat_model(temperature=Temperature.COLDEST.temp), llm_prompt
             )
             output = chain.invoke({"question": question, "context": docs})
-        except (HttpError, openai.APIError) as err:
+        except (HttpError, APIError) as err:
             return msg.fail_to_search(str(err))
 
         return self.refine_search(terms, output, search)

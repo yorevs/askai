@@ -12,6 +12,7 @@ from askai.core.features.router.evaluation import assert_accuracy
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from askai.exception.exceptions import InaccurateResponse
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.agents import AgentExecutor, create_structured_chat_agent
@@ -19,6 +20,7 @@ from langchain.memory.chat_memory import BaseChatMemory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.utils import Output
+from openai import APIError
 
 
 class TaskAgent(metaclass=Singleton):
@@ -94,8 +96,14 @@ class TaskAgent(metaclass=Singleton):
         :return: An instance of Output containing the result of the task, or None if the task fails or produces
         no output.
         """
-        lc_agent: Runnable = self._create_lc_agent()
-        return lc_agent.invoke({"input": task})
+        output: str | None = None
+        try:
+            lc_agent: Runnable = self._create_lc_agent()
+            output = lc_agent.invoke({"input": task})
+        except APIError as err:
+            raise InaccurateResponse(str(err))
+
+        return output
 
 
 assert (agent := TaskAgent().INSTANCE) is not None

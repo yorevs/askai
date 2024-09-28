@@ -155,9 +155,11 @@ class TaskSplitter(metaclass=Singleton):
         shared.context.forget("EVALUATION")  # Erase previous evaluation notes.
         model: ModelResult = ModelResult.default()  # Hard-coding the result model for now.
         log.info("Router::[QUESTION] '%s'", question)
+        retries: int = 0
 
         @retry(exceptions=self.RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=1, jitter=1)
-        def _splitter_wrapper_() -> Optional[str]:
+        def _splitter_wrapper_(retry_count: int) -> Optional[str]:
+            retry_count += 1
             # Invoke the LLM to split the tasks and create an action plan.
             runnable = self.template(question) | lc_llm.create_chat_model(Temperature.COLDEST.temp)
             runnable = RunnableWithMessageHistory(
@@ -184,22 +186,23 @@ class TaskSplitter(metaclass=Singleton):
                 return response  # Most of the times, indicates a failure.
 
             try:
-                agent_output = self._process_tasks(task_list)
+                agent_output: str | None = self._process_tasks(task_list, retries)
                 acc_response: AccResponse = assert_accuracy(question, agent_output, AccColor.MODERATE)
             except InterruptionRequest as err:
                 return str(err)
             except self.RETRIABLE_ERRORS:
-                events.reply.emit(reply=AIReply.error(msg.sorry_retry()))
+                if retry_count <= 1:
+                    events.reply.emit(reply=AIReply.error(msg.sorry_retry()))
                 raise
 
             return self.wrap_answer(question, agent_output, plan.model, acc_response)
 
-        return _splitter_wrapper_()
+        return _splitter_wrapper_(retries)
 
     @retry(exceptions=RETRIABLE_ERRORS, tries=configs.max_router_retries, backoff=1, jitter=1)
-    def _process_tasks(self, task_list: list[SimpleNamespace]) -> Optional[str]:
+    def _process_tasks(self, task_list: list[SimpleNamespace], retry_count: int) -> Optional[str]:
         """Wrapper to allow accuracy retries."""
-
+        retry_count += 1
         resp_history: list[str] = list()
 
         if not task_list:
@@ -222,7 +225,8 @@ class TaskSplitter(metaclass=Singleton):
         except (InterruptionRequest, TerminatingQuery) as err:
             return str(err)
         except self.RETRIABLE_ERRORS:
-            events.reply.emit(reply=AIReply.error(msg.sorry_retry()))
+            if retry_count <= 1:
+                events.reply.emit(reply=AIReply.error(msg.sorry_retry()))
             raise
 
         return os.linesep.join(resp_history) if resp_history else msg.no_output("Task-Splitter")
