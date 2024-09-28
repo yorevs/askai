@@ -15,6 +15,7 @@
 
 import logging as log
 import re
+from collections import defaultdict
 from typing import List
 
 import bs4
@@ -67,15 +68,49 @@ class InternetService(metaclass=Singleton):
         "General": "",
     }
 
-    SITE_ICONS = {
-        "linkedin.com": "",
-        "github.com": "",
-        "instagram": "",
-        "x.com": "",
-        "stackoverflow.com": "",
-        "default": ""
-    }
+    SITE_ICONS = defaultdict(str, {
+        "linkedin.com": "",
+        "github.com": "",
+        "instagram.com": "",
+        "x.com": "X",
+        "twitter.com": "",
+        "stackoverflow.com": "",
+        "facebook.com": "",
+        "youtube.com": "",
+        "amazon.com": "",
+        "apple.com": "",
+        "docker.com": "",
+        "dropbox.com": "",
+        "google.com": "",
+        "paypal.com": "",
+        "wikipedia.org": "荒",
+        "reddit.com": "",
+        "tiktok.com": "懲",
+        "ubuntu.com": "",
+        "fedora.com": "",
+    })
     # fmt: on
+
+    @classmethod
+    def wrap_response(cls, terms: str, output: str, result: SearchResult) -> str:
+        """Format and wrap the search response based on the search terms, output, and method used.
+        :param terms: The search terms used in the query.
+        :param output: The raw output or results from the search.
+        :param result: The search result.
+        :return: A formatted string that encapsulates the search response.
+        """
+        terms: str = re.sub(r"\s{2,}", " ", terms)
+        sources: str = " ".join(
+            filter(len, sorted(set(f"{s.replace(s, cls.SITE_ICONS[s]):<2}" or s for s in result.sites), key=len))
+        )
+        # fmt: off
+        return (
+            f"Your {result.engine.title()} search returned the following:\n\n"
+            f"{output}\n\n---\n\n"
+            f"`{cls.CATEGORY_ICONS[result.category]} {result.category}`  Sources: {sources}  "
+            f"*Accessed: {geo_location.location} {now('%d %B, %Y')}*\n\n"
+            f">   Terms: {terms}")
+        # fmt: on
 
     @staticmethod
     def _build_google_query(search: SearchResult) -> str:
@@ -87,17 +122,13 @@ class InternetService(metaclass=Singleton):
         final_query = ""
         match search.category.casefold():
             case "people":
-                search.sites += ["github.com", "linkedin.com", "facebook.com", "instagram.com", "tiktok.com", "x.com"]
                 if any((f.find("people:") >= 0 for f in search.filters)):
                     final_query = f' intext:"{next((f for f in search.filters if f.startswith("people:")), None)}"'
                     final_query += " AND description AND information AND background"
             case "weather":
-                search.sites += ["weather.com", "accuweather.com", "weather.gov"]
                 if any((f.find("weather:") >= 0 for f in search.filters)):
                     final_query = f' weather:"{next((f for f in search.filters if f.startswith("weather:")), None)}"'
                     final_query += " AND forecast"
-            case "programming":
-                search.sites += ["stackoverflow.com", "stackexchange.com", "github.com"]
             # Gather the sites to be used in the search.
         sites = f"{' OR '.join(set('site:' + url for url in search.sites))}"
         # Make the final search query use the provided keywords.
@@ -105,25 +136,6 @@ class InternetService(metaclass=Singleton):
             final_query = f"{' '.join(set(search.keywords))} {sites} {final_query}"
 
         return final_query
-
-    @classmethod
-    def wrap_response(cls, terms: str, output: str, result: SearchResult) -> str:
-        """Format and wrap the search response based on the search terms, output, and method used.
-        :param terms: The search terms used in the query.
-        :param output: The raw output or results from the search.
-        :param result: The search result.
-        :return: A formatted string that encapsulates the search response.
-        """
-        engine_icon = {"google": "", "other": ""}
-        terms: str = re.sub(r"\s{2,}", " ", terms)
-        # fmt: off
-        return (
-            f"Your {result.engine.title()} search returned the following:\n\n"
-            f"{output}\n\n---\n\n"
-            f"`{cls.CATEGORY_ICONS[result.category]} {result.category}`  Sources: {', '.join(result.sites)}  "
-            f"*{engine_icon[result.engine.casefold()]} Accessed: {geo_location.location} {now('%d %B, %Y')}*\n\n"
-            f">  Terms: {terms}")
-        # fmt: on
 
     def __init__(self):
         API_KEYS.ensure("GOOGLE_API_KEY", "google_search")

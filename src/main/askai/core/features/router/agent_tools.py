@@ -106,7 +106,8 @@ class AgentTools(metaclass=Singleton):
         return browse(search_query)
 
     def open_url(self, url: str) -> str:
-        """Use this tool to open a website specified by the given URL.
+        """Use this tool to open the browser landing at a specific website, specified by the given URL. This is not
+        useful for searching the web.
         Usage: `open_url(url)`
         :param url: The URL to be opened.
         :return: A string telling whether the URL was successfully opened or not.

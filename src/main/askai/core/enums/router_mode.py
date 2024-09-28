@@ -40,9 +40,9 @@ class RouterMode(Enumeration):
 
     QNA = "Questions & Answers",                "", qna
 
-    QSTRING = "Non-Interactive",                "", qstring
+    QSTRING = "Non-Interactive",                "謹", qstring
 
-    RAG = "Retrieval-Augmented-Generation",     "ﮐ", rag
+    RAG = "Retrieval-Augmented-Generation",     "", rag
 
     CHAT = "Taius Chat",                        "", chat
 

@@ -128,7 +128,7 @@ class AskAiMessages(metaclass=Singleton):
         return "You have *left* the **RAG Mode**"
 
     def leave_chat(self) -> str:
-        return f"Bye, Sir! If you need anything else, **just let me rock**!"
+        return f"Bye, Sir! If you need anything else, **just let me rock **!"
 
     def press_esc_enter(self) -> str:
         return "Type [exit] to exit Q & A mode"

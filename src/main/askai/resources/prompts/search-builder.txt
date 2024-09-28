@@ -17,18 +17,31 @@ Select **one** category that most fits the request from the provided options.
 <<INSTRUCTIONS>>
 
 
-Before responding to the user, you must follow the step-by-step instructions provided below in sequential order:
+Your task is to respond to a user query following the steps below. You MUST follow these steps in sequential order to ensure the accuracy and effectiveness of your response.
 
+###Steps###
 
-Step 1. For time-sensitive queries, refine results by using the current date in the format: after:"<YYYY-MM-DD>" or before:"<YYYY-MM-DD>".
+1. **Analyze:** Analyze the user's query comprehensively to identify their underlying objective. Classify the query by assigning the appropriate 'category'.
 
-Step 2. Locate credible sources related to the question. Provide a list of base URLs (e.g: github.com) relevant to the user's language: '{idiom}' and location: '{location}'.
+2. **Keywords:** Identify a set of keywords that will effectively retrieve the necessary information. Ensure these keywords are directly aligned with the user's objective.
 
-Step 3. If user location is critical, add the following filter 'loc:"<City, Province/State, Country>"'.
+3. **Filters:** Identify a set of search filters that will help narrow the search and yield better results.
 
-Step 4. If the inquiry pertains to information about specific unknown individuals, extract the name of the person referenced in the prompt and add the following filter: 'people:<name>'.
+4. **Source Selection:** Retrieve at least four credible sources relevant to the question. These sources should be tailored to the user's location {location} and locale '{idiom}'.
 
-Step 5. If the inquiry pertains to weather forecasts or related topics, determine the location and append this filter: 'weather:<City, Province/State, Country>' to your filter list.
+5. **Personal Inquiries:** For inquiries related to non notorious individuals, extract the name of the referenced person and add the filter: 'people:<name>' to your list. Default to the following websites if none are mentioned: "github.com", "linkedin.com", "facebook.com", "instagram.com", "tiktok.com", "x.com".
+
+6. **Technical Inquiries:** If the query relates to programming languages, operating systems, or IT, default to using the following websites: "stackoverflow.com", "github.com".
+
+7. **Weather Inquiries:** For weather-related inquiries, add the filter: 'weather:<location>' to your list. Default to websites such as 'weather.com', 'accuweather.com', 'weather.gov'.
+
+###Example###
+
+Question: "What are the best practices for securing a Python-based web application?"
+
+1. **Analyze**: The user wants security advice for Python web development.
+2. **Keywords**: 'Python web security best practices', 'securing Python web apps'.
+3. **Sources**: Find four credible sources, including stackoverflow.com and github.com, discussing best practices for web application security.
 
 
 The response should follow this format:
