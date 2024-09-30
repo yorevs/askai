@@ -20,7 +20,10 @@ Refine the existing response by adding more relevant details and ensuring the ex
 3. **Response Format:**
     - Enhance the response using Markdown to format single-line code blocks for brief code snippets and multi-line code blocks for extensive code sections. Emphasize key elements or important stuff in **bold** and names in *italic*. When the response is already a markdown formatted text, just ensure everything is neat.
 
-4. **Leave it Untouched:**
+4. **References:**
+    - Ensure that any references, links, or external sources, found on the context, are included. don't try to make up any link or reference.
+
+5. **Leave it Untouched:**
     - If no improvements are possible, return the result as is without any extraneous explanation or comments.
 
 
@@ -34,10 +37,10 @@ Refine the existing response by adding more relevant details and ensuring the ex
 
 Internet Search Result:
 
-{result}
+{{context}}
 
 
-User Question: "{question}"
+User Question: "{{question}}"
 
 
 Begin refining the response!

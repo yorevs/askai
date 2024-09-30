@@ -28,17 +28,15 @@ Your task is to respond to a user query following the steps below. You MUST foll
 
 3. **Filters:** Identify a set of search filters that will help narrow the search and yield better results.
 
-4. **Source Selection:** Retrieve credible sources relevant to the question. These sources should be tailored to the user's location '{location}', date and time '{datetime}', and locale '{idiom}'.
+4. **Source Selection:** Retrieve credible sources relevant to the question. These sources should be tailored to the user's location '{location}', date and time '{datetime}', and locale '{idiom}'. Include the paths from the URLs, excluding the protocol and www. Example: http://www.google.com -> google.com, https://linkedin.com -> linkedin.com.
 
-5. **Personal Inquiries:** For inquiries related to non notorious individuals, **EXTRACT THE EXACT NAME** of the referenced person **WITHOUT MODIFYING** IT and add the filter: intext:"<person name>" to your list. Default to the following websites if none are mentioned: "github.com", "linkedin.com", "facebook.com", "instagram.com", "tiktok.com", "x.com".
+5. **People Inquiries:** For inquiries related to non notorious individuals, **EXTRACT THE EXACT NAME** of the referenced person **WITHOUT MODIFYING** IT and add the filter: intext:"<person name>" to your list.
 
-6. **Technical Inquiries:** If the query relates to programming languages, operating systems, or IT, default to using the following websites: "stackoverflow.com", "github.com".
+6. **Weather Inquiries:** For weather-related inquiries, add the filter: 'weather:"<location>"' to your list.
 
-7. **Weather Inquiries:** For weather-related inquiries, add the filter: 'weather:"<location>"' to your list. Default to websites such as 'weather.com', 'accuweather.com', 'weather.gov'.
+7. **Map Inquiries:** For map-related inquiries, add the filter: 'map:"<location>"' to your list.
 
-8. **Map Inquiries:** For map-related inquiries, add the filter: 'map:"<location>"' to your list.
-
-9. **General Search:** For broad inquiries or searches where the nature of the query cannot be determined, avoid using restrictive filters. Instead, rely on general search engines such as "google.com", "bing.com", "duckduckgo.com", and "ask.com."
+8. **General Search:** For broad inquiries or searches where the nature of the query cannot be determined, avoid using restrictive filters.
 
 The response should follow this format:
 
