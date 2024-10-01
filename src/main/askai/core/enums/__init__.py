@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.0.15
+# hspylib-askai v1.0.16
 #
 # Package: main.askai.core.enums
 """Package initialization."""
@@ -11,4 +11,4 @@ __all__ = [
     'router_mode', 
     'verbosity'
 ]
-__version__ = '1.0.15'
+__version__ = '1.0.16'
