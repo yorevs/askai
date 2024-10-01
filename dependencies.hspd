@@ -9,7 +9,7 @@
 
 /* HSPyLib projects */
 package: hspylib, version: 1.12.49, mode: ge
-package: hspylib-clitt, version: 0.9.136, mode: ge
+package: hspylib-clitt, version: 0.9.137, mode: ge
 package: hspylib-setman, version: 0.10.39, mode: ge
 
 /* General */

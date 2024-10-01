@@ -27,7 +27,7 @@ from askai.core.features.router.evaluation import resolve_x_refs
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_path, media_type_of
-from clitt.core.term.terminal import Terminal
+from clitt.core.term.terminal import terminal
 from hspylib.core.config.path_object import PathObject
 from hspylib.modules.application.exit_status import ExitStatus
 
@@ -122,7 +122,7 @@ def execute_bash(command_line: str) -> Tuple[bool, str]:
         command = expandvars(command_line.replace("~/", f"{os.getenv('HOME')}/").strip())
         log.info("Executing command `%s'", command)
         events.reply.emit(reply=AIReply.full(msg.executing(command_line)))
-        output, err_out, exit_code = Terminal.INSTANCE.shell_exec(command, shell=True)
+        output, err_out, exit_code = terminal.shell_exec(command, shell=True)
         if exit_code == ExitStatus.SUCCESS:
             log.info("Command succeeded: \n|-CODE=%s \n|-PATH: %s \n|-CMD: %s ", exit_code, os.getcwd(), command)
             if _path_ := extract_path(command):

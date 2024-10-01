@@ -136,17 +136,6 @@ class AskAiMessages(metaclass=Singleton):
     def device_switch(self, device_info: str) -> str:
         return f"\nSwitching to Audio Input device: `{device_info}`\n"
 
-    # Status updates
-
-    def model_select(self, model: str) -> str:
-        return f"Using routing model: `{model}`…"
-
-    def refine_answer(self) -> str:
-        return f"Refining answer…"
-
-    def wrap_answer(self) -> str:
-        return "Wrapping answer…"
-
     # Debug messages
 
     def photo_captured(self, photo: str) -> str:
@@ -184,11 +173,17 @@ class AskAiMessages(metaclass=Singleton):
     def describe_image(self, image_path: str) -> str:
         return f"~~[DEBUG]~~ Describing image: `{image_path}`…"
 
+    def model_select(self, model: str) -> str:
+        return f"~~[DEBUG]~~ Using routing model: `{model}`"
+
     def task(self, task: str) -> str:
         return f"~~[DEBUG]~~ > `Task:` {task}"
 
     def final_query(self, query: str) -> str:
         return f"~~[DEBUG]~~ > Final query: `{query}`"
+
+    def refine_answer(self, answer: str) -> str:
+        return f"~~[DEBUG]~~ > Refining answer: `{answer}`"
 
     def no_caption(self) -> str:
         return "No caption available"
