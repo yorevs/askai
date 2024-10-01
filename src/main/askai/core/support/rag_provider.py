@@ -12,24 +12,61 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.__classpath__ import classpath
-from askai.core.askai_configs import configs
-from askai.core.support.langchain_support import lc_llm
+import os
+import shutil
+from pathlib import Path
+from shutil import copyfile
+
+from askai.core.askai_settings import ASKAI_DIR
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.preconditions import check_state
 from hspylib.core.tools.commons import file_is_not_empty
+from hspylib.core.tools.text_tools import hash_text
 from langchain_community.document_loaders import CSVLoader
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStore
-from pathlib import Path
 
-import os
+from askai.__classpath__ import classpath
+from askai.core.askai_configs import configs
+from askai.core.support.langchain_support import lc_llm
+
+
+# External RAG Directory
+RAG_EXT_DIR: Path = Path(f"{ASKAI_DIR}/rag")
+if not RAG_EXT_DIR.exists():
+    RAG_EXT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 class RAGProvider:
     """A class responsible for implementing the Retrieval-Augmented Generation (RAG) mechanism."""
 
     RAG_DIR: Path = Path(os.path.join(classpath.resource_path(), "rag"))
+
+    @staticmethod
+    def copy_rag(path_name: AnyPath, dest_name: AnyPath | None = None) -> bool:
+        """Copy the RAG documents into the AskAI RAG directory.
+        :param path_name: The path of the RAG documents to copy.
+        :param dest_name: The destination, within the RAG directory, where the documents will be copied to. If None,
+                          defaults to a hashed directory based on the source path.
+        :return: True if the copy operation was successful, False otherwise.
+        """
+        result: bool = True
+        src_path: PathObject = PathObject.of(path_name)
+        if src_path.exists and src_path.is_file:
+            copyfile(str(src_path), f"{RAG_EXT_DIR}/{src_path.filename}")
+        elif src_path.exists and src_path.is_dir:
+            shutil.copytree(
+                str(src_path),
+                str(RAG_EXT_DIR / (dest_name or hash_text(str(src_path))[:8])),
+                dirs_exist_ok=True,
+                symlinks=True
+            )
+        else:
+            result = False
+
+        return result
 
     def __init__(self, rag_filepath: str):
         self._rag_db = None

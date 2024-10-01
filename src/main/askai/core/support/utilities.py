@@ -13,7 +13,7 @@
    Copyright (c) 2024, HomeSetup
 """
 from askai.core.support.text_formatter import text_formatter
-from clitt.core.term.cursor import Cursor, cursor
+from clitt.core.term.cursor import cursor
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.enums.charset import Charset
 from hspylib.core.metaclass.classpath import AnyPath

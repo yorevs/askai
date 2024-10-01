@@ -1,18 +1,22 @@
+import logging as log
+import os
+from pathlib import Path
+from typing import Optional
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.component.cache_service import PERSIST_DIR, RAG_DIR
+from askai.core.component.cache_service import PERSIST_DIR
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
-from askai.core.support.spinner import Spinner
+from askai.core.support.rag_provider import RAG_EXT_DIR
 from askai.exception.exceptions import DocumentsNotFound, TerminatingQuery
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import hash_text
-from hspylib.modules.cli.vt100.vt_color import VtColor
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
@@ -20,11 +24,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import BasePromptTemplate, ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from pathlib import Path
-from typing import Optional
-
-import logging as log
-import os
+from rich.spinner import Spinner
 
 
 class Rag(metaclass=Singleton):
@@ -87,10 +87,8 @@ class Rag(metaclass=Singleton):
                 log.info("Recovering vector store from: '%s'", persist_dir)
                 self._vectorstore = Chroma(persist_directory=persist_dir, embedding_function=embeddings)
             else:
-                with Spinner.COLIMA.run(suffix=msg.loading("documents"), color=VtColor.GREEN) as spinner:
-                    spinner.start()
-                    rag_docs: list[Document] = DirectoryLoader(str(RAG_DIR), glob=file_glob, recursive=True).load()
-                    spinner.stop()
+                with Spinner(f'[green]{msg.loading("documents")}[/green]'):
+                    rag_docs: list[Document] = DirectoryLoader(str(RAG_EXT_DIR), glob=file_glob, recursive=True).load()
                 if len(rag_docs) <= 0:
                     raise DocumentsNotFound(f"Unable to find any document to at: '{persist_dir}'")
                 self._vectorstore = Chroma.from_documents(

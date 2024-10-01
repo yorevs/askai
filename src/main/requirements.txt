@@ -2,7 +2,7 @@
 
 hspylib>=1.12.49
 hspylib-clitt>=0.9.137
-hspylib-setman>=0.10.39
+hspylib-setman>=0.10.40
 retry2>=0.9.5
 pause>=0.3
 tqdm>=4.66.5

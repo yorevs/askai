@@ -73,11 +73,6 @@ PERSIST_DIR: Path = Path(str(CACHE_DIR) + "/chroma")
 if not PERSIST_DIR.exists():
     PERSIST_DIR.mkdir(parents=True, exist_ok=True)
 
-# RAG Directory
-RAG_DIR: Path = Path(str(CACHE_DIR) + "/rag")
-if not RAG_DIR.exists():
-    RAG_DIR.mkdir(parents=True, exist_ok=True)
-
 
 CacheEntry = namedtuple("CacheEntry", ["key", "expires"])
 
