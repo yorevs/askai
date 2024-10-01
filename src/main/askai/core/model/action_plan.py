@@ -15,6 +15,7 @@
 import os
 import re
 from dataclasses import dataclass, field
+from os.path import expandvars
 from types import SimpleNamespace
 
 from askai.core.model.model_result import ModelResult
@@ -60,9 +61,9 @@ class ActionPlan:
         :return: An instance of ActionPlan created from the parsed response.
         """
         # FIXME: Remove log the response
-        with open("/Users/hjunior/Desktop/task-splitter-resp.txt", "w") as f_bosta:
-            f_bosta.write(response + os.linesep)
-            f_bosta.flush()
+        with open(os.path.expandvars("${HOME}/Desktop/task-splitter-resp.txt"), "w") as f_resp:
+            f_resp.write(response + os.linesep)
+            f_resp.flush()
 
         speak: str = parse_field("@speak", response)
         primary_goal: str = parse_field("@primary_goal", response)

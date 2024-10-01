@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import AnyStr, Optional
 
 from askai.core.support.text_formatter import text_formatter
-from clitt.core.term.cursor import Cursor
+from clitt.core.term.cursor import Cursor, cursor
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.enums.charset import Charset
 from hspylib.core.metaclass.classpath import AnyPath
@@ -51,7 +51,7 @@ def display_text(text: AnyStr, prefix: AnyStr = "", markdown: bool = True, erase
     :param erase_last: Whether to erase the last displayed line before displaying the new text (default is False).
     """
     if erase_last:
-        Cursor.INSTANCE.erase_line()
+        cursor.erase_line()
     if markdown:
         text_formatter.display_markdown(f"{str(prefix)}{text}")
     else:

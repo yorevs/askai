@@ -14,6 +14,7 @@
 """
 import json
 import os
+from os.path import expandvars
 from dataclasses import dataclass
 from typing import Literal
 
@@ -42,9 +43,9 @@ class SearchResult:
         """TODO"""
 
         # FIXME: Remove log the response
-        with open("/Users/hjunior/Desktop/search-result-resp.txt", "w") as f_bosta:
-            f_bosta.write(query_response + os.linesep)
-            f_bosta.flush()
+        with open(os.path.expandvars("${HOME}/Desktop/search-result-resp.txt"), "w") as f_resp:
+            f_resp.write(query_response + os.linesep)
+            f_resp.flush()
 
         # Parse fields
         engine: Literal["Google", "Bing"] = parse_field("@engine", query_response)

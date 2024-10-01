@@ -14,6 +14,7 @@
 """
 import os
 from dataclasses import dataclass
+from os.path import expandvars
 
 from askai.core.enums.acc_color import AccColor, AccuracyColors
 from askai.core.support.llm_parser import parse_field
@@ -36,9 +37,9 @@ class AccResponse:
         """TODO"""
 
         # FIXME: Remove log the response
-        with open("/Users/hjunior/Desktop/acc-response-resp.txt", "w") as f_bosta:
-            f_bosta.write(response + os.linesep)
-            f_bosta.flush()
+        with open(os.path.expandvars("${HOME}/Desktop/acc-response-resp.txt"), "w") as f_resp:
+            f_resp.write(response + os.linesep)
+            f_resp.flush()
 
         # Parse fields
         acc_color: AccColor = AccColor.of_color(parse_field("@color", response))

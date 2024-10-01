@@ -101,7 +101,7 @@ class AskAiCli(AskAi):
             if configs.is_speak and reply.is_speakable:
                 self.engine.text_to_speech(text, f"{shared.nickname}")
             elif not configs.is_interactive:
-                display_text(text_formatter.strip_format(text), f"{shared.nickname}", markdown=False)
+                display_text(text_formatter.strip_format(text), f"%%{shared.nickname}", markdown=False)
             else:
                 display_text(text, f"{shared.nickname}")
 
