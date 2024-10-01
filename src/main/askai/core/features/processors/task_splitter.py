@@ -12,15 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from pathlib import Path
-from textwrap import dedent
-from types import SimpleNamespace
-from typing import Any, Optional, Type, TypeAlias
-
-from langchain_core.messages import AIMessage
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -43,10 +34,18 @@ from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse, InterruptionRequest, TerminatingQuery
 from hspylib.core.exception.exceptions import InvalidArgumentError
 from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from pathlib import Path
 from pydantic_core import ValidationError
 from retry import retry
+from textwrap import dedent
+from types import SimpleNamespace
+from typing import Any, Optional, Type, TypeAlias
+
+import logging as log
+import os
 
 AgentResponse: TypeAlias = dict[str, Any]
 

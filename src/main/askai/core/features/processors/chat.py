@@ -12,8 +12,6 @@
 
    Copyright 2024, HSPyLib team
 """
-from typing import Optional, Any
-
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -27,6 +25,7 @@ from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.dict_tools import get_or_default_by_key
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables import RunnableWithMessageHistory
+from typing import Any, Optional
 
 
 class ChatProcessor(metaclass=Singleton):

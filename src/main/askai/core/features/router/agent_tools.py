@@ -12,9 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-import re
-
 from askai.core.askai_messages import msg
 from askai.core.features.tools.analysis import query_output
 from askai.core.features.tools.browser import browse, open_url
@@ -36,6 +33,8 @@ from typing import Callable, Optional
 
 import inspect
 import logging as log
+import os
+import re
 
 
 class AgentTools(metaclass=Singleton):

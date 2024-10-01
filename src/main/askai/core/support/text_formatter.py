@@ -53,7 +53,7 @@ class TextFormatter(metaclass=Singleton):
     RE_TYPES = {
         "MD": RE_MD_CODE_BLOCK,
         "": RE_URL,
-        "": r"[\s*_]*Errors?[_*-:\s]+",
+        "": r"^[\s*_]*Errors?[_*-:\s]+",
         "": r"[\s*_]*Hints?( ([Aa]nd|&) [Tt]ips?)?[_*-:\s]+",
         "": r"[\s*_]*Analysis[_*-:\s]+",
         "": r"[\s*_]*Summary[_*-:\s]+",

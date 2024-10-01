@@ -12,14 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import json
-import os
-from os.path import expandvars
-from dataclasses import dataclass
-from typing import Literal
-
 from askai.core.component.geo_location import geo_location
 from askai.core.support.llm_parser import parse_field, parse_list
+from dataclasses import dataclass
+from os.path import expandvars
+from typing import Literal
+
+import json
+import os
 
 
 @dataclass

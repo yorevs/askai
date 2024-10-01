@@ -12,15 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-import re
-from dataclasses import dataclass, field
-from types import SimpleNamespace
-
-from hspylib.core.preconditions import check_state
-
 from askai.core.model.model_result import ModelResult
 from askai.core.support.llm_parser import parse_field, parse_list, parse_word
+from dataclasses import dataclass, field
+from hspylib.core.preconditions import check_state
+from types import SimpleNamespace
+
+import os
+import re
 
 
 @dataclass

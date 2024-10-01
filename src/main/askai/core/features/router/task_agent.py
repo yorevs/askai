@@ -1,6 +1,3 @@
-import logging as log
-from typing import AnyStr, Optional
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -21,6 +18,9 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.utils import Output
 from openai import APIError
+from typing import AnyStr, Optional
+
+import logging as log
 
 
 class TaskAgent(metaclass=Singleton):

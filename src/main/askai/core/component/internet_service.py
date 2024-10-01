@@ -13,22 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-import re
-from collections import defaultdict
-from typing import List
-
-from googleapiclient.errors import HttpError
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.zoned_datetime import now
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.documents import Document
-from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
-from langchain_core.tools import Tool
-from langchain_google_community import GoogleSearchAPIWrapper
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from openai import APIError
-
 from askai.__classpath__ import API_KEYS
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -40,6 +24,21 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.model.search_result import SearchResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from collections import defaultdict
+from googleapiclient.errors import HttpError
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.zoned_datetime import now
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.documents import Document
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
+from langchain_core.tools import Tool
+from langchain_google_community import GoogleSearchAPIWrapper
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from openai import APIError
+from typing import List
+
+import logging as log
+import re
 
 
 class InternetService(metaclass=Singleton):

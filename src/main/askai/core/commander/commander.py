@@ -12,32 +12,33 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-import re
-from functools import lru_cache
-from os.path import dirname
-from pathlib import Path
-from string import Template
-from textwrap import dedent
-
-import click
 from askai.core.askai_configs import configs
-from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, REPLY_EVENT, events
+from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, events, REPLY_EVENT
 from askai.core.commander.commands.cache_cmd import CacheCmd
 from askai.core.commander.commands.camera_cmd import CameraCmd
 from askai.core.commander.commands.general_cmd import GeneralCmd
 from askai.core.commander.commands.history_cmd import HistoryCmd
 from askai.core.commander.commands.settings_cmd import SettingsCmd
 from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
+from askai.core.enums.router_mode import RouterMode
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
 from askai.language.language import AnyLocale, Language
 from click import Command, Group
 from clitt.core.term.cursor import cursor
+from functools import lru_cache
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import sysout, to_bool
 from hspylib.modules.eventbus.event import Event
+from os.path import dirname
+from pathlib import Path
+from string import Template
+from textwrap import dedent
+
+import click
+import os
+import re
 
 COMMANDER_HELP_TPL = Template(
     dedent(
@@ -160,7 +161,7 @@ def _init_context(context_size: int = 1000, engine_name: str = "openai", model_n
                 display_text(message)
 
     if shared.engine is None and shared.context is None:
-        shared.create_engine(engine_name=engine_name, model_name=model_name)
+        shared.create_engine(engine_name=engine_name, model_name=model_name, mode=RouterMode.default())
         shared.create_context(context_size)
         askai_bus = AskAiEvents.bus(ASKAI_BUS_NAME)
         askai_bus.subscribe(REPLY_EVENT, _reply_event)
@@ -442,7 +443,7 @@ def camera(operation: str, args: tuple[str, ...]) -> None:
 @click.argument("router_mode", default="")
 def mode(router_mode: str) -> None:
     """Change the AskAI routing mode.
-    :param router_mode: The routing mode. Options: [rag|chat|splitter|qstring]
+    :param router_mode: The routing mode. Options: [rag|chat|splitter]
     """
     if not router_mode:
         text_formatter.commander_print(f"Available routing modes: **[rag|chat|splitter]**. Current: `{shared.mode}`")
@@ -453,6 +454,6 @@ def mode(router_mode: str) -> None:
             case "chat":
                 events.mode_changed.emit(mode="CHAT")
             case "splitter":
-                events.mode_changed.emit(mode="TASK_SPLIT")
+                events.mode_changed.emit(mode="SPLITTER")
             case _:
                 events.mode_changed.emit(mode="DEFAULT")

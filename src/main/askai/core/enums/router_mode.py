@@ -12,21 +12,20 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-from functools import lru_cache
-
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
 from askai.core.features.processors.ai_processor import AIProcessor
+from askai.core.features.processors.chat import chat
 from askai.core.features.processors.qna import qna
 from askai.core.features.processors.qstring import qstring
 from askai.core.features.processors.rag import rag
 from askai.core.features.processors.task_splitter import splitter
-from askai.core.features.processors.chat import chat
+from functools import lru_cache
 from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.tools.dict_tools import get_or_default_by_key
 from typing import Optional
 
-from hspylib.core.tools.dict_tools import get_or_default_by_key
+import os
 
 
 class RouterMode(Enumeration):
@@ -36,15 +35,15 @@ class RouterMode(Enumeration):
 
     # fmt: off
 
-    TASK_SPLIT = "Task Splitter",               "", splitter
+    SPLITTER    = "Task Splitter",                  "", splitter
 
-    QNA = "Questions & Answers",                "", qna
+    QNA         = "Questions & Answers",            "", qna
 
-    QSTRING = "Non-Interactive",                "謹", qstring
+    QSTRING     = "Non-Interactive",                "謹", qstring
 
-    RAG = "Retrieval-Augmented-Generation",     "", rag
+    RAG         = "Retrieval-Augmented-Generation", "", rag
 
-    CHAT = "Taius Chat",                        "", chat
+    CHAT        = "Taius Chat",                     "", chat
 
     # fmt: on
 
@@ -61,7 +60,7 @@ class RouterMode(Enumeration):
         """Return the default routing mode.
         :return: The default RouterMode instance.
         """
-        return RouterMode.TASK_SPLIT if configs.is_interactive else RouterMode.QSTRING
+        return RouterMode.of_name(configs.default_router_mode) if configs.is_interactive else RouterMode.QSTRING
 
     @classmethod
     def of_name(cls, name: str) -> "RouterMode":
@@ -70,7 +69,7 @@ class RouterMode(Enumeration):
         :return: The RouterMode instance that matches the given name.
         :raises ValueError: If no matching RouterMode is found.
         """
-        return cls[name] if name.casefold() != "default" else cls.default()
+        return cls[name.upper()] if name.casefold() != "default" else cls.default()
 
     def __str__(self):
         return f"{self.icon}  {self.name}"
@@ -79,7 +78,7 @@ class RouterMode(Enumeration):
         return self.name == other.name
 
     @property
-    def name(self) -> str:
+    def description(self) -> str:
         return self.value[0]
 
     @property

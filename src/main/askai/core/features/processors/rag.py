@@ -1,13 +1,8 @@
-import logging as log
-import os
-from pathlib import Path
-from typing import Optional
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
-from askai.core.component.cache_service import RAG_DIR, PERSIST_DIR
+from askai.core.component.cache_service import PERSIST_DIR, RAG_DIR
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
@@ -25,6 +20,11 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import BasePromptTemplate, ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from pathlib import Path
+from typing import Optional
+
+import logging as log
+import os
 
 
 class Rag(metaclass=Singleton):

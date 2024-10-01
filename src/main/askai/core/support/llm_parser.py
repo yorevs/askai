@@ -12,10 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import json
-import re
 from types import SimpleNamespace
 from typing import Optional
+
+import json
+import re
 
 
 def ensure_parseable(content: str) -> Optional[str]:

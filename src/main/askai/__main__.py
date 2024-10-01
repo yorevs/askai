@@ -14,8 +14,6 @@
 """
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
-from askai.core.commander.commander import ask_commander, is_command, RE_ASKAI_CMD
-from askai.core.support.shared_instances import shared
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import syserr, to_bool
@@ -98,23 +96,44 @@ class Main(TUIApplication):
             .option(
                 "model", "m", "model",
                 "specifies which AI model to use (depends on the engine).",
-                nargs="?")
+                nargs="?") \
+            .option(
+                "router", "r", "router",
+                "specifies which router mode to use.",
+                nargs="?",
+                choices=["rag", "chat", "splitter"])
         self._with_arguments() \
             .argument("query_string", "what to ask to the AI engine", nargs="*")
         # fmt: on
 
     def _main(self, *params, **kwargs) -> ExitStatus:
-        """Run the application with the command line arguments."""
+        """Run the application with the command line arguments.
+        :param params: Positional command line arguments.
+        :param kwargs: Keyword command line arguments.
+        :return: ExitStatus indicating the result of the application run.
+        """
         os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
         is_new_ui: bool = to_bool(self._get_argument("ui", False))
         is_interactive: bool = to_bool(self._get_argument("interactive", False))
         query_string: str | None = self._get_query_string()
-        if not is_interactive and query_string and is_command(query_string):
-            return self._execute_command(query_string)
-        elif not is_new_ui:
-            from askai.core.askai_cli import AskAiCli
+        if is_new_ui:
+            from askai.core.enums.router_mode import RouterMode
+            from askai.tui import askai_app
 
-            self._askai = AskAiCli(
+            self._askai = askai_app.AskAiApp(
+                to_bool(self._get_argument("speak")),
+                to_bool(self._get_argument("debug")),
+                to_bool(self._get_argument("cache", configs.is_cache)),
+                int(self._get_argument("tempo", configs.tempo)),
+                self._get_argument("engine", configs.engine),
+                self._get_argument("model", configs.model),
+                RouterMode.of_name(self._get_mode_str(is_interactive)),
+            )
+        elif is_interactive or (query_string and not query_string.startswith("/")):
+            from askai.core import askai_cli
+            from askai.core.enums.router_mode import RouterMode
+
+            self._askai = askai_cli.AskAiCli(
                 is_interactive,
                 to_bool(self._get_argument("speak")),
                 to_bool(self._get_argument("debug")),
@@ -124,18 +143,10 @@ class Main(TUIApplication):
                 self._get_argument("engine", configs.engine),
                 self._get_argument("model", configs.model),
                 query_string,
+                RouterMode.of_name(self._get_mode_str()),
             )
         else:
-            from askai.tui.askai_app import AskAiApp
-
-            self._askai = AskAiApp(
-                to_bool(self._get_argument("speak")),
-                to_bool(self._get_argument("debug")),
-                to_bool(self._get_argument("cache", configs.is_cache)),
-                int(self._get_argument("tempo", configs.tempo)),
-                self._get_argument("engine", configs.engine),
-                self._get_argument("model", configs.model),
-            )
+            return self._execute_command(query_string)
 
         log.info(
             dedent(
@@ -151,14 +162,22 @@ class Main(TUIApplication):
         return self._exec_application()
 
     def _exec_application(self) -> ExitStatus:
-        """Execute the application main flow."""
+        """Execute the application main flow.
+        :return: The exit status of the application.
+        """
         self._askai.run()
-        shared.context.save()
+        from askai.core.support import shared_instances
+
+        shared_instances.shared.context.save()
 
         return ExitStatus.SUCCESS
 
     def _get_argument(self, arg_name: str, default: Any = None) -> Optional[Any]:
-        """Get a command line argument, converting to the appropriate type."""
+        """Get a command line argument, converting to the appropriate type.
+        :param arg_name: The name of the command line argument to retrieve.
+        :param default: The default value to return if the argument is not found. Defaults to None.
+        :return: The value of the argument if found, otherwise the default value.
+        """
         if arg := self.get_arg(arg_name) or default:
             if isinstance(arg, str):
                 return arg
@@ -168,30 +187,42 @@ class Main(TUIApplication):
                 return arg
             elif isinstance(arg, int):
                 return arg
-            else:
-                raise TypeError("Argument '%s' has an invalid type: '%s'", arg, type(arg))
+            raise TypeError("Argument '%s' has an invalid type: '%s'", arg, type(arg))
 
         return None
 
     def _get_query_string(self) -> Optional[str]:
-        """Return the query_string parameter."""
+        """Return the query_string parameter.
+        :return: The query_string if it exists, otherwise None.
+        """
         query_string: str | list[str] = self.get_arg("query_string")
         return query_string if isinstance(query_string, str) else " ".join(query_string)
 
-    def _execute_command(self, query_string: AnyStr) -> ExitStatus:
-        """TODO"""
+    def _get_mode_str(self) -> str:
+        """Return the router mode according to the specified arguments or from configs.
+        :return: The router mode as a string.
+        """
+        return self._get_argument("router", "default")
+
+    def _execute_command(self, command_str: AnyStr) -> ExitStatus:
+        """Execute an AskAI-commander command. This method avoids loading all AskAI context and modules.
+        :param command_str: The command string to be executed.
+        :return: The exit status of the command execution.
+        """
+        from askai.core.commander import commander
+
         try:
-            if command := re.search(RE_ASKAI_CMD, query_string):
+            if command := re.search(commander.RE_ASKAI_CMD, command_str):
                 args: list[str] = list(
                     filter(lambda a: a and a != "None", re.split(r"\s", f"{command.group(1)} {command.group(2)}"))
                 )
-                ask_commander(args, standalone_mode=False)
+                commander.ask_commander(args, standalone_mode=False)
             # If no exception is raised, the command executed successfully
             return ExitStatus.SUCCESS
         except click.ClickException as ce:
             ce.show()
             syserr("Command failed due to a ClickException.")
-            return ExitStatus.FAILED
+        return ExitStatus.FAILED
 
 
 # Application entry point

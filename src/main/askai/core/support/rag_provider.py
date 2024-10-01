@@ -12,9 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-from pathlib import Path
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.support.langchain_support import lc_llm
@@ -24,6 +21,9 @@ from langchain_community.document_loaders import CSVLoader
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStore
+from pathlib import Path
+
+import os
 
 
 class RAGProvider:

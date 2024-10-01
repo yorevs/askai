@@ -13,18 +13,18 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import sys
-from datetime import datetime, timedelta
-from pathlib import Path
-from threading import Timer
-
-import pause
 from askai.core.askai_cli import AskAiCli
 from askai.core.component.audio_player import AudioPlayer
 from askai.core.support.shared_instances import shared
 from clitt.core.term.terminal import Terminal
+from datetime import datetime, timedelta
 from hspylib.core.tools.commons import sysout
 from hspylib.core.tools.dict_tools import get_or_default
+from pathlib import Path
+from threading import Timer
+
+import pause
+import sys
 
 today = datetime.today()
 th_dir: str = f"{Path.home()}/TechWeek"

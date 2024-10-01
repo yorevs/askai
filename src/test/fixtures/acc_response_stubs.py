@@ -1,8 +1,7 @@
-from typing import Optional
-
 from askai.core.enums.acc_color import AccColor
 from askai.core.model.acc_response import AccResponse
 from hspylib.core.tools.dict_tools import get_or_default
+from typing import Optional
 
 
 def stub_response(index: int) -> Optional[AccResponse]:

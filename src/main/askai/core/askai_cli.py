@@ -12,14 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from pathlib import Path
-from threading import Thread
-from typing import List, Optional, TypeAlias
-
-import nltk
-import pause
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -33,7 +25,6 @@ from askai.core.component.scheduler import scheduler
 from askai.core.enums.router_mode import RouterMode
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.shared_instances import shared
-from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
 from askai.tui.app_icons import AppIcons
 from clitt.core.term.cursor import cursor
@@ -42,7 +33,15 @@ from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.enums.charset import Charset
 from hspylib.core.zoned_datetime import now, TIME_FORMAT
 from hspylib.modules.eventbus.event import Event
+from pathlib import Path
 from rich.progress import Progress
+from threading import Thread
+from typing import List, Optional, TypeAlias
+
+import logging as log
+import nltk
+import os
+import pause
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -61,10 +60,11 @@ class AskAiCli(AskAi):
         engine_name: str,
         model_name: str,
         query_string: QueryString,
+        mode: RouterMode,
     ):
 
         configs.is_interactive = interactive if not query_prompt else False
-        super().__init__(interactive, speak, debug, cacheable, tempo, engine_name, model_name)
+        super().__init__(interactive, speak, debug, cacheable, tempo, engine_name, model_name, mode)
         os.environ["ASKAI_APP"] = (self.RunModes.ASKAI_CLI if interactive else self.RunModes.ASKAI_CMD).value
         self._ready: bool = False
         self._progress = Progress()
@@ -100,8 +100,6 @@ class AskAiCli(AskAi):
             log.debug(reply.message)
             if configs.is_speak and reply.is_speakable:
                 self.engine.text_to_speech(text, f"{shared.nickname}")
-            elif not configs.is_interactive:
-                display_text(text_formatter.strip_format(text), f"%%{shared.nickname}", markdown=False)
             else:
                 display_text(text, f"{shared.nickname}")
 
@@ -212,6 +210,7 @@ class AskAiCli(AskAi):
             askai_bus.subscribe(DEVICE_CHANGED_EVENT, self._cb_device_changed_event)
             askai_bus.subscribe(MODE_CHANGED_EVENT, self._cb_mode_changed_event)
             display_text(str(self), markdown=False)
+            self._reply(AIReply.info(self.mode.welcome()))
         elif configs.is_speak:
             recorder.setup()
             player.start_delay()
@@ -219,5 +218,4 @@ class AskAiCli(AskAi):
         with open(self.console_path, "a+", encoding=Charset.UTF_8.val) as f_console:
             f_console.write(f"\n\n## {AppIcons.STARTED} {now(TIME_FORMAT)}\n\n")
             f_console.flush()
-        self._reply(AIReply.info(self.mode.welcome()))
         log.info("AskAI is ready to use!")

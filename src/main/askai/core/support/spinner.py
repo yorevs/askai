@@ -1,16 +1,16 @@
-import contextlib
-import itertools
-import threading
-import time
-from threading import Thread
-
-import pause
 from clitt.core.term.cursor import cursor
 from clitt.core.term.terminal import Terminal
 from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.tools.commons import to_bool, sysout
+from hspylib.core.tools.commons import sysout, to_bool
 from hspylib.modules.cli.vt100.vt_color import VtColor
 from rich.console import Console
+from threading import Thread
+
+import contextlib
+import itertools
+import pause
+import threading
+import time
 
 
 class Spinner(Enumeration):

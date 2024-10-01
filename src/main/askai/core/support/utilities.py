@@ -12,17 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import base64
-import mimetypes
-import os
-import re
-import shlex
-import shutil
-import sys
-from os.path import basename, dirname
-from pathlib import Path
-from typing import AnyStr, Optional
-
 from askai.core.support.text_formatter import text_formatter
 from clitt.core.term.cursor import Cursor, cursor
 from hspylib.core.config.path_object import PathObject
@@ -32,6 +21,17 @@ from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.tools.text_tools import ensure_endswith, strip_escapes
 from hspylib.core.zoned_datetime import now_ms
+from os.path import basename, dirname
+from pathlib import Path
+from typing import AnyStr, Optional
+
+import base64
+import mimetypes
+import os
+import re
+import shlex
+import shutil
+import sys
 
 
 def read_stdin() -> Optional[str]:

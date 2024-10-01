@@ -12,9 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from typing import Literal, TypeAlias
-
 from hspylib.core.enums.enumeration import Enumeration
+from typing import Literal, TypeAlias
 
 AccuracyColors: TypeAlias = Literal["Blue", "Green", "Yellow", "Orange", "Red"]
 

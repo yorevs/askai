@@ -12,16 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import sys
-import unittest
-from pathlib import Path
-
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
+from fixtures.action_plan_stubs import stub_response
 from hspylib.core.tools.commons import dirname
 from langchain_core.messages import AIMessage
+from pathlib import Path
 
-from fixtures.action_plan_stubs import stub_response
+import sys
+import unittest
 
 
 class TestClass(unittest.TestCase):

@@ -12,15 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from askai.core.support.utilities import encode_image, extract_codeblock, extract_path, media_type_of
+from pathlib import Path
+from textwrap import dedent
+
 import base64
 import os
 import sys
 import tempfile
 import unittest
-from pathlib import Path
-from textwrap import dedent
-
-from askai.core.support.utilities import extract_codeblock, media_type_of, extract_path, encode_image
 
 
 class TestClass(unittest.TestCase):

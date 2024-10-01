@@ -1,9 +1,8 @@
-from types import SimpleNamespace
-from typing import Optional
-
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
 from hspylib.core.tools.dict_tools import get_or_default
+from types import SimpleNamespace
+from typing import Optional
 
 
 def stub_response(index: int) -> Optional[ActionPlan]:

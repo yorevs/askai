@@ -12,14 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import sys
-import unittest
+from askai.core.model.acc_response import AccResponse
+from fixtures.acc_response_stubs import stub_response
+from hspylib.core.tools.commons import dirname
 from pathlib import Path
 
-from askai.core.model.acc_response import AccResponse
-from hspylib.core.tools.commons import dirname
-
-from fixtures.acc_response_stubs import stub_response
+import sys
+import unittest
 
 
 class TestClass(unittest.TestCase):

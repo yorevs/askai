@@ -13,14 +13,6 @@
    Copyright (c) 2024, HomeSetup
 """
 
-import logging as log
-import os
-import re
-from functools import partial
-from os.path import expandvars
-from shutil import which
-from typing import Tuple
-
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.features.router.evaluation import resolve_x_refs
@@ -28,8 +20,16 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_path, media_type_of
 from clitt.core.term.terminal import terminal
+from functools import partial
 from hspylib.core.config.path_object import PathObject
 from hspylib.modules.application.exit_status import ExitStatus
+from os.path import expandvars
+from shutil import which
+from typing import Tuple
+
+import logging as log
+import os
+import re
 
 
 def list_contents(folder: str, filters: str = None) -> str:

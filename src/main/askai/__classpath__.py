@@ -27,6 +27,8 @@ if not is_debugging():
     warnings.simplefilter("ignore", category=FutureWarning)
     warnings.simplefilter("ignore", category=UserWarning)
     warnings.simplefilter("ignore", category=DeprecationWarning)
+    warnings.simplefilter("ignore", category=UserWarning)
+    warnings.filterwarnings("ignore", module="chromadb.db.impl.sqlite")
 
 if not is_a_tty():
     log.getLogger().setLevel(log.ERROR)

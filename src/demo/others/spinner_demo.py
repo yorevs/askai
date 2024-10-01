@@ -1,9 +1,9 @@
-import os
-
-import pause
 from askai.core.support.spinner import Spinner
 from hspylib.core.tools.commons import sysout
 from hspylib.modules.cli.vt100.vt_color import VtColor
+
+import os
+import pause
 
 
 def echo(message: str, prefix: str | None = None, end=os.linesep) -> None:
