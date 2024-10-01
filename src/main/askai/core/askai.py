@@ -155,6 +155,7 @@ class AskAi:
         output: str | None = None
         processor: AIProcessor = self.mode.processor
         assert isinstance(processor, AIProcessor)
+        shared.context.push("HISTORY", question)
 
         try:
             if command := re.search(RE_ASKAI_CMD, question):
@@ -166,12 +167,12 @@ class AskAi:
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
                 events.reply.emit(reply=AIReply.detailed(msg.wait()))
                 if output := processor.process(question, context=read_stdin(), query_prompt=self._query_prompt):
-                    events.reply.emit(reply=AIReply.info(output or msg.no_output("processor")))
+                    events.reply.emit(reply=AIReply.info(output))
+                    shared.context.push("HISTORY", output, "assistant")
             else:
                 log.debug("Reply found for '%s' in cache.", question)
-                events.reply.emit(reply=AIReply.info(output))
-                shared.context.push("HISTORY", question)
                 shared.context.push("HISTORY", output, "assistant")
+                events.reply.emit(reply=AIReply.info(output))
         except (NotImplementedError, ImpossibleQuery) as err:
             events.reply.emit(reply=AIReply.error(err))
         except (MaxInteractionsReached, InaccurateResponse) as err:

@@ -59,7 +59,7 @@ class TestClass(unittest.TestCase):
 
         for question, response, expected in test_cases:
             with self.subTest(response=response):
-                result = ActionPlan.create(question, AIMessage(response), ModelResult.default())
+                result = ActionPlan.create(question, response, ModelResult.default())
                 self.assertEqual(result, expected)
 
 

@@ -15,13 +15,12 @@
 import os
 import re
 from dataclasses import dataclass, field
-from os.path import expandvars
 from types import SimpleNamespace
+
+from hspylib.core.preconditions import check_state
 
 from askai.core.model.model_result import ModelResult
 from askai.core.support.llm_parser import parse_field, parse_list, parse_word
-from hspylib.core.preconditions import check_state
-from langchain_core.messages import AIMessage
 
 
 @dataclass
@@ -38,14 +37,14 @@ class ActionPlan:
     model: ModelResult = field(default_factory=ModelResult.default)
 
     @staticmethod
-    def create(question: str, message: AIMessage, model: ModelResult) -> "ActionPlan":
+    def create(question: str, message: str, model: ModelResult) -> "ActionPlan":
         """Create an ActionPlan based on the provided question, AI message, and result model.
         :param question: The original question or command that was sent to the AI.
         :param message: The AIMessage object containing the AI's response and metadata.
         :param model: The result model.
         :return: An instance of ActionPlan created from the provided inputs.
         """
-        plan: ActionPlan = ActionPlan._parse_response(question, message.content)
+        plan: ActionPlan = ActionPlan._parse_response(question, message)
         check_state(
             plan is not None and isinstance(plan, ActionPlan), f"Invalid action plan received from LLM: {type(plan)}"
         )

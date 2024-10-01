@@ -19,6 +19,8 @@ from textwrap import dedent
 from types import SimpleNamespace
 from typing import Any, Optional, Type, TypeAlias
 
+from langchain_core.messages import AIMessage
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -67,20 +69,20 @@ class TaskSplitter(metaclass=Singleton):
 
     @staticmethod
     def wrap_answer(
-        query: str,
+        question: str,
         answer: str,
         model_result: ModelResult = ModelResult.default(),
         acc_response: AccResponse | None = None,
     ) -> str:
         """Provide a final answer to the user by wrapping the AI response with additional context.
-        :param query: The user's question.
+        :param question: The user's question.
         :param answer: The AI's response to the question.
         :param model_result: The result from the selected routing model (default is ModelResult.default()).
         :param acc_response: The final accuracy response, if available.
         :return: A formatted string containing the final answer.
         """
         output: str = answer
-        args = {"user": prompt.user.title(), "idiom": shared.idiom, "context": answer, "question": query}
+        args = {"user": prompt.user.title(), "idiom": shared.idiom, "context": answer, "question": question}
         prompt_args: list[str] = [k for k in args.keys()]
         model: ResponseModel = (
             ResponseModel.REFINER
@@ -99,16 +101,20 @@ class TaskSplitter(metaclass=Singleton):
             case ResponseModel.REFINER, _:
                 if acc_response and acc_response.reasoning:
                     ctx: str = str(shared.context.flat("HISTORY"))
-                    args = {"improvements": acc_response.details, "context": ctx, "response": answer, "question": query}
+                    args = {
+                        "improvements": acc_response.details,
+                        "context": ctx,
+                        "response": answer,
+                        "question": question,
+                    }
                     prompt_args = [k for k in args.keys()]
                     events.reply.emit(reply=AIReply.debug(msg.refine_answer(answer)))
                     output = final_answer("taius-refiner", prompt_args, **args)
             case _:
                 pass  # Default is to leave the last AI response as is
 
-        shared.context.push("HISTORY", query)
-        shared.context.push("HISTORY", output, "assistant")
-        shared.memory.save_context({"input": query}, {"output": output})
+        # Save the conversation to use with the task agent executor.
+        shared.memory.save_context({"input": question}, {"output": output})
 
         return output
 
@@ -165,25 +171,23 @@ class TaskSplitter(metaclass=Singleton):
             runnable = RunnableWithMessageHistory(
                 runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
             )
-
+            response: AIMessage
             if response := runnable.invoke({"input": question}, config={"configurable": {"session_id": "HISTORY"}}):
-                log.info("Router::[RESPONSE] Received from AI: \n%s.", str(response.content))
-                plan = ActionPlan.create(question, response, model)
+                answer: str = str(response.content)
+                log.info("Router::[RESPONSE] Received from AI: \n%s.", answer)
+                plan = ActionPlan.create(question, answer, model)
                 if task_list := plan.tasks:
                     events.reply.emit(reply=AIReply.debug(msg.action_plan(str(plan))))
                     if plan.speak:
                         events.reply.emit(reply=AIReply.info(plan.speak))
                 else:
                     # Most of the times, indicates the LLM responded directly.
-                    acc_response: AccResponse = assert_accuracy(question, response, AccColor.GOOD)
-                    if output := plan.speak:
-                        shared.context.push("HISTORY", question)
-                        shared.context.push("HISTORY", output, "assistant")
-                    else:
+                    acc_response: AccResponse = assert_accuracy(question, response.content, AccColor.GOOD)
+                    if not (output := plan.speak):
                         output = msg.no_output("Task-Splitter")
                     return self.wrap_answer(question, output, plan.model, acc_response)
             else:
-                return response  # Most of the times, indicates a failure.
+                return msg.no_output("Task-Splitter")  # Most of the times, indicates a failure.
 
             try:
                 agent_output: str | None = self._process_tasks(task_list, retries)
@@ -219,8 +223,6 @@ class TaskSplitter(metaclass=Singleton):
                 task: str = f"{action.task}  {path_str or ''}"
                 if agent_output := agent.invoke(task):
                     resp_history.append(agent_output)
-                    shared.context.push("HISTORY", task)
-                    shared.context.push("HISTORY", agent_output, "assistant")
                     task_list.pop(0)
         except (InterruptionRequest, TerminatingQuery) as err:
             return str(err)
