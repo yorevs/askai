@@ -60,7 +60,7 @@ class RouterMode(Enumeration):
         """Return the default routing mode.
         :return: The default RouterMode instance.
         """
-        return RouterMode.of_name(configs.default_router_mode) if configs.is_interactive else RouterMode.QSTRING
+        return RouterMode.SPLITTER if configs.is_interactive else RouterMode.QSTRING
 
     @classmethod
     def of_name(cls, name: str) -> "RouterMode":

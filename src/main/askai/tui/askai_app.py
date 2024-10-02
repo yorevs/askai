@@ -78,7 +78,7 @@ class AskAiApp(App[None]):
         self, speak: bool, debug: bool, cacheable: bool, tempo: int, engine_name: str, model_name: str, mode: RouterMode
     ):
         super().__init__()
-        self._askai = AskAi(True, speak, debug, cacheable, tempo, engine_name, model_name, mode)
+        self._askai = AskAi(speak, debug, cacheable, tempo, engine_name, model_name, mode)
         self._re_render = True
         self._display_buffer = list()
         self._startup()

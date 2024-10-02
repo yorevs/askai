@@ -74,10 +74,7 @@ class AskAiMessages(metaclass=Singleton):
         return f"Welcome back {username}, How can I assist you today ?"
 
     def wait(self) -> str:
-        return "I'm thinking…"
-
-    def loading(self, what: str) -> str:
-        return f"Loading {what}…"
+        return "Thinking…"
 
     def welcome_back(self) -> str:
         return "How may I further assist you ?"
@@ -103,8 +100,8 @@ class AskAiMessages(metaclass=Singleton):
     def scrapping(self) -> str:
         return f"Scrapping web site…"
 
-    def summarizing(self, path: str) -> str:
-        return f"Summarizing docs at:'{path}'…"
+    def summarizing(self, path: str | None) -> str:
+        return f"Summarizing documents'{'at: ' + path if path else ''}'…"
 
     def summary_succeeded(self, path: str, glob: str) -> str:
         return f"Summarization of docs at: **{path}/{glob}** succeeded !"
@@ -119,7 +116,7 @@ class AskAiMessages(metaclass=Singleton):
         return "You have *entered* the **RAG Mode**"
 
     def enter_chat(self) -> str:
-        return "Welcome back, Sir! Ready for more epic adventures?"
+        return "Welcome back, **Sir**! Ready for more 👊 *Epic Adventures* ?"
 
     def leave_qna(self) -> str:
         return "You have *left* the **Summarization Q & A**"
@@ -128,7 +125,7 @@ class AskAiMessages(metaclass=Singleton):
         return "You have *left* the **RAG Mode**"
 
     def leave_chat(self) -> str:
-        return f"Bye, Sir! If you need anything else, **just let me rock **!"
+        return f"Bye, **Sir**! If you need anything else, ⚡ **Just let me Rock**  ⚡ !"
 
     def press_esc_enter(self) -> str:
         return "Type [exit] to exit Q & A mode"

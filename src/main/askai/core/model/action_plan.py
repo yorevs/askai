@@ -18,7 +18,6 @@ from dataclasses import dataclass, field
 from hspylib.core.preconditions import check_state
 from types import SimpleNamespace
 
-import os
 import re
 
 
@@ -58,10 +57,6 @@ class ActionPlan:
         :param response: The router's response.
         :return: An instance of ActionPlan created from the parsed response.
         """
-        # FIXME: Remove log the response
-        with open(os.path.expandvars("${HOME}/Desktop/task-splitter-resp.txt"), "w") as f_resp:
-            f_resp.write(response + os.linesep)
-            f_resp.flush()
 
         speak: str = parse_field("@speak", response)
         primary_goal: str = parse_field("@primary_goal", response)

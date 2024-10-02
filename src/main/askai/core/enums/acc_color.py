@@ -5,7 +5,7 @@
    @project: HsPyLib-AskAI
    @package: askai.core.enums.acc_response
       @file: acc_color.py
-   @created: thu, 26 Sep 2024
+   @created: Thu, 26 Sep 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>

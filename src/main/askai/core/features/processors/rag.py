@@ -1,8 +1,3 @@
-import logging as log
-import os
-from pathlib import Path
-from typing import Optional
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -24,8 +19,12 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import BasePromptTemplate, ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from rich.spinner import Spinner
+from pathlib import Path
 from rich.status import Status
+from typing import Optional
+
+import logging as log
+import os
 
 
 class Rag(metaclass=Singleton):
@@ -88,7 +87,7 @@ class Rag(metaclass=Singleton):
                 log.info("Recovering vector store from: '%s'", persist_dir)
                 self._vectorstore = Chroma(persist_directory=persist_dir, embedding_function=embeddings)
             else:
-                with Status(f'[green]{msg.loading("documents")}[/green]'):
+                with Status(f'[green]{msg.summarizing()}[/green]'):
                     rag_docs: list[Document] = DirectoryLoader(str(RAG_EXT_DIR), glob=file_glob, recursive=True).load()
                 if len(rag_docs) <= 0:
                     raise DocumentsNotFound(f"Unable to find any document to at: '{persist_dir}'")

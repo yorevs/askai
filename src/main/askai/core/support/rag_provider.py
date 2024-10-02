@@ -12,17 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import glob
 import os
 import shutil
 from pathlib import Path
 from shutil import copyfile
 
-from askai.core.askai_settings import ASKAI_DIR
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.preconditions import check_state
 from hspylib.core.tools.commons import file_is_not_empty
-from hspylib.core.tools.text_tools import hash_text
+from hspylib.core.tools.text_tools import hash_text, ensure_endswith
 from langchain_community.document_loaders import CSVLoader
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
@@ -30,8 +30,8 @@ from langchain_core.vectorstores import VectorStore
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
+from askai.core.askai_settings import ASKAI_DIR
 from askai.core.support.langchain_support import lc_llm
-
 
 # External RAG Directory
 RAG_EXT_DIR: Path = Path(f"{ASKAI_DIR}/rag")
@@ -52,21 +52,27 @@ class RAGProvider:
                           defaults to a hashed directory based on the source path.
         :return: True if the copy operation was successful, False otherwise.
         """
-        result: bool = True
         src_path: PathObject = PathObject.of(path_name)
-        if src_path.exists and src_path.is_file:
-            copyfile(str(src_path), f"{RAG_EXT_DIR}/{src_path.filename}")
-        elif src_path.exists and src_path.is_dir:
-            shutil.copytree(
-                str(src_path),
-                str(RAG_EXT_DIR / (dest_name or hash_text(str(src_path))[:8])),
-                dirs_exist_ok=True,
-                symlinks=True
-            )
-        else:
-            result = False
+        with open(f"{RAG_EXT_DIR}/rag-documents.txt", "w") as f_docs:
+            docs: list[str] = list()
+            if src_path.exists and src_path.is_file:
+                file: str = f"{RAG_EXT_DIR}/{src_path.filename}"
+                copyfile(str(src_path), file)
+            elif src_path.exists and src_path.is_dir:
+                shutil.copytree(
+                    str(src_path),
+                    str(RAG_EXT_DIR / (dest_name or hash_text(str(src_path))[:8])),
+                    dirs_exist_ok=True,
+                    symlinks=True
+                )
+            else:
+                return False
+            files: list[str] = glob.glob(f"{str(RAG_EXT_DIR)}/**/*.*", recursive=True)
+            list(map(docs.append, files))
+            f_docs.write("Available documents for RAG:" + os.linesep * 2)
+            f_docs.writelines(set(ensure_endswith(d, os.linesep) for d in docs))
 
-        return result
+        return True
 
     def __init__(self, rag_filepath: str):
         self._rag_db = None

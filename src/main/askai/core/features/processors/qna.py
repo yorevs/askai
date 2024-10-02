@@ -3,6 +3,7 @@ from askai.core.askai_messages import msg
 from askai.core.component.summarizer import summarizer
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.summary_result import SummaryResult
+from askai.exception.exceptions import TerminatingQuery
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_state
 from typing import Optional
@@ -17,6 +18,9 @@ class QnA(metaclass=Singleton):
         """Process the user question against a summarized context to retrieve answers.
         :param question: The user question to process.
         """
+
+        if not question:
+            raise TerminatingQuery("The user wants to exit!")
         if question.casefold() in ["exit", "leave", "quit", "q"] or not (response := summarizer.query(question)):
             events.reply.emit(reply=AIReply.info(msg.leave_qna()))
             events.mode_changed.emit(mode="DEFAULT")

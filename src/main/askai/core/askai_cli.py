@@ -51,7 +51,6 @@ class AskAiCli(AskAi):
 
     def __init__(
         self,
-        interactive: bool,
         speak: bool,
         debug: bool,
         cacheable: bool,
@@ -63,9 +62,7 @@ class AskAiCli(AskAi):
         mode: RouterMode,
     ):
 
-        configs.is_interactive = interactive if not query_prompt else False
-        super().__init__(interactive, speak, debug, cacheable, tempo, engine_name, model_name, mode)
-        os.environ["ASKAI_APP"] = (self.RunModes.ASKAI_CLI if interactive else self.RunModes.ASKAI_CMD).value
+        super().__init__(speak, debug, cacheable, tempo, engine_name, model_name, mode)
         self._ready: bool = False
         self._progress = Progress()
         self._query_prompt = query_prompt

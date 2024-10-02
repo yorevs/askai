@@ -13,10 +13,13 @@
    Copyright (c) 2024, HomeSetup
 """
 from types import SimpleNamespace
-from typing import Optional
+from typing import AnyStr, Optional, TypeVar
 
 import json
+import os
 import re
+
+T = TypeVar("T")
 
 
 def ensure_parseable(content: str) -> Optional[str]:
@@ -30,7 +33,7 @@ def ensure_parseable(content: str) -> Optional[str]:
         # Content is already a JSON array
         return content
     # Process lines to extract JSON objects
-    lines = content.split('\n')
+    lines = content.split(os.linesep)
     json_objects: list[str] = list()
     for line in lines:
         if not (line := line.strip()):
@@ -39,11 +42,10 @@ def ensure_parseable(content: str) -> Optional[str]:
             line = line.lstrip('-').strip()
         json_objects.append(line)
     # Wrap in square brackets to form a JSON array
-    json_array_str = f"[{','.join(json_objects)}]"
-    return json_array_str
+    return f"[{','.join(json_objects)}]"
 
 
-def parse_field(field_name: str, text: str) -> Optional[str]:
+def parse_field(field_name: AnyStr, text: AnyStr) -> Optional[T]:
     """Parse the LLM response and extract a specified field.
     :param field_name: The name of the field to be extracted.
     :param text: The text from which to extract the field.
@@ -56,7 +58,7 @@ def parse_field(field_name: str, text: str) -> Optional[str]:
     return field_value.strip() if field_value else None
 
 
-def parse_word(word: str, text: str) -> Optional[str]:
+def parse_word(word: AnyStr, text: AnyStr) -> Optional[T]:
     """Parse the LLM response and extract a specified word attribute.
     :param word: The word attribute to extract from the text.
     :param text: The text from which to extract the word attribute.
@@ -69,7 +71,7 @@ def parse_word(word: str, text: str) -> Optional[str]:
     return word_value.strip() if word_value else None
 
 
-def parse_list(field_name: str, text: str, is_dict=True) -> list[SimpleNamespace | str]:
+def parse_list(field_name: AnyStr, text: AnyStr, is_dict: bool = True) -> list[SimpleNamespace | AnyStr]:
     """Parse the LLM response and extract a specified list.
     :param field_name: The name of the field to extract from the text.
     :param text: The text response from the LLM to parse.

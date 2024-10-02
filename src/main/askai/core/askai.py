@@ -30,7 +30,6 @@ from askai.exception.exceptions import (ImpossibleQuery, InaccurateResponse, Int
                                         MaxInteractionsReached, TerminatingQuery)
 from askai.tui.app_icons import AppIcons
 from click import UsageError
-from enum import Enum
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import file_is_not_empty, is_debugging
 from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
@@ -56,13 +55,6 @@ class AskAi:
 
     SPLASH: str = classpath.get_resource("splash.txt").read_text(encoding=Charset.UTF_8.val)
 
-    class RunModes(Enum):
-        """AskAI run modes"""
-
-        ASKAI_TUI = "ASKAI_TUI"  # Interactive Terminal UI.
-        ASKAI_CLI = "ASKAI_CLI"  # Interactive CLI.
-        ASKAI_CMD = "ASKAI_CMD"  # Non interactive CLI (Command mode).
-
     @staticmethod
     def _abort():
         """Abort the execution and exit."""
@@ -70,7 +62,6 @@ class AskAi:
 
     def __init__(
         self,
-        interactive: bool,
         speak: bool,
         debug: bool,
         cacheable: bool,
@@ -80,7 +71,6 @@ class AskAi:
         mode: RouterMode,
     ):
 
-        configs.is_interactive = interactive
         configs.is_debug = is_debugging() or debug
         configs.is_speak = speak
         configs.is_cache = cacheable

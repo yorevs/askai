@@ -14,6 +14,7 @@
 """
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
+from askai.core.enums.run_modes import RunModes
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import syserr, to_bool
@@ -114,12 +115,14 @@ class Main(TUIApplication):
         """
         os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
         is_new_ui: bool = to_bool(self._get_argument("ui", False))
-        is_interactive: bool = to_bool(self._get_argument("interactive", False))
         query_string: str | None = self._get_query_string()
+        configs.is_interactive = self._get_interactive(query_string)
         if is_new_ui:
             from askai.core.enums.router_mode import RouterMode
             from askai.tui import askai_app
 
+            configs.is_interactive = True  # TUI is always interactive
+            os.environ["ASKAI_APP"] = RunModes.ASKAI_TUI.value
             self._askai = askai_app.AskAiApp(
                 to_bool(self._get_argument("speak")),
                 to_bool(self._get_argument("debug")),
@@ -129,12 +132,12 @@ class Main(TUIApplication):
                 self._get_argument("model", configs.model),
                 RouterMode.of_name(self._get_mode_str()),
             )
-        elif is_interactive or (query_string and not query_string.startswith("/")):
+        elif configs.is_interactive or (query_string and not query_string.startswith("/")):
             from askai.core import askai_cli
             from askai.core.enums.router_mode import RouterMode
 
+            os.environ["ASKAI_APP"] = RunModes.ASKAI_CLI.value
             self._askai = askai_cli.AskAiCli(
-                is_interactive,
                 to_bool(self._get_argument("speak")),
                 to_bool(self._get_argument("debug")),
                 to_bool(self._get_argument("cache", configs.is_cache)),
@@ -146,6 +149,7 @@ class Main(TUIApplication):
                 RouterMode.of_name(self._get_mode_str()),
             )
         else:
+            os.environ["ASKAI_APP"] = RunModes.ASKAI_CMD.value
             return self._execute_command(query_string)
 
         log.info(
@@ -203,6 +207,12 @@ class Main(TUIApplication):
         :return: The router mode as a string.
         """
         return self._get_argument("router", "default")
+
+    def _get_interactive(self, query_string: str) -> bool:
+        """TODO"""
+        interactive: bool = to_bool(self._get_argument("interactive", False))
+        interactive = interactive if not query_string else False
+        return interactive
 
     def _execute_command(self, command_str: AnyStr) -> ExitStatus:
         """Execute an AskAI-commander command. This method avoids loading all AskAI context and modules.
