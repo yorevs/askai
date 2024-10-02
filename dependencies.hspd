@@ -66,6 +66,7 @@ package: unstructured, version: 0.15.8, mode: ge
 package: unstructured[md], version: 0.15.8, mode: ge
 package: tiktoken, version: 0.7.0, mode: ge
 package: stanza, version: 1.1.1, mode: eq
+package: nltk, version: 3.9.1, mode: ge
 
 /* Vector Store and Databases */
 package: faiss-cpu, version: 1.8.0.post1, mode: ge
