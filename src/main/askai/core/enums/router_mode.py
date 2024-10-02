@@ -41,7 +41,7 @@ class RouterMode(Enumeration):
 
     QSTRING     = "Non-Interactive",                "", qstring
 
-    RAG         = "Retrieval-Augmented-Generation", "謹", rag
+    RAG         = "Retrieval-Augmented-Generation", "", rag
 
     CHAT        = "Taius Chat",                     "", chat
 
