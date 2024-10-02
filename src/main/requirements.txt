@@ -40,6 +40,7 @@ unstructured>=0.15.8
 unstructured[md]>=0.15.8
 tiktoken>=0.7.0
 stanza==1.1.1
+nltk>=3.9.1
 faiss-cpu~=1.8.0
 chromadb>=0.5.5
 deepl>=1.18.0

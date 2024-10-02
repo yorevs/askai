@@ -212,6 +212,7 @@ class AskAiCli(AskAi):
             display_text(str(self), markdown=False)
             self._reply(AIReply.info(self.mode.welcome()))
         elif configs.is_speak:
+            nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
             recorder.setup()
             player.start_delay()
         # Register the startup
