@@ -86,7 +86,6 @@ class AskAi:
         configs.is_cache = cacheable
         configs.tempo = tempo
         configs.engine = engine_name
-        configs.model = model_name
 
         self._session_id = now("%Y%m%d")[:8]
         self._engine: AIEngine = shared.create_engine(engine_name, model_name, mode)

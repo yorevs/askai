@@ -127,7 +127,7 @@ class Main(TUIApplication):
                 int(self._get_argument("tempo", configs.tempo)),
                 self._get_argument("engine", configs.engine),
                 self._get_argument("model", configs.model),
-                RouterMode.of_name(self._get_mode_str(is_interactive)),
+                RouterMode.of_name(self._get_mode_str()),
             )
         elif is_interactive or (query_string and not query_string.startswith("/")):
             from askai.core import askai_cli
