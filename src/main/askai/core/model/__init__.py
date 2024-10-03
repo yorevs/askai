@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.0.19
+# hspylib-askai v1.0.20
 #
 # Package: main.askai.core.model
 """Package initialization."""
@@ -15,4 +15,4 @@ __all__ = [
     'search_result', 
     'summary_result'
 ]
-__version__ = '1.0.19'
+__version__ = '1.0.20'
