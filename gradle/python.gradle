@@ -109,7 +109,7 @@ task compileQrc(type: Task) {
     }.each { File file ->
         if (verbose) println "Compiling Qt Resource -> ${file.name}"
         exec {
-          commandLine project.pyrcc, '-m', 'py_compile', file.path
+          commandLine project.pyrcc, file.path
         }
       }
   }
