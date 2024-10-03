@@ -1,2 +1,3 @@
 include askai/welcome.txt
 include askai/.version
+recursive-include askai/resources *
