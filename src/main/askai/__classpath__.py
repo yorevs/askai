@@ -12,6 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from hspylib.modules.application.exit_status import ExitStatus
+
 from askai.core.model.api_keys import ApiKeys
 from clitt.core.term.commons import is_a_tty
 from hspylib.core.metaclass.classpath import Classpath
@@ -38,12 +40,14 @@ if not os.environ.get("USER_AGENT"):
     ASKAI_USER_AGENT: str = "AskAI-User-Agent"
     os.environ["USER_AGENT"] = ASKAI_USER_AGENT
 
-try:
-    API_KEYS: ApiKeys = ApiKeys()
-except pydantic.v1.error_wrappers.ValidationError as err:
-    if not ApiKeys.prompt():
-        log.error(err.json())
-        sys.exit(127)
+# If running from GitHub actions, we can't set those
+if not os.environ.get("GITHUB_ACTIONS"):
+    try:
+        API_KEYS: ApiKeys = ApiKeys()
+    except pydantic.v1.error_wrappers.ValidationError as err:
+        if not ApiKeys.prompt():
+            log.error(err.json())
+            sys.exit(ExitStatus.ABNORMAL)
 
 
 class _Classpath(Classpath):
