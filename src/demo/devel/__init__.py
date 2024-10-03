@@ -2,12 +2,10 @@
 #
 # hspylib-askai v1.0.18
 #
-# Package: main.askai.language.translators
+# Package: demo.devel
 """Package initialization."""
 
 __all__ = [
-    'argos_translator', 
-    'deepl_translator', 
-    'marian_translator'
+    'google_suggestions'
 ]
 __version__ = '1.0.18'
