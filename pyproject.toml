@@ -1,6 +1,6 @@
 [tool.poetry]
   name = "hspylib-askai"
-  version = "1.0.18"
+  version = "1.0.19"
   description = "HomeSetup - AskAI"
   authors = ["Hugo Saporetti Junior <yorevs@hotmail.com>"]
   license = "MIT"

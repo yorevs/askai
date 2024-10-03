@@ -26,8 +26,13 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import read_stdin
-from askai.exception.exceptions import (ImpossibleQuery, InaccurateResponse, IntelligibleAudioError,
-                                        MaxInteractionsReached, TerminatingQuery)
+from askai.exception.exceptions import (
+    ImpossibleQuery,
+    InaccurateResponse,
+    IntelligibleAudioError,
+    MaxInteractionsReached,
+    TerminatingQuery,
+)
 from askai.tui.app_icons import AppIcons
 from click import UsageError
 from hspylib.core.enums.charset import Charset
@@ -49,9 +54,9 @@ QueryString: TypeAlias = str | List[str] | None
 class AskAi:
     """The AskAI core functionalities."""
 
-    SOURCE_DIR: Path = classpath.source_path()
+    SOURCE_DIR: Path = classpath.source_path
 
-    RESOURCE_DIR: Path = classpath.resource_path()
+    RESOURCE_DIR: Path = classpath.resource_path
 
     SPLASH: str = classpath.get_resource("splash.txt").read_text(encoding=Charset.UTF_8.val)
 
@@ -61,14 +66,7 @@ class AskAi:
         sys.exit(ExitStatus.FAILED.val)
 
     def __init__(
-        self,
-        speak: bool,
-        debug: bool,
-        cacheable: bool,
-        tempo: int,
-        engine_name: str,
-        model_name: str,
-        mode: RouterMode,
+        self, speak: bool, debug: bool, cacheable: bool, tempo: int, engine_name: str, model_name: str, mode: RouterMode
     ):
 
         configs.is_debug = is_debugging() or debug

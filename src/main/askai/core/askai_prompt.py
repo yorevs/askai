@@ -26,7 +26,7 @@ class AskAiPrompt(metaclass=Singleton):
     INSTANCE: "AskAiPrompt"
 
     # AI Prompts directory.
-    PROMPT_DIR = str(classpath.resource_path()) + "/prompts"
+    PROMPT_DIR = str(classpath.resource_path) + "/prompts"
 
     def __init__(self):
         self._shell: SupportedShells = get_shell()

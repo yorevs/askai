@@ -40,7 +40,7 @@ if not os.environ.get("USER_AGENT"):
     ASKAI_USER_AGENT: str = "AskAI-User-Agent"
     os.environ["USER_AGENT"] = ASKAI_USER_AGENT
 
-# If running from GitHub actions, we can't set those
+# If running from GitHub actions, we can't expect ApiKeys (for now)
 if not os.environ.get("GITHUB_ACTIONS"):
     try:
         API_KEYS: ApiKeys = ApiKeys()
@@ -58,4 +58,4 @@ class _Classpath(Classpath):
 
 
 # Instantiate the classpath singleton
-assert (classpath := _Classpath().INSTANCE) is not None, "Failed to create Classpath instance"
+assert (classpath := _Classpath()) is not None, "Failed to create Classpath instance"

@@ -12,26 +12,25 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import glob
-import os
-import shutil
-from pathlib import Path
-from shutil import copyfile
-
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.metaclass.classpath import AnyPath
-from hspylib.core.preconditions import check_state
-from hspylib.core.tools.commons import file_is_not_empty
-from hspylib.core.tools.text_tools import hash_text, ensure_endswith
-from langchain_community.document_loaders import CSVLoader
-from langchain_community.vectorstores import FAISS
-from langchain_core.documents import Document
-from langchain_core.vectorstores import VectorStore
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_settings import ASKAI_DIR
 from askai.core.support.langchain_support import lc_llm
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.metaclass.classpath import AnyPath
+from hspylib.core.preconditions import check_state
+from hspylib.core.tools.commons import file_is_not_empty
+from hspylib.core.tools.text_tools import ensure_endswith, hash_text
+from langchain_community.document_loaders import CSVLoader
+from langchain_community.vectorstores import FAISS
+from langchain_core.documents import Document
+from langchain_core.vectorstores import VectorStore
+from pathlib import Path
+from shutil import copyfile
+
+import glob
+import os
+import shutil
 
 # External RAG Directory
 RAG_EXT_DIR: Path = Path(f"{ASKAI_DIR}/rag")
@@ -42,7 +41,7 @@ if not RAG_EXT_DIR.exists():
 class RAGProvider:
     """A class responsible for implementing the Retrieval-Augmented Generation (RAG) mechanism."""
 
-    RAG_DIR: Path = Path(os.path.join(classpath.resource_path(), "rag"))
+    RAG_DIR: Path = Path(os.path.join(classpath.resource_path, "rag"))
 
     @staticmethod
     def copy_rag(path_name: AnyPath, dest_name: AnyPath | None = None) -> bool:
@@ -63,7 +62,7 @@ class RAGProvider:
                     str(src_path),
                     str(RAG_EXT_DIR / (dest_name or hash_text(str(src_path))[:8])),
                     dirs_exist_ok=True,
-                    symlinks=True
+                    symlinks=True,
                 )
             else:
                 return False
@@ -92,4 +91,4 @@ class RAGProvider:
                 self._rag_db = FAISS.from_documents(self._rag_docs, lc_llm.create_embeddings())
             example_docs: list[Document] = self._rag_db.similarity_search(query, k=k)
             rag_examples: list[str] = [doc.page_content for doc in example_docs]
-            return f"**Examples:**\n\"\"\"{(2 * os.linesep).join(rag_examples)}\"\"\""
+            return f'**Examples:**\n"""{(2 * os.linesep).join(rag_examples)}"""'

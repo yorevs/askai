@@ -125,7 +125,7 @@ class SharedInstances(metaclass=Singleton):
         engine_info: str = f"{eng.ai_name()} - %CYAN%{eng.nickname()} / {model_info}"
         return (
             f"%GREEN%"
-            f"AskAI %YELLOW%v{Version.load(load_dir=classpath.source_path())}%GREEN% %EOL%"
+            f"AskAI %YELLOW%v{Version.load(load_dir=classpath.source_path)}%GREEN% %EOL%"
             f"{dtm.center(80, '=')} %EOL%"
             f"   Language: {configs.language} {translator} %EOL%"
             f"     Engine: {engine_info} %EOL%"
@@ -152,10 +152,7 @@ class SharedInstances(metaclass=Singleton):
             self._mode = mode
         return self._engine
 
-    def create_context(
-        self,
-        token_limit: int,
-    ) -> ChatContext:
+    def create_context(self, token_limit: int) -> ChatContext:
         """Create or retrieve a chat context with the specified token limit.
         :param token_limit: The maximum number of tokens allowed in the chat context.
         :return: An instance of the ChatContext configured with the specified token limit.
@@ -167,10 +164,7 @@ class SharedInstances(metaclass=Singleton):
                 self._context = ChatContext(token_limit, configs.max_short_memory_size)
         return self._context
 
-    def create_memory(
-        self,
-        memory_key: str = "chat_history",
-    ) -> BaseChatMemory:
+    def create_memory(self, memory_key: str = "chat_history") -> BaseChatMemory:
         """Create or retrieve the conversation window memory.
         :param memory_key: The key used to identify the memory (default is "chat_history").
         :return: An instance of BaseChatMemory associated with the specified memory key.
