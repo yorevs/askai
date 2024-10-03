@@ -40,14 +40,13 @@ if not os.environ.get("USER_AGENT"):
     ASKAI_USER_AGENT: str = "AskAI-User-Agent"
     os.environ["USER_AGENT"] = ASKAI_USER_AGENT
 
-# If running from GitHub actions, we can't expect ApiKeys (for now)
-if not os.environ.get("GITHUB_ACTIONS"):
-    try:
-        API_KEYS: ApiKeys = ApiKeys()
-    except pydantic.v1.error_wrappers.ValidationError as err:
-        if not ApiKeys.prompt():
-            log.error(err.json())
-            sys.exit(ExitStatus.ABNORMAL)
+
+try:
+    API_KEYS: ApiKeys = ApiKeys()
+except pydantic.v1.error_wrappers.ValidationError as err:
+    if not ApiKeys.prompt():
+        log.error(err.json())
+        sys.exit(ExitStatus.ABNORMAL)
 
 
 class _Classpath(Classpath):
