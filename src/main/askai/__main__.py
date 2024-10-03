@@ -40,10 +40,10 @@ class Main(TUIApplication):
     DESCRIPTION: str = classpath.get_source("welcome.txt").read_text(encoding=Charset.UTF_8.val)
 
     # Location of the .version file
-    VERSION: Version = Version.load(load_dir=classpath.source_path())
+    VERSION: Version = Version.load(load_dir=classpath.source_path)
 
     # The resources folder
-    RESOURCE_DIR: str = str(classpath.resource_path())
+    RESOURCE_DIR: str = str(classpath.resource_path)
 
     INSTANCE: "Main"
 

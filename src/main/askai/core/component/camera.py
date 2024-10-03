@@ -53,7 +53,7 @@ class Camera(metaclass=Singleton):
 
     INSTANCE: "Camera"
 
-    RESOURCE_DIR: Path = classpath.resource_path()
+    RESOURCE_DIR: Path = classpath.resource_path
 
     # Face-Detection algorithm to be used
     ALG: str = configs.face_detect_alg
