@@ -28,8 +28,6 @@ configurations {
 }
 
 ext {
-  python = (System.getenv('PYTHON_HOME') ?: '') + '/python3'
-  pyrcc = (System.getenv('QT_HOME') ?: '') + '/pyrcc5'
   sourceRoot = "${rootDir}/src"
   gradleDir = "${rootDir}/gradle"
   application = "${sourceRoot}/main/__main__.py"
