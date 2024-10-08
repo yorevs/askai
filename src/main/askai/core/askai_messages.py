@@ -12,6 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from hspylib.core.metaclass.classpath import AnyPath
+
 from askai.core.askai_configs import configs
 from askai.language.ai_translator import AITranslator
 from askai.language.language import Language
@@ -70,7 +72,7 @@ class AskAiMessages(metaclass=Singleton):
 
     # Informational
 
-    def welcome(self, username: str) -> str:
+    def welcome(self, username: AnyStr) -> str:
         return f"Welcome back {username}, How can I assist you today ?"
 
     def wait(self) -> str:
@@ -91,7 +93,7 @@ class AskAiMessages(metaclass=Singleton):
     def smile(self, countdown: int) -> str:
         return f"\nSmile {str(countdown)} "
 
-    def cmd_success(self, command_line: str) -> str:
+    def cmd_success(self, command_line: AnyStr) -> str:
         return f"OK, command `{command_line}` succeeded"
 
     def searching(self) -> str:
@@ -100,10 +102,10 @@ class AskAiMessages(metaclass=Singleton):
     def scrapping(self) -> str:
         return f"Scrapping web site…"
 
-    def summarizing(self, path: str | None) -> str:
-        return f"Summarizing documents'{'at: ' + path if path else ''}'…"
+    def summarizing(self, path: AnyPath | None = None) -> str:
+        return f"Summarizing documents{' at: ' + str(path) if path else ''}…"
 
-    def summary_succeeded(self, path: str, glob: str) -> str:
+    def summary_succeeded(self, path: AnyPath, glob: str) -> str:
         return f"Summarization of docs at: **{path}/{glob}** succeeded !"
 
     def enter_qna(self) -> str:
@@ -130,24 +132,24 @@ class AskAiMessages(metaclass=Singleton):
     def press_esc_enter(self) -> str:
         return "Type [exit] to exit Q & A mode"
 
-    def device_switch(self, device_info: str) -> str:
+    def device_switch(self, device_info: AnyStr) -> str:
         return f"\nSwitching to Audio Input device: `{device_info}`\n"
 
     # Debug messages
 
-    def photo_captured(self, photo: str) -> str:
+    def photo_captured(self, photo: AnyStr) -> str:
         return f"~~[DEBUG]~~ WebCam photo captured: `{photo}`"
 
-    def screenshot_saved(self, screenshot: str) -> str:
+    def screenshot_saved(self, screenshot: AnyStr) -> str:
         return f"~~[DEBUG]~~ Screenshot saved: `{screenshot}`"
 
-    def executing(self, command_line: str) -> str:
+    def executing(self, command_line: AnyStr) -> str:
         return f"~~[DEBUG]~~ Executing: `{command_line}`…"
 
-    def analysis(self, result: str) -> str:
+    def analysis(self, result: AnyStr) -> str:
         return f"~~[DEBUG]~~ Analysis result => {result}"
 
-    def assert_acc(self, status: str, details: str) -> str:
+    def assert_acc(self, status: AnyStr, details: AnyStr) -> str:
         match status.casefold():
             case "red":
                 cl = "%RED%"
@@ -161,25 +163,25 @@ class AskAiMessages(metaclass=Singleton):
                 cl = ""
         return f"~~[DEBUG]~~ Accuracy result => {cl}{status}:%NC% {details}"
 
-    def action_plan(self, plan_text: str) -> str:
+    def action_plan(self, plan_text: AnyStr) -> str:
         return f"~~[DEBUG]~~ Action plan > {plan_text}"
 
-    def x_reference(self, pathname: str) -> str:
+    def x_reference(self, pathname: AnyPath) -> str:
         return f"~~[DEBUG]~~ Resolving X-References: `{pathname}`…"
 
-    def describe_image(self, image_path: str) -> str:
+    def describe_image(self, image_path: AnyPath) -> str:
         return f"~~[DEBUG]~~ Describing image: `{image_path}`…"
 
-    def model_select(self, model: str) -> str:
+    def model_select(self, model: AnyStr) -> str:
         return f"~~[DEBUG]~~ Using routing model: `{model}`"
 
-    def task(self, task: str) -> str:
+    def task(self, task: AnyStr) -> str:
         return f"~~[DEBUG]~~ > `Task:` {task}"
 
-    def final_query(self, query: str) -> str:
+    def final_query(self, query: AnyStr) -> str:
         return f"~~[DEBUG]~~ > Final query: `{query}`"
 
-    def refine_answer(self, answer: str) -> str:
+    def refine_answer(self, answer: AnyStr) -> str:
         return f"~~[DEBUG]~~ > Refining answer: `{answer}`"
 
     def no_caption(self) -> str:
@@ -190,7 +192,7 @@ class AskAiMessages(metaclass=Singleton):
 
     # Warnings and alerts
 
-    def no_output(self, source: str) -> str:
+    def no_output(self, source: AnyStr) -> str:
         return f"The {source} didn't produce an output !"
 
     def access_grant(self) -> str:
@@ -210,10 +212,10 @@ class AskAiMessages(metaclass=Singleton):
     def invalid_command(self, response_text: AnyStr) -> str:
         return f"Invalid **AskAI** command => '{response_text}' !"
 
-    def cmd_no_exist(self, command: str) -> str:
+    def cmd_no_exist(self, command: AnyStr) -> str:
         return f"Command: `{command}' does not exist !"
 
-    def cmd_failed(self, cmd_line: str, error_msg: str) -> str:
+    def cmd_failed(self, cmd_line: AnyStr, error_msg: AnyStr) -> str:
         return f"Command: `{cmd_line}' failed to execute -> {error_msg}!"
 
     def camera_not_open(self) -> str:

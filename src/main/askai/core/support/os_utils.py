@@ -1,7 +1,7 @@
 """
    @project: HsPyLib-AskAI
    @package: askai.core.model
-      @file: platform.py
+      @file: os_utils.py
    @created: Thu, 29 Feb 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
       @site: https://github.com/yorevs/askai

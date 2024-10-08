@@ -17,6 +17,7 @@ from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
+from askai.core.component.rag_provider import RAGProvider
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_color import AccColor
 from askai.core.enums.response_model import ResponseModel
@@ -29,7 +30,6 @@ from askai.core.model.action_plan import ActionPlan
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.model_result import ModelResult
 from askai.core.support.langchain_support import lc_llm
-from askai.core.support.rag_provider import RAGProvider
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse, InterruptionRequest, TerminatingQuery
 from hspylib.core.exception.exceptions import InvalidArgumentError

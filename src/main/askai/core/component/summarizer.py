@@ -110,6 +110,7 @@ class Summarizer(metaclass=Singleton):
         self._glob: str = glob.strip()
         events.reply.emit(reply=AIReply.info(msg.summarizing(self.sum_path)))
         embeddings: Embeddings = lc_llm.create_embeddings()
+        v_store: Chroma | None = None
 
         try:
             if self.persist_dir.exists():
@@ -117,12 +118,12 @@ class Summarizer(metaclass=Singleton):
                 v_store = Chroma(persist_directory=str(self.persist_dir), embedding_function=embeddings)
             else:
                 log.info("Summarizing documents from '%s'", self.sum_path)
-                with Status(f'[green]{msg.summarizing()}[/green]'):
+                with Status(f'[green]{msg.summarizing(self.folder)}[/green]'):
                     documents: list[Document] = DirectoryLoader(self.folder, glob=self.glob).load()
-                if len(documents) <= 0:
-                    raise DocumentsNotFound(f"Unable to find any document to summarize at: '{self.sum_path}'")
-                texts: list[Document] = self._text_splitter.split_documents(documents)
-                v_store = Chroma.from_documents(texts, embeddings, persist_directory=str(self.persist_dir))
+                    if len(documents) <= 0:
+                        raise DocumentsNotFound(f"Unable to find any document to summarize at: '{self.sum_path}'")
+                    texts: list[Document] = self._text_splitter.split_documents(documents)
+                    v_store = Chroma.from_documents(texts, embeddings, persist_directory=str(self.persist_dir))
 
             self._retriever = RetrievalQA.from_chain_type(
                 llm=lc_llm.create_chat_model(), chain_type="stuff", retriever=v_store.as_retriever()
