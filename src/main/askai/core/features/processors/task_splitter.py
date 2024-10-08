@@ -175,7 +175,7 @@ class TaskSplitter(metaclass=Singleton):
                 answer: str = str(response.content)
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", answer)
                 plan = ActionPlan.create(question, answer, model)
-                if task_list := plan.tasks:
+                if not plan.is_direct and (task_list := plan.tasks):
                     events.reply.emit(reply=AIReply.debug(msg.action_plan(str(plan))))
                     if plan.speak:
                         events.reply.emit(reply=AIReply.info(plan.speak))

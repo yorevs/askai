@@ -57,15 +57,14 @@ class TaskAgent(metaclass=Singleton):
         :return: The agent's response as a string.
         """
         events.reply.emit(reply=AIReply.debug(msg.task(task)))
-        shared.context.push("HISTORY", task)
+        shared.context.push("HISTORY", task, "assistant")
         if (response := self._exec_task(task)) and (output := response["output"]):
             log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
             shared.context.push("HISTORY", output, "assistant")
             assert_accuracy(task, output, AccColor.MODERATE)
+            shared.memory.save_context({"input": task}, {"output": output})
         else:
             output = msg.no_output("AI")
-
-        shared.memory.save_context({"input": task}, {"output": output})
 
         return output
 
