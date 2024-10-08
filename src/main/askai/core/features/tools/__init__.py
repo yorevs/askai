@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.0.20
+# hspylib-askai v1.0.21
 #
 # Package: main.askai.core.features.tools
 """Package initialization."""
@@ -15,4 +15,4 @@ __all__ = [
     'vision', 
     'webcam'
 ]
-__version__ = '1.0.20'
+__version__ = '1.0.21'

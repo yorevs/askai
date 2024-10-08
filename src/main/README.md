@@ -6,7 +6,7 @@
 
 [![Terminal](https://badgen.net/badge/icon/terminal?icon=terminal&label)](https://github.com/yorevs/homesetup)
 [![License](https://badgen.net/badge/license/MIT/gray)](LICENSE.md)
-[![Release](https://badgen.net/badge/release/v1.0.19/gray)](docs/CHANGELOG.md#unreleased)
+[![Release](https://badgen.net/badge/release/v1.0.20/gray)](docs/CHANGELOG.md#unreleased)
 [![Donate](https://badgen.net/badge/paypal/donate/yellow)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=J5CDEFLF6M3H4)
 [![build-and-test](https://github.com/yorevs/askai/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/yorevs/askai/actions/workflows/build-and-test.yml)
 
@@ -100,6 +100,54 @@ AskAI is available at [PyPi](https://pypi.org/project/hspylib-askai/)
 ```bash
 $ python3 -m pip install hspylib-askai
 ```
+
+#### ApiKeys
+
+In order to use AskAI you need to have the following Api Keys:
+
+- DEEPL_API_KEY (for translations).
+- GOOGLE_API_KEY (for internet browsing).
+- OPENAI_API_KEY (to use ChatGPT api).
+
+##### Google Search API Integration
+
+To enable the Custom Search API:
+
+1. Navigate to the APIs & Services→Dashboard panel in Cloud Console.
+2. Click Enable APIs and Services.
+3. Search for Custom Search API and click on it.
+4. Click Enable.
+
+> URL for it: https://console.cloud.google.com/apis/library/customsearch.googleapis.com
+
+To create an API key:
+
+1. Navigate to the APIs & Services → Credentials panel in Cloud Console.
+2. Select Create credentials, then select API key from the drop-down menu.
+3. The API key created dialog box displays your newly created key.
+4. You now have an GOOGLE_API_KEY.
+
+> Alternatively, you can just generate an API key here: https://developers.google.com/custom-search/docs/paid_element#api_key
+
+##### DeepL API
+
+To enable the DeepL online translation:
+
+1. Navigate to you account settings.
+2. Select the tab API Keys.
+3. Click on Create key + .
+4. You now have a DEEPL_API_KEY.
+
+##### OpenAI API
+
+To enable your OpenAI LLM:
+
+1. Access the OpenAI [API Section](https://platform.openai.com/settings/profile?tab=api-keys):
+2. Navigate to the API section of the OpenAI dashboard.
+3. Create a New API Key by clicking on “Create API Key” or a similar button.
+4. Name Your API Key:
+5. You now have a OPENAI_API_KEY.
+
 
 ## Support
 
