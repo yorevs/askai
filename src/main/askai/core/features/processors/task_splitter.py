@@ -176,9 +176,21 @@ class TaskSplitter(metaclass=Singleton):
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", answer)
                 plan = ActionPlan.create(question, answer, model)
                 if not plan.is_direct and (task_list := plan.tasks):
+                    acc_response: str | None = None
                     events.reply.emit(reply=AIReply.debug(msg.action_plan(str(plan))))
                     if plan.speak:
                         events.reply.emit(reply=AIReply.info(plan.speak))
+                    try:
+                        agent_output: str | None = self._process_tasks(task_list, retries)
+                        if len(task_list) > 1:
+                            acc_response: AccResponse = assert_accuracy(question, agent_output, AccColor.MODERATE)
+                    except InterruptionRequest as err:
+                        return str(err)
+                    except self.RETRIABLE_ERRORS:
+                        if retry_count <= 1:
+                            events.reply.emit(reply=AIReply.error(msg.sorry_retry()))
+                        raise
+                    return self.wrap_answer(question, agent_output, plan.model, acc_response)
                 else:
                     # Most of the times, indicates the LLM responded directly.
                     acc_response: AccResponse = assert_accuracy(question, response.content, AccColor.GOOD)
@@ -187,18 +199,6 @@ class TaskSplitter(metaclass=Singleton):
                     return self.wrap_answer(question, output, plan.model, acc_response)
             else:
                 return msg.no_output("Task-Splitter")  # Most of the times, indicates a failure.
-
-            try:
-                agent_output: str | None = self._process_tasks(task_list, retries)
-                acc_response: AccResponse = assert_accuracy(question, agent_output, AccColor.MODERATE)
-            except InterruptionRequest as err:
-                return str(err)
-            except self.RETRIABLE_ERRORS:
-                if retry_count <= 1:
-                    events.reply.emit(reply=AIReply.error(msg.sorry_retry()))
-                raise
-
-            return self.wrap_answer(question, agent_output, plan.model, acc_response)
 
         return _splitter_wrapper_(retries)
 

@@ -12,13 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from dataclasses import dataclass
+from pathlib import Path
+
+from hspylib.core.tools.text_tools import ensure_endswith
+
 from askai.core.enums.acc_color import AccColor, AccuracyColors
 from askai.core.support.llm_parser import parse_field
-from dataclasses import dataclass
-from hspylib.core.tools.text_tools import ensure_endswith
-from os.path import expandvars
-
-import os
 
 
 @dataclass(frozen=True)
@@ -38,6 +38,7 @@ class AccResponse:
         :param response: The LLM response.
         :return: An instance of AccResponse created from the parsed response.
         """
+        Path(Path.home() / 'acc-resp.txt').write_text(response)
 
         acc_color: AccColor = AccColor.of_color(parse_field("@color", response))
         accuracy: float = float(parse_field("@accuracy", response).strip("%"))

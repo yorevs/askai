@@ -145,17 +145,15 @@ class AskAi:
                     filter(lambda a: a and a != "None", re.split(r"\s", f"{command.group(1)} {command.group(2)}"))
                 )
                 ask_commander(args, standalone_mode=False)
-            elif not (output := cache.read_reply(question)):
+                return True, None
+            shared.context.push("HISTORY", question)
+            if not (output := cache.read_reply(question)):
                 log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
                 events.reply.emit(reply=AIReply.detailed(msg.wait()))
                 if output := processor.process(question, context=read_stdin(), query_prompt=self._query_prompt):
                     events.reply.emit(reply=AIReply.info(output))
-                    shared.context.push("HISTORY", question)
-                    shared.context.push("HISTORY", output, "assistant")
             else:
                 log.debug("Reply found for '%s' in cache.", question)
-                shared.context.push("HISTORY", question)
-                shared.context.push("HISTORY", output, "assistant")
                 events.reply.emit(reply=AIReply.info(output))
         except (NotImplementedError, ImpossibleQuery) as err:
             events.reply.emit(reply=AIReply.error(err))
@@ -173,6 +171,7 @@ class AskAi:
             status = False
         finally:
             if output:
+                shared.context.push("HISTORY", output, "assistant")
                 shared.context.set("LAST_REPLY", output, "assistant")
 
         return status, output
