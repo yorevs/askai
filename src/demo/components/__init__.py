@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.0.21
+# hspylib-askai v1.1.0
 #
 # Package: demo.components
 """Package initialization."""
@@ -14,4 +14,4 @@ __all__ = [
     'vision_demo', 
     'webcam_demo'
 ]
-__version__ = '1.0.21'
+__version__ = '1.1.0'
