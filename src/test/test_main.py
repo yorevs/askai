@@ -27,11 +27,11 @@ TEST_DIR = dirname(__file__)
 class TestMain(unittest.TestCase):
     # Setup tests
     def setUp(self):
-        resource_dir = "{}/resources".format(TEST_DIR)
+        resource_dir = f"{TEST_DIR}/resources"
         os.environ["ACTIVE_PROFILE"] = "test"
         self.configs = AppConfigs(resource_dir=resource_dir)
         self.assertIsNotNone(self.configs)
-        self.assertIsNotNone(AppConfigs.INSTANCE)
+        self.assertEqual(self.configs.get_int('any.property'), 12345)
         log.info(self.configs)
 
     # Teardown tests

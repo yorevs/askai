@@ -88,3 +88,4 @@ Desktop.ini
 py-gradle-master/
 build/
 .vscode/
+.venv/

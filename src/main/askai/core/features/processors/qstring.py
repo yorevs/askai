@@ -3,6 +3,7 @@ from askai.core.component.cache_service import cache
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.utilities import find_file
+from askai.exception.exceptions import TerminatingQuery
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.singleton import Singleton
 from langchain_core.prompts import PromptTemplate
@@ -24,6 +25,12 @@ class NonInteractive(metaclass=Singleton):
         """Process the user question to retrieve the final response.
         :param question: The user question to process.
         """
+
+        if not question:
+            raise TerminatingQuery("The user wants to exit!")
+        if question.casefold() in ["exit", "leave", "quit", "q"]:
+            return None
+
         output = None
         query_prompt: str | None = find_file(kwargs["query_prompt"]) if "query_prompt" in kwargs else None
         context: str | None = kwargs["context"] if "context" in kwargs else None

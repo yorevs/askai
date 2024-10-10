@@ -12,16 +12,19 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.component.cache_service import cache
-from askai.exception.exceptions import TokenLengthExceeded
-from collections import defaultdict, deque, namedtuple
-from functools import partial, reduce
-from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from typing import Any, AnyStr, Literal, Optional, TypeAlias
 
 import os
 import re
+from collections import defaultdict, deque, namedtuple
+from functools import partial, reduce
+from typing import Any, AnyStr, Literal, Optional, TypeAlias, get_args
+
+from hspylib.core.preconditions import check_argument
+from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+
+from askai.core.component.cache_service import cache
+from askai.exception.exceptions import TokenLengthExceeded
 
 ChatRoles: TypeAlias = Literal["system", "human", "assistant"]
 
@@ -90,9 +93,10 @@ class ChatContext:
         :param role: The role associated with the message (default is "human").
         :return: The updated chat context.
         """
+        check_argument(role in get_args(ChatRoles), f"Invalid ChatRole: '{role}'")
         if (token_length := (self.length(key)) + len(content)) > self._token_limit:
             raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
-        if (entry := ContextEntry(role, content)) not in (ctx := self._store[key]):
+        if (entry := ContextEntry(role, content.strip())) not in (ctx := self._store[key]):
             ctx.append(entry)
 
         return self.get(key)

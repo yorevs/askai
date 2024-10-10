@@ -15,11 +15,9 @@
 from askai.core.component.geo_location import geo_location
 from askai.core.support.llm_parser import parse_field, parse_list
 from dataclasses import dataclass
-from os.path import expandvars
 from typing import Literal
 
 import json
-import os
 
 
 @dataclass
@@ -39,20 +37,18 @@ class SearchResult:
     datetime: str = geo_location.datetime
 
     @classmethod
-    def parse_response(cls, question: str, query_response: str) -> "SearchResult":
-        """TODO"""
+    def parse_response(cls, question: str, response: str) -> "SearchResult":
+        """Parse the router's response and convert it into an ActionPlan.
+        :param question: The original question or command that was sent to the router.
+        :param response: The router's response.
+        :return: An instance of ActionPlan created from the parsed response.
+        """
 
-        # FIXME: Remove log the response
-        with open(os.path.expandvars("${HOME}/Desktop/search-result-resp.txt"), "w") as f_resp:
-            f_resp.write(query_response + os.linesep)
-            f_resp.flush()
-
-        # Parse fields
-        engine: Literal["Google", "Bing"] = parse_field("@engine", query_response)
-        category: str = parse_field("@category", query_response)
-        keywords: list[str] = parse_list("@keywords", query_response, is_dict=False)
-        sites: list[str] = parse_list("@sites", query_response, is_dict=False)
-        filters: list[str] = parse_list("@filters", query_response, is_dict=False)
+        engine: Literal["Google", "Bing"] = parse_field("@engine", response)
+        category: str = parse_field("@category", response)
+        keywords: list[str] = parse_list("@keywords", response, is_dict=False)
+        sites: list[str] = parse_list("@sites", response, is_dict=False)
+        filters: list[str] = parse_list("@filters", response, is_dict=False)
 
         return SearchResult(question, engine, category, keywords, sites, filters)
 

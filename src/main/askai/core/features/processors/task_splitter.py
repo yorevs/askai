@@ -17,6 +17,7 @@ from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
+from askai.core.component.rag_provider import RAGProvider
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_color import AccColor
 from askai.core.enums.response_model import ResponseModel
@@ -29,7 +30,6 @@ from askai.core.model.action_plan import ActionPlan
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.model_result import ModelResult
 from askai.core.support.langchain_support import lc_llm
-from askai.core.support.rag_provider import RAGProvider
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse, InterruptionRequest, TerminatingQuery
 from hspylib.core.exception.exceptions import InvalidArgumentError
@@ -175,10 +175,22 @@ class TaskSplitter(metaclass=Singleton):
                 answer: str = str(response.content)
                 log.info("Router::[RESPONSE] Received from AI: \n%s.", answer)
                 plan = ActionPlan.create(question, answer, model)
-                if task_list := plan.tasks:
+                if not plan.is_direct and (task_list := plan.tasks):
+                    acc_response: str | None = None
                     events.reply.emit(reply=AIReply.debug(msg.action_plan(str(plan))))
                     if plan.speak:
                         events.reply.emit(reply=AIReply.info(plan.speak))
+                    try:
+                        agent_output: str | None = self._process_tasks(task_list, retries)
+                        if len(task_list) > 1:
+                            acc_response: AccResponse = assert_accuracy(question, agent_output, AccColor.MODERATE)
+                    except InterruptionRequest as err:
+                        return str(err)
+                    except self.RETRIABLE_ERRORS:
+                        if retry_count <= 1:
+                            events.reply.emit(reply=AIReply.error(msg.sorry_retry()))
+                        raise
+                    return self.wrap_answer(question, agent_output, plan.model, acc_response)
                 else:
                     # Most of the times, indicates the LLM responded directly.
                     acc_response: AccResponse = assert_accuracy(question, response.content, AccColor.GOOD)
@@ -187,18 +199,6 @@ class TaskSplitter(metaclass=Singleton):
                     return self.wrap_answer(question, output, plan.model, acc_response)
             else:
                 return msg.no_output("Task-Splitter")  # Most of the times, indicates a failure.
-
-            try:
-                agent_output: str | None = self._process_tasks(task_list, retries)
-                acc_response: AccResponse = assert_accuracy(question, agent_output, AccColor.MODERATE)
-            except InterruptionRequest as err:
-                return str(err)
-            except self.RETRIABLE_ERRORS:
-                if retry_count <= 1:
-                    events.reply.emit(reply=AIReply.error(msg.sorry_retry()))
-                raise
-
-            return self.wrap_answer(question, agent_output, plan.model, acc_response)
 
         return _splitter_wrapper_(retries)
 

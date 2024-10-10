@@ -115,25 +115,28 @@ class SharedInstances(metaclass=Singleton):
     @property
     def app_info(self) -> str:
         device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
-        device_info += f", AUTO-SWAP {'ON' if recorder.is_auto_swap else '%RED%OFF'}"
+        device_info += f", AUTO-SWAP {'' if recorder.is_auto_swap else '%RED%'}"
         dtm = f" {geo_location.datetime} "
         speak_info = str(configs.tempo) + " @" + self.engine.configs().tts_voice
         cur_dir = elide_text(str(Path(os.getcwd()).absolute()), 67, "…")
         translator = f"translated by '{msg.translator.name()}'" if configs.language.name.title() != "English" else ""
+        eng: AIEngine = shared.engine
+        model_info: str = f"'{eng.ai_model_name()}'%YELLOW% {eng.ai_token_limit()}%GREEN% tokens"
+        engine_info: str = f"{eng.ai_name()} - %CYAN%{eng.nickname()} / {model_info}"
         return (
             f"%GREEN%"
-            f"AskAI v{Version.load(load_dir=classpath.source_path())} %EOL%"
+            f"AskAI %YELLOW%v{Version.load(load_dir=classpath.source_path)}%GREEN% %EOL%"
             f"{dtm.center(80, '=')} %EOL%"
             f"   Language: {configs.language} {translator} %EOL%"
-            f"     Engine: {shared.engine} %EOL%"
+            f"     Engine: {engine_info} %EOL%"
             f"       Mode: %CYAN%{self.mode}%GREEN% %EOL%"
             f"        Dir: {cur_dir} %EOL%"
             f"         OS: {prompt.os_type}/{prompt.shell} %EOL%"
             f"{'-' * 80} %EOL%"
             f" Microphone: {device_info or '%RED%Undetected'} %GREEN%%EOL%"
-            f"  Debugging: {'ON' if configs.is_debug else '%RED%OFF'} %GREEN%%EOL%"
-            f"   Speaking: {'ON, tempo: ' + speak_info if configs.is_speak else '%RED%OFF'} %GREEN%%EOL%"
-            f"    Caching: {'ON, TTL: ' + str(configs.ttl) if configs.is_cache else '%RED%OFF'} %GREEN%%EOL%"
+            f"  Debugging: {'' if configs.is_debug else '%RED%'} %GREEN%%EOL%"
+            f"   Speaking: {', tempo: ' + speak_info if configs.is_speak else '%RED%'} %GREEN%%EOL%"
+            f"    Caching: {', TTL: ' + str(configs.ttl) if configs.is_cache else '%RED%'} %GREEN%%EOL%"
             f"{'=' * 80}%EOL%%NC%"
         )
 
@@ -149,10 +152,7 @@ class SharedInstances(metaclass=Singleton):
             self._mode = mode
         return self._engine
 
-    def create_context(
-        self,
-        token_limit: int,
-    ) -> ChatContext:
+    def create_context(self, token_limit: int) -> ChatContext:
         """Create or retrieve a chat context with the specified token limit.
         :param token_limit: The maximum number of tokens allowed in the chat context.
         :return: An instance of the ChatContext configured with the specified token limit.
@@ -164,10 +164,7 @@ class SharedInstances(metaclass=Singleton):
                 self._context = ChatContext(token_limit, configs.max_short_memory_size)
         return self._context
 
-    def create_memory(
-        self,
-        memory_key: str = "chat_history",
-    ) -> BaseChatMemory:
+    def create_memory(self, memory_key: str = "chat_history") -> BaseChatMemory:
         """Create or retrieve the conversation window memory.
         :param memory_key: The key used to identify the memory (default is "chat_history").
         :return: An instance of BaseChatMemory associated with the specified memory key.

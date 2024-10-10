@@ -16,12 +16,12 @@
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
+from askai.core.component.rag_provider import RAGProvider
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_color import AccColor
 from askai.core.model.acc_response import AccResponse
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
-from askai.core.support.rag_provider import RAGProvider
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse, InterruptionRequest, TerminatingQuery
 from langchain_core.messages import AIMessage

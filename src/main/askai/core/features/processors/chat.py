@@ -78,8 +78,6 @@ class ChatProcessor(metaclass=Singleton):
 
         if output := runnable.invoke({"input": question}, config={"configurable": {"session_id": history_ctx or ""}}):
             response = output.content
-            shared.context.push(history_ctx, question)
-            shared.context.push(history_ctx, response, "assistant")
 
         return response
 

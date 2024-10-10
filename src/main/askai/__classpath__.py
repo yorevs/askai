@@ -12,6 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from hspylib.modules.application.exit_status import ExitStatus
+
 from askai.core.model.api_keys import ApiKeys
 from clitt.core.term.commons import is_a_tty
 from hspylib.core.metaclass.classpath import Classpath
@@ -38,12 +40,13 @@ if not os.environ.get("USER_AGENT"):
     ASKAI_USER_AGENT: str = "AskAI-User-Agent"
     os.environ["USER_AGENT"] = ASKAI_USER_AGENT
 
+
 try:
     API_KEYS: ApiKeys = ApiKeys()
 except pydantic.v1.error_wrappers.ValidationError as err:
     if not ApiKeys.prompt():
         log.error(err.json())
-        sys.exit(127)
+        sys.exit(ExitStatus.ABNORMAL)
 
 
 class _Classpath(Classpath):
@@ -54,4 +57,4 @@ class _Classpath(Classpath):
 
 
 # Instantiate the classpath singleton
-assert (classpath := _Classpath().INSTANCE) is not None, "Failed to create Classpath instance"
+assert (classpath := _Classpath()) is not None, "Failed to create Classpath instance"

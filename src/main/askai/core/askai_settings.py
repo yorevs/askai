@@ -12,9 +12,10 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from hspylib.core.metaclass.singleton import Singleton
+
 from askai.__classpath__ import classpath
 from contextlib import redirect_stdout
-from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import console_out, to_bool
 from io import StringIO
 from pathlib import Path
@@ -46,7 +47,7 @@ class AskAiSettings(metaclass=Singleton):
     # Current settings version. Updating this value will trigger a database recreation using the defaults.
     __ACTUAL_VERSION: str = "0.3.0"
 
-    __RESOURCE_DIR = str(classpath.resource_path())
+    __RESOURCE_DIR = str(classpath.resource_path)
 
     def __init__(self) -> None:
         self._configs = SettingsConfig(self.__RESOURCE_DIR, "application.properties")

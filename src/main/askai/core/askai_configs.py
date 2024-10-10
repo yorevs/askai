@@ -26,10 +26,8 @@ import os
 class AskAiConfigs(metaclass=Singleton):
     """Provides access to AskAI configurations."""
 
-    INSTANCE: "AskAiConfigs"
-
     # The resources folder
-    RESOURCE_DIR = str(classpath.resource_path())
+    RESOURCE_DIR = str(classpath.resource_path)
 
     def __init__(self):
         self._recorder_devices: set[str] = set(map(str.strip, settings.get_list("askai.recorder.devices")))
@@ -212,4 +210,4 @@ class AskAiConfigs(metaclass=Singleton):
         self._recorder_devices.clear()
 
 
-assert (configs := AskAiConfigs().INSTANCE) is not None
+assert (configs := AskAiConfigs()) is not None

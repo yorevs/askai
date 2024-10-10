@@ -15,7 +15,7 @@ import atexit
 import logging as log
 import os
 
-BASE_DIR: str = str(classpath.resource_path()).replace("/main/askai/", "/demo/")
+BASE_DIR: str = str(classpath.resource_path).replace("/main/askai/", "/demo/")
 
 RESOURCES: dict[str, any] = {"files": "ctx-files.txt", "reminders": "ctx-reminders.txt", "songs": "ctx-songs.txt"}
 

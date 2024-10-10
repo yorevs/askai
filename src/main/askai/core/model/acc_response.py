@@ -12,13 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from dataclasses import dataclass
+from pathlib import Path
+
+from hspylib.core.tools.text_tools import ensure_endswith
+
 from askai.core.enums.acc_color import AccColor, AccuracyColors
 from askai.core.support.llm_parser import parse_field
-from dataclasses import dataclass
-from hspylib.core.tools.text_tools import ensure_endswith
-from os.path import expandvars
-
-import os
 
 
 @dataclass(frozen=True)
@@ -34,14 +34,12 @@ class AccResponse:
 
     @classmethod
     def parse_response(cls, response: str) -> "AccResponse":
-        """TODO"""
+        """Parse the LLM response and convert it into an AccResponse.
+        :param response: The LLM response.
+        :return: An instance of AccResponse created from the parsed response.
+        """
+        Path(Path.home() / 'acc-resp.txt').write_text(response)
 
-        # FIXME: Remove log the response
-        with open(os.path.expandvars("${HOME}/Desktop/acc-response-resp.txt"), "w") as f_resp:
-            f_resp.write(response + os.linesep)
-            f_resp.flush()
-
-        # Parse fields
         acc_color: AccColor = AccColor.of_color(parse_field("@color", response))
         accuracy: float = float(parse_field("@accuracy", response).strip("%"))
         reasoning: str = parse_field("@reasoning", response)

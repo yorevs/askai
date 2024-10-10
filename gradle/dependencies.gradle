@@ -7,10 +7,33 @@
 */
 import org.gradle.internal.os.OperatingSystem;
 
+String detectPython() {
+  def pythonHome = System.getenv('PYTHON_HOME') ?: null
+  if (pythonHome != null) {
+      return pythonHome + '/python3'
+  }
+
+  def output = new ByteArrayOutputStream()
+  exec {
+      commandLine 'bash', '-c', 'command -v python3'
+      standardOutput = output
+  }
+
+  pythonHome = output.toString().trim()
+  assert pythonHome != null && !pythonHome.isEmpty(), "Could not find any installed python3 version"
+
+  return pythonHome
+}
+
+
 /* Project file definitions */
-project.ext.depsFile = "$project.projectDir/dependencies.hspd"
-project.ext.reqsFile = "$project.projectDir/src/main/requirements.txt"
-project.ext.os = OperatingSystem.current().getName()
+ext {
+  depsFile = "$project.projectDir/dependencies.hspd"
+  reqsFile = "$project.projectDir/src/main/requirements.txt"
+  os = OperatingSystem.current().getName()
+  python = detectPython()
+  pyrcc = 'pyrcc5'
+}
 
 /* Version compatibility mode map */
 def modesMap = [

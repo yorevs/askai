@@ -12,26 +12,25 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-import shutil
-from pathlib import Path
-from shutil import copyfile
-
+from askai.__classpath__ import classpath
+from askai.core.askai_configs import configs
 from askai.core.askai_settings import ASKAI_DIR
+from askai.core.support.langchain_support import lc_llm
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.preconditions import check_state
-from hspylib.core.tools.commons import file_is_not_empty
-from hspylib.core.tools.text_tools import hash_text
+from hspylib.core.tools.commons import file_is_not_empty, dirname
+from hspylib.core.tools.text_tools import ensure_endswith, hash_text
 from langchain_community.document_loaders import CSVLoader
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStore
+from pathlib import Path
+from shutil import copyfile
 
-from askai.__classpath__ import classpath
-from askai.core.askai_configs import configs
-from askai.core.support.langchain_support import lc_llm
-
+import glob
+import os
+import shutil
 
 # External RAG Directory
 RAG_EXT_DIR: Path = Path(f"{ASKAI_DIR}/rag")
@@ -42,31 +41,51 @@ if not RAG_EXT_DIR.exists():
 class RAGProvider:
     """A class responsible for implementing the Retrieval-Augmented Generation (RAG) mechanism."""
 
-    RAG_DIR: Path = Path(os.path.join(classpath.resource_path(), "rag"))
+    RAG_DIR: Path = Path(os.path.join(classpath.resource_path, "rag"))
 
-    @staticmethod
-    def copy_rag(path_name: AnyPath, dest_name: AnyPath | None = None) -> bool:
-        """Copy the RAG documents into the AskAI RAG directory.
+    @classmethod
+    def copy_rag(cls, path_name: AnyPath, dest_name: AnyPath | None = None, rag_dir: AnyPath = RAG_EXT_DIR) -> bool:
+        """Copy the RAG documents into the specified RAG directory.
         :param path_name: The path of the RAG documents to copy.
         :param dest_name: The destination, within the RAG directory, where the documents will be copied to. If None,
                           defaults to a hashed directory based on the source path.
+        :param rag_dir: The directory where RAG documents will be copied.
         :return: True if the copy operation was successful, False otherwise.
         """
-        result: bool = True
         src_path: PathObject = PathObject.of(path_name)
         if src_path.exists and src_path.is_file:
-            copyfile(str(src_path), f"{RAG_EXT_DIR}/{src_path.filename}")
+            file: str = f"{rag_dir}/{src_path.filename}"
+            copyfile(str(src_path), file)
         elif src_path.exists and src_path.is_dir:
             shutil.copytree(
                 str(src_path),
-                str(RAG_EXT_DIR / (dest_name or hash_text(str(src_path))[:8])),
+                str(rag_dir / (dest_name or hash_text(str(src_path))[:8])),
                 dirs_exist_ok=True,
-                symlinks=True
+                symlinks=True,
             )
         else:
-            result = False
+            return False
+        files: list[str] = sorted(glob.glob(f"{str(rag_dir)}/**/*.*", recursive=True))
+        rag_files: str = ''.join(list(ensure_endswith(d, os.linesep) for d in files))
+        rag_docs_file: Path = Path(os.path.join(rag_dir), "rag-documents.txt")
+        rag_docs_file.write_text(rag_files)
 
-        return result
+        return True
+
+    @staticmethod
+    def requires_update(rag_dir: AnyPath = RAG_EXT_DIR) -> bool:
+        """Check whether the RAG directory has changed and therefore, requires an update from the Chroma DB.
+        :return: True if an update is required, False otherwise
+        """
+        rag_docs_file: Path = Path(os.path.join(rag_dir), "rag-documents.txt")
+        rag_hash_file: Path = Path(os.path.join(dirname(str(rag_docs_file)), ".rag-hash"))
+        files_hash: str = hash_text(Path(rag_docs_file).read_text())
+        if not os.path.exists(str(rag_docs_file)) or not os.path.exists(str(rag_hash_file)):
+            rag_hash_file.write_text(files_hash)
+            return True
+        rag_hash: str = rag_hash_file.read_text()
+        rag_hash_file.write_text(files_hash)
+        return files_hash != rag_hash
 
     def __init__(self, rag_filepath: str):
         self._rag_db = None
@@ -86,4 +105,4 @@ class RAGProvider:
                 self._rag_db = FAISS.from_documents(self._rag_docs, lc_llm.create_embeddings())
             example_docs: list[Document] = self._rag_db.similarity_search(query, k=k)
             rag_examples: list[str] = [doc.page_content for doc in example_docs]
-            return f"**Examples:**\n\"\"\"{(2 * os.linesep).join(rag_examples)}\"\"\""
+            return f'**Examples:**\n"""{(2 * os.linesep).join(rag_examples)}"""'

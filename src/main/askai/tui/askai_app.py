@@ -50,15 +50,15 @@ import logging as log
 import nltk
 import os
 
-SOURCE_DIR: Path = classpath.source_path()
+SOURCE_DIR: Path = classpath.source_path
 
-RESOURCE_DIR: Path = classpath.resource_path()
+RESOURCE_DIR: Path = classpath.resource_path
 
 
 class AskAiApp(App[None]):
     """The AskAI Textual application."""
 
-    APP_TITLE: str = f"AskAI v{Version.load(load_dir=classpath.source_path())}"
+    APP_TITLE: str = f"AskAI v{Version.load(load_dir=classpath.source_path)}"
 
     CSS_PATH = f"{RESOURCE_DIR}/askai.tcss"
 
@@ -78,7 +78,7 @@ class AskAiApp(App[None]):
         self, speak: bool, debug: bool, cacheable: bool, tempo: int, engine_name: str, model_name: str, mode: RouterMode
     ):
         super().__init__()
-        self._askai = AskAi(True, speak, debug, cacheable, tempo, engine_name, model_name, mode)
+        self._askai = AskAi(speak, debug, cacheable, tempo, engine_name, model_name, mode)
         self._re_render = True
         self._display_buffer = list()
         self._startup()
