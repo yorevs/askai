@@ -12,6 +12,7 @@ def stub_response(index: int) -> Optional[ActionPlan]:
             "list my downloads",
             "I will help you list the contents of your 'Downloads' folder.",
             "List the contents of the 'Downloads' folder",
+            False,
             [],
             [
                 SimpleNamespace(
@@ -26,16 +27,18 @@ def stub_response(index: int) -> Optional[ActionPlan]:
         ),
         ActionPlan(
             "hello",
-            "I will greet the user and initiate the conversation.",
+            "Hello! How can I assist you today?",
             "Respond to the user's greeting.",
+            True,
             [],
-            [SimpleNamespace(**{"id": "1", "task": "Direct: 'Hello! How can I assist you today?'"})],
+            [],
             ModelResult.default(),
         ),
         ActionPlan(
             "List my downloads and let me know if there is any image.",
             "I will list the contents of your downloads folder and check for any image files present.",
             "List the contents of the downloads folder and identify any image files",
+            False,
             [
                 SimpleNamespace(**{"id": "1", "sub_goal": "List the contents of the downloads folder"}),
                 SimpleNamespace(**{"id": "2", "sub_goal": "Identify image files in the downloads folder"}),
