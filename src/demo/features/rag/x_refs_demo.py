@@ -1,4 +1,4 @@
-from askai.core.features.router.evaluation import resolve_x_refs
+from askai.core.router.evaluation import resolve_x_refs
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 from utils import get_resource, init_context

@@ -3,7 +3,7 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.features.tools.browser
+   @package: askai.core.router.tools.browser
       @file: browser.py
    @created: Mon, 01 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
@@ -17,8 +17,8 @@ from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.component.internet_service import internet
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.features.tools.terminal import execute_bash
 from askai.core.model.search_result import SearchResult
+from askai.core.router.tools.terminal import execute_bash
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from langchain_core.prompts import PromptTemplate

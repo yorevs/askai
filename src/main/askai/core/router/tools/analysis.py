@@ -3,7 +3,7 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.features.tools.analysis
+   @package: askai.core.router.tools.analysis
       @file: analysis.py
    @created: Mon, 01 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior

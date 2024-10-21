@@ -3,7 +3,7 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.features.router
+   @package: askai.core.router.router
       @file: task_splitter.py
    @created: Mon, 01 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
@@ -21,14 +21,14 @@ from askai.core.component.rag_provider import RAGProvider
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_color import AccColor
 from askai.core.enums.response_model import ResponseModel
-from askai.core.features.router.agent_tools import features
-from askai.core.features.router.evaluation import assert_accuracy
-from askai.core.features.router.task_agent import agent
-from askai.core.features.tools.general import final_answer
 from askai.core.model.acc_response import AccResponse
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.model_result import ModelResult
+from askai.core.router.agent_tools import features
+from askai.core.router.evaluation import assert_accuracy
+from askai.core.router.task_agent import agent
+from askai.core.router.tools.general import final_answer
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse, InterruptionRequest, TerminatingQuery

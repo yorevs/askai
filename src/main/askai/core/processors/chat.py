@@ -3,8 +3,8 @@
 
 """
    @project: taius-coder
-   @package: taius-coder.main.taius_coder.core
-      @file: chat_processor.py
+   @package: askai.core.processors.chat
+      @file: chat.py
    @created: Mon, 23 Sep 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
       @site: https://github.com/yorevs/taius-coder

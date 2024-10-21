@@ -3,7 +3,7 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.features.tools.summarization
+   @package: askai.core.router.tools.summarization
       @file: summarization.py
    @created: Mon, 01 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior

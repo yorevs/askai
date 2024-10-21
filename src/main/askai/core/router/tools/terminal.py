@@ -3,7 +3,7 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.features.tools.terminal
+   @package: askai.core.router.tools.terminal
       @file: terminal.py
    @created: Mon, 01 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
@@ -15,8 +15,8 @@
 
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
-from askai.core.features.router.evaluation import resolve_x_refs
 from askai.core.model.ai_reply import AIReply
+from askai.core.router.evaluation import resolve_x_refs
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import extract_path, media_type_of
 from clitt.core.term.terminal import terminal

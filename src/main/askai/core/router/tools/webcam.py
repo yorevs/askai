@@ -1,6 +1,6 @@
 from askai.core.askai_configs import configs
 from askai.core.component.camera import camera
-from askai.core.features.tools.vision import image_captioner, parse_caption
+from askai.core.router.tools.vision import image_captioner, parse_caption
 from askai.core.support.utilities import display_text
 from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
 from os.path import basename

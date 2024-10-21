@@ -3,7 +3,7 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.features.router.model_selector
+   @package: askai.core.router.model_selector
       @file: model_selector.py
    @created: Tue, 24 Jun 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior

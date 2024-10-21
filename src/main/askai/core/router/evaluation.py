@@ -3,7 +3,7 @@
 
 """
    @project: HsPyLib-AskAI
-   @package: askai.core.features.rag.commons
+   @package: askai.core.router.evaluation
       @file: analysis.py
    @created: Fri, 03 Apr 2024
     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior

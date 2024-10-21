@@ -12,7 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.features.tools.vision import offline_captioner
+from askai.core.router.tools.vision import offline_captioner
 from chromadb.api.types import IncludeEnum
 from chromadb.utils.data_loaders import ImageLoader
 from chromadb.utils.embedding_functions.open_clip_embedding_function import OpenCLIPEmbeddingFunction

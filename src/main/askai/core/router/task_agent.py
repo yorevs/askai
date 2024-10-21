@@ -1,12 +1,26 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+   @project: HsPyLib-AskAI
+   @package: askai.core.router.task_agent
+      @file: task_agent.py
+   @created: Tue, 24 Jun 2024
+    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+      @site: https://github.com/yorevs/askai
+   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+
+   Copyright (c) 2024, HomeSetup
+"""
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.acc_color import AccColor
-from askai.core.features.router.agent_tools import features
-from askai.core.features.router.evaluation import assert_accuracy
 from askai.core.model.ai_reply import AIReply
+from askai.core.router.agent_tools import features
+from askai.core.router.evaluation import assert_accuracy
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse

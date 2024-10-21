@@ -12,7 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.features.tools.webcam import webcam_capturer
+from askai.core.router.tools.webcam import webcam_capturer
 from hspylib.core.tools.commons import sysout
 from utils import init_context
 

@@ -1,4 +1,4 @@
-from askai.core.features.processors.task_splitter import splitter
+from askai.core.router.processors.task_splitter import splitter
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 from utils import init_context
