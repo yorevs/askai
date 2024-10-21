@@ -19,7 +19,6 @@ class States(Enumeration):
     """Enumeration of possible task splitter states."""
     # fmt: off
     STARTUP         = 'Processing query'
-    QUERY_QUEUED    = 'Queuing Query'
     MODEL_SELECT    = 'Selecting Model'
     TASK_SPLIT      = 'Splitting Task'
     ACCURACY_CHECK  = 'Checking Accuracy'

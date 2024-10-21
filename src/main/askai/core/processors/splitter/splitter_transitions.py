@@ -21,8 +21,7 @@ Transition: TypeAlias = dict[str, str | States]
 
 # Define transitions from the workflow
 TRANSITIONS = [
-    {'trigger': 'ev_pipeline_started', 'source': States.STARTUP, 'dest': States.QUERY_QUEUED},
-    {'trigger': 'ev_query_queued', 'source': States.QUERY_QUEUED, 'dest': States.MODEL_SELECT},
+    {'trigger': 'ev_pipeline_started', 'source': States.STARTUP, 'dest': States.MODEL_SELECT},
     {'trigger': 'ev_model_selected', 'source': States.MODEL_SELECT, 'dest': States.TASK_SPLIT},
 
     {'trigger': 'ev_direct_answer', 'source': States.TASK_SPLIT, 'dest': States.ACCURACY_CHECK},
@@ -35,7 +34,7 @@ TRANSITIONS = [
     {'trigger': 'ev_accuracy_passed', 'source': States.ACCURACY_CHECK, 'dest': States.EXECUTE_TASK, 'conditions': ['has_next']},
     {'trigger': 'ev_accuracy_passed', 'source': States.ACCURACY_CHECK, 'dest': States.COMPLETE, 'unless': ['has_next']},
     {'trigger': 'ev_accuracy_failed', 'source': States.ACCURACY_CHECK, 'dest': States.EXECUTE_TASK, 'conditions': ['has_next']},
-    {'trigger': 'ev_refine_required', 'source': States.ACCURACY_CHECK, 'dest': States.REFINE_ANSWER, 'conditions': ['is_direct']},
+    {'trigger': 'ev_refine_required', 'source': States.ACCURACY_CHECK, 'dest': States.REFINE_ANSWER, 'unless': ['has_next']},
 
     {'trigger': 'ev_answer_refined', 'source': States.REFINE_ANSWER, 'dest': States.COMPLETE},
 

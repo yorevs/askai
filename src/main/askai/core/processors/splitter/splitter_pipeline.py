@@ -30,7 +30,7 @@ class SplitterPipeline:
 
     state: States
 
-    FAKE_SLEEP: int = 1
+    FAKE_SLEEP: float = 0.0
 
     def __init__(self, query: AnyStr):
         self._transitions: list[Transition] = [t for t in TRANSITIONS]
@@ -53,6 +53,14 @@ class SplitterPipeline:
         return self._failures
 
     @property
+    def iteractions(self) -> int:
+        return self._iteractions
+
+    @iteractions.setter
+    def iteractions(self, value: int):
+        self._iteractions = value
+
+    @property
     def plan(self) -> ActionPlan:
         return self._plan
 
@@ -65,18 +73,15 @@ class SplitterPipeline:
 
     def has_next(self) -> bool:
         """TODO"""
-        return len(self.plan.tasks) > 0 if self.plan else False
+        # return len(self.plan.tasks) > 0 if self.plan else False
+        return random.choice([True, False])
 
     def is_direct(self) -> bool:
         """TODO"""
-        return self.plan.is_direct if self.plan else True
+        # return self.plan.is_direct if self.plan else True
+        return random.choice([True, False])
 
     def st_startup(self) -> bool:
-        result = random.choice([True, False])
-        pause.seconds(self.FAKE_SLEEP)
-        return result
-
-    def st_query_queued(self) -> bool:
         result = random.choice([True, False])
         pause.seconds(self.FAKE_SLEEP)
         return result
@@ -91,11 +96,10 @@ class SplitterPipeline:
         pause.seconds(self.FAKE_SLEEP)
         return result1, result2
 
-    def st_execute_next(self) -> tuple[AccColor, bool]:
-        color = AccColor.value_of(random.choice(AccColor.names()))
+    def st_execute_next(self) -> bool:
         result = random.choice([True, False])
         pause.seconds(self.FAKE_SLEEP)
-        return color, result
+        return result
 
     def st_accuracy_check(self) -> AccColor:
         color = AccColor.value_of(random.choice(AccColor.names()))
