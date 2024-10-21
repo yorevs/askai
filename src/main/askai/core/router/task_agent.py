@@ -74,8 +74,6 @@ class TaskAgent(metaclass=Singleton):
         shared.context.push("HISTORY", task, "assistant")
         if (response := self._exec_task(task)) and (output := response["output"]):
             log.info("Router::[RESPONSE] Received from AI: \n%s.", output)
-            assert_accuracy(task, output, AccColor.MODERATE)
-            shared.memory.save_context({"input": task}, {"output": output})
         else:
             output = msg.no_output("AI")
         shared.context.push("HISTORY", output, "assistant")

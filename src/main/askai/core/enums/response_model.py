@@ -85,11 +85,6 @@ class ResponseModel(Enumeration):
         "provide a clear and accurate answer."
     )
 
-    # REFINE_ANSWER
-    REFINER = "ASK_012", (
-        "Select this model to respond to improve the AI response. This should be only selected upon a clear request."
-    )
-
     # fmt: on
 
     @classmethod

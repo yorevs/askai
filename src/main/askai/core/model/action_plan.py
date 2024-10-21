@@ -91,10 +91,7 @@ class ActionPlan:
         :param model: The result model.
         :return: An instance of ActionPlan created from the direct response.
         """
-        if answer:
-            speak: str = answer.split(',')[0].strip("'\"")
-        else:
-            speak: str = answer
+        speak: str = answer.strip("'").strip('"')
 
         return ActionPlan(question, speak, goal, True, [], [], model)
 

@@ -33,10 +33,11 @@ TRANSITIONS = [
 
     {'trigger': 'ev_accuracy_passed', 'source': States.ACCURACY_CHECK, 'dest': States.EXECUTE_TASK, 'conditions': ['has_next']},
     {'trigger': 'ev_accuracy_passed', 'source': States.ACCURACY_CHECK, 'dest': States.COMPLETE, 'unless': ['has_next']},
-    {'trigger': 'ev_accuracy_failed', 'source': States.ACCURACY_CHECK, 'dest': States.EXECUTE_TASK, 'conditions': ['has_next']},
+    {'trigger': 'ev_accuracy_failed', 'source': States.ACCURACY_CHECK, 'dest': States.EXECUTE_TASK},
     {'trigger': 'ev_refine_required', 'source': States.ACCURACY_CHECK, 'dest': States.REFINE_ANSWER, 'unless': ['has_next']},
 
-    {'trigger': 'ev_answer_refined', 'source': States.REFINE_ANSWER, 'dest': States.COMPLETE},
+    {'trigger': 'ev_answer_refined', 'source': States.REFINE_ANSWER, 'dest': States.WRAP_ANSWER},
+    {'trigger': 'ev_final_answer', 'source': States.WRAP_ANSWER, 'dest': States.COMPLETE},
 
     {'trigger': 'ev_task_complete', 'source': States.TASK_SPLIT, 'dest': States.COMPLETE},
 ]

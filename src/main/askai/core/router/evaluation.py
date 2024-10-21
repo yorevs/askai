@@ -13,6 +13,13 @@
    Copyright (c) 2024, HomeSetup
 """
 
+import logging as log
+from textwrap import dedent
+
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -23,13 +30,6 @@ from askai.core.model.acc_response import AccResponse
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from askai.exception.exceptions import InaccurateResponse, InterruptionRequest, TerminatingQuery
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from textwrap import dedent
-
-import logging as log
 
 # fmt: off
 EVALUATION_GUIDE: str = dedent("""
@@ -54,7 +54,6 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: AccColor = 
     :return: The accuracy classification of the AI's response as an AccResponse enum value.
     """
     if ai_response and ai_response not in msg.accurate_responses:
-        acc_template = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("acc-report"))
         eval_template = PromptTemplate(
             input_variables=["rag", "input", "response"], template=prompt.read_prompt("evaluation")
         )
@@ -64,25 +63,7 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: AccColor = 
         response: AIMessage = llm.invoke(final_prompt)
 
         if response and (output := response.content):
-            if acc := AccResponse.parse_response(output):
-                log.info("Accuracy check ->  status: '%s'  details: '%s'", acc.status, acc.details)
-                events.reply.emit(reply=AIReply.debug(msg.assert_acc(acc.status, acc.details)))
-                if acc.is_interrupt:
-                    # AI flags that it can't continue interacting.
-                    log.warning(msg.interruption_requested(output))
-                    raise InterruptionRequest(ai_response)
-                elif acc.is_terminate:
-                    # AI flags that the user wants to end the session.
-                    raise TerminatingQuery(ai_response)
-                elif not acc.is_pass(pass_threshold):
-                    # Include the guidelines for the first mistake.
-                    if not shared.context.get("EVALUATION"):
-                        shared.context.push("EVALUATION", EVALUATION_GUIDE)
-                    shared.context.push("EVALUATION", acc_template.format(problems=acc.details))
-                    raise InaccurateResponse(f"AI Assistant failed to respond => '{response.content}'")
-                return acc
-        # At this point, the response was inaccurate.
-        raise InaccurateResponse(f"AI Assistant didn't respond accurately. Response: '{response}'")
+            return AccResponse.parse_response(output)
 
 
 def resolve_x_refs(ref_name: str, context: str | None = None) -> str:
