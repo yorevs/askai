@@ -44,7 +44,7 @@ package: html2text, version: 2024.2.26, mode: ge
 
 /* CLI/TUI */
 package: rich, version: 13.8.1, mode: ge
-package: textual, version: 0.80.1, mode: ge
+package: textual, version: 0.80.1, mode: eq
 
 /* Audio */
 package: soundfile, version: 0.12.1, mode: ge

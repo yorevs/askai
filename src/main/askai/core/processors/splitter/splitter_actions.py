@@ -94,15 +94,14 @@ class SplitterActions(metaclass=Singleton):
         return answer
 
     @staticmethod
-    def process_action(action: SimpleNamespace) -> str:
+    def process_action(action: SimpleNamespace) -> Optional[str]:
         """TODO"""
         path_str: str | None = (
             "Path: " + action.path
             if hasattr(action, "path") and action.path.upper() not in ["N/A", "NONE", ""]
             else None
         )
-        task: str = f"{action.task}  {path_str or ''}"
-        return agent.invoke(task)
+        return agent.invoke(f"{action.task}  {path_str or ''}")
 
     def __init__(self):
         self._rag: RAGProvider = RAGProvider("task-splitter.csv")

@@ -25,11 +25,11 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.rag_provider import RAGProvider
 from askai.core.engine.openai.temperature import Temperature
-from askai.core.enums.acc_color import AccColor
 from askai.core.model.acc_response import AccResponse
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from askai.exception.exceptions import InaccurateResponse
 
 # fmt: off
 EVALUATION_GUIDE: str = dedent("""
@@ -45,18 +45,15 @@ EVALUATION_GUIDE: str = dedent("""
 RAG: RAGProvider = RAGProvider("accuracy.csv")
 
 
-def assert_accuracy(question: str, ai_response: str, pass_threshold: AccColor = AccColor.MODERATE) -> AccResponse:
-    """Assert that the AI's response to the question meets the required accuracy threshold.
+def eval_response(question: str, ai_response: str) -> AccResponse:
+    """Check whether the AI's response to the question meets the required accuracy.
     :param question: The user's question.
     :param ai_response: The AI's response to be analyzed for accuracy.
-    :param pass_threshold: The accuracy threshold, represented by a color, that must be met or exceeded for the
-                           response to be considered a pass (default is AccResponse.MODERATE).
     :return: The accuracy classification of the AI's response as an AccResponse enum value.
     """
     if ai_response and ai_response not in msg.accurate_responses:
         eval_template = PromptTemplate(
-            input_variables=["rag", "input", "response"], template=prompt.read_prompt("evaluation")
-        )
+            input_variables=["rag", "input", "response"], template=prompt.read_prompt("evaluation"))
         final_prompt = eval_template.format(rag=RAG.get_rag_examples(question), input=question, response=ai_response)
         log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
         llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
@@ -64,6 +61,8 @@ def assert_accuracy(question: str, ai_response: str, pass_threshold: AccColor = 
 
         if response and (output := response.content):
             return AccResponse.parse_response(output)
+
+    raise InaccurateResponse(f"Accuracy response was null: {ai_response}")
 
 
 def resolve_x_refs(ref_name: str, context: str | None = None) -> str:

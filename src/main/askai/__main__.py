@@ -152,7 +152,7 @@ class Main(TUIApplication):
             os.environ["ASKAI_APP"] = RunModes.ASKAI_CMD.value
             return self._execute_command(query_string)
 
-        log.info(
+        log.debug(
             dedent(
                 f"""
         {os.environ.get("ASKAI_APP")} v{self._app_version}

@@ -34,6 +34,8 @@ if not is_debugging():
 
 if not is_a_tty():
     log.getLogger().setLevel(log.ERROR)
+else:
+    log.getLogger().setLevel(log.INFO)
 
 if not os.environ.get("USER_AGENT"):
     # The AskAI User Agent, required by the langchain framework

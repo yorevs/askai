@@ -47,11 +47,10 @@ class SplitterExecutor(Thread):
         with self._console.status(msg.wait(), spinner="dots") as spinner:
             while not self.pipeline.state == States.COMPLETE:
                 self.pipeline.track_previous()
-                spinner.update(f"{shared.nickname_spinner}[green]{self.pipeline.state.value}…[/green]")
-                if 0 < configs.max_router_retries < self.pipeline.failures[self.pipeline.state.value]:
+                if 1 < configs.max_router_retries < 1 + self.pipeline.failures[self.pipeline.state.value]:
                     self.display(f"\n[red] Max retries exceeded: {configs.max_router_retries}[/red]\n")
                     break
-                if 0 < configs.max_iteractions < self.pipeline.iteractions:
+                if 1 < configs.max_iteractions < 1 + self.pipeline.iteractions:
                     self.display(f"\n[red] Max iteractions exceeded: {configs.max_iteractions}[/red]\n")
                     break
                 match self.pipeline.state:
@@ -64,18 +63,18 @@ class SplitterExecutor(Thread):
                     case States.TASK_SPLIT:
                         if self.pipeline.st_task_split():
                             if self.pipeline.is_direct():
-                                self.display("[yellow] AI decided to respond directly[/yellow]")
+                                self.display("[yellow]Direct answer provided[/yellow]")
                                 self.pipeline.ev_direct_answer()
                             else:
-                                spinner.update("[green] Executing action plan[/green]")
+                                self.display(f"[green]Action plan created[/green]")
                                 self.pipeline.ev_plan_created()
                     case States.EXECUTE_TASK:
-                        if self.pipeline.st_execute_next():
+                        if self.pipeline.st_execute_task():
                             self.pipeline.ev_task_executed()
-                    case States.ACCURACY_CHECK:
+                    case States.ACC_CHECK:
                         acc_color: AccColor = self.pipeline.st_accuracy_check()
                         c_name: str = acc_color.color.casefold()
-                        self.display(f"[green] Accuracy check: [{c_name}]{c_name.upper()}[/{c_name}][/green]")
+                        self.display(f"[green]Accuracy check: [{c_name}]{c_name.upper()}[/{c_name}][/green]")
                         if acc_color.passed(AccColor.GOOD):
                             self.pipeline.ev_accuracy_passed()
                         elif acc_color.passed(AccColor.MODERATE):
@@ -98,6 +97,7 @@ class SplitterExecutor(Thread):
                 )
                 self.pipeline.failures[self.pipeline.state.value] += 1 if not execution_status else 0
                 self.display(f"[green]{execution_status_str}[/green]")
+                spinner.update(f"{shared.nickname_spinner}[green]{self.pipeline.state.value}…[/green]")
                 self.pipeline.iteractions += 1
 
         if configs.is_debug:
