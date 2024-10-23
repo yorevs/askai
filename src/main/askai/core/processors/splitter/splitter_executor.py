@@ -16,7 +16,6 @@ import os
 from textwrap import indent
 from threading import Thread
 
-from hspylib.core.decorator.decorators import profiled
 from rich.console import Console
 
 from askai.core.askai_configs import configs
@@ -24,6 +23,7 @@ from askai.core.askai_messages import msg
 from askai.core.enums.acc_color import AccColor
 from askai.core.processors.splitter.splitter_pipeline import SplitterPipeline
 from askai.core.processors.splitter.splitter_states import States
+from askai.core.support.shared_instances import shared
 
 
 class SplitterExecutor(Thread):
@@ -43,12 +43,11 @@ class SplitterExecutor(Thread):
         if configs.is_debug:
             self._console.print(message)
 
-    @profiled
     def run(self):
         with self._console.status(msg.wait(), spinner="dots") as spinner:
             while not self.pipeline.state == States.COMPLETE:
                 self.pipeline.track_previous()
-                spinner.update(f"[green]{self.pipeline.state.value}[/green]")
+                spinner.update(f"{shared.nickname_spinner}[green]{self.pipeline.state.value}…[/green]")
                 if 0 < configs.max_router_retries < self.pipeline.failures[self.pipeline.state.value]:
                     self.display(f"\n[red] Max retries exceeded: {configs.max_router_retries}[/red]\n")
                     break
@@ -64,8 +63,8 @@ class SplitterExecutor(Thread):
                             self.pipeline.ev_model_selected()
                     case States.TASK_SPLIT:
                         if self.pipeline.st_task_split():
-                            if self.pipeline.is_direct:
-                                spinner.update("[yellow] AI decided to respond directly[/yellow]")
+                            if self.pipeline.is_direct():
+                                self.display("[yellow] AI decided to respond directly[/yellow]")
                                 self.pipeline.ev_direct_answer()
                             else:
                                 spinner.update("[green] Executing action plan[/green]")
@@ -76,7 +75,7 @@ class SplitterExecutor(Thread):
                     case States.ACCURACY_CHECK:
                         acc_color: AccColor = self.pipeline.st_accuracy_check()
                         c_name: str = acc_color.color.casefold()
-                        spinner.update(f"[green] Accuracy check: [{c_name}]{c_name.upper()}[/{c_name}][/green]")
+                        self.display(f"[green] Accuracy check: [{c_name}]{c_name.upper()}[/{c_name}][/green]")
                         if acc_color.passed(AccColor.GOOD):
                             self.pipeline.ev_accuracy_passed()
                         elif acc_color.passed(AccColor.MODERATE):
@@ -116,6 +115,3 @@ class SplitterExecutor(Thread):
             if final_state != States.COMPLETE:
                 retries: int = self.pipeline.failures[self.pipeline.state.value]
                 self.display(f"Failed to generate a response after {retries} retries")
-
-        if self.pipeline.state == States.COMPLETE and self.pipeline.final_answer:
-            print(self.pipeline.final_answer)

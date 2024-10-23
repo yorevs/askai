@@ -14,11 +14,9 @@
 """
 import logging as log
 import os
-import random
 from collections import defaultdict
 from typing import AnyStr, Optional
 
-import pause
 from langchain_core.prompts import PromptTemplate
 from transitions import Machine
 
@@ -33,7 +31,6 @@ from askai.core.processors.splitter.splitter_states import States
 from askai.core.processors.splitter.splitter_transitions import Transition, TRANSITIONS
 from askai.core.router.evaluation import assert_accuracy, EVALUATION_GUIDE
 from askai.core.support.shared_instances import shared
-from askai.exception.exceptions import InterruptionRequest, TerminatingQuery
 
 
 class SplitterPipeline:
@@ -58,9 +55,20 @@ class SplitterPipeline:
         self._iteractions: int = 0
         self._query: str = query
         self._plan: ActionPlan | None = None
-        self._final_answer: Optional[str] = None
+        self._direct_answer: Optional[str] = None
         self._model: ModelResult | None = None
         self._resp_history: list[str] = list()
+        self._last_acc_response: AccResponse | None = None
+        self._last_task: str | None = None
+
+    def _invalidate(self) -> None:
+        """TODO"""
+        self._plan = None
+        self._direct_answer  = None
+        self._model = None
+        self._resp_history = list()
+        self._last_acc_response  = None
+        self._last_task = None
 
     @property
     def iteractions(self) -> int:
@@ -69,6 +77,22 @@ class SplitterPipeline:
     @iteractions.setter
     def iteractions(self, value: int):
         self._iteractions = value
+
+    @property
+    def last_acc_response(self) -> AccResponse:
+        return self._last_acc_response
+
+    @last_acc_response.setter
+    def last_acc_response(self, value: AccResponse) -> None:
+        self._last_acc_response = value
+
+    @property
+    def last_task(self) -> str:
+        return self._last_task
+
+    @last_task.setter
+    def last_task(self, value: str) -> None:
+        self._last_task = value
 
     @property
     def failures(self) -> dict[str, int]:
@@ -88,11 +112,19 @@ class SplitterPipeline:
 
     @property
     def query(self) -> str:
-        return self._query
+        if self.last_task is not None:
+            question: str = self.last_task
+        else:
+            question: str = self._query
+        return question
 
     @property
     def final_answer(self) -> Optional[str]:
-        return self._final_answer
+        if self.is_direct():
+            ai_response: str = self._direct_answer
+        else:
+            ai_response: str = os.linesep.join(self._resp_history)
+        return ai_response
 
     @property
     def resp_history(self) -> list[str]:
@@ -104,14 +136,15 @@ class SplitterPipeline:
 
     def has_next(self) -> bool:
         """TODO"""
-        return len(self.plan.tasks) > 0 if self.plan and self.plan.tasks else False
+        return len(self.plan.tasks) > 0 if self.plan is not None and self.plan.tasks else False
 
     def is_direct(self) -> bool:
         """TODO"""
-        return self.plan.is_direct if self.plan else True
+        return self.plan.is_direct if self.plan is not None else True
 
     def st_startup(self) -> bool:
         log.info("Task Splitter pipeline has started!")
+        self._invalidate()
         return True
 
     def st_model_select(self) -> bool:
@@ -123,15 +156,15 @@ class SplitterPipeline:
         log.info("Splitting tasks...")
         self._plan = actions.split(self.query, self.model)
         if self._plan.is_direct:
-            self._final_answer = self._plan.speak or msg.no_output("TaskSplitter")
+            self._direct_answer = self._plan.speak or msg.no_output("TaskSplitter")
         return True
 
     def st_execute_next(self) -> bool:
         _iter_ = self.plan.tasks.copy().__iter__()
         if action := next(_iter_, None):
             if agent_output := actions.process_action(action):
-                self.resp_history.append(agent_output)
-                self.plan.tasks.pop(0)
+                self.last_task = self.plan.tasks.pop(0).task if len(self.plan.tasks) > 0 else None
+                return self.last_task is not None
         return False
 
     def st_accuracy_check(self) -> AccColor:
@@ -139,21 +172,18 @@ class SplitterPipeline:
         # FIXME Hardcoded for now
         pass_threshold: AccColor = AccColor.GOOD
 
-        if self.is_direct:
-            ai_response: str = self.final_answer
-        else:
-            ai_response: str = os.linesep.join(self._resp_history)
-
-        acc: AccResponse = assert_accuracy(self.query, ai_response, pass_threshold)
+        acc: AccResponse = assert_accuracy(self.query, self.final_answer, pass_threshold)
 
         if acc.is_interrupt:
             # AI flags that it can't continue interacting.
-            log.warning(msg.interruption_requested(ai_response))
-            raise InterruptionRequest(ai_response)
+            log.warning(msg.interruption_requested(self.final_answer))
         elif acc.is_terminate:
             # AI flags that the user wants to end the session.
-            raise TerminatingQuery(ai_response)
+            log.warning(msg.terminate_requested(self.final_answer))
         elif acc.is_pass(pass_threshold):
+            # AI provided a good answer.
+            log.warning(f"AI provided a final answer: {self.final_answer}")
+            self.resp_history.append(self.final_answer)
             shared.memory.save_context({"input": self.query}, {"output": self.final_answer})
         else:
             acc_template = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("acc-report"))
@@ -162,15 +192,18 @@ class SplitterPipeline:
                 shared.context.push("EVALUATION", EVALUATION_GUIDE)
             shared.context.push("EVALUATION", acc_template.format(problems=acc.details))
 
+        self.last_acc_response = acc
+
         return acc.acc_color
 
     def st_refine_answer(self) -> bool:
-        result = random.choice([True, False])
-        pause.seconds(self.FAKE_SLEEP)
-        return result
+        if self.is_direct:
+            ai_response: str = self.final_answer
+        else:
+            ai_response: str = os.linesep.join(self._resp_history)
+
+        return actions.refine_answer(self.query, ai_response, self.last_acc_response)
 
     def st_final_answer(self) -> bool:
-        self._final_answer = "This is the final answer"
-        result = random.choice([True, False])
-        pause.seconds(self.FAKE_SLEEP)
-        return result
+
+        return actions.wrap_answer(self.query, self.final_answer, self.model)
