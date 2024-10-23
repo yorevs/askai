@@ -8,71 +8,71 @@
 */
 
 /* HSPyLib projects */
-package: hspylib, version: 1.12.50, mode: ge
-package: hspylib-clitt, version: 0.9.138, mode: ge
-package: hspylib-setman, version: 0.10.41, mode: ge
+package: hspylib, version: 1.12.51, mode: eq
+package: hspylib-clitt, version: 0.9.139, mode: eq
+package: hspylib-setman, version: 0.10.42, mode: eq
 
 /* General */
-package: retry2, version: 0.9.5, mode: ge
-package: pause, version: 0.3, mode: ge
-package: tqdm, version: 4.66.5, mode: ge
-package: pyperclip, version: 1.9.0, mode: ge
-package: python-magic, version: 0.4.27, mode: ge
-package: pytz, version: 2024.1, mode: ge
-package: transitions, version: 0.9.2, mode: ge
+package: retry2, version: 0.9.5, mode: eq
+package: pause, version: 0.3, mode: eq
+package: tqdm, version: 4.66.5, mode: eq
+package: pyperclip, version: 1.9.0, mode: eq
+package: python-magic, version: 0.4.27, mode: eq
+package: pytz, version: 2024.1, mode: eq
+package: transitions, version: 0.9.2, mode: eq
 
 /* LangChain */
-package: langchain, version: 0.3.0, mode: ge
-package: langchain-openai, version: 0.2.0, mode: ge
-package: langchain-community, version: 0.3.1, mode: ge
-package: langchain-google-community, version: 2.0.0, mode: ge
+package: langchain, version: 0.3.4, mode: eq
+package: langchain-openai, version: 0.2.3, mode: eq
+package: langchain-community, version: 0.3.3, mode: eq
+package: langchain-google-community, version: 2.0.1, mode: eq
 
 /* OpenAI */
-package: openai-whisper, version: 20231117, mode: ge
-package: openai, version: 1.48.0, mode: ge
+package: openai-whisper, version: 20240930, mode: eq
+package: openai, version: 1.52.1, mode: eq
 
 /* Google */
-package: google-api-python-client, version: 2.147.0, mode: ge
+package: google-api-python-client, version: 2.149.0, mode: eq
 
 /* Web */
-package: fake_useragent, version: 1.5.1, mode: ge
-package: requests, version: 2.32.3, mode: ge
-package: urllib3, version: 1.26.20, mode: ge
-package: protobuf, version: 4.25.4, mode: ge
-package: aiohttp, version: 3.10.5, mode: ge
-package: html2text, version: 2024.2.26, mode: ge
+package: fake_useragent, version: 1.5.1, mode: eq
+package: requests, version: 2.32.3, mode: eq
+package: urllib3, version: 2.2.3, mode: eq
+package: protobuf, version: 4.25.4, mode: eq
+package: aiohttp, version: 3.10.5, mode: eq
+package: html2text, version: 2024.2.26, mode: eq
 
 /* CLI/TUI */
-package: rich, version: 13.8.1, mode: ge
+package: rich, version: 13.8.1, mode: eq
 package: textual, version: 0.80.1, mode: eq
 
 /* Audio */
-package: soundfile, version: 0.12.1, mode: ge
-package: PyAudio, version: 0.2.14, mode: ge
-package: SpeechRecognition, version: 3.10.4, mode: ge
+package: soundfile, version: 0.12.1, mode: eq
+package: PyAudio, version: 0.2.14, mode: eq
+package: SpeechRecognition, version: 3.10.4, mode: eq
 
 /* Video */
-package: opencv-python, version: 4.10.0.84, mode: ge
-package: pyautogui, version: 0.9.54, mode: ge
+package: opencv-python, version: 4.10.0.84, mode: eq
+package: pyautogui, version: 0.9.54, mode: eq
 
 /* Pre-Trained and AI */
-package: torch, version: 2.2.0, mode: ge
-package: torchvision, version: 0.17.2, mode: ge
-package: open-clip-torch, version 2.26.1, mode: ge
-package: opentelemetry-api, version: 1.27.0, mode: ge
-package: opentelemetry-sdk, version: 1.27.0, mode: ge
-package: opentelemetry-proto, version: 1.27.0, mode: ge
-package: transformers, version: 4.44.2, mode: ge
-package: unstructured, version: 0.15.8, mode: ge
-package: unstructured[md], version: 0.15.8, mode: ge
-package: tiktoken, version: 0.7.0, mode: ge
+package: torch, version: 2.5.0, mode: eq
+package: torchvision, version: 0.20.0, mode: eq
+package: open-clip-torch, version 2.28.0, mode: eq
+package: opentelemetry-api, version: 1.27.0, mode: eq
+package: opentelemetry-sdk, version: 1.27.0, mode: eq
+package: opentelemetry-proto, version: 1.27.0, mode: eq
+package: transformers, version: 4.45.2, mode: eq
+package: unstructured, version: 0.16.0, mode: eq
+package: unstructured[md], version: 0.16.0, mode: eq
+package: tiktoken, version: 0.8.0, mode: eq
 package: stanza, version: 1.1.1, mode: eq
-package: nltk, version: 3.9.1, mode: ge
+package: nltk, version: 3.9.1, mode: eq
 
 /* Vector Store and Databases */
-package: faiss-cpu, version: 1.8.0.post1, mode: ge
-package: chromadb, version: 0.5.5, mode: ge
+package: faiss-cpu, version: 1.8.0.post1, mode: eq
+package: chromadb, version: 0.5.5, mode: eq
 
 /* Translations */
-package: deepl, version: 1.18.0, mode: ge
+package: deepl, version: 1.18.0, mode: eq
 package: argostranslate, version: 1.9.1, mode: eq

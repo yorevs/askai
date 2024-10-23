@@ -114,9 +114,8 @@ class AgentTools(metaclass=Singleton):
         return open_url(url)
 
     def query_output(self, output_query: str) -> str:
-        """Use this tool to analyze textual content and identify the presence of files, folders, and applications. This
-        tool is designed to process and analyze content that is already available in textual form, but it does not
-        directly read or extract file contents.
+        """Use this tool to analyze textual content, and to identify files, folders, and applications. This
+        tool is NOT designed to directly read or extract file or folder contents.
         Usage: `query_output(output_query)`
         :param output_query: The query regarding the output. Use "Identify <file types, names, or textual content>".
         :return: A string containing the results of the analysis based on the query.

@@ -101,10 +101,6 @@ class SharedInstances(metaclass=Singleton):
         return f"**  {prompt.user.title()}:** "
 
     @property
-    def nickname_spinner(self) -> str:
-        return f"[green]{self.mode.icon}[bold]  Taius:[/bold][/green] "
-
-    @property
     def idiom(self) -> str:
         return self._idiom
 

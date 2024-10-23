@@ -85,7 +85,7 @@ class TaskAgent(metaclass=Singleton):
         lc_agent: Runnable = AgentExecutor(
             agent=lc_agent,
             tools=tools,
-            max_iterations=configs.max_router_retries,
+            max_iterations=configs.max_agent_retries,
             memory=chat_memory,
             handle_parsing_errors=True,
             max_execution_time=configs.max_agent_execution_time_seconds,
@@ -100,16 +100,13 @@ class TaskAgent(metaclass=Singleton):
         :return: An instance of Output containing the result of the task, or None if the task fails or produces
         no output.
         """
-        output: Output | None = None
         try:
             lc_agent: Runnable = self._create_lc_agent()
-            output = lc_agent.invoke({"input": task})
-            if "Agent stopped due to iteration limit or time limit." in str(output):
-                output = None
+            return lc_agent.invoke({"input": task})
         except openai.APIError as err:
             log.error(str(err))
 
-        return output
+        return None
 
 
 assert (agent := TaskAgent().INSTANCE) is not None

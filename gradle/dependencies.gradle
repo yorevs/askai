@@ -157,7 +157,7 @@ task installPackages(type: Task) {
   description = 'Install all required python packages'
   dependsOn syncRequirements
   doLast {
-    def req_file = new File("${project.ext.sourceRoot}/main/requirements.txt")
+    def req_file = new File(reqsFile)
     println "\nInstalling \"${project.name}\" dependencies using ${project.python}"
     println "Requirements file: \n\t" + req_file
     println "Required Packages:"

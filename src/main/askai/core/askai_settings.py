@@ -45,7 +45,7 @@ class AskAiSettings(metaclass=Singleton):
     INSTANCE: "AskAiSettings"
 
     # Current settings version. Updating this value will trigger a database recreation using the defaults.
-    __ACTUAL_VERSION: str = "0.3.0"
+    __ACTUAL_VERSION: str = "0.3.1"
 
     __RESOURCE_DIR = str(classpath.resource_path)
 
@@ -101,7 +101,7 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.preferred.language", "askai", "")
         self._settings.put("askai.router.mode.default", "askai", "splitter")
         self._settings.put("askai.default.engine", "askai", "openai")
-        self._settings.put("askai.default.engine.model", "askai", "gpt-4o-mini")
+        self._settings.put("askai.default.engine.model", "askai", "gpt-3.5-turbo")
         self._settings.put("askai.verbosity.level", "askai", 3)
         self._settings.put("askai.text.to.speech.tempo", "askai", 1)
         self._settings.put("askai.text.splitter.chunk.size", "askai", 1000)
@@ -111,7 +111,8 @@ class AskAiSettings(metaclass=Singleton):
         # Router
         self._settings.put("askai.max.short.memory.size", "askai", 15)
         self._settings.put("askai.max.router.iteractions", "askai", 30)
-        self._settings.put("askai.max.agent.retries", "askai", 3)
+        self._settings.put("askai.max.router.retries", "askai", 3)
+        self._settings.put("askai.max.agent.retries", "askai", 5)
         self._settings.put("askai.max.agent.execution.time.seconds", "askai", 45)
         # Recorder
         self._settings.put("askai.recorder.devices", "askai", "")

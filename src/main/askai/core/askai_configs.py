@@ -143,6 +143,10 @@ class AskAiConfigs(metaclass=Singleton):
 
     @property
     def max_router_retries(self) -> int:
+        return settings.get_int("askai.max.router.retries")
+
+    @property
+    def max_agent_retries(self) -> int:
         return settings.get_int("askai.max.agent.retries")
 
     @property
