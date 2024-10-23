@@ -14,9 +14,10 @@
 """
 import logging as log
 from collections import defaultdict
-from typing import AnyStr
+from typing import AnyStr, Optional
 
 from hspylib.core.preconditions import check_state
+from hspylib.core.tools.validator import Validator
 from langchain_core.prompts import PromptTemplate
 from transitions import Machine
 
@@ -31,7 +32,7 @@ from askai.core.processors.splitter.splitter_result import SplitterResult, Pipel
 from askai.core.processors.splitter.splitter_states import States
 from askai.core.processors.splitter.splitter_transitions import Transition, TRANSITIONS
 from askai.core.router.evaluation import eval_response, EVALUATION_GUIDE
-from askai.core.support.shared_instances import shared
+from askai.core.support.shared_instances import shared, LOGGER_NAME
 
 
 class SplitterPipeline:
@@ -44,7 +45,7 @@ class SplitterPipeline:
     def __init__(self, question: AnyStr):
         self._transitions: list[Transition] = [t for t in TRANSITIONS]
         self._machine: Machine = Machine(
-            name="Taius-Coder", model=self,
+            name=LOGGER_NAME, model=self,
             initial=States.STARTUP, states=States, transitions=self._transitions,
             auto_transitions=False
         )
@@ -82,28 +83,28 @@ class SplitterPipeline:
         return self.result.question
 
     @property
-    def last_query(self) -> str:
-        return self.responses[-1].query
+    def last_query(self) -> Optional[str]:
+        return self.responses[-1].query if self.responses else None
 
     @last_query.setter
     def last_query(self, value: str) -> None:
-        self.responses[-1].query = value
+        self.responses[-1].query = value if self.responses else None
 
     @property
-    def last_answer(self) -> str:
-        return self.responses[-1].answer
+    def last_answer(self) -> Optional[str]:
+        return self.responses[-1].answer if self.responses else None
 
     @last_answer.setter
     def last_answer(self, value: str) -> None:
-        self.responses[-1].answer = value
+        self.responses[-1].answer = value if self.responses else None
 
     @property
-    def last_accuracy(self) -> AccResponse:
-        return self.responses[-1].accuracy
+    def last_accuracy(self) -> Optional[AccResponse]:
+        return self.responses[-1].accuracy if self.responses else None
 
     @last_accuracy.setter
     def last_accuracy(self, value: AccResponse) -> None:
-        self.responses[-1].accuracy = value
+        self.responses[-1].accuracy = value if self.responses else None
 
     @property
     def plan(self) -> ActionPlan:
@@ -173,7 +174,7 @@ class SplitterPipeline:
     def st_accuracy_check(self) -> AccColor:
         """TODO"""
 
-        if self.last_query is None or self.last_answer is None:
+        if not Validator.has_no_nulls(self.last_query, self.last_answer):
             return AccColor.BAD
 
         # FIXME Hardcoded for now
@@ -204,7 +205,19 @@ class SplitterPipeline:
         return acc.acc_color
 
     def st_refine_answer(self) -> bool:
-        return actions.refine_answer(self.question, self.final_answer, self.last_accuracy)
+        """TODO"""
+        if refined := actions.refine_answer(self.question, self.final_answer, self.last_accuracy):
+            final_response: PipelineResponse = PipelineResponse(self.question, refined, self.last_accuracy)
+            self.responses.clear()
+            self.responses.append(final_response)
+            return True
+        return False
 
     def st_final_answer(self) -> bool:
-        return actions.wrap_answer(self.question, self.final_answer, self.model)
+        """TODO"""
+        if wrapped := actions.wrap_answer(self.question, self.final_answer, self.model):
+            final_response: PipelineResponse = PipelineResponse(self.question, wrapped, self.last_accuracy)
+            self.responses.clear()
+            self.responses.append(final_response)
+            return True
+        return False

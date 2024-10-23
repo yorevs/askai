@@ -12,18 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+import sys
+import warnings
+
+import pydantic
+from hspylib.core.metaclass.classpath import Classpath
+from hspylib.core.tools.commons import is_debugging, parent_path, root_dir
 from hspylib.modules.application.exit_status import ExitStatus
 
 from askai.core.model.api_keys import ApiKeys
-from clitt.core.term.commons import is_a_tty
-from hspylib.core.metaclass.classpath import Classpath
-from hspylib.core.tools.commons import is_debugging, parent_path, root_dir
-
-import logging as log
-import os
-import pydantic
-import sys
-import warnings
 
 if not is_debugging():
     warnings.simplefilter("ignore", category=FutureWarning)
@@ -32,16 +31,10 @@ if not is_debugging():
     warnings.simplefilter("ignore", category=UserWarning)
     warnings.filterwarnings("ignore", module="chromadb.db.impl.sqlite")
 
-if not is_a_tty():
-    log.getLogger().setLevel(log.ERROR)
-else:
-    log.getLogger().setLevel(log.INFO)
-
 if not os.environ.get("USER_AGENT"):
     # The AskAI User Agent, required by the langchain framework
     ASKAI_USER_AGENT: str = "AskAI-User-Agent"
     os.environ["USER_AGENT"] = ASKAI_USER_AGENT
-
 
 try:
     API_KEYS: ApiKeys = ApiKeys()

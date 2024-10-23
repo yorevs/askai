@@ -12,9 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.__classpath__ import classpath
-from askai.core.askai_configs import configs
-from askai.core.enums.run_modes import RunModes
+
+import logging as log
+import os
+import re
+import sys
+from textwrap import dedent
+from typing import Any, AnyStr, Optional
+
+import click
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import syserr, to_bool
@@ -23,14 +29,11 @@ from hspylib.core.zoned_datetime import now
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
-from textwrap import dedent
-from typing import Any, AnyStr, Optional
 
-import click
-import logging as log
-import os
-import re
-import sys
+from askai.__classpath__ import classpath
+from askai.core.askai_configs import configs
+from askai.core.enums.run_modes import RunModes
+from askai.core.support.shared_instances import LOGGER_NAME
 
 
 class Main(TUIApplication):
@@ -47,9 +50,19 @@ class Main(TUIApplication):
 
     INSTANCE: "Main"
 
+    @staticmethod
+    def setup_logs() -> None:
+        """TODO"""
+        # FIXME: Move this code to hspylib Application FW
+        log.basicConfig(level=log.WARNING)
+        logger = log.getLogger(LOGGER_NAME)
+        logger.setLevel(log.INFO)
+        logger.propagate = False
+
     def __init__(self, app_name: str):
         super().__init__(app_name, self.VERSION, self.DESCRIPTION.format(self.VERSION), resource_dir=self.RESOURCE_DIR)
         self._askai: Any
+        Main.setup_logs()
 
     @property
     def askai(self) -> Any:

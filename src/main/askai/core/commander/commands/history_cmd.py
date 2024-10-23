@@ -32,6 +32,7 @@ class HistoryCmd(ABC):
         """List the entries in the chat context window."""
 
         if (all_context := shared.context) and (length := len(all_context)) > 0:
+            ln: str = os.linesep
             display_text(f"### Listing ALL ({length}) Chat Contexts:\n\n---\n\n")
             for c in all_context:
                 ctx, ctx_val = c[0], c[1]
@@ -39,15 +40,13 @@ class HistoryCmd(ABC):
                     f"- {ctx} ({len(ctx_val)}/{all_context.max_context_size} "
                     f"tk [{all_context.length(ctx)}/{all_context.token_limit}]) \n"
                     + indent(
-                        "\n".join(
-                            [
-                                f'{i}. **{e.role.title()}:**\n\n{indent(e.content, " " * 4)}' + os.linesep
-                                for i, e in enumerate(ctx_val, start=1)
-                            ]
+                        ln.join([
+                            f'{i}. **{e.role.title()}:**\n\n{indent(text_formatter.strip_format(e.content), " " * 4)}'
+                            + os.linesep
+                            for i, e in enumerate(ctx_val, start=1)]
                         ),
-                        " " * 4,
-                    )
-                )
+                        " " * 4
+                    ), markdown=False)
             display_text(f"> Hint: Type: '/context forget [context] to forget a it.")
         else:
             text_formatter.commander_print(f"%YELLOW% Context is empty %NC%")

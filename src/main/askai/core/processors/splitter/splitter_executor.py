@@ -42,8 +42,8 @@ class SplitterExecutor(Thread):
         if configs.is_debug:
             self._console.print(message)
 
-    def run(self):
-        with self._console.status(msg.wait(), spinner="dots") as spinner:
+    def run(self) -> None:
+        with self._console.status(f"[green]{str(self.pipeline.state)}[/green]", spinner="dots") as spinner:
             while not self.pipeline.state == States.COMPLETE:
                 self.pipeline.track_previous()
                 if 1 < configs.max_router_retries < 1 + self.pipeline.failures[self.pipeline.state.value]:
@@ -89,6 +89,7 @@ class SplitterExecutor(Thread):
                     case _:
                         self.display(f"[red] Error: Machine halted before complete!({self.pipeline.state})[/red]")
                         break
+
                 execution_status: bool = self.pipeline.previous != self.pipeline.state
                 execution_status_str: str = (
                     f"{'[green]√[/green]' if execution_status else '[red]X[/red]'}"

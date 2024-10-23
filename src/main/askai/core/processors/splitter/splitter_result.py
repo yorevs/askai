@@ -23,9 +23,9 @@ class SplitterResult:
     plan: ActionPlan | None = None
     model: ModelResult | None = None
 
-    def final_response(self) -> str:
+    def final_response(self, acc_threshold: AccColor = AccColor.MODERATE) -> str:
         """TODO"""
         return os.linesep.join(
             list(map(lambda r: r.answer, filter(
-                lambda acc: acc.accuracy and acc.accuracy.acc_color.passed(AccColor.MODERATE), self.responses)))
+                lambda acc: acc.accuracy and acc.accuracy.acc_color.passed(acc_threshold), self.responses)))
         )

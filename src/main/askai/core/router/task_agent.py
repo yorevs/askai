@@ -87,7 +87,7 @@ class TaskAgent(metaclass=Singleton):
             tools=tools,
             max_iterations=configs.max_agent_retries,
             memory=chat_memory,
-            handle_parsing_errors=True,
+            handle_parsing_errors="Generate a JSON blob that is fully parseable using the Python `json` module.",
             max_execution_time=configs.max_agent_execution_time_seconds,
             verbose=configs.is_debug,
         )
@@ -104,6 +104,8 @@ class TaskAgent(metaclass=Singleton):
             lc_agent: Runnable = self._create_lc_agent()
             return lc_agent.invoke({"input": task})
         except openai.APIError as err:
+            log.error(str(err))
+        except ValueError as err:
             log.error(str(err))
 
         return None

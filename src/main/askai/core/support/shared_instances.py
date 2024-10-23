@@ -38,6 +38,8 @@ from typing import Any, Optional
 
 import os
 
+LOGGER_NAME: str = 'Askai-Taius'
+
 
 class SharedInstances(metaclass=Singleton):
     """Provides access to shared instances."""
