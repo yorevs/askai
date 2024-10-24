@@ -12,18 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-from pathlib import Path
-from typing import Any, Optional, Type, TypeAlias
-
-from hspylib.core.exception.exceptions import InvalidArgumentError
-from hspylib.core.metaclass.singleton import Singleton
-from pydantic_core import ValidationError
-
 from askai.core.processors.splitter.splitter_executor import SplitterExecutor
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse, TerminatingQuery
+from hspylib.core.exception.exceptions import InvalidArgumentError
+from hspylib.core.metaclass.singleton import Singleton
+from pathlib import Path
+from pydantic_core import ValidationError
+from typing import Any, Optional, Type, TypeAlias
+
+import logging as log
+import os
 
 AgentResponse: TypeAlias = dict[str, Any]
 

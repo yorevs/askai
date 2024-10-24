@@ -1,8 +1,8 @@
-import os.path
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
 from typing import AnyStr
 
+import os.path
 import torch
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 
 def initialize(model_name: str = 'gpt2') -> tuple:

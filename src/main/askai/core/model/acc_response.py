@@ -12,13 +12,11 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from dataclasses import dataclass
-from pathlib import Path
-
-from hspylib.core.tools.text_tools import ensure_endswith
-
 from askai.core.enums.acc_color import AccColor, AccuracyColors
 from askai.core.support.llm_parser import parse_field
+from dataclasses import dataclass
+from hspylib.core.tools.text_tools import ensure_endswith
+from pathlib import Path
 
 
 @dataclass(frozen=True)

@@ -12,13 +12,12 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from hspylib.core.metaclass.classpath import AnyPath
-
 from askai.core.askai_configs import configs
 from askai.language.ai_translator import AITranslator
 from askai.language.language import Language
 from askai.language.translators.deepl_translator import DeepLTranslator
 from functools import cached_property, lru_cache
+from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
 from typing import AnyStr
 

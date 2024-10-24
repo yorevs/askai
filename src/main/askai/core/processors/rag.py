@@ -12,13 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-import os
-import shutil
+from askai.core.askai_configs import configs
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
+from askai.core.askai_prompt import prompt
+from askai.core.component.cache_service import PERSIST_DIR
+from askai.core.component.rag_provider import RAG_EXT_DIR, RAGProvider
+from askai.core.engine.openai.temperature import Temperature
+from askai.core.model.ai_reply import AIReply
+from askai.core.support.langchain_support import lc_llm
+from askai.exception.exceptions import DocumentsNotFound, TerminatingQuery
 from functools import lru_cache
-from pathlib import Path
-from typing import Optional
-
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
@@ -30,18 +34,13 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import BasePromptTemplate, ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from pathlib import Path
 from rich.status import Status
+from typing import Optional
 
-from askai.core.askai_configs import configs
-from askai.core.askai_events import events
-from askai.core.askai_messages import msg
-from askai.core.askai_prompt import prompt
-from askai.core.component.cache_service import PERSIST_DIR
-from askai.core.component.rag_provider import RAGProvider, RAG_EXT_DIR
-from askai.core.engine.openai.temperature import Temperature
-from askai.core.model.ai_reply import AIReply
-from askai.core.support.langchain_support import lc_llm
-from askai.exception.exceptions import DocumentsNotFound, TerminatingQuery
+import logging as log
+import os
+import shutil
 
 
 class Rag(metaclass=Singleton):

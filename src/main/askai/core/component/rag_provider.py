@@ -19,7 +19,7 @@ from askai.core.support.langchain_support import lc_llm
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.preconditions import check_state
-from hspylib.core.tools.commons import file_is_not_empty, dirname
+from hspylib.core.tools.commons import dirname, file_is_not_empty
 from hspylib.core.tools.text_tools import ensure_endswith, hash_text
 from langchain_community.document_loaders import CSVLoader
 from langchain_community.vectorstores import FAISS

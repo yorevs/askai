@@ -12,9 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from typing import TypeAlias
-
 from askai.core.processors.splitter.splitter_states import States
+from typing import TypeAlias
 
 # Define the transitions between states
 Transition: TypeAlias = dict[str, str | States]

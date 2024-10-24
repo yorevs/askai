@@ -12,10 +12,9 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from hspylib.core.metaclass.singleton import Singleton
-
 from askai.__classpath__ import classpath
 from contextlib import redirect_stdout
+from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.commons import console_out, to_bool
 from io import StringIO
 from pathlib import Path

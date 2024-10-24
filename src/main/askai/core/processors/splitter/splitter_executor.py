@@ -12,16 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-from textwrap import indent
-from threading import Thread
-
-from rich.console import Console
-
 from askai.core.askai_configs import configs
 from askai.core.enums.acc_color import AccColor
 from askai.core.processors.splitter.splitter_pipeline import SplitterPipeline
 from askai.core.processors.splitter.splitter_states import States
+from rich.console import Console
+from textwrap import indent
+from threading import Thread
+
+import os
 
 
 class SplitterExecutor(Thread):

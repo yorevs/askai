@@ -1,10 +1,10 @@
-import os
-from dataclasses import dataclass, field
-
 from askai.core.enums.acc_color import AccColor
 from askai.core.model.acc_response import AccResponse
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
+from dataclasses import dataclass, field
+
+import os
 
 
 @dataclass

@@ -12,10 +12,12 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-from typing import AnyStr, Optional
-
-import openai
+from askai.core.askai_configs import configs
+from askai.core.askai_prompt import prompt
+from askai.core.engine.openai.temperature import Temperature
+from askai.core.router.agent_tools import features
+from askai.core.support.langchain_support import lc_llm
+from askai.core.support.shared_instances import shared
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.singleton import Singleton
 from langchain.agents import AgentExecutor, create_structured_chat_agent
@@ -23,13 +25,10 @@ from langchain.memory.chat_memory import BaseChatMemory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.utils import Output
+from typing import AnyStr, Optional
 
-from askai.core.askai_configs import configs
-from askai.core.askai_prompt import prompt
-from askai.core.engine.openai.temperature import Temperature
-from askai.core.router.agent_tools import features
-from askai.core.support.langchain_support import lc_llm
-from askai.core.support.shared_instances import shared
+import logging as log
+import openai
 
 
 class TaskAgent(metaclass=Singleton):

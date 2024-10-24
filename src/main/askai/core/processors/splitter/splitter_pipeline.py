@@ -12,15 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-from collections import defaultdict
-from typing import AnyStr, Optional
-
-from hspylib.core.preconditions import check_state
-from hspylib.core.tools.validator import Validator
-from langchain_core.prompts import PromptTemplate
-from transitions import Machine
-
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.enums.acc_color import AccColor
@@ -28,11 +19,19 @@ from askai.core.model.acc_response import AccResponse
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
 from askai.core.processors.splitter.splitter_actions import actions
-from askai.core.processors.splitter.splitter_result import SplitterResult, PipelineResponse
+from askai.core.processors.splitter.splitter_result import PipelineResponse, SplitterResult
 from askai.core.processors.splitter.splitter_states import States
 from askai.core.processors.splitter.splitter_transitions import Transition, TRANSITIONS
 from askai.core.router.evaluation import eval_response, EVALUATION_GUIDE
-from askai.core.support.shared_instances import shared, LOGGER_NAME
+from askai.core.support.shared_instances import LOGGER_NAME, shared
+from collections import defaultdict
+from hspylib.core.preconditions import check_state
+from hspylib.core.tools.validator import Validator
+from langchain_core.prompts import PromptTemplate
+from transitions import Machine
+from typing import AnyStr, Optional
+
+import logging as log
 
 
 class SplitterPipeline:

@@ -12,8 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from textwrap import dedent
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
@@ -35,6 +33,7 @@ from hspylib.modules.cli.keyboard import Keyboard
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.memory.chat_memory import BaseChatMemory
 from pathlib import Path
+from textwrap import dedent
 from typing import Any, Optional
 
 import os

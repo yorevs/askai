@@ -12,15 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from dataclasses import dataclass, field
-from pathlib import Path
-from types import SimpleNamespace
-
-from hspylib.core.preconditions import check_state
-
 from askai.core.model.model_result import ModelResult
 from askai.core.support.llm_parser import parse_field, parse_list, parse_word
 from askai.exception.exceptions import InaccurateResponse
+from dataclasses import dataclass, field
+from hspylib.core.preconditions import check_state
+from pathlib import Path
+from types import SimpleNamespace
 
 
 @dataclass

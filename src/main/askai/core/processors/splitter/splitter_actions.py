@@ -12,16 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-from pathlib import Path
-from types import SimpleNamespace
-from typing import Optional
-
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import ChatPromptTemplate, PromptTemplate, MessagesPlaceholder
-from langchain_core.runnables import RunnableWithMessageHistory
-
 from askai.core.askai_configs import configs
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
@@ -36,6 +26,15 @@ from askai.core.router.task_agent import agent
 from askai.core.router.tools.general import final_answer
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables import RunnableWithMessageHistory
+from pathlib import Path
+from types import SimpleNamespace
+from typing import Optional
+
+import logging as log
 
 
 class SplitterActions(metaclass=Singleton):
