@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from textwrap import dedent
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
@@ -125,22 +126,22 @@ class SharedInstances(metaclass=Singleton):
         eng: AIEngine = shared.engine
         model_info: str = f"'{eng.ai_model_name()}'%YELLOW% {eng.ai_token_limit()}%GREEN% tokens"
         engine_info: str = f"{eng.ai_name()} - %CYAN%{eng.nickname()} / {model_info}"
-        return (
-            f"%GREEN%"
-            f"AskAI %YELLOW%v{Version.load(load_dir=classpath.source_path)}%GREEN% %EOL%"
-            f"{dtm.center(80, '=')} %EOL%"
-            f"   Language: {configs.language} {translator} %EOL%"
-            f"     Engine: {engine_info} %EOL%"
-            f"       Mode: %CYAN%{self.mode}%GREEN% %EOL%"
-            f"        Dir: {cur_dir} %EOL%"
-            f"         OS: {prompt.os_type}/{prompt.shell} %EOL%"
-            f"{'-' * 80} %EOL%"
-            f" Microphone: {device_info or '%RED%Undetected'} %GREEN%%EOL%"
-            f"  Debugging: {'' if configs.is_debug else '%RED%'} %GREEN%%EOL%"
-            f"   Speaking: {', tempo: ' + speak_info if configs.is_speak else '%RED%'} %GREEN%%EOL%"
-            f"    Caching: {', TTL: ' + str(configs.ttl) if configs.is_cache else '%RED%'} %GREEN%%EOL%"
-            f"{'=' * 80}%EOL%%NC%"
-        )
+        rag_info: str = '%GREEN%' if configs.is_rag else '%RED%'
+        return dedent(f"""\
+            %GREEN%AskAI %YELLOW%v{Version.load(load_dir=classpath.source_path)}%GREEN%
+            {dtm.center(80, '=')}
+               Language: {configs.language} {translator}
+                 Engine: {engine_info}
+                   Mode: %CYAN%{self.mode}%GREEN%, %YELLOW%RAG {rag_info}%GREEN%
+                    Dir: {cur_dir}
+                     OS: {prompt.os_type}/{prompt.shell}
+            {'-' * 80}
+             Microphone: {device_info or '%RED%Undetected'} %GREEN%
+              Debugging: {'' if configs.is_debug else '%RED%'} %GREEN%
+               Speaking: {', tempo: ' + speak_info if configs.is_speak else '%RED%'} %GREEN%
+                Caching: {', TTL: ' + str(configs.ttl) if configs.is_cache else '%RED%'} %GREEN%
+            {'=' * 80}%NC%
+            """)
 
     def create_engine(self, engine_name: str, model_name: str, mode: Any) -> AIEngine:
         """Create or retrieve an AI engine instance based on the specified engine and model names.

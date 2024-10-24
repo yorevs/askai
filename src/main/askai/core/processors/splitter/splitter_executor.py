@@ -19,7 +19,6 @@ from threading import Thread
 from rich.console import Console
 
 from askai.core.askai_configs import configs
-from askai.core.askai_messages import msg
 from askai.core.enums.acc_color import AccColor
 from askai.core.processors.splitter.splitter_pipeline import SplitterPipeline
 from askai.core.processors.splitter.splitter_states import States
@@ -43,7 +42,7 @@ class SplitterExecutor(Thread):
             self._console.print(message)
 
     def run(self) -> None:
-        with self._console.status(f"[green]{str(self.pipeline.state)}[/green]", spinner="dots") as spinner:
+        with self._console.status(f"[green]{self.pipeline.state}[/green]", spinner="dots") as spinner:
             while not self.pipeline.state == States.COMPLETE:
                 self.pipeline.track_previous()
                 if 1 < configs.max_router_retries < 1 + self.pipeline.failures[self.pipeline.state.value]:

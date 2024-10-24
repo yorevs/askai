@@ -18,9 +18,9 @@ from hspylib.core.enums.enumeration import Enumeration
 class States(Enumeration):
     """Enumeration of possible task splitter states."""
     # fmt: off
-    NOT_STARTED     = 'Thinking'
+    NOT_STARTED     = 'N/S'
 
-    STARTUP         = 'Processing query'
+    STARTUP         = 'Thinking'
 
     MODEL_SELECT    = 'Selecting model'
 
@@ -28,7 +28,7 @@ class States(Enumeration):
 
     ACC_CHECK       = 'Checking accuracy'
 
-    EXECUTE_TASK    = 'Executing task'
+    EXECUTE_TASK    = 'Executing actions'
 
     REFINE_ANSWER   = 'Refining answer'
 

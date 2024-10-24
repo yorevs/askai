@@ -15,7 +15,7 @@
 from hspylib.core.enums.enumeration import Enumeration
 from typing import Literal, TypeAlias
 
-AccuracyColors: TypeAlias = Literal["Blue", "Green", "Yellow", "Orange", "Red"]
+AccuracyColors: TypeAlias = Literal["Blue", "White", "Blue", "Green", "Yellow", "Red"]
 
 
 class AccColor(Enumeration):
@@ -69,7 +69,7 @@ class AccColor(Enumeration):
         raise ValueError(f"'{color_str}'is not a valid AccColor")
 
     @property
-    def color(self) -> AccuracyColors:
+    def color(self) -> str:
         return self.value[0]
 
     @property

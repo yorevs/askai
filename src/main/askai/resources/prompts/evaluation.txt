@@ -56,7 +56,7 @@ Use the following criteria for classification:
 
 **When evaluating responses, classify 'Red' when:**
 
-- The response fails to resolve the primary goal; 'Orange' if the response fails to resolve any of the sub goals.
+- The response fails to resolve the primary goal; 'Red' if the response fails to resolve any of the sub goals.
 
 - The response language used by the AI differs from the user question (language mismatch).
 
@@ -84,9 +84,9 @@ as 'Red' if it does not align with known facts.
 
 - Do not include any part of the question in your response.
 
-- Indicate your classification choice ('Red', 'Orange', 'Yellow', 'Green', or 'Blue') followed by the reasoning behind your decision.
+- Indicate your classification choice ('Red', 'Yellow', 'Green', or 'Blue') followed by the reasoning behind your decision.
 
-- When reviewing cross-references, vigilance is crucial to prevent misclassifications due to ambiguous entries. Consult if the ambiguity was resolved. Exercise caution to avoid categorizing entries as 'Red' or 'Orange' unless absolutely certain.
+- When reviewing cross-references, vigilance is crucial to prevent misclassifications due to ambiguous entries. Consult if the ambiguity was resolved. Exercise caution to avoid categorizing entries as 'Red' unless absolutely certain.
 
 - When the primary goal is achieved but lacks further details, classify it as 'Yellow' or 'Green', depending on the amount of missing details.
 

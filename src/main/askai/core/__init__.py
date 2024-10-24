@@ -17,8 +17,9 @@ __all__ = [
     'component', 
     'engine', 
     'enums', 
-    'features', 
     'model', 
+    'processors', 
+    'router', 
     'support'
 ]
 __version__ = '1.1.0'

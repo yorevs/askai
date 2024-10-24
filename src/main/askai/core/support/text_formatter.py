@@ -12,6 +12,7 @@
 
 from clitt.core.term.cursor import cursor
 from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.commons import console_out
 from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith, strip_escapes
 from hspylib.modules.cli.vt100.vt_code import VtCode
 from hspylib.modules.cli.vt100.vt_color import VtColor
@@ -133,14 +134,16 @@ class TextFormatter(metaclass=Singleton):
         :param text: The markdown-formatted text to be displayed.
         """
         colorized: str = VtColor.colorize(VtCode.decode(self.beautify(str(text))))
-        cursor.write(colorized, markdown=True)
+        # cursor.write(colorized, markdown=True)
+        console_out.print(colorized)
 
     def display_text(self, text: AnyStr) -> None:
         """Display a VT100 formatted text.
         :param text: The VT100 formatted text to be displayed.
         """
         colorized: str = VtColor.colorize(VtCode.decode(self.beautify(str(text))))
-        cursor.write(colorized)
+        # cursor.write(colorized)
+        console_out.print(colorized)
 
     def commander_print(self, text: AnyStr) -> None:
         """Display an AskAI-commander formatted text.

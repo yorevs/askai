@@ -2,7 +2,7 @@
 #
 # hspylib-askai v1.1.0
 #
-# Package: main.askai.core.features.tools
+# Package: main.askai.core.router.tools
 """Package initialization."""
 
 __all__ = [
