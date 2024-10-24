@@ -34,7 +34,7 @@
                     <a class="class" href="#RouterMode">RouterMode</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="variable" href="#RouterMode.TASK_SPLIT">TASK_SPLIT</a>
+                                <a class="variable" href="#RouterMode.SPLITTER">SPLITTER</a>
                         </li>
                         <li>
                                 <a class="variable" href="#RouterMode.QNA">QNA</a>
@@ -46,6 +46,9 @@
                                 <a class="variable" href="#RouterMode.RAG">RAG</a>
                         </li>
                         <li>
+                                <a class="variable" href="#RouterMode.CHAT">CHAT</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#RouterMode.modes">modes</a>
                         </li>
                         <li>
@@ -55,13 +58,19 @@
                                 <a class="function" href="#RouterMode.of_name">of_name</a>
                         </li>
                         <li>
-                                <a class="variable" href="#RouterMode.name">name</a>
+                                <a class="variable" href="#RouterMode.description">description</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#RouterMode.icon">icon</a>
                         </li>
                         <li>
                                 <a class="variable" href="#RouterMode.processor">processor</a>
                         </li>
                         <li>
                                 <a class="variable" href="#RouterMode.is_default">is_default</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#RouterMode.welcome">welcome</a>
                         </li>
                         <li>
                                 <a class="function" href="#RouterMode.process">process</a>
@@ -100,92 +109,129 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
 
                         <label class="view-source-button" for="mod-router_mode-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="ch">#!/usr/bin/env python3</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="c1"># -*- coding: utf-8 -*-</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="sd">   @project: HsPyLib-AskAI</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="sd">   @package: askai.core.enums.router_mode</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="sd">      @file: router_mode.py</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="sd">   @created: Tue, 24 Jun 2024</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="sd">    @author: &lt;B&gt;H&lt;/B&gt;ugo &lt;B&gt;S&lt;/B&gt;aporetti &lt;B&gt;J&lt;/B&gt;unior</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="sd">      @site: https://github.com/yorevs/askai</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">   @license: MIT - Please refer to &lt;https://opensource.org/licenses/MIT&gt;</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">   Copyright (c) 2024, HomeSetup</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="kn">from</span> <span class="nn">askai.core.askai_configs</span> <span class="kn">import</span> <span class="n">configs</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="kn">from</span> <span class="nn">askai.core.features.processors.ai_processor</span> <span class="kn">import</span> <span class="n">AIProcessor</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="kn">from</span> <span class="nn">askai.core.features.processors.qna</span> <span class="kn">import</span> <span class="n">qna</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="kn">from</span> <span class="nn">askai.core.features.processors.qstring</span> <span class="kn">import</span> <span class="n">qstring</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="kn">from</span> <span class="nn">askai.core.features.processors.rag</span> <span class="kn">import</span> <span class="n">rag</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="kn">from</span> <span class="nn">askai.core.features.processors.task_splitter</span> <span class="kn">import</span> <span class="n">splitter</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="kn">from</span> <span class="nn">hspylib.core.enums.enumeration</span> <span class="kn">import</span> <span class="n">Enumeration</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="k">class</span> <span class="nc">RouterMode</span><span class="p">(</span><span class="n">Enumeration</span><span class="p">):</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of available router modes used to determine the type of response provided to the user. This class</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">    defines the different modes that the router can operate in, each affecting how answers are generated and delivered.</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="c1"># fmt: on</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="n">TASK_SPLIT</span> <span class="o">=</span> <span class="s2">&quot;Task Splitter&quot;</span><span class="p">,</span> <span class="n">splitter</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="n">QNA</span> <span class="o">=</span> <span class="s2">&quot;Questions and Answers&quot;</span><span class="p">,</span> <span class="n">qna</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="n">QSTRING</span> <span class="o">=</span> <span class="s2">&quot;Non-Interactive&quot;</span><span class="p">,</span> <span class="n">qstring</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="n">RAG</span> <span class="o">=</span> <span class="s2">&quot;Retrieval-Augmented Generation&quot;</span><span class="p">,</span> <span class="n">rag</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="c1"># fmt: off</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="nd">@classmethod</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>    <span class="k">def</span> <span class="nf">modes</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list containing all available agent modes.</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">        :return: A list of available agent modes as strings.</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>        <span class="k">return</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">names</span><span class="p">()</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>    <span class="k">def</span> <span class="nf">default</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s1">&#39;RouterMode&#39;</span><span class="p">:</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the default routing mode.</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="sd">        :return: The default RouterMode instance.</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>        <span class="k">return</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">TASK_SPLIT</span> <span class="k">if</span> <span class="n">configs</span><span class="o">.</span><span class="n">is_interactive</span> <span class="k">else</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">QSTRING</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="nd">@classmethod</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    <span class="k">def</span> <span class="nf">of_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;RouterMode&#39;</span><span class="p">:</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the RouterMode instance corresponding to the given name.</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a><span class="sd">        :param name: The name of the router mode to retrieve.</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="sd">        :return: The RouterMode instance that matches the given name.</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="sd">        :raises ValueError: If no matching RouterMode is found.</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>        <span class="k">return</span> <span class="bp">cls</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;default&#39;</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>    <span class="nd">@property</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>
-</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>    <span class="nd">@property</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>    <span class="k">def</span> <span class="nf">processor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AIProcessor</span><span class="p">:</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>
-</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>    <span class="nd">@property</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>    <span class="k">def</span> <span class="nf">is_default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>        <span class="k">return</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>
-</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Invoke the processor associated with the current mode to handle the given question.</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a><span class="sd">        :param question: The question to be processed.</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a><span class="sd">        :param kwargs: Additional arguments to be passed to the processor.</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a><span class="sd">        :return: The processed response as a string, or None if no response is generated.</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="ch">#!/usr/bin/env python3</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="c1"># -*- coding: utf-8 -*-</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="sd">   @project: HsPyLib-AskAI</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="sd">   @package: askai.core.enums.router_mode</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="sd">      @file: router_mode.py</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="sd">   @created: Tue, 24 Jun 2024</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="sd">    @author: &lt;B&gt;H&lt;/B&gt;ugo &lt;B&gt;S&lt;/B&gt;aporetti &lt;B&gt;J&lt;/B&gt;unior</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">      @site: https://github.com/yorevs/askai</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="sd">   @license: MIT - Please refer to &lt;https://opensource.org/licenses/MIT&gt;</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">   Copyright (c) 2024, HomeSetup</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="kn">from</span> <span class="nn">askai.core.askai_configs</span> <span class="kn">import</span> <span class="n">configs</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="kn">from</span> <span class="nn">askai.core.askai_messages</span> <span class="kn">import</span> <span class="n">msg</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="kn">from</span> <span class="nn">askai.core.processors.ai_processor</span> <span class="kn">import</span> <span class="n">AIProcessor</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="kn">from</span> <span class="nn">askai.core.processors.chat</span> <span class="kn">import</span> <span class="n">chat</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="kn">from</span> <span class="nn">askai.core.processors.qna</span> <span class="kn">import</span> <span class="n">qna</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="kn">from</span> <span class="nn">askai.core.processors.qstring</span> <span class="kn">import</span> <span class="n">qstring</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="kn">from</span> <span class="nn">askai.core.processors.rag</span> <span class="kn">import</span> <span class="n">rag</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="kn">from</span> <span class="nn">askai.core.processors.task_splitter</span> <span class="kn">import</span> <span class="n">splitter</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="kn">from</span> <span class="nn">hspylib.core.enums.enumeration</span> <span class="kn">import</span> <span class="n">Enumeration</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a><span class="kn">from</span> <span class="nn">hspylib.core.tools.dict_tools</span> <span class="kn">import</span> <span class="n">get_or_default_by_key</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a><span class="k">class</span> <span class="nc">RouterMode</span><span class="p">(</span><span class="n">Enumeration</span><span class="p">):</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of available router modes used to determine the type of response provided to the user. This class</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a><span class="sd">    defines the different modes that the router can operate in, each affecting how answers are generated and delivered.</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>    <span class="c1"># fmt: off</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>    <span class="n">SPLITTER</span>    <span class="o">=</span> <span class="s2">&quot;Task Splitter&quot;</span><span class="p">,</span>                  <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">splitter</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>    <span class="n">QNA</span>         <span class="o">=</span> <span class="s2">&quot;Questions &amp; Answers&quot;</span><span class="p">,</span>            <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">qna</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>    <span class="n">QSTRING</span>     <span class="o">=</span> <span class="s2">&quot;Non-Interactive&quot;</span><span class="p">,</span>                <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">qstring</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>    <span class="n">RAG</span>         <span class="o">=</span> <span class="s2">&quot;Retrieval-Augmented-Generation&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">rag</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>    <span class="n">CHAT</span>        <span class="o">=</span> <span class="s2">&quot;Taius Chat&quot;</span><span class="p">,</span>                     <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">chat</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>    <span class="c1"># fmt: on</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>    <span class="nd">@classmethod</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>    <span class="k">def</span> <span class="nf">modes</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list containing all available agent modes.</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="sd">        :return: A list of available agent modes as strings.</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>        <span class="k">return</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">names</span><span class="p">()</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>    <span class="nd">@lru_cache</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>    <span class="k">def</span> <span class="nf">default</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;RouterMode&quot;</span><span class="p">:</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the default routing mode.</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="sd">        :return: The default RouterMode instance.</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>        <span class="k">return</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">SPLITTER</span> <span class="k">if</span> <span class="n">configs</span><span class="o">.</span><span class="n">is_interactive</span> <span class="k">else</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">QSTRING</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="nd">@classmethod</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>    <span class="k">def</span> <span class="nf">of_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RouterMode&quot;</span><span class="p">:</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the RouterMode instance corresponding to the given name.</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">        :param name: The name of the router mode to retrieve.</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">        :return: The RouterMode instance that matches the given name.</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">        :raises ValueError: If no matching RouterMode is found.</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>        <span class="k">return</span> <span class="bp">cls</span><span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;default&quot;</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">icon</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;RouterMode&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="nd">@property</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>    <span class="nd">@property</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>    <span class="k">def</span> <span class="nf">icon</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>    <span class="nd">@property</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>    <span class="k">def</span> <span class="nf">processor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AIProcessor</span><span class="p">:</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>    <span class="nd">@property</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="k">def</span> <span class="nf">is_default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>        <span class="k">return</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>    <span class="k">def</span> <span class="nf">welcome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>        <span class="k">match</span> <span class="bp">self</span><span class="p">:</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>            <span class="k">case</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">QNA</span><span class="p">:</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>                <span class="n">sum_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">get_or_default_by_key</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="s2">&quot;sum_path&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>                <span class="n">sum_glob</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">get_or_default_by_key</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="s2">&quot;sum_glob&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>                <span class="n">welcome_msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">t</span><span class="p">(</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">enter_qna</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>                    <span class="sa">f</span><span class="s2">&quot;```</span><span class="se">\n</span><span class="s2">Context:  </span><span class="si">{</span><span class="n">sum_path</span><span class="si">}</span><span class="s2">,   </span><span class="si">{</span><span class="n">sum_glob</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">```</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>                    <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">press_esc_enter</span><span class="p">()</span><span class="si">}</span><span class="s2">` </span><span class="se">\n\n</span><span class="s2">&quot;</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>                    <span class="sa">f</span><span class="s2">&quot;&gt; </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">qna_welcome</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>                <span class="p">)</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>            <span class="k">case</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">RAG</span><span class="p">:</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>                <span class="n">welcome_msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">enter_rag</span><span class="p">()</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>            <span class="k">case</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">CHAT</span><span class="p">:</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>                <span class="n">welcome_msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">enter_chat</span><span class="p">()</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>                <span class="n">welcome_msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">welcome</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;USER&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">))</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>        <span class="k">return</span> <span class="n">welcome_msg</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Invoke the processor associated with the current mode to handle the given question.</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a><span class="sd">        :param question: The question to be processed.</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="sd">        :param kwargs: Additional arguments to be passed to the processor.</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a><span class="sd">        :return: The processed response as a string, or None if no response is generated.</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -201,68 +247,99 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
 
     </div>
     <a class="headerlink" href="#RouterMode"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode-26"><a href="#RouterMode-26"><span class="linenos">26</span></a><span class="k">class</span> <span class="nc">RouterMode</span><span class="p">(</span><span class="n">Enumeration</span><span class="p">):</span>
-</span><span id="RouterMode-27"><a href="#RouterMode-27"><span class="linenos">27</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of available router modes used to determine the type of response provided to the user. This class</span>
-</span><span id="RouterMode-28"><a href="#RouterMode-28"><span class="linenos">28</span></a><span class="sd">    defines the different modes that the router can operate in, each affecting how answers are generated and delivered.</span>
-</span><span id="RouterMode-29"><a href="#RouterMode-29"><span class="linenos">29</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="RouterMode-30"><a href="#RouterMode-30"><span class="linenos">30</span></a>
-</span><span id="RouterMode-31"><a href="#RouterMode-31"><span class="linenos">31</span></a>    <span class="c1"># fmt: on</span>
-</span><span id="RouterMode-32"><a href="#RouterMode-32"><span class="linenos">32</span></a>
-</span><span id="RouterMode-33"><a href="#RouterMode-33"><span class="linenos">33</span></a>    <span class="n">TASK_SPLIT</span> <span class="o">=</span> <span class="s2">&quot;Task Splitter&quot;</span><span class="p">,</span> <span class="n">splitter</span>
-</span><span id="RouterMode-34"><a href="#RouterMode-34"><span class="linenos">34</span></a>
-</span><span id="RouterMode-35"><a href="#RouterMode-35"><span class="linenos">35</span></a>    <span class="n">QNA</span> <span class="o">=</span> <span class="s2">&quot;Questions and Answers&quot;</span><span class="p">,</span> <span class="n">qna</span>
-</span><span id="RouterMode-36"><a href="#RouterMode-36"><span class="linenos">36</span></a>
-</span><span id="RouterMode-37"><a href="#RouterMode-37"><span class="linenos">37</span></a>    <span class="n">QSTRING</span> <span class="o">=</span> <span class="s2">&quot;Non-Interactive&quot;</span><span class="p">,</span> <span class="n">qstring</span>
-</span><span id="RouterMode-38"><a href="#RouterMode-38"><span class="linenos">38</span></a>
-</span><span id="RouterMode-39"><a href="#RouterMode-39"><span class="linenos">39</span></a>    <span class="n">RAG</span> <span class="o">=</span> <span class="s2">&quot;Retrieval-Augmented Generation&quot;</span><span class="p">,</span> <span class="n">rag</span>
-</span><span id="RouterMode-40"><a href="#RouterMode-40"><span class="linenos">40</span></a>
-</span><span id="RouterMode-41"><a href="#RouterMode-41"><span class="linenos">41</span></a>    <span class="c1"># fmt: off</span>
-</span><span id="RouterMode-42"><a href="#RouterMode-42"><span class="linenos">42</span></a>
-</span><span id="RouterMode-43"><a href="#RouterMode-43"><span class="linenos">43</span></a>    <span class="nd">@classmethod</span>
-</span><span id="RouterMode-44"><a href="#RouterMode-44"><span class="linenos">44</span></a>    <span class="k">def</span> <span class="nf">modes</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="RouterMode-45"><a href="#RouterMode-45"><span class="linenos">45</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list containing all available agent modes.</span>
-</span><span id="RouterMode-46"><a href="#RouterMode-46"><span class="linenos">46</span></a><span class="sd">        :return: A list of available agent modes as strings.</span>
-</span><span id="RouterMode-47"><a href="#RouterMode-47"><span class="linenos">47</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="RouterMode-48"><a href="#RouterMode-48"><span class="linenos">48</span></a>        <span class="k">return</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">names</span><span class="p">()</span>
-</span><span id="RouterMode-49"><a href="#RouterMode-49"><span class="linenos">49</span></a>
-</span><span id="RouterMode-50"><a href="#RouterMode-50"><span class="linenos">50</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="RouterMode-51"><a href="#RouterMode-51"><span class="linenos">51</span></a>    <span class="k">def</span> <span class="nf">default</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s1">&#39;RouterMode&#39;</span><span class="p">:</span>
-</span><span id="RouterMode-52"><a href="#RouterMode-52"><span class="linenos">52</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the default routing mode.</span>
-</span><span id="RouterMode-53"><a href="#RouterMode-53"><span class="linenos">53</span></a><span class="sd">        :return: The default RouterMode instance.</span>
-</span><span id="RouterMode-54"><a href="#RouterMode-54"><span class="linenos">54</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="RouterMode-55"><a href="#RouterMode-55"><span class="linenos">55</span></a>        <span class="k">return</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">TASK_SPLIT</span> <span class="k">if</span> <span class="n">configs</span><span class="o">.</span><span class="n">is_interactive</span> <span class="k">else</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">QSTRING</span>
-</span><span id="RouterMode-56"><a href="#RouterMode-56"><span class="linenos">56</span></a>
-</span><span id="RouterMode-57"><a href="#RouterMode-57"><span class="linenos">57</span></a>    <span class="nd">@classmethod</span>
-</span><span id="RouterMode-58"><a href="#RouterMode-58"><span class="linenos">58</span></a>    <span class="k">def</span> <span class="nf">of_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;RouterMode&#39;</span><span class="p">:</span>
-</span><span id="RouterMode-59"><a href="#RouterMode-59"><span class="linenos">59</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the RouterMode instance corresponding to the given name.</span>
-</span><span id="RouterMode-60"><a href="#RouterMode-60"><span class="linenos">60</span></a><span class="sd">        :param name: The name of the router mode to retrieve.</span>
-</span><span id="RouterMode-61"><a href="#RouterMode-61"><span class="linenos">61</span></a><span class="sd">        :return: The RouterMode instance that matches the given name.</span>
-</span><span id="RouterMode-62"><a href="#RouterMode-62"><span class="linenos">62</span></a><span class="sd">        :raises ValueError: If no matching RouterMode is found.</span>
-</span><span id="RouterMode-63"><a href="#RouterMode-63"><span class="linenos">63</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="RouterMode-64"><a href="#RouterMode-64"><span class="linenos">64</span></a>        <span class="k">return</span> <span class="bp">cls</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;default&#39;</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
-</span><span id="RouterMode-65"><a href="#RouterMode-65"><span class="linenos">65</span></a>
-</span><span id="RouterMode-66"><a href="#RouterMode-66"><span class="linenos">66</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="RouterMode-67"><a href="#RouterMode-67"><span class="linenos">67</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="RouterMode-68"><a href="#RouterMode-68"><span class="linenos">68</span></a>
-</span><span id="RouterMode-69"><a href="#RouterMode-69"><span class="linenos">69</span></a>    <span class="nd">@property</span>
-</span><span id="RouterMode-70"><a href="#RouterMode-70"><span class="linenos">70</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="RouterMode-71"><a href="#RouterMode-71"><span class="linenos">71</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="RouterMode-72"><a href="#RouterMode-72"><span class="linenos">72</span></a>
-</span><span id="RouterMode-73"><a href="#RouterMode-73"><span class="linenos">73</span></a>    <span class="nd">@property</span>
-</span><span id="RouterMode-74"><a href="#RouterMode-74"><span class="linenos">74</span></a>    <span class="k">def</span> <span class="nf">processor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AIProcessor</span><span class="p">:</span>
-</span><span id="RouterMode-75"><a href="#RouterMode-75"><span class="linenos">75</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-</span><span id="RouterMode-76"><a href="#RouterMode-76"><span class="linenos">76</span></a>
-</span><span id="RouterMode-77"><a href="#RouterMode-77"><span class="linenos">77</span></a>    <span class="nd">@property</span>
-</span><span id="RouterMode-78"><a href="#RouterMode-78"><span class="linenos">78</span></a>    <span class="k">def</span> <span class="nf">is_default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="RouterMode-79"><a href="#RouterMode-79"><span class="linenos">79</span></a>        <span class="k">return</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
-</span><span id="RouterMode-80"><a href="#RouterMode-80"><span class="linenos">80</span></a>
-</span><span id="RouterMode-81"><a href="#RouterMode-81"><span class="linenos">81</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="RouterMode-82"><a href="#RouterMode-82"><span class="linenos">82</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Invoke the processor associated with the current mode to handle the given question.</span>
-</span><span id="RouterMode-83"><a href="#RouterMode-83"><span class="linenos">83</span></a><span class="sd">        :param question: The question to be processed.</span>
-</span><span id="RouterMode-84"><a href="#RouterMode-84"><span class="linenos">84</span></a><span class="sd">        :param kwargs: Additional arguments to be passed to the processor.</span>
-</span><span id="RouterMode-85"><a href="#RouterMode-85"><span class="linenos">85</span></a><span class="sd">        :return: The processed response as a string, or None if no response is generated.</span>
-</span><span id="RouterMode-86"><a href="#RouterMode-86"><span class="linenos">86</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="RouterMode-87"><a href="#RouterMode-87"><span class="linenos">87</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode-32"><a href="#RouterMode-32"><span class="linenos"> 32</span></a><span class="k">class</span> <span class="nc">RouterMode</span><span class="p">(</span><span class="n">Enumeration</span><span class="p">):</span>
+</span><span id="RouterMode-33"><a href="#RouterMode-33"><span class="linenos"> 33</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of available router modes used to determine the type of response provided to the user. This class</span>
+</span><span id="RouterMode-34"><a href="#RouterMode-34"><span class="linenos"> 34</span></a><span class="sd">    defines the different modes that the router can operate in, each affecting how answers are generated and delivered.</span>
+</span><span id="RouterMode-35"><a href="#RouterMode-35"><span class="linenos"> 35</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="RouterMode-36"><a href="#RouterMode-36"><span class="linenos"> 36</span></a>
+</span><span id="RouterMode-37"><a href="#RouterMode-37"><span class="linenos"> 37</span></a>    <span class="c1"># fmt: off</span>
+</span><span id="RouterMode-38"><a href="#RouterMode-38"><span class="linenos"> 38</span></a>
+</span><span id="RouterMode-39"><a href="#RouterMode-39"><span class="linenos"> 39</span></a>    <span class="n">SPLITTER</span>    <span class="o">=</span> <span class="s2">&quot;Task Splitter&quot;</span><span class="p">,</span>                  <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">splitter</span>
+</span><span id="RouterMode-40"><a href="#RouterMode-40"><span class="linenos"> 40</span></a>
+</span><span id="RouterMode-41"><a href="#RouterMode-41"><span class="linenos"> 41</span></a>    <span class="n">QNA</span>         <span class="o">=</span> <span class="s2">&quot;Questions &amp; Answers&quot;</span><span class="p">,</span>            <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">qna</span>
+</span><span id="RouterMode-42"><a href="#RouterMode-42"><span class="linenos"> 42</span></a>
+</span><span id="RouterMode-43"><a href="#RouterMode-43"><span class="linenos"> 43</span></a>    <span class="n">QSTRING</span>     <span class="o">=</span> <span class="s2">&quot;Non-Interactive&quot;</span><span class="p">,</span>                <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">qstring</span>
+</span><span id="RouterMode-44"><a href="#RouterMode-44"><span class="linenos"> 44</span></a>
+</span><span id="RouterMode-45"><a href="#RouterMode-45"><span class="linenos"> 45</span></a>    <span class="n">RAG</span>         <span class="o">=</span> <span class="s2">&quot;Retrieval-Augmented-Generation&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">rag</span>
+</span><span id="RouterMode-46"><a href="#RouterMode-46"><span class="linenos"> 46</span></a>
+</span><span id="RouterMode-47"><a href="#RouterMode-47"><span class="linenos"> 47</span></a>    <span class="n">CHAT</span>        <span class="o">=</span> <span class="s2">&quot;Taius Chat&quot;</span><span class="p">,</span>                     <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">chat</span>
+</span><span id="RouterMode-48"><a href="#RouterMode-48"><span class="linenos"> 48</span></a>
+</span><span id="RouterMode-49"><a href="#RouterMode-49"><span class="linenos"> 49</span></a>    <span class="c1"># fmt: on</span>
+</span><span id="RouterMode-50"><a href="#RouterMode-50"><span class="linenos"> 50</span></a>
+</span><span id="RouterMode-51"><a href="#RouterMode-51"><span class="linenos"> 51</span></a>    <span class="nd">@classmethod</span>
+</span><span id="RouterMode-52"><a href="#RouterMode-52"><span class="linenos"> 52</span></a>    <span class="k">def</span> <span class="nf">modes</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="RouterMode-53"><a href="#RouterMode-53"><span class="linenos"> 53</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list containing all available agent modes.</span>
+</span><span id="RouterMode-54"><a href="#RouterMode-54"><span class="linenos"> 54</span></a><span class="sd">        :return: A list of available agent modes as strings.</span>
+</span><span id="RouterMode-55"><a href="#RouterMode-55"><span class="linenos"> 55</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="RouterMode-56"><a href="#RouterMode-56"><span class="linenos"> 56</span></a>        <span class="k">return</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">names</span><span class="p">()</span>
+</span><span id="RouterMode-57"><a href="#RouterMode-57"><span class="linenos"> 57</span></a>
+</span><span id="RouterMode-58"><a href="#RouterMode-58"><span class="linenos"> 58</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="RouterMode-59"><a href="#RouterMode-59"><span class="linenos"> 59</span></a>    <span class="nd">@lru_cache</span>
+</span><span id="RouterMode-60"><a href="#RouterMode-60"><span class="linenos"> 60</span></a>    <span class="k">def</span> <span class="nf">default</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;RouterMode&quot;</span><span class="p">:</span>
+</span><span id="RouterMode-61"><a href="#RouterMode-61"><span class="linenos"> 61</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the default routing mode.</span>
+</span><span id="RouterMode-62"><a href="#RouterMode-62"><span class="linenos"> 62</span></a><span class="sd">        :return: The default RouterMode instance.</span>
+</span><span id="RouterMode-63"><a href="#RouterMode-63"><span class="linenos"> 63</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="RouterMode-64"><a href="#RouterMode-64"><span class="linenos"> 64</span></a>        <span class="k">return</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">SPLITTER</span> <span class="k">if</span> <span class="n">configs</span><span class="o">.</span><span class="n">is_interactive</span> <span class="k">else</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">QSTRING</span>
+</span><span id="RouterMode-65"><a href="#RouterMode-65"><span class="linenos"> 65</span></a>
+</span><span id="RouterMode-66"><a href="#RouterMode-66"><span class="linenos"> 66</span></a>    <span class="nd">@classmethod</span>
+</span><span id="RouterMode-67"><a href="#RouterMode-67"><span class="linenos"> 67</span></a>    <span class="k">def</span> <span class="nf">of_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RouterMode&quot;</span><span class="p">:</span>
+</span><span id="RouterMode-68"><a href="#RouterMode-68"><span class="linenos"> 68</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the RouterMode instance corresponding to the given name.</span>
+</span><span id="RouterMode-69"><a href="#RouterMode-69"><span class="linenos"> 69</span></a><span class="sd">        :param name: The name of the router mode to retrieve.</span>
+</span><span id="RouterMode-70"><a href="#RouterMode-70"><span class="linenos"> 70</span></a><span class="sd">        :return: The RouterMode instance that matches the given name.</span>
+</span><span id="RouterMode-71"><a href="#RouterMode-71"><span class="linenos"> 71</span></a><span class="sd">        :raises ValueError: If no matching RouterMode is found.</span>
+</span><span id="RouterMode-72"><a href="#RouterMode-72"><span class="linenos"> 72</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="RouterMode-73"><a href="#RouterMode-73"><span class="linenos"> 73</span></a>        <span class="k">return</span> <span class="bp">cls</span><span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;default&quot;</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+</span><span id="RouterMode-74"><a href="#RouterMode-74"><span class="linenos"> 74</span></a>
+</span><span id="RouterMode-75"><a href="#RouterMode-75"><span class="linenos"> 75</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="RouterMode-76"><a href="#RouterMode-76"><span class="linenos"> 76</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">icon</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="RouterMode-77"><a href="#RouterMode-77"><span class="linenos"> 77</span></a>
+</span><span id="RouterMode-78"><a href="#RouterMode-78"><span class="linenos"> 78</span></a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;RouterMode&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="RouterMode-79"><a href="#RouterMode-79"><span class="linenos"> 79</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
+</span><span id="RouterMode-80"><a href="#RouterMode-80"><span class="linenos"> 80</span></a>
+</span><span id="RouterMode-81"><a href="#RouterMode-81"><span class="linenos"> 81</span></a>    <span class="nd">@property</span>
+</span><span id="RouterMode-82"><a href="#RouterMode-82"><span class="linenos"> 82</span></a>    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="RouterMode-83"><a href="#RouterMode-83"><span class="linenos"> 83</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="RouterMode-84"><a href="#RouterMode-84"><span class="linenos"> 84</span></a>
+</span><span id="RouterMode-85"><a href="#RouterMode-85"><span class="linenos"> 85</span></a>    <span class="nd">@property</span>
+</span><span id="RouterMode-86"><a href="#RouterMode-86"><span class="linenos"> 86</span></a>    <span class="k">def</span> <span class="nf">icon</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="RouterMode-87"><a href="#RouterMode-87"><span class="linenos"> 87</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span id="RouterMode-88"><a href="#RouterMode-88"><span class="linenos"> 88</span></a>
+</span><span id="RouterMode-89"><a href="#RouterMode-89"><span class="linenos"> 89</span></a>    <span class="nd">@property</span>
+</span><span id="RouterMode-90"><a href="#RouterMode-90"><span class="linenos"> 90</span></a>    <span class="k">def</span> <span class="nf">processor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AIProcessor</span><span class="p">:</span>
+</span><span id="RouterMode-91"><a href="#RouterMode-91"><span class="linenos"> 91</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</span><span id="RouterMode-92"><a href="#RouterMode-92"><span class="linenos"> 92</span></a>
+</span><span id="RouterMode-93"><a href="#RouterMode-93"><span class="linenos"> 93</span></a>    <span class="nd">@property</span>
+</span><span id="RouterMode-94"><a href="#RouterMode-94"><span class="linenos"> 94</span></a>    <span class="k">def</span> <span class="nf">is_default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="RouterMode-95"><a href="#RouterMode-95"><span class="linenos"> 95</span></a>        <span class="k">return</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+</span><span id="RouterMode-96"><a href="#RouterMode-96"><span class="linenos"> 96</span></a>
+</span><span id="RouterMode-97"><a href="#RouterMode-97"><span class="linenos"> 97</span></a>    <span class="k">def</span> <span class="nf">welcome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="RouterMode-98"><a href="#RouterMode-98"><span class="linenos"> 98</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
+</span><span id="RouterMode-99"><a href="#RouterMode-99"><span class="linenos"> 99</span></a>        <span class="k">match</span> <span class="bp">self</span><span class="p">:</span>
+</span><span id="RouterMode-100"><a href="#RouterMode-100"><span class="linenos">100</span></a>            <span class="k">case</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">QNA</span><span class="p">:</span>
+</span><span id="RouterMode-101"><a href="#RouterMode-101"><span class="linenos">101</span></a>                <span class="n">sum_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">get_or_default_by_key</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="s2">&quot;sum_path&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="RouterMode-102"><a href="#RouterMode-102"><span class="linenos">102</span></a>                <span class="n">sum_glob</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">get_or_default_by_key</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="s2">&quot;sum_glob&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="RouterMode-103"><a href="#RouterMode-103"><span class="linenos">103</span></a>                <span class="n">welcome_msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">t</span><span class="p">(</span>
+</span><span id="RouterMode-104"><a href="#RouterMode-104"><span class="linenos">104</span></a>                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">enter_qna</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="RouterMode-105"><a href="#RouterMode-105"><span class="linenos">105</span></a>                    <span class="sa">f</span><span class="s2">&quot;```</span><span class="se">\n</span><span class="s2">Context:  </span><span class="si">{</span><span class="n">sum_path</span><span class="si">}</span><span class="s2">,   </span><span class="si">{</span><span class="n">sum_glob</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">```</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="RouterMode-106"><a href="#RouterMode-106"><span class="linenos">106</span></a>                    <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">press_esc_enter</span><span class="p">()</span><span class="si">}</span><span class="s2">` </span><span class="se">\n\n</span><span class="s2">&quot;</span>
+</span><span id="RouterMode-107"><a href="#RouterMode-107"><span class="linenos">107</span></a>                    <span class="sa">f</span><span class="s2">&quot;&gt; </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">qna_welcome</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="RouterMode-108"><a href="#RouterMode-108"><span class="linenos">108</span></a>                <span class="p">)</span>
+</span><span id="RouterMode-109"><a href="#RouterMode-109"><span class="linenos">109</span></a>            <span class="k">case</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">RAG</span><span class="p">:</span>
+</span><span id="RouterMode-110"><a href="#RouterMode-110"><span class="linenos">110</span></a>                <span class="n">welcome_msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">enter_rag</span><span class="p">()</span>
+</span><span id="RouterMode-111"><a href="#RouterMode-111"><span class="linenos">111</span></a>            <span class="k">case</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">CHAT</span><span class="p">:</span>
+</span><span id="RouterMode-112"><a href="#RouterMode-112"><span class="linenos">112</span></a>                <span class="n">welcome_msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">enter_chat</span><span class="p">()</span>
+</span><span id="RouterMode-113"><a href="#RouterMode-113"><span class="linenos">113</span></a>            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+</span><span id="RouterMode-114"><a href="#RouterMode-114"><span class="linenos">114</span></a>                <span class="n">welcome_msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">welcome</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;USER&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">))</span>
+</span><span id="RouterMode-115"><a href="#RouterMode-115"><span class="linenos">115</span></a>
+</span><span id="RouterMode-116"><a href="#RouterMode-116"><span class="linenos">116</span></a>        <span class="k">return</span> <span class="n">welcome_msg</span>
+</span><span id="RouterMode-117"><a href="#RouterMode-117"><span class="linenos">117</span></a>
+</span><span id="RouterMode-118"><a href="#RouterMode-118"><span class="linenos">118</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="RouterMode-119"><a href="#RouterMode-119"><span class="linenos">119</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Invoke the processor associated with the current mode to handle the given question.</span>
+</span><span id="RouterMode-120"><a href="#RouterMode-120"><span class="linenos">120</span></a><span class="sd">        :param question: The question to be processed.</span>
+</span><span id="RouterMode-121"><a href="#RouterMode-121"><span class="linenos">121</span></a><span class="sd">        :param kwargs: Additional arguments to be passed to the processor.</span>
+</span><span id="RouterMode-122"><a href="#RouterMode-122"><span class="linenos">122</span></a><span class="sd">        :return: The processed response as a string, or None if no response is generated.</span>
+</span><span id="RouterMode-123"><a href="#RouterMode-123"><span class="linenos">123</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="RouterMode-124"><a href="#RouterMode-124"><span class="linenos">124</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -271,14 +348,14 @@ defines the different modes that the router can operate in, each affecting how a
 </div>
 
 
-                            <div id="RouterMode.TASK_SPLIT" class="classattr">
+                            <div id="RouterMode.SPLITTER" class="classattr">
                                 <div class="attr variable">
-            <span class="name">TASK_SPLIT</span>        =
-<span class="default_value">Task Splitter</span>
+            <span class="name">SPLITTER</span>        =
+<span class="default_value">SPLITTER</span>
 
         
     </div>
-    <a class="headerlink" href="#RouterMode.TASK_SPLIT"></a>
+    <a class="headerlink" href="#RouterMode.SPLITTER"></a>
     
     
 
@@ -286,7 +363,7 @@ defines the different modes that the router can operate in, each affecting how a
                             <div id="RouterMode.QNA" class="classattr">
                                 <div class="attr variable">
             <span class="name">QNA</span>        =
-<span class="default_value">Questions and Answers</span>
+<span class="default_value">QNA</span>
 
         
     </div>
@@ -298,7 +375,7 @@ defines the different modes that the router can operate in, each affecting how a
                             <div id="RouterMode.QSTRING" class="classattr">
                                 <div class="attr variable">
             <span class="name">QSTRING</span>        =
-<span class="default_value">Non-Interactive</span>
+<span class="default_value">QSTRING</span>
 
         
     </div>
@@ -310,11 +387,23 @@ defines the different modes that the router can operate in, each affecting how a
                             <div id="RouterMode.RAG" class="classattr">
                                 <div class="attr variable">
             <span class="name">RAG</span>        =
-<span class="default_value">Retrieval-Augmented Generation</span>
+<span class="default_value">RAG</span>
 
         
     </div>
     <a class="headerlink" href="#RouterMode.RAG"></a>
+    
+    
+
+                            </div>
+                            <div id="RouterMode.CHAT" class="classattr">
+                                <div class="attr variable">
+            <span class="name">CHAT</span>        =
+<span class="default_value">CHAT</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RouterMode.CHAT"></a>
     
     
 
@@ -331,12 +420,12 @@ defines the different modes that the router can operate in, each affecting how a
 
     </div>
     <a class="headerlink" href="#RouterMode.modes"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.modes-43"><a href="#RouterMode.modes-43"><span class="linenos">43</span></a>    <span class="nd">@classmethod</span>
-</span><span id="RouterMode.modes-44"><a href="#RouterMode.modes-44"><span class="linenos">44</span></a>    <span class="k">def</span> <span class="nf">modes</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="RouterMode.modes-45"><a href="#RouterMode.modes-45"><span class="linenos">45</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list containing all available agent modes.</span>
-</span><span id="RouterMode.modes-46"><a href="#RouterMode.modes-46"><span class="linenos">46</span></a><span class="sd">        :return: A list of available agent modes as strings.</span>
-</span><span id="RouterMode.modes-47"><a href="#RouterMode.modes-47"><span class="linenos">47</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="RouterMode.modes-48"><a href="#RouterMode.modes-48"><span class="linenos">48</span></a>        <span class="k">return</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">names</span><span class="p">()</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.modes-51"><a href="#RouterMode.modes-51"><span class="linenos">51</span></a>    <span class="nd">@classmethod</span>
+</span><span id="RouterMode.modes-52"><a href="#RouterMode.modes-52"><span class="linenos">52</span></a>    <span class="k">def</span> <span class="nf">modes</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="RouterMode.modes-53"><a href="#RouterMode.modes-53"><span class="linenos">53</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list containing all available agent modes.</span>
+</span><span id="RouterMode.modes-54"><a href="#RouterMode.modes-54"><span class="linenos">54</span></a><span class="sd">        :return: A list of available agent modes as strings.</span>
+</span><span id="RouterMode.modes-55"><a href="#RouterMode.modes-55"><span class="linenos">55</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="RouterMode.modes-56"><a href="#RouterMode.modes-56"><span class="linenos">56</span></a>        <span class="k">return</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">names</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -355,6 +444,7 @@ defines the different modes that the router can operate in, each affecting how a
                                         <input id="RouterMode.default-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
                     <div class="decorator">@staticmethod</div>
+        <div class="decorator">@lru_cache</div>
 
         <span class="def">def</span>
         <span class="name">default</span><span class="signature pdoc-code condensed">(<span class="return-annotation">) -> <span class="n"><a href="#RouterMode">RouterMode</a></span>:</span></span>
@@ -363,12 +453,13 @@ defines the different modes that the router can operate in, each affecting how a
 
     </div>
     <a class="headerlink" href="#RouterMode.default"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.default-50"><a href="#RouterMode.default-50"><span class="linenos">50</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="RouterMode.default-51"><a href="#RouterMode.default-51"><span class="linenos">51</span></a>    <span class="k">def</span> <span class="nf">default</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s1">&#39;RouterMode&#39;</span><span class="p">:</span>
-</span><span id="RouterMode.default-52"><a href="#RouterMode.default-52"><span class="linenos">52</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the default routing mode.</span>
-</span><span id="RouterMode.default-53"><a href="#RouterMode.default-53"><span class="linenos">53</span></a><span class="sd">        :return: The default RouterMode instance.</span>
-</span><span id="RouterMode.default-54"><a href="#RouterMode.default-54"><span class="linenos">54</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="RouterMode.default-55"><a href="#RouterMode.default-55"><span class="linenos">55</span></a>        <span class="k">return</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">TASK_SPLIT</span> <span class="k">if</span> <span class="n">configs</span><span class="o">.</span><span class="n">is_interactive</span> <span class="k">else</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">QSTRING</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.default-58"><a href="#RouterMode.default-58"><span class="linenos">58</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="RouterMode.default-59"><a href="#RouterMode.default-59"><span class="linenos">59</span></a>    <span class="nd">@lru_cache</span>
+</span><span id="RouterMode.default-60"><a href="#RouterMode.default-60"><span class="linenos">60</span></a>    <span class="k">def</span> <span class="nf">default</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;RouterMode&quot;</span><span class="p">:</span>
+</span><span id="RouterMode.default-61"><a href="#RouterMode.default-61"><span class="linenos">61</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the default routing mode.</span>
+</span><span id="RouterMode.default-62"><a href="#RouterMode.default-62"><span class="linenos">62</span></a><span class="sd">        :return: The default RouterMode instance.</span>
+</span><span id="RouterMode.default-63"><a href="#RouterMode.default-63"><span class="linenos">63</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="RouterMode.default-64"><a href="#RouterMode.default-64"><span class="linenos">64</span></a>        <span class="k">return</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">SPLITTER</span> <span class="k">if</span> <span class="n">configs</span><span class="o">.</span><span class="n">is_interactive</span> <span class="k">else</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">QSTRING</span>
 </span></pre></div>
 
 
@@ -395,14 +486,14 @@ defines the different modes that the router can operate in, each affecting how a
 
     </div>
     <a class="headerlink" href="#RouterMode.of_name"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.of_name-57"><a href="#RouterMode.of_name-57"><span class="linenos">57</span></a>    <span class="nd">@classmethod</span>
-</span><span id="RouterMode.of_name-58"><a href="#RouterMode.of_name-58"><span class="linenos">58</span></a>    <span class="k">def</span> <span class="nf">of_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;RouterMode&#39;</span><span class="p">:</span>
-</span><span id="RouterMode.of_name-59"><a href="#RouterMode.of_name-59"><span class="linenos">59</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the RouterMode instance corresponding to the given name.</span>
-</span><span id="RouterMode.of_name-60"><a href="#RouterMode.of_name-60"><span class="linenos">60</span></a><span class="sd">        :param name: The name of the router mode to retrieve.</span>
-</span><span id="RouterMode.of_name-61"><a href="#RouterMode.of_name-61"><span class="linenos">61</span></a><span class="sd">        :return: The RouterMode instance that matches the given name.</span>
-</span><span id="RouterMode.of_name-62"><a href="#RouterMode.of_name-62"><span class="linenos">62</span></a><span class="sd">        :raises ValueError: If no matching RouterMode is found.</span>
-</span><span id="RouterMode.of_name-63"><a href="#RouterMode.of_name-63"><span class="linenos">63</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="RouterMode.of_name-64"><a href="#RouterMode.of_name-64"><span class="linenos">64</span></a>        <span class="k">return</span> <span class="bp">cls</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;default&#39;</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.of_name-66"><a href="#RouterMode.of_name-66"><span class="linenos">66</span></a>    <span class="nd">@classmethod</span>
+</span><span id="RouterMode.of_name-67"><a href="#RouterMode.of_name-67"><span class="linenos">67</span></a>    <span class="k">def</span> <span class="nf">of_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RouterMode&quot;</span><span class="p">:</span>
+</span><span id="RouterMode.of_name-68"><a href="#RouterMode.of_name-68"><span class="linenos">68</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the RouterMode instance corresponding to the given name.</span>
+</span><span id="RouterMode.of_name-69"><a href="#RouterMode.of_name-69"><span class="linenos">69</span></a><span class="sd">        :param name: The name of the router mode to retrieve.</span>
+</span><span id="RouterMode.of_name-70"><a href="#RouterMode.of_name-70"><span class="linenos">70</span></a><span class="sd">        :return: The RouterMode instance that matches the given name.</span>
+</span><span id="RouterMode.of_name-71"><a href="#RouterMode.of_name-71"><span class="linenos">71</span></a><span class="sd">        :raises ValueError: If no matching RouterMode is found.</span>
+</span><span id="RouterMode.of_name-72"><a href="#RouterMode.of_name-72"><span class="linenos">72</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="RouterMode.of_name-73"><a href="#RouterMode.of_name-73"><span class="linenos">73</span></a>        <span class="k">return</span> <span class="bp">cls</span><span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;default&quot;</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -429,38 +520,54 @@ defines the different modes that the router can operate in, each affecting how a
 
 
                             </div>
-                            <div id="RouterMode.name" class="classattr">
-                                        <input id="RouterMode.name-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                            <div id="RouterMode.description" class="classattr">
+                                        <input id="RouterMode.description-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr variable">
-            <span class="name">name</span><span class="annotation">: str</span>
+            <span class="name">description</span><span class="annotation">: str</span>
 
-                <label class="view-source-button" for="RouterMode.name-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="RouterMode.description-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#RouterMode.name"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.name-69"><a href="#RouterMode.name-69"><span class="linenos">69</span></a>    <span class="nd">@property</span>
-</span><span id="RouterMode.name-70"><a href="#RouterMode.name-70"><span class="linenos">70</span></a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="RouterMode.name-71"><a href="#RouterMode.name-71"><span class="linenos">71</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <a class="headerlink" href="#RouterMode.description"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.description-81"><a href="#RouterMode.description-81"><span class="linenos">81</span></a>    <span class="nd">@property</span>
+</span><span id="RouterMode.description-82"><a href="#RouterMode.description-82"><span class="linenos">82</span></a>    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="RouterMode.description-83"><a href="#RouterMode.description-83"><span class="linenos">83</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>The name of the Enum member.</p>
-</div>
+    
 
+                            </div>
+                            <div id="RouterMode.icon" class="classattr">
+                                        <input id="RouterMode.icon-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
+            <span class="name">icon</span><span class="annotation">: str</span>
+
+                <label class="view-source-button" for="RouterMode.icon-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#RouterMode.icon"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.icon-85"><a href="#RouterMode.icon-85"><span class="linenos">85</span></a>    <span class="nd">@property</span>
+</span><span id="RouterMode.icon-86"><a href="#RouterMode.icon-86"><span class="linenos">86</span></a>    <span class="k">def</span> <span class="nf">icon</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="RouterMode.icon-87"><a href="#RouterMode.icon-87"><span class="linenos">87</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></pre></div>
+
+
+    
 
                             </div>
                             <div id="RouterMode.processor" class="classattr">
                                         <input id="RouterMode.processor-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr variable">
-            <span class="name">processor</span><span class="annotation">: askai.core.features.processors.ai_processor.AIProcessor</span>
+            <span class="name">processor</span><span class="annotation">: askai.core.processors.ai_processor.AIProcessor</span>
 
                 <label class="view-source-button" for="RouterMode.processor-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#RouterMode.processor"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.processor-73"><a href="#RouterMode.processor-73"><span class="linenos">73</span></a>    <span class="nd">@property</span>
-</span><span id="RouterMode.processor-74"><a href="#RouterMode.processor-74"><span class="linenos">74</span></a>    <span class="k">def</span> <span class="nf">processor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AIProcessor</span><span class="p">:</span>
-</span><span id="RouterMode.processor-75"><a href="#RouterMode.processor-75"><span class="linenos">75</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.processor-89"><a href="#RouterMode.processor-89"><span class="linenos">89</span></a>    <span class="nd">@property</span>
+</span><span id="RouterMode.processor-90"><a href="#RouterMode.processor-90"><span class="linenos">90</span></a>    <span class="k">def</span> <span class="nf">processor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AIProcessor</span><span class="p">:</span>
+</span><span id="RouterMode.processor-91"><a href="#RouterMode.processor-91"><span class="linenos">91</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 </span></pre></div>
 
 
@@ -476,13 +583,52 @@ defines the different modes that the router can operate in, each affecting how a
 
     </div>
     <a class="headerlink" href="#RouterMode.is_default"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.is_default-77"><a href="#RouterMode.is_default-77"><span class="linenos">77</span></a>    <span class="nd">@property</span>
-</span><span id="RouterMode.is_default-78"><a href="#RouterMode.is_default-78"><span class="linenos">78</span></a>    <span class="k">def</span> <span class="nf">is_default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="RouterMode.is_default-79"><a href="#RouterMode.is_default-79"><span class="linenos">79</span></a>        <span class="k">return</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.is_default-93"><a href="#RouterMode.is_default-93"><span class="linenos">93</span></a>    <span class="nd">@property</span>
+</span><span id="RouterMode.is_default-94"><a href="#RouterMode.is_default-94"><span class="linenos">94</span></a>    <span class="k">def</span> <span class="nf">is_default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="RouterMode.is_default-95"><a href="#RouterMode.is_default-95"><span class="linenos">95</span></a>        <span class="k">return</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
 </span></pre></div>
 
 
     
+
+                            </div>
+                            <div id="RouterMode.welcome" class="classattr">
+                                        <input id="RouterMode.welcome-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">welcome</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+                <label class="view-source-button" for="RouterMode.welcome-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#RouterMode.welcome"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.welcome-97"><a href="#RouterMode.welcome-97"><span class="linenos"> 97</span></a>    <span class="k">def</span> <span class="nf">welcome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="RouterMode.welcome-98"><a href="#RouterMode.welcome-98"><span class="linenos"> 98</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
+</span><span id="RouterMode.welcome-99"><a href="#RouterMode.welcome-99"><span class="linenos"> 99</span></a>        <span class="k">match</span> <span class="bp">self</span><span class="p">:</span>
+</span><span id="RouterMode.welcome-100"><a href="#RouterMode.welcome-100"><span class="linenos">100</span></a>            <span class="k">case</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">QNA</span><span class="p">:</span>
+</span><span id="RouterMode.welcome-101"><a href="#RouterMode.welcome-101"><span class="linenos">101</span></a>                <span class="n">sum_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">get_or_default_by_key</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="s2">&quot;sum_path&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="RouterMode.welcome-102"><a href="#RouterMode.welcome-102"><span class="linenos">102</span></a>                <span class="n">sum_glob</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">get_or_default_by_key</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="s2">&quot;sum_glob&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="RouterMode.welcome-103"><a href="#RouterMode.welcome-103"><span class="linenos">103</span></a>                <span class="n">welcome_msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">t</span><span class="p">(</span>
+</span><span id="RouterMode.welcome-104"><a href="#RouterMode.welcome-104"><span class="linenos">104</span></a>                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">enter_qna</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="RouterMode.welcome-105"><a href="#RouterMode.welcome-105"><span class="linenos">105</span></a>                    <span class="sa">f</span><span class="s2">&quot;```</span><span class="se">\n</span><span class="s2">Context:  </span><span class="si">{</span><span class="n">sum_path</span><span class="si">}</span><span class="s2">,   </span><span class="si">{</span><span class="n">sum_glob</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">```</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="RouterMode.welcome-106"><a href="#RouterMode.welcome-106"><span class="linenos">106</span></a>                    <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">press_esc_enter</span><span class="p">()</span><span class="si">}</span><span class="s2">` </span><span class="se">\n\n</span><span class="s2">&quot;</span>
+</span><span id="RouterMode.welcome-107"><a href="#RouterMode.welcome-107"><span class="linenos">107</span></a>                    <span class="sa">f</span><span class="s2">&quot;&gt; </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">qna_welcome</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="RouterMode.welcome-108"><a href="#RouterMode.welcome-108"><span class="linenos">108</span></a>                <span class="p">)</span>
+</span><span id="RouterMode.welcome-109"><a href="#RouterMode.welcome-109"><span class="linenos">109</span></a>            <span class="k">case</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">RAG</span><span class="p">:</span>
+</span><span id="RouterMode.welcome-110"><a href="#RouterMode.welcome-110"><span class="linenos">110</span></a>                <span class="n">welcome_msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">enter_rag</span><span class="p">()</span>
+</span><span id="RouterMode.welcome-111"><a href="#RouterMode.welcome-111"><span class="linenos">111</span></a>            <span class="k">case</span> <span class="n">RouterMode</span><span class="o">.</span><span class="n">CHAT</span><span class="p">:</span>
+</span><span id="RouterMode.welcome-112"><a href="#RouterMode.welcome-112"><span class="linenos">112</span></a>                <span class="n">welcome_msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">enter_chat</span><span class="p">()</span>
+</span><span id="RouterMode.welcome-113"><a href="#RouterMode.welcome-113"><span class="linenos">113</span></a>            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+</span><span id="RouterMode.welcome-114"><a href="#RouterMode.welcome-114"><span class="linenos">114</span></a>                <span class="n">welcome_msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">welcome</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;USER&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">))</span>
+</span><span id="RouterMode.welcome-115"><a href="#RouterMode.welcome-115"><span class="linenos">115</span></a>
+</span><span id="RouterMode.welcome-116"><a href="#RouterMode.welcome-116"><span class="linenos">116</span></a>        <span class="k">return</span> <span class="n">welcome_msg</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>TODO</p>
+</div>
+
 
                             </div>
                             <div id="RouterMode.process" class="classattr">
@@ -496,13 +642,13 @@ defines the different modes that the router can operate in, each affecting how a
 
     </div>
     <a class="headerlink" href="#RouterMode.process"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.process-81"><a href="#RouterMode.process-81"><span class="linenos">81</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="RouterMode.process-82"><a href="#RouterMode.process-82"><span class="linenos">82</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Invoke the processor associated with the current mode to handle the given question.</span>
-</span><span id="RouterMode.process-83"><a href="#RouterMode.process-83"><span class="linenos">83</span></a><span class="sd">        :param question: The question to be processed.</span>
-</span><span id="RouterMode.process-84"><a href="#RouterMode.process-84"><span class="linenos">84</span></a><span class="sd">        :param kwargs: Additional arguments to be passed to the processor.</span>
-</span><span id="RouterMode.process-85"><a href="#RouterMode.process-85"><span class="linenos">85</span></a><span class="sd">        :return: The processed response as a string, or None if no response is generated.</span>
-</span><span id="RouterMode.process-86"><a href="#RouterMode.process-86"><span class="linenos">86</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="RouterMode.process-87"><a href="#RouterMode.process-87"><span class="linenos">87</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RouterMode.process-118"><a href="#RouterMode.process-118"><span class="linenos">118</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="RouterMode.process-119"><a href="#RouterMode.process-119"><span class="linenos">119</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Invoke the processor associated with the current mode to handle the given question.</span>
+</span><span id="RouterMode.process-120"><a href="#RouterMode.process-120"><span class="linenos">120</span></a><span class="sd">        :param question: The question to be processed.</span>
+</span><span id="RouterMode.process-121"><a href="#RouterMode.process-121"><span class="linenos">121</span></a><span class="sd">        :param kwargs: Additional arguments to be passed to the processor.</span>
+</span><span id="RouterMode.process-122"><a href="#RouterMode.process-122"><span class="linenos">122</span></a><span class="sd">        :return: The processed response as a string, or None if no response is generated.</span>
+</span><span id="RouterMode.process-123"><a href="#RouterMode.process-123"><span class="linenos">123</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="RouterMode.process-124"><a href="#RouterMode.process-124"><span class="linenos">124</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -537,7 +683,8 @@ defines the different modes that the router can operate in, each affecting how a
 
             </div>
             <div><dt>enum.Enum</dt>
-                                <dd id="RouterMode.value" class="variable">value</dd>
+                                <dd id="RouterMode.name" class="variable">name</dd>
+                <dd id="RouterMode.value" class="variable">value</dd>
 
             </div>
                                 </dl>

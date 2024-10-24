@@ -51,9 +51,6 @@
                         <li>
                                 <a class="variable" href="#Verbosity.val">val</a>
                         </li>
-                        <li>
-                                <a class="function" href="#Verbosity.match">match</a>
-                        </li>
                 </ul>
 
             </li>
@@ -99,19 +96,27 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
 </span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="n">FULL</span>        <span class="o">=</span> <span class="mi">5</span>
 </span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="c1"># fmt: on</span>
 </span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="nd">@property</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="k">def</span> <span class="nf">val</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the integer value of the verbosity level.</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">        :return: The integer representation of the verbosity level.</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="s2">&quot;Verbosity&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks if the current verbosity level is less than or equal to the given level.</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="sd">        :param level: The verbosity level to compare against.</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">        :return: True if the current level is less than or equal to the given level, otherwise False.</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">&lt;=</span> <span class="n">level</span><span class="o">.</span><span class="n">val</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Verbosity&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">val</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">val</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="k">def</span> <span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">&lt;=</span> <span class="n">other</span><span class="o">.</span><span class="n">val</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">&gt;</span> <span class="n">other</span><span class="o">.</span><span class="n">val</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="k">def</span> <span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">&gt;=</span> <span class="n">other</span><span class="o">.</span><span class="n">val</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="nd">@property</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="k">def</span> <span class="nf">val</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the integer value of the verbosity level.</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="sd">        :return: The integer representation of the verbosity level.</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -145,19 +150,27 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
 </span><span id="Verbosity-20"><a href="#Verbosity-20"><span class="linenos">20</span></a>    <span class="n">FULL</span>        <span class="o">=</span> <span class="mi">5</span>
 </span><span id="Verbosity-21"><a href="#Verbosity-21"><span class="linenos">21</span></a>    <span class="c1"># fmt: on</span>
 </span><span id="Verbosity-22"><a href="#Verbosity-22"><span class="linenos">22</span></a>
-</span><span id="Verbosity-23"><a href="#Verbosity-23"><span class="linenos">23</span></a>    <span class="nd">@property</span>
-</span><span id="Verbosity-24"><a href="#Verbosity-24"><span class="linenos">24</span></a>    <span class="k">def</span> <span class="nf">val</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="Verbosity-25"><a href="#Verbosity-25"><span class="linenos">25</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the integer value of the verbosity level.</span>
-</span><span id="Verbosity-26"><a href="#Verbosity-26"><span class="linenos">26</span></a><span class="sd">        :return: The integer representation of the verbosity level.</span>
-</span><span id="Verbosity-27"><a href="#Verbosity-27"><span class="linenos">27</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Verbosity-28"><a href="#Verbosity-28"><span class="linenos">28</span></a>        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-</span><span id="Verbosity-29"><a href="#Verbosity-29"><span class="linenos">29</span></a>
-</span><span id="Verbosity-30"><a href="#Verbosity-30"><span class="linenos">30</span></a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="s2">&quot;Verbosity&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="Verbosity-31"><a href="#Verbosity-31"><span class="linenos">31</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks if the current verbosity level is less than or equal to the given level.</span>
-</span><span id="Verbosity-32"><a href="#Verbosity-32"><span class="linenos">32</span></a><span class="sd">        :param level: The verbosity level to compare against.</span>
-</span><span id="Verbosity-33"><a href="#Verbosity-33"><span class="linenos">33</span></a><span class="sd">        :return: True if the current level is less than or equal to the given level, otherwise False.</span>
-</span><span id="Verbosity-34"><a href="#Verbosity-34"><span class="linenos">34</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Verbosity-35"><a href="#Verbosity-35"><span class="linenos">35</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">&lt;=</span> <span class="n">level</span><span class="o">.</span><span class="n">val</span>
+</span><span id="Verbosity-23"><a href="#Verbosity-23"><span class="linenos">23</span></a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Verbosity&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="Verbosity-24"><a href="#Verbosity-24"><span class="linenos">24</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">val</span>
+</span><span id="Verbosity-25"><a href="#Verbosity-25"><span class="linenos">25</span></a>
+</span><span id="Verbosity-26"><a href="#Verbosity-26"><span class="linenos">26</span></a>    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="Verbosity-27"><a href="#Verbosity-27"><span class="linenos">27</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">val</span>
+</span><span id="Verbosity-28"><a href="#Verbosity-28"><span class="linenos">28</span></a>
+</span><span id="Verbosity-29"><a href="#Verbosity-29"><span class="linenos">29</span></a>    <span class="k">def</span> <span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="Verbosity-30"><a href="#Verbosity-30"><span class="linenos">30</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">&lt;=</span> <span class="n">other</span><span class="o">.</span><span class="n">val</span>
+</span><span id="Verbosity-31"><a href="#Verbosity-31"><span class="linenos">31</span></a>
+</span><span id="Verbosity-32"><a href="#Verbosity-32"><span class="linenos">32</span></a>    <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="Verbosity-33"><a href="#Verbosity-33"><span class="linenos">33</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">&gt;</span> <span class="n">other</span><span class="o">.</span><span class="n">val</span>
+</span><span id="Verbosity-34"><a href="#Verbosity-34"><span class="linenos">34</span></a>
+</span><span id="Verbosity-35"><a href="#Verbosity-35"><span class="linenos">35</span></a>    <span class="k">def</span> <span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="Verbosity-36"><a href="#Verbosity-36"><span class="linenos">36</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">&gt;=</span> <span class="n">other</span><span class="o">.</span><span class="n">val</span>
+</span><span id="Verbosity-37"><a href="#Verbosity-37"><span class="linenos">37</span></a>
+</span><span id="Verbosity-38"><a href="#Verbosity-38"><span class="linenos">38</span></a>    <span class="nd">@property</span>
+</span><span id="Verbosity-39"><a href="#Verbosity-39"><span class="linenos">39</span></a>    <span class="k">def</span> <span class="nf">val</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="Verbosity-40"><a href="#Verbosity-40"><span class="linenos">40</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the integer value of the verbosity level.</span>
+</span><span id="Verbosity-41"><a href="#Verbosity-41"><span class="linenos">41</span></a><span class="sd">        :return: The integer representation of the verbosity level.</span>
+</span><span id="Verbosity-42"><a href="#Verbosity-42"><span class="linenos">42</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Verbosity-43"><a href="#Verbosity-43"><span class="linenos">43</span></a>        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -240,12 +253,12 @@ Attributes:
 
     </div>
     <a class="headerlink" href="#Verbosity.val"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Verbosity.val-23"><a href="#Verbosity.val-23"><span class="linenos">23</span></a>    <span class="nd">@property</span>
-</span><span id="Verbosity.val-24"><a href="#Verbosity.val-24"><span class="linenos">24</span></a>    <span class="k">def</span> <span class="nf">val</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="Verbosity.val-25"><a href="#Verbosity.val-25"><span class="linenos">25</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the integer value of the verbosity level.</span>
-</span><span id="Verbosity.val-26"><a href="#Verbosity.val-26"><span class="linenos">26</span></a><span class="sd">        :return: The integer representation of the verbosity level.</span>
-</span><span id="Verbosity.val-27"><a href="#Verbosity.val-27"><span class="linenos">27</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Verbosity.val-28"><a href="#Verbosity.val-28"><span class="linenos">28</span></a>        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Verbosity.val-38"><a href="#Verbosity.val-38"><span class="linenos">38</span></a>    <span class="nd">@property</span>
+</span><span id="Verbosity.val-39"><a href="#Verbosity.val-39"><span class="linenos">39</span></a>    <span class="k">def</span> <span class="nf">val</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="Verbosity.val-40"><a href="#Verbosity.val-40"><span class="linenos">40</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the integer value of the verbosity level.</span>
+</span><span id="Verbosity.val-41"><a href="#Verbosity.val-41"><span class="linenos">41</span></a><span class="sd">        :return: The integer representation of the verbosity level.</span>
+</span><span id="Verbosity.val-42"><a href="#Verbosity.val-42"><span class="linenos">42</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Verbosity.val-43"><a href="#Verbosity.val-43"><span class="linenos">43</span></a>        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -255,43 +268,6 @@ Attributes:
 
 <blockquote>
   <p>The integer representation of the verbosity level.</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Verbosity.match" class="classattr">
-                                        <input id="Verbosity.match-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">match</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">level</span><span class="p">:</span> <span class="n"><a href="#Verbosity">Verbosity</a></span></span><span class="return-annotation">) -> <span class="nb">bool</span>:</span></span>
-
-                <label class="view-source-button" for="Verbosity.match-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#Verbosity.match"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Verbosity.match-30"><a href="#Verbosity.match-30"><span class="linenos">30</span></a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="s2">&quot;Verbosity&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="Verbosity.match-31"><a href="#Verbosity.match-31"><span class="linenos">31</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks if the current verbosity level is less than or equal to the given level.</span>
-</span><span id="Verbosity.match-32"><a href="#Verbosity.match-32"><span class="linenos">32</span></a><span class="sd">        :param level: The verbosity level to compare against.</span>
-</span><span id="Verbosity.match-33"><a href="#Verbosity.match-33"><span class="linenos">33</span></a><span class="sd">        :return: True if the current level is less than or equal to the given level, otherwise False.</span>
-</span><span id="Verbosity.match-34"><a href="#Verbosity.match-34"><span class="linenos">34</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Verbosity.match-35"><a href="#Verbosity.match-35"><span class="linenos">35</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">&lt;=</span> <span class="n">level</span><span class="o">.</span><span class="n">val</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Checks if the current verbosity level is less than or equal to the given level.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>level</strong>:  The verbosity level to compare against.</li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<blockquote>
-  <p>True if the current level is less than or equal to the given level, otherwise False.</p>
 </blockquote>
 </div>
 
