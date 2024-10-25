@@ -116,6 +116,10 @@ class AskAiConfigs(metaclass=Singleton):
     def is_rag(self) -> bool:
         return settings.get_int("askai.rag.enabled")
 
+    @is_rag.setter
+    def is_rag(self, value: bool) -> None:
+        settings.put("askai.rag.enabled", value)
+
     @property
     def language(self) -> Language:
         """Lookup order: Settings -> Locale -> Environment."""

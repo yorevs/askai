@@ -20,6 +20,7 @@ from askai.core.commander.commands.general_cmd import GeneralCmd
 from askai.core.commander.commands.history_cmd import HistoryCmd
 from askai.core.commander.commands.settings_cmd import SettingsCmd
 from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
+from askai.core.component.rag_provider import RAGProvider
 from askai.core.enums.router_mode import RouterMode
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
@@ -41,8 +42,7 @@ import os
 import re
 
 COMMANDER_HELP_TPL = Template(
-    dedent(
-        """
+    dedent("""\
     # AskAI Commander - HELP
 
     > Commands:
@@ -58,14 +58,12 @@ COMMANDER_HELP_TPL = Template(
     | *Ctrl+R* | **Reset the input field.**    |
     | *Ctrl+F* | **Forget the input history.** |
 
-    >   To get help about a specific command type: '/help \<command\>'
-    """
-    )
+    >   To get help about a specific command type: '/help \\<command\\>'
+    """)
 )
 
 COMMANDER_HELP_CMD_TPL = Template(
-    dedent(
-        """
+    dedent("""\
     # AskAI Commander - HELP
     ```
     %CYAN%Command: %ORANGE%${command}%NC%
@@ -74,8 +72,7 @@ COMMANDER_HELP_CMD_TPL = Template(
 
     %CYAN%Usage:\t%WHITE%/${usage}
     ```
-    """
-    )
+    """)
 )
 
 RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"
@@ -329,8 +326,7 @@ def cache(operation: str, args: tuple[str, ...]) -> None:
                 configs.ttl = int(args[0])
                 text_formatter.commander_print(f"Cache TTL was set to *{args[0]} minutes* !")
         case _:
-            err: str = str(click.BadParameter(f"Invalid cache operation: '{operation}'"))
-            text_formatter.commander_print(f"Error: {err}")
+            text_formatter.commander_print(f"Cache is *{'en' if configs.is_rag else 'dis'}abled* !")
 
 
 @ask_commander.command()
@@ -457,3 +453,37 @@ def mode(router_mode: str) -> None:
                 events.mode_changed.emit(mode="SPLITTER")
             case _:
                 events.mode_changed.emit(mode="DEFAULT")
+
+
+@ask_commander.command()
+@click.argument("operation", default="")
+@click.argument("args", nargs=-1)
+def rag(operation: str, args: tuple[str, ...]) -> None:
+    """Manages AskAI RAG features.
+    :param operation: Specifies the rag operation. Options: [add|enable]
+    :param args: Arguments relevant to the chosen operation.
+    """
+    match operation.casefold():
+        case "add":
+            if not args:
+                err: str = str(click.MissingParameter(f"Arguments missing. Usage /rag add \\<folder\\>"))
+                text_formatter.commander_print(f"Error: {err}")
+            else:
+                folder: Path = Path(args[0])
+                if not folder.exists():
+                    text_formatter.commander_print(f"Error: Could not find folder: '{folder}'")
+                else:
+                    if RAGProvider.copy_rag(folder):
+                        text_formatter.commander_print(f"RAG folder '{folder}' has been *added* to rag directory !")
+                    else:
+                        text_formatter.commander_print(f"Error: Failed to add RAG folder: '{folder}' !")
+
+        case "enable":
+            if not args:
+                err: str = str(click.MissingParameter(f"Arguments missing. Usage /rag enable \\<0|1\\>"))
+                text_formatter.commander_print(f"Error: {err}")
+            else:
+                configs.is_rag = to_bool(args[0])
+                text_formatter.commander_print(f"RAG has been *{'en' if configs.is_rag else 'dis'}abled* !")
+        case _:
+            text_formatter.commander_print(f"RAG is *{'en' if configs.is_rag else 'dis'}abled* !")
