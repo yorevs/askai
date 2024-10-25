@@ -32,6 +32,11 @@ class GeneralCmd(ABC):
     """Provides general command functionalities."""
 
     @staticmethod
+    def app_info() -> None:
+        """Display some useful application information."""
+        display_text(shared.app_info, markdown=False)
+
+    @staticmethod
     def execute(cmd_line: str | None = None) -> None:
         """Execute a terminal command.
         :param cmd_line: The command line to execute (optional).
@@ -72,11 +77,6 @@ class GeneralCmd(ABC):
                 text_formatter.commander_print(f"Current locale: {language}")
         except (ValueError, TypeError) as err:
             display_text(f"\n%RED%-=- Failed to set idiom: '{str(err)}'! -=-%NC%")
-
-    @staticmethod
-    def app_info() -> None:
-        """Display some useful application information."""
-        display_text(shared.app_info, markdown=False)
 
     @staticmethod
     def translate(from_lang: Language, to_lang: Language, *texts: str) -> None:
