@@ -92,7 +92,7 @@ class TextFormatter(metaclass=Singleton):
         plain_text = re.sub(r"[-*+]\s+", "", plain_text)
         plain_text = re.sub(r"^\d+\.\s+", "", plain_text)
 
-        return plain_text.strip()
+        return plain_text
 
     @staticmethod
     def strip_format(text: AnyStr) -> str:
@@ -109,7 +109,7 @@ class TextFormatter(metaclass=Singleton):
         """
         # fmt: off
 
-        text = dedent(str(text)).strip()
+        text = dedent(str(text))
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)

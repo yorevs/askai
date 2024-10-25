@@ -84,7 +84,7 @@ class AskAiApp(App[None]):
         self._startup()
 
     def __str__(self) -> str:
-        return VtColor.strip_colors(shared.app_info.replace("%EOL%", os.linesep))
+        return VtColor.strip_colors(shared.app_info)
 
     @property
     def askai(self) -> AskAi:
