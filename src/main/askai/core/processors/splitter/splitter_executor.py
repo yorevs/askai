@@ -16,6 +16,7 @@ import os
 from textwrap import indent
 from threading import Thread
 
+from clitt.core.term.cursor import cursor
 from hspylib.core.tools.commons import is_debugging
 from rich.live import Live
 from rich.spinner import Spinner
@@ -39,10 +40,10 @@ class SplitterExecutor(Thread):
     def pipeline(self) -> SplitterPipeline:
         return self._pipeline
 
-    def display(self, reply: str) -> None:
+    def display(self, text: str) -> None:
         """TODO"""
         if is_debugging():
-            text_formatter.console.print(Text.from_markup(reply))
+            text_formatter.console.print(Text.from_markup(text))
 
     def run(self) -> None:
         with Live(Spinner("dots", f"[green]{self.pipeline.state}…[/green]", style="green"), console=tf.console) as live:
@@ -105,6 +106,7 @@ class SplitterExecutor(Thread):
                 self.display(f"[green]{execution_status_str}[/green]")
                 live.update(Spinner("dots", f"[green]{self.pipeline.state}…[/green]", style="green"))
                 self.pipeline.iteractions += 1
+        cursor.erase_line()
 
         if configs.is_debug:
             final_state: States = self.pipeline.state

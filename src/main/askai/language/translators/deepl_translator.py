@@ -12,12 +12,15 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from functools import lru_cache
+from typing import AnyStr
+
+import deepl
+from deepl import Translator
+
 from askai.__classpath__ import API_KEYS
 from askai.language.ai_translator import AITranslator
 from askai.language.language import Language
-from functools import lru_cache
-
-import deepl
 
 
 class DeepLTranslator(AITranslator):
@@ -27,23 +30,24 @@ class DeepLTranslator(AITranslator):
 
     def __init__(self, source_lang: Language, target_lang: Language):
         super().__init__(source_lang, target_lang)
-        API_KEYS.ensure("DEEPL_API_KEY", "DeepLTranslator")
-        self._translator = deepl.Translator(API_KEYS.DEEPL_API_KEY)
+        self._translator: Translator | None = None
 
     @lru_cache
-    def translate(self, text: str, **kwargs) -> str:
+    def translate_text(self, text: AnyStr, **kwargs) -> str:
         """Translate text from the source language to the target language.
         :param text: Text to translate.
         :return: The translated text.
         """
-        if self._source_lang != self._target_lang:
-            kwargs["preserve_formatting"] = True
-            lang = self._from_locale()
-            result: deepl.TextResult = self._translator.translate_text(
-                text, source_lang=lang[0], target_lang=lang[1], **kwargs
-            )
-            return str(result)
-        return text
+        # Lazy initialization to allow DEEPL_API_KEY be optional.
+        if not self._translator:
+            API_KEYS.ensure("DEEPL_API_KEY", "DeepLTranslator")
+            self._translator = deepl.Translator(API_KEYS.DEEPL_API_KEY)
+        kwargs["preserve_formatting"] = True
+        lang = self._from_locale()
+        result: deepl.TextResult = self._translator.translate_text(
+            text, source_lang=lang[0], target_lang=lang[1], **kwargs
+        )
+        return str(result)
 
     def name(self) -> str:
         return "DeepL"

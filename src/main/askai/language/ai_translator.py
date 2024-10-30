@@ -12,20 +12,58 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import re
+from abc import ABC
+from typing import AnyStr
+
+from askai.core.askai_events import events
+from askai.core.model.ai_reply import AIReply
 from askai.language.language import Language
-from functools import lru_cache
-from typing import Protocol
 
 
-class AITranslator(Protocol):
+class AITranslator(ABC):
     """Provides a base class for multilingual offline translation engines. Various implementations can be used."""
 
     def __init__(self, source_lang: Language, target_lang: Language):
         self._source_lang: Language = source_lang
         self._target_lang: Language = target_lang
 
-    @lru_cache
-    def translate(self, text: str, **kwargs) -> str:
+    def translate(self, text: AnyStr) -> str:
+        """Translates text excluding the parts enclosed in [TAG]...[/TAG] and %TAG%...%TAG% formatting.
+        :param text: The input text with [TAG]...[/TAG] and %TAG%...%TAG% formatting.
+        :returns str: The translated text with original tags preserved.
+        """
+        if self._source_lang == self._target_lang:
+            return text
+
+        # Regex to match [TAG]..[/TAG], %TAG%..%/TAG%, "..", and '..'
+        tag_pattern = re.compile(r'(\[/?\w+]|%/?\w+%|["\']\w+["\'])', re.IGNORECASE)
+        parts = tag_pattern.split(text)  # Split the text into parts: tags and non-tags
+        texts_to_translate = []
+        indices = []
+        # Collect texts to translate
+        for i, part in enumerate(parts):
+            if not tag_pattern.fullmatch(part) and part.strip() != '':
+                texts_to_translate.append(part)
+                indices.append(i)
+
+        try:
+            # Perform batch translation
+            translated_texts: list[str] = list(map(self.translate_text, texts_to_translate))
+        except Exception as err:
+            events.reply.emit(reply=AIReply.debug(f"Error during batch translation: {err}"))
+            return text
+
+        # Replace translated texts in the parts list
+        for idx, translated in zip(indices, translated_texts):
+            parts[idx] = translated
+
+        # Reassemble the translated text with tags
+        translated_text = ''.join(parts)
+
+        return translated_text
+
+    def translate_text(self, text: AnyStr, **kwargs) -> str:
         """Translate text from the source language to the target language.
         :param text: Text to translate.
         :return: The translated text.

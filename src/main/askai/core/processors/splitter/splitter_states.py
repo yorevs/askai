@@ -14,6 +14,8 @@
 """
 from hspylib.core.enums.enumeration import Enumeration
 
+from askai.core.askai_messages import msg
+
 
 class States(Enumeration):
     """Enumeration of possible task splitter states."""
@@ -36,3 +38,6 @@ class States(Enumeration):
 
     COMPLETE        = 'Completed'
     # fmt: on
+
+    def __str__(self) -> str:
+        return msg.t(self.value)

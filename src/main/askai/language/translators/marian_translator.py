@@ -1,9 +1,11 @@
-from askai.language.ai_translator import AITranslator
-from askai.language.language import Language
+import re
 from functools import lru_cache
+from typing import AnyStr
+
 from transformers import MarianMTModel, MarianTokenizer
 
-import re
+from askai.language.ai_translator import AITranslator
+from askai.language.language import Language
 
 
 class MarianTranslator(AITranslator):
@@ -21,20 +23,17 @@ class MarianTranslator(AITranslator):
         self._tokenizer = MarianTokenizer.from_pretrained(self.MODEL_NAME)
 
     @lru_cache
-    def translate(self, text: str, **kwargs) -> str:
+    def translate_text(self, text: AnyStr, **kwargs) -> str:
         """Translate text from the source language to the target language.
         :param text: Text to translate.
         :return: The translated text.
         """
-        if self._source_lang == self._target_lang:
-            return text
-
         kwargs["return_tensors"] = "pt"
         kwargs["padding"] = True
 
-        return self._translate(f">>{self._target_lang.idiom}<<{text}", **kwargs)
+        return self._decode(f">>{self._target_lang.idiom}<<{text}", **kwargs)
 
-    def _translate(self, text, **kwargs) -> str:
+    def _decode(self, text, **kwargs) -> str:
         """Wrapper function that is going to provide the translation of the text.
         :param text: The text to be translated.
         :return: The translated text.

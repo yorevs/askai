@@ -13,17 +13,18 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from argostranslate import package, translate
-from argostranslate.translate import ITranslation
-from askai.exception.exceptions import TranslationPackageError
-from askai.language.ai_translator import AITranslator
-from askai.language.language import Language
-from functools import lru_cache
-from typing import Optional
-
 import logging as log
 import os
 import sys
+from functools import lru_cache
+from typing import Optional, AnyStr
+
+from argostranslate import package, translate
+from argostranslate.translate import ITranslation
+
+from askai.exception.exceptions import TranslationPackageError
+from askai.language.ai_translator import AITranslator
+from askai.language.language import Language
 
 
 class ArgosTranslator(AITranslator):
@@ -65,12 +66,12 @@ class ArgosTranslator(AITranslator):
         self._argos_model = argos_model
 
     @lru_cache
-    def translate(self, text: str, **kwargs) -> str:
+    def translate_text(self, text: AnyStr, **kwargs) -> str:
         """Translate text from the source language to the target language.
         :param text: Text to translate.
         :return: The translated text.
         """
-        return text if self._source_lang == self._target_lang else self._argos_model.translate(text)
+        return self._argos_model.translate(text)
 
     def name(self) -> str:
         return "Argos"

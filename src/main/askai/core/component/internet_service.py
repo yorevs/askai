@@ -33,7 +33,7 @@ from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.tools import Tool
 from langchain_google_community import GoogleSearchAPIWrapper
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter, TextSplitter
 from openai import APIError
 from typing import List
 
@@ -152,10 +152,9 @@ class InternetService(metaclass=Singleton):
         return f"{google_query} {sites}"
 
     def __init__(self):
-        API_KEYS.ensure("GOOGLE_API_KEY", "google_search")
-        self._google = GoogleSearchAPIWrapper(k=10, google_api_key=API_KEYS.GOOGLE_API_KEY)
-        self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
-        self._text_splitter = RecursiveCharacterTextSplitter(
+        self._google: GoogleSearchAPIWrapper | None = None
+        self._tool: Tool | None = None
+        self._text_splitter: TextSplitter = RecursiveCharacterTextSplitter(
             chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap
         )
 
@@ -170,6 +169,11 @@ class InternetService(metaclass=Singleton):
         :param search: The AI search parameters encapsulated in a SearchResult object.
         :return: A refined string containing the search results.
         """
+        # Lazy initialization to allow GOOGLE_API_KEY be optional.
+        if not self._google:
+            API_KEYS.ensure("GOOGLE_API_KEY", "google_search")
+            self._google = GoogleSearchAPIWrapper(k=10, google_api_key=API_KEYS.GOOGLE_API_KEY)
+            self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
         events.reply.emit(reply=AIReply.info(msg.searching()))
         terms: str = self._build_google_query(search).strip()
         question: str = re.sub(r"(\w+:)*|((\w+\.\w+)*)", "", terms, flags=re.DOTALL | re.MULTILINE)

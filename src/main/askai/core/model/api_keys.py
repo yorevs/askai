@@ -12,17 +12,18 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.exception.exceptions import MissingApiKeyError
+import os
+from pathlib import Path
+from typing import Optional
+
+import dotenv
 from clitt.core.tui.minput.input_validator import InputValidator
 from clitt.core.tui.minput.menu_input import MenuInput
 from clitt.core.tui.minput.minput import minput
 from hspylib.core.enums.charset import Charset
-from pathlib import Path
-from pydantic.v1 import BaseSettings, Field, validator
-from typing import AnyStr
+from pydantic.v1 import BaseSettings, Field
 
-import dotenv
-import os
+from askai.exception.exceptions import MissingApiKeyError
 
 API_KEY_FILE: str = os.environ.get("HHS_ENV_FILE", str(os.path.join(Path.home(), ".env")))
 
@@ -37,20 +38,9 @@ class ApiKeys(BaseSettings):
 
     # fmt: off
     OPENAI_API_KEY: str = Field(..., description="Open AI Api Key")
-    GOOGLE_API_KEY: str = Field(..., description="Google Api Key")
-    DEEPL_API_KEY: str  = Field(..., description="DeepL Api Key")
+    GOOGLE_API_KEY: Optional[str] = Field(None, description="Google Api Key")
+    DEEPL_API_KEY: Optional[str]  = Field(None, description="DeepL Api Key")
     # fmt: on
-
-    @validator("OPENAI_API_KEY", "GOOGLE_API_KEY", "DEEPL_API_KEY")
-    def not_empty(cls, value: AnyStr) -> AnyStr:
-        """Pydantic validator to ensure that API key fields are not empty.
-        :param value: The value of the API key being validated.
-        :return: The value if it is not empty.
-        :raises ValueError: If the value is empty or None.
-        """
-        if not value or not value.strip():
-            raise ValueError("must not be empty or blank")
-        return value
 
     def has_key(self, key_name: str) -> bool:
         """Check if the specified API key exists and is not empty.
@@ -84,16 +74,18 @@ class ApiKeys(BaseSettings):
                 .label('GOOGLE_API_KEY') \
                 .value(os.environ.get("GOOGLE_API_KEY")) \
                 .min_max_length(39, 39) \
+                .validator(InputValidator.anything()) \
                 .build() \
             .field() \
                 .label('DEEPL_API_KEY') \
                 .value(os.environ.get("DEEPL_API_KEY")) \
                 .min_max_length(39, 39) \
+                .validator(InputValidator.anything()) \
                 .build() \
             .build()
         # fmt: on
 
-        if result := minput(form_fields, "Please fill all required Api Keys"):
+        if result := minput(form_fields, "Please fill the required ApiKeys"):
             with open(API_KEY_FILE, "r+", encoding=Charset.UTF_8.val) as f_envs:
                 envs = f_envs.readlines()
             with open(API_KEY_FILE, "w", encoding=Charset.UTF_8.val) as f_envs:
