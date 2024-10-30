@@ -10,16 +10,18 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from clitt.core.term.cursor import cursor
+import os
+import re
+from textwrap import dedent
+from typing import Any, AnyStr
+
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith, strip_escapes
 from hspylib.modules.cli.vt100.vt_code import VtCode
 from hspylib.modules.cli.vt100.vt_color import VtColor
-from textwrap import dedent
-from typing import Any, AnyStr
-
-import os
-import re
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.text import Text
 
 
 class TextFormatter(metaclass=Singleton):
@@ -102,13 +104,19 @@ class TextFormatter(metaclass=Singleton):
         """
         return strip_escapes(TextFormatter.remove_markdown(text))
 
+    def __init__(self):
+        self._console: Console = Console(log_time=False, log_path=False)
+
+    @property
+    def console(self) -> Console:
+        return self._console
+
     def beautify(self, text: Any) -> str:
         """Beautify the provided text with icons and other formatting enhancements.
         :param text: The text to be beautified.
         :return: The beautified text as a string with applied icons and formatting improvements.
         """
         # fmt: off
-
         text = dedent(str(text))
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
         text = re.sub(self.RE_TYPES[''], self.CHAT_ICONS[''], text)
@@ -123,7 +131,6 @@ class TextFormatter(metaclass=Singleton):
         text = re.sub(r'```(.+)```\s+', r"\n```\1```\n", text)
         text = re.sub(rf"(\s+)({os.getenv('USER', 'user')})", r'\1*\2*', text)
         text = re.sub(r"(\s+)([Tt]aius)", r'\1**\2**', text)
-
         # fmt: on
 
         return text
@@ -133,20 +140,20 @@ class TextFormatter(metaclass=Singleton):
         :param text: The markdown-formatted text to be displayed.
         """
         colorized: str = VtColor.colorize(VtCode.decode(self.beautify(str(text))))
-        cursor.write(colorized, markdown=True)
+        self.console.print(Markdown(colorized))
 
     def display_text(self, text: AnyStr) -> None:
         """Display a VT100 formatted text.
         :param text: The VT100 formatted text to be displayed.
         """
         colorized: str = VtColor.colorize(VtCode.decode(self.beautify(str(text))))
-        cursor.write(colorized)
+        self.console.print(Text.from_ansi(colorized))
 
     def commander_print(self, text: AnyStr) -> None:
         """Display an AskAI-commander formatted text.
         :param text: The text to be displayed.
         """
-        self.display_markdown(f"%ORANGE%  Commander%NC%: {self.beautify(str(text))}")
+        self.display_markdown(f"%ORANGE%  Commander%NC%: {str(text)}")
 
 
 assert (text_formatter := TextFormatter().INSTANCE) is not None

@@ -13,6 +13,8 @@
    Copyright (c) 2024, HomeSetup
 """
 from askai.core.askai_configs import configs
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.geo_location import geo_location
 from askai.core.component.rag_provider import RAGProvider
@@ -20,6 +22,7 @@ from askai.core.engine.openai.temperature import Temperature
 from askai.core.enums.response_model import ResponseModel
 from askai.core.model.acc_response import AccResponse
 from askai.core.model.action_plan import ActionPlan
+from askai.core.model.ai_reply import AIReply
 from askai.core.model.model_result import ModelResult
 from askai.core.router.agent_tools import features
 from askai.core.router.task_agent import agent
@@ -54,7 +57,7 @@ class SplitterActions(metaclass=Singleton):
         args = {"user": prompt.user.title(), "idiom": shared.idiom, "context": answer, "question": question}
         prompt_args: list[str] = [k for k in args.keys()]
         model: ResponseModel = ResponseModel.of_model(model_result.mid)
-        # events.reply.emit(reply=AIReply.full(msg.model_select(model)))
+        events.reply.emit(reply=AIReply.full(msg.model_select(model)))
 
         match model, configs.is_speak:
             case ResponseModel.TERMINAL_COMMAND, True:
@@ -87,7 +90,7 @@ class SplitterActions(metaclass=Singleton):
                 "question": question,
             }
             prompt_args = [k for k in args.keys()]
-            # events.reply.emit(reply=AIReply.debug(msg.refine_answer(answer)))
+            events.reply.emit(reply=AIReply.debug(msg.refine_answer(answer)))
             return final_answer("taius-refiner", prompt_args, **args)
 
         return answer

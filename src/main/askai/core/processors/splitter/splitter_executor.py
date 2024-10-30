@@ -12,15 +12,20 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
+from textwrap import indent
+from threading import Thread
+
+from hspylib.core.tools.commons import is_debugging
+from rich.live import Live
+from rich.spinner import Spinner
+from rich.text import Text
+
 from askai.core.askai_configs import configs
 from askai.core.enums.acc_color import AccColor
 from askai.core.processors.splitter.splitter_pipeline import SplitterPipeline
 from askai.core.processors.splitter.splitter_states import States
-from rich.console import Console
-from textwrap import indent
-from threading import Thread
-
-import os
+from askai.core.support.text_formatter import text_formatter as tf, text_formatter
 
 
 class SplitterExecutor(Thread):
@@ -29,26 +34,27 @@ class SplitterExecutor(Thread):
     def __init__(self, query: str):
         super().__init__()
         self._pipeline = SplitterPipeline(query)
-        self._console = Console()
 
     @property
     def pipeline(self) -> SplitterPipeline:
         return self._pipeline
 
-    def display(self, message: str) -> None:
+    def display(self, reply: str) -> None:
         """TODO"""
-        if configs.is_debug:
-            self._console.print(message)
+        if is_debugging():
+            text_formatter.console.print(Text.from_markup(reply))
 
     def run(self) -> None:
-        with self._console.status(f"[green]{self.pipeline.state}[/green]", spinner="dots") as spinner:
+        with Live(Spinner("dots", f"[green]{self.pipeline.state}…[/green]", style="green"), console=tf.console) as live:
             while not self.pipeline.state == States.COMPLETE:
                 self.pipeline.track_previous()
                 if 1 < configs.max_router_retries < 1 + self.pipeline.failures[self.pipeline.state.value]:
-                    self.display(f"\n[red] Max retries exceeded: {configs.max_agent_retries}[/red]\n")
+                    self.display(
+                        f"\n[red] Max retries exceeded: {configs.max_agent_retries}[/red]\n")
                     break
                 if 1 < configs.max_iteractions < 1 + self.pipeline.iteractions:
-                    self.display(f"\n[red] Max iteractions exceeded: {configs.max_iteractions}[/red]\n")
+                    self.display(
+                        f"\n[red] Max iteractions exceeded: {configs.max_iteractions}[/red]\n")
                     break
                 match self.pipeline.state:
                     case States.STARTUP:
@@ -71,7 +77,8 @@ class SplitterExecutor(Thread):
                     case States.ACC_CHECK:
                         acc_color: AccColor = self.pipeline.st_accuracy_check()
                         c_name: str = acc_color.color.casefold()
-                        self.display(f"[green]√ Accuracy check: [{c_name}]{c_name.upper()}[/{c_name}][/green]")
+                        self.display(
+                            f"[green]√ Accuracy check: [{c_name}]{c_name.upper()}[/{c_name}][/green]")
                         if acc_color.passed(AccColor.GOOD):
                             self.pipeline.ev_accuracy_passed()
                         elif acc_color.passed(AccColor.MODERATE):
@@ -85,7 +92,8 @@ class SplitterExecutor(Thread):
                         if self.pipeline.st_final_answer():
                             self.pipeline.ev_final_answer()
                     case _:
-                        self.display(f"[red] Error: Machine halted before complete!({self.pipeline.state})[/red]")
+                        self.display(
+                            f"[red] Error: Machine halted before complete!({self.pipeline.state})[/red]")
                         break
 
                 execution_status: bool = self.pipeline.previous != self.pipeline.state
@@ -95,7 +103,7 @@ class SplitterExecutor(Thread):
                 )
                 self.pipeline.failures[self.pipeline.state.value] += 1 if not execution_status else 0
                 self.display(f"[green]{execution_status_str}[/green]")
-                spinner.update(f"[green]{self.pipeline.state.value}…[/green]")
+                live.update(Spinner("dots", f"[green]{self.pipeline.state}…[/green]", style="green"))
                 self.pipeline.iteractions += 1
 
         if configs.is_debug:

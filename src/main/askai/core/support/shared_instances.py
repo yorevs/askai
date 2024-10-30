@@ -12,6 +12,21 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import os
+from pathlib import Path
+from textwrap import dedent
+from typing import Any, Optional
+
+from clitt.core.term.terminal import terminal
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_state
+from hspylib.core.tools.text_tools import elide_text
+from hspylib.modules.application.version import Version
+from hspylib.modules.cli.keyboard import Keyboard
+from langchain.memory import ConversationBufferWindowMemory
+from langchain.memory.chat_memory import BaseChatMemory
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
@@ -23,20 +38,6 @@ from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.utilities import display_text
-from clitt.core.term.terminal import terminal
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_state
-from hspylib.core.tools.text_tools import elide_text
-from hspylib.modules.application.version import Version
-from hspylib.modules.cli.keyboard import Keyboard
-from langchain.memory import ConversationBufferWindowMemory
-from langchain.memory.chat_memory import BaseChatMemory
-from pathlib import Path
-from textwrap import dedent
-from typing import Any, Optional
-
-import os
 
 LOGGER_NAME: str = 'Askai-Taius'
 

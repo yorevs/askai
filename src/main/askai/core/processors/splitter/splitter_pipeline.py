@@ -83,27 +83,27 @@ class SplitterPipeline:
 
     @property
     def last_query(self) -> Optional[str]:
-        return self.responses[-1].query if self.responses else None
+        return self.responses[-1].query if len(self.responses) > 0 else None
 
     @last_query.setter
     def last_query(self, value: str) -> None:
-        self.responses[-1].query = value if self.responses else None
+        self.responses[-1].query = value if len(self.responses) > 0 else None
 
     @property
     def last_answer(self) -> Optional[str]:
-        return self.responses[-1].answer if self.responses else None
+        return self.responses[-1].answer if len(self.responses) > 0 else None
 
     @last_answer.setter
     def last_answer(self, value: str) -> None:
-        self.responses[-1].answer = value if self.responses else None
+        self.responses[-1].answer = value if len(self.responses) > 0 else None
 
     @property
     def last_accuracy(self) -> Optional[AccResponse]:
-        return self.responses[-1].accuracy if self.responses else None
+        return self.responses[-1].accuracy if len(self.responses) > 0 else None
 
     @last_accuracy.setter
     def last_accuracy(self, value: AccResponse) -> None:
-        self.responses[-1].accuracy = value if self.responses else None
+        self.responses[-1].accuracy = value if len(self.responses) > 0 else None
 
     @property
     def plan(self) -> ActionPlan:

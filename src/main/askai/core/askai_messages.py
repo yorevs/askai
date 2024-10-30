@@ -92,6 +92,9 @@ class AskAiMessages(metaclass=Singleton):
     def smile(self, countdown: int) -> str:
         return f"\nSmile {str(countdown)} "
 
+    def look_at_camera(self) -> str:
+        return "Look at the camera…"
+
     def cmd_success(self, command_line: AnyStr) -> str:
         return f"OK, command `{command_line}` succeeded"
 

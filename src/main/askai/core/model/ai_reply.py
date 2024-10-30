@@ -12,10 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from rich.console import ConsoleRenderable
 
 from askai.core.enums.verbosity import Verbosity
 from dataclasses import dataclass
-from typing import AnyStr
+from typing import AnyStr, TypeAlias
+
+AnyText: TypeAlias = AnyStr | ConsoleRenderable
 
 
 @dataclass(frozen=True)
@@ -38,7 +41,7 @@ class AIReply:
         return self.message
 
     @staticmethod
-    def info(message: AnyStr, verbosity: Verbosity = Verbosity.NORMAL, speakable: bool = True) -> "AIReply":
+    def info(message: AnyText, verbosity: Verbosity = Verbosity.NORMAL, speakable: bool = True) -> "AIReply":
         """Creates an info reply.
         :param message: The reply message.
         :param verbosity: The verbosity level of the reply.
@@ -48,7 +51,7 @@ class AIReply:
         return AIReply(str(message), True, False, verbosity, speakable)
 
     @staticmethod
-    def detailed(message: AnyStr, speakable: bool = False) -> "AIReply":
+    def detailed(message: AnyText, speakable: bool = False) -> "AIReply":
         """Creates a detailed verbosity reply.
         :param message: The reply message.
         :param speakable: Indicates whether the reply is speakable.
@@ -57,7 +60,7 @@ class AIReply:
         return AIReply(str(message), True, False, Verbosity.DETAILED, speakable)
 
     @staticmethod
-    def full(message: AnyStr, speakable: bool = False) -> "AIReply":
+    def full(message: AnyText, speakable: bool = False) -> "AIReply":
         """Creates a full verbose reply.
         :param message: The reply message.
         :param speakable: Indicates whether the reply is speakable.
@@ -66,7 +69,7 @@ class AIReply:
         return AIReply(str(message), True, False, Verbosity.FULL, speakable)
 
     @staticmethod
-    def error(message: AnyStr) -> "AIReply":
+    def error(message: AnyText) -> "AIReply":
         """Creates an error reply.
         :param message: The reply message.
         :return: An AIReply instance with error settings.
@@ -74,7 +77,7 @@ class AIReply:
         return AIReply(str(message), False, False, Verbosity.MINIMUM, False)
 
     @staticmethod
-    def debug(message: AnyStr) -> "AIReply":
+    def debug(message: AnyText) -> "AIReply":
         """Creates a debug reply.
         :param message: The reply message.
         :return: An AIReply instance with debug settings.
@@ -82,7 +85,7 @@ class AIReply:
         return AIReply(str(message), True, True, Verbosity.NORMAL, False)
 
     @staticmethod
-    def mute(message: AnyStr, verbosity: Verbosity = Verbosity.NORMAL) -> "AIReply":
+    def mute(message: AnyText, verbosity: Verbosity = Verbosity.NORMAL) -> "AIReply":
         """Creates a mute reply.
         :param message: The reply message.
         :param verbosity: The verbosity level of the reply.

@@ -1,5 +1,8 @@
 from askai.core.askai_configs import configs
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
 from askai.core.component.camera import camera
+from askai.core.model.ai_reply import AIReply
 from askai.core.router.tools.vision import image_captioner, parse_caption
 from askai.core.support.utilities import display_text
 from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
@@ -53,7 +56,7 @@ def webcam_identifier(max_distance: int = configs.max_id_distance) -> str:
     :return: A description of the identified person.
     """
     identity: str = "%ORANGE%  No identification was possible!%NC%"
-    display_text("Look at the camera...")
+    events.reply.emit(reply=AIReply.debug(msg.look_at_camera()))
     if photo := camera.identify(3, max_distance):
         # fmt: off
         identity = ensure_endswith(ensure_startswith(
