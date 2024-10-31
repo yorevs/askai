@@ -16,14 +16,14 @@ When enumerating is necessary, use numbered lists.
 
 If you have an answer, format like:
 
-"""
+
 Analysing the provided data:
 
 <your thoughts and conclusion>
 
 ---
 Summary: <a brief concise reasoning>
-"""
+
 
 If you don't have an answer, respond with a brief unformatted (plain-text) negative reply. If you can suggest something useful, do so (also as plain text).
 

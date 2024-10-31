@@ -14,6 +14,7 @@
 """
 from askai.__classpath__ import classpath
 from askai.core.askai_settings import settings
+from askai.core.enums.acc_color import AccColor
 from askai.core.enums.verbosity import Verbosity
 from askai.language.language import Language
 from hspylib.core.enums.charset import Charset
@@ -122,16 +123,30 @@ class AskAiConfigs(metaclass=Singleton):
 
     @property
     def language(self) -> Language:
-        """Lookup order: Settings -> Locale -> Environment."""
-        return Language.of_locale(
-            settings.get("askai.preferred.language")
-            or os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG")))
-            or Language.EN_US.idiom
-        )
+        # Lookup order: Settings -> Locale -> Environment.
+        try:
+            lang: Language = Language.of_locale(
+                settings.get("askai.preferred.language")
+                or os.getenv("LC_ALL", os.getenv("LC_TYPE", os.getenv("LANG")))
+                or Language.EN_US.idiom
+            )
+        except ValueError:
+            lang: Language = Language.EN_US
+
+        return lang
 
     @property
     def default_router_mode(self) -> str:
         return settings.get("askai.router.mode.default")
+
+    @property
+    def pass_threshold(self) -> AccColor:
+        try:
+            color: AccColor = AccColor.value_of(settings.get("askai.router.pass.threshold"))
+        except ValueError:
+            color: AccColor = AccColor.MODERATE
+
+        return color
 
     @property
     def encoding(self) -> Charset:

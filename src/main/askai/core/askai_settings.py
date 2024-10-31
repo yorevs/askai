@@ -44,7 +44,7 @@ class AskAiSettings(metaclass=Singleton):
     INSTANCE: "AskAiSettings"
 
     # Current settings version. Updating this value will trigger a database recreation using the defaults.
-    __ACTUAL_VERSION: str = "0.3.1"
+    __ACTUAL_VERSION: str = "0.4.0"
 
     __RESOURCE_DIR = str(classpath.resource_path)
 
@@ -99,6 +99,7 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.cache.ttl.minutes", "askai", 25)
         self._settings.put("askai.preferred.language", "askai", "")
         self._settings.put("askai.router.mode.default", "askai", "splitter")
+        self._settings.put("askai.router.pass.threshold", "askai", "moderate")
         self._settings.put("askai.default.engine", "askai", "openai")
         self._settings.put("askai.default.engine.model", "askai", "gpt-3.5-turbo")
         self._settings.put("askai.verbosity.level", "askai", 3)

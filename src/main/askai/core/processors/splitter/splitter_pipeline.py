@@ -12,8 +12,18 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+from collections import defaultdict
+from textwrap import dedent
+from typing import AnyStr, Optional
+
+from hspylib.core.preconditions import check_state
+from hspylib.core.tools.validator import Validator
+from langchain_core.prompts import PromptTemplate
+from transitions import Machine
+
+from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
-from askai.core.askai_prompt import prompt
 from askai.core.enums.acc_color import AccColor
 from askai.core.model.acc_response import AccResponse
 from askai.core.model.action_plan import ActionPlan
@@ -24,14 +34,6 @@ from askai.core.processors.splitter.splitter_states import States
 from askai.core.processors.splitter.splitter_transitions import Transition, TRANSITIONS
 from askai.core.router.evaluation import eval_response, EVALUATION_GUIDE
 from askai.core.support.shared_instances import LOGGER_NAME, shared
-from collections import defaultdict
-from hspylib.core.preconditions import check_state
-from hspylib.core.tools.validator import Validator
-from langchain_core.prompts import PromptTemplate
-from transitions import Machine
-from typing import AnyStr, Optional
-
-import logging as log
 
 
 class SplitterPipeline:
@@ -139,17 +141,22 @@ class SplitterPipeline:
 
     def st_startup(self) -> bool:
         """TODO"""
+
         log.info("Task Splitter pipeline has started!")
+
         return True
 
     def st_model_select(self) -> bool:
         """TODO"""
+
         log.info("Selecting response model...")
         # FIXME: Model select is default for now
         self.model = ModelResult.default()
+
         return True
 
     def st_task_split(self) -> bool:
+
         """TODO"""
         log.info("Splitting tasks...")
         if (plan := actions.split(self.question, self.model)) is not None:
@@ -157,10 +164,12 @@ class SplitterPipeline:
                 self.responses.append(PipelineResponse(self.question, plan.speak or msg.no_output("TaskSplitter")))
             self.plan = plan
             return True
+
         return False
 
     def st_execute_task(self) -> bool:
         """TODO"""
+
         check_state(self.plan.tasks is not None and len(self.plan.tasks) > 0)
         _iter_ = self.plan.tasks.copy().__iter__()
         if action := next(_iter_, None):
@@ -168,16 +177,25 @@ class SplitterPipeline:
             if agent_output := actions.process_action(action):
                 self.responses.append(PipelineResponse(action.task, agent_output))
                 return True
+
         return False
 
-    def st_accuracy_check(self) -> AccColor:
+    def st_accuracy_check(self, pass_threshold: AccColor = configs.pass_threshold) -> AccColor:
         """TODO"""
 
         if not Validator.has_no_nulls(self.last_query, self.last_answer):
             return AccColor.BAD
 
-        # FIXME Hardcoded for now
-        pass_threshold: AccColor = AccColor.MODERATE
+        acc_report: str = dedent("""\
+        The (AI-Assistant) provided a bad answer. Improve subsequent responses by addressing the following:
+
+        ---
+        {problems}
+        ---
+
+        If you don't have an answer, simply say: "I don't know". Don't try do make up an answer.
+        """)
+
         acc: AccResponse = eval_response(self.last_query, self.last_answer)
 
         if acc.is_interrupt:  # AI flags that it can't continue interacting.
@@ -194,7 +212,7 @@ class SplitterPipeline:
         else:
             if len(self.responses) > 0:
                 self.responses.pop(0)
-            acc_template = PromptTemplate(input_variables=["problems"], template=prompt.read_prompt("acc-report"))
+            acc_template = PromptTemplate(input_variables=["problems"], template=acc_report)
             if not shared.context.get("EVALUATION"):  # Include the guidelines for the first mistake.
                 shared.context.push("EVALUATION", EVALUATION_GUIDE)
             shared.context.push("EVALUATION", acc_template.format(problems=acc.details))
@@ -205,18 +223,22 @@ class SplitterPipeline:
 
     def st_refine_answer(self) -> bool:
         """TODO"""
+
         if refined := actions.refine_answer(self.question, self.final_answer, self.last_accuracy):
             final_response: PipelineResponse = PipelineResponse(self.question, refined, self.last_accuracy)
             self.responses.clear()
             self.responses.append(final_response)
             return True
+
         return False
 
     def st_final_answer(self) -> bool:
         """TODO"""
+
         if wrapped := actions.wrap_answer(self.question, self.final_answer, self.model):
             final_response: PipelineResponse = PipelineResponse(self.question, wrapped, self.last_accuracy)
             self.responses.clear()
             self.responses.append(final_response)
             return True
+
         return False

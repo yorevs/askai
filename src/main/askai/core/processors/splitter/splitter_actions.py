@@ -61,9 +61,9 @@ class SplitterActions(metaclass=Singleton):
 
         match model, configs.is_speak:
             case ResponseModel.TERMINAL_COMMAND, True:
-                output = final_answer("taius-stt", prompt_args, **args)
+                output = final_answer("taius-tts", prompt_args, **args)
             case ResponseModel.ASSISTIVE_TECH_HELPER, _:
-                output = final_answer("taius-stt", prompt_args, **args)
+                output = final_answer("taius-tts", prompt_args, **args)
             case ResponseModel.CHAT_MASTER, _:
                 output = final_answer("taius-jarvis", prompt_args, **args)
             case _:
@@ -84,6 +84,7 @@ class SplitterActions(metaclass=Singleton):
         if acc_response and acc_response.reasoning:
             ctx: str = str(shared.context.flat("HISTORY"))
             args = {
+                "locale": configs.language.locale,
                 "improvements": acc_response.details,
                 "context": ctx,
                 "response": answer,
