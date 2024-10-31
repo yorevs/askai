@@ -12,6 +12,22 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+import re
+import sys
+import threading
+from pathlib import Path
+from typing import List, Optional, TypeAlias, Any
+
+from click import UsageError
+from clitt.core.term.terminal import terminal
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import file_is_not_empty, is_debugging
+from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
+from hspylib.modules.application.exit_status import ExitStatus
+from openai import RateLimitError
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -26,22 +42,8 @@ from askai.core.processors.ai_processor import AIProcessor
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import read_stdin
-from askai.exception.exceptions import (ImpossibleQuery, InaccurateResponse, IntelligibleAudioError,
-                                        MaxInteractionsReached, TerminatingQuery)
+from askai.exception.exceptions import *
 from askai.tui.app_icons import AppIcons
-from click import UsageError
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import file_is_not_empty, is_debugging
-from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
-from hspylib.modules.application.exit_status import ExitStatus
-from openai import RateLimitError
-from pathlib import Path
-from typing import List, Optional, TypeAlias
-
-import logging as log
-import os
-import re
-import sys
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -76,6 +78,7 @@ class AskAi:
         self._mode: RouterMode = shared.mode
         self._console_path = Path(f"{CACHE_DIR}/askai-{self.session_id}.md")
         self._query_prompt: str | None = None
+        self._abort_count: int = 0
 
         if not self._console_path.exists():
             self._console_path.touch()
@@ -119,6 +122,20 @@ class AskAi:
             r: tuple[str, ...] = str(s.identity["uuid"]), str(s.name), str(s.value)
             all_settings.append(r)
         return all_settings
+
+    def abort(self, signals: Any, frame: Any) -> None:
+        """Hook the SIGINT signal for cleanup or execution interruption. If two signals arrive within 1 second, exit the application.
+        :param signals: Signal number from the operating system.
+        :param frame: Current stack frame at the time of signal interruption.
+        """
+        log.warning(f"User interrupted: signals: {signals}  frame: {frame}")
+        self._abort_count += 1
+        if self._abort_count > 1:
+            log.warning(f"User aborted. Exiting!")
+            sys.exit(ExitStatus.ABORTED)
+        events.abort.emit(message="User interrupted")
+        threading.Timer(1, lambda: setattr(self, '_abort_count', 0)).start()
+        terminal.restore()
 
     def run(self) -> None:
         """Run the application."""

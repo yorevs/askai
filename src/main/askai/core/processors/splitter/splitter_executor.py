@@ -18,11 +18,13 @@ from threading import Thread
 
 from clitt.core.term.cursor import cursor
 from hspylib.core.tools.commons import is_debugging
+from hspylib.modules.eventbus.event import Event
 from rich.live import Live
 from rich.spinner import Spinner
 from rich.text import Text
 
 from askai.core.askai_configs import configs
+from askai.core.askai_events import AskAiEvents, ASKAI_BUS_NAME, ABORT_EVENT
 from askai.core.enums.acc_color import AccColor
 from askai.core.processors.splitter.splitter_pipeline import SplitterPipeline
 from askai.core.processors.splitter.splitter_states import States
@@ -35,19 +37,32 @@ class SplitterExecutor(Thread):
     def __init__(self, query: str):
         super().__init__()
         self._pipeline = SplitterPipeline(query)
+        self._interrupted = False
+        AskAiEvents.bus(ASKAI_BUS_NAME).subscribe(ABORT_EVENT, self.interrupt)
 
     @property
     def pipeline(self) -> SplitterPipeline:
         return self._pipeline
 
     def display(self, text: str) -> None:
-        """TODO"""
+        """Display a debug message if debugging mode is active.
+        :param text: The debug message to display
+        """
         if is_debugging():
             text_formatter.console.print(Text.from_markup(text))
 
+    def interrupt(self, ev: Event) -> None:
+        """Interrupt the active execution pipeline.
+        :param ev: The interruption event,
+        """
+        self._interrupted = True
+        self.display(f"[red] Execution interrupted => {ev.args.message} ![/red]")
+
     def run(self) -> None:
+        """Execute the splitter pipeline."""
+
         with Live(Spinner("dots", f"[green]{self.pipeline.state}…[/green]", style="green"), console=tf.console) as live:
-            while not self.pipeline.state == States.COMPLETE:
+            while not (self._interrupted or self.pipeline.state == States.COMPLETE):
                 self.pipeline.track_previous()
                 if 1 < configs.max_router_retries < 1 + self.pipeline.failures[self.pipeline.state.value]:
                     self.display(

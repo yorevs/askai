@@ -12,6 +12,8 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import signal
+
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -71,6 +73,7 @@ class AskAiCli(AskAi):
 
     def run(self) -> None:
         """Run the application."""
+        signal.signal(signal.SIGINT, self.abort)
         while question := (self._query_string or self._input()):
             status, output = self.ask_and_reply(question)
             if not status:

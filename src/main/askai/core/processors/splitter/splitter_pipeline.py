@@ -25,6 +25,7 @@ from transitions import Machine
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
 from askai.core.enums.acc_color import AccColor
+from askai.core.enums.response_model import ResponseModel
 from askai.core.model.acc_response import AccResponse
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
@@ -51,9 +52,9 @@ class SplitterPipeline:
             auto_transitions=False
         )
         self._previous: States = States.NOT_STARTED
+        self._result: SplitterResult = SplitterResult(question)
         self._iteractions: int = 0
         self._failures: dict[str, int] = defaultdict(int)
-        self._result: SplitterResult = SplitterResult(question)
 
     @property
     def previous(self) -> States:
@@ -128,26 +129,35 @@ class SplitterPipeline:
         return self.result.final_response()
 
     def track_previous(self) -> None:
-        """TODO"""
+        """Track the previous state of pipeline execution.
+        """
         self._previous = self.state
 
     def has_next(self) -> bool:
-        """TODO"""
+        """Check if the plan has more actions to be executed to complete it.
+        :return: True if the plan is there are still actions pending, otherwise False.
+        """
         return len(self.plan.tasks) > 0 if self.plan is not None and self.plan.tasks else False
 
     def is_direct(self) -> bool:
-        """TODO"""
+        """Check if the plan is direct or if there are actions to be executed to complete it.
+        :return: True if the plan is direct, otherwise False.
+        """
         return self.plan.is_direct if self.plan is not None else True
 
     def st_startup(self) -> bool:
-        """TODO"""
+        """Pipeline-State::Startup Pipeline startup process.
+        :return: Boolean indicating success or failure after processing the state.
+        """
 
         log.info("Task Splitter pipeline has started!")
 
         return True
 
     def st_model_select(self) -> bool:
-        """TODO"""
+        """Pipeline-State::ModeSelect Select the response model to process the user request.
+        :return: Boolean indicating success or failure after processing the state.
+        """
 
         log.info("Selecting response model...")
         # FIXME: Model select is default for now
@@ -156,8 +166,10 @@ class SplitterPipeline:
         return True
 
     def st_task_split(self) -> bool:
-
-        """TODO"""
+        """Pipeline-State::TaskSplit Split the user query into small atomic actionable tasks, and create an
+        execution plan to execute them all.
+        :return: Boolean indicating success or failure after processing the state.
+        """
         log.info("Splitting tasks...")
         if (plan := actions.split(self.question, self.model)) is not None:
             if plan.is_direct:
@@ -168,7 +180,9 @@ class SplitterPipeline:
         return False
 
     def st_execute_task(self) -> bool:
-        """TODO"""
+        """Pipeline-State::ExecuteTask Execute the action requested by the AI to complete the user query.
+        :return: Boolean indicating success or failure after processing the state.
+        """
 
         check_state(self.plan.tasks is not None and len(self.plan.tasks) > 0)
         _iter_ = self.plan.tasks.copy().__iter__()
@@ -181,12 +195,15 @@ class SplitterPipeline:
         return False
 
     def st_accuracy_check(self, pass_threshold: AccColor = configs.pass_threshold) -> AccColor:
-        """TODO"""
+        """Pipeline-State::AccuracyCheck Checks whether the AI response is complete enough to present to the user.
+        :param pass_threshold: Threshold value used to determine passing accuracy.
+        :return: AccColor indicating success or failure after processing the state.
+        """
 
         if not Validator.has_no_nulls(self.last_query, self.last_answer):
             return AccColor.BAD
 
-        acc_report: str = dedent("""\
+        issue_report: str = dedent("""\
         The (AI-Assistant) provided a bad answer. Improve subsequent responses by addressing the following:
 
         ---
@@ -212,7 +229,7 @@ class SplitterPipeline:
         else:
             if len(self.responses) > 0:
                 self.responses.pop(0)
-            acc_template = PromptTemplate(input_variables=["problems"], template=acc_report)
+            acc_template = PromptTemplate(input_variables=["problems"], template=issue_report)
             if not shared.context.get("EVALUATION"):  # Include the guidelines for the first mistake.
                 shared.context.push("EVALUATION", EVALUATION_GUIDE)
             shared.context.push("EVALUATION", acc_template.format(problems=acc.details))
@@ -222,7 +239,9 @@ class SplitterPipeline:
         return acc.acc_color
 
     def st_refine_answer(self) -> bool:
-        """TODO"""
+        """Pipeline-State::RefineAnswer Refines the answer to present to the user.
+        :return: Boolean indicating success or failure after processing the state.
+        """
 
         if refined := actions.refine_answer(self.question, self.final_answer, self.last_accuracy):
             final_response: PipelineResponse = PipelineResponse(self.question, refined, self.last_accuracy)
@@ -233,9 +252,15 @@ class SplitterPipeline:
         return False
 
     def st_final_answer(self) -> bool:
-        """TODO"""
+        """Pipeline-State::FinalAnswer Wraps the final answer to present to the user.
+        :return: Boolean indicating success or failure after processing the state.
+        """
 
-        if wrapped := actions.wrap_answer(self.question, self.final_answer, self.model):
+        model: ModelResult = ModelResult(
+            ResponseModel.ASSISTIVE_TECH_HELPER.model, self.model.goal, self.model.reason) \
+            if configs.is_assistive else self.model
+
+        if wrapped := actions.wrap_answer(self.question, self.final_answer, model):
             final_response: PipelineResponse = PipelineResponse(self.question, wrapped, self.last_accuracy)
             self.responses.clear()
             self.responses.append(final_response)

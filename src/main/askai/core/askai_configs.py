@@ -122,6 +122,14 @@ class AskAiConfigs(metaclass=Singleton):
         settings.put("askai.rag.enabled", value)
 
     @property
+    def is_assistive(self) -> bool:
+        return settings.get_bool("askai.router.assistive.enabled")
+
+    @is_assistive.setter
+    def is_assistive(self, value: bool) -> None:
+        settings.put("askai.router.assistive.enabled", value)
+
+    @property
     def language(self) -> Language:
         # Lookup order: Settings -> Locale -> Environment.
         try:

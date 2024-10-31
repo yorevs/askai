@@ -41,17 +41,17 @@ import logging as log
 
 
 class SplitterActions(metaclass=Singleton):
-    """TODO"""
+    """Class that provides the splitter some actionable items."""
 
     INSTANCE: 'SplitterActions'
 
     @staticmethod
-    def wrap_answer(question: str, answer: str, model_result: ModelResult = ModelResult.default()) -> str:
+    def wrap_answer(question: str, answer: str, model_result: ModelResult = ModelResult.default()) -> Optional[str]:
         """Provide a final answer to the user by wrapping the AI response with additional context.
         :param question: The user's question.
         :param answer: The AI's response to the question.
         :param model_result: The result from the selected routing model (default is ModelResult.default()).
-        :return: A formatted string containing the final answer.
+        :return: An optional formatted string containing the wrapped answer.
         """
         output: str = answer
         args = {"user": prompt.user.title(), "idiom": shared.idiom, "context": answer, "question": question}
@@ -70,13 +70,14 @@ class SplitterActions(metaclass=Singleton):
                 pass  # Default is to leave the last AI response as is
 
         # Save the conversation to use with the task agent executor.
-        shared.memory.save_context({"input": question}, {"output": output})
+        if output:
+            shared.memory.save_context({"input": question}, {"output": output})
 
         return output
 
     @staticmethod
     def refine_answer(question: str, answer: str, acc_response: AccResponse | None = None) -> str:
-        """TODO
+        """Refine the AI response when required.
         :param question: The user's question.
         :param answer: The AI's response to the question.
         :param acc_response: The final accuracy response, if available.
@@ -98,7 +99,10 @@ class SplitterActions(metaclass=Singleton):
 
     @staticmethod
     def process_action(action: SimpleNamespace) -> Optional[str]:
-        """TODO"""
+        """Execute an action requested by the AI.
+        :param action: Action to be executed, encapsulated in a SimpleNamespace.
+        :return: Output resulted from the action execution as a string, or None if no output.
+        """
         path_str: str | None = (
             "Path: " + action.path
             if hasattr(action, "path") and action.path.upper() not in ["N/A", "NONE", ""]
@@ -110,13 +114,17 @@ class SplitterActions(metaclass=Singleton):
         self._rag: RAGProvider = RAGProvider("task-splitter.csv")
 
     def splitter_template(self, query: str) -> ChatPromptTemplate:
-        """Retrieve the processor Template."""
+        """Retrieve the processor template based on the given query.
+        :param query: The input query to process and retrieve the template for.
+        :return: A ChatPromptTemplate object that matches the query.
+        """
 
         evaluation: str = str(shared.context.flat("EVALUATION"))
         template = PromptTemplate(
             input_variables=["os_type", "shell", "datetime", "home", "agent_tools", "rag"],
             template=prompt.read_prompt("task-splitter.txt"),
         )
+
         return ChatPromptTemplate.from_messages(
             [
                 (
@@ -137,7 +145,12 @@ class SplitterActions(metaclass=Singleton):
         )
 
     def split(self, question: str, model: ModelResult = ModelResult.default()) -> Optional[ActionPlan]:
-        """Invoke the LLM to split the tasks and create an action plan."""
+        """Invoke the LLM to split the tasks and create an action plan.
+        :param question: The input question to be processed.
+        :param model: The model used to generate the action plan, defaulting to ModelResult.default().
+        :return: An optional ActionPlan generated from the provided question.
+        """
+
         runnable = self.splitter_template(question) | lc_llm.create_chat_model(Temperature.COLDEST.temp)
         runnable = RunnableWithMessageHistory(
             runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"

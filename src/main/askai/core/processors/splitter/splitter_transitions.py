@@ -25,10 +25,11 @@ TRANSITIONS = [
 
     {'trigger': 'ev_direct_answer', 'source': States.TASK_SPLIT, 'dest': States.ACC_CHECK},
     {'trigger': 'ev_plan_created', 'source': States.TASK_SPLIT, 'dest': States.EXECUTE_TASK},
-
-    {'trigger': 'ev_accuracy_check', 'source': States.ACC_CHECK, 'dest': States.EXECUTE_TASK},
+    {'trigger': 'ev_task_complete', 'source': States.TASK_SPLIT, 'dest': States.COMPLETE},
 
     {'trigger': 'ev_task_executed', 'source': States.EXECUTE_TASK, 'dest': States.ACC_CHECK},
+
+    {'trigger': 'ev_accuracy_check', 'source': States.ACC_CHECK, 'dest': States.EXECUTE_TASK},
 
     {'trigger': 'ev_accuracy_passed', 'source': States.ACC_CHECK, 'dest': States.EXECUTE_TASK, 'conditions': ['has_next']},
     {'trigger': 'ev_accuracy_passed', 'source': States.ACC_CHECK, 'dest': States.WRAP_ANSWER, 'unless': ['has_next']},
@@ -43,5 +44,4 @@ TRANSITIONS = [
 
     {'trigger': 'ev_final_answer', 'source': States.WRAP_ANSWER, 'dest': States.COMPLETE},
 
-    {'trigger': 'ev_task_complete', 'source': States.TASK_SPLIT, 'dest': States.COMPLETE},
 ]

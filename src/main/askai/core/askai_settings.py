@@ -100,6 +100,7 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.preferred.language", "askai", "")
         self._settings.put("askai.router.mode.default", "askai", "splitter")
         self._settings.put("askai.router.pass.threshold", "askai", "moderate")
+        self._settings.put("askai.router.assistive.enabled", "askai", False)
         self._settings.put("askai.default.engine", "askai", "openai")
         self._settings.put("askai.default.engine.model", "askai", "gpt-3.5-turbo")
         self._settings.put("askai.verbosity.level", "askai", 3)

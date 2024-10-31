@@ -20,6 +20,8 @@ from hspylib.modules.eventbus.fluid import FluidEvent, FluidEventBus
 
 ASKAI_BUS_NAME: str = "askai-reply-bus"
 
+ABORT_EVENT: str = "askai-abort-event"
+
 REPLY_EVENT: str = "askai-reply-event"
 
 MIC_LISTENING_EVENT: str = "askai-mic-listening-event"
@@ -35,6 +37,7 @@ class AskAiEvents(Enumeration):
     # fmt: off
     ASKAI_BUS = FluidEventBus(
         ASKAI_BUS_NAME,
+        abort=FluidEvent(ABORT_EVENT, message=None),
         reply=FluidEvent(REPLY_EVENT, erase_last=False),
         listening=FluidEvent(MIC_LISTENING_EVENT, listening=True),
         device_changed=FluidEvent(DEVICE_CHANGED_EVENT, device=None),
