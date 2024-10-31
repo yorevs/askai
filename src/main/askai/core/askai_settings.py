@@ -37,6 +37,9 @@ if not ASKAI_DIR.exists():
 # Make sure the AskAI directory is exported.
 os.environ["ASKAI_DIR"] = str(ASKAI_DIR)
 
+# AskAi conversation starters
+CONVERSATION_STARTERS: Path = Path(classpath.resource_path / "conversation-starters.txt")
+
 
 class AskAiSettings(metaclass=Singleton):
     """The AskAI 'SetMan' Settings."""

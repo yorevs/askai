@@ -39,6 +39,8 @@ from typing import Optional
 
 import logging as log
 
+from askai.core.support.text_formatter import text_formatter
+
 
 class SplitterActions(metaclass=Singleton):
     """Class that provides the splitter some actionable items."""
@@ -54,7 +56,8 @@ class SplitterActions(metaclass=Singleton):
         :return: An optional formatted string containing the wrapped answer.
         """
         output: str = answer
-        args = {"user": prompt.user.title(), "idiom": shared.idiom, "context": answer, "question": question}
+        ctx: str = text_formatter.strip_format(answer)
+        args = {"user": prompt.user.title(), "idiom": shared.idiom, "context": ctx, "question": question}
         prompt_args: list[str] = [k for k in args.keys()]
         model: ResponseModel = ResponseModel.of_model(model_result.mid)
         events.reply.emit(reply=AIReply.full(msg.model_select(model)))
@@ -83,9 +86,10 @@ class SplitterActions(metaclass=Singleton):
         :param acc_response: The final accuracy response, if available.
         """
         if acc_response and acc_response.reasoning:
-            ctx: str = str(shared.context.flat("HISTORY"))
+            ctx: str = text_formatter.strip_format(str(shared.context.flat("HISTORY")))
             args = {
                 "locale": configs.language.locale,
+                "user": prompt.user.title(),
                 "improvements": acc_response.details,
                 "context": ctx,
                 "response": answer,

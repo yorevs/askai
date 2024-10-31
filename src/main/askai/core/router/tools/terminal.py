@@ -46,7 +46,7 @@ def list_contents(folder: str, filters: str = None) -> str:
     if path_obj.exists and path_obj.is_dir:
         cmd_line: str = (
             f'find {folder} -maxdepth 1 -type f {_build_filters_() if filters else ""} '
-            f"-exec ls -lLht {{}} + 2>/dev/null | sort -k9,9"
+            f"! -name '.*' -exec ls -oLhtu {{}} + 2>/dev/null | sort -k9,9"
         )
         status, output = execute_bash(cmd_line)
         if status:

@@ -23,7 +23,7 @@ class MarianTranslator(AITranslator):
         self._tokenizer = MarianTokenizer.from_pretrained(self.MODEL_NAME)
 
     @lru_cache
-    def translate_text(self, text: AnyStr, **kwargs) -> str:
+    def _translate_text(self, text: AnyStr, **kwargs) -> str:
         """Translate text from the source language to the target language.
         :param text: Text to translate.
         :return: The translated text.

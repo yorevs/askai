@@ -49,7 +49,7 @@ class AITranslator(ABC):
 
         try:
             # Perform batch translation
-            translated_texts: list[str] = list(map(self.translate_text, texts_to_translate))
+            translated_texts: list[str] = list(map(self._translate_text, texts_to_translate))
         except Exception as err:
             events.reply.emit(reply=AIReply.debug(f"Error during batch translation: {err}"))
             return text
@@ -63,7 +63,7 @@ class AITranslator(ABC):
 
         return translated_text
 
-    def translate_text(self, text: AnyStr, **kwargs) -> str:
+    def _translate_text(self, text: AnyStr, **kwargs) -> str:
         """Translate text from the source language to the target language.
         :param text: Text to translate.
         :return: The translated text.

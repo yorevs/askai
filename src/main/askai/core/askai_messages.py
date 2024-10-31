@@ -33,8 +33,8 @@ class AskAiMessages(metaclass=Singleton):
 
     @staticmethod
     @lru_cache
-    def get_translator(from_lang: Language, to_lang: Language) -> AITranslator:
-        return AskAiMessages.TRANSLATOR(from_lang, to_lang)
+    def get_translator(from_lang: Language) -> AITranslator:
+        return AskAiMessages.TRANSLATOR(from_lang, configs.language)
 
     def __init__(self):
         # fmt: off
@@ -49,7 +49,7 @@ class AskAiMessages(metaclass=Singleton):
 
     @property
     def translator(self) -> AITranslator:
-        return AskAiMessages.get_translator(Language.EN_US, configs.language)
+        return AskAiMessages.get_translator(Language.EN_US)
 
     @lru_cache(maxsize=256)
     def translate(self, text: AnyStr) -> str:
@@ -58,7 +58,7 @@ class AskAiMessages(metaclass=Singleton):
         :return: The translated text.
         """
         # Avoid translating debug messages.
-        if re.match(r"^~~\[DEBUG]~~.*", str(text), flags=re.IGNORECASE | re.MULTILINE):
+        if re.match(r"^~~\[DEBUG]~~", str(text), flags=re.IGNORECASE | re.DOTALL | re.MULTILINE):
             return text
         return self.translator.translate(str(text))
 

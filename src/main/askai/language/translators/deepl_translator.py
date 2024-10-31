@@ -33,7 +33,7 @@ class DeepLTranslator(AITranslator):
         self._translator: Translator | None = None
 
     @lru_cache
-    def translate_text(self, text: AnyStr, **kwargs) -> str:
+    def _translate_text(self, text: AnyStr, **kwargs) -> str:
         """Translate text from the source language to the target language.
         :param text: Text to translate.
         :return: The translated text.
