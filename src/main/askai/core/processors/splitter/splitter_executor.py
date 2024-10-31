@@ -25,6 +25,7 @@ from rich.text import Text
 
 from askai.core.askai_configs import configs
 from askai.core.askai_events import AskAiEvents, ASKAI_BUS_NAME, ABORT_EVENT
+from askai.core.askai_messages import msg
 from askai.core.enums.acc_color import AccColor
 from askai.core.processors.splitter.splitter_pipeline import SplitterPipeline
 from askai.core.processors.splitter.splitter_states import States
@@ -44,19 +45,21 @@ class SplitterExecutor(Thread):
     def pipeline(self) -> SplitterPipeline:
         return self._pipeline
 
-    def display(self, text: str) -> None:
+    def display(self, text: str, force: bool = False) -> None:
         """Display a debug message if debugging mode is active.
         :param text: The debug message to display
+        :param force: Force displaying the message regardless of the debug flag.
         """
-        if is_debugging():
+        if force or is_debugging():
             text_formatter.console.print(Text.from_markup(text))
 
     def interrupt(self, ev: Event) -> None:
         """Interrupt the active execution pipeline.
         :param ev: The interruption event,
         """
-        self._interrupted = True
-        self.display(f"[red] Execution interrupted => {ev.args.message} ![/red]")
+        if self.is_alive():
+            self.display(f"[red]{msg.interruption_requested(ev.args.message)} ![/red]", True)
+            self._interrupted = True
 
     def run(self) -> None:
         """Execute the splitter pipeline."""
@@ -66,11 +69,11 @@ class SplitterExecutor(Thread):
                 self.pipeline.track_previous()
                 if 1 < configs.max_router_retries < 1 + self.pipeline.failures[self.pipeline.state.value]:
                     self.display(
-                        f"\n[red] Max retries exceeded: {configs.max_agent_retries}[/red]\n")
+                        f"\n[red] Max retries exceeded: {configs.max_agent_retries}[/red]\n", True)
                     break
                 if 1 < configs.max_iteractions < 1 + self.pipeline.iteractions:
                     self.display(
-                        f"\n[red] Max iteractions exceeded: {configs.max_iteractions}[/red]\n")
+                        f"\n[red] Max iteractions exceeded: {configs.max_iteractions}[/red]\n", True)
                     break
                 match self.pipeline.state:
                     case States.STARTUP:
@@ -109,7 +112,7 @@ class SplitterExecutor(Thread):
                             self.pipeline.ev_final_answer()
                     case _:
                         self.display(
-                            f"[red] Error: Machine halted before complete!({self.pipeline.state})[/red]")
+                            f"[red] Error: Machine halted before complete!({self.pipeline.state})[/red]", True)
                         break
 
                 execution_status: bool = self.pipeline.previous != self.pipeline.state
@@ -137,4 +140,4 @@ class SplitterExecutor(Thread):
 
             if final_state != States.COMPLETE:
                 retries: int = self.pipeline.failures[self.pipeline.state.value]
-                self.display(f" Failed to generate a response after {retries} retries")
+                self.display(f" Failed to generate a response after {retries} retries", True)
