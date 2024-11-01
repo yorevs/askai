@@ -213,10 +213,8 @@ class CacheService(metaclass=Singleton):
         :return: A list of context entries retrieved from the cache."""
         flags: int = re.MULTILINE | re.DOTALL | re.IGNORECASE
         context: str = ASKAI_CONTEXT_FILE.read_text()
-        entries = list(
+        return list(
             filter(str.__len__, map(str.strip, re.split(r"(human|assistant|system):", context, flags=flags))))
-
-        return []
 
     def save_memory(self, memory: list[BaseMessage] = None) -> None:
         """Save the context window entries into the context file.
@@ -230,16 +228,12 @@ class CacheService(metaclass=Singleton):
             with open(str(ASKAI_MEMORY_FILE), 'w', encoding=Charset.UTF_8.val) as f_hist:
                 list(map(lambda m: f_hist.write(ensure_endswith(os.linesep, f"{_get_role_(m)}: {m.content}")), memory))
 
-    def read_memory(self) -> list[BaseMessage]:
+    def read_memory(self) -> list[str]:
         """TODO"""
-
         flags: int = re.MULTILINE | re.DOTALL | re.IGNORECASE
         memory: str = ASKAI_MEMORY_FILE.read_text()
-        memories = list(
+        return list(
             filter(str.__len__, map(str.strip, re.split(r"(human|assistant|system):", memory, flags=flags))))
-
-        return []
-
 
 
 assert (cache := CacheService().INSTANCE) is not None

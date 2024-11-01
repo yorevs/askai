@@ -35,7 +35,7 @@ from askai.core.component.geo_location import geo_location
 from askai.core.component.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
-from askai.core.support.chat_context import ChatContext
+from askai.core.support.chat_context import ChatContext, ContextEntry
 from askai.core.support.utilities import display_text
 
 LOGGER_NAME: str = 'Askai-Taius'
@@ -162,8 +162,10 @@ class SharedInstances(metaclass=Singleton):
         if self._context is None:
             self._context = ChatContext(token_limit, configs.max_short_memory_size)
             if configs.is_keep_context:
-                # TODO Add to the context.
-                ctx = cache.read_context()
+                entries: list[str] = cache.read_context()
+                for role, content in zip(entries[::2], entries[1::2]):
+                    ctx = self._context.store["HISTORY"]
+                    ctx.append(ContextEntry(role, content))
         return self._context
 
     def create_memory(self, memory_key: str = "chat_history") -> ConversationBufferWindowMemory:
@@ -175,8 +177,9 @@ class SharedInstances(metaclass=Singleton):
             self._memory = ConversationBufferWindowMemory(
                 memory_key=memory_key, k=configs.max_short_memory_size, return_messages=True)
             if configs.is_keep_context:
-                # TODO Add to the memory the questions and answers.
-                mem = cache.read_memory()
+                entries: list[str] = cache.read_memory()
+                for role, content in zip(entries[::2], entries[1::2]):
+                    self._memory.chat_memory.add_message(self.context.LANGCHAIN_ROLE_MAP[role](content))
         return self._memory
 
     def input_text(self, input_prompt: str, placeholder: str | None = None) -> Optional[str]:

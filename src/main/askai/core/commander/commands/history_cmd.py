@@ -59,10 +59,10 @@ class HistoryCmd(ABC):
         if context := context if context != "ALL" else None:
             shared.context.clear(*(re.split(r"[;,|]", context.upper())))
         else:
-            shared.context.forget()
+            shared.context.forget()  # Clear the context
+            shared.memory.clear()  # Also clear the chat memory
         text_formatter.commander_print(
-            f"Context %GREEN%'{context.upper() if context else 'ALL'}'%NC% has been cleared!"
-        )
+            f"Context %GREEN%'{context.upper() if context else 'ALL'}'%NC% has been cleared!")
 
     @staticmethod
     def context_copy(name: str | None = None) -> None:

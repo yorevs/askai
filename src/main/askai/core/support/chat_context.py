@@ -13,17 +13,17 @@
    Copyright (c) 2024, HomeSetup
 """
 
-from askai.core.component.cache_service import cache
-from askai.exception.exceptions import TokenLengthExceeded
+import os
 from collections import defaultdict, deque, namedtuple
 from functools import partial, reduce
+from typing import Any, AnyStr, get_args, Literal, Optional, TypeAlias
+
 from hspylib.core.preconditions import check_argument
 from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from typing import Any, AnyStr, get_args, Literal, Optional, TypeAlias
 
-import os
-import re
+from askai.core.component.cache_service import cache
+from askai.exception.exceptions import TokenLengthExceeded
 
 ChatRoles: TypeAlias = Literal["system", "human", "assistant"]
 
@@ -46,20 +46,24 @@ class ChatContext:
 
     def __str__(self):
         ln: str = os.linesep
-        return ln.join(f"'{k}': '{v}'" + ln for k, v in self._store.items())
+        return ln.join(f"'{k}': '{v}'" + ln for k, v in self.store.items())
 
     def __getitem__(self, key) -> deque[ContextEntry]:
-        return self._store[key]
+        return self.store[key]
 
     def __iter__(self):
-        return zip(self._store.keys().__iter__(), self._store.values().__iter__())
+        return zip(self.store.keys().__iter__(), self.store.values().__iter__())
 
     def __len__(self):
-        return self._store.__len__()
+        return self.store.__len__()
 
     @property
     def keys(self) -> list[AnyStr]:
-        return [str(k) for k in self._store.keys()]
+        return [str(k) for k in self.store.keys()]
+
+    @property
+    def store(self) -> dict[Any, deque]:
+        return self._store
 
     @property
     def max_context_size(self) -> int:
@@ -79,7 +83,7 @@ class ChatContext:
         check_argument(role in get_args(ChatRoles), f"Invalid ChatRole: '{role}'")
         if (token_length := (self.length(key)) + len(content)) > self._token_limit:
             raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
-        if (entry := ContextEntry(role, content.strip())) not in (ctx := self._store[key]):
+        if (entry := ContextEntry(role, content.strip())) not in (ctx := self.store[key]):
             ctx.append(entry)
 
         return self.get(key)
@@ -90,7 +94,7 @@ class ChatContext:
         :return: The context message associated with the key.
         """
 
-        return [{"role": ctx.role, "content": ctx.content} for ctx in self._store[key]] or []
+        return [{"role": ctx.role, "content": ctx.content} for ctx in self.store[key]] or []
 
     def set(self, key: str, content: Any, role: ChatRoles = "human") -> ContextRaw:
         """Set the context message in the chat with the specified role.
@@ -109,7 +113,7 @@ class ChatContext:
         :return: The removed message if successful, otherwise None.
         """
         val = None
-        if ctx := self._store[key]:
+        if ctx := self.store[key]:
             if index < len(ctx):
                 val = ctx[index]
                 del ctx[index]
@@ -120,7 +124,7 @@ class ChatContext:
         :param key: The identifier for the context.
         :return: The length of the context (e.g., number of content entries).
         """
-        ctx = self._store[key]
+        ctx = self.store[key]
         return reduce(lambda total, e: total + len(e.content), ctx, 0) if len(ctx) > 0 else 0
 
     def join(self, *keys: str) -> LangChainContext:
@@ -159,10 +163,10 @@ class ChatContext:
         """
 
         count = 0
-        contexts = list(keys or self._store.keys())
+        contexts = list(keys or self.store.keys())
         while contexts and (key := contexts.pop()):
-            if key in self._store:
-                del self._store[key]
+            if key in self.store:
+                del self.store[key]
                 count += 1
         return count
 
@@ -178,10 +182,10 @@ class ChatContext:
         :return: The number of entries in the context.
         """
 
-        return len(self._store[key])
+        return len(self.store[key])
 
     def save(self) -> None:
         """Save the current context window to the cache."""
-        ctx: LangChainContext = self.join(*self._store.keys())
+        ctx: LangChainContext = self.join(*self.store.keys())
         ctx_str: list[str] = [f"{role}: {msg}" for role, msg in ctx]
         cache.save_context(ctx_str)
