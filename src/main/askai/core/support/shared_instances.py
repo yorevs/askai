@@ -25,7 +25,6 @@ from hspylib.core.tools.text_tools import elide_text
 from hspylib.modules.application.version import Version
 from hspylib.modules.cli.keyboard import Keyboard
 from langchain.memory import ConversationBufferWindowMemory
-from langchain.memory.chat_memory import BaseChatMemory
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
@@ -108,7 +107,7 @@ class SharedInstances(metaclass=Singleton):
         return self._idiom
 
     @property
-    def memory(self) -> BaseChatMemory:
+    def memory(self) -> ConversationBufferWindowMemory:
         return self.create_memory()
 
     @property
@@ -161,21 +160,23 @@ class SharedInstances(metaclass=Singleton):
         :return: An instance of the ChatContext configured with the specified token limit.
         """
         if self._context is None:
-            if configs.is_cache:
-                self._context = ChatContext.of(cache.read_context(), token_limit, configs.max_short_memory_size)
-            else:
-                self._context = ChatContext(token_limit, configs.max_short_memory_size)
+            self._context = ChatContext(token_limit, configs.max_short_memory_size)
+            if configs.is_keep_context:
+                # TODO Add to the context.
+                ctx = cache.read_context()
         return self._context
 
-    def create_memory(self, memory_key: str = "chat_history") -> BaseChatMemory:
+    def create_memory(self, memory_key: str = "chat_history") -> ConversationBufferWindowMemory:
         """Create or retrieve the conversation window memory.
         :param memory_key: The key used to identify the memory (default is "chat_history").
         :return: An instance of BaseChatMemory associated with the specified memory key.
         """
         if self._memory is None:
             self._memory = ConversationBufferWindowMemory(
-                memory_key=memory_key, k=configs.max_short_memory_size, return_messages=True
-            )
+                memory_key=memory_key, k=configs.max_short_memory_size, return_messages=True)
+            if configs.is_keep_context:
+                # TODO Add to the memory the questions and answers.
+                mem = cache.read_memory()
         return self._memory
 
     def input_text(self, input_prompt: str, placeholder: str | None = None) -> Optional[str]:

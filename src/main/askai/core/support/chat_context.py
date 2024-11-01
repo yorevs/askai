@@ -39,22 +39,6 @@ class ChatContext:
 
     LANGCHAIN_ROLE_MAP: dict = {"human": HumanMessage, "system": SystemMessage, "assistant": AIMessage}
 
-    @staticmethod
-    def of(context: list[str], token_limit: int, max_context_size: int) -> "ChatContext":
-        """Create a chat context from a list of context entries formatted as <ROLE: MSG>.
-        :param context: The initial list of chat context entries.
-        :param token_limit: The maximum number of tokens allowed by the active engine's model.
-        :param max_context_size: The maximum allowable size of the context (window size).
-        :return: A ChatContext instance created from the provided parameters.
-        """
-        ctx = ChatContext(token_limit, max_context_size)
-        for e in context:
-            role, reply = list(
-                filter(None, re.split(r"(human|assistant|system):", e, flags=re.MULTILINE | re.IGNORECASE))
-            )
-            ctx.push("HISTORY", reply, role)
-        return ctx
-
     def __init__(self, token_limit: int, max_context_size: int):
         self._store: dict[AnyStr, deque] = defaultdict(partial(deque, maxlen=max_context_size))
         self._token_limit: int = token_limit * 1024  # The limit is given in KB

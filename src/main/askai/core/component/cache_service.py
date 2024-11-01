@@ -22,9 +22,10 @@ from typing import Optional
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.enums.charset import Charset
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.commons import file_is_not_empty
+from hspylib.core.tools.commons import file_is_not_empty, touch_file
 from hspylib.core.tools.text_tools import hash_text, ensure_endswith
 from hspylib.modules.cache.ttl_cache import TTLCache
+from langchain_core.messages import BaseMessage
 
 from askai.core.askai_configs import configs
 from askai.core.askai_settings import ASKAI_DIR, CONVERSATION_STARTERS
@@ -80,6 +81,14 @@ if not PERSIST_DIR.exists():
 ASKAI_INPUT_HISTORY_FILE: Path = Path(CACHE_DIR / "askai-input-history.txt")
 if not file_is_not_empty(str(ASKAI_INPUT_HISTORY_FILE)):
     copyfile(str(CONVERSATION_STARTERS), str(ASKAI_INPUT_HISTORY_FILE))
+
+ASKAI_CONTEXT_FILE: Path = Path(CACHE_DIR / "askai-context-history.txt")
+if not file_is_not_empty(str(ASKAI_CONTEXT_FILE)):
+    touch_file(str(ASKAI_CONTEXT_FILE))
+
+ASKAI_MEMORY_FILE: Path = Path(CACHE_DIR / "askai-memory-history.txt")
+if not file_is_not_empty(str(ASKAI_MEMORY_FILE)):
+    touch_file(str(ASKAI_MEMORY_FILE))
 
 CacheEntry = namedtuple("CacheEntry", ["key", "expires"])
 
@@ -165,7 +174,12 @@ class CacheService(metaclass=Singleton):
         """Retrieve line input queries from the history file.
         :return: A list of input queries stored in the cache.
         """
-        return ASKAI_INPUT_HISTORY_FILE.read_text().split(os.linesep)
+        history: str = ASKAI_INPUT_HISTORY_FILE.read_text()
+        inputs = list(
+            filter(str.__len__, map(str.strip, history.split(os.linesep)))
+        )
+
+        return inputs
 
     def save_input_history(self, history: list[str] = None) -> None:
         """Save input queries into the history file.
@@ -177,7 +191,7 @@ class CacheService(metaclass=Singleton):
                          filter(lambda h: not h.startswith('/'), history)))
 
     def load_input_history(self, predefined: list[str] = None) -> list[str]:
-        """Load input queries from the TTL (Time-To-Live) cache extending it with a predefined input history.
+        """Load input queries from the history file, extending it with a predefined input history.
         :param predefined: A list of predefined input queries to be appended to the final list.
         :return: A list of input queries loaded from the cache.
         """
@@ -186,17 +200,46 @@ class CacheService(metaclass=Singleton):
             history.extend(list(filter(lambda c: c not in history, predefined)))
         return history
 
-    def save_context(self, context: list[str]) -> None:
-        """Save the context window entries into the TTL (Time-To-Live) cache.
+    def save_context(self, context: list[str] = None) -> None:
+        """Save the context window entries into the context file.
         :param context: A list of context entries to be saved.
         """
-        self._TTL_CACHE.save(self.ASKAI_CONTEXT_KEY, "%EOL%".join(context))
+        if context := (context or list()):
+            with open(str(ASKAI_CONTEXT_FILE), 'w', encoding=Charset.UTF_8.val) as f_hist:
+                list(map(lambda h: f_hist.write(ensure_endswith(os.linesep, h)), context))
 
     def read_context(self) -> list[str]:
-        """Read the context window entries from the TTL (Time-To-Live) cache.
+        """Read the context window entries from the context file.
         :return: A list of context entries retrieved from the cache."""
-        ctx_str: str = self._TTL_CACHE.read(self.ASKAI_CONTEXT_KEY)
-        return re.split(r"%EOL%", ctx_str, flags=re.MULTILINE | re.IGNORECASE) if ctx_str else []
+        flags: int = re.MULTILINE | re.DOTALL | re.IGNORECASE
+        context: str = ASKAI_CONTEXT_FILE.read_text()
+        entries = list(
+            filter(str.__len__, map(str.strip, re.split(r"(human|assistant|system):", context, flags=flags))))
+
+        return []
+
+    def save_memory(self, memory: list[BaseMessage] = None) -> None:
+        """Save the context window entries into the context file.
+        :param memory: A list of memory entries to be saved.
+        """
+
+        def _get_role_(msg: BaseMessage) -> str:
+            return type(msg).__name__.rstrip('Message').replace('AI', 'Assistant').casefold()
+
+        if memory := (memory or list()):
+            with open(str(ASKAI_MEMORY_FILE), 'w', encoding=Charset.UTF_8.val) as f_hist:
+                list(map(lambda m: f_hist.write(ensure_endswith(os.linesep, f"{_get_role_(m)}: {m.content}")), memory))
+
+    def read_memory(self) -> list[BaseMessage]:
+        """TODO"""
+
+        flags: int = re.MULTILINE | re.DOTALL | re.IGNORECASE
+        memory: str = ASKAI_MEMORY_FILE.read_text()
+        memories = list(
+            filter(str.__len__, map(str.strip, re.split(r"(human|assistant|system):", memory, flags=flags))))
+
+        return []
+
 
 
 assert (cache := CacheService().INSTANCE) is not None

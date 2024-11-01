@@ -18,6 +18,7 @@ from textwrap import dedent
 from typing import AnyStr, Optional
 
 from hspylib.core.preconditions import check_state
+from hspylib.core.tools.dict_tools import get_or_default
 from hspylib.core.tools.validator import Validator
 from langchain_core.prompts import PromptTemplate
 from transitions import Machine
@@ -44,17 +45,22 @@ class SplitterPipeline:
 
     FAKE_SLEEP: float = 0.3
 
-    def __init__(self, question: AnyStr):
+    def __init__(self, query: AnyStr):
         self._transitions: list[Transition] = [t for t in TRANSITIONS]
         self._machine: Machine = Machine(
             name=LOGGER_NAME, model=self,
             initial=States.STARTUP, states=States, transitions=self._transitions,
             auto_transitions=False
         )
+        self._query: str = query
         self._previous: States = States.NOT_STARTED
-        self._result: SplitterResult = SplitterResult(question)
+        self._result: SplitterResult = SplitterResult(query)
         self._iteractions: int = 0
         self._failures: dict[str, int] = defaultdict(int)
+
+    @property
+    def query(self) -> str:
+        return self._query
 
     @property
     def previous(self) -> States:
@@ -85,28 +91,35 @@ class SplitterPipeline:
         return self.result.question
 
     @property
+    def last_response(self) -> PipelineResponse:
+        try:
+            return get_or_default(self.responses, -1)
+        except IndexError:
+            return PipelineResponse(self.query)
+
+    @property
     def last_query(self) -> Optional[str]:
-        return self.responses[-1].query if len(self.responses) > 0 else None
+        return self.last_response.query
 
     @last_query.setter
     def last_query(self, value: str) -> None:
-        self.responses[-1].query = value if len(self.responses) > 0 else None
+        self.last_response.query = value
 
     @property
     def last_answer(self) -> Optional[str]:
-        return self.responses[-1].answer if len(self.responses) > 0 else None
+        return self.last_response.answer
 
     @last_answer.setter
     def last_answer(self, value: str) -> None:
-        self.responses[-1].answer = value if len(self.responses) > 0 else None
+        self.last_response.answer = value
 
     @property
     def last_accuracy(self) -> Optional[AccResponse]:
-        return self.responses[-1].accuracy if len(self.responses) > 0 else None
+        return self.last_response.accuracy
 
     @last_accuracy.setter
     def last_accuracy(self, value: AccResponse) -> None:
-        self.responses[-1].accuracy = value if len(self.responses) > 0 else None
+        self.last_response.accuracy = value
 
     @property
     def plan(self) -> ActionPlan:
@@ -225,9 +238,8 @@ class SplitterPipeline:
             log.info(f"AI provided a good answer: {self.last_answer}")
             if len(self.plan.tasks) > 0:
                 self.plan.tasks.pop(0)
-            shared.memory.save_context({"input": self.last_query}, {"output": self.last_answer})
         else:
-            if len(self.responses) > 0:
+            if self.responses:
                 self.responses.pop(0)
             acc_template = PromptTemplate(input_variables=["problems"], template=issue_report)
             if not shared.context.get("EVALUATION"):  # Include the guidelines for the first mistake.

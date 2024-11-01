@@ -16,6 +16,7 @@ from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
+from askai.core.component.cache_service import cache
 from askai.core.component.geo_location import geo_location
 from askai.core.component.rag_provider import RAGProvider
 from askai.core.engine.openai.temperature import Temperature
@@ -73,8 +74,8 @@ class SplitterActions(metaclass=Singleton):
                 pass  # Default is to leave the last AI response as is
 
         # Save the conversation to use with the task agent executor.
-        if output:
-            shared.memory.save_context({"input": question}, {"output": output})
+        cache.save_memory(shared.memory.buffer_as_messages)
+        shared.context.save()
 
         return output
 

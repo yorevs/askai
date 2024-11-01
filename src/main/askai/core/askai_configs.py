@@ -82,6 +82,14 @@ class AskAiConfigs(metaclass=Singleton):
         settings.put("askai.cache.enabled", value)
 
     @property
+    def is_keep_context(self) -> bool:
+        return settings.get_bool("askai.context.keep.conversation")
+
+    @is_keep_context.setter
+    def is_keep_context(self, value: bool) -> None:
+        settings.put("askai.context.keep.conversation", value)
+
+    @property
     def tempo(self) -> int:
         return settings.get_int("askai.text.to.speech.tempo")
 
