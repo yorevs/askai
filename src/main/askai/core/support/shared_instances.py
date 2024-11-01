@@ -12,20 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-from pathlib import Path
-from textwrap import dedent
-from typing import Any, Optional
-
-from clitt.core.term.terminal import terminal
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_state
-from hspylib.core.tools.text_tools import elide_text
-from hspylib.modules.application.version import Version
-from hspylib.modules.cli.keyboard import Keyboard
-from langchain.memory import ConversationBufferWindowMemory
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
@@ -37,8 +23,21 @@ from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
 from askai.core.support.chat_context import ChatContext, ContextEntry
 from askai.core.support.utilities import display_text
+from clitt.core.term.terminal import terminal
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_state
+from hspylib.core.tools.text_tools import elide_text
+from hspylib.modules.application.version import Version
+from hspylib.modules.cli.keyboard import Keyboard
+from langchain.memory import ConversationBufferWindowMemory
+from pathlib import Path
+from textwrap import dedent
+from typing import Any, Optional
 
-LOGGER_NAME: str = 'Askai-Taius'
+import os
+
+LOGGER_NAME: str = "Askai-Taius"
 
 
 class SharedInstances(metaclass=Singleton):
@@ -125,8 +124,9 @@ class SharedInstances(metaclass=Singleton):
         eng: AIEngine = shared.engine
         model_info: str = f"'{eng.ai_model_name()}'%YELLOW% {eng.ai_token_limit()}%GREEN% tokens"
         engine_info: str = f"{eng.ai_name()} - %CYAN%{eng.nickname()} / {model_info}"
-        rag_info: str = '%GREEN%' if configs.is_rag else '%RED%'
-        return dedent(f"""\
+        rag_info: str = "%GREEN%" if configs.is_rag else "%RED%"
+        return dedent(
+            f"""\
             %GREEN%AskAI %YELLOW%v{Version.load(load_dir=classpath.source_path)}%GREEN%
             {dtm.center(80, '=')}
                Language: {configs.language} {translator}
@@ -140,7 +140,8 @@ class SharedInstances(metaclass=Singleton):
                Speaking: {', tempo: ' + speak_info if configs.is_speak else '%RED%'} %GREEN%
                 Caching: {', TTL: ' + str(configs.ttl) if configs.is_cache else '%RED%'} %GREEN%
             {'=' * 80}%NC%
-            """)
+            """
+        )
 
     def create_engine(self, engine_name: str, model_name: str, mode: Any) -> AIEngine:
         """Create or retrieve an AI engine instance based on the specified engine and model names.
@@ -175,7 +176,8 @@ class SharedInstances(metaclass=Singleton):
         """
         if self._memory is None:
             self._memory = ConversationBufferWindowMemory(
-                memory_key=memory_key, k=configs.max_short_memory_size, return_messages=True)
+                memory_key=memory_key, k=configs.max_short_memory_size, return_messages=True
+            )
             if configs.is_keep_context:
                 entries: list[str] = cache.read_memory()
                 for role, content in zip(entries[::2], entries[1::2]):

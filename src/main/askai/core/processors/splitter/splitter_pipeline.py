@@ -12,17 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import logging as log
-from collections import defaultdict
-from textwrap import dedent
-from typing import AnyStr, Optional
-
-from hspylib.core.preconditions import check_state
-from hspylib.core.tools.dict_tools import get_or_default
-from hspylib.core.tools.validator import Validator
-from langchain_core.prompts import PromptTemplate
-from transitions import Machine
-
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
 from askai.core.enums.acc_color import AccColor
@@ -36,6 +25,16 @@ from askai.core.processors.splitter.splitter_states import States
 from askai.core.processors.splitter.splitter_transitions import Transition, TRANSITIONS
 from askai.core.router.evaluation import eval_response, EVALUATION_GUIDE
 from askai.core.support.shared_instances import LOGGER_NAME, shared
+from collections import defaultdict
+from hspylib.core.preconditions import check_state
+from hspylib.core.tools.dict_tools import get_or_default
+from hspylib.core.tools.validator import Validator
+from langchain_core.prompts import PromptTemplate
+from textwrap import dedent
+from transitions import Machine
+from typing import AnyStr, Optional
+
+import logging as log
 
 
 class SplitterPipeline:
@@ -48,9 +47,12 @@ class SplitterPipeline:
     def __init__(self, query: AnyStr):
         self._transitions: list[Transition] = [t for t in TRANSITIONS]
         self._machine: Machine = Machine(
-            name=LOGGER_NAME, model=self,
-            initial=States.STARTUP, states=States, transitions=self._transitions,
-            auto_transitions=False
+            name=LOGGER_NAME,
+            model=self,
+            initial=States.STARTUP,
+            states=States,
+            transitions=self._transitions,
+            auto_transitions=False,
         )
         self._query: str = query
         self._previous: States = States.NOT_STARTED
@@ -142,8 +144,7 @@ class SplitterPipeline:
         return self.result.final_response()
 
     def track_previous(self) -> None:
-        """Track the previous state of pipeline execution.
-        """
+        """Track the previous state of pipeline execution."""
         self._previous = self.state
 
     def has_next(self) -> bool:
@@ -216,7 +217,8 @@ class SplitterPipeline:
         if not Validator.has_no_nulls(self.last_query, self.last_answer):
             return AccColor.BAD
 
-        issue_report: str = dedent("""\
+        issue_report: str = dedent(
+            """\
         The (AI-Assistant) provided a bad answer. Improve subsequent responses by addressing the following:
 
         ---
@@ -224,7 +226,8 @@ class SplitterPipeline:
         ---
 
         If you don't have an answer, simply say: "I don't know". Don't try do make up an answer.
-        """)
+        """
+        )
 
         acc: AccResponse = eval_response(self.last_query, self.last_answer)
 
@@ -268,9 +271,11 @@ class SplitterPipeline:
         :return: Boolean indicating success or failure after processing the state.
         """
 
-        model: ModelResult = ModelResult(
-            ResponseModel.ASSISTIVE_TECH_HELPER.model, self.model.goal, self.model.reason) \
-            if configs.is_assistive else self.model
+        model: ModelResult = (
+            ModelResult(ResponseModel.ASSISTIVE_TECH_HELPER.model, self.model.goal, self.model.reason)
+            if configs.is_assistive
+            else self.model
+        )
 
         if wrapped := actions.wrap_answer(self.question, self.final_answer, model):
             final_response: PipelineResponse = PipelineResponse(self.question, wrapped, self.last_accuracy)

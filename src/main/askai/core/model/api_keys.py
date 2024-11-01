@@ -12,18 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-from pathlib import Path
-from typing import Optional
-
-import dotenv
+from askai.exception.exceptions import MissingApiKeyError
 from clitt.core.tui.minput.input_validator import InputValidator
 from clitt.core.tui.minput.menu_input import MenuInput
 from clitt.core.tui.minput.minput import minput
 from hspylib.core.enums.charset import Charset
+from pathlib import Path
 from pydantic.v1 import BaseSettings, Field
+from typing import Optional
 
-from askai.exception.exceptions import MissingApiKeyError
+import dotenv
+import os
 
 API_KEY_FILE: str = os.environ.get("HHS_ENV_FILE", str(os.path.join(Path.home(), ".env")))
 

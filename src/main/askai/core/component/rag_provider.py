@@ -66,7 +66,7 @@ class RAGProvider:
         else:
             return False
         files: list[str] = sorted(glob.glob(f"{str(rag_dir)}/**/*.*", recursive=True))
-        rag_files: str = ''.join(list(ensure_endswith(d, os.linesep) for d in files))
+        rag_files: str = "".join(list(ensure_endswith(d, os.linesep) for d in files))
         rag_docs_file: Path = Path(os.path.join(rag_dir), "rag-documents.txt")
         rag_docs_file.write_text(rag_files)
 

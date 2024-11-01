@@ -42,7 +42,8 @@ import os
 import re
 
 COMMANDER_HELP_TPL = Template(
-    dedent("""\
+    dedent(
+        """\
     # AskAI Commander - HELP
 
     > Commands:
@@ -59,11 +60,13 @@ COMMANDER_HELP_TPL = Template(
     | *Ctrl+F* | **Forget the input history.** |
 
     >   To get help about a specific command type: '/help \\<command\\>'
-    """)
+    """
+    )
 )
 
 COMMANDER_HELP_CMD_TPL = Template(
-    dedent("""\
+    dedent(
+        """\
     # AskAI Commander - HELP
     ```
     %CYAN%Command: %ORANGE%${command}%NC%
@@ -72,7 +75,8 @@ COMMANDER_HELP_CMD_TPL = Template(
 
     %CYAN%Usage:\t%WHITE%/${usage}
     ```
-    """)
+    """
+    )
 )
 
 RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"

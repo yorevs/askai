@@ -30,6 +30,7 @@ from askai.core.router.task_agent import agent
 from askai.core.router.tools.general import final_answer
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from askai.core.support.text_formatter import text_formatter
 from hspylib.core.metaclass.singleton import Singleton
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
@@ -40,13 +41,11 @@ from typing import Optional
 
 import logging as log
 
-from askai.core.support.text_formatter import text_formatter
-
 
 class SplitterActions(metaclass=Singleton):
     """Class that provides the splitter some actionable items."""
 
-    INSTANCE: 'SplitterActions'
+    INSTANCE: "SplitterActions"
 
     @staticmethod
     def wrap_answer(question: str, answer: str, model_result: ModelResult = ModelResult.default()) -> Optional[str]:

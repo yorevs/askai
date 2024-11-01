@@ -31,7 +31,7 @@ class TestMain(unittest.TestCase):
         os.environ["ACTIVE_PROFILE"] = "test"
         self.configs = AppConfigs(resource_dir=resource_dir)
         self.assertIsNotNone(self.configs)
-        self.assertEqual(self.configs.get_int('any.property'), 12345)
+        self.assertEqual(self.configs.get_int("any.property"), 12345)
         log.info(self.configs)
 
     # Teardown tests

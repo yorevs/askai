@@ -1,11 +1,10 @@
-import re
-from functools import lru_cache
-from typing import AnyStr
-
-from transformers import MarianMTModel, MarianTokenizer
-
 from askai.language.ai_translator import AITranslator
 from askai.language.language import Language
+from functools import lru_cache
+from transformers import MarianMTModel, MarianTokenizer
+from typing import AnyStr
+
+import re
 
 
 class MarianTranslator(AITranslator):

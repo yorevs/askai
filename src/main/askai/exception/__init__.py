@@ -5,7 +5,5 @@
 # Package: main.askai.exception
 """Package initialization."""
 
-__all__ = [
-    'exceptions'
-]
-__version__ = '1.1.0'
+__all__ = ["exceptions"]
+__version__ = "1.1.0"

@@ -12,13 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from hspylib.core.enums.enumeration import Enumeration
-
 from askai.core.askai_messages import msg
+from hspylib.core.enums.enumeration import Enumeration
 
 
 class States(Enumeration):
     """Enumeration of possible task splitter states."""
+
     # fmt: off
     NOT_STARTED     = 'N/S'
 

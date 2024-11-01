@@ -40,13 +40,17 @@ class HistoryCmd(ABC):
                     f"- {ctx} ({len(ctx_val)}/{all_context.max_context_size} "
                     f"tk [{all_context.length(ctx)}/{all_context.token_limit}]) \n"
                     + indent(
-                        ln.join([
-                            f'{i}. **{e.role.title()}:**\n\n{indent(text_formatter.strip_format(e.content), " " * 4)}'
-                            + os.linesep
-                            for i, e in enumerate(ctx_val, start=1)]
+                        ln.join(
+                            [
+                                f'{i}. **{e.role.title()}:**\n\n{indent(text_formatter.strip_format(e.content), " " * 4)}'
+                                + os.linesep
+                                for i, e in enumerate(ctx_val, start=1)
+                            ]
                         ),
-                        " " * 4
-                    ), markdown=False)
+                        " " * 4,
+                    ),
+                    markdown=False,
+                )
             display_text(f"> Hint: Type: '/context forget [context] to forget a it.")
         else:
             text_formatter.commander_print(f"%YELLOW% Context is empty %NC%")
@@ -62,7 +66,8 @@ class HistoryCmd(ABC):
             shared.context.forget()  # Clear the context
             shared.memory.clear()  # Also clear the chat memory
         text_formatter.commander_print(
-            f"Context %GREEN%'{context.upper() if context else 'ALL'}'%NC% has been cleared!")
+            f"Context %GREEN%'{context.upper() if context else 'ALL'}'%NC% has been cleared!"
+        )
 
     @staticmethod
     def context_copy(name: str | None = None) -> None:

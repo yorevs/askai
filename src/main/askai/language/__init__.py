@@ -5,9 +5,5 @@
 # Package: main.askai.language
 """Package initialization."""
 
-__all__ = [
-    'ai_translator', 
-    'language', 
-    'translators'
-]
-__version__ = '1.1.0'
+__all__ = ["ai_translator", "language", "translators"]
+__version__ = "1.1.0"

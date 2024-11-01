@@ -112,7 +112,7 @@ class Rag(metaclass=Singleton):
                 log.info("Recovering vector store from: '%s'", persist_dir)
                 self._vectorstore = Chroma(persist_directory=str(persist_dir), embedding_function=embeddings)
             else:
-                with Status(f'[green]{msg.summarizing()}[/green]'):
+                with Status(f"[green]{msg.summarizing()}[/green]"):
                     rag_docs: list[Document] = DirectoryLoader(str(rag_dir), glob=file_glob, recursive=True).load()
                     if len(rag_docs) <= 0:
                         raise DocumentsNotFound(f"Unable to find any document to at: '{persist_dir}'")

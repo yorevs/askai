@@ -29,7 +29,7 @@ def ensure_parseable(content: str) -> Optional[str]:
     """
     if not content:
         return None
-    if content.startswith('['):
+    if content.startswith("["):
         # Content is already a JSON array
         return content
     # Process lines to extract JSON objects
@@ -38,8 +38,8 @@ def ensure_parseable(content: str) -> Optional[str]:
     for line in lines:
         if not (line := line.strip()):
             continue  # Skip empty lines
-        if line.startswith('-'):
-            line = line.lstrip('-').strip()
+        if line.startswith("-"):
+            line = line.lstrip("-").strip()
         json_objects.append(line)
     # Wrap in square brackets to form a JSON array
     return f"[{','.join(json_objects)}]"
@@ -65,7 +65,7 @@ def parse_word(word: AnyStr, text: AnyStr) -> Optional[T]:
     :return: The extracted word attribute if found; otherwise, None.
     """
     flags: int = re.IGNORECASE | re.MULTILINE | re.DOTALL
-    word_pattern: str = r'[*_\s]*' + word + r':[*_\s]*(.+)["@]'
+    word_pattern: str = r"[*_\s]*" + word + r':[*_\s]*(.+)["@]'
     word_matcher: re.Match[str] | None = re.search(word_pattern, text, flags)
     word_value: str = word_matcher.group(1) if word_matcher else None
     return word_value.strip() if word_value else None
@@ -79,7 +79,7 @@ def parse_list(field_name: AnyStr, text: AnyStr, is_dict: bool = True) -> list[S
     :return: A list of SimpleNamespace objects or strings.
     """
     flags: int = re.IGNORECASE | re.DOTALL
-    list_pattern: str = field_name + r':\s*(.*?)(?:\n@|$)'
+    list_pattern: str = field_name + r":\s*(.*?)(?:\n@|$)"
     list_matcher: re.Match[str] | None = re.search(list_pattern, text, flags)
     if list_matcher:
         extracted_list: str = list_matcher.group(1)

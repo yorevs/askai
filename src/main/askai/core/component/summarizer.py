@@ -118,7 +118,7 @@ class Summarizer(metaclass=Singleton):
                 v_store = Chroma(persist_directory=str(self.persist_dir), embedding_function=embeddings)
             else:
                 log.info("Summarizing documents from '%s'", self.sum_path)
-                with Status(f'[green]{msg.summarizing(self.folder)}[/green]'):
+                with Status(f"[green]{msg.summarizing(self.folder)}[/green]"):
                     documents: list[Document] = DirectoryLoader(self.folder, glob=self.glob).load()
                     if len(documents) <= 0:
                         raise DocumentsNotFound(f"Unable to find any document to summarize at: '{self.sum_path}'")

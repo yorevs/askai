@@ -5,7 +5,7 @@ import os.path
 import torch
 
 
-def initialize(model_name: str = 'gpt2') -> tuple:
+def initialize(model_name: str = "gpt2") -> tuple:
     """Initializes the specified GPT-2 model and its tokenizer. Downloads them if not already cached. Choose a model
     size. 'gpt2' is the smallest; larger models like 'gpt2-medium', 'gpt2-large'
     :param model_name: The name of the model to initialize (default is 'gpt2').
@@ -43,7 +43,7 @@ def predict_next_word(text: AnyStr, num_words: int = 2, top_k: int = 5) -> list[
     model, tokenizer = initialize()
 
     # Encode the input text into token IDs
-    input_ids = tokenizer.encode(text, return_tensors='pt')
+    input_ids = tokenizer.encode(text, return_tensors="pt")
 
     # Disable gradient calculations for efficiency
     with torch.no_grad():
@@ -64,7 +64,7 @@ def predict_next_word(text: AnyStr, num_words: int = 2, top_k: int = 5) -> list[
     return predicted_words
 
 
-if __name__ == '__main__':
-    while (query := input("$ ")) and query not in ['e', 'q']:
+if __name__ == "__main__":
+    while (query := input("$ ")) and query not in ["e", "q"]:
         result = predict_next_word(query)
         print(result)

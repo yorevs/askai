@@ -173,7 +173,9 @@ class InternetService(metaclass=Singleton):
         if not self._google:
             API_KEYS.ensure("GOOGLE_API_KEY", "google_search")
             self._google = GoogleSearchAPIWrapper(k=10, google_api_key=API_KEYS.GOOGLE_API_KEY)
-            self._tool = Tool(name="google_search", description="Search Google for recent results.", func=self._google.run)
+            self._tool = Tool(
+                name="google_search", description="Search Google for recent results.", func=self._google.run
+            )
         events.reply.emit(reply=AIReply.info(msg.searching()))
         terms: str = self._build_google_query(search).strip()
         question: str = re.sub(r"(\w+:)*|((\w+\.\w+)*)", "", terms, flags=re.DOTALL | re.MULTILINE)

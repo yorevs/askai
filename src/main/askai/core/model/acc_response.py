@@ -36,7 +36,7 @@ class AccResponse:
         :param response: The LLM response.
         :return: An instance of AccResponse created from the parsed response.
         """
-        Path(Path.home() / 'acc-resp.txt').write_text(response)
+        Path(Path.home() / "acc-resp.txt").write_text(response)
 
         acc_color: AccColor = AccColor.of_color(parse_field("@color", response))
         accuracy: float = float(parse_field("@accuracy", response).strip("%"))

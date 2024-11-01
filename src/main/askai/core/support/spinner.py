@@ -57,13 +57,7 @@ class Spinner(Enumeration):
         self._started = to_bool(value)
 
     @contextlib.contextmanager
-    def run(
-        self,
-        interval: int = None,
-        prefix: str = None,
-        suffix: str = None,
-        color: VtColor = VtColor.WHITE
-    ) -> None:
+    def run(self, interval: int = None, prefix: str = None, suffix: str = None, color: VtColor = VtColor.WHITE) -> None:
         """TODO"""
         spinner = itertools.cycle(self.symbols)
 
@@ -109,7 +103,7 @@ class Spinner(Enumeration):
         return self.value[1]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Initialize the console
     console = Console()
 

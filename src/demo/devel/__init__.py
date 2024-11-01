@@ -5,8 +5,5 @@
 # Package: demo.devel
 """Package initialization."""
 
-__all__ = [
-    'google_suggestions', 
-    'gpt2_suggester'
-]
-__version__ = '1.1.0'
+__all__ = ["google_suggestions", "gpt2_suggester"]
+__version__ = "1.1.0"

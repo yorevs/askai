@@ -52,7 +52,8 @@ def eval_response(question: str, ai_response: str) -> AccResponse:
     """
     if ai_response and ai_response not in msg.accurate_responses:
         eval_template = PromptTemplate(
-            input_variables=["rag", "input", "response"], template=prompt.read_prompt("evaluation"))
+            input_variables=["rag", "input", "response"], template=prompt.read_prompt("evaluation")
+        )
         final_prompt = eval_template.format(rag=RAG.get_rag_examples(question), input=question, response=ai_response)
         log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
         llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)

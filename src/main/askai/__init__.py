@@ -5,10 +5,5 @@
 # Package: main.askai
 """Package initialization."""
 
-__all__ = [
-    'core', 
-    'exception', 
-    'language', 
-    'tui'
-]
-__version__ = '1.1.0'
+__all__ = ["core", "exception", "language", "tui"]
+__version__ = "1.1.0"

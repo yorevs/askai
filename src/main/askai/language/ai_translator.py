@@ -12,13 +12,13 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import re
 from abc import ABC
-from typing import AnyStr
-
 from askai.core.askai_events import events
 from askai.core.model.ai_reply import AIReply
 from askai.language.language import Language
+from typing import AnyStr
+
+import re
 
 
 class AITranslator(ABC):
@@ -43,7 +43,7 @@ class AITranslator(ABC):
         indices = []
         # Collect texts to translate
         for i, part in enumerate(parts):
-            if not tag_pattern.fullmatch(part) and part.strip() != '':
+            if not tag_pattern.fullmatch(part) and part.strip() != "":
                 texts_to_translate.append(part)
                 indices.append(i)
 
@@ -59,7 +59,7 @@ class AITranslator(ABC):
             parts[idx] = translated
 
         # Reassemble the translated text with tags
-        translated_text = ''.join(parts)
+        translated_text = "".join(parts)
 
         return translated_text
 

@@ -12,25 +12,25 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import os
-from textwrap import indent
-from threading import Thread
-
+from askai.core.askai_configs import configs
+from askai.core.askai_events import ABORT_EVENT, ASKAI_BUS_NAME, AskAiEvents
+from askai.core.askai_messages import msg
+from askai.core.enums.acc_color import AccColor
+from askai.core.processors.splitter.splitter_pipeline import SplitterPipeline
+from askai.core.processors.splitter.splitter_states import States
+from askai.core.support.text_formatter import text_formatter
+from askai.core.support.text_formatter import text_formatter as tf
+from askai.exception.exceptions import InaccurateResponse
 from clitt.core.term.cursor import cursor
 from hspylib.core.tools.commons import is_debugging
 from hspylib.modules.eventbus.event import Event
 from rich.live import Live
 from rich.spinner import Spinner
 from rich.text import Text
+from textwrap import indent
+from threading import Thread
 
-from askai.core.askai_configs import configs
-from askai.core.askai_events import AskAiEvents, ASKAI_BUS_NAME, ABORT_EVENT
-from askai.core.askai_messages import msg
-from askai.core.enums.acc_color import AccColor
-from askai.core.processors.splitter.splitter_pipeline import SplitterPipeline
-from askai.core.processors.splitter.splitter_states import States
-from askai.core.support.text_formatter import text_formatter as tf, text_formatter
-from askai.exception.exceptions import InaccurateResponse
+import os
 
 
 class SplitterExecutor(Thread):
@@ -66,16 +66,16 @@ class SplitterExecutor(Thread):
         """Execute the splitter pipeline."""
 
         try:
-            with Live(Spinner("dots", f"[green]{self.pipeline.state}…[/green]", style="green"), console=tf.console) as live:
+            with Live(
+                Spinner("dots", f"[green]{self.pipeline.state}…[/green]", style="green"), console=tf.console
+            ) as live:
                 while not (self._interrupted or self.pipeline.state == States.COMPLETE):
                     self.pipeline.track_previous()
                     if 1 < configs.max_router_retries < 1 + self.pipeline.failures[self.pipeline.state.value]:
-                        self.display(
-                            f"\n[red] Max retries exceeded: {configs.max_agent_retries}[/red]\n", True)
+                        self.display(f"\n[red] Max retries exceeded: {configs.max_agent_retries}[/red]\n", True)
                         break
                     if 1 < configs.max_iteractions < 1 + self.pipeline.iteractions:
-                        self.display(
-                            f"\n[red] Max iteractions exceeded: {configs.max_iteractions}[/red]\n", True)
+                        self.display(f"\n[red] Max iteractions exceeded: {configs.max_iteractions}[/red]\n", True)
                         break
                     match self.pipeline.state:
                         case States.STARTUP:
@@ -98,8 +98,7 @@ class SplitterExecutor(Thread):
                         case States.ACC_CHECK:
                             acc_color: AccColor = self.pipeline.st_accuracy_check()
                             c_name: str = acc_color.color.casefold()
-                            self.display(
-                                f"[green]√ Accuracy check: [{c_name}]{c_name.upper()}[/{c_name}][/green]")
+                            self.display(f"[green]√ Accuracy check: [{c_name}]{c_name.upper()}[/{c_name}][/green]")
                             if acc_color.passed(AccColor.GOOD):
                                 self.pipeline.ev_accuracy_passed()
                             elif acc_color.passed(AccColor.MODERATE):
@@ -114,7 +113,8 @@ class SplitterExecutor(Thread):
                                 self.pipeline.ev_final_answer()
                         case _:
                             self.display(
-                                f"[red] Error: Machine halted before complete!({self.pipeline.state})[/red]", True)
+                                f"[red] Error: Machine halted before complete!({self.pipeline.state})[/red]", True
+                            )
                             break
 
                     execution_status: bool = self.pipeline.previous != self.pipeline.state
@@ -132,14 +132,16 @@ class SplitterExecutor(Thread):
 
         if configs.is_debug:
             final_state: States = self.pipeline.state
-            final_state_str: str = '[green] Succeeded[/green] ' \
-                if final_state == States.COMPLETE \
-                else '[red] Failed [/red]'
+            final_state_str: str = (
+                "[green] Succeeded[/green] " if final_state == States.COMPLETE else "[red] Failed [/red]"
+            )
             self.display(
                 f"\n[cyan]Pipeline execution {final_state_str} [cyan][{final_state}][/cyan] "
-                f"after [yellow]{self.pipeline.iteractions}[/yellow] iteractions\n")
+                f"after [yellow]{self.pipeline.iteractions}[/yellow] iteractions\n"
+            )
             all_failures: str = indent(
-                os.linesep.join([f"- {k}: {c}" for k, c in self.pipeline.failures.items()]), '  ')
+                os.linesep.join([f"- {k}: {c}" for k, c in self.pipeline.failures.items()]), "  "
+            )
             self.display(f"Failures:\n{all_failures}")
 
             if final_state != States.COMPLETE:

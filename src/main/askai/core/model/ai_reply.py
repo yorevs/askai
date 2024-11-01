@@ -12,10 +12,9 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from rich.console import ConsoleRenderable
-
 from askai.core.enums.verbosity import Verbosity
 from dataclasses import dataclass
+from rich.console import ConsoleRenderable
 from typing import AnyStr, TypeAlias
 
 AnyText: TypeAlias = AnyStr | ConsoleRenderable

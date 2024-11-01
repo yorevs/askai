@@ -6,14 +6,14 @@
 """Package initialization."""
 
 __all__ = [
-    'chat_context', 
-    'langchain_support', 
-    'llm_parser', 
-    'os_utils', 
-    'presets', 
-    'shared_instances', 
-    'spinner', 
-    'text_formatter', 
-    'utilities'
+    "chat_context",
+    "langchain_support",
+    "llm_parser",
+    "os_utils",
+    "presets",
+    "shared_instances",
+    "spinner",
+    "text_formatter",
+    "utilities",
 ]
-__version__ = '1.1.0'
+__version__ = "1.1.0"

@@ -6,13 +6,13 @@
 """Package initialization."""
 
 __all__ = [
-    'acc_response', 
-    'action_plan', 
-    'ai_reply', 
-    'api_keys', 
-    'image_result', 
-    'model_result', 
-    'search_result', 
-    'summary_result'
+    "acc_response",
+    "action_plan",
+    "ai_reply",
+    "api_keys",
+    "image_result",
+    "model_result",
+    "search_result",
+    "summary_result",
 ]
-__version__ = '1.1.0'
+__version__ = "1.1.0"

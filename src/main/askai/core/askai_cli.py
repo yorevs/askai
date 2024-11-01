@@ -12,8 +12,6 @@
 
    Copyright (c) 2024, HomeSetup
 """
-import signal
-
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -44,6 +42,7 @@ import logging as log
 import nltk
 import os
 import pause
+import signal
 
 QueryString: TypeAlias = str | List[str] | None
 
