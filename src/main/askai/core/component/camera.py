@@ -70,7 +70,7 @@ class Camera(metaclass=Singleton):
                 pause.seconds(1)
                 events.reply.emit(reply=AIReply.mute(msg.smile(i)), erase_last=True)
             player.play_sfx("camera-shutter")
-            events.reply.emit(reply=AIReply.mute("  !!!Click!!!"), erase_last=True)
+            events.reply.emit(reply=AIReply.mute(msg.click()), erase_last=True)
 
     def __init__(self):
         self._cam = None

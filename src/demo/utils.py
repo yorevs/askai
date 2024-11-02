@@ -2,6 +2,7 @@ from askai.__classpath__ import classpath
 from askai.core.askai_events import events
 from askai.core.commander.commander import commands
 from askai.core.component.cache_service import cache
+from askai.core.enums.router_mode import RouterMode
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
@@ -39,7 +40,7 @@ def init_context(
             console_enable=console_enable,
         )
     KeyboardInput.preload_history(cache.load_input_history(commands()))
-    shared.create_engine(engine_name=engine_name, model_name=model_name)
+    shared.create_engine(engine_name=engine_name, model_name=model_name, mode=RouterMode.default())
     shared.create_context(context_size)
     events.reply.subscribe(cb_event_handler=lambda ev: display_text(ev.args.reply))
     atexit.register(cache.save_input_history)

@@ -19,10 +19,11 @@ from typing import Protocol
 class AIVision(Protocol):
     """Provide an interface for AI vision."""
 
-    def caption(self, filename: AnyPath, load_dir: AnyPath | None = None) -> str:
+    def caption(self, filename: AnyPath, load_dir: AnyPath | None, query: str | None = None) -> str:
         """Generate a caption for the provided image.
         :param filename: File name of the image for which the caption is to be generated.
         :param load_dir: Optional directory path for loading related resources.
+        :param query: Optional question about details of the image.
         :return: A dictionary containing the generated caption.
         """
         ...

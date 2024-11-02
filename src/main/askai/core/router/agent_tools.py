@@ -12,6 +12,19 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import inspect
+import logging as log
+import os
+import re
+from functools import lru_cache
+from textwrap import dedent
+from typing import Callable, Optional
+
+from clitt.core.tui.line_input.line_input import line_input
+from hspylib.core.metaclass.classpath import AnyPath
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.tools import BaseTool, StructuredTool
+
 from askai.core.askai_messages import msg
 from askai.core.router.tools.analysis import query_output
 from askai.core.router.tools.browser import browse, open_url
@@ -20,21 +33,8 @@ from askai.core.router.tools.generation import generate_content, save_content
 from askai.core.router.tools.summarization import summarize
 from askai.core.router.tools.terminal import execute_command, list_contents, open_command
 from askai.core.router.tools.vision import image_captioner, parse_caption
-from askai.core.router.tools.webcam import webcam_capturer, webcam_identifier
+from askai.core.router.tools.webcam import webcam_capturer, webcam_identifier, CAPTION_TEMPLATE
 from askai.exception.exceptions import TerminatingQuery
-from clitt.core.tui.line_input.line_input import line_input
-from functools import lru_cache
-from hspylib.core.metaclass.classpath import AnyPath
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith
-from langchain_core.tools import BaseTool, StructuredTool
-from textwrap import dedent
-from typing import Callable, Optional
-
-import inspect
-import logging as log
-import os
-import re
 
 
 class AgentTools(metaclass=Singleton):
@@ -128,9 +128,10 @@ class AgentTools(metaclass=Singleton):
         :param image_path: The absolute path of the image file to be analyzed.
         :return: A string containing the generated caption describing the image.
         """
-        return ensure_endswith(
-            ensure_startswith(parse_caption(image_captioner(image_path)), f"\n>   Description of '{image_path}':\n"),
-            "\n",
+        image_caption: list[str] = parse_caption(image_captioner(image_path))
+        return CAPTION_TEMPLATE.substitute(
+            image_path=image_path,
+            image_caption=os.linesep.join(image_caption) if image_caption else ''
         )
 
     def webcam_capturer(self, photo_name: str | None, detect_faces: bool = False) -> str:

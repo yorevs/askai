@@ -1,3 +1,15 @@
+import os
+from textwrap import indent
+
+import pyautogui
+import torch
+from PIL import Image
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.classpath import AnyPath
+from hspylib.core.preconditions import check_argument
+from transformers import BlipForConditionalGeneration, BlipProcessor
+
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.cache_service import PICTURE_DIR
@@ -6,17 +18,6 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.model.image_result import ImageResult
 from askai.core.router.evaluation import resolve_x_refs
 from askai.core.support.shared_instances import shared
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.classpath import AnyPath
-from hspylib.core.preconditions import check_argument
-from PIL import Image
-from textwrap import indent
-from transformers import BlipForConditionalGeneration, BlipProcessor
-
-import os
-import pyautogui
-import torch
 
 
 class HFModel(Enumeration):
@@ -92,7 +93,7 @@ def image_captioner(path_name: AnyPath, load_dir: AnyPath | None = None) -> str:
     return image_caption
 
 
-def parse_caption(image_caption: str) -> str:
+def parse_caption(image_caption: str) -> list[str]:
     """Parse the given image caption.
     :param image_caption: The caption to parse.
     :return: The parsed caption as a string.
@@ -102,17 +103,16 @@ def parse_caption(image_caption: str) -> str:
         ln: str = os.linesep
         people_desc: str = ""
         if result.people_description:
-            people_desc: str = f"- **People:** `({result.people_count})`\n" + indent(
-                f"- {'- '.join([f'`{ppl}{ln}`' + ln for ppl in result.people_description])}", "    "
-            )
-        # fmt: off
-        return (
-            f"- **Description:** `{result.env_description}`\n"
-            f"- **Objects:** `{', '.join(result.main_objects)}`\n"
-            f"{people_desc or ''}"
-        )  # fmt: on
+            people_desc: list[str] = [
+                f"- **People:** `({result.people_count})`",
+                indent(f"- {'- '.join([f'`{ppl}{ln}`' + ln for ppl in result.people_description])}", "    ")
+            ]
+        return [
+            f"- **Description:** `{result.env_description}`",
+            f"- **Objects:** `{', '.join(result.main_objects)}`",
+        ] + people_desc
 
-    return msg.no_caption()
+    return [msg.no_caption()]
 
 
 def take_screenshot(path_name: AnyPath, load_dir: AnyPath | None = None) -> str:

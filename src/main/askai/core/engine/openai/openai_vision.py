@@ -72,26 +72,25 @@ class OpenAIVision:
         return msg.content
 
     def template(self, question: str | None = None) -> str:
-        return dedent(
-            f"""
+        return dedent(f"""\
         Given the image, provide the following information:
         - A count of how many living beings are in the image.
         - A list of the main objects present in the image.
         - A description the atmosphere of the environment.
         - A list of detailed descriptions all living beings you find in the image.
-        {'- ' + question if question else ''}"""
-        ).strip()
+        {'- ' + question if question else ''}""").strip()
 
     @retry()
-    def caption(self, filename: AnyPath, load_dir: AnyPath | None, question: str | None = None) -> str:
+    def caption(self, filename: AnyPath, load_dir: AnyPath | None, query: str | None = None) -> str:
         """Generate a caption for the provided image.
         :param filename: File name of the image for which the caption is to be generated.
         :param load_dir: Optional directory path for loading related resources.
-        :return: A dictionary containing the generated caption.
+        :param query: Optional question about details of the image.
+        :return: A string containing the generated caption.
         """
         final_path: str = os.path.join(load_dir, filename) if load_dir else os.getcwd()
         check_argument(len((final_path := str(find_file(final_path) or ""))) > 0, f"Invalid image path: {final_path}")
-        vision_prompt = self.template()
+        vision_prompt = self.template(query)
         load_image_chain = TransformChain(
             input_variables=["image_path"], output_variables=["image"], transform=self._encode_image
         )
