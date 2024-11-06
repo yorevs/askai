@@ -1,0 +1,58 @@
+name: create-release
+run-name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      comment:
+        description: 'Release description'
+        default: 'New release'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  init:
+    name: Init
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set-app-version.outputs.version }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Set App Version
+        id: set-app-version
+        run: |
+          appVersion=$(grep -e '.*' src/main/askai/.version)
+          echo "version=$(echo $appVersion)" >> $GITHUB_OUTPUT
+
+  create-release:
+    needs: init
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Git Tag Version
+        uses: yorevs/hspylib/.github/actions/tag-version@master
+        with:
+          tag-name: "v${{ needs.init.outputs.version }}"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Changelog
+        id: change-log
+        uses: yorevs/hspylib/.github/actions/changelog@master
+        with:
+          tag-name: "v${{ needs.init.outputs.version }}"
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "v${{ needs.init.outputs.version }}"
+          release_name: "${{ vars.APP_NAME }}-v${{ needs.init.outputs.version }}-r${{ github.run_number }}"
+          body: |
+            ${{ steps.change-log.outputs.changelog }}
+          draft: false
+          prerelease: false
