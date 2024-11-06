@@ -1,25 +1,25 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.1.0
+# hspylib-askai v1.2.1
 #
 # Package: main.askai.core
 """Package initialization."""
 
 __all__ = [
-    "askai",
-    "askai_cli",
-    "askai_configs",
-    "askai_events",
-    "askai_messages",
-    "askai_prompt",
-    "askai_settings",
-    "commander",
-    "component",
-    "engine",
-    "enums",
-    "model",
-    "processors",
-    "router",
-    "support",
+    'askai', 
+    'askai_cli', 
+    'askai_configs', 
+    'askai_events', 
+    'askai_messages', 
+    'askai_prompt', 
+    'askai_settings', 
+    'commander', 
+    'component', 
+    'engine', 
+    'enums', 
+    'model', 
+    'processors', 
+    'router', 
+    'support'
 ]
-__version__ = "1.1.0"
+__version__ = '1.2.1'

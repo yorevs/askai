@@ -1,9 +1,15 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.1.0
+# hspylib-askai v1.2.1
 #
 # Package: main.askai.core.engine.openai
 """Package initialization."""
 
-__all__ = ["openai_configs", "openai_engine", "openai_model", "openai_vision", "temperature"]
-__version__ = "1.1.0"
+__all__ = [
+    'openai_configs', 
+    'openai_engine', 
+    'openai_model', 
+    'openai_vision', 
+    'temperature'
+]
+__version__ = '1.2.1'

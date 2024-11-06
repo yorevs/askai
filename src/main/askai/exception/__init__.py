@@ -1,9 +1,11 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.1.0
+# hspylib-askai v1.2.1
 #
 # Package: main.askai.exception
 """Package initialization."""
 
-__all__ = ["exceptions"]
-__version__ = "1.1.0"
+__all__ = [
+    'exceptions'
+]
+__version__ = '1.2.1'

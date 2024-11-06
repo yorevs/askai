@@ -1,19 +1,19 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.1.0
+# hspylib-askai v1.2.1
 #
 # Package: main.askai.core.support
 """Package initialization."""
 
 __all__ = [
-    "chat_context",
-    "langchain_support",
-    "llm_parser",
-    "os_utils",
-    "presets",
-    "shared_instances",
-    "spinner",
-    "text_formatter",
-    "utilities",
+    'chat_context', 
+    'langchain_support', 
+    'llm_parser', 
+    'os_utils', 
+    'presets', 
+    'shared_instances', 
+    'spinner', 
+    'text_formatter', 
+    'utilities'
 ]
-__version__ = "1.1.0"
+__version__ = '1.2.1'

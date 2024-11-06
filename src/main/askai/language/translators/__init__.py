@@ -1,9 +1,13 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.1.0
+# hspylib-askai v1.2.1
 #
 # Package: main.askai.language.translators
 """Package initialization."""
 
-__all__ = ["argos_translator", "deepl_translator", "marian_translator"]
-__version__ = "1.1.0"
+__all__ = [
+    'argos_translator', 
+    'deepl_translator', 
+    'marian_translator'
+]
+__version__ = '1.2.1'
