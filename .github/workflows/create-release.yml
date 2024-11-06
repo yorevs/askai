@@ -35,11 +35,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      - name: Git Tag Version
-        uses: yorevs/hspylib/.github/actions/tag-version@master
-        with:
-          tag-name: "v${{ needs.init.outputs.version }}"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Changelog
         id: change-log
         uses: yorevs/hspylib/.github/actions/changelog@master
