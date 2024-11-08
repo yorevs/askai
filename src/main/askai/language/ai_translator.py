@@ -59,7 +59,7 @@ class AITranslator(ABC):
             parts[idx] = translated
 
         # Reassemble the translated text with tags
-        translated_text = "".join(parts)
+        translated_text = " ".join(parts)
 
         return translated_text
 

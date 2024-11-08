@@ -52,16 +52,16 @@ class ArgosTranslator(AITranslator):
 
         return source_lang[0].get_translation(target_lang[0])
 
-    def __init__(self, from_idiom: Language, to_idiom: Language):
-        super().__init__(from_idiom, to_idiom)
-        if argos_model := self._get_argos_model(from_idiom, to_idiom):
-            log.debug(f"Argos translator found for: {from_idiom.language} -> {to_idiom.language}")
+    def __init__(self, source_lang: Language, target_lang: Language):
+        super().__init__(source_lang, target_lang)
+        if argos_model := self._get_argos_model(source_lang, target_lang):
+            log.debug(f"Argos translator found for: {source_lang.language} -> {target_lang.language}")
         elif not self._install_translator():
             raise TranslationPackageError(
-                f"Could not install Argos translator: {from_idiom.language} -> {to_idiom.language}"
+                f"Could not install Argos translator: {source_lang.language} -> {target_lang.language}"
             )
         else:
-            argos_model = self._get_argos_model(from_idiom, to_idiom)
+            argos_model = self._get_argos_model(source_lang, target_lang)
         self._argos_model = argos_model
 
     @lru_cache

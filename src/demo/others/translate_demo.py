@@ -15,13 +15,13 @@ if __name__ == "__main__":
     from_lang: Language = Language.EN_US
     to_lang: Language = Language.PT_BR
 
-    # DeepL
-    t = DeepLTranslator(from_lang, to_lang)
-    sysout("DeepL: ", t.translate(text))
-
-    # Marian
-    m = MarianTranslator(from_lang, to_lang)
-    sysout("Marian: ", m.translate(text))
+    # # DeepL
+    # t = DeepLTranslator(from_lang, to_lang)
+    # sysout("DeepL: ", t.translate(text))
+    #
+    # # Marian
+    # m = MarianTranslator(from_lang, to_lang)
+    # sysout("Marian: ", m.translate(text))
 
     # Argos-Translate
     a = ArgosTranslator(from_lang, to_lang)
