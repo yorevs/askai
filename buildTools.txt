@@ -11,3 +11,5 @@ black
 mypy
 pylint
 pdoc
+pytest
+PyInstaller

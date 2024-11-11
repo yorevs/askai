@@ -1,14 +1,15 @@
 # Makefile for AskAI project
 
-VENV_PATH=venv
-PYTHON=$(VENV_PATH)/bin/python
-SRC_DIR=src/main/askai/
-BUILD_DIR=build/
-DIST_DIR=dist/
-APP=$(SRC_DIR)/__main__.py
-EXECUTABLE_NAME=askai
-PREFIX?=/opt/homebrew/bin
-INSTALL_PATH="$(PREFIX)/$(EXECUTABLE_NAME)"
+VENV_PATH="venv"
+PYTHON="$(VENV_PATH)/bin/python"
+SRC_DIR="src/main"
+BUILD_DIR="build"
+DIST_DIR="dist"
+MAIN_FILE="$(SRC_DIR)/askai/__main__.py"
+REQS_FILE="$(SRC_DIR)/requirements.txt"
+PREFIX?="/opt/homebrew/bin"
+INSTALL_PATH="$(PREFIX)/$(BIN_NAME)"
+BIN_NAME="taius"
 
 .PHONY: create_venv requirements install_packages activate clean dist run require_sudo install
 
@@ -30,12 +31,17 @@ create_venv:
 # Target to generate the requirements file
 requirements: create_venv
 	$(PYTHON) -m pip install --upgrade pip
-	$(PYTHON) -m pip freeze > requirements.txt
+	@if ! [ -f "$(REQS_FILE)" ]; then \
+  	echo "Requirements file not found: '$(REQS_FILE)'. Generating..."; \
+    $(PYTHON) -m pip freeze > "$(REQS_FILE)"; \
+  else \
+    echo "Using the existing requirements file: '$(REQS_FILE)'. "; \
+  fi
 
 # Target to install packages into venv
 install_packages: activate requirements
-	echo "Installing $(EXECUTABLE_NAME) into $(INSTALL_PATH)"
-	$(PYTHON) -m pip install -r requirements.txt
+	echo "Installing $(BIN_NAME) into $(INSTALL_PATH)"
+	$(PYTHON) -m pip install -r "$(REQS_FILE)"
 
 # Target to activate the virtual environment
 activate:
@@ -48,11 +54,11 @@ clean:
 
 # Create a distribution
 dist: clean install_packages
-	pyinstaller --onefile --name enrager --paths "$(SRC_DIR)" "$(APP)"
+	pyinstaller --onefile --name "$(BIN_NAME)" --paths "$(SRC_DIR)" "$(MAIN_FILE)"
 
 # Target to run the app
 run:
-	PYTHONPATH="$(SRC_DIR)" $(PYTHON) "$(APP)" $(ARGS)
+	PYTHONPATH="$(SRC_DIR)" $(PYTHON) "$(MAIN_FILE)" $(ARGS)
 
 # Target to require sudo before executing other targets
 require_sudo:
@@ -63,9 +69,9 @@ require_sudo:
 
 # Target to install the executable, depends on the 'dist' target
 install: dist
-	@if [ -f $(DIST_DIR)/$(EXECUTABLE_NAME) ]; then \
-		\cp $(DIST_DIR)/$(EXECUTABLE_NAME) $(INSTALL_PATH); \
-		echo "Installed $(EXECUTABLE_NAME) to $(INSTALL_PATH)"; \
+	@if [ -f $(DIST_DIR)/$(BIN_NAME) ]; then \
+		\cp $(DIST_DIR)/$(BIN_NAME) $(INSTALL_PATH); \
+		echo "Installed $(BIN_NAME) into $(INSTALL_PATH)"; \
 	else \
 		echo "Executable not found in $(DIST_DIR). Ensure 'dist' target builds the executable correctly."; \
 		exit 1; \
@@ -75,7 +81,7 @@ install: dist
 uninstall:
 	@if [ -f $(INSTALL_PATH) ]; then \
 		\rm -f $(INSTALL_PATH); \
-		echo "Uninstalled $(EXECUTABLE_NAME) from $(INSTALL_PATH)"; \
+		echo "Uninstalled $(BIN_NAME) from $(INSTALL_PATH)"; \
 	else \
-		echo "$(EXECUTABLE_NAME) is not installed."; \
+		echo "$(BIN_NAME) is not installed."; \
 	fi

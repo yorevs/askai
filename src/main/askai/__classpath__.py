@@ -40,7 +40,7 @@ try:
 except pydantic.v1.error_wrappers.ValidationError as err:
     if not ApiKeys.prompt():
         log.error(err.json())
-        sys.exit(ExitStatus.ABNORMAL)
+        sys.exit(ExitStatus.ABNORMAL.val)
 
 
 class _Classpath(Classpath):

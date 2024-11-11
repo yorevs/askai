@@ -8,9 +8,9 @@
 */
 
 /* HSPyLib projects */
-package: hspylib, version: 1.12.51, mode: ge
-package: hspylib-clitt, version: 0.9.139, mode: ge
-package: hspylib-setman, version: 0.10.42, mode: ge
+package: hspylib, version: 1.12.53, mode: ge
+package: hspylib-clitt, version: 0.9.140, mode: ge
+package: hspylib-setman, version: 0.10.43, mode: ge
 
 /* General */
 package: retry2, version: 0.9.5, mode: eq
