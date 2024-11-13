@@ -12,6 +12,24 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import logging as log
+import os
+import signal
+from pathlib import Path
+from threading import Thread
+from typing import List, Optional, TypeAlias
+
+import nltk
+import pause
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import console_out
+from hspylib.core.zoned_datetime import now, TIME_FORMAT
+from hspylib.modules.eventbus.event import Event
+from rich.progress import Progress
+
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -27,22 +45,6 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 from askai.tui.app_icons import AppIcons
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.core.enums.charset import Charset
-from hspylib.core.zoned_datetime import now, TIME_FORMAT
-from hspylib.modules.eventbus.event import Event
-from pathlib import Path
-from rich.progress import Progress
-from threading import Thread
-from typing import List, Optional, TypeAlias
-
-import logging as log
-import nltk
-import os
-import pause
-import signal
 
 QueryString: TypeAlias = str | List[str] | None
 
@@ -165,7 +167,7 @@ class AskAiCli(AskAi):
         :param interval: The interval in milliseconds for polling the startup status (default is 250 ms).
         """
         screen.clear()
-        display_text(f"%GREEN%{self.SPLASH}%NC%", markdown=False)
+        console_out.print(self.SPLASH)
         while not self._ready:
             pause.milliseconds(interval)
         screen.clear()

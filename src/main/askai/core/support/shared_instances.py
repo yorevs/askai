@@ -116,7 +116,7 @@ class SharedInstances(metaclass=Singleton):
     @property
     def app_info(self) -> str:
         device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
-        device_info += f", AUTO-SWAP {'' if recorder.is_auto_swap else '%RED%'}"
+        device_info += f", %YELLOW%AUTO-SWAP {'%GREEN%' if recorder.is_auto_swap else '%RED%'}"
         dtm = f" {geo_location.datetime} "
         speak_info = str(configs.tempo) + " @" + self.engine.configs().tts_voice
         cur_dir = elide_text(str(Path(os.getcwd()).absolute()), 67, "…")
@@ -135,11 +135,12 @@ class SharedInstances(metaclass=Singleton):
                     Dir: {cur_dir}
                      OS: {prompt.os_type}/{prompt.shell}
             {'-' * 80}
-             Microphone: {device_info or '%RED%Undetected'} %GREEN%
+             Microphone: %CYAN%{device_info or '%RED%Undetected'} %GREEN%
               Debugging: {'' if configs.is_debug else '%RED%'} %GREEN%
                Speaking: {', tempo: ' + speak_info if configs.is_speak else '%RED%'} %GREEN%
                 Caching: {', TTL: ' + str(configs.ttl) if configs.is_cache else '%RED%'} %GREEN%
             {'=' * 80}%NC%
+
             """
         )
 

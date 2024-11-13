@@ -72,7 +72,7 @@ class AskAiMessages(metaclass=Singleton):
     # Informational
 
     def welcome(self, username: AnyStr) -> str:
-        return f"Welcome back {username}, How can I assist you today ?"
+        return f"Welcome back {username}. What can I help with?"
 
     def wait(self) -> str:
         return "Thinking…"
