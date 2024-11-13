@@ -123,11 +123,19 @@ class AskAiConfigs(metaclass=Singleton):
 
     @property
     def is_rag(self) -> bool:
-        return settings.get_int("askai.rag.enabled")
+        return settings.get_bool("askai.rag.enabled")
 
     @is_rag.setter
     def is_rag(self, value: bool) -> None:
         settings.put("askai.rag.enabled", value)
+
+    @property
+    def ip_api_enabled(self) -> bool:
+        return settings.get_bool("askai.ip-api.geo-location.enabled")
+
+    @ip_api_enabled.setter
+    def ip_api_enabled(self, value: bool) -> None:
+        settings.put("askai.ip-api.geo-location.enabled", value)
 
     @property
     def is_assistive(self) -> bool:

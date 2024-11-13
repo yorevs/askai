@@ -69,13 +69,14 @@ def offline_captioner(path_name: AnyPath) -> str:
     return caption
 
 
-def image_captioner(path_name: AnyPath, load_dir: AnyPath | None = None) -> str:
+def image_captioner(path_name: AnyPath, load_dir: AnyPath | None = None, query: str | None = None) -> str:
     """This tool is used to describe an image.
     :param path_name: The path of the image to describe.
     :param load_dir: Optional directory path for loading related resources.
+    :param query: Optional query about the photo taken.
     :return: A string containing the description of the image, or None if the description could not be generated.
     """
-    image_caption: str = "Not available"
+    image_caption: str = "Unavailable"
     posix_path: PathObject = PathObject.of(path_name)
 
     if not posix_path.exists:
@@ -88,7 +89,7 @@ def image_captioner(path_name: AnyPath, load_dir: AnyPath | None = None) -> str:
     if posix_path.exists:
         events.reply.emit(reply=AIReply.full(msg.describe_image(posix_path)))
         vision: AIVision = shared.engine.vision()
-        image_caption = vision.caption(posix_path.filename, load_dir or posix_path.abs_dir or PICTURE_DIR)
+        image_caption = vision.caption(posix_path.filename, load_dir or posix_path.abs_dir or PICTURE_DIR, query)
 
     return image_caption
 
@@ -105,7 +106,7 @@ def parse_caption(image_caption: str) -> list[str]:
         if result.people_description:
             people_desc: list[str] = [
                 f"- **People:** `({result.people_count})`",
-                indent(f"- {'- '.join([f'`{ppl}{ln}`' + ln for ppl in result.people_description])}", "    ")
+                indent(f"- {'- '.join([f'`{ppl}{ln}`' + ln for ppl in result.people_description])}", "    "),
             ]
         return [
             f"- **Description:** `{result.env_description}`",

@@ -53,15 +53,17 @@ class GeoLocation(metaclass=Singleton):
         :param ip: The IP address to locate. If None, the current device's IP address will be used.
         :return: A Namespace object containing the geolocation data, such as latitude, longitude, city, and country.
         """
+        geo_req = Namespace(body=cls.EMPTY_JSON_RESP)
+
         try:
-            url = f"{cls.GEO_LOC_URL}{'/' + ip if ip else ''}"
-            log.debug("Fetching the Geo Position from: %s", url)
-            geo_req = fetch.get(url)
+            if configs.ip_api_enabled:
+                url = f"{cls.GEO_LOC_URL}{'/' + ip if ip else ''}"
+                log.debug("Fetching the Geo Position from: %s", url)
+                geo_req = Namespace(body=fetch.get(url).body)
         except (JSONDecodeError, ConnectionError, ReadTimeout) as err:
             log.error("Failed to retrieve geo location => %s", str(err))
-            geo_req = Namespace(body=cls.EMPTY_JSON_RESP)
-        geo_loc: Namespace = Namespace(**(json.loads(geo_req.body)))
-        return geo_loc
+
+        return Namespace(**(json.loads(geo_req.body)))
 
     def __init__(self, ip: str = None):
         self._geo_location = self.get_location(ip)

@@ -12,8 +12,10 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.core.model.image_result import ImageResult
-from askai.core.support.utilities import encode_image, find_file
+from typing import TypeAlias
+import os
+
+from langchain_core.prompts import PromptTemplate
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty
@@ -24,10 +26,10 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.runnables import chain
 from langchain_openai import ChatOpenAI
 from retry import retry
-from textwrap import dedent
-from typing import TypeAlias
 
-import os
+from askai.core.askai_prompt import prompt
+from askai.core.model.image_result import ImageResult
+from askai.core.support.utilities import encode_image, find_file
 
 Base64Image: TypeAlias = dict[str, str]
 
@@ -71,14 +73,10 @@ class OpenAIVision:
         )
         return msg.content
 
-    def template(self, question: str | None = None) -> str:
-        return dedent(f"""\
-        Given the image, provide the following information:
-        - A count of how many living beings are in the image.
-        - A list of the main objects present in the image.
-        - A description the atmosphere of the environment.
-        - A list of detailed descriptions all living beings you find in the image.
-        {'- ' + question if question else ''}""").strip()
+    def template(self, question: str = "") -> str:
+        return PromptTemplate(input_variables=["question"], template=prompt.read_prompt("vision")).format(
+            question=question
+        )
 
     @retry()
     def caption(self, filename: AnyPath, load_dir: AnyPath | None, query: str | None = None) -> str:
@@ -90,7 +88,7 @@ class OpenAIVision:
         """
         final_path: str = os.path.join(load_dir, filename) if load_dir else os.getcwd()
         check_argument(len((final_path := str(find_file(final_path) or ""))) > 0, f"Invalid image path: {final_path}")
-        vision_prompt = self.template(query)
+        vision_prompt: str = self.template(query)
         load_image_chain = TransformChain(
             input_variables=["image_path"], output_variables=["image"], transform=self._encode_image
         )

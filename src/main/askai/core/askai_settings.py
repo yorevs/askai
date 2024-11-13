@@ -47,7 +47,7 @@ class AskAiSettings(metaclass=Singleton):
     INSTANCE: "AskAiSettings"
 
     # Current settings version. Updating this value will trigger a database recreation using the defaults.
-    __ACTUAL_VERSION: str = "0.4.1"
+    __ACTUAL_VERSION: str = "0.4.2"
 
     __RESOURCE_DIR = str(classpath.resource_path)
 
@@ -113,6 +113,7 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.text.splitter.chunk.overlap", "askai", 100)
         self._settings.put("askai.rag.retrival.amount", "askai", 3)
         self._settings.put("askai.rag.enabled", "askai", True)
+        self._settings.put("askai.ip-api.geo-location.enabled", "askai", True)
         # Router
         self._settings.put("askai.max.short.memory.size", "askai", 15)
         self._settings.put("askai.max.router.iteractions", "askai", 30)

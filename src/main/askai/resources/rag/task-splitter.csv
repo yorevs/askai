@@ -1,4 +1,5 @@
 Human Question;Reasoning;Direct Response;Task List
+Is the man in front of the computer happy;The user requests verification of a man’s presence in front of the computer and an assessment of his happiness, achievable via the webcam_capturer tool.;N/A;[{{1. Use `webcam_capturer` to capture a photo via the webcam.}},{{2. Identify the presence of a smiling man.}}]
 Describe the first image in my Downloads folder.;The user requests that I locate the first image in their downloads folder and provide a description if one is found.;N/A;[{{1. List the user downloads folder}},{{2. Identify image files}},{{Describe the first image file}}]
 What is the size of the Moon?;The user is inquiring about the size of the moon, a commonly known fact. I will provide a concise and direct response.;Direct: The moon has a diameter of about 3.474 kilometers (2.159 miles).;N/A
 Hello, who are you?;The user is engaging in a casual conversation. The response should be straightforward.;Direct: Hello, I am Taius the AskAI helpful and kind assistant.;N/A

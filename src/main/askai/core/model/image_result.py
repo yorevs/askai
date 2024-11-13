@@ -11,6 +11,7 @@ class ImageResult(BaseModel):
     main_objects: list[str] = Field(description="List of the main objects on the picture")
     env_description: str = Field(description="Description of the atmosphere of the environment")
     people_description: list[str] = Field(description="List of people description")
+    user_response: list[str] = Field(description="A response to the user question")
 
     @staticmethod
     def of(image_caption: AnyStr) -> "ImageResult":

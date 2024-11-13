@@ -196,9 +196,10 @@ class CacheService(metaclass=Singleton):
         :param predefined: A list of predefined input queries to be appended to the final list.
         :return: A list of input queries loaded from the cache.
         """
-        history = self.read_input_history() or list()
+        history = list()
         if predefined:
             history.extend(list(filter(lambda c: c not in history, predefined)))
+        history.extend(self.read_input_history())
         return history
 
     def save_context(self, context: list[str] = None) -> None:

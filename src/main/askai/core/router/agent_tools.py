@@ -130,19 +130,19 @@ class AgentTools(metaclass=Singleton):
         """
         image_caption: list[str] = parse_caption(image_captioner(image_path))
         return CAPTION_TEMPLATE.substitute(
-            image_path=image_path,
-            image_caption=os.linesep.join(image_caption) if image_caption else ''
+            image_path=image_path, image_caption=os.linesep.join(image_caption) if image_caption else ""
         )
 
-    def webcam_capturer(self, photo_name: str | None, detect_faces: bool = False) -> str:
+    def webcam_capturer(self, photo_name: str | None, detect_faces: bool = False, query: str | None = None) -> str:
         """Capture a photo using the webcam, and save it locally. This tool is useful for taking photos, detect people's
         faces, and, describing what is in front of the webcam.
         Usage: `webcam_capturer(photo_name, detect_faces)`
         :param photo_name: The name of the photo file (without the extension). If None, a default name will be used.
         :param detect_faces: Whether to detect and describe all faces in the photo (default is False).
+        :param query: Optional query about the photo taken.
         :return: The file path of the saved JPEG image.
         """
-        return webcam_capturer(photo_name, detect_faces)
+        return webcam_capturer(photo_name, detect_faces, query)
 
     def webcam_identifier(self) -> str:
         """Identify the person in front of the webcam using a pre-stored set of faces and provide a description. This
