@@ -1,27 +1,25 @@
-
-what is the size of the Moon?
-who is the current Prime Minister of the United Kingdom?
-explain the theory of relativity in simple terms.
-what are the latest news headlines today?
-summarize the markdown files in my HomeSetup docs folder.
-list all the files in my Downloads folder.
-show me all the image files in my Pictures directory.
-open the first PDF document in my Documents folder.
-list my music library and check if there's any AC/DC song. If found, show the file name and play it.
-play the latest movie in my Videos folder.
-show me my favorite photos from last year.
-open the first reminder file in my Downloads and tell me what I need to do first.
-list my current reminders and mark the completed ones.
-create a small Python program to calculate speed given time and distance, and save it as 'dist.py'.
-check for updates in my Git repositories.
-what are the current weather conditions in San Francisco, CA today?
-when is the next Los Angeles Lakers match?
-do I have any events scheduled for this weekend?
-tell me who is currently logged into my computer.
-describe the first image in my Downloads folder.
-i have downloaded a QR logo, open it for me.
-tell me who you see using the webcam. Respond as if addressing an audience.
-change my desktop wallpaper to the first image in my Pictures folder.
-adjust my system volume to 50%.
-open my calendar and show today's schedule.
-search my Documents folder for any budget spreadsheets.
+What is the size of the Moon?
+Who is the current Prime Minister of the United Kingdom?
+Explain the theory of relativity in simple terms.
+What are the latest news headlines today?
+Summarize the markdown files in my HomeSetup docs folder.
+List all the files in my Downloads folder.
+Show me all the image files in my Pictures directory.
+Open the first PDF document in my Documents folder.
+List my music library and check if there's any AC/DC song. If found, show the file name and play it.
+Play the latest movie in my Videos folder.
+Open the first reminder file in my Downloads and tell me what I need to do first.
+List my current reminders and mark the completed ones.
+Create a small Python program to calculate speed given time and distance, and save it as 'dist.py'.
+Check for updates in my Git repositories.
+What are the current weather conditions in San Francisco, CA today?
+When is the next Los Angeles Lakers match?
+Do I have any events scheduled for this weekend?
+Tell me who is currently logged into my computer.
+Describe the dragon image in my Downloads folder.
+I have downloaded a QR logo, open it for me.
+Tell me who you see using the webcam. Respond as if addressing an audience.
+Change my desktop wallpaper to the first image in my Pictures folder.
+Adjust my system volume to 50%.
+Open my calendar and show today's schedule.
+Search my Documents folder for any budget spreadsheets.

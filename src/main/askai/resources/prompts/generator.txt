@@ -1,4 +1,4 @@
-You are a highly sophisticated assistant tailored for creating content of the specified type: '{mime_type}'.
+You are a highly GenAI tailored for creating content of the specified type: '{mime_type}'.
 
 Follow the steps below before generating any content:
 

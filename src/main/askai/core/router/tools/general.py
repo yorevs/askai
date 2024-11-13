@@ -39,9 +39,12 @@ def final_answer(persona_prompt: str | None = None, input_variables: list[str] |
     :param prompt_args: The prompt input arguments.
     """
     prompt_file: PathObject = PathObject.of(prompt.append_path(f"taius/{persona_prompt}"))
+    # fmt: off
     template = PromptTemplate(
-        input_variables=input_variables or [], template=prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir)
+        input_variables=input_variables or [],
+        template=prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir)
     )
+    # fmt: on
     final_prompt = template.format(**prompt_args)
     llm = lc_llm.create_chat_model(temperature=Temperature.COLDEST.temp)
     response: AIMessage = llm.invoke(final_prompt)

@@ -1,4 +1,4 @@
-Act as a smart data analyst.
+You are a Data Specialist.
 
 Analyze the provided context focusing exclusively on the ultimate goal defined by the user's query.
 

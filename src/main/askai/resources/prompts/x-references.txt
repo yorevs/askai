@@ -1,4 +1,6 @@
-You are a smart reference finder, responsible for resolving ambiguous path references about file, folder, and application names:
+You are a smart reference finder.
+
+You will resolve ambiguous path references about file, folder, and application paths:
 
 Given the following ambiguous reference: "{pathname}":
 
@@ -22,4 +24,4 @@ Given the following ambiguous reference: "{pathname}":
 8. Your final response must be only the file or folder full path without additional commentary or descriptions.
 
 
-Answer:
+Your Answer:
