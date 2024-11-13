@@ -12,14 +12,14 @@
 
    Copyright (c) 2024, HomeSetup
 """
+import datetime
 
 from askai.core.askai_configs import configs
-from datetime import datetime
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.namespace import Namespace
 from hspylib.modules.fetch import fetch
 from json import JSONDecodeError
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, ReadTimeout
 from textwrap import dedent
 
 import json
@@ -38,7 +38,7 @@ class GeoLocation(metaclass=Singleton):
         """
     {
         "status": "failure", "country": "", "countryCode": "", "region": "", "regionName": "",
-        "city": "", "zip": "", "lat": 0.0, "lon": 0.0, "timezone": "",
+        "city": "", "zip": "", "lat": 0.0, "lon": 0.0, "timezone": "UTC",
         "isp": "", "org": "", "as": "", "query": ""
     }
     """
@@ -57,7 +57,7 @@ class GeoLocation(metaclass=Singleton):
             url = f"{cls.GEO_LOC_URL}{'/' + ip if ip else ''}"
             log.debug("Fetching the Geo Position from: %s", url)
             geo_req = fetch.get(url)
-        except (JSONDecodeError, ConnectionError) as err:
+        except (JSONDecodeError, ConnectionError, ReadTimeout) as err:
             log.error("Failed to retrieve geo location => %s", str(err))
             geo_req = Namespace(body=cls.EMPTY_JSON_RESP)
         geo_loc: Namespace = Namespace(**(json.loads(geo_req.body)))
@@ -114,7 +114,7 @@ class GeoLocation(metaclass=Singleton):
 
     @property
     def datetime(self) -> str:
-        utc_datetime = datetime.utcnow().replace(tzinfo=pytz.utc)
+        utc_datetime = datetime.datetime.now(datetime.UTC).replace(tzinfo=pytz.utc)
         zoned_datetime = utc_datetime.astimezone(pytz.timezone(self.timezone))
         return zoned_datetime.strftime(self.DATE_FMT)
 
