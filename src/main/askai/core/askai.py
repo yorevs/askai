@@ -12,6 +12,22 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from pathlib import Path
+from typing import Any, Optional
+import logging as log
+import os
+import re
+import sys
+import threading
+
+from click import UsageError
+from clitt.core.term.terminal import terminal
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import file_is_not_empty, is_debugging
+from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
+from hspylib.modules.application.exit_status import ExitStatus
+from openai import RateLimitError
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -28,23 +44,6 @@ from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text, read_stdin
 from askai.exception.exceptions import *
 from askai.tui.app_icons import AppIcons
-from click import UsageError
-from clitt.core.term.terminal import terminal
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import file_is_not_empty, is_debugging
-from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
-from hspylib.modules.application.exit_status import ExitStatus
-from openai import RateLimitError
-from pathlib import Path
-from typing import Any, List, Optional, TypeAlias
-
-import logging as log
-import os
-import re
-import sys
-import threading
-
-QueryString: TypeAlias = str | List[str] | None
 
 
 class AskAi:
@@ -111,7 +110,6 @@ class AskAi:
 
     @property
     def session_id(self) -> str:
-        """Get the Session id."""
         return self._session_id
 
     @property
@@ -123,7 +121,8 @@ class AskAi:
         return all_settings
 
     def abort(self, signals: Any, frame: Any) -> None:
-        """Hook the SIGINT signal for cleanup or execution interruption. If two signals arrive within 1 second, exit the application.
+        """Hook the SIGINT signal for cleanup or execution interruption. If two signals arrive within 1 second,
+        abort the application execution.
         :param signals: Signal number from the operating system.
         :param frame: Current stack frame at the time of signal interruption.
         """

@@ -13,18 +13,22 @@
    Copyright (c) 2024, HomeSetup
 """
 import datetime
+import os
+from json import JSONDecodeError
+from textwrap import dedent
+import json
+import logging as log
 
-from askai.core.askai_configs import configs
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.namespace import Namespace
 from hspylib.modules.fetch import fetch
-from json import JSONDecodeError
 from requests.exceptions import ConnectionError, ReadTimeout
-from textwrap import dedent
-
-import json
-import logging as log
 import pytz
+
+from askai.core.askai_configs import configs
+from askai.core.component.cache_service import GEO_LOC_CACHE_FILE
 
 
 class GeoLocation(metaclass=Singleton):
@@ -34,15 +38,15 @@ class GeoLocation(metaclass=Singleton):
 
     GEO_LOC_URL: str = "http://ip-api.com/json"
 
-    EMPTY_JSON_RESP: str = dedent(
-        """
-    {
-        "status": "failure", "country": "London", "countryCode": "UK", "region": "Greater London",
-        "regionName": "England", "city": "Greenwich", "zip": "", "lat": 51.4826, "lon": 0.0077,
-        "timezone": "UTC", "isp": "", "org": "", "as": "", "query": ""
-    }
-    """
-    ).strip()
+    # fmt: off
+    DEFAULT_GEO_LOC: str = dedent("""\
+        {
+            "status": "failure", "isp": "N/A", "org": "N/A", "as": "N/A", "query": "N/A",
+            "country": "United Kingdom", "countryCode": "GB", "region": "GL", "regionName": "Greater London",
+            "city": "Greenwich", "zip": "SE10 0AB", "lat": 51.4874, "lon": 0.0045, "timezone": "UTC",
+        }
+        """).strip()
+    # fmt: on
 
     # Date format used in prompts, e.g: Fri 22 Mar 19:47 2024.
     DATE_FMT: str = "%a %d %b %-H:%M %Y"
@@ -53,13 +57,17 @@ class GeoLocation(metaclass=Singleton):
         :param ip: The IP address to locate. If None, the current device's IP address will be used.
         :return: A Namespace object containing the geolocation data, such as latitude, longitude, city, and country.
         """
-        geo_req = Namespace(body=cls.EMPTY_JSON_RESP)
+        geo_req = Namespace(body=cls.DEFAULT_GEO_LOC)
 
         try:
-            if configs.ip_api_enabled:
+            if file_is_not_empty(str(GEO_LOC_CACHE_FILE)):
+                geo_req = Namespace(body=GEO_LOC_CACHE_FILE.read_text(Charset.UTF_8.val))
+            elif configs.ip_api_enabled:
                 url = f"{cls.GEO_LOC_URL}{'/' + ip if ip else ''}"
                 log.debug("Fetching the Geo Position from: %s", url)
                 geo_req = Namespace(body=fetch.get(url).body)
+                with open(str(GEO_LOC_CACHE_FILE), "w") as f_geo_loc:
+                    f_geo_loc.write(geo_req.body + os.linesep)
         except (JSONDecodeError, ConnectionError, ReadTimeout) as err:
             log.error("Failed to retrieve geo location => %s", str(err))
 

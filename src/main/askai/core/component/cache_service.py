@@ -89,6 +89,9 @@ ASKAI_MEMORY_FILE: Path = Path(CACHE_DIR / "askai-memory-history.txt")
 if not file_is_not_empty(str(ASKAI_MEMORY_FILE)):
     touch_file(str(ASKAI_MEMORY_FILE))
 
+GEO_LOC_CACHE_FILE: Path = Path(CACHE_DIR / "geo-location.json")
+
+
 CacheEntry = namedtuple("CacheEntry", ["key", "expires"])
 
 

@@ -23,7 +23,7 @@ from hspylib.core.tools.text_tools import ensure_endswith, strip_escapes
 from hspylib.core.zoned_datetime import now_ms
 from os.path import basename, dirname
 from pathlib import Path
-from typing import AnyStr, Optional
+from typing import AnyStr, Optional, TypeAlias
 
 import base64
 import mimetypes
@@ -32,6 +32,8 @@ import re
 import shlex
 import shutil
 import sys
+
+QueryString: TypeAlias = None | str | list[str]
 
 
 def read_stdin() -> Optional[str]:

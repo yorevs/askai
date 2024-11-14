@@ -17,13 +17,14 @@ import os
 import signal
 from pathlib import Path
 from threading import Thread
-from typing import List, Optional, TypeAlias
+from typing import Optional
 
 import nltk
 import pause
 from clitt.core.term.cursor import cursor
 from clitt.core.term.screen import screen
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.core.decorator.decorators import profiled
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import console_out
 from hspylib.core.zoned_datetime import now, TIME_FORMAT
@@ -46,8 +47,6 @@ from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 from askai.tui.app_icons import AppIcons
 
-QueryString: TypeAlias = str | List[str] | None
-
 
 class AskAiCli(AskAi):
     """The AskAI CLI application."""
@@ -61,15 +60,14 @@ class AskAiCli(AskAi):
         query_prompt: str,
         engine_name: str,
         model_name: str,
-        query_string: QueryString,
+        query_string: str | None,
         mode: RouterMode,
     ):
 
         super().__init__(speak, debug, cacheable, tempo, engine_name, model_name, mode)
         self._ready: bool = False
-        self._progress = Progress()
-        self._query_prompt = query_prompt
-        self._query_string: QueryString = query_string if isinstance(query_string, str) else " ".join(query_string)
+        self._query_prompt: str = query_prompt
+        self._query_string: str | None = query_string
         self._startup()
 
     def run(self) -> None:
@@ -174,6 +172,7 @@ class AskAiCli(AskAi):
 
     def _startup(self) -> None:
         """Initialize the application components."""
+        progress: Progress = Progress()
         # List of tasks for progress tracking
         tasks = [
             "Downloading nltk data",
@@ -189,21 +188,21 @@ class AskAiCli(AskAi):
         if configs.is_interactive:
             splash_thread: Thread = Thread(daemon=True, target=self._splash)
             splash_thread.start()
-            task = self._progress.add_task(f'[green] {msg.t("Starting up...")}', total=len(tasks))
-            with self._progress:
+            task = progress.add_task(f'[green] {msg.t("Starting up...")}', total=len(tasks))
+            with progress:
                 os.chdir(Path.home())
-                self._progress.update(task, advance=1, description=f'[green] {msg.t("Downloading nltk data")}')
+                progress.update(task, advance=1, description=f'[green] {msg.t("Downloading nltk data")}')
                 nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
                 cache.cache_enable = configs.is_cache
-                self._progress.update(task, advance=1, description=f'[green] {msg.t("Loading input history")}')
+                progress.update(task, advance=1, description=f'[green] {msg.t("Loading input history")}')
                 KeyboardInput.preload_history(cache.load_input_history(commands()))
-                self._progress.update(task, advance=1, description=f'[green] {msg.t("Starting scheduler")}')
+                progress.update(task, advance=1, description=f'[green] {msg.t("Starting scheduler")}')
                 scheduler.start()
-                self._progress.update(task, advance=1, description=f'[green] {msg.t("Setting up recorder")}')
+                progress.update(task, advance=1, description=f'[green] {msg.t("Setting up recorder")}')
                 recorder.setup()
-                self._progress.update(task, advance=1, description=f'[green] {msg.t("Starting player delay")}')
+                progress.update(task, advance=1, description=f'[green] {msg.t("Starting player delay")}')
                 player.start_delay()
-                self._progress.update(task, advance=1, description=f'[green] {msg.t("Finalizing startup")}')
+                progress.update(task, advance=1, description=f'[green] {msg.t("Finalizing startup")}')
                 pause.seconds(1)
             self._ready = True
             splash_thread.join()

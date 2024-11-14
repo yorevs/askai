@@ -24,7 +24,7 @@ from askai.core.processors.splitter.splitter_result import PipelineResponse, Spl
 from askai.core.processors.splitter.splitter_states import States
 from askai.core.processors.splitter.splitter_transitions import Transition, TRANSITIONS
 from askai.core.router.evaluation import eval_response, EVALUATION_GUIDE
-from askai.core.support.shared_instances import LOGGER_NAME, shared
+from askai.core.support.shared_instances import shared
 from collections import defaultdict
 from hspylib.core.preconditions import check_state
 from hspylib.core.tools.dict_tools import get_or_default
@@ -47,7 +47,7 @@ class SplitterPipeline:
     def __init__(self, query: AnyStr):
         self._transitions: list[Transition] = [t for t in TRANSITIONS]
         self._machine: Machine = Machine(
-            name=LOGGER_NAME,
+            name="TaskSplitterMachine",
             model=self,
             initial=States.STARTUP,
             states=States,
@@ -217,17 +217,18 @@ class SplitterPipeline:
         if not Validator.has_no_nulls(self.last_query, self.last_answer):
             return AccColor.BAD
 
-        issue_report: str = dedent(
-            """\
-        The (AI-Assistant) provided a bad answer. Improve subsequent responses by addressing the following:
+        # fmt: off
+        issue_report: str = dedent("""\
+        The (AI-Assistant) provided an incomplete response.
+        Enhance future responses by directly addressing the following details:
 
         ---
         {problems}
         ---
 
-        If you don't have an answer, simply say: "I don't know". Don't try do make up an answer.
-        """
-        )
+        If unsure, respond with: 'I don't know.' Do not generate speculative answers.
+        """).strip()
+        # fmt: off
 
         acc: AccResponse = eval_response(self.last_query, self.last_answer)
 
