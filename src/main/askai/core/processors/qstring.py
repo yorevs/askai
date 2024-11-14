@@ -12,11 +12,17 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from clitt.core.term.cursor import cursor
+from rich.live import Live
+from rich.spinner import Spinner
+
+from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.utilities import find_file
+from askai.core.support.text_formatter import text_formatter as tf
 from askai.exception.exceptions import TerminatingQuery
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.singleton import Singleton
@@ -45,20 +51,25 @@ class NonInteractive(metaclass=Singleton):
         if question.casefold() in ["exit", "leave", "quit", "q"]:
             return None
 
-        output = None
-        query_prompt: str | None = find_file(kwargs["query_prompt"]) if "query_prompt" in kwargs else None
-        context: str | None = kwargs["context"] if "context" in kwargs else None
-        temperature: int = kwargs["temperature"] if "temperature" in kwargs else None
+        with Live(
+            Spinner("dots", f"[green]{msg.wait()}[/green]", style="green"), console=tf.console
+        ):
+            output = None
+            query_prompt: str | None = find_file(kwargs["query_prompt"]) if "query_prompt" in kwargs else None
+            context: str | None = kwargs["context"] if "context" in kwargs else None
+            temperature: int = kwargs["temperature"] if "temperature" in kwargs else None
 
-        dir_name, file_name = PathObject.split(query_prompt or self.DEFAULT_PROMPT)
-        template = PromptTemplate(
-            input_variables=["context", "question"], template=prompt.read_prompt(file_name, dir_name)
-        )
-        final_prompt: str = template.format(context=context or self.DEFAULT_CONTEXT, question=question)
-        llm = lc_llm.create_chat_model(temperature or self.DEFAULT_TEMPERATURE)
+            dir_name, file_name = PathObject.split(query_prompt or self.DEFAULT_PROMPT)
+            template = PromptTemplate(
+                input_variables=["context", "question"], template=prompt.read_prompt(file_name, dir_name)
+            )
+            final_prompt: str = template.format(context=context or self.DEFAULT_CONTEXT, question=question)
+            llm = lc_llm.create_chat_model(temperature or self.DEFAULT_TEMPERATURE)
 
-        if (response := llm.invoke(final_prompt)) and (output := response.content):
-            cache.save_input_history()
+            if (response := llm.invoke(final_prompt)) and (output := response.content):
+                cache.save_input_history()
+
+        cursor.erase_line()
 
         return output
 

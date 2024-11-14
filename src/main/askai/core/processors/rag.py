@@ -12,6 +12,10 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from clitt.core.term.cursor import cursor
+from rich.live import Live
+from rich.spinner import Spinner
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -22,6 +26,7 @@ from askai.core.engine.openai.temperature import Temperature
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
 from askai.exception.exceptions import DocumentsNotFound, TerminatingQuery
+from askai.core.support.text_formatter import text_formatter as tf
 from functools import lru_cache
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.classpath import AnyPath
@@ -88,8 +93,13 @@ class Rag(metaclass=Singleton):
         # FIXME Include kwargs to specify rag dir and glob
         self.generate()
 
-        if not (output := self._rag_chain.invoke(question)):
-            output = msg.invalid_response(output)
+        with Live(
+            Spinner("dots", f"[green]{msg.wait()}[/green]", style="green"), console=tf.console
+        ):
+            if not (output := self._rag_chain.invoke(question)):
+                output = msg.invalid_response(output)
+
+        cursor.erase_line()
 
         return output
 

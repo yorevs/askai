@@ -18,7 +18,6 @@ from askai.core.askai_messages import msg
 from askai.core.enums.acc_color import AccColor
 from askai.core.processors.splitter.splitter_pipeline import SplitterPipeline
 from askai.core.processors.splitter.splitter_states import States
-from askai.core.support.text_formatter import text_formatter
 from askai.core.support.text_formatter import text_formatter as tf
 from askai.exception.exceptions import InaccurateResponse
 from clitt.core.term.cursor import cursor
@@ -52,7 +51,7 @@ class SplitterExecutor(Thread):
         :param force: Force displaying the message regardless of the debug flag.
         """
         if force or is_debugging():
-            text_formatter.console.print(Text.from_markup(text))
+            tf.console.print(Text.from_markup(text))
 
     def interrupt(self, ev: Event) -> None:
         """Interrupt the active execution pipeline.
