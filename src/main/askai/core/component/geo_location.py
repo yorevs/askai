@@ -37,9 +37,9 @@ class GeoLocation(metaclass=Singleton):
     EMPTY_JSON_RESP: str = dedent(
         """
     {
-        "status": "failure", "country": "", "countryCode": "", "region": "", "regionName": "",
-        "city": "", "zip": "", "lat": 0.0, "lon": 0.0, "timezone": "UTC",
-        "isp": "", "org": "", "as": "", "query": ""
+        "status": "failure", "country": "London", "countryCode": "UK", "region": "Greater London",
+        "regionName": "England", "city": "Greenwich", "zip": "", "lat": 51.4826, "lon": 0.0077,
+        "timezone": "UTC", "isp": "", "org": "", "as": "", "query": ""
     }
     """
     ).strip()

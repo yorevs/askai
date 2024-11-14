@@ -136,9 +136,12 @@ class SharedInstances(metaclass=Singleton):
                      OS: {prompt.os_type}/{prompt.shell}
             {'-' * 80}
              Microphone: %CYAN%{device_info or '%RED%Undetected'} %GREEN%
-              Debugging: {'' if configs.is_debug else '%RED%'} %GREEN%
                Speaking: {', tempo: ' + speak_info if configs.is_speak else '%RED%'} %GREEN%
-                Caching: {', TTL: ' + str(configs.ttl) if configs.is_cache else '%RED%'} %GREEN%
+            {'.' * 80}
+               Location: {', ' + geo_location.location if configs.ip_api_enabled else '%RED%'} %GREEN%
+                History: {'' if configs.is_keep_context else '%RED%'} %GREEN%
+                  Debug: {'' if configs.is_debug else '%RED%'} %GREEN%
+                  Cache: {', TTL: ' + str(configs.ttl) if configs.is_cache else '%RED%'} %GREEN%
             {'=' * 80}%NC%
 
             """
