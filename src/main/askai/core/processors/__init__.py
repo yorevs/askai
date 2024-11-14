@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.2.1
+# hspylib-askai v1.2.2
 #
 # Package: main.askai.core.processors
 """Package initialization."""
@@ -14,4 +14,4 @@ __all__ = [
     'splitter', 
     'task_splitter'
 ]
-__version__ = '1.2.1'
+__version__ = '1.2.2'
