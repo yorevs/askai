@@ -54,7 +54,7 @@ class RAGProvider:
         """
         src_path: PathObject = PathObject.of(path_name)
         if src_path.exists and src_path.is_file:
-            file: str = f"{rag_dir}/{src_path.filename}"
+            file: str = f"{rag_dir}/{dest_name or src_path.filename}"
             copyfile(str(src_path), file)
         elif src_path.exists and src_path.is_dir:
             shutil.copytree(
