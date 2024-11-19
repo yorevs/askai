@@ -12,6 +12,16 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from pathlib import Path
+from types import SimpleNamespace
+from typing import Optional
+import logging as log
+
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables import RunnableWithMessageHistory, Runnable
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -25,21 +35,11 @@ from askai.core.model.acc_response import AccResponse
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.model_result import ModelResult
-from askai.core.router.agent_tools import features
 from askai.core.router.task_agent import agent
 from askai.core.router.tools.general import final_answer
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables import RunnableWithMessageHistory
-from pathlib import Path
-from types import SimpleNamespace
-from typing import Optional
-
-import logging as log
 
 
 class SplitterActions(metaclass=Singleton):
@@ -125,7 +125,7 @@ class SplitterActions(metaclass=Singleton):
 
         evaluation: str = str(shared.context.flat("EVALUATION"))
         template = PromptTemplate(
-            input_variables=["os_type", "shell", "datetime", "home", "agent_tools", "rag"],
+            input_variables=["os_type", "shell", "datetime", "home", "rag"],
             template=prompt.read_prompt("task-splitter.txt"),
         )
 
@@ -138,7 +138,6 @@ class SplitterActions(metaclass=Singleton):
                         shell=prompt.shell,
                         datetime=geo_location.datetime,
                         home=Path.home(),
-                        agent_tools=features.available_tools,
                         rag=self._rag.get_rag_examples(query),
                     ),
                 ),
@@ -155,11 +154,11 @@ class SplitterActions(metaclass=Singleton):
         :return: An optional ActionPlan generated from the provided question.
         """
 
-        runnable = self.splitter_template(question) | lc_llm.create_chat_model(Temperature.COLDEST.temp)
-        runnable = RunnableWithMessageHistory(
+        response: AIMessage
+        runnable: Runnable = self.splitter_template(question) | lc_llm.create_chat_model(Temperature.COLDEST.temp)
+        runnable: Runnable = RunnableWithMessageHistory(
             runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
         )
-        response: AIMessage
         if response := runnable.invoke({"input": question}, config={"configurable": {"session_id": "HISTORY"}}):
             answer: str = str(response.content)
             log.info("Router::[RESPONSE] Received from AI: \n%s.", answer)

@@ -102,16 +102,21 @@ def parse_caption(image_caption: str) -> list[str]:
     if image_caption:
         result: ImageResult = ImageResult.of(image_caption)
         ln: str = os.linesep
-        people_desc: str = ""
+        people_desc: list[str] = []
+        user_response_desc: list[str] = []
         if result.people_description:
-            people_desc: list[str] = [
+            people_desc = [
                 f"- **People:** `({result.people_count})`",
                 indent(f"- {'- '.join([f'`{ppl}{ln}`' + ln for ppl in result.people_description])}", "    "),
             ]
+        if result.user_response:
+            user_response_desc = [f"- **Answer**: `{result.user_response}`"]
+        # fmt: off
         return [
             f"- **Description:** `{result.env_description}`",
             f"- **Objects:** `{', '.join(result.main_objects)}`",
-        ] + people_desc
+        ] + people_desc + user_response_desc
+        # fmt: on
 
     return [msg.no_caption()]
 

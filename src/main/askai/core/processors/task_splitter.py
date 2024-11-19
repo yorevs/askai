@@ -39,7 +39,8 @@ class TaskSplitter(metaclass=Singleton):
         InaccurateResponse,
         InvalidArgumentError,
         ValidationError
-    )  # fmt: on
+    )
+    # fmt: on
 
     def process(self, question: str, **_) -> Optional[str]:
         """Process the user question by splitting complex tasks into smaller single actionable tasks.

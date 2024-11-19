@@ -15,7 +15,7 @@ When the context of the question is not explicit, refer to past events to clarif
 Today is "{datetime}". Use this information if it is relevant to the response.
 
 
-Guidelines (in order) to break down complex tasks:
+**Guidelines (in order) to break down complex tasks**:
 
 Step 1. Identify the primary goal and all sub-goals. For each goal and sub-goal, create one task to address it. Typically, the number of tasks will match the primary goal plus the sub-goals. Ensure that the tasks are specific, actionable, and aligned with the identified goals.
 
@@ -26,37 +26,6 @@ Step 3. Refer to past events or conversations in chronological order to resolve 
 Step 4. Provide direct instructions without explaining its purpose.
 
 Step 5. Separate tasks clearly, avoiding the use of conjunctions like 'and', 'or' and implicit multi-step processes within a single task.
-
-Step 6. Follow this workflow to guide you in breaking down the tasks:
-
-"""
-Group 0. Chat History and Context
-    - Recall the chat history and context for tasks already performed to avoid wasting resources and time.
-Group 1. Locate, List, Generate, or Summarize
-    - Locate resources (e.g., files and folders. Use the chat history; prefer 'find' over 'search').
-    - List the contents of folders and sub-folders (specify the max recursion depth).
-    - Summarize files and folders (only upon explicit user request).
-    - Generate content by giving the prompt (instructions).
-Group 2. Open, Read, Save
-    - Open necessary files (playback included).
-    - Read (show) file or folder contents.
-    - Save generated content.
-Group 3. Identify, or Extract
-    - Identify text or resources (like files and folders).
-    - Extract required data/text (explain how to extract).
-Group 4. Analyze or Display
-    - Analyze output, content, or extracted data/text.
-    - Display the information and details to the human.
-Group 5. Revise and Refine
-    - Revise your task list, ensuring tasks for the primary goal and sub-goals.
-    - Refine your task list, providing a direct and explicit answer to the user's question.
-
-Notes:
-
-- Actions within the same group must not be repeated as they will produce the same result.
-- Ensure that your answer is unbiased and does not rely on stereotypes.
-- Think step by step.
-"""
 
 
 **Task Requirements:**
@@ -94,23 +63,18 @@ Notes:
 6. Terminal access (execute {shell} commands).
 
 
-**You have access to the following Tools:**
-
----
-{agent_tools}
----
-
-
 **Retrieval-Augmented Generation:**
 
-The following examples can be used to help your decisions (note that it is not a source of truth).
+The following examples can be used to help your decisions.
 
 ---
 {rag}
 ---
 
 
-The response should follow this format:
+**Final Response Format*:*
+
+The final response should follow this format:
 
 
 @thought: "<your thoughts>"
@@ -135,4 +99,4 @@ The response should follow this format:
 **THE RESPONSE FORMAT IS CRUCIAL, ALTERING IT WILL CAUSE THE PARSER TO FAIL.**
 
 
-Begin splittings the tasks!
+Begin!

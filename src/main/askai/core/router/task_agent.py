@@ -13,8 +13,11 @@
    Copyright (c) 2024, HomeSetup
 """
 from askai.core.askai_configs import configs
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
+from askai.core.model.ai_reply import AIReply
 from askai.core.router.agent_tools import features
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
@@ -62,7 +65,7 @@ class TaskAgent(metaclass=Singleton):
         :return: The agent's response as a string.
         """
         output: str | None = None
-        # events.reply.emit(reply=AIReply.debug(msg.task(task)))
+        events.reply.emit(reply=AIReply.debug(msg.task(task)))
         shared.context.push("HISTORY", task, "assistant")
         if (response := self._exec_task(task)) and (output := response["output"]):
             log.info("Router::[RESPONSE] Received from AI: \n%s.", output)

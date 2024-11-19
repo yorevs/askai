@@ -35,6 +35,15 @@ import os
 class SplitterExecutor(Thread):
     """Responsible for executing a TaskSplitter pipeline."""
 
+    @staticmethod
+    def display(text: str, force: bool = False) -> None:
+        """Display a debug message if debugging mode is active.
+        :param text: The debug message to display
+        :param force: Force displaying the message regardless of the debug flag.
+        """
+        if force or is_debugging():
+            tf.console.print(Text.from_markup(text))
+
     def __init__(self, query: str):
         super().__init__()
         self._pipeline = SplitterPipeline(query)
@@ -44,14 +53,6 @@ class SplitterExecutor(Thread):
     @property
     def pipeline(self) -> SplitterPipeline:
         return self._pipeline
-
-    def display(self, text: str, force: bool = False) -> None:
-        """Display a debug message if debugging mode is active.
-        :param text: The debug message to display
-        :param force: Force displaying the message regardless of the debug flag.
-        """
-        if force or is_debugging():
-            tf.console.print(Text.from_markup(text))
 
     def interrupt(self, ev: Event) -> None:
         """Interrupt the active execution pipeline.

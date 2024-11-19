@@ -133,20 +133,20 @@ class AgentTools(metaclass=Singleton):
             image_path=image_path, image_caption=os.linesep.join(image_caption) if image_caption else ""
         )
 
-    def webcam_capturer(self, photo_name: str | None, detect_faces: bool = False, query: str | None = None) -> str:
-        """Capture a photo using the webcam, and save it locally. This tool is useful for taking photos, detect people's
-        faces, and, describing what is in front of the webcam.
-        Usage: `webcam_capturer(photo_name, detect_faces)`
-        :param photo_name: The name of the photo file (without the extension). If None, a default name will be used.
+    def webcam_capturer(self, photo_name: str | None, detect_faces: bool = False, question: str | None = None) -> str:
+        """Capture a photo via the webcam, and save it locally. Also provide a description of the objects and people
+        depicted in the picture. An additional question may address specific details regarding the photo.
+        Usage: `webcam_capturer(photo_name, detect_faces, question)`
+        :param photo_name: Optional name of the photo image file (without the extension).
         :param detect_faces: Whether to detect and describe all faces in the photo (default is False).
-        :param query: Optional query about the photo taken.
+        :param question: Optional specific question about the photo taken (default is None).
         :return: The file path of the saved JPEG image.
         """
-        return webcam_capturer(photo_name, detect_faces, query)
+        return webcam_capturer(photo_name, detect_faces, question)
 
     def webcam_identifier(self) -> str:
-        """Identify the person in front of the webcam using a pre-stored set of faces and provide a description. This
-        tool is useful for recognizing individuals and generating descriptions based on pre-stored facial data.
+        """Capture a photo via the webcam and compare it to a pre-stored set of images to determine if the current
+        subject matches any stored faces.
         Usage: `webcam_identifier()`
         :return: A string containing the identification and description of the person.
         """
