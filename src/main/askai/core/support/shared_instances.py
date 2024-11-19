@@ -122,28 +122,30 @@ class SharedInstances(metaclass=Singleton):
         eng: AIEngine = shared.engine
         model_info: str = f"'{eng.ai_model_name()}'%YELLOW% {eng.ai_token_limit()}%GREEN% tokens"
         engine_info: str = f"{eng.ai_name()} - %CYAN%{eng.nickname()} / {model_info}"
-        rag_info: str = "%GREEN%" if configs.is_rag else "%RED%"
-        return dedent(
-            f"""\
+        rag_info: str = "%GREEN% " if configs.is_rag else "%RED% "
+        assist_info: str = "%GREEN% " if configs.is_assistive else "%RED% "
+
+        # fmt: off
+        return dedent(f"""\
             %GREEN%AskAI %YELLOW%v{Version.load(load_dir=classpath.source_path)}%GREEN%
             {dtm.center(80, '=')}
                Language: {configs.language} {translator}
+               Location: {' , ' + geo_location.location if configs.ip_api_enabled else '%RED% '} %GREEN%
                  Engine: {engine_info}
-                   Mode: %CYAN%{self.mode}%GREEN%, %YELLOW%RAG {rag_info}%GREEN%
+                   Mode: %CYAN%{self.mode}%GREEN%, %YELLOW%RAG: {rag_info}, %YELLOW%Assistive: {assist_info}%GREEN%
                     Dir: {cur_dir}
                      OS: {prompt.os_type}/{prompt.shell}
             {'-' * 80}
              Microphone: %CYAN%{device_info or '%RED%Undetected'} %GREEN%
-               Speaking: {', tempo: ' + speak_info if configs.is_speak else '%RED%'} %GREEN%
+               Speaking: {' , tempo: ' + speak_info if configs.is_speak else '%RED% '} %GREEN%
             {'.' * 80}
-               Location: {', ' + geo_location.location if configs.ip_api_enabled else '%RED%'} %GREEN%
-                History: {'' if configs.is_keep_context else '%RED%'} %GREEN%
-                  Debug: {'' if configs.is_debug else '%RED%'} %GREEN%
-                  Cache: {', TTL: ' + str(configs.ttl) if configs.is_cache else '%RED%'} %GREEN%
+                History: {' ' if configs.is_keep_context else '%RED% '} %GREEN%
+                  Debug: {' ' if configs.is_debug else '%RED% '} %GREEN%
+                  Cache: {' , TTL: ' + str(configs.ttl) if configs.is_cache else '%RED% '} %GREEN%
             {'=' * 80}%NC%
 
-            """
-        )
+            """)
+        # fmt: on
 
     def create_engine(self, engine_name: str, model_name: str, mode: Any) -> AIEngine:
         """Create or retrieve an AI engine instance based on the specified engine and model names.

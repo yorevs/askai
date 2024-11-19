@@ -24,7 +24,6 @@ import pause
 from clitt.core.term.cursor import cursor
 from clitt.core.term.screen import screen
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.core.decorator.decorators import profiled
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import console_out
 from hspylib.core.zoned_datetime import now, TIME_FORMAT

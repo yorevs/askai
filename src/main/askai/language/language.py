@@ -170,7 +170,7 @@ class Language(Enumeration):
             else re.split(r"[:.]", loc)
         ))
         # fmt: off
-        lang = next((
+        lang: Language | None = next((
             Language[ln.upper()]
             for ln in list(map(
                 lambda v: v.__getitem__(0), Language.values())) if ln.casefold() == loc_enc[0].casefold()
@@ -191,7 +191,7 @@ class Language(Enumeration):
         self._language, self._territory = lang[0], lang[1]
 
     def __str__(self):
-        return f"{self.name} '{self.country}' '{str(self.encoding).upper()}'"
+        return f"{self.name} '{self.country.title()}', '{self.encoding}'"
 
     @property
     def locale(self) -> tuple[str, Charset]:
