@@ -19,9 +19,11 @@ from textual.containers import Container
 from textual.events import Click
 from textual.reactive import Reactive
 from textual.widget import Widget
-from textual.widgets import Collapsible, DataTable, Markdown, Static
+from textual.widgets import Collapsible, DataTable, Markdown, Static, Input
 from textwrap import dedent
 from typing import Callable, Optional
+
+from askai.tui.app_suggester import InputSuggester
 
 
 class MenuIcon(Widget):
@@ -139,3 +141,36 @@ class AppSettings(Static):
                 label = Text(str(i), style="#B0FC38 italic")
                 self.table.add_row(*row[1:], key=row[0], label=label)
             self.refresh()
+
+
+class InputArea(Widget):
+    """Application Input Area."""
+
+    def __init__(self, engine_nickname: str):
+        super().__init__()
+        self._engine_nickname = engine_nickname
+
+    @property
+    def engine_name(self) -> str:
+        return self._engine_nickname
+
+    def compose(self) -> ComposeResult:
+        """Called to add widgets to the app."""
+        suggester = InputSuggester(case_sensitive=False)
+        yield InputIcons()
+        yield Input(placeholder=f"Message {self.engine_name}", suggester=suggester)
+
+
+class InputIcons(Static):
+    """Application Input Icons Area."""
+
+    def __init__(self):
+        super().__init__()
+
+    def compose(self) -> ComposeResult:
+        """Called to add widgets to the app."""
+        yield MenuIcon(AppIcons.SEND.value, "Send", self.app.exit)
+        yield MenuIcon(AppIcons.COPY_REPLY.value, "Copy last response", self.app.exit)
+        yield MenuIcon(AppIcons.REGENERATE.value, "Regenerate response", self.app.exit)
+        yield MenuIcon(AppIcons.LIKE.value, "Good response", self.app.exit)
+        yield MenuIcon(AppIcons.DISLIKE.value, "Bad response", self.app.exit)

@@ -96,7 +96,7 @@ HeaderNotifications {
   padding: 0 1 0 0;
 }
 
-MenuIcon {
+Header > MenuIcon {
   padding: 0 1 0 0;
   width: 4;
   content-align: center middle;
@@ -181,19 +181,38 @@ MarkdownBullet {
   color: #7FD5AD;
 }
 
-Input {
-  background: #051416;
-  padding: 0 1;
-  border: round #183236;
+InputArea {
   width: 100%;
+  height: 4;
+  layout: vertical;
+}
+
+InputArea > Input {
+  background: #051416;
+  border: round #183236;
+  padding: 0 1;
   height: 3;
+}
+
+InputArea > InputIcons {
+  background: #051416;
+  padding-left: 1;
+  height: 1;
+  layout: horizontal;
+}
+
+InputIcons > MenuIcon {
+  background: #051416;
+  height: 1;
+  width: 4;
+  content-align: center middle;
 }
 
 Input:focus, MarkdownViewer:focus, MarkdownTableOfContents:focus {
   border: round #7FD5AD;
 }
 
-LoadingIndicator {
+Input > LoadingIndicator {
   color: #7FD5AD;
   background: #051416;
 }

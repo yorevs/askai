@@ -15,7 +15,15 @@
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
-from askai.core.askai_events import *
+from askai.core.askai_events import (
+    AskAiEvents,
+    ASKAI_BUS_NAME,
+    REPLY_EVENT,
+    MIC_LISTENING_EVENT,
+    DEVICE_CHANGED_EVENT,
+    MODE_CHANGED_EVENT,
+    events,
+)
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import commander_help
@@ -31,7 +39,7 @@ from askai.core.support.text_formatter import text_formatter
 from askai.tui.app_header import Header
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_suggester import InputSuggester
-from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash
+from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash, InputArea
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.tools.text_tools import ensure_endswith
@@ -78,9 +86,9 @@ class AskAiApp(App[None]):
         self, speak: bool, debug: bool, cacheable: bool, tempo: int, engine_name: str, model_name: str, mode: RouterMode
     ):
         super().__init__()
-        self._askai = AskAi(speak, debug, cacheable, tempo, engine_name, model_name, mode)
-        self._re_render = True
-        self._display_buffer = list()
+        self._askai: AskAi = AskAi(speak, debug, cacheable, tempo, engine_name, model_name, mode)
+        self._re_render: bool = True
+        self._display_buffer: list[str] = list()
         self._startup()
 
     def __str__(self) -> str:
@@ -149,7 +157,6 @@ class AskAiApp(App[None]):
 
     def compose(self) -> ComposeResult:
         """Called to add widgets to the app."""
-        suggester = InputSuggester(case_sensitive=False)
         footer = Footer()
         footer.upper_case_keys = True
         footer.ctrl_to_caret = True
@@ -160,18 +167,18 @@ class AskAiApp(App[None]):
             yield Splash(self.askai.SPLASH)
             yield AppHelp(commander_help())
             yield MarkdownViewer()
-        yield Input(placeholder=f"Message {self.engine.nickname()}", suggester=suggester)
+        yield InputArea(self.engine.nickname())
         yield footer
 
     async def on_mount(self) -> None:
         """Called application is mounted."""
-        self.enable_controls(False)
         self.screen.title = self.APP_TITLE
         self.screen.sub_title = self.engine.ai_model_name()
         self.md_console.set_class(True, "-hidden")
         self.md_console.show_table_of_contents = False
-        self._setup()
         self.md_console.set_interval(0.25, self._cb_refresh_console)
+        self.enable_controls(False)
+        self._setup()
 
     def on_markdown_viewer_navigator_updated(self) -> None:
         """Refresh bindings for forward / back when the document changes."""
@@ -241,7 +248,7 @@ class AskAiApp(App[None]):
         """Toggle Debugging ON/OFF."""
         self.ask_and_reply("/debug")
 
-    @work(thread=True, exclusive=True)
+    @work(thread=True)
     async def action_ptt(self) -> None:
         """Handle the Push-To-Talk (PTT) action for Speech-To-Text (STT) input. This method allows the user to use
         Push-To-Talk as an input method, converting spoken words into text.
@@ -370,9 +377,9 @@ class AskAiApp(App[None]):
         :param question: The question to ask the AI engine.
         :return: A tuple containing a boolean indicating success or failure, and the AI's reply as an optional string.
         """
-        self.enable_controls(False)
+        self.call_from_thread(self.enable_controls, False)
         status, reply = self.askai.ask_and_reply(question)
-        self.enable_controls()
+        self.call_from_thread(self.enable_controls)
 
         return status, reply
 
@@ -389,7 +396,7 @@ class AskAiApp(App[None]):
         askai_bus.subscribe(MODE_CHANGED_EVENT, self._cb_mode_changed_event)
         log.info("AskAI is ready to use!")
 
-    @work(thread=True, exclusive=True)
+    @work(thread=True)
     def _setup(self) -> None:
         """Setup the TUI controls."""
         player.start_delay()

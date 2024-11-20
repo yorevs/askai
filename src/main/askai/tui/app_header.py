@@ -52,6 +52,7 @@ class Header(Widget):
 
     def compose(self):
         """Compose the Header Widget."""
+        yield MenuIcon(AppIcons.EXIT.value, "Exit the application", self.app.exit)
         yield MenuIcon(AppIcons.TOC.value, "Show/Hide Table of Contents", self._show_toc)
         yield MenuIcon(AppIcons.CONSOLE.value, "Show console", self._show_console)
         yield MenuIcon(AppIcons.SETTINGS.value, "Show settings", self._show_settings)
@@ -169,7 +170,7 @@ class HeaderNotifications(Widget):
         )
 
     def refresh_icons(self) -> None:
-        """Update the application widgets. This callback is required because ask_and_reply is async."""
+        """Update the application widgets."""
         self.headphones = recorder.is_headphones()
         self.debugging = configs.is_debug
         self.caching = configs.is_cache
