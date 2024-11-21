@@ -1,3 +1,5 @@
+# Styles reference: https://textual.textualize.io/styles
+
 .-hidden {
   display: none;
   visibility: hidden;
@@ -183,25 +185,25 @@ MarkdownBullet {
 
 InputArea {
   width: 100%;
-  height: 4;
+  height: 6;
   layout: vertical;
+  border: round #183236;
 }
 
 InputArea > Input {
   background: #051416;
-  border: round #183236;
   padding: 0 1;
   height: 3;
 }
 
-InputArea > InputIcons {
+InputArea > InputActions {
   background: #051416;
-  padding-left: 1;
+  color: #7FD5AD 70%;
   height: 1;
   layout: horizontal;
 }
 
-InputIcons > MenuIcon {
+InputActions > MenuIcon {
   background: #051416;
   height: 1;
   width: 4;

@@ -12,18 +12,28 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from pathlib import Path
+from typing import Optional
+import logging as log
+import os
+
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import file_is_not_empty
+from hspylib.core.tools.text_tools import ensure_endswith
+from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
+from hspylib.modules.application.version import Version
+from hspylib.modules.cli.vt100.vt_color import VtColor
+from hspylib.modules.eventbus.event import Event
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.containers import ScrollableContainer
+from textual.widgets import Footer, Input, MarkdownViewer
+import nltk
+
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
-from askai.core.askai_events import (
-    AskAiEvents,
-    ASKAI_BUS_NAME,
-    REPLY_EVENT,
-    MIC_LISTENING_EVENT,
-    DEVICE_CHANGED_EVENT,
-    MODE_CHANGED_EVENT,
-    events,
-)
+from askai.core.askai_events import *
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import commander_help
@@ -39,24 +49,7 @@ from askai.core.support.text_formatter import text_formatter
 from askai.tui.app_header import Header
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_suggester import InputSuggester
-from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash, InputArea
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import file_is_not_empty
-from hspylib.core.tools.text_tools import ensure_endswith
-from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
-from hspylib.modules.application.version import Version
-from hspylib.modules.cli.vt100.vt_color import VtColor
-from hspylib.modules.eventbus.event import Event
-from pathlib import Path
-from textual import on, work
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.widgets import Footer, Input, MarkdownViewer
-from typing import Optional
-
-import logging as log
-import nltk
-import os
+from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash, InputArea, InputActions
 
 SOURCE_DIR: Path = classpath.source_path
 
@@ -77,6 +70,7 @@ class AskAiApp(App[None]):
         ("d", "debugging", " Debugging"),
         ("s", "speaking", " Speaking"),
         ("ctrl+l", "ptt", " Push-to-Talk"),
+        ("ctrl+s", "stop", " Stop-GenAi"),
     ]
     # fmt: on
 
@@ -141,6 +135,10 @@ class AskAiApp(App[None]):
         return self.query_one(Input)
 
     @property
+    def input_actions(self):
+        return self.query_one(InputActions)
+
+    @property
     def suggester(self) -> Optional[InputSuggester]:
         """Get the Input Suggester."""
         return self.line_input.suggester
@@ -163,7 +161,7 @@ class AskAiApp(App[None]):
         yield Header()
         with ScrollableContainer():
             yield AppSettings()
-            yield AppInfo("")
+            yield AppInfo()
             yield Splash(self.askai.SPLASH)
             yield AppHelp(commander_help())
             yield MarkdownViewer()
@@ -215,6 +213,7 @@ class AskAiApp(App[None]):
         """Enable or disable all UI controls, including the header, input, and footer.
         :param enable: Whether to enable (True) or disable (False) the UI controls (default is True).
         """
+        self.input_actions.set_class(not enable, "-hidden")
         self.header.disabled = not enable
         self.line_input.loading = not enable
         self.footer.disabled = not enable
@@ -262,18 +261,23 @@ class AskAiApp(App[None]):
                 cache.save_input_history(suggestions)
         self.enable_controls()
 
+    async def action_stop(self) -> None:
+        """Stop generating response."""
+        self.askai.abort()
+        self.enable_controls()
+
     @on(Input.Submitted)
     async def on_submit(self, submitted: Input.Submitted) -> None:
         """A coroutine to handle input submission events.
         :param submitted: The event that contains the submitted data.
         """
-        question: str = submitted.value
-        self.line_input.clear()
-        self.display_text(f"{shared.username_md}: {question}")
-        if self.ask_and_reply(question):
-            await self.suggester.add_suggestion(question)
-            suggestions = await self.suggester.suggestions()
-            cache.save_input_history(suggestions)
+        if question := submitted.value:
+            self.line_input.clear()
+            self.display_text(f"{shared.username_md}: {question}")
+            if self.ask_and_reply(question):
+                await self.suggester.add_suggestion(question)
+                suggestions = await self.suggester.suggestions()
+                cache.save_input_history(suggestions)
 
     async def _write_markdown(self) -> None:
         """Write buffered text to the markdown file.

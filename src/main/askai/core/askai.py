@@ -120,7 +120,7 @@ class AskAi:
             all_settings.append(r)
         return all_settings
 
-    def abort(self, signals: Any, frame: Any) -> None:
+    def abort(self, signals: Any | None = None, frame: Any | None = None) -> None:
         """Hook the SIGINT signal for cleanup or execution interruption. If two signals arrive within 1 second,
         abort the application execution.
         :param signals: Signal number from the operating system.

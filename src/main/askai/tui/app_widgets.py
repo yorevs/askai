@@ -12,17 +12,25 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from askai.tui.app_icons import AppIcons
+import os
+import re
+import tempfile
+from textwrap import dedent
+from typing import Callable, Optional
+
 from rich.text import Text
+from textual import work
 from textual.app import ComposeResult, RenderResult
 from textual.containers import Container
 from textual.events import Click
 from textual.reactive import Reactive
 from textual.widget import Widget
 from textual.widgets import Collapsible, DataTable, Markdown, Static, Input
-from textwrap import dedent
-from typing import Callable, Optional
 
+from askai.core.commander.commands.history_cmd import HistoryCmd
+from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
+from askai.core.support.shared_instances import shared
+from askai.tui.app_icons import AppIcons
 from askai.tui.app_suggester import InputSuggester
 
 
@@ -96,7 +104,7 @@ class AppInfo(Static):
         """
     )
 
-    def __init__(self, app_info: str):
+    def __init__(self, app_info: str = ""):
         super().__init__()
         self.info_text = app_info
 
@@ -157,20 +165,53 @@ class InputArea(Widget):
     def compose(self) -> ComposeResult:
         """Called to add widgets to the app."""
         suggester = InputSuggester(case_sensitive=False)
-        yield InputIcons()
+        yield InputActions()
         yield Input(placeholder=f"Message {self.engine_name}", suggester=suggester)
 
 
-class InputIcons(Static):
+class InputActions(Static):
     """Application Input Icons Area."""
 
-    def __init__(self):
-        super().__init__()
+    @staticmethod
+    def copy() -> None:
+        """TODO"""
+        HistoryCmd.context_copy("LAST_REPLY")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def compose(self) -> ComposeResult:
         """Called to add widgets to the app."""
-        yield MenuIcon(AppIcons.SEND.value, "Send", self.app.exit)
-        yield MenuIcon(AppIcons.COPY_REPLY.value, "Copy last response", self.app.exit)
-        yield MenuIcon(AppIcons.REGENERATE.value, "Regenerate response", self.app.exit)
-        yield MenuIcon(AppIcons.LIKE.value, "Good response", self.app.exit)
-        yield MenuIcon(AppIcons.DISLIKE.value, "Bad response", self.app.exit)
+        yield MenuIcon(AppIcons.READ_ALOUD.value, "Read aloud", self.read_aloud)
+        yield MenuIcon(AppIcons.COPY_REPLY.value, "Copy", self.copy)
+        # FIXME Uncomment after the rate functionality is ready
+        # yield MenuIcon(AppIcons.LIKE.value, "Good response", self.like)
+        # yield MenuIcon(AppIcons.DISLIKE.value, "Bad response", self.dislike)
+        # yield MenuIcon(AppIcons.REGENERATE.value, "Regenerate response", self.regenerate)
+
+    @work(thread=True)
+    def read_aloud(self) -> None:
+        """TODO"""
+        if (ctx := str(shared.context.flat("LAST_REPLY"))) and (
+            last_reply := re.sub(
+                r"^((system|human|AI|assistant):\s*)", "", ctx, flags=re.MULTILINE | re.DOTALL | re.IGNORECASE
+            )
+        ):
+            TtsSttCmd.tts(last_reply.strip(), os.environ.get("TEMP", tempfile.gettempdir()), True)
+
+    def submit(self) -> None:
+        """TODO"""
+        line_input: Input = self.app.line_input
+        self.post_message(Input.Submitted(line_input, line_input.value))
+
+    def like(self) -> None:
+        """TODO"""
+        pass
+
+    def dislike(self) -> None:
+        """TODO"""
+        pass
+
+    def regenerate(self) -> None:
+        """TODO"""
+        pass

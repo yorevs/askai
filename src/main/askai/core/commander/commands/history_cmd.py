@@ -13,6 +13,8 @@
    Copyright (c) 2024, HomeSetup
 """
 from abc import ABC
+from typing import Optional
+
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
@@ -70,20 +72,25 @@ class HistoryCmd(ABC):
         )
 
     @staticmethod
-    def context_copy(name: str | None = None) -> None:
+    def context_copy(name: str | None = None) -> Optional[str]:
         """Copy a context entry to the clipboard.
         :param name: The name of the context entry to copy. If None, the default context will be copied.
         """
+        copied_text: str | None = None
         if (name := name.upper()) in shared.context.keys:
             if (ctx := str(shared.context.flat(name.upper()))) and (
-                stripped_role := re.sub(r"^((system|human|assistant):\s*)", "", ctx, flags=re.MULTILINE | re.IGNORECASE)
+                copied_text := re.sub(
+                    r"^((system|human|AI|assistant):\s*)", "", ctx, flags=re.MULTILINE | re.DOTALL | re.IGNORECASE
+                )
             ):
-                pyperclip.copy(stripped_role)
+                pyperclip.copy(copied_text)
                 text_formatter.commander_print(f"`{name}` copied to the clipboard!")
             else:
                 text_formatter.commander_print(f"There is nothing to copy from `{name}`!")
         else:
             text_formatter.commander_print(f"Context name not found: `{name}`!")
+
+        return copied_text
 
     @staticmethod
     def history_list() -> None:
