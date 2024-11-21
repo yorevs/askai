@@ -263,7 +263,7 @@ class AskAiMessages(metaclass=Singleton):
         return f" Interrupting execution => {reason}…"
 
     def terminate_requested(self, reason: str) -> str:
-        return f" Terminating execution => {reason}…"
+        return f" Terminating execution => {reason}. Exiting…"
 
 
 assert (msg := AskAiMessages().INSTANCE) is not None

@@ -22,7 +22,6 @@ import sys
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import syserr, to_bool
-from hspylib.core.tools.dict_tools import get_or_default
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
@@ -113,7 +112,7 @@ class Main(TUIApplication):
             .option(
                 "engine", "e", "engine",
                 "Set which AI engine to use (if not provided, the default engine wil be used).",
-                choices=["openai", "gemini"],
+                choices=["openai", "gemini", "llama"],
                 nargs="?")\
             .option(
                 "model", "m", "model",

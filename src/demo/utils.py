@@ -28,7 +28,7 @@ def init_context(
     console_enable: bool = False,
     context_size: int = 1000,
     engine_name: Literal["openai"] = "openai",
-    model_name: Literal["gpt-3.5-turbo", "gpt-4", "gpt-4o"] = "gpt-3.5-turbo",
+    model_name: Literal["gpt-3.5-turbo", "gpt-4", "gpt-4o", "gpt-4o-mini"] = "gpt-4o-mini",
 ) -> None:
     """Initialize AskAI context and startup components."""
     if log_name:

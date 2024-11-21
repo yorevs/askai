@@ -144,6 +144,6 @@ class SplitterExecutor(Thread):
             )
             self.display(f"Failures:\n{all_failures}")
 
-            if final_state != States.COMPLETE:
+            if final_state != States.COMPLETE and not self._interrupted:
                 retries: int = self.pipeline.failures[self.pipeline.state.value]
                 self.display(f" Failed to generate a response after {retries} retries", True)

@@ -41,7 +41,7 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.processors.ai_processor import AIProcessor
 from askai.core.support.chat_context import ChatContext
 from askai.core.support.shared_instances import shared
-from askai.core.support.utilities import display_text, read_stdin
+from askai.core.support.utilities import read_stdin
 from askai.exception.exceptions import *
 from askai.tui.app_icons import AppIcons
 
@@ -129,7 +129,7 @@ class AskAi:
         log.warning(f"User interrupted: signals: {signals}  frame: {frame}")
         self._abort_count += 1
         if self._abort_count > 1:
-            display_text(f"%RED%\n{msg.terminate_requested('User aborted [ctrl+c]')}%NC%", markdown=False)
+            events.reply.emit(reply=AIReply.error(f"\n{msg.terminate_requested('User aborted [ctrl+c]')}"))
             log.warning(f"User aborted. Exiting…")
             self._abort()
         events.abort.emit(message="User interrupted [ctrl+c]")

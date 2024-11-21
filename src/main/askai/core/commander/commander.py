@@ -141,7 +141,7 @@ def _format_help(command: Command) -> str:
     return COMMANDER_HELP_CMD_TPL.substitute(command=command.name.title(), docstr=docstr, usage=usage_str)
 
 
-def _init_context(context_size: int = 1000, engine_name: str = "openai", model_name: str = "gpt-3.5-turbo") -> None:
+def _init_context(context_size: int = 1000, engine_name: str = "openai", model_name: str = "gpt-4o-mini") -> None:
     """Initialize the AskAI context and startup components.
     :param context_size: The maximum size of the context window (default is 1000).
     :param engine_name: The name of the engine to initialize (default is "openai").
