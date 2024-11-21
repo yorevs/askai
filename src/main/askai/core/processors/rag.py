@@ -62,7 +62,7 @@ class Rag(metaclass=Singleton):
 
     @property
     def rag_template(self) -> BasePromptTemplate:
-        prompt_file: PathObject = PathObject.of(prompt.append_path(f"langchain/rag-prompt"))
+        prompt_file: PathObject = PathObject.of(prompt.append_path(f"taius/taius-non-interactive"))
         final_prompt: str = prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir)
         # fmt: off
         return ChatPromptTemplate.from_messages([
@@ -93,9 +93,7 @@ class Rag(metaclass=Singleton):
         # FIXME Include kwargs to specify rag dir and glob
         self.generate()
 
-        with Live(
-            Spinner("dots", f"[green]{msg.wait()}[/green]", style="green"), console=tf.console
-        ):
+        with Live(Spinner("dots", f"[green]{msg.wait()}[/green]", style="green"), console=tf.console):
             if not (output := self._rag_chain.invoke(question)):
                 output = msg.invalid_response(output)
 

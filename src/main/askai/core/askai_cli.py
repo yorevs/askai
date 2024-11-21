@@ -16,6 +16,7 @@ import logging as log
 import os
 import signal
 from pathlib import Path
+from textwrap import indent
 from threading import Thread
 from typing import Optional
 
@@ -164,7 +165,7 @@ class AskAiCli(AskAi):
         :param interval: The interval in milliseconds for polling the startup status (default is 250 ms).
         """
         screen.clear()
-        console_out.print(self.SPLASH)
+        console_out.print(indent(self.SPLASH, " " * 13))
         while not self._ready:
             pause.milliseconds(interval)
         screen.clear()

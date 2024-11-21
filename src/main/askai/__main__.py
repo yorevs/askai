@@ -212,7 +212,7 @@ class Main(TUIApplication):
             if isinstance(arg, str):
                 return arg
             elif isinstance(arg, list):
-                return get_or_default(arg, 0, "")
+                return " ".join(arg)
             elif isinstance(arg, bool):
                 return arg
             elif isinstance(arg, int):
@@ -239,9 +239,7 @@ class Main(TUIApplication):
         :param query_string: The query string to check for interactivity.
         :return: The value of the interactive parameter or False based on query_string presence.
         """
-        interactive: bool = to_bool(self._get_argument("interactive", False))
-        interactive = interactive if not query_string else False
-        return interactive
+        return to_bool(self._get_argument("interactive", not query_string))
 
 
 # Application entry point
