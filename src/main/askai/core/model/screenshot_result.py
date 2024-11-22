@@ -2,6 +2,7 @@ import ast
 import json
 from typing import AnyStr
 
+from kubernetes.watch.watch import SimpleNamespace
 from pydantic import BaseModel, Field
 
 
@@ -10,9 +11,23 @@ class ScreenshotResult(BaseModel):
     using Pydantic's data validation features.
     """
 
+    class DocumentModel(BaseModel):
+        """TODO"""
+
+        page_number: int = Field(description="Document page number")
+        header: str = Field(description="Document header content")
+        footer: str = Field(description="Document footer content")
+        content_overview: str = Field(description="Document content overview")
+
+    class WebsiteModel(BaseModel):
+        """TODO"""
+
+        website_description: str = Field(description="Website description")
+        website_url: str = Field(description="Website URL")
+
     open_applications: list[str] = Field(description="List of open applications")
-    docs_description: list[str] = Field(description="List of document descriptions")
-    web_pages: str = Field(description="Description of visible web pages")
+    open_documents: list[DocumentModel] = Field(description="List of document descriptions")
+    web_pages: list[WebsiteModel] = Field(description="Description of visible web pages")
     user_response: str = Field(description="A response to the user question")
 
     @staticmethod

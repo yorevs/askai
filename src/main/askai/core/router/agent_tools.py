@@ -32,7 +32,7 @@ from askai.core.router.tools.general import display_tool
 from askai.core.router.tools.generation import generate_content, save_content
 from askai.core.router.tools.summarization import summarize
 from askai.core.router.tools.terminal import execute_command, list_contents, open_command
-from askai.core.router.tools.vision import image_captioner, parse_caption, capture_screenshot
+from askai.core.router.tools.vision import image_captioner, parse_image_caption, capture_screenshot
 from askai.core.router.tools.webcam import webcam_capturer, webcam_identifier, CAPTION_TEMPLATE
 from askai.exception.exceptions import TerminatingQuery
 
@@ -128,7 +128,7 @@ class AgentTools(metaclass=Singleton):
         :param image_path: The absolute path of the image file to be analyzed.
         :return: A string containing the generated caption describing the image.
         """
-        image_caption: list[str] = parse_caption(image_captioner(image_path))
+        image_caption: list[str] = parse_image_caption(image_captioner(image_path))
         return CAPTION_TEMPLATE.substitute(
             image_path=image_path, image_caption=os.linesep.join(image_caption) if image_caption else ""
         )

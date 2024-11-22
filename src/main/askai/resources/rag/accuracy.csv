@@ -1,4 +1,5 @@
 Human Input;" AI Response";" Classification";" Reasoning"
+Use the screenshot tool to capture the current screen.;{'open_applications': ['PyCharm'], 'open_documents': [], 'content_overview': "This document contains Python code for evaluating the accuracy of an AI's response to a user's question within a defined evaluation framework."}], 'web_pages': '', 'user_response': 'None'};Green;The AI successfully described the screenshot.
 Do you know what is Gus Fraba?;I don't know;Black;The AI responded negatively, stating that gabiroba song files do not exist and, as a result, cannot proceed with further interactions.
 Is there any gabiroba song?;No gabiroba song files found.;Black;The AI provided a negative answer, so, interactions should stop.
 Did I download and gabiroba file?;No files containing 'gabiroba' were found in the specified directory.;Black;The AI responded negatively, stating that files containing 'gabiroba' were not found and, as a result, cannot proceed with further interactions.

@@ -21,7 +21,7 @@ from askai.core.component.cache_service import FACE_DIR, IMG_IMPORTS_DIR, PHOTO_
 from askai.core.component.image_store import ImageData, ImageFile, ImageMetadata, store
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.image_result import ImageResult
-from askai.core.router.tools.vision import image_captioner, parse_caption
+from askai.core.router.tools.vision import image_captioner, parse_image_caption
 from askai.core.support.utilities import build_img_path
 from askai.exception.exceptions import CameraAccessFailure, WebCamInitializationFailure
 from hspylib.core.metaclass.classpath import AnyPath
@@ -127,7 +127,7 @@ class Camera(metaclass=Singleton):
                 hash_text(basename(final_path)),
                 final_path,
                 store.PHOTO_CATEGORY,
-                parse_caption(image_captioner(final_path)) if with_caption else msg.no_caption(),
+                parse_image_caption(image_captioner(final_path)) if with_caption else msg.no_caption(),
             )
             if store_image:
                 store.store_image(photo_file)
@@ -222,7 +222,7 @@ class Camera(metaclass=Singleton):
                 hash_text(basename(img_path)),
                 img_path,
                 store.IMPORTS_CATEGORY,
-                parse_caption(image_captioner(img_path)),
+                parse_image_caption(image_captioner(img_path)),
             )
 
         def _do_import(*img_path: str) -> None:

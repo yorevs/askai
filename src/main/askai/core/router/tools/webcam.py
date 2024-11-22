@@ -8,7 +8,7 @@ from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.component.camera import camera
 from askai.core.model.ai_reply import AIReply
-from askai.core.router.tools.vision import image_captioner, parse_caption
+from askai.core.router.tools.vision import image_captioner, parse_image_caption
 
 PHOTO_TEMPLATE: Template = Template(
     """\
@@ -72,7 +72,7 @@ def webcam_capturer(photo_name: str | None, detect_faces: bool = False, query: s
             else []
         )
 
-    image_description: list[str] = parse_caption(image_captioner(pic_file.img_path, query=query))
+    image_description: list[str] = parse_image_caption(image_captioner(pic_file.img_path, query=query))
 
     return PHOTO_TEMPLATE.substitute(
         pic_file=pic_file.img_path,

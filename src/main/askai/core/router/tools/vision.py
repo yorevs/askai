@@ -1,4 +1,5 @@
 import os
+from string import Template
 from textwrap import indent
 from typing import Literal
 
@@ -21,8 +22,19 @@ from askai.core.component.cache_service import PICTURE_DIR, SCREENSHOTS_DIR
 from askai.core.engine.ai_vision import AIVision
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.image_result import ImageResult
+from askai.core.model.screenshot_result import ScreenshotResult
 from askai.core.router.evaluation import resolve_x_refs
 from askai.core.support.shared_instances import shared
+
+SCREENSHOT_TEMPLATE: Template = Template(
+    """\
+
+>   Screenshot `${image_path}`:
+
+${image_caption}
+
+"""
+)
 
 
 class HFModel(Enumeration):
@@ -107,7 +119,7 @@ def image_captioner(
     return image_caption
 
 
-def parse_caption(image_caption: str) -> list[str]:
+def parse_image_caption(image_caption: str) -> list[str]:
     """Parse the given image caption.
     :param image_caption: The caption to parse.
     :return: The parsed caption as a string.
@@ -135,6 +147,43 @@ def parse_caption(image_caption: str) -> list[str]:
     return [msg.no_caption()]
 
 
+def parse_screenshot_caption(screenshot_caption: str) -> list[str]:
+    """Parse the given screenshot caption.
+    :param screenshot_caption: The caption to parse.
+    :return: The parsed caption as a string.
+    """
+    if screenshot_caption:
+        events.reply.emit(reply=AIReply.full(msg.parsing_caption()))
+        result: ScreenshotResult = ScreenshotResult.of(screenshot_caption)
+        ln: str = os.linesep
+        apps_desc: list[str] = []
+        docs_desc: list[str] = []
+        web_pages: list[str] = []
+        user_response_desc: list[str] = []
+        if result.open_applications:
+            apps_desc = [
+                f"- **Applications:**",
+                indent(f"- {'- '.join([f'`{app}{ln}`' + ln for app in result.open_applications])}", "    "),
+            ]
+        if result.open_documents:
+            docs_desc = [
+                f"- **Documents:**",
+                indent(f"- {'- '.join([f'`{app}{ln}`' + ln for app in result.open_documents])}", "    "),
+            ]
+        if result.web_pages:
+            web_pages = [
+                f"- **WebPages:**",
+                indent(f"- {'- '.join([f'`{app}{ln}`' + ln for app in result.web_pages])}", "    "),
+            ]
+        if result.user_response:
+            user_response_desc = [f"- **Answer**: `{result.user_response}`"]
+        # fmt: off
+        return apps_desc + docs_desc + web_pages + user_response_desc
+        # fmt: on
+
+    return [msg.no_caption()]
+
+
 def capture_screenshot(
     path_name: AnyPath | None = None, save_dir: AnyPath | None = None, query: str | None = None
 ) -> str:
@@ -148,23 +197,23 @@ def capture_screenshot(
     file_path: str = ensure_endswith(path_name or f"ASKAI-SCREENSHOT-{now('%Y%m%d%H%M')}", ".jpeg")
     posix_path: PathObject = PathObject.of(file_path)
     check_argument(os.path.exists(posix_path.abs_dir))
-    desktop_caption: str = "No screenshot captured"
     i = 3
 
+    events.reply.emit(reply=AIReply.mute(msg.t(f"Screenshot in: {i}")))
     while (i := (i - 1)) >= 0:
         player.play_sfx("click")
         pause.seconds(1)
-        events.reply.emit(reply=AIReply.mute(str(i)), erase_last=True)
+        events.reply.emit(reply=AIReply.mute(msg.t(f"Screenshot in: {i}")), erase_last=True)
     player.play_sfx("camera-shutter")
     events.reply.emit(reply=AIReply.mute(msg.click()), erase_last=True)
 
-    if screenshot := pyautogui.screenshot():
-        _, ext = os.path.splitext(posix_path.filename)
-        if ext.casefold().endswith((".jpg", ".jpeg")):
-            screenshot = screenshot.convert("RGB")
-        final_path: str = os.path.join(save_dir or posix_path.abs_dir or SCREENSHOTS_DIR, posix_path.filename)
-        screenshot.save(final_path)
-        events.reply.emit(reply=AIReply.full(msg.screenshot_saved(final_path)))
-        desktop_caption = image_captioner(final_path, save_dir, query, "screenshot")
+    screenshot = pyautogui.screenshot()
+    _, ext = os.path.splitext(posix_path.filename)
+    if ext.casefold().endswith((".jpg", ".jpeg")):
+        screenshot = screenshot.convert("RGB")
+    final_path: str = os.path.join(save_dir or SCREENSHOTS_DIR, posix_path.filename)
+    screenshot.save(final_path)
+    events.reply.emit(reply=AIReply.full(msg.screenshot_saved(final_path)))
+    desktop_caption = parse_screenshot_caption(image_captioner(final_path, save_dir, query, "screenshot"))
 
-    return desktop_caption
+    return SCREENSHOT_TEMPLATE.substitute(image_path=final_path, image_caption=os.linesep.join(desktop_caption))
