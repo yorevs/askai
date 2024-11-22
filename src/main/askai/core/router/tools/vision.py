@@ -1,6 +1,6 @@
 import os
-from fileinput import filename
 from textwrap import indent
+from typing import Literal
 
 import pause
 import pyautogui
@@ -74,11 +74,17 @@ def offline_captioner(path_name: AnyPath) -> str:
     return caption
 
 
-def image_captioner(path_name: AnyPath, load_dir: AnyPath | None = None, query: str | None = None) -> str:
+def image_captioner(
+    path_name: AnyPath,
+    load_dir: AnyPath | None = None,
+    query: str | None = None,
+    image_type: Literal["photo", "screenshot"] = "photo",
+) -> str:
     """This tool is used to describe an image.
     :param path_name: The path of the image to describe.
     :param load_dir: Optional directory path for loading related resources.
     :param query: Optional query about the photo taken.
+    :param image_type: The type of the image to be captioned; one of 'photo' or 'screenshot'.
     :return: A string containing the description of the image, or None if the description could not be generated.
     """
     image_caption: str = "Unavailable"
@@ -94,7 +100,9 @@ def image_captioner(path_name: AnyPath, load_dir: AnyPath | None = None, query: 
     if posix_path.exists:
         events.reply.emit(reply=AIReply.full(msg.describe_image(posix_path)))
         vision: AIVision = shared.engine.vision()
-        image_caption = vision.caption(posix_path.filename, load_dir or posix_path.abs_dir or PICTURE_DIR, query)
+        image_caption = vision.caption(
+            posix_path.filename, load_dir or posix_path.abs_dir or PICTURE_DIR, query, image_type
+        )
 
     return image_caption
 
@@ -127,10 +135,13 @@ def parse_caption(image_caption: str) -> list[str]:
     return [msg.no_caption()]
 
 
-def capture_screenshot(path_name: AnyPath | None = None, save_dir: AnyPath | None = None) -> str:
+def capture_screenshot(
+    path_name: AnyPath | None = None, save_dir: AnyPath | None = None, query: str | None = None
+) -> str:
     """Capture a screenshot and save it to the specified path.
     :param path_name: Optional path name of the captured screenshot.
     :param save_dir: Optional directory to save the screenshot.
+    :param query: Optional query about the screenshot taken.
     :return: The path to the saved screenshot.
     """
 
@@ -143,6 +154,7 @@ def capture_screenshot(path_name: AnyPath | None = None, save_dir: AnyPath | Non
     while (i := (i - 1)) >= 0:
         player.play_sfx("click")
         pause.seconds(1)
+        events.reply.emit(reply=AIReply.mute(str(i)), erase_last=True)
     player.play_sfx("camera-shutter")
     events.reply.emit(reply=AIReply.mute(msg.click()), erase_last=True)
 
@@ -153,6 +165,6 @@ def capture_screenshot(path_name: AnyPath | None = None, save_dir: AnyPath | Non
         final_path: str = os.path.join(save_dir or posix_path.abs_dir or SCREENSHOTS_DIR, posix_path.filename)
         screenshot.save(final_path)
         events.reply.emit(reply=AIReply.full(msg.screenshot_saved(final_path)))
-        desktop_caption = image_captioner(final_path, save_dir)
+        desktop_caption = image_captioner(final_path, save_dir, query, "screenshot")
 
     return desktop_caption

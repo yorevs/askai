@@ -26,7 +26,7 @@ Given the provided image, please perform the following tasks:
      - Consider elements such as lighting, weather conditions, color tones, and textures.
      - Mention any emotions or feelings the scene might evoke (e.g., serene, chaotic, eerie).
 
-5. If the Human question is provided in the end, Also, respond to it.
+5. If the Human question is provided in the end, also, respond to it.
 
 
 Human Question: "{question}"

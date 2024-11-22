@@ -12,7 +12,7 @@
 
    Copyright (c) 2024, HomeSetup
 """
-from typing import TypeAlias
+from typing import TypeAlias, Literal
 import os
 
 from langchain_core.prompts import PromptTemplate
@@ -25,10 +25,10 @@ from langchain_core.messages import BaseMessage, HumanMessage
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.runnables import chain
 from langchain_openai import ChatOpenAI
-from retry import retry
 
 from askai.core.askai_prompt import prompt
 from askai.core.model.image_result import ImageResult
+from askai.core.model.screenshot_result import ScreenshotResult
 from askai.core.support.utilities import encode_image, find_file
 
 Base64Image: TypeAlias = dict[str, str]
@@ -38,8 +38,6 @@ MessageContent: TypeAlias = str | list[str] | dict
 
 class OpenAIVision:
     """Provide a base class for OpenAI vision features. This class implements the AIVision protocol."""
-
-    _OUT_PARSER = JsonOutputParser(pydantic_object=ImageResult)
 
     @staticmethod
     def _encode_image(inputs: dict) -> dict[str, str]:
@@ -65,7 +63,7 @@ class OpenAIVision:
                 HumanMessage(
                     content=[
                         {"type": "text", "text": inputs["prompt"]},
-                        {"type": "text", "text": OpenAIVision._OUT_PARSER.get_format_instructions()},
+                        {"type": "text", "text": inputs["parser_guides"]},
                         {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{inputs['image']}"}},
                     ]
                 )
@@ -73,25 +71,61 @@ class OpenAIVision:
         )
         return msg.content
 
-    def template(self, question: str = "") -> str:
-        return PromptTemplate(input_variables=["question"], template=prompt.read_prompt("vision")).format(
+    def image_template(self, question: str = "") -> str:
+        return PromptTemplate(input_variables=["question"], template=prompt.read_prompt("img-caption")).format(
             question=question
         )
 
-    @retry()
-    def caption(self, filename: AnyPath, load_dir: AnyPath | None, query: str | None = None) -> str:
+    def screenshot_template(self, question: str = "") -> str:
+        return PromptTemplate(input_variables=["question"], template=prompt.read_prompt("ss-caption")).format(
+            question=question
+        )
+
+    def caption(
+        self,
+        filename: AnyPath,
+        load_dir: AnyPath | None,
+        query: str | None = None,
+        image_type: Literal["photo", "screenshot"] = "photo",
+    ) -> str:
         """Generate a caption for the provided image.
         :param filename: File name of the image for which the caption is to be generated.
         :param load_dir: Optional directory path for loading related resources.
         :param query: Optional question about details of the image.
+        :param image_type: The type of the image to be captioned; one of 'photo' or 'screenshot'.
         :return: A string containing the generated caption.
         """
         final_path: str = os.path.join(load_dir, filename) if load_dir else os.getcwd()
         check_argument(len((final_path := str(find_file(final_path) or ""))) > 0, f"Invalid image path: {final_path}")
-        vision_prompt: str = self.template(query)
+        vision_prompt: str = self._get_vision_prompt(query, image_type)
         load_image_chain = TransformChain(
-            input_variables=["image_path"], output_variables=["image"], transform=self._encode_image
+            input_variables=["image_path", "parser_guides"], output_variables=["image"], transform=self._encode_image
         )
-        vision_chain = load_image_chain | self.create_image_caption_chain | OpenAIVision._OUT_PARSER
-        args: dict[str, str] = {"image_path": f"{final_path}", "prompt": vision_prompt}
+        out_parser: JsonOutputParser = self._get_out_parser(image_type)
+        vision_chain = load_image_chain | self.create_image_caption_chain | out_parser
+        args: dict[str, str] = {
+            "image_path": f"{final_path}",
+            "prompt": vision_prompt,
+            "parser_guides": out_parser.get_format_instructions(),
+        }
         return str(vision_chain.invoke(args))
+
+    def _get_out_parser(self, image_type: Literal["photo", "screenshot"]) -> JsonOutputParser:
+        """TODO"""
+        match image_type:
+            case "photo":
+                return JsonOutputParser(pydantic_object=ImageResult)
+            case "screenshot":
+                return JsonOutputParser(pydantic_object=ScreenshotResult)
+            case _:
+                raise ValueError(f"Parser not found for: {image_type}")
+
+    def _get_vision_prompt(self, query: str, image_type: Literal["photo", "screenshot"]) -> str:
+        """TODO"""
+        match image_type:
+            case "photo":
+                return self.image_template(query)
+            case "screenshot":
+                return self.screenshot_template(query)
+            case _:
+                raise ValueError(f"Prompt not found for: {image_type}")
