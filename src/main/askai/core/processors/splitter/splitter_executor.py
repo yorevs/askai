@@ -130,8 +130,9 @@ class SplitterExecutor(Thread):
         except InaccurateResponse:
             live.update(Spinner("dots", f"[red]AI failed to respond. Retrying…[/red]", style="green"))
 
+        final_state: States = self.pipeline.state
+
         if configs.is_debug:
-            final_state: States = self.pipeline.state
             final_state_str: str = (
                 "[green] Succeeded[/green] " if final_state == States.COMPLETE else "[red] Failed [/red]"
             )
@@ -144,6 +145,6 @@ class SplitterExecutor(Thread):
             )
             self.display(f"Failures:\n{all_failures}")
 
-            if final_state != States.COMPLETE and not self._interrupted:
-                retries: int = self.pipeline.failures[self.pipeline.state.value]
-                self.display(f" Failed to generate a response after {retries} retries", True)
+        if final_state != States.COMPLETE and not self._interrupted:
+            retries: int = self.pipeline.failures[self.pipeline.state.value]
+            self.display(f" Failed to generate a response after {retries} retries", True)

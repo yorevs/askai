@@ -1,6 +1,8 @@
 import os
+from fileinput import filename
 from textwrap import indent
 
+import pause
 import pyautogui
 import torch
 from PIL import Image
@@ -8,11 +10,14 @@ from hspylib.core.config.path_object import PathObject
 from hspylib.core.enums.enumeration import Enumeration
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.preconditions import check_argument
+from hspylib.core.tools.text_tools import ensure_endswith
+from hspylib.core.zoned_datetime import now
 from transformers import BlipForConditionalGeneration, BlipProcessor
 
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
-from askai.core.component.cache_service import PICTURE_DIR
+from askai.core.component.audio_player import player
+from askai.core.component.cache_service import PICTURE_DIR, SCREENSHOTS_DIR
 from askai.core.engine.ai_vision import AIVision
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.image_result import ImageResult
@@ -100,6 +105,7 @@ def parse_caption(image_caption: str) -> list[str]:
     :return: The parsed caption as a string.
     """
     if image_caption:
+        events.reply.emit(reply=AIReply.full(msg.parsing_caption()))
         result: ImageResult = ImageResult.of(image_caption)
         ln: str = os.linesep
         people_desc: list[str] = []
@@ -121,22 +127,32 @@ def parse_caption(image_caption: str) -> list[str]:
     return [msg.no_caption()]
 
 
-def take_screenshot(path_name: AnyPath, load_dir: AnyPath | None = None) -> str:
-    """Takes a screenshot and saves it to the specified path.
-    :param path_name: The path where the screenshot will be saved.
-    :param load_dir: Optional directory to save the screenshot.
+def capture_screenshot(path_name: AnyPath | None = None, save_dir: AnyPath | None = None) -> str:
+    """Capture a screenshot and save it to the specified path.
+    :param path_name: Optional path name of the captured screenshot.
+    :param save_dir: Optional directory to save the screenshot.
     :return: The path to the saved screenshot.
     """
 
-    posix_path: PathObject = PathObject.of(path_name)
+    file_path: str = ensure_endswith(path_name or f"ASKAI-SCREENSHOT-{now('%Y%m%d%H%M')}", ".jpeg")
+    posix_path: PathObject = PathObject.of(file_path)
     check_argument(os.path.exists(posix_path.abs_dir))
-    screenshot = pyautogui.screenshot()
-    _, ext = os.path.splitext(posix_path.filename)
-    if ext.casefold().endswith((".jpg", ".jpeg")):
-        screenshot = screenshot.convert("RGB")
-    final_path: str = os.path.join(load_dir or posix_path.abs_dir or PICTURE_DIR, posix_path.filename)
-    screenshot.save(final_path)
-    events.reply.emit(reply=AIReply.full(msg.screenshot_saved(final_path)))
-    desktop_caption = image_captioner(final_path, load_dir)
+    desktop_caption: str = "No screenshot captured"
+    i = 3
+
+    while (i := (i - 1)) >= 0:
+        player.play_sfx("click")
+        pause.seconds(1)
+    player.play_sfx("camera-shutter")
+    events.reply.emit(reply=AIReply.mute(msg.click()), erase_last=True)
+
+    if screenshot := pyautogui.screenshot():
+        _, ext = os.path.splitext(posix_path.filename)
+        if ext.casefold().endswith((".jpg", ".jpeg")):
+            screenshot = screenshot.convert("RGB")
+        final_path: str = os.path.join(save_dir or posix_path.abs_dir or SCREENSHOTS_DIR, posix_path.filename)
+        screenshot.save(final_path)
+        events.reply.emit(reply=AIReply.full(msg.screenshot_saved(final_path)))
+        desktop_caption = image_captioner(final_path, save_dir)
 
     return desktop_caption

@@ -47,6 +47,11 @@ PICTURE_DIR: Path = Path(str(CACHE_DIR) + "/pictures")
 if not PICTURE_DIR.exists():
     PICTURE_DIR.mkdir(parents=True, exist_ok=True)
 
+# Desktop screenshots cache directory.
+SCREENSHOTS_DIR: Path = Path(str(CACHE_DIR) + "/screenshots")
+if not SCREENSHOTS_DIR.exists():
+    SCREENSHOTS_DIR.mkdir(parents=True, exist_ok=True)
+
 # Camera photo shots cache directory.
 PHOTO_DIR: Path = Path(str(PICTURE_DIR) + "/photos")
 if not PHOTO_DIR.exists():

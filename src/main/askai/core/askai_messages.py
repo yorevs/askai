@@ -180,6 +180,9 @@ class AskAiMessages(metaclass=Singleton):
     def model_select(self, model: AnyStr) -> str:
         return f"~~[DEBUG]~~ Using routing model: `{model}`"
 
+    def parsing_caption(self) -> str:
+        return f"~~[DEBUG]~~ Parsing caption…"
+
     def task(self, task: AnyStr) -> str:
         return f"~~[DEBUG]~~ > `Task:` {task}"
 

@@ -32,7 +32,7 @@ from askai.core.router.tools.general import display_tool
 from askai.core.router.tools.generation import generate_content, save_content
 from askai.core.router.tools.summarization import summarize
 from askai.core.router.tools.terminal import execute_command, list_contents, open_command
-from askai.core.router.tools.vision import image_captioner, parse_caption
+from askai.core.router.tools.vision import image_captioner, parse_caption, capture_screenshot
 from askai.core.router.tools.webcam import webcam_capturer, webcam_identifier, CAPTION_TEMPLATE
 from askai.exception.exceptions import TerminatingQuery
 
@@ -151,6 +151,15 @@ class AgentTools(metaclass=Singleton):
         :return: A string containing the identification and description of the person.
         """
         return webcam_identifier()
+
+    def screenshot(self, path_name: AnyPath | None = None, save_dir: AnyPath | None = None) -> str:
+        """Capture a screenshot and save it to the specified path.
+        Usage: `screenshot(path_name, load_dir)`
+        :param path_name: Optional path name of the captured screenshot.
+        :param save_dir: Optional directory to save the screenshot.
+        :return: The path to the saved screenshot.
+        """
+        return capture_screenshot(path_name, save_dir)
 
     def generate_content(self, instructions: str, mime_type: str, filepath: AnyPath) -> str:
         """Use this tool to generate various types of content, such as code, text, images, etc. This tool processes

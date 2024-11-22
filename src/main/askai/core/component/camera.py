@@ -59,7 +59,7 @@ class Camera(metaclass=Singleton):
     ALG: str = configs.face_detect_alg
 
     @staticmethod
-    def _countdown(count: int) -> None:
+    def countdown(count: int) -> None:
         """Display a countdown before taking a photo.
         :param count: The number of seconds for the countdown.
         """
@@ -113,7 +113,7 @@ class Camera(metaclass=Singleton):
             events.reply.emit(reply=AIReply.error(msg.camera_not_open()))
             return None
 
-        self._countdown(countdown)
+        self.countdown(countdown)
 
         ret, photo = self._cam.read()
         if not ret:
