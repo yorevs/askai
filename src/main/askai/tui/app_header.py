@@ -128,8 +128,10 @@ class HeaderNotifications(Widget):
     """Display a notification widget on the right of the header."""
 
     speaking = Reactive(configs.is_speak)
+    assistive = Reactive(configs.is_assistive)
     debugging = Reactive(configs.is_debug)
     caching = Reactive(configs.is_cache)
+    rag = Reactive(configs.is_rag)
     listening = Reactive(False)
     headphones = Reactive(False)
     idiom = Reactive(f"{configs.language.name} ({configs.language.idiom})")
@@ -141,16 +143,18 @@ class HeaderNotifications(Widget):
     def __str__(self):
         device_info: str = f"{recorder.input_device[1]}" if recorder.input_device else "-"
         voice: str = shared.engine.configs().tts_voice
-        return dedent(
-            f"""
+        # fmt: off
+        return dedent(f"""\
+            Assistive: {'' if self.assistive else ''}
             Debugging: {'' if self.debugging else ''}
             Listening: {'' if self.listening else ''}
-             Speaking: {'   ' + voice if self.speaking else ''}
+             Speaking: {'   ' + voice if self.speaking else ''}
               Caching: {'' if self.caching else ''}
+                  RAG: {'' if self.rag else ''}
              Audio In: {device_info}
-                Idiom:  {self.idiom}
-            """
-        ).strip()
+                Idiom: {AppIcons.GLOBE} {self.idiom}
+            """).strip()
+        # fmt: on
 
     def _on_mount(self, _: Mount) -> None:
         self.set_interval(1, callback=self.refresh, name="update clock")
@@ -162,6 +166,7 @@ class HeaderNotifications(Widget):
             f"{AppIcons.HEADPHONES if self.headphones else AppIcons.BUILT_IN_SPEAKER}  "
             f"{AppIcons.LISTENING_ON if self.listening else AppIcons.LISTENING_OFF}  "
             f"{AppIcons.SPEAKING_ON if self.speaking else AppIcons.SPEAKING_OFF} "
+            f"{AppIcons.ASSISTIVE_ON if self.assistive else AppIcons.ASSISTIVE_OFF}  "
             f"{AppIcons.CACHING_ON if self.caching else AppIcons.CACHING_OFF} "
             f"{AppIcons.DEBUG_ON if self.debugging else AppIcons.DEBUG_OFF}  "
             f"{AppIcons.SEPARATOR_V} {now(f'%a %d %b %X')}",
@@ -172,6 +177,7 @@ class HeaderNotifications(Widget):
     def refresh_icons(self) -> None:
         """Update the application widgets."""
         self.headphones = recorder.is_headphones()
+        self.assistive = configs.is_assistive
         self.debugging = configs.is_debug
         self.caching = configs.is_cache
         self.speaking = configs.is_speak

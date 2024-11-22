@@ -57,7 +57,7 @@ class OpenAIVision:
         :param inputs: Dictionary containing the image and prompt information.
         :return: MessageContent object with the generated caption.
         """
-        model: BaseChatModel = ChatOpenAI(temperature=0.8, model="gpt-4o-mini", max_tokens=1024)
+        model: BaseChatModel = ChatOpenAI(model="gpt-4o-mini")
         msg: BaseMessage = model.invoke(
             [
                 HumanMessage(
@@ -99,7 +99,7 @@ class OpenAIVision:
         check_argument(len((final_path := str(find_file(final_path) or ""))) > 0, f"Invalid image path: {final_path}")
         vision_prompt: str = self._get_vision_prompt(query, image_type)
         load_image_chain = TransformChain(
-            input_variables=["image_path", "parser_guides"], output_variables=["image"], transform=self._encode_image
+            input_variables=["image_path", "parser_guides"], output_variables=["image"], transform_cb=self._encode_image
         )
         out_parser: JsonOutputParser = self._get_out_parser(image_type)
         vision_chain = load_image_chain | self.create_image_caption_chain | out_parser

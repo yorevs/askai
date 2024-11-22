@@ -58,6 +58,7 @@ class AskAi:
     @staticmethod
     def _abort():
         """Abort the execution and exit."""
+        terminal.restore()
         sys.exit(ExitStatus.FAILED.val)
 
     def __init__(
@@ -134,7 +135,6 @@ class AskAi:
             self._abort()
         events.abort.emit(message="User interrupted [ctrl+c]")
         threading.Timer(1, lambda: setattr(self, "_abort_count", 0)).start()
-        terminal.restore()
 
     def run(self) -> None:
         """Run the application."""

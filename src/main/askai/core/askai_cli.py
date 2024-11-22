@@ -81,6 +81,7 @@ class AskAiCli(AskAi):
             elif output:
                 cache.save_reply(question, output)
                 cache.save_input_history()
+                # FIXME This is only writing the final answer to the markdown file.
                 with open(self.console_path, "a+", encoding=Charset.UTF_8.val) as f_console:
                     f_console.write(f"{shared.username_md}{question}\n\n")
                     f_console.write(f"{shared.nickname_md}{output}\n\n")

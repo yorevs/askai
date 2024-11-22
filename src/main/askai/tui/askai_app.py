@@ -69,6 +69,7 @@ class AskAiApp(App[None]):
         ("c", "clear", " Clear"),
         ("d", "debugging", " Debugging"),
         ("s", "speaking", " Speaking"),
+        ("a", "assistive", " Assistive"),
         ("ctrl+l", "ptt", " Push-to-Talk"),
         ("ctrl+s", "stop", " Stop-GenAi"),
     ]
@@ -209,14 +210,19 @@ class AskAiApp(App[None]):
         # All other keys display as normal
         return True
 
+    @work(thread=True)
     def enable_controls(self, enable: bool = True) -> None:
         """Enable or disable all UI controls, including the header, input, and footer.
         :param enable: Whether to enable (True) or disable (False) the UI controls (default is True).
         """
-        self.input_actions.set_class(not enable, "-hidden")
-        self.header.disabled = not enable
-        self.line_input.loading = not enable
-        self.footer.disabled = not enable
+
+        def _invoke_later_(arg: bool = True) -> None:
+            self.input_actions.set_class(not arg, "-hidden")
+            self.header.disabled = not arg
+            self.line_input.loading = not arg
+            self.footer.disabled = not arg
+
+        self.call_from_thread(_invoke_later_, enable)
 
     def activate_markdown(self) -> None:
         """Activate the markdown console widget."""
@@ -246,6 +252,10 @@ class AskAiApp(App[None]):
     async def action_debugging(self) -> None:
         """Toggle Debugging ON/OFF."""
         self.ask_and_reply("/debug")
+
+    async def action_assistive(self) -> None:
+        """Toggle Assistive ON/OFF."""
+        self.ask_and_reply("/assistive")
 
     @work(thread=True)
     async def action_ptt(self) -> None:
@@ -381,9 +391,9 @@ class AskAiApp(App[None]):
         :param question: The question to ask the AI engine.
         :return: A tuple containing a boolean indicating success or failure, and the AI's reply as an optional string.
         """
-        self.call_from_thread(self.enable_controls, False)
+        self.enable_controls(False)
         status, reply = self.askai.ask_and_reply(question)
-        self.call_from_thread(self.enable_controls)
+        self.enable_controls()
 
         return status, reply
 

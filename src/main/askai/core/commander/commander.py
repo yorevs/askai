@@ -188,6 +188,15 @@ def help(command: str | None) -> None:
 
 
 @ask_commander.command()
+def assistive() -> None:
+    """Toggle assistive mode ON/OFF."""
+    configs.is_assistive = not configs.is_assistive
+    text_formatter.commander_print(
+        f"`Assistive responses` is {'%GREEN%ON' if configs.is_assistive else '%RED%OFF'}%NC%"
+    )
+
+
+@ask_commander.command()
 def debug() -> None:
     """Toggle debug mode ON/OFF."""
     configs.is_debug = not configs.is_debug

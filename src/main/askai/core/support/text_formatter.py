@@ -10,6 +10,13 @@
    Copyright (c) 2024, HomeSetup
 """
 
+from textwrap import dedent
+from typing import Any, AnyStr
+import os
+import re
+
+from askai.core.askai_events import events
+from askai.core.model.ai_reply import AIReply
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith, strip_escapes
 from hspylib.modules.cli.vt100.vt_code import VtCode
@@ -17,11 +24,6 @@ from hspylib.modules.cli.vt100.vt_color import VtColor
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.text import Text
-from textwrap import dedent
-from typing import Any, AnyStr
-
-import os
-import re
 
 
 class TextFormatter(metaclass=Singleton):
@@ -153,7 +155,10 @@ class TextFormatter(metaclass=Singleton):
         """Display an AskAI-commander formatted text.
         :param text: The text to be displayed.
         """
-        self.display_markdown(f"%ORANGE%  Commander%NC%: {str(text)}")
+        cmd_message: str = f"%ORANGE%  Commander%NC%: {str(text)}"
+        self.display_markdown(cmd_message)
+        if os.environ.get("ASKAI_APP") is not None:
+            events.reply.emit(reply=AIReply.info(VtColor.strip_colors(cmd_message)))
 
 
 assert (text_formatter := TextFormatter().INSTANCE) is not None
