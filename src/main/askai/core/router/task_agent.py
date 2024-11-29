@@ -12,6 +12,18 @@
 
    Copyright (c) 2024, HomeSetup
 """
+from typing import AnyStr, Optional
+import logging as log
+
+from pydantic import ValidationError
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.metaclass.singleton import Singleton
+from langchain.agents import AgentExecutor, create_structured_chat_agent
+from langchain.memory.chat_memory import BaseChatMemory
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables import Runnable
+import openai
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -21,17 +33,6 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.router.agent_tools import features
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.metaclass.singleton import Singleton
-from langchain.agents import AgentExecutor, create_structured_chat_agent
-from langchain.memory.chat_memory import BaseChatMemory
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.runnables import Runnable
-from langchain_core.runnables.utils import Output
-from typing import AnyStr, Optional
-
-import logging as log
-import openai
 
 
 class TaskAgent(metaclass=Singleton):
@@ -83,9 +84,9 @@ class TaskAgent(metaclass=Singleton):
         tools = features.tools()
         llm = lc_llm.create_chat_model(temperature.temp)
         chat_memory: BaseChatMemory = shared.memory
-        lc_agent = create_structured_chat_agent(llm, tools, self.agent_template)
+        chat_agent = create_structured_chat_agent(llm, tools, self.agent_template)
         lc_agent: Runnable = AgentExecutor(
-            agent=lc_agent,
+            agent=chat_agent,
             tools=tools,
             max_iterations=configs.max_agent_retries,
             memory=chat_memory,
@@ -96,21 +97,21 @@ class TaskAgent(metaclass=Singleton):
 
         return lc_agent
 
-    def _exec_task(self, task: AnyStr) -> Optional[Output]:
+    def _exec_task(self, task: AnyStr) -> Optional[dict[str, str]]:
         """Execute the specified agent task.
         :param task: The task to be executed by the agent.
         :return: An instance of Output containing the result of the task, or None if the task fails or produces
         no output.
         """
+        output: dict[str, str] | None = None
         try:
             lc_agent: Runnable = self._create_lc_agent()
-            return lc_agent.invoke({"input": task})
-        except openai.APIError as err:
+            output: dict[str, str] = lc_agent.invoke({"input": task})
+        except (openai.APIError, ValueError, ValidationError) as err:
             log.error(str(err))
-        except ValueError as err:
-            log.error(str(err))
+            output: dict[str, str] = {'output': str(err)}
 
-        return None
+        return output
 
 
 assert (agent := TaskAgent().INSTANCE) is not None

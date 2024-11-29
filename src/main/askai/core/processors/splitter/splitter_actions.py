@@ -35,6 +35,7 @@ from askai.core.model.acc_response import AccResponse
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.model_result import ModelResult
+from askai.core.router.agent_tools import features
 from askai.core.router.task_agent import agent
 from askai.core.router.tools.general import final_answer
 from askai.core.support.langchain_support import lc_llm
@@ -138,6 +139,7 @@ class SplitterActions(metaclass=Singleton):
                         shell=prompt.shell,
                         datetime=geo_location.datetime,
                         home=Path.home(),
+                        agent_tools=features.available_tools,
                         rag=self._rag.get_rag_examples(query),
                     ),
                 ),

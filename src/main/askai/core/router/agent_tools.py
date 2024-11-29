@@ -67,6 +67,9 @@ class AgentTools(metaclass=Singleton):
 
     @property
     def available_tools(self) -> str:
+        """Returns a formatted string of available tools and their descriptions.
+        :return: A string listing tools with their descriptions, formatted for readability.
+        """
         avail_list: list[str] = list()
         for t in self.tools():
             if match := re.search(r"^```(.*?)^\s*Usage:", t.description, re.DOTALL | re.MULTILINE):

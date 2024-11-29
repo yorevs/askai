@@ -99,12 +99,14 @@ class OpenAIVision:
         check_argument(len((final_path := str(find_file(final_path) or ""))) > 0, f"Invalid image path: {final_path}")
         vision_prompt: str = self._get_vision_prompt(query, image_type)
         load_image_chain = TransformChain(
-            input_variables=["image_path", "parser_guides"], output_variables=["image"], transform_cb=self._encode_image
+            input_variables=["image_path", "parser_guides"],
+            output_variables=["image"],
+            transform=self._encode_image
         )
         out_parser: JsonOutputParser = self._get_out_parser(image_type)
         vision_chain = load_image_chain | self.create_image_caption_chain | out_parser
         args: dict[str, str] = {
-            "image_path": f"{final_path}",
+            "image_path": final_path,
             "prompt": vision_prompt,
             "parser_guides": out_parser.get_format_instructions(),
         }

@@ -52,8 +52,14 @@ Step 5. Separate tasks clearly, avoiding the use of conjunctions like 'and', 'or
 
 11. When you lack an answer, need user assistance, or require real-time access, the "tasks" field will be: "[{{{{ "id": "id", "task": "Search google for: '<Your advanced google search query with filters> <Current Month> <Current Year>'" }}}}]".
 
+12. Prefer using the available agent tools than executing a terminal command.
 
-**Available Resources:**
+**Available Agent Tools:**
+
+{agent_tools}
+
+
+**Available Computer Resources:**
 
 1. WebCam access (to take photos and capture videos).
 2. Desktop (via screenshots).

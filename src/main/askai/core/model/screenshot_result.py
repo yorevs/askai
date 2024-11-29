@@ -2,7 +2,6 @@ import ast
 import json
 from typing import AnyStr
 
-from kubernetes.watch.watch import SimpleNamespace
 from pydantic import BaseModel, Field
 
 
