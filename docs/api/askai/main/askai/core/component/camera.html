@@ -93,7 +93,7 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
    @site: <a href="https://github.com/yorevs/askai">https://github.com/yorevs/askai</a>
 @license: MIT - Please refer to <a href="https://opensource.org/licenses/MIT">https://opensource.org/licenses/MIT</a></p>
 
-<p>Copyright (c) 2024, HomeSetup</p>
+<p>Copyright (c) 2024, AskAI</p>
 </div>
 
                         <input id="mod-camera-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -112,7 +112,7 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
 </span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">      @site: https://github.com/yorevs/askai</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="sd">   @license: MIT - Please refer to &lt;https://opensource.org/licenses/MIT&gt;</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">   Copyright (c) 2024, HomeSetup</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">   Copyright (c) 2024, AskAI</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="kn">from</span> <span class="nn">askai.__classpath__</span> <span class="kn">import</span> <span class="n">classpath</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="kn">from</span> <span class="nn">askai.core.askai_configs</span> <span class="kn">import</span> <span class="n">configs</span>
@@ -363,17 +363,17 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
             <span class="name">InputDevice</span><span class="annotation">: TypeAlias</span>        =
 <span class="default_value">tuple[int, str]</span>
 
-        
+
     </div>
     <a class="headerlink" href="#InputDevice"></a>
-    
-    
+
+
 
                 </section>
                 <section id="Camera">
                             <input id="Camera-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
-            
+
     <span class="def">class</span>
     <span class="name">Camera</span><wbr>(<span class="base">typing.Type</span>):
 
@@ -595,7 +595,7 @@ webcam's functionality, ensuring that only one instance interacts with the hardw
                             <div id="Camera.__init__" class="classattr">
                                         <input id="Camera.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="name">Camera</span><span class="signature pdoc-code condensed">(<span class="param"><span class="o">*</span><span class="n">args</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span>)</span>
 
                 <label class="view-source-button" for="Camera.__init__-view-source"><span>View Source</span></label>
@@ -627,11 +627,11 @@ webcam's functionality, ensuring that only one instance interacts with the hardw
                                 <div class="attr variable">
             <span class="name">INSTANCE</span><span class="annotation">: <a href="#Camera">Camera</a></span>
 
-        
+
     </div>
     <a class="headerlink" href="#Camera.INSTANCE"></a>
-    
-    
+
+
 
                             </div>
                             <div id="Camera.RESOURCE_DIR" class="classattr">
@@ -639,11 +639,11 @@ webcam's functionality, ensuring that only one instance interacts with the hardw
             <span class="name">RESOURCE_DIR</span><span class="annotation">: pathlib.Path</span>        =
 <span class="default_value">PosixPath(&#39;/Users/hjunior/GIT-Repository/GitHub/askai/src/main/askai/resources&#39;)</span>
 
-        
+
     </div>
     <a class="headerlink" href="#Camera.RESOURCE_DIR"></a>
-    
-    
+
+
 
                             </div>
                             <div id="Camera.ALG" class="classattr">
@@ -651,11 +651,11 @@ webcam's functionality, ensuring that only one instance interacts with the hardw
             <span class="name">ALG</span><span class="annotation">: str</span>        =
 <span class="default_value">&#39;haarcascade_frontalface_default.xml&#39;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#Camera.ALG"></a>
-    
-    
+
+
 
                             </div>
                             <div id="Camera.initialize" class="classattr">
@@ -718,7 +718,7 @@ webcam's functionality, ensuring that only one instance interacts with the hardw
                             <div id="Camera.capture" class="classattr">
                                         <input id="Camera.capture-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="def">def</span>
         <span class="name">capture</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">filename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span>,</span><span class="param">	<span class="n">countdown</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>,</span><span class="param">	<span class="n">with_caption</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">store_image</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">askai</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">image_store</span><span class="o">.</span><span class="n">ImageFile</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]]]</span>:</span></span>
 
@@ -791,7 +791,7 @@ webcam's functionality, ensuring that only one instance interacts with the hardw
                             <div id="Camera.detect_faces" class="classattr">
                                         <input id="Camera.detect_faces-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="def">def</span>
         <span class="name">detect_faces</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">photo</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span>,</span><span class="param">	<span class="n">filename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">with_caption</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">store_image</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">askai</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">image_store</span><span class="o">.</span><span class="n">ImageFile</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]]]</span>:</span></span>
 
@@ -869,7 +869,7 @@ webcam's functionality, ensuring that only one instance interacts with the hardw
                             <div id="Camera.identify" class="classattr">
                                         <input id="Camera.identify-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="def">def</span>
         <span class="name">identify</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">countdown</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>,</span><span class="param">	<span class="n">max_distance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.7</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="n">askai</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">image_store</span><span class="o">.</span><span class="n">ImageMetadata</span><span class="p">]</span>:</span></span>
 
@@ -918,7 +918,7 @@ configs.max_id_distance).</li>
                             <div id="Camera.import_images" class="classattr">
                                         <input id="Camera.import_images-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="def">def</span>
         <span class="name">import_images</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">pathname</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span>,</span><span class="param">	<span class="n">detect_faces</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>,</span><span class="param">	<span class="n">with_caption</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">store_image</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>:</span></span>
 

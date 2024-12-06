@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from pathlib import Path
 from typing import Any, Optional
@@ -53,7 +53,9 @@ class AskAi:
 
     RESOURCE_DIR: Path = classpath.resource_path
 
-    SPLASH: str = classpath.get_resource("splash.txt").read_text(encoding=Charset.UTF_8.val)
+    SPLASH: str = classpath.get_resource("splash.txt").read_text(
+        encoding=Charset.UTF_8.val
+    )
 
     @staticmethod
     def _abort():
@@ -62,7 +64,14 @@ class AskAi:
         sys.exit(ExitStatus.FAILED.val)
 
     def __init__(
-        self, speak: bool, debug: bool, cacheable: bool, tempo: int, engine_name: str, model_name: str, mode: RouterMode
+        self,
+        speak: bool,
+        debug: bool,
+        cacheable: bool,
+        tempo: int,
+        engine_name: str,
+        model_name: str,
+        mode: RouterMode,
     ):
 
         configs.is_debug = is_debugging() or debug
@@ -73,7 +82,9 @@ class AskAi:
 
         self._session_id = now("%Y%m%d")[:8]
         self._engine: AIEngine = shared.create_engine(engine_name, model_name, mode)
-        self._context: ChatContext = shared.create_context(self._engine.ai_token_limit())
+        self._context: ChatContext = shared.create_context(
+            self._engine.ai_token_limit()
+        )
         self._mode: RouterMode = shared.mode
         self._console_path = Path(f"{CACHE_DIR}/askai-{self.session_id}.md")
         self._query_prompt: str | None = None
@@ -130,7 +141,11 @@ class AskAi:
         log.warning(f"User interrupted: signals: {signals}  frame: {frame}")
         self._abort_count += 1
         if self._abort_count > 1:
-            events.reply.emit(reply=AIReply.error(f"\n{msg.terminate_requested('User aborted [ctrl+c]')}"))
+            events.reply.emit(
+                reply=AIReply.error(
+                    f"\n{msg.terminate_requested('User aborted [ctrl+c]')}"
+                )
+            )
             log.warning(f"User aborted. Exiting…")
             self._abort()
         events.abort.emit(message="User interrupted [ctrl+c]")
@@ -153,15 +168,24 @@ class AskAi:
         try:
             if command := re.search(RE_ASKAI_CMD, question):
                 args: list[str] = list(
-                    filter(lambda a: a and a != "None", re.split(r"\s", f"{command.group(1)} {command.group(2)}"))
+                    filter(
+                        lambda a: a and a != "None",
+                        re.split(r"\s", f"{command.group(1)} {command.group(2)}"),
+                    )
                 )
                 ask_commander(args, standalone_mode=False)
                 return True, None
             shared.context.push("HISTORY", question)
             if not (output := cache.read_reply(question)):
-                log.debug('Response not found for "%s" in cache. Querying from %s.', question, self.engine.nickname())
+                log.debug(
+                    'Response not found for "%s" in cache. Querying from %s.',
+                    question,
+                    self.engine.nickname(),
+                )
                 events.reply.emit(reply=AIReply.detailed(msg.wait()))
-                if output := processor.process(question, context=read_stdin(), query_prompt=self._query_prompt):
+                if output := processor.process(
+                    question, context=read_stdin(), query_prompt=self._query_prompt
+                ):
                     events.reply.emit(reply=AIReply.info(output))
             else:
                 log.debug("Reply found for '%s' in cache.", question)
@@ -192,7 +216,9 @@ class AskAi:
         :param overwrite: Whether to overwrite the existing file if it already exists (default is True).
         """
         is_new: bool = not file_is_not_empty(str(self.console_path)) or overwrite
-        with open(self.console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val) as f_console:
+        with open(
+            self.console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val
+        ) as f_console:
             f_console.write(
                 f"{'---' + os.linesep * 2 if not is_new else ''}"
                 f"{'# ' + now(DATE_FORMAT) + os.linesep * 2 if is_new else ''}"

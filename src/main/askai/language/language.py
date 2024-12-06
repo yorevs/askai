@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from hspylib.core.enums.charset import Charset
 from hspylib.core.enums.enumeration import Enumeration

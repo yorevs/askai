@@ -3,7 +3,7 @@
 
     Created: 29th August, 2024
     License: MIT - Please refer to <https://opensource.org/licenses/MIT>
-    Copyright (c) 2024, HomeSetup
+    Copyright (c) 2024, AskAI
 */
 
 import groovy.json.JsonSlurper

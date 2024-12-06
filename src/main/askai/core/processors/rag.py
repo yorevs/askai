@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from clitt.core.term.cursor import cursor
 from rich.live import Live
@@ -62,8 +62,12 @@ class Rag(metaclass=Singleton):
 
     @property
     def rag_template(self) -> BasePromptTemplate:
-        prompt_file: PathObject = PathObject.of(prompt.append_path(f"taius/taius-non-interactive"))
-        final_prompt: str = prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir)
+        prompt_file: PathObject = PathObject.of(
+            prompt.append_path(f"taius/taius-non-interactive")
+        )
+        final_prompt: str = prompt.read_prompt(
+            prompt_file.filename, prompt_file.abs_dir
+        )
         # fmt: off
         return ChatPromptTemplate.from_messages([
             ("system", final_prompt),
@@ -93,7 +97,10 @@ class Rag(metaclass=Singleton):
         # FIXME Include kwargs to specify rag dir and glob
         self.generate()
 
-        with Live(Spinner("dots", f"[green]{msg.wait()}[/green]", style="green"), console=tf.console):
+        with Live(
+            Spinner("dots", f"[green]{msg.wait()}[/green]", style="green"),
+            console=tf.console,
+        ):
             if not (output := self._rag_chain.invoke(question)):
                 output = msg.invalid_response(output)
 
@@ -101,7 +108,9 @@ class Rag(metaclass=Singleton):
 
         return output
 
-    def generate(self, rag_dir: AnyPath = RAG_EXT_DIR, file_glob: AnyPath = "**/*.md") -> None:
+    def generate(
+        self, rag_dir: AnyPath = RAG_EXT_DIR, file_glob: AnyPath = "**/*.md"
+    ) -> None:
         """Generates RAG data from the specified directory.
         :param rag_dir: The directory containing the files for RAG data generation
         :param file_glob: The files from which to generate the RAG database.
@@ -118,12 +127,18 @@ class Rag(metaclass=Singleton):
             persist_dir: Path = self.persist_dir(rag_dir, file_glob)
             if persist_dir.exists() and persist_dir.is_dir():
                 log.info("Recovering vector store from: '%s'", persist_dir)
-                self._vectorstore = Chroma(persist_directory=str(persist_dir), embedding_function=embeddings)
+                self._vectorstore = Chroma(
+                    persist_directory=str(persist_dir), embedding_function=embeddings
+                )
             else:
                 with Status(f"[green]{msg.summarizing()}[/green]"):
-                    rag_docs: list[Document] = DirectoryLoader(str(rag_dir), glob=file_glob, recursive=True).load()
+                    rag_docs: list[Document] = DirectoryLoader(
+                        str(rag_dir), glob=file_glob, recursive=True
+                    ).load()
                     if len(rag_docs) <= 0:
-                        raise DocumentsNotFound(f"Unable to find any document to at: '{persist_dir}'")
+                        raise DocumentsNotFound(
+                            f"Unable to find any document to at: '{persist_dir}'"
+                        )
                     self._vectorstore = Chroma.from_documents(
                         persist_directory=str(persist_dir),
                         documents=self._text_splitter.split_documents(rag_docs),
@@ -137,7 +152,10 @@ class Rag(metaclass=Singleton):
                 return "\n\n".join(doc.page_content for doc in docs)
 
             self._rag_chain = (
-                {"context": retriever | _format_docs_, "question": RunnablePassthrough()}
+                {
+                    "context": retriever | _format_docs_,
+                    "question": RunnablePassthrough(),
+                }
                 | rag_prompt
                 | llm
                 | StrOutputParser()

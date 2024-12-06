@@ -10,19 +10,19 @@
       @site: "https://github.com/yorevs/hspylib")
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+    Copyright (c) 2024, AskAI
 """
-from askai.core.model.api_keys import ApiKeys
+import logging as log
+import os
+import sys
+import warnings
+
+import pydantic
 from hspylib.core.metaclass.classpath import Classpath
 from hspylib.core.tools.commons import is_debugging, parent_path, root_dir
 from hspylib.modules.application.exit_status import ExitStatus
 
-import logging as log
-import os
-import pydantic
-import sys
-import warnings
-
+from askai.core.model.api_keys import ApiKeys
 
 if not is_debugging():
     warnings.simplefilter("ignore", category=FutureWarning)
@@ -48,7 +48,11 @@ class _Classpath(Classpath):
     """A class for managing classpath-related operations. Uses the Classpath metaclass."""
 
     def __init__(self):
-        super().__init__(parent_path(__file__), parent_path(root_dir()), (parent_path(__file__) / "resources"))
+        super().__init__(
+            parent_path(__file__),
+            parent_path(root_dir()),
+            (parent_path(__file__) / "resources"),
+        )
 
 
 # Instantiate the classpath singleton

@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.core.askai_configs import AskAiConfigs
 from askai.core.askai_settings import settings
@@ -51,7 +51,9 @@ class OpenAiConfigs(AskAiConfigs, metaclass=Singleton):
         return self._tts_voice
 
     @tts_voice.setter
-    def tts_voice(self, value: Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"]) -> None:
+    def tts_voice(
+        self, value: Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
+    ) -> None:
         self._tts_voice = value
 
     @property

@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.core.component.cache_service import cache
 from askai.core.component.summarizer import summarizer
@@ -34,7 +34,9 @@ if __name__ == "__main__":
     sysout(f"%GREEN%Summarizing: {folder}/{glob} ...")
 
     splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-    documents: List[Document] = DirectoryLoader("~/HomeSetup/docs", glob="**/*.md").load()
+    documents: List[Document] = DirectoryLoader(
+        "~/HomeSetup/docs", glob="**/*.md"
+    ).load()
     embeddings = lc_llm.create_embeddings.embed_documents(documents)
 
     sysout(f"READY to answer")

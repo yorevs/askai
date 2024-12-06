@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.core.component.scheduler import scheduler
 from hspylib.core.zoned_datetime import now, SIMPLE_DATETIME_FORMAT
@@ -59,7 +59,9 @@ def after_20_seconds():
 
 
 if __name__ == "__main__":
-    init_context("scheduler-demo", rich_logging=True, console_enable=True, log_level=log.INFO)
+    init_context(
+        "scheduler-demo", rich_logging=True, console_enable=True, log_level=log.INFO
+    )
     echo("-=" * 40)
     echo(f"AskAI Scheduler Demo - {scheduler.now.strftime(SIMPLE_DATETIME_FORMAT)}")
     echo("-=" * 40)

@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 import inspect
 import logging as log
@@ -31,9 +31,21 @@ from askai.core.router.tools.browser import browse, open_url
 from askai.core.router.tools.general import display_tool
 from askai.core.router.tools.generation import generate_content, save_content
 from askai.core.router.tools.summarization import summarize
-from askai.core.router.tools.terminal import execute_command, list_contents, open_command
-from askai.core.router.tools.vision import image_captioner, parse_image_caption, capture_screenshot
-from askai.core.router.tools.webcam import webcam_capturer, webcam_identifier, CAPTION_TEMPLATE
+from askai.core.router.tools.terminal import (
+    execute_command,
+    list_contents,
+    open_command,
+)
+from askai.core.router.tools.vision import (
+    image_captioner,
+    parse_image_caption,
+    capture_screenshot,
+)
+from askai.core.router.tools.webcam import (
+    webcam_capturer,
+    webcam_identifier,
+    CAPTION_TEMPLATE,
+)
 from askai.exception.exceptions import TerminatingQuery
 
 
@@ -49,8 +61,12 @@ class AgentTools(metaclass=Singleton):
     def __init__(self):
         self._all: dict[str, Callable] = dict(
             filter(
-                lambda pair: pair[0] not in self.RESERVED and not pair[0].startswith("_"),
-                {n: fn for n, fn in inspect.getmembers(self, predicate=inspect.ismethod)}.items(),
+                lambda pair: pair[0] not in self.RESERVED
+                and not pair[0].startswith("_"),
+                {
+                    n: fn
+                    for n, fn in inspect.getmembers(self, predicate=inspect.ismethod)
+                }.items(),
             )
         )
 
@@ -59,7 +75,9 @@ class AgentTools(metaclass=Singleton):
         """Return a cached list of LangChain base tools.
         :return: A list of BaseTool's instances available for use.
         """
-        tools: list[BaseTool] = [self._create_structured_tool(v) for _, v in self._all.items()]
+        tools: list[BaseTool] = [
+            self._create_structured_tool(v) for _, v in self._all.items()
+        ]
 
         log.debug("Available tools: are: '%s'", tools)
 
@@ -72,8 +90,12 @@ class AgentTools(metaclass=Singleton):
         """
         avail_list: list[str] = list()
         for t in self.tools():
-            if match := re.search(r"^```(.*?)^\s*Usage:", t.description, re.DOTALL | re.MULTILINE):
-                avail_list.append(f"**{t.name}::** " + re.sub(r"\s{2,}", " ", match.group(1).strip()))
+            if match := re.search(
+                r"^```(.*?)^\s*Usage:", t.description, re.DOTALL | re.MULTILINE
+            ):
+                avail_list.append(
+                    f"**{t.name}::** " + re.sub(r"\s{2,}", " ", match.group(1).strip())
+                )
         return os.linesep.join(avail_list)
 
     def _human_approval(self) -> bool:
@@ -133,10 +155,16 @@ class AgentTools(metaclass=Singleton):
         """
         image_caption: list[str] = parse_image_caption(image_captioner(image_path))
         return CAPTION_TEMPLATE.substitute(
-            image_path=image_path, image_caption=os.linesep.join(image_caption) if image_caption else ""
+            image_path=image_path,
+            image_caption=os.linesep.join(image_caption) if image_caption else "",
         )
 
-    def webcam_capturer(self, photo_name: str | None, detect_faces: bool = False, question: str | None = None) -> str:
+    def webcam_capturer(
+        self,
+        photo_name: str | None,
+        detect_faces: bool = False,
+        question: str | None = None,
+    ) -> str:
         """Capture a photo via the webcam, and save it locally. Also provide a description of the objects and people
         depicted in the picture. An additional question may address specific details regarding the photo.
         Usage: `webcam_capturer(photo_name, detect_faces, question)`
@@ -155,7 +183,9 @@ class AgentTools(metaclass=Singleton):
         """
         return webcam_identifier()
 
-    def screenshot(self, path_name: AnyPath | None = None, save_dir: AnyPath | None = None) -> str:
+    def screenshot(
+        self, path_name: AnyPath | None = None, save_dir: AnyPath | None = None
+    ) -> str:
         """Capture a screenshot and save it to the specified path.
         Usage: `screenshot(path_name, load_dir)`
         :param path_name: Optional path name of the captured screenshot.
@@ -164,7 +194,9 @@ class AgentTools(metaclass=Singleton):
         """
         return capture_screenshot(path_name, save_dir)
 
-    def generate_content(self, instructions: str, mime_type: str, filepath: AnyPath) -> str:
+    def generate_content(
+        self, instructions: str, mime_type: str, filepath: AnyPath
+    ) -> str:
         """Use this tool to generate various types of content, such as code, text, images, etc. This tool processes
         descriptive instructions to create the specified content type and can optionally save it to a file.
         Usage: `generate_content(instructions, mime_type, filepath)`

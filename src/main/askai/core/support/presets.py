@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from functools import lru_cache
 from string import Template
@@ -49,7 +49,9 @@ class Presets:
 
     @classmethod
     @lru_cache
-    def get(cls, lang: str = "en", tempo: int = 1, base_interval: float = 0.010) -> "Presets":
+    def get(
+        cls, lang: str = "en", tempo: int = 1, base_interval: float = 0.010
+    ) -> "Presets":
         """Retrieve the text-to-speech preset based on the specified parameters.
         :param lang: The language code for the preset (default is "en" -> English).
         :param tempo: The tempo of the speech, where 1 is the default speed (natural).
@@ -57,18 +59,34 @@ class Presets:
         :return: An instance of the Presets class configured with the specified parameters.
         """
         base_speed = base_interval / max(1, tempo)
-        presets = cls._ALL_RESETS[lang] if hasattr(cls._ALL_RESETS, lang) else cls._ALL_RESETS["en"]
+        presets = (
+            cls._ALL_RESETS[lang]
+            if hasattr(cls._ALL_RESETS, lang)
+            else cls._ALL_RESETS["en"]
+        )
         return Presets(
             lang,
             int(presets["words.per.breath"]),
             base_speed,
-            float(eval(presets["words.interval.sec"].substitute(base_speed=base_speed))),
-            float(eval(presets["breath.interval.sec"].substitute(base_speed=base_speed))),
-            float(eval(presets["number.interval.sec"].substitute(base_speed=base_speed))),
-            float(eval(presets["comma.interval.sec"].substitute(base_speed=base_speed))),
-            float(eval(presets["punct.interval.sec"].substitute(base_speed=base_speed))),
+            float(
+                eval(presets["words.interval.sec"].substitute(base_speed=base_speed))
+            ),
+            float(
+                eval(presets["breath.interval.sec"].substitute(base_speed=base_speed))
+            ),
+            float(
+                eval(presets["number.interval.sec"].substitute(base_speed=base_speed))
+            ),
+            float(
+                eval(presets["comma.interval.sec"].substitute(base_speed=base_speed))
+            ),
+            float(
+                eval(presets["punct.interval.sec"].substitute(base_speed=base_speed))
+            ),
             float(eval(presets["enum.interval.sec"].substitute(base_speed=base_speed))),
-            float(eval(presets["period.interval.sec"].substitute(base_speed=base_speed))),
+            float(
+                eval(presets["period.interval.sec"].substitute(base_speed=base_speed))
+            ),
         )
 
     def __init__(

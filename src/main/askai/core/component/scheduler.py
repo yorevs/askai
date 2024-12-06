@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from datetime import datetime, timedelta
 from functools import wraps
@@ -57,10 +57,14 @@ class Scheduler(Thread, metaclass=Singleton):
                 # Check if the first argument is likely to be 'self' (i.e., method bound to an instance)
                 if len(args) > 0 and inspect.isclass(type(args[0])):
                     self = args[0]  # The first argument is 'self'
-                    return scheduler.set_interval(interval_ms, func, delay_ms, self, *args[1:], **kwargs)
+                    return scheduler.set_interval(
+                        interval_ms, func, delay_ms, self, *args[1:], **kwargs
+                    )
                 else:
                     # It's either a static method or a standalone function
-                    return scheduler.set_interval(interval_ms, func, delay_ms, *args, **kwargs)
+                    return scheduler.set_interval(
+                        interval_ms, func, delay_ms, *args, **kwargs
+                    )
 
             return wrapped_function()
 
@@ -87,10 +91,14 @@ class Scheduler(Thread, metaclass=Singleton):
                 # Check if the first argument is likely to be 'self' (i.e., method bound to an instance)
                 if len(args) > 0 and inspect.isclass(type(args[0])):
                     self = args[0]  # The first argument is 'self'
-                    return scheduler.schedule(hour, minute, second, millis, func, self, *args[1:], **kwargs)
+                    return scheduler.schedule(
+                        hour, minute, second, millis, func, self, *args[1:], **kwargs
+                    )
                 else:
                     # It's either a static method or a standalone function
-                    return scheduler.schedule(hour, minute, second, millis, func, *args, **kwargs)
+                    return scheduler.schedule(
+                        hour, minute, second, millis, func, *args, **kwargs
+                    )
 
             return wrapped_function()
 
@@ -117,10 +125,21 @@ class Scheduler(Thread, metaclass=Singleton):
                 # Check if the first argument is likely to be 'self' (i.e., method bound to an instance)
                 if len(args) > 0 and inspect.isclass(type(args[0])):
                     self = args[0]  # The first argument is 'self'
-                    return scheduler.scheduler_after(hour, minute, second, microsecond, func, self, *args[1:], **kwargs)
+                    return scheduler.scheduler_after(
+                        hour,
+                        minute,
+                        second,
+                        microsecond,
+                        func,
+                        self,
+                        *args[1:],
+                        **kwargs,
+                    )
                 else:
                     # It's either a static method or a standalone function
-                    return scheduler.scheduler_after(hour, minute, second, microsecond, func, *args, **kwargs)
+                    return scheduler.scheduler_after(
+                        hour, minute, second, microsecond, func, *args, **kwargs
+                    )
 
             return wrapped_function()
 
@@ -151,7 +170,9 @@ class Scheduler(Thread, metaclass=Singleton):
 
     def run(self) -> None:
         while self.alive:
-            if not_started := next((th for th in self._not_started if not th.is_alive()), None):
+            if not_started := next(
+                (th for th in self._not_started if not th.is_alive()), None
+            ):
                 not_started.start()
                 self._remove(not_started)
             pause.milliseconds(self._relief_interval_ms)
@@ -183,7 +204,11 @@ class Scheduler(Thread, metaclass=Singleton):
         :param cb_fn_kwargs: The keyword arguments to pass to the callback function. Defaults to None.
         """
         run_at: datetime = self.now.replace(
-            day=self.now.day, hour=hour, minute=minute, second=second, microsecond=microsecond
+            day=self.now.day,
+            hour=hour,
+            minute=minute,
+            second=second,
+            microsecond=microsecond,
         )
         delta_t: timedelta = run_at - self.now
         check_argument(delta_t.total_seconds() > 0, ">> Time is in the past <<")
@@ -222,12 +247,22 @@ class Scheduler(Thread, metaclass=Singleton):
         :param cb_fn_args: Optional arguments to pass to the callback function
         :param cb_fn_kwargs: Optional keyword arguments to pass to the callback function
         """
-        check_argument(any(num > 0 for num in [hh, mm, ss]), ">> Delay must be positive <<")
+        check_argument(
+            any(num > 0 for num in [hh, mm, ss]), ">> Delay must be positive <<"
+        )
         # fmt: off
         delta_t: timedelta = timedelta(hours=hh, minutes=mm, seconds=ss, microseconds=us)
         # fmt: on
         run_at: datetime = self.now + delta_t
-        self.schedule(run_at.hour, run_at.minute, run_at.second, run_at.microsecond, callback, cb_fn_args, cb_fn_kwargs)
+        self.schedule(
+            run_at.hour,
+            run_at.minute,
+            run_at.second,
+            run_at.microsecond,
+            callback,
+            cb_fn_args,
+            cb_fn_kwargs,
+        )
 
     def set_interval(
         self,
@@ -262,7 +297,9 @@ class Scheduler(Thread, metaclass=Singleton):
 
     def _add(self, thread_name: str, callback: Callable, *args, **kwargs) -> None:
         """TODO"""
-        th_new: Thread = Thread(name=thread_name, target=callback, args=args, kwargs=kwargs)
+        th_new: Thread = Thread(
+            name=thread_name, target=callback, args=args, kwargs=kwargs
+        )
         self._not_started.append(th_new)
         self._threads[thread_name] = th_new
 

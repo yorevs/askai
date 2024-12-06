@@ -2,22 +2,22 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: hspylib
-   @package: hspylib
-      @file: __main__.py
-   @created: Fri, 5 Jan 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+    @project: hspylib
+    @package: hspylib
+       @file: __main__.py
+    @created: Fri, 5 Jan 2024
+     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+       @site: https://github.com/yorevs/askai
+    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+    Copyright (c) 2024, AskAI
 """
 
-import typing
 import logging as log
 import os
 import re
 import sys
+import typing
 
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
@@ -34,7 +34,9 @@ class Main(TUIApplication):
     """HomeSetup Ask-AI - Unleash the Power of AI in Your Terminal."""
 
     # The welcome message
-    DESCRIPTION: str = classpath.get_source("welcome.txt").read_text(encoding=Charset.UTF_8.val)
+    DESCRIPTION: str = classpath.get_source("welcome.txt").read_text(
+        encoding=Charset.UTF_8.val
+    )
 
     # Location of the .version file
     VERSION: Version = Version.load(load_dir=classpath.source_path)
@@ -52,12 +54,16 @@ class Main(TUIApplication):
         :return: The exit status of the command execution.
         """
         import click
+
         from askai.core.commander import commander
 
         try:
             if command := re.search(commander.RE_ASKAI_CMD, command_str):
                 args: list[str] = list(
-                    filter(lambda a: a and a != "None", re.split(r"\s", f"{command.group(1)} {command.group(2)}"))
+                    filter(
+                        lambda a: a and a != "None",
+                        re.split(r"\s", f"{command.group(1)} {command.group(2)}"),
+                    )
                 )
                 commander.ask_commander(args, standalone_mode=False)
             # If no exception is raised, the command executed successfully
@@ -68,7 +74,12 @@ class Main(TUIApplication):
         return ExitStatus.FAILED
 
     def __init__(self, app_name: str):
-        super().__init__(app_name, self.VERSION, self.DESCRIPTION.format(self.VERSION), resource_dir=self.RESOURCE_DIR)
+        super().__init__(
+            app_name,
+            self.VERSION,
+            self.DESCRIPTION.format(self.VERSION),
+            resource_dir=self.RESOURCE_DIR,
+        )
         self._askai: typing.Any
 
     @property
@@ -135,10 +146,12 @@ class Main(TUIApplication):
         :param kwargs: Keyword command line arguments.
         :return: ExitStatus indicating the result of the application run.
         """
+        from textwrap import dedent
+
+        from hspylib.core.zoned_datetime import now
+
         from askai.core.askai_configs import configs
         from askai.core.enums.run_modes import RunModes
-        from hspylib.core.zoned_datetime import now
-        from textwrap import dedent
 
         os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
         is_new_ui: bool = to_bool(self._get_argument("ui", False))
@@ -159,7 +172,9 @@ class Main(TUIApplication):
                 self._get_argument("model", configs.model),
                 RouterMode.of_name(self._get_mode_str()),
             )
-        elif configs.is_interactive or (query_string and not query_string.startswith("/")):
+        elif configs.is_interactive or (
+            query_string and not query_string.startswith("/")
+        ):
             from askai.core import askai_cli
             from askai.core.enums.router_mode import RouterMode
 
@@ -201,7 +216,9 @@ class Main(TUIApplication):
 
         return ExitStatus.SUCCESS
 
-    def _get_argument(self, arg_name: str, default: typing.Any = None) -> typing.Optional[typing.Any]:
+    def _get_argument(
+        self, arg_name: str, default: typing.Any = None
+    ) -> typing.Optional[typing.Any]:
         """Get a command line argument, converting to the appropriate type.
         :param arg_name: The name of the command line argument to retrieve.
         :param default: The default value to return if the argument is not found. Defaults to None.
@@ -225,7 +242,9 @@ class Main(TUIApplication):
         :return: The query_string if it exists, None otherwise.
         """
         query_string: QueryString = self._get_argument("query_string")
-        return " ".join(query_string) if isinstance(query_string, list) else query_string
+        return (
+            " ".join(query_string) if isinstance(query_string, list) else query_string
+        )
 
     def _get_mode_str(self) -> str:
         """Return the router mode according to the specified arguments or from configs.
@@ -241,6 +260,9 @@ class Main(TUIApplication):
         return to_bool(self._get_argument("interactive", not query_string))
 
 
+# Application entry point
+if __name__ == "__main__":
+    Main("AskAI").INSTANCE.run(sys.argv[1:])
 # Application entry point
 if __name__ == "__main__":
     Main("AskAI").INSTANCE.run(sys.argv[1:])

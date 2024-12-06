@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 
 from argostranslate import package, translate
@@ -41,10 +41,14 @@ class ArgosTranslator(AITranslator):
         """
         lang = f"{source.name} -> {target.name}"
         source_lang = [
-            model for model in translate.get_installed_languages() if lang in map(repr, model.translations_from)
+            model
+            for model in translate.get_installed_languages()
+            if lang in map(repr, model.translations_from)
         ]
         target_lang = [
-            model for model in translate.get_installed_languages() if lang in map(repr, model.translations_to)
+            model
+            for model in translate.get_installed_languages()
+            if lang in map(repr, model.translations_to)
         ]
         if len(source_lang) <= 0 or len(target_lang) <= 0:
             log.info('Translation "%s" is not installed!')
@@ -55,7 +59,9 @@ class ArgosTranslator(AITranslator):
     def __init__(self, source_lang: Language, target_lang: Language):
         super().__init__(source_lang, target_lang)
         if argos_model := self._get_argos_model(source_lang, target_lang):
-            log.debug(f"Argos translator found for: {source_lang.language} -> {target_lang.language}")
+            log.debug(
+                f"Argos translator found for: {source_lang.language} -> {target_lang.language}"
+            )
         elif not self._install_translator():
             raise TranslationPackageError(
                 f"Could not install Argos translator: {source_lang.language} -> {target_lang.language}"
@@ -85,11 +91,14 @@ class ArgosTranslator(AITranslator):
             package.update_package_index()
             required_package = next(
                 filter(
-                    lambda x: x.from_code == self._source_lang.language and x.to_code == self._target_lang.language,
+                    lambda x: x.from_code == self._source_lang.language
+                    and x.to_code == self._target_lang.language,
                     package.get_available_packages(),
                 )
             )
-            log.debug("Downloading and installing translator package: %s", required_package)
+            log.debug(
+                "Downloading and installing translator package: %s", required_package
+            )
             package.install_from_path(required_package.download())
             sys.stdout = old_stdout
         return required_package is not None

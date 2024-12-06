@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.core.askai_prompt import prompt
 from askai.core.engine.openai.temperature import Temperature
@@ -32,13 +32,19 @@ def display_tool(*texts: str) -> str:
     return output or "Sorry, there is nothing to display"
 
 
-def final_answer(persona_prompt: str | None = None, input_variables: list[str] | None = None, **prompt_args) -> str:
+def final_answer(
+    persona_prompt: str | None = None,
+    input_variables: list[str] | None = None,
+    **prompt_args,
+) -> str:
     """Provide the final response to the user.
     :param persona_prompt: The persona prompt to be used.
     :param input_variables: The prompt input variables.
     :param prompt_args: The prompt input arguments.
     """
-    prompt_file: PathObject = PathObject.of(prompt.append_path(f"taius/{persona_prompt}"))
+    prompt_file: PathObject = PathObject.of(
+        prompt.append_path(f"taius/{persona_prompt}")
+    )
     # fmt: off
     template = PromptTemplate(
         input_variables=input_variables or [],
@@ -50,7 +56,11 @@ def final_answer(persona_prompt: str | None = None, input_variables: list[str] |
     response: AIMessage = llm.invoke(final_prompt)
     output: str | None = None
 
-    if not response or not (output := response.content) or shared.UNCERTAIN_ID in response.content:
+    if (
+        not response
+        or not (output := response.content)
+        or shared.UNCERTAIN_ID in response.content
+    ):
         output = "Sorry, I was not able to provide a helpful response."
 
     return output or "Sorry, the query produced no response!"

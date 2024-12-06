@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 
 from abc import ABC
@@ -33,7 +33,9 @@ class SettingsCmd(ABC):
             sysout(all_settings + "\n")
         else:
             sysout(f"\n%RED%-=- No settings found! -=-%NC%\n")
-        display_text(f"> Hint: Type: '/settings set \\<number|settings_name\\> \\<value\\>' to set.")
+        display_text(
+            f"> Hint: Type: '/settings set \\<number|settings_name\\> \\<value\\>' to set."
+        )
 
     @staticmethod
     def set(name: str, value: Any) -> None:
@@ -46,7 +48,9 @@ class SettingsCmd(ABC):
             name = all_settings[int(name)].name
         if settings[name]:
             settings.put(name, value if value not in ["''", '""'] else None)
-            text_formatter.commander_print(f"Setting `{name}` changed to %GREEN%{value}%NC%")
+            text_formatter.commander_print(
+                f"Setting `{name}` changed to %GREEN%{value}%NC%"
+            )
         else:
             text_formatter.commander_print(f"%RED%Setting: '{name}' was not found!%NC%")
 
@@ -57,7 +61,9 @@ class SettingsCmd(ABC):
         :return: The corresponding SettingsEntry if found, otherwise None.
         """
         if ss := settings[key]:
-            text_formatter.commander_print(f"%WHITE%Name: %BLUE%{ss.name}\t%WHITE%Value: %GREEN%{ss.value}%NC%")
+            text_formatter.commander_print(
+                f"%WHITE%Name: %BLUE%{ss.name}\t%WHITE%Value: %GREEN%{ss.value}%NC%"
+            )
             return ss
         text_formatter.commander_print(f"%RED%Setting: '{key}' was not found!%NC%")
         return None

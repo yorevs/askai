@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.core.model.model_result import ModelResult
 from askai.core.support.llm_parser import parse_field, parse_list, parse_word
@@ -45,7 +45,8 @@ class ActionPlan:
         """
         plan: ActionPlan = ActionPlan._parse_response(question, message)
         check_state(
-            plan is not None and isinstance(plan, ActionPlan), f"Invalid action plan received from LLM: {type(plan)}"
+            plan is not None and isinstance(plan, ActionPlan),
+            f"Invalid action plan received from LLM: {type(plan)}",
         )
         plan.model = model
 
@@ -82,7 +83,9 @@ class ActionPlan:
         return plan
 
     @staticmethod
-    def _direct_answer(question: str, answer: str, goal: str, model: ModelResult) -> "ActionPlan":
+    def _direct_answer(
+        question: str, answer: str, goal: str, model: ModelResult
+    ) -> "ActionPlan":
         """Create a simple ActionPlan from an AI's direct response in plain text.
         :param question: The original question that was sent to the AI.
         :param answer: The AI's direct answer to the user.
@@ -95,7 +98,11 @@ class ActionPlan:
 
     @staticmethod
     def _direct_task(
-        question: str, speak: str, goal: str, task: str | SimpleNamespace, model: ModelResult
+        question: str,
+        speak: str,
+        goal: str,
+        task: str | SimpleNamespace,
+        model: ModelResult,
     ) -> "ActionPlan":
         """Create a simple ActionPlan from an AI's direct response in plain text.
         :param question: The original question that was sent to the AI.
@@ -105,13 +112,23 @@ class ActionPlan:
         :param model: The result model.
         :return: An instance of ActionPlan created from the direct response.
         """
-        task_list: list[SimpleNamespace] = [SimpleNamespace(id=1, task=str(task)) if isinstance(task, str) else task]
+        task_list: list[SimpleNamespace] = [
+            SimpleNamespace(id=1, task=str(task)) if isinstance(task, str) else task
+        ]
 
         return ActionPlan(question, speak, goal, False, [], task_list, model)
 
     def __str__(self):
-        sub_goals: str = "  ".join(f"{i + 1}. {g}" for i, g in enumerate(self.sub_goals)) if self.sub_goals else "N/A"
-        tasks: str = ".  ".join([f"{i + 1}. {a.task}" for i, a in enumerate(self.tasks)]) if self.tasks else "N/A"
+        sub_goals: str = (
+            "  ".join(f"{i + 1}. {g}" for i, g in enumerate(self.sub_goals))
+            if self.sub_goals
+            else "N/A"
+        )
+        tasks: str = (
+            ".  ".join([f"{i + 1}. {a.task}" for i, a in enumerate(self.tasks)])
+            if self.tasks
+            else "N/A"
+        )
         return (
             f"`Question:` {self.question}  "
             f"`Speak:` {self.speak}  "

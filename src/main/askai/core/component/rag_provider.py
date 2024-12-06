@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
@@ -44,7 +44,12 @@ class RAGProvider:
     RAG_DIR: Path = Path(os.path.join(classpath.resource_path, "rag"))
 
     @classmethod
-    def copy_rag(cls, path_name: AnyPath, dest_name: AnyPath | None = None, rag_dir: AnyPath = RAG_EXT_DIR) -> bool:
+    def copy_rag(
+        cls,
+        path_name: AnyPath,
+        dest_name: AnyPath | None = None,
+        rag_dir: AnyPath = RAG_EXT_DIR,
+    ) -> bool:
         """Copy the RAG documents into the specified RAG directory.
         :param path_name: The path of the RAG documents to copy.
         :param dest_name: The destination, within the RAG directory, where the documents will be copied to. If None,
@@ -78,9 +83,13 @@ class RAGProvider:
         :return: True if an update is required, False otherwise
         """
         rag_docs_file: Path = Path(os.path.join(rag_dir), "rag-documents.txt")
-        rag_hash_file: Path = Path(os.path.join(dirname(str(rag_docs_file)), ".rag-hash"))
+        rag_hash_file: Path = Path(
+            os.path.join(dirname(str(rag_docs_file)), ".rag-hash")
+        )
         files_hash: str = hash_text(Path(rag_docs_file).read_text())
-        if not os.path.exists(str(rag_docs_file)) or not os.path.exists(str(rag_hash_file)):
+        if not os.path.exists(str(rag_docs_file)) or not os.path.exists(
+            str(rag_hash_file)
+        ):
             rag_hash_file.write_text(files_hash)
             return True
         rag_hash: str = rag_hash_file.read_text()
@@ -102,7 +111,9 @@ class RAGProvider:
         """
         if configs.is_rag:
             if self._rag_db is None:
-                self._rag_db = FAISS.from_documents(self._rag_docs, lc_llm.create_embeddings())
+                self._rag_db = FAISS.from_documents(
+                    self._rag_docs, lc_llm.create_embeddings()
+                )
             example_docs: list[Document] = self._rag_db.similarity_search(query, k=k)
             rag_examples: list[str] = [doc.page_content for doc in example_docs]
             return f'**Examples:**\n"""{(2 * os.linesep).join(rag_examples)}"""'

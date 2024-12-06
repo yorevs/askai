@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from abc import ABC
 from askai.core.askai_events import events
@@ -49,9 +49,13 @@ class AITranslator(ABC):
 
         try:
             # Perform batch translation
-            translated_texts: list[str] = list(map(self._translate_text, texts_to_translate))
+            translated_texts: list[str] = list(
+                map(self._translate_text, texts_to_translate)
+            )
         except Exception as err:
-            events.reply.emit(reply=AIReply.debug(f"Error during batch translation: {err}"))
+            events.reply.emit(
+                reply=AIReply.debug(f"Error during batch translation: {err}")
+            )
             return text
 
         # Replace translated texts in the parts list

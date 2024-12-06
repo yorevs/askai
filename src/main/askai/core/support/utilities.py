@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.core.support.text_formatter import text_formatter
 from clitt.core.term.cursor import cursor
@@ -45,7 +45,9 @@ def read_stdin() -> Optional[str]:
     return None
 
 
-def display_text(text: AnyStr, prefix: AnyStr = "", markdown: bool = True, erase_last=False) -> None:
+def display_text(
+    text: AnyStr, prefix: AnyStr = "", markdown: bool = True, erase_last=False
+) -> None:
     """Display the provided text in a formatted way.
     :param text: The text to be displayed.
     :param prefix: A prefix to prepend to the text (optional).
@@ -83,7 +85,9 @@ def copy_file(srcfile: AnyPath | Path, destfile: AnyPath | Path) -> str:
     """
     filepath: PathObject = PathObject.of(srcfile)
     dest_dir: PathObject = PathObject.of(destfile)
-    check_argument(filepath.exists and filepath.is_file and dest_dir.exists and dest_dir.is_dir)
+    check_argument(
+        filepath.exists and filepath.is_file and dest_dir.exists and dest_dir.is_dir
+    )
     dest_file: str = os.path.join(dest_dir.abs_dir, filepath.filename)
     shutil.copy(srcfile, dest_file)
     return dest_file
@@ -98,7 +102,9 @@ def build_img_path(base_dir: Path, filename: str, suffix: str) -> Optional[str]:
     """
     if not filename:
         return None
-    img_path: str = str(Path.joinpath(base_dir, basename(filename or f"ASKAI-{now_ms()}"))).strip()
+    img_path: str = str(
+        Path.joinpath(base_dir, basename(filename or f"ASKAI-{now_ms()}"))
+    ).strip()
     img_path = re.sub(r"\s+", "-", ensure_endswith(img_path, suffix))
     img_path = re.sub(r"-+", "-", img_path)
     return strip_escapes(img_path)
@@ -122,8 +128,13 @@ def read_resource(base_dir: AnyPath, filename: AnyPath, file_ext: str = ".txt") 
     :return: The content of the file as a string.
     """
     _, ext = os.path.splitext(filename)
-    filename = f"{str(base_dir)}/{ensure_endswith(basename(str(filename)), ext or file_ext)}"
-    check_argument(file_is_not_empty(str(filename)), f"Resource file is empty or does not exist: {filename}")
+    filename = (
+        f"{str(base_dir)}/{ensure_endswith(basename(str(filename)), ext or file_ext)}"
+    )
+    check_argument(
+        file_is_not_empty(str(filename)),
+        f"Resource file is empty or does not exist: {filename}",
+    )
     return Path(filename).read_text(encoding=Charset.UTF_8.val)
 
 
@@ -134,7 +145,11 @@ def read_file(load_dir: AnyPath, path_name: str) -> Optional[str]:
     :return: The contents of the file as a string, or None if the file cannot be read.
     """
     file: Path = find_file(Path(join_path(load_dir, path_name)))
-    return file.read_text(encoding=Charset.UTF_8.val) if file_is_not_empty(str(file)) else ""
+    return (
+        file.read_text(encoding=Charset.UTF_8.val)
+        if file_is_not_empty(str(file))
+        else ""
+    )
 
 
 def encode_image(file_path: str):
@@ -151,7 +166,9 @@ def extract_path(command_line: str) -> Optional[str]:
     :param command_line: The command line text from which to extract the path.
     :return: The first identified path as a string, or None if no path could be extracted.
     """
-    if not (tokens := shlex.split(os.path.expanduser(os.path.expandvars(command_line)))):
+    if not (
+        tokens := shlex.split(os.path.expanduser(os.path.expandvars(command_line)))
+    ):
         return None
     # Remove the command itself
     tokens = tokens[1:]

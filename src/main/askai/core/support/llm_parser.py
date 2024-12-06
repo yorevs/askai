@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from types import SimpleNamespace
 from typing import AnyStr, Optional, TypeVar
@@ -71,7 +71,9 @@ def parse_word(word: AnyStr, text: AnyStr) -> Optional[T]:
     return word_value.strip() if word_value else None
 
 
-def parse_list(field_name: AnyStr, text: AnyStr, is_dict: bool = True) -> list[SimpleNamespace | AnyStr]:
+def parse_list(
+    field_name: AnyStr, text: AnyStr, is_dict: bool = True
+) -> list[SimpleNamespace | AnyStr]:
     """Parse the LLM response and extract a specified list.
     :param field_name: The name of the field to extract from the text.
     :param text: The text response from the LLM to parse.
@@ -85,7 +87,9 @@ def parse_list(field_name: AnyStr, text: AnyStr, is_dict: bool = True) -> list[S
         extracted_list: str = list_matcher.group(1)
         list_value: list[str | dict] = json.loads(ensure_parseable(extracted_list))
         if list_value:
-            assert isinstance(list_value, list), f"Parse error: Could not parse list: {extracted_list}"
+            assert isinstance(
+                list_value, list
+            ), f"Parse error: Could not parse list: {extracted_list}"
             if is_dict and all(isinstance(val, dict) for val in list_value):
                 return list(map(lambda t: SimpleNamespace(**t), list_value))
             return list_value

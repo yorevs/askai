@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.core.engine.ai_model import AIModel
 from hspylib.core.enums.enumeration import Enumeration
@@ -50,8 +50,20 @@ class OpenAIModel(Enumeration):
         :param model_name: The name of the AI model.
         :return: The corresponding AIModel instance.
         """
-        found = next((m for m in OpenAIModel.models() if m.model_name() == model_name.casefold()), None)
-        check_not_none(found, '"{}" name does not correspond to a valid "{}" enum', model_name, OpenAIModel.__name__)
+        found = next(
+            (
+                m
+                for m in OpenAIModel.models()
+                if m.model_name() == model_name.casefold()
+            ),
+            None,
+        )
+        check_not_none(
+            found,
+            '"{}" name does not correspond to a valid "{}" enum',
+            model_name,
+            OpenAIModel.__name__,
+        )
         return found
 
     def __init__(self, model_name: str, token_limit: int):

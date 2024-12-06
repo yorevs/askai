@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.core.enums.verbosity import Verbosity
 from dataclasses import dataclass
@@ -40,7 +40,11 @@ class AIReply:
         return self.message
 
     @staticmethod
-    def info(message: AnyText, verbosity: Verbosity = Verbosity.NORMAL, speakable: bool = True) -> "AIReply":
+    def info(
+        message: AnyText,
+        verbosity: Verbosity = Verbosity.NORMAL,
+        speakable: bool = True,
+    ) -> "AIReply":
         """Creates an info reply.
         :param message: The reply message.
         :param verbosity: The verbosity level of the reply.
@@ -99,10 +103,14 @@ class AIReply:
         """
         return not self.is_success
 
-    def match(self, threshold: "Verbosity" = Verbosity.NORMAL, is_debug: bool = False) -> bool:
+    def match(
+        self, threshold: "Verbosity" = Verbosity.NORMAL, is_debug: bool = False
+    ) -> bool:
         """Checks if the current verbosity level is less than or equal to the given level.
         :param threshold: The verbosity threshold to compare against.
         :param is_debug:
         :return: True if the current level is less than or equal to the given level, otherwise False.
         """
-        return (is_debug and self.is_debug) or (not self.is_debug and self.verbosity <= threshold)
+        return (is_debug and self.is_debug) or (
+            not self.is_debug and self.verbosity <= threshold
+        )

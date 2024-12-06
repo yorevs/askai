@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -28,7 +28,14 @@ from hspylib.core.preconditions import check_argument, check_state
 from hspylib.core.zoned_datetime import now_ms
 from hspylib.modules.application.exit_status import ExitStatus
 from pathlib import Path
-from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
+from speech_recognition import (
+    AudioData,
+    Microphone,
+    Recognizer,
+    RequestError,
+    UnknownValueError,
+    WaitTimeoutError,
+)
 from typing import Callable, Optional, TypeAlias
 
 import logging as log
@@ -91,7 +98,10 @@ class Recorder(metaclass=Singleton):
     def setup(self) -> None:
         """Setup the microphone recorder."""
         self._devices = self.get_device_list()
-        log.debug("Available audio devices:\n%s", "\n".join([f"{d[0]} - {d[1]}" for d in self._devices]))
+        log.debug(
+            "Available audio devices:\n%s",
+            "\n".join([f"{d[0]} - {d[1]}" for d in self._devices]),
+        )
         self._select_device()
         scheduler.set_interval(3000, self.__device_watcher, 5000)
 
@@ -106,13 +116,18 @@ class Recorder(metaclass=Singleton):
     @property
     def input_device(self) -> Optional[InputDevice]:
         if self._input_device is not None:
-            check_state(isinstance(self._input_device, tuple), "Input device is not a InputDevice")
+            check_state(
+                isinstance(self._input_device, tuple),
+                "Input device is not a InputDevice",
+            )
         return self._input_device
 
     @property
     def device_index(self) -> Optional[int]:
         if self._device_index is not None:
-            check_state(isinstance(self._device_index, int), "Device index is not a number")
+            check_state(
+                isinstance(self._device_index, int), "Device index is not a number"
+            )
         return self._device_index
 
     @property
@@ -124,7 +139,10 @@ class Recorder(metaclass=Singleton):
         :param device: The audio input device to be set as the current device.
         :return: True if the device was successfully set, False otherwise.
         """
-        check_argument(device and isinstance(device, tuple), f"Invalid device: {device} -> {type(device)}")
+        check_argument(
+            device and isinstance(device, tuple),
+            f"Invalid device: {device} -> {type(device)}",
+        )
         if ret := self.test_device(device[0]):
             log.info(msg.device_switch(str(device)))
             events.device_changed.emit(device=device)
@@ -141,7 +159,9 @@ class Recorder(metaclass=Singleton):
         return self.input_device is not None and self.input_device[0] > 1
 
     def listen(
-        self, recognition_api: RecognitionApi = RecognitionApi.GOOGLE, language: Language = Language.EN_US
+        self,
+        recognition_api: RecognitionApi = RecognitionApi.GOOGLE,
+        language: Language = Language.EN_US,
     ) -> tuple[Path, Optional[str]]:
         """Listen to the microphone, save the recorded audio as a WAV file, and transcribe the speech.
         :param recognition_api: The API to use for recognizing the speech. Defaults to GOOGLE.
@@ -159,7 +179,9 @@ class Recorder(metaclass=Singleton):
                     phrase_time_limit=seconds(configs.recorder_phrase_limit_millis),
                     timeout=seconds(configs.recorder_silence_timeout_millis),
                 )
-                stt_text = self._write_audio_file(audio, audio_path, language, recognition_api)
+                stt_text = self._write_audio_file(
+                    audio, audio_path, language, recognition_api
+                )
             except WaitTimeoutError as err:
                 err_msg: str = msg.timeout(f"waiting for a speech input => '{err}'")
                 log.warning("Timed out while waiting for a speech input!")
@@ -180,7 +202,11 @@ class Recorder(metaclass=Singleton):
         return audio_path, stt_text
 
     def _write_audio_file(
-        self, audio: AudioData, audio_path: AnyPath, language: Language, recognition_api: RecognitionApi
+        self,
+        audio: AudioData,
+        audio_path: AnyPath,
+        language: Language,
+        recognition_api: RecognitionApi,
     ) -> Optional[str]:
         """Write the provided audio data to disk as a file and transcribe the contents into text using the specified
         recognition API.
@@ -194,7 +220,9 @@ class Recorder(metaclass=Singleton):
             f_rec.write(audio.get_wav_data())
             log.debug("Voice recorded and saved as %s", audio_path)
             if api := getattr(self._rec, recognition_api.value):
-                events.reply.emit(reply=AIReply.debug(message=msg.transcribing()), erase_last=True)
+                events.reply.emit(
+                    reply=AIReply.debug(message=msg.transcribing()), erase_last=True
+                )
                 log.debug("Recognizing voice using %s", recognition_api)
                 assert isinstance(api, Callable)
                 return api(audio, language=language.language)
@@ -211,7 +239,9 @@ class Recorder(metaclass=Singleton):
         test_timeout, test_phrase_limit = 0.3, 0.3
         try:
             with Microphone(device_index=idx) as source:
-                self._rec.listen(source, timeout=test_timeout, phrase_time_limit=test_phrase_limit)
+                self._rec.listen(
+                    source, timeout=test_timeout, phrase_time_limit=test_phrase_limit
+                )
                 return True
         except WaitTimeoutError:  # We do expect a T/O error due to lack of audio input.
             log.info(f"Device at index: '%d' is functional!", idx)
@@ -229,24 +259,32 @@ class Recorder(metaclass=Singleton):
                 duration = seconds(configs.recorder_noise_detection_duration_millis)
                 self._rec.adjust_for_ambient_noise(source, duration=duration)
             except UnknownValueError as err:
-                err_msg: str = msg.intelligible(f"Unable to detect noise level => '{err}'")
+                err_msg: str = msg.intelligible(
+                    f"Unable to detect noise level => '{err}'"
+                )
                 log.warning("Timed out while waiting for a speech input!")
                 events.reply.emit(reply=AIReply.error(err_msg), erase_last=True)
 
     def _select_device(self) -> None:
         """Select a device for recording."""
-        available: list[str] = list(filter(lambda d: d, map(str.strip, configs.recorder_devices)))
+        available: list[str] = list(
+            filter(lambda d: d, map(str.strip, configs.recorder_devices))
+        )
         device: InputDevice | None = None
         devices: list[InputDevice] = self.devices
         while devices and not device:
             if available:
-                for dev in list(reversed(devices)):  # Reverse to get any headphone or external device
+                for dev in list(
+                    reversed(devices)
+                ):  # Reverse to get any headphone or external device
                     if dev[1] in available and self.set_device(dev):
                         device = dev
                         break
             if not device:
                 if not (device := next(devices.__iter__(), None)):
-                    display_text(f"%HOM%%ED2%Error: Unable to setup an Audio Input device!%NC%")
+                    display_text(
+                        f"%HOM%%ED2%Error: Unable to setup an Audio Input device!%NC%"
+                    )
                     sys.exit(ExitStatus.FAILED.val)
             if device and not self.set_device(device):
                 devices.remove(device)

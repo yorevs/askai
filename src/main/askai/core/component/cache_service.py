@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.core.askai_configs import configs
 from askai.core.askai_settings import ASKAI_DIR, CONVERSATION_STARTERS
@@ -115,7 +115,9 @@ class CacheService(metaclass=Singleton):
     _TTL_CACHE: TTLCache[str] = TTLCache(ttl_minutes=configs.ttl)
 
     @staticmethod
-    def audio_file_path(text: str, voice: str = "onyx", audio_format: str = "mp3") -> tuple[str, bool]:
+    def audio_file_path(
+        text: str, voice: str = "onyx", audio_format: str = "mp3"
+    ) -> tuple[str, bool]:
         """Retrieve the hashed audio file path and determine whether the file already exists.
         :param text: The text that the audio represents.
         :param voice: The AI voice used for speech synthesis (default is "onyx").
@@ -128,7 +130,9 @@ class CacheService(metaclass=Singleton):
 
     def __init__(self):
         keys: str | None = self._TTL_CACHE.read(self.ASKAI_CACHE_KEYS)
-        self._cache_keys: set[str] = set(map(str.strip, keys.split(",") if keys else {}))
+        self._cache_keys: set[str] = set(
+            map(str.strip, keys.split(",") if keys else {})
+        )
 
     @property
     def keys(self) -> set[str]:
@@ -191,7 +195,9 @@ class CacheService(metaclass=Singleton):
         :param history: A list of input queries to be saved. If None, the current input history will be saved.
         """
         if history := (history or KeyboardInput.history()):
-            with open(str(ASKAI_INPUT_HISTORY_FILE), "w", encoding=Charset.UTF_8.val) as f_hist:
+            with open(
+                str(ASKAI_INPUT_HISTORY_FILE), "w", encoding=Charset.UTF_8.val
+            ) as f_hist:
                 list(
                     map(
                         lambda h: f_hist.write(ensure_endswith(os.linesep, h)),
@@ -215,15 +221,27 @@ class CacheService(metaclass=Singleton):
         :param context: A list of context entries to be saved.
         """
         if context := (context or list()):
-            with open(str(ASKAI_CONTEXT_FILE), "w", encoding=Charset.UTF_8.val) as f_hist:
-                list(map(lambda h: f_hist.write(ensure_endswith(os.linesep, h)), context))
+            with open(
+                str(ASKAI_CONTEXT_FILE), "w", encoding=Charset.UTF_8.val
+            ) as f_hist:
+                list(
+                    map(lambda h: f_hist.write(ensure_endswith(os.linesep, h)), context)
+                )
 
     def read_context(self) -> list[str]:
         """Read the context window entries from the context file.
         :return: A list of context entries retrieved from the cache."""
         flags: int = re.MULTILINE | re.DOTALL | re.IGNORECASE
         context: str = ASKAI_CONTEXT_FILE.read_text()
-        return list(filter(str.__len__, map(str.strip, re.split(r"(human|assistant|system):", context, flags=flags))))
+        return list(
+            filter(
+                str.__len__,
+                map(
+                    str.strip,
+                    re.split(r"(human|assistant|system):", context, flags=flags),
+                ),
+            )
+        )
 
     def save_memory(self, memory: list[BaseMessage] = None) -> None:
         """Save the context window entries into the context file.
@@ -231,17 +249,39 @@ class CacheService(metaclass=Singleton):
         """
 
         def _get_role_(msg: BaseMessage) -> str:
-            return type(msg).__name__.rstrip("Message").replace("AI", "Assistant").casefold()
+            return (
+                type(msg)
+                .__name__.rstrip("Message")
+                .replace("AI", "Assistant")
+                .casefold()
+            )
 
         if memory := (memory or list()):
-            with open(str(ASKAI_MEMORY_FILE), "w", encoding=Charset.UTF_8.val) as f_hist:
-                list(map(lambda m: f_hist.write(ensure_endswith(os.linesep, f"{_get_role_(m)}: {m.content}")), memory))
+            with open(
+                str(ASKAI_MEMORY_FILE), "w", encoding=Charset.UTF_8.val
+            ) as f_hist:
+                list(
+                    map(
+                        lambda m: f_hist.write(
+                            ensure_endswith(os.linesep, f"{_get_role_(m)}: {m.content}")
+                        ),
+                        memory,
+                    )
+                )
 
     def read_memory(self) -> list[str]:
         """TODO"""
         flags: int = re.MULTILINE | re.DOTALL | re.IGNORECASE
         memory: str = ASKAI_MEMORY_FILE.read_text()
-        return list(filter(str.__len__, map(str.strip, re.split(r"(human|assistant|system):", memory, flags=flags))))
+        return list(
+            filter(
+                str.__len__,
+                map(
+                    str.strip,
+                    re.split(r"(human|assistant|system):", memory, flags=flags),
+                ),
+            )
+        )
 
 
 assert (cache := CacheService().INSTANCE) is not None

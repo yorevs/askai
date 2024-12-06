@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.__classpath__ import classpath
 from contextlib import redirect_stdout
@@ -30,7 +30,9 @@ import os
 import re
 
 # AskAI config directory.
-ASKAI_DIR: Path = Path(f'{os.getenv("ASKAI_DIR", os.getenv("HHS_DIR", str(Path.home())))}/askai')
+ASKAI_DIR: Path = Path(
+    f'{os.getenv("ASKAI_DIR", os.getenv("HHS_DIR", str(Path.home())))}/askai'
+)
 if not ASKAI_DIR.exists():
     ASKAI_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -38,7 +40,9 @@ if not ASKAI_DIR.exists():
 os.environ["ASKAI_DIR"] = str(ASKAI_DIR)
 
 # AskAi conversation starters
-CONVERSATION_STARTERS: Path = Path(classpath.resource_path / "conversation-starters.txt")
+CONVERSATION_STARTERS: Path = Path(
+    classpath.resource_path / "conversation-starters.txt"
+)
 
 
 class AskAiSettings(metaclass=Singleton):
@@ -54,7 +58,10 @@ class AskAiSettings(metaclass=Singleton):
     def __init__(self) -> None:
         self._configs = SettingsConfig(self.__RESOURCE_DIR, "application.properties")
         self._settings = Settings(self._configs)
-        if not self._settings.count() or self.get("askai.settings.version.id") != self.__ACTUAL_VERSION:
+        if (
+            not self._settings.count()
+            or self.get("askai.settings.version.id") != self.__ACTUAL_VERSION
+        ):
             self.defaults()
 
     def __str__(self) -> str:
@@ -124,10 +131,16 @@ class AskAiSettings(metaclass=Singleton):
         self._settings.put("askai.recorder.devices", "askai", "")
         self._settings.put("askai.recorder.silence.timeout.millis", "askai", 1200)
         self._settings.put("askai.recorder.phrase.limit.millis", "askai", 10000)
-        self._settings.put("askai.recorder.noise.detection.duration.millis", "askai", 600)
+        self._settings.put(
+            "askai.recorder.noise.detection.duration.millis", "askai", 600
+        )
         self._settings.put("askai.recorder.input.device.auto.swap", "askai", True)
         # Camera
-        self._settings.put("askai.camera.face-detect.alg", "askai", "haarcascade_frontalface_default.xml")
+        self._settings.put(
+            "askai.camera.face-detect.alg",
+            "askai",
+            "haarcascade_frontalface_default.xml",
+        )
         self._settings.put("askai.camera.scale.factor", "askai", 1.1)
         self._settings.put("askai.camera.min.neighbors", "askai", 3)
         self._settings.put("askai.camera.min-max.size", "askai", "100, 100")

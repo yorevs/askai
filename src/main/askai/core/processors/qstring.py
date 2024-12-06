@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from clitt.core.term.cursor import cursor
 from rich.live import Live
@@ -52,18 +52,26 @@ class NonInteractive(metaclass=Singleton):
             return None
 
         with Live(
-            Spinner("dots", f"[green]{msg.wait()}[/green]", style="green"), console=tf.console
+            Spinner("dots", f"[green]{msg.wait()}[/green]", style="green"),
+            console=tf.console,
         ):
             output = None
-            query_prompt: str | None = find_file(kwargs["query_prompt"]) if "query_prompt" in kwargs else None
+            query_prompt: str | None = (
+                find_file(kwargs["query_prompt"]) if "query_prompt" in kwargs else None
+            )
             context: str | None = kwargs["context"] if "context" in kwargs else None
-            temperature: int = kwargs["temperature"] if "temperature" in kwargs else None
+            temperature: int = (
+                kwargs["temperature"] if "temperature" in kwargs else None
+            )
 
             dir_name, file_name = PathObject.split(query_prompt or self.DEFAULT_PROMPT)
             template = PromptTemplate(
-                input_variables=["context", "question"], template=prompt.read_prompt(file_name, dir_name)
+                input_variables=["context", "question"],
+                template=prompt.read_prompt(file_name, dir_name),
             )
-            final_prompt: str = template.format(context=context or self.DEFAULT_CONTEXT, question=question)
+            final_prompt: str = template.format(
+                context=context or self.DEFAULT_CONTEXT, question=question
+            )
             llm = lc_llm.create_chat_model(temperature or self.DEFAULT_TEMPERATURE)
 
             if (response := llm.invoke(final_prompt)) and (output := response.content):

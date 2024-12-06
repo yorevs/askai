@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
@@ -20,7 +20,10 @@ from askai.core.model.acc_response import AccResponse
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
 from askai.core.processors.splitter.splitter_actions import actions
-from askai.core.processors.splitter.splitter_result import PipelineResponse, SplitterResult
+from askai.core.processors.splitter.splitter_result import (
+    PipelineResponse,
+    SplitterResult,
+)
 from askai.core.processors.splitter.splitter_states import States
 from askai.core.processors.splitter.splitter_transitions import Transition, TRANSITIONS
 from askai.core.router.evaluation import eval_response, EVALUATION_GUIDE
@@ -151,7 +154,11 @@ class SplitterPipeline:
         """Check if the plan has more actions to be executed to complete it.
         :return: True if the plan is there are still actions pending, otherwise False.
         """
-        return len(self.plan.tasks) > 0 if self.plan is not None and self.plan.tasks else False
+        return (
+            len(self.plan.tasks) > 0
+            if self.plan is not None and self.plan.tasks
+            else False
+        )
 
     def is_direct(self) -> bool:
         """Check if the plan is direct or if there are actions to be executed to complete it.
@@ -187,7 +194,11 @@ class SplitterPipeline:
         log.info("Splitting tasks...")
         if (plan := actions.split(self.question, self.model)) is not None:
             if plan.is_direct:
-                self.responses.append(PipelineResponse(self.question, plan.speak or msg.no_output("TaskSplitter")))
+                self.responses.append(
+                    PipelineResponse(
+                        self.question, plan.speak or msg.no_output("TaskSplitter")
+                    )
+                )
             self.plan = plan
             return True
 
@@ -208,7 +219,9 @@ class SplitterPipeline:
 
         return False
 
-    def st_accuracy_check(self, pass_threshold: AccColor = configs.pass_threshold) -> AccColor:
+    def st_accuracy_check(
+        self, pass_threshold: AccColor = configs.pass_threshold
+    ) -> AccColor:
         """Pipeline-State::AccuracyCheck Checks whether the AI response is complete enough to present to the user.
         :param pass_threshold: Threshold value used to determine passing accuracy.
         :return: AccColor indicating success or failure after processing the state.
@@ -259,8 +272,12 @@ class SplitterPipeline:
         :return: Boolean indicating success or failure after processing the state.
         """
 
-        if refined := actions.refine_answer(self.question, self.final_answer, self.last_accuracy):
-            final_response: PipelineResponse = PipelineResponse(self.question, refined, self.last_accuracy)
+        if refined := actions.refine_answer(
+            self.question, self.final_answer, self.last_accuracy
+        ):
+            final_response: PipelineResponse = PipelineResponse(
+                self.question, refined, self.last_accuracy
+            )
             self.responses.clear()
             self.responses.append(final_response)
             return True
@@ -273,13 +290,19 @@ class SplitterPipeline:
         """
 
         model: ModelResult = (
-            ModelResult(ResponseModel.ASSISTIVE_TECH_HELPER.model, self.model.goal, self.model.reason)
+            ModelResult(
+                ResponseModel.ASSISTIVE_TECH_HELPER.model,
+                self.model.goal,
+                self.model.reason,
+            )
             if configs.is_assistive
             else self.model
         )
 
         if wrapped := actions.wrap_answer(self.question, self.final_answer, model):
-            final_response: PipelineResponse = PipelineResponse(self.question, wrapped, self.last_accuracy)
+            final_response: PipelineResponse = PipelineResponse(
+                self.question, wrapped, self.last_accuracy
+            )
             self.responses.clear()
             self.responses.append(final_response)
             return True

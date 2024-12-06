@@ -10,7 +10,7 @@
       @site: "https://github.com/yorevs/hspylib")
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.core.model.acc_response import AccResponse
 from fixtures.acc_response_stubs import stub_response
@@ -30,7 +30,9 @@ class TestClass(unittest.TestCase):
 
     RESPONSE_FILE_TEXT: str = RESPONSE_FILE.read_text()
 
-    RESPONSES: list[str] = list(filter(None, map(str.strip, RESPONSE_FILE_TEXT.split("---"))))
+    RESPONSES: list[str] = list(
+        filter(None, map(str.strip, RESPONSE_FILE_TEXT.split("---")))
+    )
 
     # Setup tests
     def setUp(self):

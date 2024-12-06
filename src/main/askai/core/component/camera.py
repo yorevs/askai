@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
@@ -85,7 +85,9 @@ class Camera(metaclass=Singleton):
             ret, img = self._cam.read()
             log.info("Starting the WebCam device")
             if not (ret and img is not None):
-                raise WebCamInitializationFailure("Failed to initialize the WebCam device !")
+                raise WebCamInitializationFailure(
+                    "Failed to initialize the WebCam device !"
+                )
             else:
                 atexit.register(self.shutdown)
 
@@ -97,7 +99,11 @@ class Camera(metaclass=Singleton):
             self._cam.release()
 
     def capture(
-        self, filename: AnyPath, countdown: int = 3, with_caption: bool = True, store_image: bool = True
+        self,
+        filename: AnyPath,
+        countdown: int = 3,
+        with_caption: bool = True,
+        store_image: bool = True,
     ) -> Optional[tuple[ImageFile, ImageData]]:
         """Capture a webcam frame (take a photo).
         :param filename: The file name for the capturing image.
@@ -127,17 +133,27 @@ class Camera(metaclass=Singleton):
                 hash_text(basename(final_path)),
                 final_path,
                 store.PHOTO_CATEGORY,
-                parse_image_caption(image_captioner(final_path)) if with_caption else msg.no_caption(),
+                (
+                    parse_image_caption(image_captioner(final_path))
+                    if with_caption
+                    else msg.no_caption()
+                ),
             )
             if store_image:
                 store.store_image(photo_file)
-            events.reply.emit(reply=AIReply.debug(msg.photo_captured(photo_file.img_path)))
+            events.reply.emit(
+                reply=AIReply.debug(msg.photo_captured(photo_file.img_path))
+            )
             return photo_file, photo
 
         return None
 
     def detect_faces(
-        self, photo: ImageData, filename: AnyPath = None, with_caption: bool = True, store_image: bool = True
+        self,
+        photo: ImageData,
+        filename: AnyPath = None,
+        with_caption: bool = True,
+        store_image: bool = True,
     ) -> tuple[list[ImageFile], list[ImageData]]:
         """Detect all faces in the provided photo.
         :param photo: The image data in which to detect faces.
@@ -151,7 +167,10 @@ class Camera(metaclass=Singleton):
         face_datas: list[ImageData] = []
         gray_img = cv2.cvtColor(photo, cv2.COLOR_BGR2GRAY)
         faces = self._face_classifier.detectMultiScale(
-            gray_img, scaleFactor=configs.scale_factor, minNeighbors=configs.min_neighbors, minSize=configs.min_max_size
+            gray_img,
+            scaleFactor=configs.scale_factor,
+            minNeighbors=configs.min_neighbors,
+            minSize=configs.min_max_size,
         )
         log.debug("Detected faces: %d", len(faces))
 
@@ -161,14 +180,20 @@ class Camera(metaclass=Singleton):
         filename: str = filename or str(now_ms())
         for x, y, w, h in faces:
             cropped_face: ImageData = photo[y : y + h, x : x + w]
-            final_path: str = build_img_path(FACE_DIR, str(filename), f"-FACE-{len(face_files)}.jpg")
+            final_path: str = build_img_path(
+                FACE_DIR, str(filename), f"-FACE-{len(face_files)}.jpg"
+            )
             if final_path and cv2.imwrite(final_path, cropped_face):
                 result: ImageResult = ImageResult.of(image_captioner(final_path))
                 face_file = ImageFile(
                     hash_text(basename(final_path)),
                     final_path,
                     store.FACE_CATEGORY,
-                    get_or_default(result.people_description, 0, "<N/A>") if with_caption else msg.no_caption(),
+                    (
+                        get_or_default(result.people_description, 0, "<N/A>")
+                        if with_caption
+                        else msg.no_caption()
+                    ),
                 )
                 face_files.append(face_file)
                 face_datas.append(cropped_face)
@@ -181,7 +206,9 @@ class Camera(metaclass=Singleton):
 
         return face_files, face_datas
 
-    def identify(self, countdown: int = 0, max_distance: float = configs.max_id_distance) -> Optional[ImageMetadata]:
+    def identify(
+        self, countdown: int = 0, max_distance: float = configs.max_id_distance
+    ) -> Optional[ImageMetadata]:
         """Identify the person in front of the webcam.
         :param countdown: The number of seconds for the countdown before capturing an identification the photo
                           (default is 0).
@@ -191,14 +218,22 @@ class Camera(metaclass=Singleton):
         """
         _, photo = self.capture("ASKAI-ID", countdown, False, False)
         _ = self.detect_faces(photo, "ASKAI-ID", False, False)
-        result = list(filter(lambda p: p.distance <= max_distance, store.find_by_similarity(photo)))
+        result = list(
+            filter(
+                lambda p: p.distance <= max_distance, store.find_by_similarity(photo)
+            )
+        )
         id_data: ImageMetadata = next(iter(result), None)
         log.info("WebCam identification request: %s", id_data or "<No-One>")
 
         return id_data
 
     def import_images(
-        self, pathname: AnyPath, detect_faces: bool = False, with_caption: bool = True, store_image: bool = True
+        self,
+        pathname: AnyPath,
+        detect_faces: bool = False,
+        with_caption: bool = True,
+        store_image: bool = True,
     ) -> tuple[int, ...]:
         """Import image files into the image collection.
         :param pathname: The path or glob pattern of the images to be imported.
@@ -234,7 +269,9 @@ class Camera(metaclass=Singleton):
         if os.path.isfile(pathname):
             _do_import(pathname)
         elif os.path.isdir(pathname):
-            _do_import(*list(filter(is_image_file, glob.glob(os.path.join(pathname, "*.*")))))
+            _do_import(
+                *list(filter(is_image_file, glob.glob(os.path.join(pathname, "*.*"))))
+            )
         else:
             _do_import(*glob.glob(pathname))
 
@@ -245,7 +282,9 @@ class Camera(metaclass=Singleton):
                 data: ImageData
                 file: ImageFile
                 for data, file in zip(img_datas, img_files):
-                    face_file, _ = self.detect_faces(data, file.img_path, with_caption, store_image)
+                    face_file, _ = self.detect_faces(
+                        data, file.img_path, with_caption, store_image
+                    )
                     faces.extend(face_file)
 
         return len(img_files), len(faces)

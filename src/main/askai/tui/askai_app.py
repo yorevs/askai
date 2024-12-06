@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from pathlib import Path
 from typing import Optional
@@ -49,7 +49,14 @@ from askai.core.support.text_formatter import text_formatter
 from askai.tui.app_header import Header
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_suggester import InputSuggester
-from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, Splash, InputArea, InputActions
+from askai.tui.app_widgets import (
+    AppHelp,
+    AppInfo,
+    AppSettings,
+    Splash,
+    InputArea,
+    InputActions,
+)
 
 SOURCE_DIR: Path = classpath.source_path
 
@@ -78,10 +85,19 @@ class AskAiApp(App[None]):
     ENABLE_COMMAND_PALETTE = False
 
     def __init__(
-        self, speak: bool, debug: bool, cacheable: bool, tempo: int, engine_name: str, model_name: str, mode: RouterMode
+        self,
+        speak: bool,
+        debug: bool,
+        cacheable: bool,
+        tempo: int,
+        engine_name: str,
+        model_name: str,
+        mode: RouterMode,
     ):
         super().__init__()
-        self._askai: AskAi = AskAi(speak, debug, cacheable, tempo, engine_name, model_name, mode)
+        self._askai: AskAi = AskAi(
+            speak, debug, cacheable, tempo, engine_name, model_name, mode
+        )
         self._re_render: bool = True
         self._display_buffer: list[str] = list()
         self._startup()
@@ -193,7 +209,9 @@ class AskAiApp(App[None]):
 
     def action_toggle_table_of_contents(self) -> None:
         """Toggles display of the table of contents."""
-        self.md_console.show_table_of_contents = not self.md_console.show_table_of_contents
+        self.md_console.show_table_of_contents = (
+            not self.md_console.show_table_of_contents
+        )
 
     def check_action(self, action: str, _) -> Optional[bool]:
         """Check if a specific action can be performed.
@@ -235,7 +253,9 @@ class AskAiApp(App[None]):
         :param overwrite: Whether to overwrite the existing content in the console (default is True).
         """
         is_new: bool = not file_is_not_empty(str(self.console_path)) or overwrite
-        with open(self.console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val) as f_console:
+        with open(
+            self.console_path, "w" if overwrite else "a", encoding=Charset.UTF_8.val
+        ) as f_console:
             f_console.write(
                 f"{'---' + os.linesep * 2 if not is_new else ''}"
                 f"{'# ' + now(DATE_FORMAT) + os.linesep * 2 if is_new else ''}"
@@ -300,7 +320,9 @@ class AskAiApp(App[None]):
                     if (text := self._display_buffer.pop(0)) == prev_text:
                         continue
                     prev_text = text
-                    final_text: str = text_formatter.beautify(f"{ensure_endswith(text, os.linesep * 2)}")
+                    final_text: str = text_formatter.beautify(
+                        f"{ensure_endswith(text, os.linesep * 2)}"
+                    )
                     f_console.write(final_text)
                     f_console.flush()
                 self._re_render = True
@@ -337,7 +359,9 @@ class AskAiApp(App[None]):
             log.error(reply.message)
             self.display_text(f"{shared.nickname_md} Error: {reply.message}")
             if configs.is_speak and reply.is_speakable:
-                self.engine.text_to_speech(f"Error: {reply.message}", f"{shared.nickname_md} ")
+                self.engine.text_to_speech(
+                    f"Error: {reply.message}", f"{shared.nickname_md} "
+                )
 
     def display_text(self, markdown_text: str) -> None:
         """Send the text to the Markdown console.

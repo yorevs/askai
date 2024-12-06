@@ -129,7 +129,7 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
    @site: <a href="https://github.com/yorevs/askai">https://github.com/yorevs/askai</a>
 @license: MIT - Please refer to <a href="https://opensource.org/licenses/MIT">https://opensource.org/licenses/MIT</a></p>
 
-<p>Copyright (c) 2024, HomeSetup</p>
+<p>Copyright (c) 2024, AskAI</p>
 </div>
 
                         <input id="mod-commander-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -148,7 +148,7 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
 </span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">      @site: https://github.com/yorevs/askai</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="sd">   @license: MIT - Please refer to &lt;https://opensource.org/licenses/MIT&gt;</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">   Copyright (c) 2024, HomeSetup</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">   Copyright (c) 2024, AskAI</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="kn">from</span> <span class="nn">askai.core.askai_configs</span> <span class="kn">import</span> <span class="n">configs</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="kn">from</span> <span class="nn">askai.core.askai_events</span> <span class="kn">import</span> <span class="n">ASKAI_BUS_NAME</span><span class="p">,</span> <span class="n">AskAiEvents</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">REPLY_EVENT</span>
@@ -604,11 +604,11 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
             <span class="name">COMMANDER_HELP_TPL</span>        =
 <span class="default_value">&lt;string.Template object&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#COMMANDER_HELP_TPL"></a>
-    
-    
+
+
 
                 </section>
                 <section id="COMMANDER_HELP_CMD_TPL">
@@ -616,11 +616,11 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
             <span class="name">COMMANDER_HELP_CMD_TPL</span>        =
 <span class="default_value">&lt;string.Template object&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#COMMANDER_HELP_CMD_TPL"></a>
-    
-    
+
+
 
                 </section>
                 <section id="RE_ASKAI_CMD">
@@ -628,11 +628,11 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
             <span class="name">RE_ASKAI_CMD</span><span class="annotation">: str</span>        =
 <span class="default_value">&#39;^(?&lt;!\\\\)/(\\w+)( (.*))*$&#39;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#RE_ASKAI_CMD"></a>
-    
-    
+
+
 
                 </section>
                 <section id="commands">
@@ -723,7 +723,7 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
                 <section id="is_command">
                             <input id="is_command-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
+
         <span class="def">def</span>
         <span class="name">is_command</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">string</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="nb">bool</span>:</span></span>
 
@@ -762,10 +762,10 @@ main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../../core.h
             <span class="name">ask_commander</span>        =
 <span class="default_value">&lt;Group ask-commander&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#ask_commander"></a>
-    
+
             <div class="docstring"><p>AskAI commands group. This function serves as the entry point for the AskAI command-line interface (CLI)
 commands, grouping related commands together.</p>
 </div>
@@ -777,10 +777,10 @@ commands, grouping related commands together.</p>
             <span class="name">help</span>        =
 <span class="default_value">&lt;Command help&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#help"></a>
-    
+
             <div class="docstring"><p>Display the help message for the specified command and exit. If no command is provided, it displays the general
 help message.</p>
 
@@ -798,10 +798,10 @@ help message.</p>
             <span class="name">debug</span>        =
 <span class="default_value">&lt;Command debug&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#debug"></a>
-    
+
             <div class="docstring"><p>Toggle debug mode ON/OFF.</p>
 </div>
 
@@ -812,10 +812,10 @@ help message.</p>
             <span class="name">speak</span>        =
 <span class="default_value">&lt;Command speak&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#speak"></a>
-    
+
             <div class="docstring"><p>Toggle speak mode ON/OFF.</p>
 </div>
 
@@ -826,10 +826,10 @@ help message.</p>
             <span class="name">context</span>        =
 <span class="default_value">&lt;Command context&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#context"></a>
-    
+
             <div class="docstring"><p>Manage the current chat context window.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -847,10 +847,10 @@ help message.</p>
             <span class="name">history</span>        =
 <span class="default_value">&lt;Command history&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#history"></a>
-    
+
             <div class="docstring"><p>Manages the current input history.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -867,10 +867,10 @@ help message.</p>
             <span class="name">copy</span>        =
 <span class="default_value">&lt;Command copy&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#copy"></a>
-    
+
             <div class="docstring"><p>Copy the specified context entry to the clipboard.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -887,10 +887,10 @@ help message.</p>
             <span class="name">devices</span>        =
 <span class="default_value">&lt;Command devices&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#devices"></a>
-    
+
             <div class="docstring"><p>Manages the audio input devices.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -908,10 +908,10 @@ help message.</p>
             <span class="name">settings</span>        =
 <span class="default_value">&lt;Command settings&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#settings"></a>
-    
+
             <div class="docstring"><p>Handles modifications to AskAI settings.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -930,10 +930,10 @@ help message.</p>
             <span class="name">cache</span>        =
 <span class="default_value">&lt;Command cache&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#cache"></a>
-    
+
             <div class="docstring"><p>Manages AskAI TTL-cache management and associated files.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -951,10 +951,10 @@ help message.</p>
             <span class="name">tempo</span>        =
 <span class="default_value">&lt;Command tempo&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#tempo"></a>
-    
+
             <div class="docstring"><p>Manages the speech-to-text tempo.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -971,10 +971,10 @@ help message.</p>
             <span class="name">voices</span>        =
 <span class="default_value">&lt;Command voices&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#voices"></a>
-    
+
             <div class="docstring"><p>Manages speech-to-text voice operations.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -992,10 +992,10 @@ help message.</p>
             <span class="name">tts</span>        =
 <span class="default_value">&lt;Command tts&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#tts"></a>
-    
+
             <div class="docstring"><p>Convert text to speech using the default AI engine.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -1014,10 +1014,10 @@ help message.</p>
             <span class="name">summarize</span>        =
 <span class="default_value">&lt;Command summarize&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#summarize"></a>
-    
+
             <div class="docstring"><p>Create a summary of the folder's contents.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -1035,10 +1035,10 @@ help message.</p>
             <span class="name">idiom</span>        =
 <span class="default_value">&lt;Command idiom&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#idiom"></a>
-    
+
             <div class="docstring"><p>Set the application's language preference.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -1055,10 +1055,10 @@ help message.</p>
             <span class="name">info</span>        =
 <span class="default_value">&lt;Command info&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#info"></a>
-    
+
             <div class="docstring"><p>Display key information about the running application.</p>
 </div>
 
@@ -1069,10 +1069,10 @@ help message.</p>
             <span class="name">translate</span>        =
 <span class="default_value">&lt;Command translate&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#translate"></a>
-    
+
             <div class="docstring"><p>Translate text from the source language to the target language.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -1091,10 +1091,10 @@ help message.</p>
             <span class="name">camera</span>        =
 <span class="default_value">&lt;Command camera&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#camera"></a>
-    
+
             <div class="docstring"><p>Take photos, import images, or identify a person using the WebCam.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -1112,10 +1112,10 @@ help message.</p>
             <span class="name">mode</span>        =
 <span class="default_value">&lt;Command mode&gt;</span>
 
-        
+
     </div>
     <a class="headerlink" href="#mode"></a>
-    
+
             <div class="docstring"><p>Change the AskAI routing mode.</p>
 
 <h6 id="parameters">Parameters</h6>

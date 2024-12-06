@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -35,7 +35,9 @@ class QnA(metaclass=Singleton):
 
         if not question:
             raise TerminatingQuery("The user wants to exit!")
-        if question.casefold() in ["exit", "leave", "quit", "q"] or not (response := summarizer.query(question)):
+        if question.casefold() in ["exit", "leave", "quit", "q"] or not (
+            response := summarizer.query(question)
+        ):
             events.reply.emit(reply=AIReply.info(msg.leave_qna()))
             events.mode_changed.emit(mode="DEFAULT")
             return None

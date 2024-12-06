@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.__classpath__ import classpath
 from clitt.core.term.terminal import Terminal
@@ -57,7 +57,9 @@ class AudioPlayer(metaclass=Singleton):
         return False
 
     def __init__(self):
-        check_argument(which("ffplay") is not None, "ffmpeg::ffplay is required to play audio")
+        check_argument(
+            which("ffplay") is not None, "ffmpeg::ffplay is required to play audio"
+        )
 
     @lru_cache
     def start_delay(self) -> float:
@@ -91,14 +93,19 @@ class AudioPlayer(metaclass=Singleton):
 
         return out
 
-    def play_sfx(self, filename: str, file_ext: Literal[".mp3", ".wav", ".m4a"] = ".mp3") -> bool:
+    def play_sfx(
+        self, filename: str, file_ext: Literal[".mp3", ".wav", ".m4a"] = ".mp3"
+    ) -> bool:
         """Play a sound effect audio file.
         :param filename: The name of the sound effect file (without the extension).
         :param file_ext: The file extension of the sound effect (default is ".mp3").
         :return: True if the sound effect is played successfully, otherwise False.
         """
         filename = f"{self.SFX_DIR}/{ensure_endswith(filename, file_ext)}"
-        check_argument(file_is_not_empty(filename), f"Sound effects file does not exist: {filename}")
+        check_argument(
+            file_is_not_empty(filename),
+            f"Sound effects file does not exist: {filename}",
+        )
 
         return self.play_audio_file(filename)
 

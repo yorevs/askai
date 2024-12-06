@@ -7,7 +7,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 
 from textwrap import dedent
@@ -18,7 +18,11 @@ import re
 from askai.core.askai_events import events
 from askai.core.model.ai_reply import AIReply
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith, strip_escapes
+from hspylib.core.tools.text_tools import (
+    ensure_endswith,
+    ensure_startswith,
+    strip_escapes,
+)
 from hspylib.modules.cli.vt100.vt_code import VtCode
 from hspylib.modules.cli.vt100.vt_color import VtColor
 from rich.console import Console

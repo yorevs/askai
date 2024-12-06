@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from typing import AnyStr, Optional
 import logging as log
@@ -49,8 +49,12 @@ class TaskAgent(metaclass=Singleton):
         Reference: https://smith.langchain.com/hub/hwchase17/structured-chat-agent
         :return: An instance of ChatPromptTemplate representing the structured agent template.
         """
-        prompt_file: PathObject = PathObject.of(prompt.append_path(f"langchain/structured-chat-agent"))
-        final_prompt: str = prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir)
+        prompt_file: PathObject = PathObject.of(
+            prompt.append_path(f"langchain/structured-chat-agent")
+        )
+        final_prompt: str = prompt.read_prompt(
+            prompt_file.filename, prompt_file.abs_dir
+        )
         return ChatPromptTemplate.from_messages(
             [
                 ("system", final_prompt),
@@ -74,7 +78,9 @@ class TaskAgent(metaclass=Singleton):
 
         return output
 
-    def _create_lc_agent(self, temperature: Temperature = Temperature.COLDEST) -> Runnable:
+    def _create_lc_agent(
+        self, temperature: Temperature = Temperature.COLDEST
+    ) -> Runnable:
         """Create and return a LangChain agent.
         :param temperature: The LLM temperature, which controls the randomness of the responses (default is
                             Temperature.COLDEST).
@@ -109,7 +115,7 @@ class TaskAgent(metaclass=Singleton):
             output: dict[str, str] = lc_agent.invoke({"input": task})
         except (openai.APIError, ValueError, ValidationError) as err:
             log.error(str(err))
-            output: dict[str, str] = {'output': str(err)}
+            output: dict[str, str] = {"output": str(err)}
 
         return output
 

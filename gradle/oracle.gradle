@@ -3,7 +3,7 @@
 
     Created: 4th March, 2021
     License: MIT - Please refer to <https://opensource.org/licenses/MIT>
-    Copyright (c) 2024, HomeSetup
+    Copyright (c) 2024, AskAI
 */
 
 def libDir = "${project.rootDir}/src/main/resources/lib"

@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 
 from hspylib.core.enums.enumeration import Enumeration
@@ -51,7 +51,11 @@ class AskAiEvents(Enumeration):
         :param bus_name: The name of the event bus to retrieve.
         :return: An instance of FluidEventBus if found; otherwise, None.
         """
-        if not (ret_bus := next((b.bus for b in AskAiEvents.values() if b.name == bus_name), None)):
+        if not (
+            ret_bus := next(
+                (b.bus for b in AskAiEvents.values() if b.name == bus_name), None
+            )
+        ):
             raise InvalidArgumentError(f"bus '{bus_name}' does not exist!")
         return ret_bus
 

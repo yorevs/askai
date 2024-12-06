@@ -10,12 +10,14 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.core.router.tools.vision import offline_captioner
 from chromadb.api.types import IncludeEnum
 from chromadb.utils.data_loaders import ImageLoader
-from chromadb.utils.embedding_functions.open_clip_embedding_function import OpenCLIPEmbeddingFunction
+from chromadb.utils.embedding_functions.open_clip_embedding_function import (
+    OpenCLIPEmbeddingFunction,
+)
 from collections import namedtuple
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
@@ -36,7 +38,9 @@ Metadata: TypeAlias = Mapping[str, str | int | float | bool]
 
 ImageData: TypeAlias = numpy.ndarray[Any, numpy.dtype]
 
-ImageFile = namedtuple("ImageFile", ["img_id", "img_path", "img_category", "img_caption"])
+ImageFile = namedtuple(
+    "ImageFile", ["img_id", "img_path", "img_category", "img_caption"]
+)
 
 ImageMetadata = namedtuple("ImageMetadata", ["caption", "data", "uri", "distance"])
 
@@ -82,9 +86,19 @@ class ImageStore(metaclass=Singleton):
         for dir_path, dir_names, file_names in os.walk(cache.PICTURE_DIR):
             if dir_path in load_dirs:
                 cat: str = category()
-                files: list[str] = list(filter(is_image_file, map(lambda fn: os.path.join(dir_path, fn), file_names)))
+                files: list[str] = list(
+                    filter(
+                        is_image_file,
+                        map(lambda fn: os.path.join(dir_path, fn), file_names),
+                    )
+                )
                 img_files.extend(
-                    ImageFile(hash_text(basename(f)), f, cat, offline_captioner(f) if with_caption else "No caption")
+                    ImageFile(
+                        hash_text(basename(f)),
+                        f,
+                        cat,
+                        offline_captioner(f) if with_caption else "No caption",
+                    )
                     for f in files
                 )
 
@@ -93,7 +107,9 @@ class ImageStore(metaclass=Singleton):
     def __init__(self):
         self._db_client = chromadb.PersistentClient(path=str(self.persist_dir))
         self._img_collection = self._db_client.get_or_create_collection(
-            self.COLLECTION_NAME, embedding_function=OpenCLIPEmbeddingFunction(), data_loader=ImageLoader()
+            self.COLLECTION_NAME,
+            embedding_function=OpenCLIPEmbeddingFunction(),
+            data_loader=ImageLoader(),
         )
 
     @property
@@ -126,7 +142,9 @@ class ImageStore(metaclass=Singleton):
                 for ff in image_files
             ]
             self._img_collection.add(ids=img_ids, uris=img_uris, metadatas=img_metas)
-            log.info("Image collection increased to: '%d' !", self._img_collection.count())
+            log.info(
+                "Image collection increased to: '%d' !", self._img_collection.count()
+            )
 
         return len(img_ids)
 
@@ -135,7 +153,9 @@ class ImageStore(metaclass=Singleton):
         log.info("Clearing image store collection: '%s'", self.COLLECTION_NAME)
         self._db_client.delete_collection(self.COLLECTION_NAME)
         self._img_collection = self._db_client.get_or_create_collection(
-            self.COLLECTION_NAME, embedding_function=OpenCLIPEmbeddingFunction(), data_loader=ImageLoader()
+            self.COLLECTION_NAME,
+            embedding_function=OpenCLIPEmbeddingFunction(),
+            data_loader=ImageLoader(),
         )
 
     def sync_store(self, re_caption: bool = False) -> int:
@@ -163,7 +183,9 @@ class ImageStore(metaclass=Singleton):
         :param k: The maximum number of matching results to return (default is 3).
         :return: A list of ImageMetadata objects for the photos that match the description.
         """
-        return self.find_by_description(description, [self.PHOTO_CATEGORY, self.IMPORTS_CATEGORY], k)
+        return self.find_by_description(
+            description, [self.PHOTO_CATEGORY, self.IMPORTS_CATEGORY], k
+        )
 
     def query_face(self, description: str, k: int = 3) -> list[ImageMetadata]:
         """Query the image store for faces matching the provided description.
@@ -173,7 +195,9 @@ class ImageStore(metaclass=Singleton):
         """
         return self.find_by_description(description, [self.FACE_CATEGORY], k)
 
-    def find_by_description(self, description: str, categories: list[str], k: int = 3) -> list[ImageMetadata]:
+    def find_by_description(
+        self, description: str, categories: list[str], k: int = 3
+    ) -> list[ImageMetadata]:
         """Find images using natural language.
         :param description: A natural language description to match against stored images.
         :param categories: A list of categories to limit the search within.

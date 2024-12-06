@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 import datetime
 import os
@@ -61,7 +61,9 @@ class GeoLocation(metaclass=Singleton):
 
         try:
             if file_is_not_empty(str(GEO_LOC_CACHE_FILE)):
-                geo_req = Namespace(body=GEO_LOC_CACHE_FILE.read_text(Charset.UTF_8.val))
+                geo_req = Namespace(
+                    body=GEO_LOC_CACHE_FILE.read_text(Charset.UTF_8.val)
+                )
             elif configs.ip_api_enabled:
                 url = f"{cls.GEO_LOC_URL}{'/' + ip if ip else ''}"
                 log.debug("Fetching the Geo Position from: %s", url)

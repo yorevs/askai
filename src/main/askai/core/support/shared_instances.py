@@ -10,7 +10,7 @@
       @site: "https://github.com/yorevs/askai")
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
@@ -114,13 +114,21 @@ class SharedInstances(metaclass=Singleton):
     @property
     def app_info(self) -> str:
         device_info = f"{recorder.input_device[1]}" if recorder.input_device else ""
-        device_info += f", %YELLOW%AUTO-SWAP {'%GREEN%' if recorder.is_auto_swap else '%RED%'}"
+        device_info += (
+            f", %YELLOW%AUTO-SWAP {'%GREEN%' if recorder.is_auto_swap else '%RED%'}"
+        )
         dtm = f" {geo_location.datetime} "
         speak_info = str(configs.tempo) + " @" + self.engine.configs().tts_voice
         cur_dir = elide_text(str(Path(os.getcwd()).absolute()), 67, "…")
-        translator = f"translated by '{msg.translator.name()}'" if configs.language.name.title() != "English" else ""
+        translator = (
+            f"translated by '{msg.translator.name()}'"
+            if configs.language.name.title() != "English"
+            else ""
+        )
         eng: AIEngine = shared.engine
-        model_info: str = f"'{eng.ai_model_name()}'%YELLOW% {eng.ai_token_limit()}%GREEN% tokens"
+        model_info: str = (
+            f"'{eng.ai_model_name()}'%YELLOW% {eng.ai_token_limit()}%GREEN% tokens"
+        )
         engine_info: str = f"{eng.ai_name()} - %CYAN%{eng.nickname()} / {model_info}"
         rag_info: str = "%GREEN% " if configs.is_rag else "%RED% "
         assist_info: str = "%GREEN% " if configs.is_assistive else "%RED% "
@@ -173,22 +181,30 @@ class SharedInstances(metaclass=Singleton):
                     ctx.append(ContextEntry(role, content))
         return self._context
 
-    def create_memory(self, memory_key: str = "chat_history") -> ConversationBufferWindowMemory:
+    def create_memory(
+        self, memory_key: str = "chat_history"
+    ) -> ConversationBufferWindowMemory:
         """Create or retrieve the conversation window memory.
         :param memory_key: The key used to identify the memory (default is "chat_history").
         :return: An instance of BaseChatMemory associated with the specified memory key.
         """
         if self._memory is None:
             self._memory = ConversationBufferWindowMemory(
-                memory_key=memory_key, k=configs.max_short_memory_size, return_messages=True
+                memory_key=memory_key,
+                k=configs.max_short_memory_size,
+                return_messages=True,
             )
             if configs.is_keep_context:
                 entries: list[str] = cache.read_memory()
                 for role, content in zip(entries[::2], entries[1::2]):
-                    self._memory.chat_memory.add_message(self.context.LANGCHAIN_ROLE_MAP[role](content))
+                    self._memory.chat_memory.add_message(
+                        self.context.LANGCHAIN_ROLE_MAP[role](content)
+                    )
         return self._memory
 
-    def input_text(self, input_prompt: str, placeholder: str | None = None) -> Optional[str]:
+    def input_text(
+        self, input_prompt: str, placeholder: str | None = None
+    ) -> Optional[str]:
         """Prompt the user for input.
         :param input_prompt: The text prompt to display to the user.
         :param placeholder: The placeholder text to display in the input field (optional).
@@ -196,7 +212,9 @@ class SharedInstances(metaclass=Singleton):
         """
         ret = None
         while ret is None:
-            if (ret := line_input(input_prompt, placeholder)) == Keyboard.VK_CTRL_L:  # Use voice input.
+            if (
+                ret := line_input(input_prompt, placeholder)
+            ) == Keyboard.VK_CTRL_L:  # Use voice input.
                 terminal.cursor.erase_line()
                 if spoken_text := self.engine.speech_to_text():
                     display_text(f"{self.username}: {spoken_text}")

@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from dataclasses import dataclass
 from functools import lru_cache
@@ -31,7 +31,9 @@ class ModelResult:
         This class is used to encapsulate the model selection returned by the LLM, including any relevant data
         associated with the model's response.
         """
-        return ModelResult("ASK_000", "Default model", "Provide the answer as received by the AI")
+        return ModelResult(
+            "ASK_000", "Default model", "Provide the answer as received by the AI"
+        )
 
     def __str__(self):
         return f"{self.mid} -> {self.reason}"

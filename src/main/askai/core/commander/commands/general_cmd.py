@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from abc import ABC
 from askai.core.askai_messages import AskAiMessages
@@ -45,7 +45,9 @@ class GeneralCmd(ABC):
         if exit_code == ExitStatus.SUCCESS:
             text_formatter.commander_print(output)
         else:
-            display_text(f"\n%RED%Command `{cmd_line}` failed. Error({err_out})  Code ({exit_code})%NC%")
+            display_text(
+                f"\n%RED%Command `{cmd_line}` failed. Error({err_out})  Code ({exit_code})%NC%"
+            )
 
     @staticmethod
     def summarize(folder: str, glob: str) -> None:
@@ -56,9 +58,13 @@ class GeneralCmd(ABC):
         sum_dir: PathObject = PathObject.of(folder)
         if os.path.exists(sum_dir.abs_dir):
             if summarizer.generate(sum_dir.abs_dir, glob):
-                text_formatter.commander_print(f"Summarization complete. Folder: *{folder}*  Glob: *{glob}* !")
+                text_formatter.commander_print(
+                    f"Summarization complete. Folder: *{folder}*  Glob: *{glob}* !"
+                )
             else:
-                display_text(f"\n%RED%-=- Failed to summarize. Folder: {folder}  Glob: {glob} ! -=-%NC%")
+                display_text(
+                    f"\n%RED%-=- Failed to summarize. Folder: {folder}  Glob: {glob} ! -=-%NC%"
+                )
         else:
             display_text(f"\n%RED%-=- Folder '{folder}' does not exist! -=-%NC%")
 

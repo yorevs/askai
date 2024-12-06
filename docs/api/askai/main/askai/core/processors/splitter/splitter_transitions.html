@@ -60,7 +60,7 @@ main<wbr>.<a href="./../../../../askai.html">askai</a><wbr>.<a href="./../../../
    @site: <a href="https://github.com/yorevs/askai">https://github.com/yorevs/askai</a>
 @license: MIT - Please refer to <a href="https://opensource.org/licenses/MIT">https://opensource.org/licenses/MIT</a></p>
 
-<p>Copyright (c) 2024, HomeSetup</p>
+<p>Copyright (c) 2024, AskAI</p>
 </div>
 
                         <input id="mod-splitter_transitions-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -79,7 +79,7 @@ main<wbr>.<a href="./../../../../askai.html">askai</a><wbr>.<a href="./../../../
 </span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="sd">      @site: https://github.com/yorevs/askai</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">   @license: MIT - Please refer to &lt;https://opensource.org/licenses/MIT&gt;</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">   Copyright (c) 2024, HomeSetup</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">   Copyright (c) 2024, AskAI</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeAlias</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>
@@ -124,11 +124,11 @@ main<wbr>.<a href="./../../../../askai.html">askai</a><wbr>.<a href="./../../../
             <span class="name">Transition</span><span class="annotation">: TypeAlias</span>        =
 <span class="default_value">dict[str, str | askai.core.processors.splitter.splitter_states.States]</span>
 
-        
+
     </div>
     <a class="headerlink" href="#Transition"></a>
-    
-    
+
+
 
                 </section>
                 <section id="TRANSITIONS">
@@ -137,11 +137,11 @@ main<wbr>.<a href="./../../../../askai.html">askai</a><wbr>.<a href="./../../../
 <input id="TRANSITIONS-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
             <label class="view-value-button pdoc-button" for="TRANSITIONS-view-value"></label><span class="default_value">[{&#39;trigger&#39;: &#39;ev_pipeline_started&#39;, &#39;source&#39;: STARTUP, &#39;dest&#39;: MODEL_SELECT}, {&#39;trigger&#39;: &#39;ev_model_selected&#39;, &#39;source&#39;: MODEL_SELECT, &#39;dest&#39;: TASK_SPLIT}, {&#39;trigger&#39;: &#39;ev_direct_answer&#39;, &#39;source&#39;: TASK_SPLIT, &#39;dest&#39;: ACC_CHECK}, {&#39;trigger&#39;: &#39;ev_plan_created&#39;, &#39;source&#39;: TASK_SPLIT, &#39;dest&#39;: EXECUTE_TASK}, {&#39;trigger&#39;: &#39;ev_accuracy_check&#39;, &#39;source&#39;: ACC_CHECK, &#39;dest&#39;: EXECUTE_TASK}, {&#39;trigger&#39;: &#39;ev_task_executed&#39;, &#39;source&#39;: EXECUTE_TASK, &#39;dest&#39;: ACC_CHECK}, {&#39;trigger&#39;: &#39;ev_accuracy_passed&#39;, &#39;source&#39;: ACC_CHECK, &#39;dest&#39;: EXECUTE_TASK, &#39;conditions&#39;: [&#39;has_next&#39;]}, {&#39;trigger&#39;: &#39;ev_accuracy_passed&#39;, &#39;source&#39;: ACC_CHECK, &#39;dest&#39;: WRAP_ANSWER, &#39;unless&#39;: [&#39;has_next&#39;]}, {&#39;trigger&#39;: &#39;ev_accuracy_failed&#39;, &#39;source&#39;: ACC_CHECK, &#39;dest&#39;: EXECUTE_TASK}, {&#39;trigger&#39;: &#39;ev_accuracy_failed&#39;, &#39;source&#39;: ACC_CHECK, &#39;dest&#39;: TASK_SPLIT, &#39;unless&#39;: [&#39;has_next&#39;]}, {&#39;trigger&#39;: &#39;ev_refine_required&#39;, &#39;source&#39;: ACC_CHECK, &#39;dest&#39;: EXECUTE_TASK, &#39;conditions&#39;: [&#39;has_next&#39;]}, {&#39;trigger&#39;: &#39;ev_refine_required&#39;, &#39;source&#39;: ACC_CHECK, &#39;dest&#39;: REFINE_ANSWER, &#39;unless&#39;: [&#39;has_next&#39;]}, {&#39;trigger&#39;: &#39;ev_answer_refined&#39;, &#39;source&#39;: REFINE_ANSWER, &#39;dest&#39;: WRAP_ANSWER}, {&#39;trigger&#39;: &#39;ev_final_answer&#39;, &#39;source&#39;: WRAP_ANSWER, &#39;dest&#39;: COMPLETE}, {&#39;trigger&#39;: &#39;ev_task_complete&#39;, &#39;source&#39;: TASK_SPLIT, &#39;dest&#39;: COMPLETE}]</span>
 
-        
+
     </div>
     <a class="headerlink" href="#TRANSITIONS"></a>
-    
-    
+
+
 
                 </section>
     </main>

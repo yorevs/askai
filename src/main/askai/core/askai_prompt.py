@@ -10,11 +10,17 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
-from askai.core.support.os_utils import get_os, get_shell, get_user, SupportedPlatforms, SupportedShells
+from askai.core.support.os_utils import (
+    get_os,
+    get_shell,
+    get_user,
+    SupportedPlatforms,
+    SupportedShells,
+)
 from askai.core.support.utilities import read_resource
 from functools import lru_cache
 from hspylib.core.metaclass.singleton import Singleton

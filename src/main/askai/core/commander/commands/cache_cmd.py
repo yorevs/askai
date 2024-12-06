@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from abc import ABC
 from askai.core.askai_configs import configs
@@ -76,7 +76,9 @@ class CacheCmd(ABC):
                     deleted = cache.del_reply(name)
         else:
             deleted = str(cache.clear_replies())
-        text_formatter.commander_print(f"*{deleted if deleted else 'No'}* cache(s) has been cleared!")
+        text_formatter.commander_print(
+            f"*{deleted if deleted else 'No'}* cache(s) has been cleared!"
+        )
 
     @staticmethod
     def files(cleanup: bool = False, *args: str | int) -> None:
@@ -92,10 +94,14 @@ class CacheCmd(ABC):
                         f_join = partial(os.path.join, f"{CACHE_DIR}/{arg}")
                         if os.path.isdir(cached):
                             set(map(os.remove, map(f_join, os.listdir(cached))))
-                            text_formatter.commander_print(f"Folder *{cached}* has been cleared!")
+                            text_formatter.commander_print(
+                                f"Folder *{cached}* has been cleared!"
+                            )
                         elif os.path.isfile(cached):
                             os.remove(cached)
-                            text_formatter.commander_print(f"File **{cached}** was removed!")
+                            text_formatter.commander_print(
+                                f"File **{cached}** was removed!"
+                            )
             else:
                 display_text(f"### Listing cached files from '{CACHE_DIR}':\n\n---\n\n")
                 files, dirs = "", ""
@@ -103,13 +109,17 @@ class CacheCmd(ABC):
                     f_cached = os.path.join(CACHE_DIR, cached)
                     if os.path.isdir(f_cached):
                         f_join = partial(os.path.join, f"{CACHE_DIR}/{cached}")
-                        f_all = list(map(os.path.getsize, map(f_join, os.listdir(f_cached))))
+                        f_all = list(
+                            map(os.path.getsize, map(f_join, os.listdir(f_cached)))
+                        )
                         size, unit = human_readable_bytes(sum(f_all))
                         dirs += f"- *{cached}* ({len(f_all)} files {size} {unit}) \n"
                     else:
                         size, unit = human_readable_bytes(os.path.getsize(f_cached))
                         files += f"- **{cached}** ({size} {unit})\n"
                 display_text(f"{dirs}\n{files}")
-                display_text(f"\n> Hint: Type: '/cache files cleanup [globs ...]' to delete cached files.")
+                display_text(
+                    f"\n> Hint: Type: '/cache files cleanup [globs ...]' to delete cached files."
+                )
         else:
             sysout(f"\n%RED%-=- Cache dir {CACHE_DIR} does not exist! -=-%NC%\n")

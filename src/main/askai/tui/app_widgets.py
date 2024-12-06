@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 import os
 import re
@@ -194,10 +194,15 @@ class InputActions(Static):
         """TODO"""
         if (ctx := str(shared.context.flat("LAST_REPLY"))) and (
             last_reply := re.sub(
-                r"^((system|human|AI|assistant):\s*)", "", ctx, flags=re.MULTILINE | re.DOTALL | re.IGNORECASE
+                r"^((system|human|AI|assistant):\s*)",
+                "",
+                ctx,
+                flags=re.MULTILINE | re.DOTALL | re.IGNORECASE,
             )
         ):
-            TtsSttCmd.tts(last_reply.strip(), os.environ.get("TEMP", tempfile.gettempdir()), True)
+            TtsSttCmd.tts(
+                last_reply.strip(), os.environ.get("TEMP", tempfile.gettempdir()), True
+            )
 
     def submit(self) -> None:
         """TODO"""

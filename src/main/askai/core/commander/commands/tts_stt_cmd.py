@@ -10,7 +10,7 @@
       @site: https://github.com/yorevs/askai
    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, HomeSetup
+   Copyright (c) 2024, AskAI
 """
 from abc import ABC
 from askai.core.askai_configs import configs
@@ -52,7 +52,9 @@ class TtsSttCmd(ABC):
         if name_or_index in all_voices:
             settings.put("openai.text.to.speech.voice", name_or_index)
             shared.engine.configs().tts_voice = name_or_index
-            text_formatter.commander_print(f"`Speech-To-Text` voice changed to %GREEN%{name_or_index.title()}%NC%")
+            text_formatter.commander_print(
+                f"`Speech-To-Text` voice changed to %GREEN%{name_or_index.title()}%NC%"
+            )
         else:
             text_formatter.commander_print(f"%RED%Invalid voice: '{name_or_index}'%NC%")
 
@@ -81,10 +83,16 @@ class TtsSttCmd(ABC):
         elif 1 <= speed <= 3:
             settings.put("askai.text.to.speech.tempo", speed)
             configs.tempo = speed
-            tempo_str: str = "Normal" if speed == 1 else ("Fast" if speed == 2 else "Ultra")
-            text_formatter.commander_print(f"`Speech-To-Text` **tempo** changed to %GREEN%{tempo_str} ({speed})%NC%")
+            tempo_str: str = (
+                "Normal" if speed == 1 else ("Fast" if speed == 2 else "Ultra")
+            )
+            text_formatter.commander_print(
+                f"`Speech-To-Text` **tempo** changed to %GREEN%{tempo_str} ({speed})%NC%"
+            )
         else:
-            text_formatter.commander_print(f"%RED%Invalid tempo value: '{speed}'. Please choose between [1..3].%NC%")
+            text_formatter.commander_print(
+                f"%RED%Invalid tempo value: '{speed}'. Please choose between [1..3].%NC%"
+            )
 
     @staticmethod
     def device_list() -> None:
@@ -108,22 +116,29 @@ class TtsSttCmd(ABC):
 
         def _set_device(_device) -> bool:
             if recorder.set_device(_device):
-                text_formatter.commander_print(f"`Text-To-Speech` device changed to %GREEN%{_device}%NC%")
+                text_formatter.commander_print(
+                    f"`Text-To-Speech` device changed to %GREEN%{_device}%NC%"
+                )
                 return True
-            text_formatter.commander_print(f"%HOM%%ED2%Error: '{_device}' is not an Audio Input device!%NC%")
+            text_formatter.commander_print(
+                f"%HOM%%ED2%Error: '{_device}' is not an Audio Input device!%NC%"
+            )
             all_devices.remove(_device)
             pause.seconds(2)
             return False
 
         if not name_or_index:
             device: InputDevice = mselect(
-                all_devices, f"{'-=' * 40}%EOL%AskAI::Select the Audio Input device%EOL%{'=-' * 40}%EOL%"
+                all_devices,
+                f"{'-=' * 40}%EOL%AskAI::Select the Audio Input device%EOL%{'=-' * 40}%EOL%",
             )
         elif name_or_index.isdecimal() and 0 <= int(name_or_index) <= len(all_devices):
             name_or_index = all_devices[int(name_or_index)][1]
             device = next((dev for dev in all_devices if dev[1] == name_or_index), None)
         if not (device and _set_device(device)):
-            text_formatter.commander_print(f"%RED%Invalid audio input device: '{name_or_index}'%NC%")
+            text_formatter.commander_print(
+                f"%RED%Invalid audio input device: '{name_or_index}'%NC%"
+            )
 
     @staticmethod
     def tts(text: str, dest_dir: str = os.getcwd(), playback: bool = True) -> None:
@@ -132,9 +147,15 @@ class TtsSttCmd(ABC):
         :param dest_dir: The directory where the audio file will be saved (default is the current working directory).
         :param playback: Whether to play back the generated speech after conversion (default is True).
         """
-        if (audio_path := shared.engine.text_to_speech(text, stream=False, playback=playback)) and audio_path.exists():
+        if (
+            audio_path := shared.engine.text_to_speech(
+                text, stream=False, playback=playback
+            )
+        ) and audio_path.exists():
             if dest_dir and ((dest_path := Path(dest_dir)) and dest_path.exists()):
                 audio_path = copy_file(audio_path, dest_dir)
-            text_formatter.commander_print(f"File %GREEN%'{audio_path}' was successfully saved!%NC%")
+            text_formatter.commander_print(
+                f"File %GREEN%'{audio_path}' was successfully saved!%NC%"
+            )
         else:
             text_formatter.commander_print(f"%RED%Unable to convert text to file !%NC%")
