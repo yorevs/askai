@@ -7,6 +7,7 @@
 */
 
 import groovy.json.JsonSlurper
+import java.io.ByteArrayOutputStream
 
 ext {
   pypiRepository = System.getenv("PYPI_REPOSITORY") ?: 'https://test.pypi.org/legacy'
@@ -78,9 +79,6 @@ task checkDist(type: Task) {
 task sdist(type: Task) {
   group = 'Publish'
   description = 'Generate PyPi distribution files'
-  if (!project.hasProperty('no-patch') || !Boolean.valueOf(project.getProperty('no-patch'))) {
-    dependsOn patchVersion
-  }
   dependsOn cleanDist
   dependsOn copyLicenseAndReadme
   dependsOn syncRequirements
@@ -107,31 +105,7 @@ task sdist(type: Task) {
 task publish(type: Task) {
   group = 'Publish'
   description = "Publish the module to PyPi repository"
-  def url = project.ext.pypiRepository
-  def un = project.ext.pypiUsername
-  def pw = project.ext.pypiPassword
-  doLast {
-    fileTree("$sourceRoot").matching {
-        include "**/setup.py"
-      }.each { File module ->
-        def moduleDir = dirName(module)
-        def distDir = "${moduleDir}/dist"
-        println "--- ${project.name} details ---"
-        println "|-version: ${project.ext.app_version}"
-        println "|-setup: ${module}"
-        println "|-url: ${url}"
-        println "|-user: ${un}"
-        println "|-dist: ${distDir}/*"
-        println '-------------------------------'
-        println "Publishing module to PyPi => ${url}"
-    }
-    exec {
-      commandLine 'git', 'tag', '-a', "v${app_version}", '-m', "New PyPi version v${app_version}"
-    }
-    exec {
-      commandLine 'git', 'push', 'origin', "v${app_version}"
-    }
-  }
+  dependsOn patchVersion
 }
 
 /* Show PyPi module details */
