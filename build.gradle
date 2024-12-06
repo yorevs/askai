@@ -40,7 +40,6 @@ ext {
 apply from: "${gradleDir}/dependencies.gradle"
 apply from: "${gradleDir}/python.gradle"
 apply from: "${gradleDir}/versioning.gradle"
-apply from: "${gradleDir}/pypi-publish.gradle"
 apply from: "${gradleDir}/docker.gradle"
 apply from: "${gradleDir}/docgen.gradle"
 apply from: "${gradleDir}/idea.gradle"
