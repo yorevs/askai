@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.2.4
+# hspylib-askai v1.2.8
 #
 # Package: main.askai
 """Package initialization."""
@@ -11,4 +11,4 @@ __all__ = [
     'language', 
     'tui'
 ]
-__version__ = '1.2.4'
+__version__ = '1.2.8'

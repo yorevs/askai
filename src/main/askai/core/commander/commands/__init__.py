@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.2.4
+# hspylib-askai v1.2.8
 #
 # Package: main.askai.core.commander.commands
 """Package initialization."""
@@ -13,4 +13,4 @@ __all__ = [
     'settings_cmd', 
     'tts_stt_cmd'
 ]
-__version__ = '1.2.4'
+__version__ = '1.2.8'
