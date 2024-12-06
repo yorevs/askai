@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-    @project: hspylib
-    @package: hspylib
-       @file: __main__.py
-    @created: Fri, 5 Jan 2024
-     @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-       @site: https://github.com/yorevs/askai
-    @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: hspylib
+@package: hspylib
+   @file: __main__.py
+@created: Fri, 5 Jan 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-    Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 
 import logging as log
@@ -19,15 +19,14 @@ import re
 import sys
 import typing
 
+from askai.__classpath__ import classpath
+from askai.core.support.utilities import QueryString
 from clitt.core.tui.tui_application import TUIApplication
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import syserr, to_bool
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
-
-from askai.__classpath__ import classpath
-from askai.core.support.utilities import QueryString
 
 
 class Main(TUIApplication):
@@ -54,11 +53,10 @@ class Main(TUIApplication):
         :return: The exit status of the command execution.
         """
         import click
-
         from askai.core.commander import commander
 
         try:
-            if command := re.search(commander.RE_ASKAI_CMD, command_str):
+            if command := re.search(commander.RE_ASKAI_CMD, str(command_str)):
                 args: list[str] = list(
                     filter(
                         lambda a: a and a != "None",
@@ -148,10 +146,9 @@ class Main(TUIApplication):
         """
         from textwrap import dedent
 
-        from hspylib.core.zoned_datetime import now
-
         from askai.core.askai_configs import configs
         from askai.core.enums.run_modes import RunModes
+        from hspylib.core.zoned_datetime import now
 
         os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
         is_new_ui: bool = to_bool(self._get_argument("ui", False))
@@ -192,7 +189,7 @@ class Main(TUIApplication):
             )
         else:
             os.environ["ASKAI_APP"] = RunModes.ASKAI_CMD.value
-            return self._execute_command(query_string)
+            return self._execute_command(query_string or "/help")
 
         # fmt: off
         log.debug(dedent(f"""\
@@ -252,7 +249,7 @@ class Main(TUIApplication):
         """
         return self._get_argument("router", "default")
 
-    def _get_interactive(self, query_string: str) -> bool:
+    def _get_interactive(self, query_string: str | None) -> bool:
         """Return the interactive parameter if query_string is not specified; False otherwise.
         :param query_string: The query string to check for interactivity.
         :return: The value of the interactive parameter or False based on query_string presence.
@@ -260,9 +257,6 @@ class Main(TUIApplication):
         return to_bool(self._get_argument("interactive", not query_string))
 
 
-# Application entry point
-if __name__ == "__main__":
-    Main("AskAI").INSTANCE.run(sys.argv[1:])
 # Application entry point
 if __name__ == "__main__":
     Main("AskAI").INSTANCE.run(sys.argv[1:])

@@ -2,34 +2,23 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.tui.askai_app
-      @file: askai_app.py
-   @created: Mon, 29 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.tui.askai_app
+   @file: askai_app.py
+@created: Mon, 29 Apr 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
-from pathlib import Path
-from typing import Optional
+
 import logging as log
 import os
+from pathlib import Path
+from typing import Optional
 
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import file_is_not_empty
-from hspylib.core.tools.text_tools import ensure_endswith
-from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
-from hspylib.modules.application.version import Version
-from hspylib.modules.cli.vt100.vt_color import VtColor
-from hspylib.modules.eventbus.event import Event
-from textual import on, work
-from textual.app import App, ComposeResult
-from textual.containers import ScrollableContainer
-from textual.widgets import Footer, Input, MarkdownViewer
 import nltk
-
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
@@ -38,7 +27,7 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import commander_help
 from askai.core.component.audio_player import player
-from askai.core.component.cache_service import cache, CACHE_DIR
+from askai.core.component.cache_service import CACHE_DIR, cache
 from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
@@ -53,10 +42,21 @@ from askai.tui.app_widgets import (
     AppHelp,
     AppInfo,
     AppSettings,
-    Splash,
-    InputArea,
     InputActions,
+    InputArea,
+    Splash,
 )
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import file_is_not_empty
+from hspylib.core.tools.text_tools import ensure_endswith
+from hspylib.core.zoned_datetime import DATE_FORMAT, TIME_FORMAT, now
+from hspylib.modules.application.version import Version
+from hspylib.modules.cli.vt100.vt_color import VtColor
+from hspylib.modules.eventbus.event import Event
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.containers import ScrollableContainer
+from textual.widgets import Footer, Input, MarkdownViewer
 
 SOURCE_DIR: Path = classpath.source_path
 
@@ -156,7 +156,7 @@ class AskAiApp(App[None]):
         return self.query_one(InputActions)
 
     @property
-    def suggester(self) -> Optional[InputSuggester]:
+    def suggester(self) -> InputSuggester:
         """Get the Input Suggester."""
         return self.line_input.suggester
 
@@ -242,9 +242,9 @@ class AskAiApp(App[None]):
 
         self.call_from_thread(_invoke_later_, enable)
 
-    def activate_markdown(self) -> None:
+    async def activate_markdown(self) -> None:
         """Activate the markdown console widget."""
-        self.md_console.go(self.console_path)
+        await self.md_console.go(self.console_path)
         self.md_console.set_class(False, "-hidden")
         self.md_console.scroll_end(animate=False)
 
@@ -435,11 +435,11 @@ class AskAiApp(App[None]):
         log.info("AskAI is ready to use!")
 
     @work(thread=True)
-    def _setup(self) -> None:
+    async def _setup(self) -> None:
         """Setup the TUI controls."""
         player.start_delay()
         self.splash.set_class(True, "-hidden")
-        self.activate_markdown()
+        await self.activate_markdown()
         self.action_clear(overwrite=False)
         self.enable_controls()
         self.line_input.focus(False)

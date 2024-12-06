@@ -6,8 +6,6 @@
 	],
 	"settings": {
 		"hide-files.files": [
-			".gradle",
-			".idea",
 			".run",
 			".vscode",
 			"run-configs",
@@ -16,6 +14,9 @@
 			".gitconfig",
 			".gitignore",
 			".gitmodules"
+		],
+		"cSpell.words": [
+			"destfile"
 		]
 	}
 }

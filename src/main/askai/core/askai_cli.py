@@ -2,16 +2,17 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core
-      @file: askai_cli.py
-   @created: Fri, 9 Aug 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core
+   @file: askai_cli.py
+@created: Fri, 9 Aug 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
+
 import logging as log
 import os
 import signal
@@ -22,15 +23,6 @@ from typing import Optional
 
 import nltk
 import pause
-from clitt.core.term.cursor import cursor
-from clitt.core.term.screen import screen
-from clitt.core.tui.line_input.keyboard_input import KeyboardInput
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import console_out
-from hspylib.core.zoned_datetime import now, TIME_FORMAT
-from hspylib.modules.eventbus.event import Event
-from rich.progress import Progress
-
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
@@ -38,7 +30,7 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import commands
 from askai.core.component.audio_player import player
-from askai.core.component.cache_service import cache, CACHE_DIR
+from askai.core.component.cache_service import CACHE_DIR, cache
 from askai.core.component.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.enums.router_mode import RouterMode
@@ -46,6 +38,14 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
 from askai.tui.app_icons import AppIcons
+from clitt.core.term.cursor import cursor
+from clitt.core.term.screen import screen
+from clitt.core.tui.line_input.keyboard_input import KeyboardInput
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import console_out
+from hspylib.core.zoned_datetime import TIME_FORMAT, now
+from hspylib.modules.eventbus.event import Event
+from rich.progress import Progress
 
 
 class AskAiCli(AskAi):
@@ -57,16 +57,15 @@ class AskAiCli(AskAi):
         debug: bool,
         cacheable: bool,
         tempo: int,
-        query_prompt: str,
+        query_prompt: str | None,
         engine_name: str,
         model_name: str,
         query_string: str | None,
         mode: RouterMode,
     ):
-
         super().__init__(speak, debug, cacheable, tempo, engine_name, model_name, mode)
         self._ready: bool = False
-        self._query_prompt: str = query_prompt
+        self._query_prompt: str | None = query_prompt
         self._query_string: str | None = query_string
         self._startup()
 
