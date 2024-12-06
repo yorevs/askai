@@ -23,11 +23,6 @@ on:
           - 'patch'
           - 'minor'
           - 'major'
-      create_release:
-        description: 'Create a new GitHub release?'
-        type: boolean
-        required: false
-        default: false
 
 permissions:
   contents: write
@@ -38,7 +33,7 @@ jobs:
     outputs:
       version: ${{ steps.publish-it.outputs.version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-java@v3
         with:
           distribution: temurin
@@ -56,23 +51,17 @@ jobs:
         with:
           python-version: ${{ vars.PYTHON_VERSION }}
       - name: Install Python tools
-        run: gradle installBuildTools ${{ gradle_debug_params }}
+        run: gradle installBuildTools ${{ inputs.gradle_debug_params }}
       - name: Publish
         id: publish-it
         run: |
           bumpver update "--${{ inputs.revision_type }}"
-          version="$(awk '/./{line=$0} END{print line}' .version)"
+          version="$(awk '/./{line=$0} END{print line}' $(find . -type f -name .version))"
           echo "version=$( echo "$version" )" >> $GITHUB_OUTPUT
           git config --global user.name "$(git log -n 1 --pretty=format:%an)"
           git config --global user.email "$(git log -n 1 --pretty=format:%ae)"
           git config github.token "${{ secrets.GITHUB_TOKEN }}"
           git commit -a -m "[@${{ github.actor }}] ${{ inputs.comment }}"
           git pull --rebase -Xtheirs && git push --atomic origin HEAD
-
-  create-release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ./.github/workflows/create-release.yml
-        with:
-          comment: ${{ inputs.comment }}
-
+          git tag -a v"$version" -m "${{ inputs.comment }}"
+          git push origin --tags

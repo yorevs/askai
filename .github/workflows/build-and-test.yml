@@ -12,11 +12,6 @@ on:
         default: ''
         required: false
         type: string
-      build_python3_10:
-        description: 'Check to build using python@3.10'
-        default: true
-        required: true
-        type: boolean
       build_python3_11:
         description: 'Check to build using python@3.11'
         default: true
@@ -27,6 +22,13 @@ on:
         default: false
         required: true
         type: boolean
+  pull_request:
+    branches:
+      - '**'
+    paths:
+      - 'src/**'
+      - 'gradle/*.gradle'
+      - 'build.gradle'
   push:
     branches:
       - '**'
@@ -34,6 +36,9 @@ on:
       - 'src/**'
       - 'gradle/*.gradle'
       - 'build.gradle'
+
+env:
+  PYRCC_VERSION: ${{ vars.PYRCC_VERSION }}
 
 jobs:
   set-python-matrix:
@@ -43,17 +48,15 @@ jobs:
     steps:
       - name: Show Selected Input
         run: |
-          echo "Use Python@3.10: ${{ inputs.build_python3_10 || true }}"
           echo "Use Python@3.11: ${{ inputs.build_python3_11 || true }}"
           echo "Use Python@3.12: ${{ inputs.build_python3_12 || false }}"
       - name: Set Exclusion Matrix
         id: set-matrix-items
         run: |
           count=0
-          all=('3.10' '3.11' '3.12')
+          all=('3.11' '3.12')
           while read -r next; do
-          if [[ (${next} == '3.10' && "false" == "${{ inputs.build_python3_10 || true }}") ||
-                (${next} == '3.11' && "false" == "${{ inputs.build_python3_11 || true }}") ||
+          if [[ (${next} == '3.11' && "false" == "${{ inputs.build_python3_11 || true }}") ||
                 (${next} == '3.12' && "false" == "${{ inputs.build_python3_12 || false }}") ]]; then
               item="{\"python-version\":\"${next}\"},"
               [[ "${JSON}" != *"${item}"* ]] && JSON="${JSON}${item}"
@@ -61,7 +64,7 @@ jobs:
           fi
           done < <(printf '%s\n' "${all[@]}")
           [[ $JSON == *, ]] && JSON="${JSON%?}"
-          [[ ${count} -eq ${#all[@]} ]] && JSON="{\"python-version\":\"3.10\"}"
+          [[ ${count} -eq ${#all[@]} ]] && JSON="{\"python-version\":\"3.11\"}"
           JSON="[${JSON}]"
           echo "JSON: ${JSON}"
           echo "excludes=$( echo "${JSON}" )" >> $GITHUB_OUTPUT
@@ -73,16 +76,14 @@ jobs:
         os:
           - 'ubuntu-latest'
         python-version:
-          - '3.10'
           - '3.11'
           - '3.12'
         exclude: ${{ fromJSON(needs.set-python-matrix.outputs.exclude-array) }}
     runs-on: ${{ matrix.os }}
     env:
       PYTHON_VERSION: ${{ matrix.python-version }}
-      PYRCC_VERSION: 5
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: 'true'
       - uses: actions/setup-java@v3
@@ -110,6 +111,17 @@ jobs:
           python3 -m pip install git+https://github.com/julian-r/python-magic.git
       - name: Update PIP
         run: pip install --upgrade pip
-      - name: Build HSPyLib modules
+      - name: Build preparation
+        id: build_init
         run: |
-          gradle clean installModule build ${{ inputs.gradle_debug_params }}
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      - name: Build information
+        run: |
+          echo "## Build Information" >> $GITHUB_STEP_SUMMARY
+          echo "-   JAVA: ${{ vars.JAVA_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- GRADLE: ${{ vars.GRADLE_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- PYTHON: ${{ matrix.python-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- BRANCH: ${{ steps.build_init.outputs.branch }}" >> $GITHUB_STEP_SUMMARY
+      - name: Build and Test
+        run: |
+          gradle clean installBuildTools build ${{ inputs.gradle_debug_params }}
