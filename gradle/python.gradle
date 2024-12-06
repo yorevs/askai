@@ -192,17 +192,6 @@ task syncPythonPackages(type: Task) {
   }
 }
 
-/* Copy LICENSE and README files into main folder */
-task copyLicenseAndReadme(type: Copy) {
-  group = 'Publish'
-  description = "Copy LICENSE file into main folder"
-  from(rootDir) {
-    include 'LICENSE*'
-    include 'README*'
-  }
-  into "${sourceRoot}/main"
-}
-
 /* Install module in editable mode (i.e. setuptools 'develop mode') */
 task installModule(type: Task) {
   group = 'Install'
@@ -341,6 +330,7 @@ task mypy(type: Task) {
 tasks.register('clean', Task) {
   group = 'Build'
   dependsOn cleanPython
+  dependsOn cleanDist
 }
 
 tasks.register('compile', Task) {
