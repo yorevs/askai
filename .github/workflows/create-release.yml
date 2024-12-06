@@ -2,6 +2,7 @@ name: create-release
 run-name: Create Release
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - "v?[0-9]+.[0-9]+.[0-9]+"
@@ -29,20 +30,25 @@ jobs:
       - name: Extract tag and Details
         id: release
         run: |
-          if [ "${{ github.ref_type }}" = "tag" ]; then
-            TAG_NAME=${GITHUB_REF#refs/tags/}
-            NEW_VERSION=$(echo $TAG_NAME | awk -F'-' '{print $1}')
-            SUFFIX=$(echo $TAG_NAME | grep -oP '[a-z]+[0-9]+' || echo "")
-            echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
-            echo "suffix=$SUFFIX" >> "$GITHUB_OUTPUT"
-            echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
-            echo "Version is $NEW_VERSION"
-            echo "Suffix is $SUFFIX"
-            echo "Tag name is $TAG_NAME"
+          echo "GITHUB_REF: ${GITHUB_REF}"
+          echo "GITHUB_REF_TYPE: ${GITHUB_REF_TYPE}"
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
           else
-            echo "No tags found"
-            exit 1
+            TAG_NAME="$(git tag | tail -n1)"
+            if [[ -z "${TAG_NAME}" ]]; then
+              echo "No tags found: ${TAG_NAME}"
+              exit 1
+            fi
           fi
+          NEW_VERSION=$(echo $TAG_NAME | awk -F'-' '{print $1}')
+          SUFFIX=$(echo $TAG_NAME | grep -oP '[a-z]+[0-9]+' || echo "")
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "suffix=$SUFFIX" >> "$GITHUB_OUTPUT"
+          echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
+          echo "Version is $NEW_VERSION"
+          echo "Suffix is $SUFFIX"
+          echo "Tag name is $TAG_NAME"
 
   check_pypi:
     needs: details
@@ -91,7 +97,7 @@ jobs:
         with:
           python-version: ${{ vars.PYTHON_VERSION }}
       - name: Install Python tools
-        run: gradle installBuildTools installModule ${{ gradle_debug_params }}
+        run: gradle installBuildTools installModule
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
