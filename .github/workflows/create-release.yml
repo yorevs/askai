@@ -3,6 +3,12 @@ run-name: Create Release
 
 on:
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'The tag name to release'
+        default: ''
+        required: false
+        type: string
   push:
     tags:
       - "v?[0-9]+.[0-9]+.[0-9]+"
@@ -11,9 +17,9 @@ on:
       - "v?[0-9]+.[0-9]+.[0-9]+rc[0-9]+"
 
 env:
-  PACKAGE_NAME: "${vars.PACKAGE_NAME}"
-  OWNER: "${vars.OWNER}"
-  TAP_NAME: "${vars.TAP_NAME}"
+  PACKAGE_NAME: "${{ vars.PACKAGE_NAME }}"
+  OWNER: "${{ vars.OWNER }}"
+  TAP_NAME: "${{ vars.TAP_NAME }}"
 
 permissions:
   contents: write
@@ -30,14 +36,13 @@ jobs:
       - name: Extract tag and Details
         id: release
         run: |
-          echo "GITHUB_REF: ${GITHUB_REF}"
-          echo "GITHUB_REF_TYPE: ${GITHUB_REF_TYPE}"
-          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+          TAG_NAME="${{ inputs.tag_name }}"
+          if [[ -z "$TAG_NAME" && "${GITHUB_REF_TYPE}" == "tag" ]]; then
             TAG_NAME="${GITHUB_REF#refs/tags/}"
           else
-            TAG_NAME="$(git tag | tail -n 1)"
-            if [[ -z "${TAG_NAME}" ]]; then
-              echo "No tags found: ${TAG_NAME}"
+            if [[ -z "$TAG_NAME" ]]; then
+              echo "No tags found!"
+              git tag
               exit 1
             fi
           fi
@@ -96,6 +101,15 @@ jobs:
       - uses: actions/setup-python@v3
         with:
           python-version: ${{ vars.PYTHON_VERSION }}
+      - name: Install System packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libmagic1 libmagic-dev portaudio19-dev python3-pyaudio ffmpeg
+      - name: Update PIP
+        run: pip install --upgrade pip
+      - name: Workaround for Python Magic
+        run: |
+          python3 -m pip install git+https://github.com/julian-r/python-magic.git
       - name: Install Python tools
         run: gradle installBuildTools installModule
       - name: Upload artifacts
@@ -118,7 +132,6 @@ jobs:
         with:
           name: dist
           path: dist/
-
       - name: Publish distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
 
