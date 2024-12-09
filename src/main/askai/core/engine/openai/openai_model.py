@@ -2,20 +2,21 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core.engine.openai
-      @file: openai_model.py
-   @created: Fri, 12 Jan 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core.engine.openai
+   @file: openai_model.py
+@created: Fri, 12 Jan 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
+
+from typing import List
+
 from askai.core.engine.ai_model import AIModel
 from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.preconditions import check_not_none
-from typing import List
 
 
 class OpenAIModel(Enumeration):
@@ -27,7 +28,6 @@ class OpenAIModel(Enumeration):
 
     # fmt: off
 
-    GPT_3_5_TURBO           = "gpt-3.5-turbo", 4096
     GPT_4                   = "gpt-4", 8192
     GPT_4_TURBO             = "gpt-4-turbo", 128000
     GPT_4_O                 = "gpt-4o", 128000
@@ -58,12 +58,11 @@ class OpenAIModel(Enumeration):
             ),
             None,
         )
-        check_not_none(
-            found,
-            '"{}" name does not correspond to a valid "{}" enum',
-            model_name,
-            OpenAIModel.__name__,
-        )
+        if found is None:
+            raise ValueError(
+                f'"{model_name}" name does not correspond to a valid "{OpenAIModel.__name__}" enum'
+            )
+
         return found
 
     def __init__(self, model_name: str, token_limit: int):
