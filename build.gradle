@@ -27,11 +27,8 @@ idea {
     sourceDirs += file('src/demo')
     testSourceDirs += file('src/test')
     excludeDirs += file('.idea')
-    excludeDirs += file('.gradle')
     excludeDirs += file('.vscode')
     excludeDirs += file('.gradle')
-    excludeDirs += file('.run')
-    excludeDirs += file('run-configs')
     excludeDirs += file(buildDir)
   }
 }
@@ -40,5 +37,4 @@ apply from: "${gradleDir}/dependencies.gradle"
 apply from: "${gradleDir}/python.gradle"
 apply from: "${gradleDir}/versioning.gradle"
 apply from: "${gradleDir}/pypi-publish.gradle"
-apply from: "${gradleDir}/docker.gradle"
 apply from: "${gradleDir}/docgen.gradle"
