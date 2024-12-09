@@ -42,33 +42,3 @@ apply from: "${gradleDir}/versioning.gradle"
 apply from: "${gradleDir}/pypi-publish.gradle"
 apply from: "${gradleDir}/docker.gradle"
 apply from: "${gradleDir}/docgen.gradle"
-
-/* Download and extract the yorevs/py-gradle project ZIP */
-tasks.register('pyGradleUpdate') {
-  group = 'pygradle'
-  description = 'Download and extract the py-gradle project ZIP'
-  doLast {
-    def outFile = "${gradleDir}/py-gradle.zip"
-    def url = "https://github.com/yorevs/py-gradle/archive/master.zip"
-    println "Downloading the py-gradle project"
-    println "  From: ${url}"
-    println "  Into: ${outFile}"
-    mkdir gradleDir
-    delete fileTree(gradleDir).matching {
-      include "**/*.gradle"
-    }
-    exec {
-      commandLine 'curl', '-L', '-o', "${outFile}", url
-    }
-    copy {
-      from zipTree("${outFile}")
-      into "${gradleDir}"
-    }
-    copy {
-      from "${gradleDir}/py-gradle-master/src/main/gradle"
-      into "${gradleDir}"
-      include '**/*.gradle'
-    }
-    delete "${gradleDir}/py-gradle-master", "${outFile}"
-  }
-}
