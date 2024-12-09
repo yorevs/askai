@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.2.8
+# hspylib-askai v1.2.9
 #
 # Package: main.askai.core.engine.openai
 """Package initialization."""
@@ -12,4 +12,4 @@ __all__ = [
     'openai_vision', 
     'temperature'
 ]
-__version__ = '1.2.8'
+__version__ = '1.2.9'
