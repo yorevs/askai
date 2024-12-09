@@ -16,7 +16,8 @@
 			".gitmodules"
 		],
 		"cSpell.words": [
-			"destfile"
+			"destfile",
+			"println"
 		]
 	}
 }

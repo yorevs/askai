@@ -3,6 +3,21 @@ plugins {
   id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.8"
 }
 
+configurations {
+    src
+}
+
+ext {
+  sourceRoot = "${rootDir}/src"
+  gradleDir = "${rootDir}/gradle"
+  buildDir = "${project.projectDir}/build"
+  application = "${sourceRoot}/main/__main__.py"
+  pythonPath = "${sourceRoot}/main:${sourceRoot}/test:${sourceRoot}/demo"
+  buildToolsFile = file("${project.projectDir}/buildTools.txt")
+  startTime = System.currentTimeMillis()
+  verbose = findProperty('verbose') ?: false
+}
+
 idea {
   module {
     settings {
@@ -17,24 +32,8 @@ idea {
     excludeDirs += file('.gradle')
     excludeDirs += file('.run')
     excludeDirs += file('run-configs')
-    excludeDirs += file('src/main/build')
-    excludeDirs += file('src/main/dist')
-    excludeDirs += file('src/main/hspylib_askai.egg-info')
+    excludeDirs += file(buildDir)
   }
-}
-
-configurations {
-    src
-}
-
-ext {
-  sourceRoot = "${rootDir}/src"
-  gradleDir = "${rootDir}/gradle"
-  application = "${sourceRoot}/main/__main__.py"
-  pythonPath = "${sourceRoot}/main:${sourceRoot}/test:${sourceRoot}/demo"
-  buildToolsFile = file("${project.projectDir}/buildTools.txt")
-  startTime = System.currentTimeMillis()
-  verbose = findProperty('verbose') ?: false
 }
 
 apply from: "${gradleDir}/dependencies.gradle"

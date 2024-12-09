@@ -9,14 +9,6 @@
 import groovy.json.JsonSlurper
 import java.io.ByteArrayOutputStream
 
-ext {
-  pypiRepository = System.getenv("PYPI_REPOSITORY") ?: 'https://test.pypi.org/legacy'
-  pypiModuleUrl = System.getenv("PYPI_MODULE_URL") ?: 'https://test.pypi.org/pypi'
-  pypiUsername = System.getenv("PYPI_USERNAME") ?: ''
-  pypiPassword = System.getenv("PYPI_PASSWORD") ?: ''
-}
-
-
 /* Helper Functions -------------------------------------------------------- */
 
 Collection dirsByPattern(String baseDir, String pattern) {
@@ -33,15 +25,15 @@ String dirName(File file) {
 
 /* Tasks ------------------------------------------------------------------- */
 
-/* Cleanup distribution files from sourceRoot */
+/* Cleanup distribution files from buildDir */
 task cleanDist(type: Task) {
   group = 'Build'
-  description = "Cleanup distribution files from sourceRoot"
+  description = "Cleanup distribution files from buildDir"
   doLast {
-    println "Cleanup distribution files \n\t from $sourceRoot"
-    delete dirsByPattern(sourceRoot, /.*dist$/)
-    delete dirsByPattern(sourceRoot, /.*build$/)
-    delete dirsByPattern(sourceRoot, /.*egg-info$/)
+    println("Cleanup distribution files \n\t from ${buildDir}")
+    delete dirsByPattern("$buildDir", /.*dist$/)
+    delete dirsByPattern("$buildDir", /.*build$/)
+    delete dirsByPattern("$buildDir", /.*egg-info$/)
   }
 }
 
@@ -64,11 +56,10 @@ task checkDist(type: Task) {
     fileTree(sourceRoot).matching {
         include "**/setup.py"
       }.each { File module ->
-        def moduleDir = dirName(module)
-        def distDir = "${moduleDir}/dist"
-        println "Checking distribution files -> $distDir"
+        def distDir = "${buildDir}/dist"
+        println "Checking distribution files -> ${buildDir}"
         exec {
-          workingDir moduleDir
+          workingDir buildDir
           commandLine project.python, '-m', 'twine', 'check', "${distDir}/*"
         }
     }
@@ -84,20 +75,21 @@ task sdist(type: Task) {
   dependsOn syncRequirements
   finalizedBy checkDist
   doLast {
+    def distDir = "${buildDir}/dist"
     fileTree("$sourceRoot").matching {
         include "**/setup.py"
       }.each { File module ->
         def moduleDir = dirName(module)
-          println "Generating distribution files -> $moduleDir"
-          exec {
-            workingDir "$moduleDir"
-            commandLine project.python, "-m", "build", "--sdist"
-          }
-          exec {
-            workingDir "$moduleDir"
-            commandLine project.python, "-m", "build", "--wheel"
-          }
+        println("Generating distribution for '${moduleDir}' => ${distDir}")
+        exec {
+          workingDir "${moduleDir}"
+          commandLine project.python, "-m", "build", "-o", distDir, "--sdist"
         }
+        exec {
+          workingDir "${moduleDir}"
+          commandLine project.python, "-m", "build", "-o", distDir, "--wheel"
+        }
+      }
   }
 }
 
@@ -105,7 +97,8 @@ task sdist(type: Task) {
 task publish(type: Task) {
   group = 'Publish'
   description = "Publish the module to PyPi repository"
-  dependsOn patchVersion
+  dependsOn sdist
+  finalizedBy patchVersion
 }
 
 /* Show PyPi module details */

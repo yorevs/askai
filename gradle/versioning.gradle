@@ -24,7 +24,7 @@ task patchVersion(type: Task) {
   outputs.upToDateWhen { false }
   finalizedBy syncPythonPackages
   doLast {
-    println "Patching the build number"
+    println("Patching the build number")
     exec {
       commandLine project.python, '-m', 'bumpver', 'update', '--patch'
     }
@@ -38,7 +38,7 @@ task updateMinor(type: Task) {
   outputs.upToDateWhen { false }
   finalizedBy syncPythonPackages
   doLast {
-    println "Updating the minor number"
+    println("Updating the minor number")
     exec {
       commandLine project.python, '-m', 'bumpver', 'update', '--minor'
     }
@@ -52,7 +52,7 @@ task updateMajor(type: Task) {
   outputs.upToDateWhen { false }
   finalizedBy syncPythonPackages
   doLast {
-    println "Updating the major number"
+    println("Updating the major number")
     exec {
       commandLine project.python, '-m', 'bumpver', 'update', '--major'
     }
@@ -65,7 +65,7 @@ task version(type: Task) {
   description = 'Check current program version'
   outputs.upToDateWhen { false }
   doLast { task ->
-    println "Module: [$task.project.name] Current Version: $project.ext.app_version"
+    println("Module: [$task.project.name] Current Version: $project.ext.app_version")
   }
 }
 
@@ -78,22 +78,24 @@ task listProperties(type: Task) {
     def regex = /.*=.*$/
     File propsFile = project.file('gradle.properties')
     if (propsFile.exists()) {
-      println "\n[${project.name}] Checking properties from: " + relPath("${propsFile}") + "\n"
+      println("\n[${project.name}] Checking properties from: " + relPath("${propsFile}") + "\n")
       propsFile.eachLine { line ->
         if (line?.trim() && line ==~ regex) {
           // Extract the name and version from line: '<property> = <value>'
           def (name, value) = line.tokenize('=')
-          println "${name.padRight(40, ' ')} => ${value.padRight(10, ' ')}"
+          println("${name.padRight(40, ' ')} => ${value.padRight(10, ' ')}")
         }
       }
     }
-    println "".padRight(80, '-')
-    println "SOURCE_ROOT".padRight(40, ' ') + " =>  " \
-      + relPath("${project.ext.sourceRoot}")
-    println "PYTHON_PATH".padRight(40, ' ') + " =>  " \
-      + relPath("${project.ext.pythonPath}").split(':').join(', ')
-    println "Application".padRight(40, ' ') + " =>  " \
-      + relPath("${project.ext.has('application') ? project.ext.application : 'N/A'}")
+    println("".padRight(80, '-'))
+    println("SOURCE_ROOT".padRight(40, ' ') + " =>  " \
+      + relPath("${project.ext.sourceRoot}"))
+    println("BUILD_DIR".padRight(40, ' ') + " =>  " \
+      + relPath("${project.ext.buildDir}"))
+    println("PYTHON_PATH".padRight(40, ' ') + " =>  " \
+      + relPath("${project.ext.pythonPath}").split(':').join(', '))
+    println("Application".padRight(40, ' ') + " =>  " \
+      + relPath("${project.ext.has('application') ? project.ext.application : 'N/A'}"))
   }
 }
 
