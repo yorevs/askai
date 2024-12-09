@@ -144,7 +144,7 @@ def read_resource(base_dir: AnyPath, filename: AnyPath, file_ext: str = ".txt") 
     return Path(filename).read_text(encoding=Charset.UTF_8.val)
 
 
-def read_file(load_dir: AnyPath, path_name: str) -> Optional[str]:
+def read_file(load_dir: AnyPath, path_name: str) -> str:
     """Reads the contents of a file from the specified directory.
     :param load_dir: The directory where the file is located.
     :param path_name: The path name of the file to read.
