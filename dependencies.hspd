@@ -44,7 +44,7 @@ package: aiohttp, version: 3.10.5, mode: eq
 package: html2text, version: 2024.2.26, mode: eq
 
 /* CLI/TUI */
-package: rich, version: 13.8.1, mode: eq
+package: rich, version: 13.9.4, mode: eq
 package: textual, version: 0.87.1, mode: eq
 
 /* Audio */
