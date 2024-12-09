@@ -125,3 +125,4 @@ jobs:
       - name: Build and Test
         run: |
           gradle clean installBuildTools build ${{ inputs.gradle_debug_params }}
+        

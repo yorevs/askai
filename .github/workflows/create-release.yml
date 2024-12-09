@@ -105,7 +105,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: dist
-          path: dist/
+          path: build/dist/
 
   pypi_publish:
     name: Upload release to PyPI
@@ -126,7 +126,7 @@ jobs:
 
   github_release:
     name: Create GitHub Release
-    needs: [build_and_test, details]
+    needs: [build_and_test, details, pypi_publish]
     runs-on: ubuntu-latest
     permissions:
       contents: write

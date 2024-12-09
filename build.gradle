@@ -42,7 +42,6 @@ apply from: "${gradleDir}/versioning.gradle"
 apply from: "${gradleDir}/pypi-publish.gradle"
 apply from: "${gradleDir}/docker.gradle"
 apply from: "${gradleDir}/docgen.gradle"
-apply from: "${gradleDir}/idea.gradle"
 
 /* Download and extract the yorevs/py-gradle project ZIP */
 tasks.register('pyGradleUpdate') {

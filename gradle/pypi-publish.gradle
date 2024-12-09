@@ -97,8 +97,36 @@ task sdist(type: Task) {
 task publish(type: Task) {
   group = 'Publish'
   description = "Publish the module to PyPi repository"
-  dependsOn sdist
-  finalizedBy patchVersion
+  doLast {
+    def out = new ByteArrayOutputStream()
+    exec {
+      commandLine 'git', 'log', '--pretty=format:%s', 'origin/master..HEAD'
+      standardOutput = out
+    }
+    def tag = "v${project.ext.app_version}"
+    def commit_logs = out.toString()
+    def prefix = commit_logs?.trim() ? commit_logs?.split('\n').size() + ' commits' : ' No commits'
+    def commitMsg = "New ${project.app_name} revision: '${tag}' >> ${prefix}"
+    println("Publishing ${project.app_name}...")
+    println("Revision commits: ${commitMsg}  Tag?= ${tag}")
+    if (tag) {
+      exec {
+        commandLine 'git', 'tag', '-a', "${tag}", '-m', "New ${project.app_name} revision ${tag}"
+      }
+      exec {
+        commandLine 'git', 'push', 'origin', "${tag}"
+      }
+    }
+    exec {
+      commandLine 'git', 'add', '-A', ':/'
+    }
+    exec {
+      commandLine 'git', 'commit', '-m', "${commitMsg}"
+    }
+    exec {
+      commandLine 'git', 'push', 'origin', 'HEAD'
+    }
+  }
 }
 
 /* Show PyPi module details */
