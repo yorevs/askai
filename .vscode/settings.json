@@ -1,0 +1,37 @@
+{
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "_config.yml": true,
+    ".gradle": true,
+    ".vscode": true,
+    ".idea": true,
+    ".pytest_cache": true,
+    ".gitattributes": true,
+    ".gitconfig": true,
+    ".gitignore": true,
+    ".pylintrc": true,
+    "buildTools.txt": true,
+    "AskAI.code-workspace": true,
+    "gradlew.bat": true,
+    "gradlew": true,
+    "bumpver.toml": true,
+    ".editorconfig": true,
+    "**/__pycache__": true,
+    "**/__pycache__.*": true,
+    "**/*.egg-info": true
+  },
+  "hide-files.files": [],
+  "cSpell.words": [
+    "aporetti",
+    "askai",
+    "clitt",
+    "hspylib",
+    "syserr",
+    "unior"
+  ]
+}

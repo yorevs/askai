@@ -242,9 +242,9 @@ class AskAiApp(App[None]):
 
         self.call_from_thread(_invoke_later_, enable)
 
-    async def activate_markdown(self) -> None:
+    def activate_markdown(self) -> None:
         """Activate the markdown console widget."""
-        await self.md_console.go(self.console_path)
+        self.md_console.go(self.console_path)
         self.md_console.set_class(False, "-hidden")
         self.md_console.scroll_end(animate=False)
 
@@ -286,8 +286,8 @@ class AskAiApp(App[None]):
         if spoken_text := self.engine.speech_to_text():
             self.display_text(f"{shared.username_md}: {spoken_text}")
             if self.ask_and_reply(spoken_text):
-                await self.suggester.add_suggestion(spoken_text)
-                suggestions = await self.suggester.suggestions()
+                self.suggester.add_suggestion(spoken_text)
+                suggestions = self.suggester.suggestions()
                 cache.save_input_history(suggestions)
         self.enable_controls()
 
@@ -439,7 +439,7 @@ class AskAiApp(App[None]):
         """Setup the TUI controls."""
         player.start_delay()
         self.splash.set_class(True, "-hidden")
-        await self.activate_markdown()
+        self.activate_markdown()
         self.action_clear(overwrite=False)
         self.enable_controls()
         self.line_input.focus(False)

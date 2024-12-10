@@ -87,6 +87,5 @@ Desktop.ini
 *egg-info/
 py-gradle-master/
 build/
-.vscode/
 .venv/
 venv

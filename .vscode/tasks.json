@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "00_Run __main__.py",
+      "type": "process",
+      "command": "python3.11",
+      "args": [
+        "__main__.py"
+      ],
+      "options": {
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder}/src/main/${workspaceFolderBasename}/",
+        "env": {
+          "PYTHONPATH": "${workspaceFolder}/src/main${pathSeparator}${workspaceFolder}/src/test${pathSeparator}${workspaceFolder}/src/demo${pathSeparator}${env:PYTHONPATH}"
+        }
+      },
+      "presentation": {
+        "reveal": "always"
+      }
+    }
+  ]
+}
