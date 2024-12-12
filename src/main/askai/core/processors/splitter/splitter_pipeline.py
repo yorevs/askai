@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core.processors.splitter.splitter_pipeline
-      @file: ai_engine.py
-   @created: Mon, 21 Oct 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core.processors.splitter.splitter_pipeline
+   @file: ai_engine.py
+@created: Mon, 21 Oct 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
@@ -41,7 +41,7 @@ import logging as log
 
 
 class SplitterPipeline:
-    """TODO"""
+    """Represents a pipeline for handling and processing splitting tasks."""
 
     state: States
 
@@ -154,11 +154,7 @@ class SplitterPipeline:
         """Check if the plan has more actions to be executed to complete it.
         :return: True if the plan is there are still actions pending, otherwise False.
         """
-        return (
-            len(self.plan.tasks) > 0
-            if self.plan is not None and self.plan.tasks
-            else False
-        )
+        return len(self.plan.tasks) > 0 if self.plan is not None and self.plan.tasks else False
 
     def is_direct(self) -> bool:
         """Check if the plan is direct or if there are actions to be executed to complete it.
@@ -194,11 +190,7 @@ class SplitterPipeline:
         log.info("Splitting tasks...")
         if (plan := actions.split(self.question, self.model)) is not None:
             if plan.is_direct:
-                self.responses.append(
-                    PipelineResponse(
-                        self.question, plan.speak or msg.no_output("TaskSplitter")
-                    )
-                )
+                self.responses.append(PipelineResponse(self.question, plan.speak or msg.no_output("TaskSplitter")))
             self.plan = plan
             return True
 
@@ -219,9 +211,7 @@ class SplitterPipeline:
 
         return False
 
-    def st_accuracy_check(
-        self, pass_threshold: AccColor = configs.pass_threshold
-    ) -> AccColor:
+    def st_accuracy_check(self, pass_threshold: AccColor = configs.pass_threshold) -> AccColor:
         """Pipeline-State::AccuracyCheck Checks whether the AI response is complete enough to present to the user.
         :param pass_threshold: Threshold value used to determine passing accuracy.
         :return: AccColor indicating success or failure after processing the state.
@@ -272,12 +262,8 @@ class SplitterPipeline:
         :return: Boolean indicating success or failure after processing the state.
         """
 
-        if refined := actions.refine_answer(
-            self.question, self.final_answer, self.last_accuracy
-        ):
-            final_response: PipelineResponse = PipelineResponse(
-                self.question, refined, self.last_accuracy
-            )
+        if refined := actions.refine_answer(self.question, self.final_answer, self.last_accuracy):
+            final_response: PipelineResponse = PipelineResponse(self.question, refined, self.last_accuracy)
             self.responses.clear()
             self.responses.append(final_response)
             return True
@@ -300,9 +286,7 @@ class SplitterPipeline:
         )
 
         if wrapped := actions.wrap_answer(self.question, self.final_answer, model):
-            final_response: PipelineResponse = PipelineResponse(
-                self.question, wrapped, self.last_accuracy
-            )
+            final_response: PipelineResponse = PipelineResponse(self.question, wrapped, self.last_accuracy)
             self.responses.clear()
             self.responses.append(final_response)
             return True

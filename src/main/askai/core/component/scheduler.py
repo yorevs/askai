@@ -296,7 +296,13 @@ class Scheduler(Thread, metaclass=Singleton):
         self._add(f"Every-{callback.__name__}", _call_it_back)
 
     def _add(self, thread_name: str, callback: Callable, *args, **kwargs) -> None:
-        """TODO"""
+        """Adds a new thread to the '_not_started' internal list for management.
+        :param thread_name: The name of the thread to be added.
+        :param callback: The function to be executed by the thread.
+        :param args: Positional arguments to be passed to the callback.
+        :param kwargs: Keyword arguments to be passed to the callback.
+        :return: None
+        """
         th_new: Thread = Thread(
             name=thread_name, target=callback, args=args, kwargs=kwargs
         )
@@ -304,7 +310,9 @@ class Scheduler(Thread, metaclass=Singleton):
         self._threads[thread_name] = th_new
 
     def _remove(self, not_started: Thread) -> None:
-        """TODO"""
+        """Removes a thread from the '_not_started' internal list for management.
+        :param not_started: The thread to remove from the '_not_started' list
+        """
         self._not_started.remove(not_started)
 
 

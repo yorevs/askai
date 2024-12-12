@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core.processors.rag
-      @file: rag.py
-   @created: Fri, 5 May 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core.processors.rag
+   @file: rag.py
+@created: Fri, 5 May 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 from clitt.core.term.cursor import cursor
 from rich.live import Live
@@ -62,12 +62,8 @@ class Rag(metaclass=Singleton):
 
     @property
     def rag_template(self) -> BasePromptTemplate:
-        prompt_file: PathObject = PathObject.of(
-            prompt.append_path(f"taius/taius-non-interactive")
-        )
-        final_prompt: str = prompt.read_prompt(
-            prompt_file.filename, prompt_file.abs_dir
-        )
+        prompt_file: PathObject = PathObject.of(prompt.append_path(f"taius/taius-non-interactive"))
+        final_prompt: str = prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir)
         # fmt: off
         return ChatPromptTemplate.from_messages([
             ("system", final_prompt),
@@ -78,7 +74,11 @@ class Rag(metaclass=Singleton):
 
     @lru_cache
     def persist_dir(self, rag_dir: AnyPath, file_glob: AnyPath) -> Path:
-        """TODO"""
+        """Returns the persistent directory path based on the hash of the provided directory and file pattern.
+        :param rag_dir: The RAG directory path to be used for generating the hash.
+        :param file_glob: The file pattern to be used for generating the hash.
+        :return: A Path object representing the persistent directory.
+        """
         summary_hash = hash_text(os.path.join(rag_dir, file_glob))
         return Path(os.path.join(str(PERSIST_DIR), summary_hash))
 
@@ -108,9 +108,7 @@ class Rag(metaclass=Singleton):
 
         return output
 
-    def generate(
-        self, rag_dir: AnyPath = RAG_EXT_DIR, file_glob: AnyPath = "**/*.md"
-    ) -> None:
+    def generate(self, rag_dir: AnyPath = RAG_EXT_DIR, file_glob: AnyPath = "**/*.md") -> None:
         """Generates RAG data from the specified directory.
         :param rag_dir: The directory containing the files for RAG data generation
         :param file_glob: The files from which to generate the RAG database.
@@ -127,18 +125,12 @@ class Rag(metaclass=Singleton):
             persist_dir: Path = self.persist_dir(rag_dir, file_glob)
             if persist_dir.exists() and persist_dir.is_dir():
                 log.info("Recovering vector store from: '%s'", persist_dir)
-                self._vectorstore = Chroma(
-                    persist_directory=str(persist_dir), embedding_function=embeddings
-                )
+                self._vectorstore = Chroma(persist_directory=str(persist_dir), embedding_function=embeddings)
             else:
                 with Status(f"[green]{msg.summarizing()}[/green]"):
-                    rag_docs: list[Document] = DirectoryLoader(
-                        str(rag_dir), glob=file_glob, recursive=True
-                    ).load()
+                    rag_docs: list[Document] = DirectoryLoader(str(rag_dir), glob=file_glob, recursive=True).load()
                     if len(rag_docs) <= 0:
-                        raise DocumentsNotFound(
-                            f"Unable to find any document to at: '{persist_dir}'"
-                        )
+                        raise DocumentsNotFound(f"Unable to find any document to at: '{persist_dir}'")
                     self._vectorstore = Chroma.from_documents(
                         persist_directory=str(persist_dir),
                         documents=self._text_splitter.split_documents(rag_docs),

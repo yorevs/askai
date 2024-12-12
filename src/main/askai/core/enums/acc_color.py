@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core.enums.acc_response
-      @file: acc_color.py
-   @created: Thu, 26 Sep 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core.enums.acc_response
+   @file: acc_color.py
+@created: Thu, 26 Sep 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 from typing import Literal, TypeAlias
 import logging as log
@@ -21,21 +21,29 @@ AccuracyColors: TypeAlias = Literal["Blue", "White", "Blue", "Green", "Yellow", 
 
 
 class AccColor(Enumeration):
-    """TODO"""
+    """Represents various color-coded accuracy levels with associated values.
+    Each color corresponds to a specific status and numeric value.
+    """
 
     # fmt: off
 
-    INTERRUPT   = 'Black', -1
+    INTERRUPT = 'Black', -1
+    """Black color, indicating an interrupt status."""
 
-    TERMINATE   = 'White',  0
+    TERMINATE = 'White', 0
+    """White color, indicating a terminate status."""
 
-    EXCELLENT   = 'Blue',   1
+    EXCELLENT = 'Blue', 1
+    """Blue color, indicating an excellent status."""
 
-    GOOD        = 'Green',  2
+    GOOD = 'Green', 2
+    """Green color, indicating a good status."""
 
-    MODERATE    = 'Yellow', 3
+    MODERATE = 'Yellow', 3
+    """Yellow color, indicating a moderate status."""
 
-    BAD         = 'Red',    4
+    BAD = 'Red', 4
+    """Red color, indicating a bad status."""
 
     def __init__(self, color: AccuracyColors, weight: int):
         self._color: AccuracyColors = color

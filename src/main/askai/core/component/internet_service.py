@@ -88,8 +88,13 @@ class InternetService(metaclass=Singleton):
 
     @classmethod
     def _url_to_icon(cls, url: str) -> str:
-        """TODO"""
+        """Replaces a URL with its corresponding icon URL from SITE_ICONS if available.
+        :param url: The URL to be replaced with its corresponding icon.
+        :return: The icon URL if found in SITE_ICONS, otherwise the original URL.
+        :raises KeyError: If the URL is not found in SITE_ICONS.
+        """
         return url.replace(url, cls.SITE_ICONS[url]) if cls.SITE_ICONS[url] else url
+
 
     @classmethod
     def wrap_response(cls, terms: str, output: str, search: SearchResult) -> str:

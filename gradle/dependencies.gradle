@@ -268,10 +268,10 @@ task installBinaries(type: Task) {
     readDependencies()
     apps.each { app ->
       if ('latest' == app.version) {
-        println(os + ": TODO Installing latest version of '" + app.binary + "'")
+        println(os + ": FIXME Installing latest version of '" + app.binary + "'")
       }
       else {
-        println(os + ": TODO Installing '" + app.binary + "' v" + app.version)
+        println(os + ": FIXME Installing '" + app.binary + "' v" + app.version)
       }
     }
   }

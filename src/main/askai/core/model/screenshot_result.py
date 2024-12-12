@@ -11,7 +11,14 @@ class ScreenshotResult(BaseModel):
     """
 
     class DocumentModel(BaseModel):
-        """TODO"""
+        """Represents a model for storing document metadata and content overview.
+
+        Attributes:
+            page_number: The number of the page in the document.
+            header: The content of the document's header.
+            footer: The content of the document's footer.
+            content_overview: A brief overview of the document's content.
+        """
 
         page_number: int = Field(description="Document page number")
         header: str = Field(description="Document header content")
@@ -19,7 +26,12 @@ class ScreenshotResult(BaseModel):
         content_overview: str = Field(description="Document content overview")
 
     class WebsiteModel(BaseModel):
-        """TODO"""
+        """Represents a model for storing website metadata.
+
+        Attributes:
+            website_description: A description of the website.
+            website_url: The URL of the website.
+        """
 
         website_description: str = Field(description="Website description")
         website_url: str = Field(description="Website URL")

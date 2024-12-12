@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core.enums.acc_response
-      @file: acc_response.py
-   @created: Tue, 23 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core.enums.acc_response
+   @file: acc_response.py
+@created: Tue, 23 Apr 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 from askai.core.enums.acc_color import AccColor, AccuracyColors
 from askai.core.support.llm_parser import parse_field
@@ -49,7 +49,6 @@ class AccResponse:
         return f"{self.status} -> {self.details}"
 
     def __eq__(self, other: "AccResponse") -> bool:
-        """TODO"""
         return (
             self.acc_color == other.acc_color
             and self.accuracy == other.accuracy

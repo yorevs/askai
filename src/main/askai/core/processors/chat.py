@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: taius-coder
-   @package: askai.core.processors.chat
-      @file: chat.py
-   @created: Mon, 23 Sep 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
-      @site: https://github.com/yorevs/taius-coder
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: taius-coder
+@package: askai.core.processors.chat
+   @file: chat.py
+@created: Mon, 23 Sep 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior"
+   @site: https://github.com/yorevs/taius-coder
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright 2024, HSPyLib team
+Copyright 2024, HSPyLib team
 """
 from typing import Any, Optional
 
@@ -35,13 +35,17 @@ from askai.exception.exceptions import TerminatingQuery
 
 
 class ChatProcessor(metaclass=Singleton):
-    """TODO"""
+    """Handles the processing of chat-related operations and templates."""
 
     INSTANCE: "ChatProcessor"
 
     def template(self, prompt_str: str, *inputs: str, **kwargs) -> ChatPromptTemplate:
-        """Retrieve the processor Template."""
-
+        """Retrieves a chat prompt template based on the provided prompt string and inputs.
+        :param prompt_str: The string used as the base template for the prompt.
+        :param inputs: Positional arguments representing input variables for the template.
+        :param kwargs: Keyword arguments to format the template.
+        :return: A ChatPromptTemplate object built with the specified configuration.
+        """
         template = PromptTemplate(input_variables=list(inputs), template=prompt_str)
 
         # fmt: off
@@ -65,9 +69,7 @@ class ChatProcessor(metaclass=Singleton):
             events.mode_changed.emit(mode="DEFAULT")
             return None
 
-        with Live(
-            Spinner("dots", f"[green]{msg.wait()}[/green]", style="green"), console=tf.console
-        ):
+        with Live(Spinner("dots", f"[green]{msg.wait()}[/green]", style="green"), console=tf.console):
             response = None
             prompt_file: str = get_or_default_by_key(kwargs, "prompt_file", None)
             history_ctx: Any | None = get_or_default_by_key(kwargs, "history_ctx", "HISTORY")
@@ -86,8 +88,8 @@ class ChatProcessor(metaclass=Singleton):
             )
 
             if output := runnable.invoke(
-                input={"input": question},
-                config={"configurable": {"session_id": history_ctx or ""}}):
+                input={"input": question}, config={"configurable": {"session_id": history_ctx or ""}}
+            ):
                 response = output.content
 
         cursor.erase_line()

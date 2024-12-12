@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core.enums.router_mode
-      @file: router_mode.py
-   @created: Tue, 24 Jun 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core.enums.router_mode
+   @file: router_mode.py
+@created: Tue, 24 Jun 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
@@ -94,7 +94,12 @@ class RouterMode(Enumeration):
         return self == RouterMode.default()
 
     def welcome(self, **kwargs) -> Optional[str]:
-        """TODO"""
+        """Generates a welcome message based on the current router mode and optional context.
+        :param kwargs: Optional keyword arguments to customize the welcome message.
+            - sum_path: The path to the summary context (optional).
+            - sum_glob: The glob pattern for the summary files (optional).
+        :return: A string containing the welcome message, or None if no message is generated.
+        """
         match self:
             case RouterMode.QNA:
                 sum_path: str = get_or_default_by_key(kwargs, "sum_path", None)

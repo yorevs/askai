@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core.engine.openai
-      @file: openai_vision.py
-   @created: Tue, 5 Sep 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core.engine.openai
+   @file: openai_vision.py
+@created: Tue, 5 Sep 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 from typing import TypeAlias, Literal
 import os
@@ -72,11 +72,19 @@ class OpenAIVision:
         return msg.content
 
     def image_template(self, question: str = "") -> str:
+        """Generates a formatted prompt for an image based on the given question.
+        :param question: Optional question to include in the image prompt.
+        :return: A string containing the formatted prompt for an image description.
+        """
         return PromptTemplate(input_variables=["question"], template=prompt.read_prompt("img-caption")).format(
             question=question
         )
 
     def screenshot_template(self, question: str = "") -> str:
+        """Generates a formatted prompt for a screenshot based on the given question.
+        :param question: Optional question to include in the screenshot prompt.
+        :return: A string containing the formatted prompt for a screenshot description.
+        """
         return PromptTemplate(input_variables=["question"], template=prompt.read_prompt("ss-caption")).format(
             question=question
         )
@@ -99,9 +107,7 @@ class OpenAIVision:
         check_argument(len((final_path := str(find_file(final_path) or ""))) > 0, f"Invalid image path: {final_path}")
         vision_prompt: str = self._get_vision_prompt(query, image_type)
         load_image_chain = TransformChain(
-            input_variables=["image_path", "parser_guides"],
-            output_variables=["image"],
-            transform=self._encode_image
+            input_variables=["image_path", "parser_guides"], output_variables=["image"], transform=self._encode_image
         )
         out_parser: JsonOutputParser = self._get_out_parser(image_type)
         vision_chain = load_image_chain | self.create_image_caption_chain | out_parser
@@ -113,7 +119,11 @@ class OpenAIVision:
         return str(vision_chain.invoke(args))
 
     def _get_out_parser(self, image_type: Literal["photo", "screenshot"]) -> JsonOutputParser:
-        """TODO"""
+        """Returns the appropriate JSON output parser based on the image type.
+        :param image_type: The type of image, either "photo" or "screenshot".
+        :return: An instance of JsonOutputParser configured for the specified image type.
+        :raises ValueError: If no parser is found for the given image type.
+        """
         match image_type:
             case "photo":
                 return JsonOutputParser(pydantic_object=ImageResult)
@@ -123,7 +133,12 @@ class OpenAIVision:
                 raise ValueError(f"Parser not found for: {image_type}")
 
     def _get_vision_prompt(self, query: str, image_type: Literal["photo", "screenshot"]) -> str:
-        """TODO"""
+        """Returns the appropriate vision prompt based on the image type and query.
+        :param query: The query string used to generate the vision prompt.
+        :param image_type: The type of image, either "photo" or "screenshot".
+        :return: A string containing the vision prompt tailored for the specified image type.
+        :raises ValueError: If no prompt is found for the given image type.
+        """
         match image_type:
             case "photo":
                 return self.image_template(query)

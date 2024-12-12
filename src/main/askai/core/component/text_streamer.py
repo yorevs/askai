@@ -114,7 +114,13 @@ class TextStreamer(metaclass=Singleton):
     def stream_text(
         self, text: AnyStr, prefix: AnyStr = "", tempo: int = 1, language: Language = Language.EN_US
     ) -> None:
-        """TODO"""
+        """Streams the given text with a specified prefix, tempo, and language settings.
+        :param text: The text to be streamed.
+        :param prefix: A prefix to be added to the streamed text. Defaults to an empty string.
+        :param tempo: The tempo for streaming the text. Defaults to 1.
+        :param language: The language for the text being streamed. Defaults to Language.EN_US.
+        :raises ValueError: If the provided tempo is invalid.
+        """
         TextStreamer.STREAMER_THREAD = Thread(daemon=True, target=self._process, args=(text, prefix, tempo, language))
         TextStreamer.STREAMER_THREAD.start()
         TextStreamer.STREAMER_THREAD.join()

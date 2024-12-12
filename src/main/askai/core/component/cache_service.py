@@ -270,7 +270,9 @@ class CacheService(metaclass=Singleton):
                 )
 
     def read_memory(self) -> list[str]:
-        """TODO"""
+        """Reads and parses the memory from the context file.
+        :return: A list of non-empty, stripped strings split by roles (human, assistant, system).
+        """
         flags: int = re.MULTILINE | re.DOTALL | re.IGNORECASE
         memory: str = ASKAI_MEMORY_FILE.read_text()
         return list(

@@ -74,3 +74,9 @@ opentelemetry-api = ">=1.27.0"
 opentelemetry-sdk = ">=1.27.0"
 opentelemetry-proto = ">=1.27.0"
 pytz = ">=2024.1"
+
+[tool.black]
+fast = true
+config = true
+target-version = ["py310"]
+line-length = 120

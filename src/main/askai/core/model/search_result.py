@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core.model
-      @file: search_result.py
-   @created: Sun, 12 Mar 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core.model
+   @file: search_result.py
+@created: Sun, 12 Mar 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 from askai.core.component.geo_location import geo_location
 from askai.core.support.llm_parser import parse_field, parse_list
@@ -56,7 +56,6 @@ class SearchResult:
         return f"Search Results: {json.dumps(self.__dict__, default=lambda obj: obj.__dict__)}"
 
     def __eq__(self, other: "SearchResult") -> bool:
-        """TODO"""
         return (
             self.category == other.category
             and self.keywords == other.keywords
@@ -65,5 +64,7 @@ class SearchResult:
         )
 
     def build(self) -> str:
-        """TODO"""
+        """Builds the search result reference, by combining keywords, sites, and filters.
+        :return: A string containing the concatenated keywords, sites, and filters.
+        """
         return f"{self.keywords} {self.sites} {self.filters}"

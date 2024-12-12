@@ -2,23 +2,24 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.test.core.support
-      @file: test_utilities.py
-   @created: Fri, 22 Mar 2024
-    @author: "<B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: "https://github.com/yorevs/hspylib")
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.test.core.support
+   @file: test_utilities.py
+@created: Fri, 22 Mar 2024
+ @author: "<B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: "https://github.com/yorevs/hspylib")
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 from askai.core.model.acc_response import AccResponse
-from fixtures.acc_response_stubs import stub_response
 from hspylib.core.tools.commons import dirname
 from pathlib import Path
 
 import sys
 import unittest
+
+from fixtures.acc_response_stubs import stub_response
 
 
 class TestClass(unittest.TestCase):
@@ -30,9 +31,7 @@ class TestClass(unittest.TestCase):
 
     RESPONSE_FILE_TEXT: str = RESPONSE_FILE.read_text()
 
-    RESPONSES: list[str] = list(
-        filter(None, map(str.strip, RESPONSE_FILE_TEXT.split("---")))
-    )
+    RESPONSES: list[str] = list(filter(None, map(str.strip, RESPONSE_FILE_TEXT.split("---"))))
 
     # Setup tests
     def setUp(self):

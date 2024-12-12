@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.tui.app_widgets
-      @file: app_widgets.py
-   @created: Mon, 29 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.tui.app_widgets
+   @file: app_widgets.py
+@created: Mon, 29 Apr 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 import os
 import re
@@ -109,7 +109,7 @@ class AppInfo(Static):
         self.info_text = app_info
 
     @property
-    def info(self) -> Static:
+    def info(self) -> Widget:
         return self.query_one("#info")
 
     def compose(self) -> ComposeResult:
@@ -174,7 +174,7 @@ class InputActions(Static):
 
     @staticmethod
     def copy() -> None:
-        """TODO"""
+        """Copy the last reply to the clipboard."""
         HistoryCmd.context_copy("LAST_REPLY")
 
     def __init__(self, **kwargs):
@@ -191,7 +191,7 @@ class InputActions(Static):
 
     @work(thread=True)
     def read_aloud(self) -> None:
-        """TODO"""
+        """Read the last reply aloud using hte default voice."""
         if (ctx := str(shared.context.flat("LAST_REPLY"))) and (
             last_reply := re.sub(
                 r"^((system|human|AI|assistant):\s*)",
@@ -200,23 +200,21 @@ class InputActions(Static):
                 flags=re.MULTILINE | re.DOTALL | re.IGNORECASE,
             )
         ):
-            TtsSttCmd.tts(
-                last_reply.strip(), os.environ.get("TEMP", tempfile.gettempdir()), True
-            )
+            TtsSttCmd.tts(last_reply.strip(), os.environ.get("TEMP", tempfile.gettempdir()), True)
 
     def submit(self) -> None:
-        """TODO"""
+        """Submit the request to the AI engine."""
         line_input: Input = self.app.line_input
         self.post_message(Input.Submitted(line_input, line_input.value))
 
     def like(self) -> None:
-        """TODO"""
+        """Rate the AI response as Good."""
         pass
 
     def dislike(self) -> None:
-        """TODO"""
+        """Rate the AI response as Bad."""
         pass
 
     def regenerate(self) -> None:
-        """TODO"""
+        """Regenerate the response using another model."""
         pass
