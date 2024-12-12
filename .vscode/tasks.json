@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "00_Run __main__.py",
+      "label": "python: Run __main__.py",
       "type": "process",
       "command": "python3.11",
       "args": [

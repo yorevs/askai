@@ -13,7 +13,8 @@
 			".gitattributes",
 			".gitconfig",
 			".gitignore",
-			".gitmodules"
+			".gitmodules",
+			"gradle/wrapper"
 		],
 		"cSpell.words": [
 			"destfile",

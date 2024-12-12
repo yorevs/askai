@@ -68,7 +68,7 @@ task cleanPython(type: Task) {
   group = 'Build'
   description = 'Clean all compiled (*.py,*.qrc) and cached python files from sourceRoot'
   doLast {
-    println "Cleaning all compiled files and cache directories \n\t from $sourceRoot"
+    println("Cleaning all compiled files and cache directories \n\t from $sourceRoot")
     delete fileTree(sourceRoot).matching {
       include "**/*.pyc"
       include "**/*.qrc"
@@ -85,12 +85,12 @@ task compilePython(type: Task) {
   description = 'Compile all python files from sourceRoot'
   dependsOn installPackages
   doLast {
-    println "Compiling Python files from $project.name \n\t $sourceRoot"
+    println("Compiling Python files from $project.name \n\t $sourceRoot")
     fileTree("${sourceRoot}").matching {
       include "**/*.py"
       exclude "**/__init__.py"
     }.each { File file ->
-        if (verbose) println "Compiling Python file -> ${file.name}"
+        if (verbose) println("Compiling Python file -> ${file.name}")
         exec {
           commandLine project.python, '-m', 'py_compile', file.path
         }
@@ -107,7 +107,7 @@ task compileQrc(type: Task) {
     fileTree("$sourceRoot").matching {
       include "**/*.qrc"
     }.each { File file ->
-        if (verbose) println "Compiling Qt Resource -> ${file.name}"
+        if (verbose) println("Compiling Qt Resource -> ${file.name}")
         exec {
           commandLine project.pyrcc, file.path
         }
@@ -137,13 +137,13 @@ task installBuildTools(type: Task) {
   dependsOn syncBuildTools
 
   doLast {
-    println "Installing \"${project.name}\" build tools: "
-    println "Packages:"
+    println("Installing \"${project.name}\" build tools: ")
+    println("Packages:")
     def String[] buildTools = project.buildTools.split(',')
     buildTools.each { tool ->
-      println "  |-${tool.trim()}"
+      println("  |-${tool.trim()}")
     }
-    println "Space: --global"
+    println("Space: --global")
     def args = [
       project.python, '-m', 'pip', 'install', '-q',
       project.ext.space, '--upgrade', '-r', buildToolsFile,
@@ -173,7 +173,7 @@ task syncPythonPackages(type: Task) {
               ((module.isFile() && module.name.endsWith(".py")) ||
               new File(module.getCanonicalPath() + "/__init__.py").exists())) {
             if (!module.isFile() && verbose) {
-              println "Syncing package: ${initFile.getParentFile()}/${module.name}"
+              println("Syncing package: ${initFile.getParentFile()}/${module.name}")
             }
             modules << "'${module.name.replaceAll("\\.py", "")}'"
           }
@@ -207,7 +207,7 @@ task installModule(type: Task) {
           project.python, '-m', 'pip', 'install', '-e', "${sourceRoot}/main",
           '--break-system-packages'
         ]
-        println "Install [Editable] module ${project.name} : ${moduleDir} -> ${module.path}"
+        println("Install [Editable] module ${project.name} : ${moduleDir} -> ${module.path}")
         exec {
           workingDir "$moduleDir"
           commandLine args.flatten()
@@ -232,8 +232,8 @@ task install(type: Task) {
           project.space, '--upgrade', moduleDir,
           '--break-system-packages'
         ]
-        println "Installing ${project.name} v${project.ext.app_version} using ${project.python}"
-        println "Space: ${project.space}"
+        println("Installing ${project.name} v${project.ext.app_version} using ${project.python}")
+        println("Space: ${project.space}")
         exec {
           workingDir "${moduleDir}"
           commandLine args.flatten()
@@ -255,7 +255,7 @@ task uninstall(type: Task) {
           project.python, '-m', 'pip', 'uninstall', '-y', '-q', project.ext.app_name,
           '--break-system-packages'
         ]
-        println "Uninstall $project.name : $moduleDir -> $module.path"
+        println("Uninstall $project.name : $moduleDir -> $module.path")
         exec {
           workingDir "$moduleDir"
           commandLine args.flatten()
@@ -273,16 +273,16 @@ task check(type: Task) {
   dependsOn compilePython
   dependsOn compileQrc
   doLast {
-    println "Executing all unittests from ${sourceRoot}"
+    println("Executing all unittests from ${sourceRoot}")
     fileTree("${sourceRoot}/test").matching {
       include "**/test_*.py"
     }.each { File file ->
       if (verbose) {
-          println ""
-          println "  PYTHONPATH: "
-          println "\t|- ${project.ext.pythonPath.split(':').join('\n\t|- ')}"
-          println "Executing unittests from -> ${file.name}"
-          println ""
+          println("")
+          println("  PYTHONPATH: ")
+          println("\t|- ${project.ext.pythonPath.split(':').join('\n\t|- ')}")
+          println("Executing unittests from -> ${file.name}")
+          println("")
         }
         exec {
           workingDir = dirName(file)
@@ -302,7 +302,7 @@ task pylint(type: Task) {
     assert new File(pylintCfg).exists()
     def srcDir = "${sourceRoot}/main/${project.name}"
     def disabledChecks = "${pylint_disabled_checks.join(',')}"
-    println "[$project.name] Execute pylint \n\t from: ${srcDir}"
+    println("[$project.name] Execute pylint \n\t from: ${srcDir}")
     exec {
       workingDir project.rootDir
       commandLine project.python, '-m', 'pylint', "--rcfile=${pylintCfg}",
@@ -317,7 +317,7 @@ task mypy(type: Task) {
   description = "Execute mypy against sourceRoot"
   doLast {
     def srcDir = "${sourceRoot}/main/${project.name}"
-    println "[$project.name] Execute mypy \n\t from: ${srcDir}"
+    println("[$project.name] Execute mypy \n\t from: ${srcDir}")
     exec {
       workingDir project.rootDir
       commandLine project.python, '-m', 'mypy', srcDir

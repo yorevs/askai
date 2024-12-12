@@ -57,7 +57,7 @@ task checkDist(type: Task) {
         include "**/setup.py"
       }.each { File module ->
         def distDir = "${buildDir}/dist"
-        println "Checking distribution files -> ${buildDir}"
+        println("Checking distribution files -> ${buildDir}")
         exec {
           workingDir buildDir
           commandLine project.python, '-m', 'twine', 'check', "${distDir}/*"

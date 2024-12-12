@@ -10,17 +10,23 @@ import org.gradle.internal.os.OperatingSystem;
 String detectPython() {
   def pythonHome = System.getenv('PYTHON_HOME') ?: null
   if (pythonHome != null) {
-      return pythonHome + '/python3'
+      return pythonHome + '/python3.11'
   }
 
   def output = new ByteArrayOutputStream()
   exec {
-      commandLine 'bash', '-c', 'command -v python3'
+      commandLine 'bash', '-c', 'command -v python3.11'
       standardOutput = output
   }
 
   pythonHome = output.toString().trim()
-  assert pythonHome != null && !pythonHome.isEmpty(), "Could not find any installed python3 version"
+  assert pythonHome != null && !pythonHome.isEmpty(), "Could not find any installed python3.11 version"
+
+  print("Python successfully detected: " + pythonHome)
+
+  exec {
+      commandLine python3.11, '-V'
+  }
 
   return pythonHome
 }
@@ -55,7 +61,7 @@ String detectSpace() {
     standardOutput = output
   }
   def is_venv = Boolean.parseBoolean(output.toString())
-  println "> Build is" + (is_venv ? ' ' : ' NOT ') + "running under a virtual environment (venv)."
+  println("> Build is" + (is_venv ? ' ' : ' NOT ') + "running under a virtual environment (venv).")
 
   return is_venv ? '--global' : '--user'
 }
@@ -67,19 +73,19 @@ void readDependencies() {
     def dep = null
     // Python Packages {
     // All fields syntax
-    if (dep = line =~ /package: (([\w.-]+)(\[[\w.-]+\])?), version: (latest|\d+(\.\d+){0,4}), mode: (lt|le|eq|compat|ne|gt|ge|none)/) {
+    if ((dep = line =~ /package: (([\w.-]+)(\[[\w.-]+\])?), version: (latest|\d+(\.\d+){0,4}), mode: (lt|le|eq|compat|ne|gt|ge|none)/)) {
       dep.each {
         deps << [package: "${it[1]}", version: "${it[4]}", mode: "${it[6]}"]
       }
     }
     // All except mode syntax
-    else if (dep = line =~ /package: (([\w.-]+)(\[[\w.-]+\])?), version: (latest|\d+(\.\d+){0,4})/) {
+    else if ((dep = line =~ /package: (([\w.-]+)(\[[\w.-]+\])?), version: (latest|\d+(\.\d+){0,4})/)) {
       dep.each {
         deps << [package: "${it[1]}", version: "${it[4]}", mode: it[4] && it[4] != "latest" ? "compat" : "ge"]
       }
     }
     // Only package syntax
-    else if (dep = line =~ /package: (([\w.-]+)(\[[\w.-]+\])?)/) {
+    else if ((dep = line =~ /package: (([\w.-]+)(\[[\w.-]+\])?)/)) {
       dep.each {
         deps << [package: "${it[1]}", version: "latest", mode: "ge"]
       }
@@ -87,20 +93,20 @@ void readDependencies() {
     // } Python Packages
     // System Apps {
     // All fields syntax
-    else if (dep = line =~ /binary: (([\w.-]+)(\[[\w.-]+\])?), version: (latest|\d+(\.\d+){0,4})/) {
+    else if ((dep = line =~ /binary: (([\w.-]+)(\[[\w.-]+\])?), version: (latest|\d+(\.\d+){0,4})/)) {
       dep.each {
         apps << [binary: "${it[1]}", version: "${it[4]}"]
       }
     }
     // Only binary syntax
-    else if (dep = line =~ /binary: (([\w.-]+)(\[[\w.-]+\])?)/) {
+    else if ((dep = line =~ /binary: (([\w.-]+)(\[[\w.-]+\])?)/)) {
       dep.each {
         apps << [binary: "${it[1]}", version: "latest"]
       }
     }
     // } system Apps
     else {
-      if ( line.startsWith('package: ') ) {
+      if (line.startsWith('package: ')) {
         throw new GradleException("Invalid hspd syntax $line. Usage: "
           + "package: <pkg_name>, version: [<latest>|versionNum], "
           + "[mode: <lt|le|eq|compat|ne|gt|ge|none>]")
@@ -122,7 +128,7 @@ task listDependencies(type: Task) {
   group = 'Dependencies'
   description = 'List project dependencies'
   doLast {
-    println "\nListing dependencies from:\n\t${depsFile}\n"
+    println("\nListing dependencies from:\n\t${depsFile}\n")
     readDependencies()
     deps.each { dep ->
       println(
@@ -158,15 +164,18 @@ task installPackages(type: Task) {
   dependsOn syncRequirements
   doLast {
     def req_file = new File(reqsFile)
-    println "\nInstalling \"${project.name}\" dependencies using ${project.python}"
-    println "Requirements file: \n\t" + req_file
-    println "Required Packages:"
+    print("\nInstalling \"${project.name}\" dependencies using: ${project.python} => ")
+    exec {
+      commandLine project.python, '-V'
+    }
+    println("Requirements file: \n\t" + req_file)
+    println("Required Packages:")
     req_file.each { dep ->
       if (dep && ! dep.startsWith("#")) {
-        println "  |-" + dep
+        println("  |-" + dep)
       }
     }
-    println "Space: ${project.space}"
+    println("Space: ${project.space}")
     def args = [
       project.python, '-m', 'pip', 'install', '--no-warn-script-location',
       project.space, '--upgrade', '-r', req_file.toString(),
@@ -188,15 +197,15 @@ task removePackages(type: Task) {
   dependsOn syncRequirements
   doLast {
     def req_file = new File("${project.ext.sourceRoot}/main/requirements.txt")
-    println "\nUninstalling \"${project.name}\" dependencies using ${project.python}"
-    println "Requirements file: \n\t" + req_file
-    println "Installed Packages:"
+    println("\nUninstalling \"${project.name}\" dependencies using ${project.python}")
+    println("Requirements file: \n\t" + req_file)
+    println("Installed Packages:")
     req_file.each { dep ->
       if (dep && ! dep.startsWith("#")) {
-        println "  |-" + dep
+        println("  |-" + dep)
       }
     }
-    println "Space: ${project.space}"
+    println("Space: ${project.space}")
     def args = [
       project.python, '-m', 'pip', 'uninstall', '-y',
       '-r', req_file.toString(), '--break-system-packages'

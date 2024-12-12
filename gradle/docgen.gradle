@@ -94,10 +94,10 @@ task syncFileHeaders(type: Task) {
   finalizedBy optimizeImports
   doLast {
     def replaceHeaders = project.hasProperty("replaceHeaders")
-    println "Synchronizing python headers replace: ${replaceHeaders}"
+    println("Synchronizing python headers replace: ${replaceHeaders}")
     def files = filesByPattern(sourceRoot, /.*(?<!__init__)\.py$/)
     files.each {
-      println "Processing file: ${it}"
+      println("Processing file: ${it}")
       def fh_file = new File(it)
       def headers = processPythonHeader(fh_file, PY_FILE_HEADER)
       def parseState = 'headers' // headers -> imports -> code
@@ -127,6 +127,6 @@ task syncFileHeaders(type: Task) {
       }
       fh_file.setText("${has_old_headers ? old_headers.join('\n') : headers }\n${imports.join('\n')}${code.join('\n')}\n")
     }
-    println "Finished processing all python files"
+    println("Finished processing all python files")
   }
 }

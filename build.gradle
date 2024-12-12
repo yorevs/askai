@@ -33,6 +33,7 @@ idea {
   }
 }
 
+apply from: "${gradleDir}/idea.gradle"
 apply from: "${gradleDir}/dependencies.gradle"
 apply from: "${gradleDir}/python.gradle"
 apply from: "${gradleDir}/versioning.gradle"
