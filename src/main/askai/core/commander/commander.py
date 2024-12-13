@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core.commander.commander
-      @file: commander.py
-   @created: Thu, 25 Apr 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core.commander.commander
+   @file: commander.py
+@created: Thu, 25 Apr 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, events, REPLY_EVENT
@@ -20,7 +20,7 @@ from askai.core.commander.commands.general_cmd import GeneralCmd
 from askai.core.commander.commands.history_cmd import HistoryCmd
 from askai.core.commander.commands.settings_cmd import SettingsCmd
 from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
-from askai.core.component.rag_provider import RAGProvider
+from askai.core.component.rag_provider import RAGProvider, RAG_EXT_DIR
 from askai.core.enums.router_mode import RouterMode
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
@@ -32,7 +32,7 @@ from functools import lru_cache
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import sysout, to_bool
 from hspylib.modules.eventbus.event import Event
-from os.path import dirname
+from os.path import dirname, basename
 from pathlib import Path
 from string import Template
 from textwrap import dedent
@@ -41,9 +41,9 @@ import click
 import os
 import re
 
+# fmt: off
 COMMANDER_HELP_TPL = Template(
-    dedent(
-        """\
+    dedent("""\
     # AskAI Commander - HELP
 
     > Commands:
@@ -55,18 +55,16 @@ COMMANDER_HELP_TPL = Template(
 
     | **Key**  | **Action**                    |
     | -------- | ----------------------------- |
-    | *Ctrl+L* | **Push-To-Talk.**             |
+    | *Ctrl+L* | **Activate Push-To-Talk.**    |
     | *Ctrl+R* | **Reset the input field.**    |
     | *Ctrl+F* | **Forget the input history.** |
+    | *Ctrl+D* | **Exit the application.**     |
 
     >   To get help about a specific command type: '/help \\<command\\>'
-    """
-    )
-)
+    """))
 
 COMMANDER_HELP_CMD_TPL = Template(
-    dedent(
-        """\
+    dedent("""\
     # AskAI Commander - HELP
     ```
     %CYAN%Command: %ORANGE%${command}%NC%
@@ -75,9 +73,8 @@ COMMANDER_HELP_CMD_TPL = Template(
 
     %CYAN%Usage:\t%WHITE%/${usage}
     ```
-    """
-    )
-)
+    """))
+# fmt: on
 
 RE_ASKAI_CMD: str = r"^(?<!\\)/(\w+)( (.*))*$"
 
@@ -141,6 +138,11 @@ def _format_help(command: Command) -> str:
     return COMMANDER_HELP_CMD_TPL.substitute(command=command.name.title(), docstr=docstr, usage=usage_str)
 
 
+def color_bool(condition: bool, true_text: str = "ON", false_text: str = "OFF") -> str:
+    """TODO"""
+    return ("%GREEN%  " + true_text if condition else "%RED%  " + false_text) + "%NC%"
+
+
 def _init_context(context_size: int = 1000, engine_name: str = "openai", model_name: str = "gpt-4o-mini") -> None:
     """Initialize the AskAI context and startup components.
     :param context_size: The maximum size of the context window (default is 1000).
@@ -191,23 +193,21 @@ def help(command: str | None) -> None:
 def assistive() -> None:
     """Toggle assistive mode ON/OFF."""
     configs.is_assistive = not configs.is_assistive
-    text_formatter.commander_print(
-        f"`Assistive responses` is {'%GREEN%ON' if configs.is_assistive else '%RED%OFF'}%NC%"
-    )
+    text_formatter.commander_print(f"`Assistive responses` is {color_bool(configs.is_assistive)}")
 
 
 @ask_commander.command()
 def debug() -> None:
     """Toggle debug mode ON/OFF."""
     configs.is_debug = not configs.is_debug
-    text_formatter.commander_print(f"`Debugging` is {'%GREEN%ON' if configs.is_debug else '%RED%OFF'}%NC%")
+    text_formatter.commander_print(f"`Debugging` is {color_bool(configs.is_debug)}")
 
 
 @ask_commander.command()
 def speak() -> None:
     """Toggle speak mode ON/OFF."""
     configs.is_speak = not configs.is_speak
-    text_formatter.commander_print(f"`Speech-To-Text` is {'%GREEN%ON' if configs.is_speak else '%RED%OFF'}%NC%")
+    text_formatter.commander_print(f"`Speech-To-Text` is {color_bool(configs.is_speak)}")
 
 
 @ask_commander.command()
@@ -339,7 +339,7 @@ def cache(operation: str, args: tuple[str, ...]) -> None:
                 configs.ttl = int(args[0])
                 text_formatter.commander_print(f"Cache TTL was set to *{args[0]} minutes* !")
         case _:
-            text_formatter.commander_print(f"Cache is *{'en' if configs.is_rag else 'dis'}abled* !")
+            text_formatter.commander_print(f"`Caching` is {color_bool(configs.is_cache)}")
 
 
 @ask_commander.command()
@@ -473,24 +473,48 @@ def mode(router_mode: str) -> None:
 @click.argument("args", nargs=-1)
 def rag(operation: str, args: tuple[str, ...]) -> None:
     """Manages AskAI RAG features.
-    :param operation: Specifies the rag operation. Options: [add|enable]
+    :param operation: Specifies the rag operation. Options: [list|add|del|clear|enable]
     :param args: Arguments relevant to the chosen operation.
     """
     match operation.casefold():
         case "add":
             if not args:
-                err: str = str(click.MissingParameter(f"Arguments missing. Usage /rag add \\<folder\\>"))
+                err: str = str(click.MissingParameter(f"Arguments missing. Usage /rag add \\<folder|file\\>"))
                 text_formatter.commander_print(f"Error: {err}")
             else:
-                folder: Path = Path(args[0])
-                if not folder.exists():
-                    text_formatter.commander_print(f"Error: Could not find folder: '{folder}'")
+                res: Path = Path(args[0])
+                if not res.exists():
+                    text_formatter.commander_print(f"Error: Could not find folder: '{res}'")
                 else:
-                    if RAGProvider.copy_rag(folder):
-                        text_formatter.commander_print(f"RAG folder '{folder}' has been *added* to rag directory !")
+                    if RAGProvider.copy_rag(res):
+                        text_formatter.commander_print(f"RAG folder '{res}' has been *added* to rag directory !")
                     else:
-                        text_formatter.commander_print(f"Error: Failed to add RAG folder: '{folder}' !")
-
+                        text_formatter.commander_print(f"Error: Failed to add RAG folder: '{res}' !")
+        case "list":
+            sysout(f"> Listing ARG entries from: `{RAG_EXT_DIR}`", markdown=True)
+            results = list()
+            for entry in sorted(RAG_EXT_DIR.iterdir()):
+                pathname: str = basename(entry)
+                if pathname.startswith(".") or pathname == "rag-documents.txt":
+                    continue
+                entry_str: str = "  " if entry.is_dir() else "  "
+                results.append(f"- **{entry_str}:** {pathname + ('/' if entry.is_dir() else '')}")
+            sysout(os.linesep.join(sorted(results)), markdown=True)
+        case "del":
+            if not args:
+                err: str = str(click.MissingParameter(f"Arguments missing. Usage /rag del \\<folder|file\\>"))
+                text_formatter.commander_print(f"Error: {err}")
+            else:
+                res: Path = Path(args[0])
+                if RAGProvider.del_rag(res):
+                    text_formatter.commander_print(f"RAG resource '{res}' has been *deleted* from rag directory !")
+                else:
+                    text_formatter.commander_print(f"Error: Failed to delete RAG folder: '{res}' !")
+        case "clear":
+            if RAGProvider.clear():
+                text_formatter.commander_print(f"ALL RAG resources been *deleted* from rag directory !")
+            else:
+                text_formatter.commander_print(f"Error: Failed to wipe the RAG folder!")
         case "enable":
             if not args:
                 err: str = str(click.MissingParameter(f"Arguments missing. Usage /rag enable \\<0|1\\>"))
@@ -499,4 +523,4 @@ def rag(operation: str, args: tuple[str, ...]) -> None:
                 configs.is_rag = to_bool(args[0])
                 text_formatter.commander_print(f"RAG has been *{'en' if configs.is_rag else 'dis'}abled* !")
         case _:
-            text_formatter.commander_print(f"RAG is *{'en' if configs.is_rag else 'dis'}abled* !")
+            text_formatter.commander_print(f"`RAG` is {color_bool(configs.is_rag)}")

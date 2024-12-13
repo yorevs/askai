@@ -1,13 +1,13 @@
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core.support.text_formatter
-      @file: text_formatter.py
-   @created: Fri, 28 Feb 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core.support.text_formatter
+   @file: text_formatter.py
+@created: Fri, 28 Feb 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 
 from textwrap import dedent
@@ -161,8 +161,6 @@ class TextFormatter(metaclass=Singleton):
         """
         cmd_message: str = f"%ORANGE%  Commander%NC%: {str(text)}"
         self.display_markdown(cmd_message)
-        if os.environ.get("ASKAI_APP") is not None:
-            events.reply.emit(reply=AIReply.info(VtColor.strip_colors(cmd_message)))
 
 
 assert (text_formatter := TextFormatter().INSTANCE) is not None

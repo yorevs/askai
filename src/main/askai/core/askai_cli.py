@@ -71,7 +71,9 @@ class AskAiCli(AskAi):
 
     def run(self) -> None:
         """Run the application."""
-        signal.signal(signal.SIGINT, self.abort)
+        signal.signal(signal.SIGINT, self.abort)  # Handle Ctrl+C
+        signal.signal(signal.SIGTERM, self.abort)  # Handle termination requests
+        signal.signal(signal.SIGHUP, self.abort)  # Handle terminal hangup
         while question := (self._query_string or self._input()):
             status, output = self.ask_and_reply(question)
             if not status:
@@ -81,9 +83,7 @@ class AskAiCli(AskAi):
                 cache.save_reply(question, output)
                 cache.save_input_history()
                 # FIXME This is only writing the final answer to the markdown file.
-                with open(
-                    self.console_path, "a+", encoding=Charset.UTF_8.val
-                ) as f_console:
+                with open(self.console_path, "a+", encoding=Charset.UTF_8.val) as f_console:
                     f_console.write(f"{shared.username_md}{question}\n\n")
                     f_console.write(f"{shared.nickname_md}{output}\n\n")
                     f_console.flush()
@@ -119,9 +119,7 @@ class AskAiCli(AskAi):
         """Read the user input from stdin.
         :return: The user's input as a string, or None if no input is provided.
         """
-        return shared.input_text(
-            f"{shared.username}", f"{msg.t('Message')} {self.engine.nickname()}"
-        )
+        return shared.input_text(f"{shared.username}", f"{msg.t('Message')} {self.engine.nickname()}")
 
     def _cb_reply_event(self, ev: Event) -> None:
         """Callback to handle reply events.
@@ -143,15 +141,11 @@ class AskAiCli(AskAi):
         """
         self.mode: RouterMode = RouterMode.of_name(ev.args.mode)
         if self.mode == RouterMode.QNA:
-            welcome_msg = self.mode.welcome(
-                sum_path=ev.args.sum_path, sum_glob=ev.args.glob
-            )
+            welcome_msg = self.mode.welcome(sum_path=ev.args.sum_path, sum_glob=ev.args.glob)
         else:
             welcome_msg = self.mode.welcome()
 
-        events.reply.emit(
-            reply=AIReply.info(welcome_msg or msg.welcome(prompt.user.title()))
-        )
+        events.reply.emit(reply=AIReply.info(welcome_msg or msg.welcome(prompt.user.title())))
 
     def _cb_mic_listening_event(self, ev: Event) -> None:
         """Callback to handle microphone listening events.
@@ -196,9 +190,7 @@ class AskAiCli(AskAi):
         if configs.is_interactive:
             splash_thread: Thread = Thread(daemon=True, target=self._splash)
             splash_thread.start()
-            task = progress.add_task(
-                f'[green] {msg.t("Starting up...")}', total=len(tasks)
-            )
+            task = progress.add_task(f'[green] {msg.t("Starting up...")}', total=len(tasks))
             with progress:
                 os.chdir(Path.home())
                 progress.update(
@@ -206,9 +198,7 @@ class AskAiCli(AskAi):
                     advance=1,
                     description=f'[green] {msg.t("Downloading nltk data")}',
                 )
-                nltk.download(
-                    "averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR
-                )
+                nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
                 cache.cache_enable = configs.is_cache
                 progress.update(
                     task,
@@ -248,9 +238,7 @@ class AskAiCli(AskAi):
             display_text(str(self), markdown=False)
             self._reply(AIReply.info(self.mode.welcome()))
         elif configs.is_speak:
-            nltk.download(
-                "averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR
-            )
+            nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
             recorder.setup()
             player.start_delay()
         # Register the startup
