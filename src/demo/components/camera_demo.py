@@ -9,9 +9,9 @@ from utils import init_context
 
 import os
 
-MENU = dedent(
-    f"""Camera Demo options
-{'-' * 30}
+# fmt: off
+MENU = dedent(f"""\
+> Camera Demo options
 
 1. Take a photo
 2. Identify person
@@ -21,8 +21,8 @@ MENU = dedent(
 6. Import images
 7. List images
 
-> """
-)
+$ """)
+# fmt: on
 
 
 if __name__ == "__main__":

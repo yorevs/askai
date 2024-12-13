@@ -2,16 +2,22 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core.components
-      @file: recorder.py
-   @created: Wed, 22 Feb 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core.components
+   @file: recorder.py
+@created: Wed, 22 Feb 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
+import os
+import threading
+
+import pause
+from hspylib.core.tools.commons import sysout
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -125,9 +131,7 @@ class Recorder(metaclass=Singleton):
     @property
     def device_index(self) -> Optional[int]:
         if self._device_index is not None:
-            check_state(
-                isinstance(self._device_index, int), "Device index is not a number"
-            )
+            check_state(isinstance(self._device_index, int), "Device index is not a number")
         return self._device_index
 
     @property
@@ -179,9 +183,7 @@ class Recorder(metaclass=Singleton):
                     phrase_time_limit=seconds(configs.recorder_phrase_limit_millis),
                     timeout=seconds(configs.recorder_silence_timeout_millis),
                 )
-                stt_text = self._write_audio_file(
-                    audio, audio_path, language, recognition_api
-                )
+                stt_text = self._write_audio_file(audio, audio_path, language, recognition_api)
             except WaitTimeoutError as err:
                 err_msg: str = msg.timeout(f"waiting for a speech input => '{err}'")
                 log.warning("Timed out while waiting for a speech input!")
@@ -201,12 +203,67 @@ class Recorder(metaclass=Singleton):
 
         return audio_path, stt_text
 
+    def dictate(
+        self,
+        recognition_api: RecognitionApi = RecognitionApi.GOOGLE,
+        language: Language = Language.EN_US,
+    ) -> Optional[str]:
+        """Listen to the microphone, save the recorded audio as a WAV file, and transcribe the speech.
+        :param recognition_api: The API to use for recognizing the speech. Defaults to GOOGLE.
+        :param language: The spoken language. Defaults to EN_US.
+        :return: A string containing the dictated text. If transcription fails, None will be returned.
+        """
+        phrase: str = ""
+        dictated_text: str = ""
+        limit: int = 10
+
+        def _countdown_(sec: int):
+            i = sec
+            sysout(msg.listening() + " ", end="")
+            sysout(f"{i}", end="")
+            while (i := (i - 1)) >= 0:
+                pause.seconds(1)
+                sysout(f"%CUB({len(str(i + 1))})%{i}%EL0%", end="")
+            sysout(f"%CUB({len(str(i + 1))})%%EL0%", end="")
+
+        events.listening.emit()
+        while True:
+            with Microphone(device_index=self._device_index) as mic_source:
+                try:
+                    new_thread = threading.Thread(target=_countdown_, args=[limit])
+                    sysout(("…" if dictated_text else "") + phrase)
+                    audio_path = Path(f"{REC_DIR}/askai-dictate-{now_ms()}.wav")
+                    self._rec.adjust_for_ambient_noise(mic_source, duration=0.2)
+                    new_thread.start()
+                    audio: AudioData = self._rec.listen(mic_source, phrase_time_limit=limit)
+                    sysout(f"%CUB({len(str(limit))})%%EL0%   ")
+                    phrase: str = self._write_audio_file(audio, audio_path, language, recognition_api, True)
+                except (WaitTimeoutError, UnknownValueError):
+                    phrase = ""
+                except AttributeError as err:
+                    raise InvalidInputDevice(str(err)) from err
+                except RequestError as err:
+                    raise InvalidRecognitionApiError(str(err)) from err
+                finally:
+                    if phrase:
+                        if phrase in ["quit", "exit"]:
+                            dictated_text += ". "
+                            break
+                        dictated_text += ". " + phrase.capitalize()
+                    else:
+                        break
+
+        events.listening.emit(listening=False)
+
+        return dictated_text + os.linesep
+
     def _write_audio_file(
         self,
         audio: AudioData,
         audio_path: AnyPath,
         language: Language,
         recognition_api: RecognitionApi,
+        mute: bool = False,
     ) -> Optional[str]:
         """Write the provided audio data to disk as a file and transcribe the contents into text using the specified
         recognition API.
@@ -214,15 +271,15 @@ class Recorder(metaclass=Singleton):
         :param audio_path: The path where the audio file will be saved.
         :param language: The language of the spoken content in the audio.
         :param recognition_api: The API used for speech recognition.
+        :param mute: Weather or not to emit a 'transcribing' reply; Defaults to False.
         :return: The transcribed text from the audio file. If transcription fails, returns None.
         """
         with open(str(audio_path), "wb") as f_rec:
             f_rec.write(audio.get_wav_data())
             log.debug("Voice recorded and saved as %s", audio_path)
             if api := getattr(self._rec, recognition_api.value):
-                events.reply.emit(
-                    reply=AIReply.debug(message=msg.transcribing()), erase_last=True
-                )
+                if not mute:
+                    events.reply.emit(reply=AIReply.debug(message=msg.transcribing()), erase_last=True)
                 log.debug("Recognizing voice using %s", recognition_api)
                 assert isinstance(api, Callable)
                 return api(audio, language=language.language)
@@ -239,9 +296,7 @@ class Recorder(metaclass=Singleton):
         test_timeout, test_phrase_limit = 0.3, 0.3
         try:
             with Microphone(device_index=idx) as source:
-                self._rec.listen(
-                    source, timeout=test_timeout, phrase_time_limit=test_phrase_limit
-                )
+                self._rec.listen(source, timeout=test_timeout, phrase_time_limit=test_phrase_limit)
                 return True
         except WaitTimeoutError:  # We do expect a T/O error due to lack of audio input.
             log.info(f"Device at index: '%d' is functional!", idx)
@@ -259,32 +314,24 @@ class Recorder(metaclass=Singleton):
                 duration = seconds(configs.recorder_noise_detection_duration_millis)
                 self._rec.adjust_for_ambient_noise(source, duration=duration)
             except UnknownValueError as err:
-                err_msg: str = msg.intelligible(
-                    f"Unable to detect noise level => '{err}'"
-                )
+                err_msg: str = msg.intelligible(f"Unable to detect noise level => '{err}'")
                 log.warning("Timed out while waiting for a speech input!")
                 events.reply.emit(reply=AIReply.error(err_msg), erase_last=True)
 
     def _select_device(self) -> None:
         """Select a device for recording."""
-        available: list[str] = list(
-            filter(lambda d: d, map(str.strip, configs.recorder_devices))
-        )
+        available: list[str] = list(filter(lambda d: d, map(str.strip, configs.recorder_devices)))
         device: InputDevice | None = None
         devices: list[InputDevice] = self.devices
         while devices and not device:
             if available:
-                for dev in list(
-                    reversed(devices)
-                ):  # Reverse to get any headphone or external device
+                for dev in list(reversed(devices)):  # Reverse to get any headphone or external device
                     if dev[1] in available and self.set_device(dev):
                         device = dev
                         break
             if not device:
                 if not (device := next(devices.__iter__(), None)):
-                    display_text(
-                        f"%HOM%%ED2%Error: Unable to setup an Audio Input device!%NC%"
-                    )
+                    display_text(f"%HOM%%ED2%Error: Unable to setup an Audio Input device!%NC%")
                     sys.exit(ExitStatus.FAILED.val)
             if device and not self.set_device(device):
                 devices.remove(device)

@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core.askai_messages
-      @file: askai_messages.py
-   @created: Fri, 5 Jan 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core.askai_messages
+   @file: askai_messages.py
+@created: Fri, 5 Jan 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 from askai.core.askai_configs import configs
 from askai.language.ai_translator import AITranslator
@@ -82,6 +82,9 @@ class AskAiMessages(metaclass=Singleton):
 
     def listening(self) -> str:
         return "I'm listening…"
+
+    def dictating(self) -> str:
+        return "Dictating…"
 
     def transcribing(self) -> str:
         return "I'm processing your voice…"
