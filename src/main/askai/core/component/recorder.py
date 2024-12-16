@@ -17,6 +17,7 @@ import threading
 
 import pause
 from hspylib.core.tools.commons import sysout
+from hspylib.core.tools.text_tools import ensure_endswith
 
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -215,29 +216,33 @@ class Recorder(metaclass=Singleton):
         """
         phrase: str = ""
         dictated_text: str = ""
-        limit: int = 10
+        limit: float = 10.0
+        noise_limit: float = 0.2
+        stop_event: threading.Event = threading.Event()
+        audio_path: Path = Path(f"{REC_DIR}/askai-dictate-{now_ms()}.wav")
 
         def _countdown_(sec: int):
             i = sec
             sysout(msg.listening() + " ", end="")
             sysout(f"{i}", end="")
-            while (i := (i - 1)) >= 0:
+            while not stop_event.is_set() and (i := (i - 1)) >= 0:
                 pause.seconds(1)
                 sysout(f"%CUB({len(str(i + 1))})%{i}%EL0%", end="")
-            sysout(f"%CUB({len(str(i + 1))})%%EL0%", end="")
+            if not stop_event.is_set():
+                sysout(f"%CUB({len(str(i + 1))})%%EL0%", end="")
 
         events.listening.emit()
         while True:
             with Microphone(device_index=self._device_index) as mic_source:
                 try:
-                    new_thread = threading.Thread(target=_countdown_, args=[limit])
+                    stop_event.clear()
+                    new_thread = threading.Thread(target=_countdown_, args=(limit,))
                     sysout(("…" if dictated_text else "") + phrase)
-                    audio_path = Path(f"{REC_DIR}/askai-dictate-{now_ms()}.wav")
-                    self._rec.adjust_for_ambient_noise(mic_source, duration=0.2)
+                    self._rec.adjust_for_ambient_noise(mic_source, duration=noise_limit)
                     new_thread.start()
                     audio: AudioData = self._rec.listen(mic_source, phrase_time_limit=limit)
                     sysout(f"%CUB({len(str(limit))})%%EL0%   ")
-                    phrase: str = self._write_audio_file(audio, audio_path, language, recognition_api, True)
+                    phrase = self._write_audio_file(audio, audio_path, language, recognition_api, True)
                 except (WaitTimeoutError, UnknownValueError):
                     phrase = ""
                 except AttributeError as err:
@@ -245,17 +250,15 @@ class Recorder(metaclass=Singleton):
                 except RequestError as err:
                     raise InvalidRecognitionApiError(str(err)) from err
                 finally:
-                    if phrase:
-                        if phrase in ["quit", "exit"]:
-                            dictated_text += ". "
-                            break
-                        dictated_text += ". " + phrase.capitalize()
-                    else:
+                    stop_event.set()
+                    if not phrase or phrase in ["quit", "exit"]:
                         break
+                    else:
+                        dictated_text += (". " if dictated_text else "") + phrase.capitalize()
 
         events.listening.emit(listening=False)
 
-        return dictated_text + os.linesep
+        return ensure_endswith(dictated_text, "." + os.linesep)
 
     def _write_audio_file(
         self,
