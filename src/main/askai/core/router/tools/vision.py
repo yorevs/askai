@@ -41,8 +41,9 @@ class HFModel(Enumeration):
     """Available Hugging Face models"""
 
     # fmt: off
-    SF_BLIP_BASE    = "Salesforce/blip-image-captioning-base"
-    SF_BLIP_LARGE   = "Salesforce/blip-image-captioning-large"
+    SF_BLIP_BASE = "Salesforce/blip-image-captioning-base"
+    SF_BLIP_LARGE = "Salesforce/blip-image-captioning-large"
+
     # fmt: on
 
     @staticmethod
@@ -83,7 +84,7 @@ def offline_captioner(path_name: AnyPath) -> str:
         caption = processor.decode(outputs[0], skip_special_tokens=True)
         caption = caption.title() if caption else "I could not caption the image"
 
-    return caption
+    return '{"env_description": "' + caption + '"}'
 
 
 def image_captioner(
@@ -99,6 +100,7 @@ def image_captioner(
     :param image_type: The type of the image to be captioned; one of 'photo' or 'screenshot'.
     :return: A string containing the description of the image, or None if the description could not be generated.
     """
+
     image_caption: str = "Unavailable"
     posix_path: PathObject = PathObject.of(path_name)
 
@@ -110,6 +112,8 @@ def image_captioner(
                 posix_path: PathObject = x_ref_path if x_ref_path.exists else posix_path
 
     if posix_path.exists:
+        if os.environ.get("ASKAI_APP", None) is None:
+            return offline_captioner(str(posix_path))
         events.reply.emit(reply=AIReply.full(msg.describe_image(posix_path)))
         vision: AIVision = shared.engine.vision()
         image_caption = vision.caption(
@@ -119,7 +123,7 @@ def image_captioner(
     return image_caption
 
 
-def parse_image_caption(image_caption: str) -> list[str]:
+def parse_image_caption(image_caption: str | None) -> list[str]:
     """Parse the given image caption.
     :param image_caption: The caption to parse.
     :return: The parsed caption as a string.
@@ -128,20 +132,14 @@ def parse_image_caption(image_caption: str) -> list[str]:
         events.reply.emit(reply=AIReply.full(msg.parsing_caption()))
         result: ImageResult = ImageResult.of(image_caption)
         ln: str = os.linesep
-        people_desc: list[str] = []
-        user_response_desc: list[str] = []
-        if result.people_description:
-            people_desc = [
-                f"- **People:** `({result.people_count})`",
-                indent(f"- {'- '.join([f'`{ppl}{ln}`' + ln for ppl in result.people_description])}", "    "),
-            ]
-        if result.user_response:
-            user_response_desc = [f"- **Answer**: `{result.user_response}`"]
         # fmt: off
-        return [
-            f"- **Description:** `{result.env_description}`",
-            f"- **Objects:** `{', '.join(result.main_objects)}`",
-        ] + people_desc + user_response_desc
+        people_desc = [
+            f"- **People:** `({result.people_count})`",
+            indent(f"- {'- '.join([f'`{ppl}{ln}`' + ln for ppl in result.people_description])}", "    "),
+        ] if result.people_count and result.people_description else []
+        user_response_desc = [f"- **Answer**: `{result.user_response}`"] if result.user_response else []
+        objects_desc = [f"- **Objects:** `{', '.join(result.main_objects)}`"] if result.main_objects else []
+        return [f"- **Description:** `{result.env_description}`"] + objects_desc + people_desc + user_response_desc
         # fmt: on
 
     return [msg.no_caption()]

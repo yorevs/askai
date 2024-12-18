@@ -2,7 +2,7 @@ import ast
 import json
 
 from pydantic import BaseModel, Field
-from typing import AnyStr
+from typing import AnyStr, Optional
 
 
 class ImageResult(BaseModel):
@@ -10,11 +10,11 @@ class ImageResult(BaseModel):
     using Pydantic's data validation features.
     """
 
-    people_count: int = Field(description="Number of beings on the picture")
-    main_objects: list[str] = Field(description="List of the main objects on the picture")
+    people_count: Optional[int] = Field(description="Number of beings on the picture", default=None, ge=0)
+    main_objects: list[str] = Field(description="List of the main objects on the picture", default=None)
     env_description: str = Field(description="Description of the atmosphere of the environment")
-    people_description: list[str] = Field(description="List of people description")
-    user_response: str = Field(description="A response to the user question")
+    people_description: list[str] = Field(description="List of people description", default=None)
+    user_response: Optional[str] = Field(description="A response to the user question", default=None)
 
     @staticmethod
     def of(image_caption: AnyStr) -> "ImageResult":

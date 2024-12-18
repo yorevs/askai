@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core.component
-      @file: audio_player.py
-   @created: Wed, 22 Feb 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core.component
+   @file: audio_player.py
+@created: Wed, 22 Feb 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 from askai.__classpath__ import classpath
 from clitt.core.term.terminal import Terminal
@@ -39,16 +39,18 @@ class AudioPlayer(metaclass=Singleton):
     SFX_DIR = str(classpath.resource_path) + "/sound-fx"
 
     @staticmethod
-    def play_audio_file(path_to_audio_file: str | Path, tempo: int = 1) -> bool:
+    def play_audio_file(path_to_audio_file: str | Path, tempo: int = 1, loop: float | None = None) -> bool:
         """Play the specified audio file using the ffplay (ffmpeg) application.
         :param path_to_audio_file: The path to the audio file (e.g., MP3) to be played.
         :param tempo: The playback speed (default is 1).
+        :param loop: Whether to loop the audio playback (None for no looping).
         :return: True if the audio file is played successfully, otherwise False.
         """
         if file_is_not_empty(str(path_to_audio_file)):
             try:
+                loop_args = f"-loop {loop} " if loop else ""
                 _, _, code = Terminal.shell_exec(
-                    f'ffplay -af "atempo={tempo}" -v 0 -nodisp -autoexit {path_to_audio_file}'
+                    f'ffplay -af "atempo={tempo}" -v 0 -nodisp -autoexit {loop_args}{path_to_audio_file}'
                 )
                 return code == ExitStatus.SUCCESS
             except FileNotFoundError:
@@ -56,10 +58,24 @@ class AudioPlayer(metaclass=Singleton):
 
         return False
 
-    def __init__(self):
+    @staticmethod
+    def play_sfx(filename: str, file_ext: Literal[".mp3", ".wav", ".m4a"] = ".mp3", loop: float | None = None) -> bool:
+        """Play a sound effect audio file.
+        :param filename: The name of the sound effect file (without the extension).
+        :param file_ext: The file extension of the sound effect (default is ".mp3").
+        :param loop: Whether to loop the audio playback (None for no looping).
+        :return: True if the sound effect is played successfully, otherwise False.
+        """
+        filename = f"{AudioPlayer.SFX_DIR}/{ensure_endswith(filename, file_ext)}"
         check_argument(
-            which("ffplay") is not None, "ffmpeg::ffplay is required to play audio"
+            file_is_not_empty(filename),
+            f"Sound effects file does not exist: {filename}",
         )
+
+        return AudioPlayer.play_audio_file(filename, loop=loop)
+
+    def __init__(self):
+        check_argument(which("ffplay") is not None, "ffmpeg::ffplay is required to play audio")
 
     @lru_cache
     def start_delay(self) -> float:
@@ -92,22 +108,6 @@ class AudioPlayer(metaclass=Singleton):
             log.error("Could not determine audio duration !")
 
         return out
-
-    def play_sfx(
-        self, filename: str, file_ext: Literal[".mp3", ".wav", ".m4a"] = ".mp3"
-    ) -> bool:
-        """Play a sound effect audio file.
-        :param filename: The name of the sound effect file (without the extension).
-        :param file_ext: The file extension of the sound effect (default is ".mp3").
-        :return: True if the sound effect is played successfully, otherwise False.
-        """
-        filename = f"{self.SFX_DIR}/{ensure_endswith(filename, file_ext)}"
-        check_argument(
-            file_is_not_empty(filename),
-            f"Sound effects file does not exist: {filename}",
-        )
-
-        return self.play_audio_file(filename)
 
 
 assert (player := AudioPlayer().INSTANCE) is not None

@@ -288,7 +288,7 @@ class Recorder(metaclass=Singleton):
         :return: True if the device at the specified index is suitable for STT, otherwise False.
         """
         log.debug(f"Testing audio input device at index: '%d'", idx)
-        test_timeout, test_phrase_limit = 0.3, 0.3
+        test_timeout, test_phrase_limit = 0.3, 0.2
         try:
             with Microphone(device_index=idx) as source:
                 self._rec.listen(source, timeout=test_timeout, phrase_time_limit=test_phrase_limit)

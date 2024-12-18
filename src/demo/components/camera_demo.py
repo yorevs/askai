@@ -9,6 +9,8 @@ from utils import init_context
 
 import os
 
+min_distance = 1.6
+
 # fmt: off
 MENU = dedent(f"""\
 > Camera Demo options
@@ -29,45 +31,49 @@ if __name__ == "__main__":
     init_context("camera-demo")
     photo: ImageMetadata
     while opt := line_input(MENU, placeholder="Select an option"):
-        cursor.write()
+        cursor.writeln()
         if opt == "1" and (name := strip_escapes(line_input("Photo name: "))):
             pic_file, pic_data = camera.capture(name)
             face_files, face_datas = camera.detect_faces(pic_data, name)
-            cursor.write()
-            cursor.write(f"Photo taken: {pic_file} Detected faces: {len(face_files)}")
+            cursor.writeln()
+            cursor.writeln(f"Photo taken: {pic_file} Detected faces: {len(face_files)}")
         if opt == "2" and not (name := line_input("Press [Enter] key when ready")):
             if photo := camera.identify():
-                cursor.write()
-                cursor.write(f"Identified person: {photo.caption} URI: {photo.uri} DIST: {photo.distance}")
+                cursor.writeln()
+                cursor.writeln(f"Identified person: {photo.caption} URI: {photo.uri} DIST: {photo.distance}")
                 open_command(photo.uri)
             else:
-                cursor.write()
-                cursor.write("No identification was possible!")
+                cursor.writeln()
+                cursor.writeln("No identification was possible!")
         while opt == "3" and (query := line_input("Query photo: ", "Type in the description (<empty> to return)")):
-            cursor.write()
-            cursor.write(f"Showing result for: {query}")
+            cursor.writeln()
+            cursor.writeln(f"Showing results for: {query}")
             results: list[ImageMetadata] = store.query_image(query)
-            for photo in results:
-                cursor.write()
-                cursor.write(f"Showing photo: {photo.caption} URI: {photo.uri} DIST: {photo.distance}")
+            # Filtering by distances less than 0.7
+            for photo in list(filter(lambda r: r.distance <= min_distance, results)):
+                cursor.writeln()
+                cursor.writeln(f"Showing photo: {photo.caption} URI: {photo.uri} DIST: {photo.distance}")
                 open_command(photo.uri)
+            cursor.writeln()
         while opt == "4" and (query := line_input("Query face: ", "Type in the description (<empty> to return)")):
-            cursor.write()
-            cursor.write(f"Showing result for: {query}")
+            cursor.writeln()
+            cursor.writeln(f"Showing results for: {query}")
             results: list[ImageMetadata] = store.query_face(query)
-            for photo in results:
-                cursor.write()
-                cursor.write(f"Showing face: {photo.caption} URI: {photo.uri} DIST:", photo.distance)
+            # Filtering by distances less than 0.7
+            for photo in list(filter(lambda r: r.distance <= min_distance, results)):
+                cursor.writeln()
+                cursor.writeln(f"Showing face: {photo.caption} URI: {photo.uri} DIST: {photo.distance}")
                 open_command(photo.uri)
+            cursor.writeln()
         if opt == "5":
             count: int = store.sync_store(re_caption=False)
-            cursor.write()
-            cursor.write(f"Synchronized files: {count}")
+            cursor.writeln()
+            cursor.writeln(f"Synchronized files: {count}")
         if opt == "6" and (query := line_input("Path to import: ", "File, folder path or glob")):
             images, faces = camera.import_images(query.strip(), True)
-            cursor.write()
-            cursor.write(f"Imported images: {images} Detected faces: {faces}")
+            cursor.writeln()
+            cursor.writeln(f"Imported images: {images} Detected faces: {faces}")
         if opt == "7":
             print(f"```json\n{os.linesep.join(store.enlist())}\n```")
-        cursor.write(os.linesep)
-    cursor.write("Done")
+        cursor.writeln(os.linesep)
+    cursor.writeln("Done")

@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-   @project: HsPyLib-AskAI
-   @package: askai.core.components
-      @file: recorder.py
-   @created: Wed, 22 Feb 2024
-    @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
-      @site: https://github.com/yorevs/askai
-   @license: MIT - Please refer to <https://opensource.org/licenses/MIT>
+@project: HsPyLib-AskAI
+@package: askai.core.components
+   @file: recorder.py
+@created: Wed, 22 Feb 2024
+ @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
+   @site: https://github.com/yorevs/askai
+@license: MIT - Please refer to <https://opensource.org/licenses/MIT>
 
-   Copyright (c) 2024, AskAI
+Copyright (c) 2024, AskAI
 """
 from askai.core.router.tools.vision import offline_captioner
 from chromadb.api.types import IncludeEnum
@@ -38,9 +38,7 @@ Metadata: TypeAlias = Mapping[str, str | int | float | bool]
 
 ImageData: TypeAlias = numpy.ndarray[Any, numpy.dtype]
 
-ImageFile = namedtuple(
-    "ImageFile", ["img_id", "img_path", "img_category", "img_caption"]
-)
+ImageFile = namedtuple("ImageFile", ["img_id", "img_path", "img_category", "img_caption"])
 
 ImageMetadata = namedtuple("ImageMetadata", ["caption", "data", "uri", "distance"])
 
@@ -128,6 +126,10 @@ class ImageStore(metaclass=Singleton):
         :param image_files: One or more ImageFile objects representing the images to be stored.
         :return: The number of images successfully added to the store.
         """
+
+        def _get_caption(caption: str | list | None) -> Optional[str]:
+            return os.linesep.join(caption) if isinstance(caption, list) else caption or "Unavailable"
+
         img_ids: list[str] = list()
         if image_files:
             img_ids.extend([ff.img_id for ff in image_files])
@@ -137,14 +139,12 @@ class ImageStore(metaclass=Singleton):
                     "img_id": ff.img_id,
                     "img_path": ff.img_path,
                     "img_category": ff.img_category,
-                    "img_caption": ff.img_caption,
+                    "img_caption": _get_caption(ff.img_caption),
                 }
                 for ff in image_files
             ]
             self._img_collection.add(ids=img_ids, uris=img_uris, metadatas=img_metas)
-            log.info(
-                "Image collection increased to: '%d' !", self._img_collection.count()
-            )
+            log.info("Image collection increased to: '%d' !", self._img_collection.count())
 
         return len(img_ids)
 
@@ -183,11 +183,9 @@ class ImageStore(metaclass=Singleton):
         :param k: The maximum number of matching results to return (default is 3).
         :return: A list of ImageMetadata objects for the photos that match the description.
         """
-        return self.find_by_description(
-            description, [self.PHOTO_CATEGORY, self.IMPORTS_CATEGORY], k
-        )
+        return self.find_by_description(description, [self.PHOTO_CATEGORY, self.IMPORTS_CATEGORY], k)
 
-    def query_face(self, description: str, k: int = 3) -> list[ImageMetadata]:
+    def query_face(self, description: str, k: int = 5) -> list[ImageMetadata]:
         """Query the image store for faces matching the provided description.
         :param description: A text description to match against the stored faces.
         :param k: The maximum number of matching faces to return (default is 1).
@@ -195,9 +193,7 @@ class ImageStore(metaclass=Singleton):
         """
         return self.find_by_description(description, [self.FACE_CATEGORY], k)
 
-    def find_by_description(
-        self, description: str, categories: list[str], k: int = 3
-    ) -> list[ImageMetadata]:
+    def find_by_description(self, description: str, categories: list[str], k: int = 5) -> list[ImageMetadata]:
         """Find images using natural language.
         :param description: A natural language description to match against stored images.
         :param categories: A list of categories to limit the search within.
@@ -206,7 +202,7 @@ class ImageStore(metaclass=Singleton):
         """
         return self._query(k, categories=categories, query_texts=[description])
 
-    def find_by_similarity(self, photo: ImageData, k: int = 3) -> list[ImageMetadata]:
+    def find_by_similarity(self, photo: ImageData, k: int = 5) -> list[ImageMetadata]:
         """Find images that match the provided photo using similarity methods.
         :param photo: The ImageData object representing the photo to match against stored faces.
         :param k: The maximum number of matching faces to return (default is 3).
