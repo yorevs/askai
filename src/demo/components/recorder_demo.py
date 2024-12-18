@@ -5,7 +5,6 @@ from textwrap import dedent
 from clitt.core.term.cursor import cursor
 from clitt.core.tui.line_input.line_input import line_input
 
-from askai.core.askai_messages import msg
 from askai.core.component.recorder import recorder
 from utils import init_context
 
@@ -27,7 +26,6 @@ if __name__ == "__main__":
         cursor.write()
         match opt:
             case "1":
-                cursor.write(msg.listening())
                 audio_path, stt_text = recorder.listen()
                 cursor.writeln(f"Audio path: {audio_path}")
                 cursor.writeln(f"Transcribed text: {stt_text}")

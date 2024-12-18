@@ -390,8 +390,6 @@ class AskAiApp(App[None]):
         :param ev: The event object representing the microphone listening event.
         """
         self.header.notifications.listening = ev.args.listening
-        if ev.args.listening:
-            self._reply(AIReply.info(msg.listening()))
 
     def _cb_device_changed_event(self, ev: Event) -> None:
         """Callback to handle audio input device change events.

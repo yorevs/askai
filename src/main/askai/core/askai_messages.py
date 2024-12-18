@@ -81,13 +81,13 @@ class AskAiMessages(metaclass=Singleton):
         return "How may I further assist you ?"
 
     def listening(self) -> str:
-        return "I'm listening…"
+        return "Listening…"
 
     def dictating(self) -> str:
         return "Dictating…"
 
     def transcribing(self) -> str:
-        return "I'm processing your voice…"
+        return "Processing your voice…"
 
     def goodbye(self) -> str:
         return "Goodbye, have a nice day !"

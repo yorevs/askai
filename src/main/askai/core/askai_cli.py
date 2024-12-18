@@ -151,8 +151,7 @@ class AskAiCli(AskAi):
         """Callback to handle microphone listening events.
         :param ev: The event object representing the microphone listening event.
         """
-        if ev.args.listening:
-            self._reply(AIReply.info(msg.listening()))
+        pass  # CLI don't really care about this event
 
     def _cb_device_changed_event(self, ev: Event) -> None:
         """Callback to handle audio input device change events.
