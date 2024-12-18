@@ -14,10 +14,28 @@ Copyright (c) 2024, AskAI
 """
 import os
 import threading
+from pathlib import Path
+from typing import Callable, Optional, TypeAlias
+import logging as log
+import operator
+import sys
 
 import pause
-from hspylib.core.tools.commons import sysout
 from hspylib.core.tools.text_tools import ensure_endswith
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.classpath import AnyPath
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_argument, check_state
+from hspylib.core.zoned_datetime import now_ms
+from hspylib.modules.application.exit_status import ExitStatus
+from speech_recognition import (
+    AudioData,
+    Microphone,
+    Recognizer,
+    RequestError,
+    UnknownValueError,
+    WaitTimeoutError,
+)
 
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
@@ -28,26 +46,6 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.support.utilities import display_text, seconds
 from askai.exception.exceptions import InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.classpath import AnyPath
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_argument, check_state
-from hspylib.core.zoned_datetime import now_ms
-from hspylib.modules.application.exit_status import ExitStatus
-from pathlib import Path
-from speech_recognition import (
-    AudioData,
-    Microphone,
-    Recognizer,
-    RequestError,
-    UnknownValueError,
-    WaitTimeoutError,
-)
-from typing import Callable, Optional, TypeAlias
-
-import logging as log
-import operator
-import sys
 
 InputDevice: TypeAlias = tuple[int, str]
 
@@ -248,13 +246,15 @@ class Recorder(metaclass=Singleton):
 
         while True:
             _, phrase = self.listen(recognition_api, language, audio_path, False, False, msg.dictating())
-            if not phrase or phrase in [msg.t("quit"), msg.t("exit"), msg.t("bye")]:
-                break
-            else:
-                sysout(f" {('…' if dictated_text else '') + phrase}  ")
+            if phrase:
+                display_text(f" `{('…' if dictated_text else '') + phrase}`  ", markdown=True)
                 dictated_text += (". " if dictated_text else "") + phrase.capitalize()
+                if phrase.endswith((msg.t("quit"), msg.t("exit"), msg.t("bye"), msg.t("end"))):
+                    break
+            else:
+                break
 
-        return ensure_endswith(dictated_text, "." + os.linesep) if dictated_text else dictated_text
+        return ensure_endswith(dictated_text.capitalize(), "." + os.linesep) if dictated_text else dictated_text
 
     def _write_audio_file(
         self,

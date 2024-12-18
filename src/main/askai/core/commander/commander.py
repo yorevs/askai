@@ -387,6 +387,13 @@ def tts(text: str, dest_dir: str | None = None, playback: bool = True) -> None:
 
 
 @ask_commander.command()
+@click.argument("dest_file", default="")
+def dictate(dest_file: str | None) -> None:
+    """TODO"""
+    TtsSttCmd.dictate(dest_file)
+
+
+@ask_commander.command()
 @click.argument("folder")
 @click.argument("glob", default="**/*")
 def summarize(folder: str, glob: str) -> None:
