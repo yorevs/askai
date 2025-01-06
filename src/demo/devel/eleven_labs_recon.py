@@ -11,7 +11,7 @@ from askai.core.component.audio_player import player
 ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
 
 # ElevenLabs Voice ID (obtained from the previous step)
-VOICE_ID = "pqHfZKP75CvOlQylNhV4"
+VOICE_ID = "7fbQ7yJuEo56rYjrYaEh"
 
 # Path to save the synthesized audio
 AUDIO_OUTPUT_PATH = "response_audio.mp3"
