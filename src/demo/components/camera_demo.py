@@ -30,7 +30,7 @@ $ """)
 if __name__ == "__main__":
     init_context("camera-demo")
     photo: ImageMetadata
-    while opt := line_input(MENU, placeholder="Select an option"):
+    while opt := line_input(MENU, placeholder="Select an option", markdown=True):
         cursor.writeln()
         if opt == "1" and (name := strip_escapes(line_input("Photo name: "))):
             pic_file, pic_data = camera.capture(name)

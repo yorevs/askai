@@ -15,10 +15,13 @@
 from dataclasses import dataclass
 from functools import lru_cache
 
+from askai.core.enums.response_model import ResponseModel
+
 
 @dataclass
 class ModelResult:
-    """Keep track of the model select responses."""
+    """Track and store the responses from the selected model. This class is used to encapsulate the model selection
+    returned by the LLM, including any relevant data associated with the model's response."""
 
     mid: str = None
     goal: str = None
@@ -27,12 +30,21 @@ class ModelResult:
     @staticmethod
     @lru_cache
     def default() -> "ModelResult":
-        """Track and store the responses from the selected model.
-        This class is used to encapsulate the model selection returned by the LLM, including any relevant data
-        associated with the model's response.
+        """Creates and returns the default ModelResult instance.
+        :return: A default ModelResult instance with predefined values.
         """
         return ModelResult(
-            "ASK_000", "Default model", "Provide the answer as received by the AI"
+            ResponseModel.NEUTRAL.model, "Default model", "Provide the answer as received by the AI"
+        )
+
+    @staticmethod
+    @lru_cache
+    def final_answer() -> "ModelResult":
+        """Generates and returns the final answer model result.
+        :return: An instance of ModelResult representing the final answer model.
+        """
+        return ModelResult(
+            ResponseModel.FINAL_ANSWER.model, "Final Answer model", "Provide the answer as received by the AI"
         )
 
     def __str__(self):

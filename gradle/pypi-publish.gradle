@@ -28,12 +28,15 @@ String dirName(File file) {
 /* Cleanup distribution files from buildDir */
 task cleanDist(type: Task) {
   group = 'Build'
-  description = "Cleanup distribution files from buildDir"
+  description = "Cleanup distribution files from buildDir and sourceRoot"
   doLast {
-    println("Cleanup distribution files \n\t from ${buildDir}")
+    println("Cleanup distribution files from buildDir and sourceRoot")
     delete dirsByPattern("$buildDir", /.*dist$/)
     delete dirsByPattern("$buildDir", /.*build$/)
-    delete dirsByPattern("$buildDir", /.*egg-info$/)
+    delete dirsByPattern("$buildDir", /.*\.egg-info$/)
+    delete dirsByPattern("$sourceRoot", /.*dist$/)
+    delete dirsByPattern("$sourceRoot", /.*build$/)
+    delete dirsByPattern("$sourceRoot", /.*\.egg-info$/)
   }
 }
 

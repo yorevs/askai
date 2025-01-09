@@ -69,13 +69,15 @@ class ActionPlan:
 
         # fmt: off
         if direct and len(direct) > 1:
-            plan = ActionPlan._direct_answer(question, direct, primary_goal, ModelResult.default())
+            plan = ActionPlan._direct_answer(question, direct, primary_goal, ModelResult.final_answer())
         elif (direct and len(direct) > 1) or len(tasks) == 1:
             plan = ActionPlan._direct_task(question, speak, primary_goal, tasks[0], ModelResult.default())
         elif tasks:
             plan = ActionPlan(question, speak, primary_goal, False, sub_goals, tasks)
         elif not speak and not primary_goal:
             plan = ActionPlan._direct_task(question, "", "", response, ModelResult.default())
+        elif speak and primary_goal:
+            plan = ActionPlan._direct_answer(question, speak, primary_goal, ModelResult.final_answer())
         else:
             raise InaccurateResponse("AI provided an invalid action plan!")
         # fmt: on

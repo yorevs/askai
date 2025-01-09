@@ -65,10 +65,10 @@ class SplitterExecutor(Thread):
     def run(self) -> None:
         """Execute the splitter pipeline."""
 
-        try:
-            with Live(
-                Spinner("dots", f"[green]{self.pipeline.state}…[/green]", style="green"), console=tf.console
-            ) as live:
+        with Live(
+            Spinner("dots", f"[green]{self.pipeline.state}…[/green]", style="green"), console=tf.console
+        ) as live:
+            try:
                 while not (self._interrupted or self.pipeline.state == States.COMPLETE):
                     self.pipeline.track_previous()
                     if 1 < configs.max_router_retries < 1 + self.pipeline.failures[self.pipeline.state.value]:
@@ -126,9 +126,9 @@ class SplitterExecutor(Thread):
                     self.display(f"[green]{execution_status_str}[/green]")
                     live.update(Spinner("dots", f"[green]{self.pipeline.state}…[/green]", style="green"))
                     self.pipeline.iteractions += 1
-            cursor.erase_line()
-        except InaccurateResponse:
-            live.update(Spinner("dots", f"[red]AI failed to respond. Retrying…[/red]", style="green"))
+                cursor.erase_line()
+            except InaccurateResponse:
+                live.update(Spinner("dots", f"[red]AI failed to respond. Retrying…[/red]", style="green"))
 
         final_state: States = self.pipeline.state
 

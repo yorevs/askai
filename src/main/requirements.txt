@@ -2,7 +2,7 @@
 
 hspylib>=1.12.53
 hspylib-datasource>=0.9.82
-hspylib-clitt>=0.9.140
+hspylib-clitt>=0.9.141
 hspylib-setman>=0.10.43
 retry2==0.9.5
 pause==0.3
@@ -26,7 +26,7 @@ protobuf==4.25.4
 aiohttp==3.10.5
 html2text==2024.2.26
 rich==13.9.4
-textual==0.89.1
+textual==1.0.0
 soundfile==0.12.1
 PyAudio==0.2.14
 SpeechRecognition==3.10.4

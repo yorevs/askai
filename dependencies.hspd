@@ -10,7 +10,7 @@
 /* HSPyLib projects */
 package: hspylib, version: 1.12.53, mode: ge
 package: hspylib-datasource, version: 0.9.82, mode: ge
-package: hspylib-clitt, version: 0.9.140, mode: ge
+package: hspylib-clitt, version: 0.9.141, mode: ge
 package: hspylib-setman, version: 0.10.43, mode: ge
 
 /* General */
@@ -46,7 +46,7 @@ package: html2text, version: 2024.2.26, mode: eq
 
 /* CLI/TUI */
 package: rich, version: 13.9.4, mode: eq
-package: textual, version: 0.89.1, mode: eq
+package: textual, version: 1.0.0, mode: eq
 
 /* Audio */
 package: soundfile, version: 0.12.1, mode: eq
