@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.2.9
+# hspylib-askai v1.2.10
 #
 # Package: main.askai.core.support
 """Package initialization."""
@@ -12,8 +12,7 @@ __all__ = [
     'os_utils', 
     'presets', 
     'shared_instances', 
-    'spinner', 
     'text_formatter', 
     'utilities'
 ]
-__version__ = '1.2.9'
+__version__ = '1.2.10'
