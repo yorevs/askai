@@ -89,3 +89,4 @@ py-gradle-master/
 build/
 .venv/
 venv
+response_audio.mp3
