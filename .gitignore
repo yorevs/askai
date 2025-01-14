@@ -90,3 +90,4 @@ build/
 .venv/
 venv
 response_audio.mp3
+logs
