@@ -10,12 +10,12 @@ import org.gradle.internal.os.OperatingSystem;
 String detectPython() {
   def pythonHome = System.getenv('PYTHON_HOME') ?: null
   if (pythonHome != null) {
-      return pythonHome + '/python3.11'
+      return pythonHome + '/python3'
   }
 
   def output = new ByteArrayOutputStream()
   exec {
-      commandLine 'bash', '-c', 'command -v python3.11'
+      commandLine 'bash', '-c', 'command -v python3'
       standardOutput = output
   }
 
@@ -25,7 +25,7 @@ String detectPython() {
   print("Python successfully detected: " + pythonHome)
 
   exec {
-      commandLine python3.11, '-V'
+      commandLine 'bash', '-c', 'python3 -V'
   }
 
   return pythonHome

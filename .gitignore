@@ -91,3 +91,5 @@ build/
 venv
 response_audio.mp3
 logs
+models/
+mp-data/
