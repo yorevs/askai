@@ -27,7 +27,9 @@ Furthermore, AskAI embraces diversity by breaking language barriers, ensuring th
 
 > The world speaks many languages. AskAI understands them all.
 
-🔥 **HOT** 🔥 Checkout the [YouTube](https://www.youtube.com/watch?v=ZlVOisiUEvs) video with our Demo!
+🔥 Checkout the [YouTube](https://www.youtube.com/watch?v=ZlVOisiUEvs) video with our Demo!
+
+🔥 Checkout the new AskAI Teaser [LinkedIn](https://www.linkedin.com/posts/yorevs_the-world-is-changing-paradigms-are-being-activity-7282570183578181632-Hjke?utm_source=share&utm_medium=member_desktop)
 
 [![YouTube Video](https://img.youtube.com/vi/ZlVOisiUEvs/0.jpg)](https://www.youtube.com/watch?v=ZlVOisiUEvs)
 

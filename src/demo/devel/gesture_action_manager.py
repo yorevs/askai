@@ -164,7 +164,8 @@ class GestureActionManager:
 
     def __init__(self):
         self._actions = np.array([
-            'maximize', 'minimize', 'grab', 'click',  # 'pointer', 'next', 'previous', 'dispose'
+            # 'maximize', 'minimize', 'grab', 'click',  'pointer', 'next', 'previous', 'dispose'
+            'maximize', 'grab'
         ])
         self._tb_callback = TensorBoard(log_dir=LOGS_PATH)
 
@@ -332,5 +333,5 @@ if __name__ == '__main__':
     gm: GestureActionManager = GestureActionManager()
     # gm.demo_media_pipe()
     # gm.capture_landmarks(start_at='dispose', end_at='dispose')
-    # gm.predict(gm.train_model(250))
-    gm.predict(gm.train_model(load=True))
+    gm.predict(gm.train_model(200))
+    # gm.predict(gm.train_model(load=True))
