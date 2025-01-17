@@ -29,7 +29,7 @@ Furthermore, AskAI embraces diversity by breaking language barriers, ensuring th
 
 🔥 Checkout the [YouTube](https://www.youtube.com/watch?v=ZlVOisiUEvs) video with our Demo!
 
-🔥 Checkout the new AskAI Teaser [LinkedIn](https://www.linkedin.com/posts/yorevs_the-world-is-changing-paradigms-are-being-activity-7282570183578181632-Hjke?utm_source=share&utm_medium=member_desktop)
+🔥 Checkout the new AskAI Teaser on [LinkedIn](https://www.linkedin.com/posts/yorevs_the-world-is-changing-paradigms-are-being-activity-7282570183578181632-Hjke?utm_source=share&utm_medium=member_desktop)
 
 [![YouTube Video](https://img.youtube.com/vi/ZlVOisiUEvs/0.jpg)](https://www.youtube.com/watch?v=ZlVOisiUEvs)
 
@@ -43,7 +43,7 @@ Furthermore, AskAI embraces diversity by breaking language barriers, ensuring th
 - Enjoy a Natural Typewriter Effect Synced with Speaking Text.
 - Automate Offline Language Translations for Enhanced Accessibility.
 - Interactive and Non-Interactive modes.
-- Image captions to provide textual descriptions for visual content.
+- Image captions are used to provide textual descriptions of visual content.
 - Enhanced accuracy in responses is achieved through the implementation of a Retrieval-Augmented Generation (RAG) system.
 
 ## Installation
@@ -63,14 +63,14 @@ Furthermore, AskAI embraces diversity by breaking language barriers, ensuring th
   - CentOS 7 and higher
   - Fedora 31 and higher
 
-You may want to install HsPyLib on other OS's and it will probably work, but there are no guarantees that it
+You may want to install HsPyLib on another OS's and it will probably work, but there are no guarantees that it
 **WILL ACTUALLY WORK**.
 
 #### Applications / Libraries
 
-The following software are required:
+The following software is required:
 
-- FFMPEG (To allow playing audio and video files from your terminal).
+- FFMPEG (This allows you to play audio and video files from your terminal).
 - PORTAUDIO (To allow microphone recordings).
 
 ##### macOS installation
@@ -124,10 +124,10 @@ To enable the Custom Search API:
 
 To create an API key:
 
-1. Navigate to the APIs & Services → Credentials panel in Cloud Console.
-2. Select Create credentials, then select API key from the drop-down menu.
-3. The API key created dialog box displays your newly created key.
-4. You now have an GOOGLE_API_KEY.
+1. Navigate to the APIs & Services → Credentials panel in the Cloud Console.
+2. Select Create credentials, then select the API key from the drop-down menu.
+3. The API key-created dialog box displays your newly created key.
+4. You now have a GOOGLE_API_KEY.
 
 > Alternatively, you can just generate an API key here: https://developers.google.com/custom-search/docs/paid_element#api_key
 
@@ -135,9 +135,9 @@ To create an API key:
 
 To enable the DeepL online translation:
 
-1. Navigate to you account settings.
-2. Select the tab API Keys.
-3. Click on Create key + .
+1. Navigate to your account settings.
+2. Select the API Keys tab.
+3. Click on Create key +.
 4. You now have a DEEPL_API_KEY.
 
 ##### OpenAI API
@@ -148,7 +148,7 @@ To enable your OpenAI LLM:
 2. Navigate to the API section of the OpenAI dashboard.
 3. Create a New API Key by clicking on “Create API Key” or a similar button.
 4. Name Your API Key:
-5. You now have a OPENAI_API_KEY.
+5. You now have an OPENAI_API_KEY.
 
 
 ## Support
