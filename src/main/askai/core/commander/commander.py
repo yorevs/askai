@@ -445,7 +445,7 @@ def translate(from_locale_str: AnyLocale, to_locale_str: AnyLocale, texts: tuple
 @ask_commander.command()
 @click.argument("operation", default="capture")
 @click.argument("args", nargs=-1)
-def camera(operation: str, *args) -> None:
+def camera(operation: str, args: list) -> None:
     """Take photos, import images, or identify a person using the WebCam.
     :param operation: The camera operation to perform. Options: [capture|identify|import]
     :param args: The arguments required for the operation.

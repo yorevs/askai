@@ -99,43 +99,40 @@ src<wbr>.main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../
 </span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">   Copyright (c) 2024, AskAI</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="kn">from</span> <span class="nn">askai.core.enums.response_model</span> <span class="kn">import</span> <span class="n">ResponseModel</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="kn">from</span> <span class="nn">askai.core.enums.response_model</span> <span class="kn">import</span> <span class="n">ResponseModel</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>
 </span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="nd">@dataclass</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="k">class</span> <span class="nc">ModelResult</span><span class="p">:</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Track and store the responses from the selected model. This class is used to encapsulate the model selection</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">    returned by the LLM, including any relevant data associated with the model&#39;s response.&quot;&quot;&quot;</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="n">mid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="n">goal</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="nd">@lru_cache</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="k">def</span> <span class="nf">default</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ModelResult&quot;</span><span class="p">:</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates and returns the default ModelResult instance.</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">        :return: A default ModelResult instance with predefined values.</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>        <span class="k">return</span> <span class="n">ModelResult</span><span class="p">(</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>            <span class="n">ResponseModel</span><span class="o">.</span><span class="n">NEUTRAL</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;Default model&quot;</span><span class="p">,</span> <span class="s2">&quot;Provide the answer as received by the AI&quot;</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>        <span class="p">)</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="nd">@lru_cache</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="k">def</span> <span class="nf">final_answer</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ModelResult&quot;</span><span class="p">:</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates and returns the final answer model result.</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="sd">        :return: An instance of ModelResult representing the final answer model.</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>        <span class="k">return</span> <span class="n">ModelResult</span><span class="p">(</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>            <span class="n">ResponseModel</span><span class="o">.</span><span class="n">FINAL_ANSWER</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;Final Answer model&quot;</span><span class="p">,</span> <span class="s2">&quot;Provide the answer as received by the AI&quot;</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>        <span class="p">)</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mid</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="nd">@dataclass</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="k">class</span> <span class="nc">ModelResult</span><span class="p">:</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Track and store the responses from the selected model. This class is used to encapsulate the model selection</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">    returned by the LLM, including any relevant data associated with the model&#39;s response.&quot;&quot;&quot;</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="n">mid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="n">goal</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="nd">@lru_cache</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="k">def</span> <span class="nf">default</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ModelResult&quot;</span><span class="p">:</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates and returns the default ModelResult instance.</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">        :return: A default ModelResult instance with predefined values.</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>        <span class="k">return</span> <span class="n">ModelResult</span><span class="p">(</span><span class="n">ResponseModel</span><span class="o">.</span><span class="n">NEUTRAL</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;Default model&quot;</span><span class="p">,</span> <span class="s2">&quot;Provide the answer as received by the AI&quot;</span><span class="p">)</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="nd">@lru_cache</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="k">def</span> <span class="nf">final_answer</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ModelResult&quot;</span><span class="p">:</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates and returns the final answer model result.</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">        :return: An instance of ModelResult representing the final answer model.</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>        <span class="k">return</span> <span class="n">ModelResult</span><span class="p">(</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>            <span class="n">ResponseModel</span><span class="o">.</span><span class="n">FINAL_ANSWER</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;Final Answer model&quot;</span><span class="p">,</span> <span class="s2">&quot;Provide the answer as received by the AI&quot;</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>        <span class="p">)</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mid</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span>
 </span></pre></div>
 
 
@@ -152,37 +149,35 @@ src<wbr>.main<wbr>.<a href="./../../../askai.html">askai</a><wbr>.<a href="./../
 
     </div>
     <a class="headerlink" href="#ModelResult"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ModelResult-22"><a href="#ModelResult-22"><span class="linenos">22</span></a><span class="nd">@dataclass</span>
-</span><span id="ModelResult-23"><a href="#ModelResult-23"><span class="linenos">23</span></a><span class="k">class</span> <span class="nc">ModelResult</span><span class="p">:</span>
-</span><span id="ModelResult-24"><a href="#ModelResult-24"><span class="linenos">24</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Track and store the responses from the selected model. This class is used to encapsulate the model selection</span>
-</span><span id="ModelResult-25"><a href="#ModelResult-25"><span class="linenos">25</span></a><span class="sd">    returned by the LLM, including any relevant data associated with the model&#39;s response.&quot;&quot;&quot;</span>
-</span><span id="ModelResult-26"><a href="#ModelResult-26"><span class="linenos">26</span></a>
-</span><span id="ModelResult-27"><a href="#ModelResult-27"><span class="linenos">27</span></a>    <span class="n">mid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="ModelResult-28"><a href="#ModelResult-28"><span class="linenos">28</span></a>    <span class="n">goal</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="ModelResult-29"><a href="#ModelResult-29"><span class="linenos">29</span></a>    <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="ModelResult-30"><a href="#ModelResult-30"><span class="linenos">30</span></a>
-</span><span id="ModelResult-31"><a href="#ModelResult-31"><span class="linenos">31</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="ModelResult-32"><a href="#ModelResult-32"><span class="linenos">32</span></a>    <span class="nd">@lru_cache</span>
-</span><span id="ModelResult-33"><a href="#ModelResult-33"><span class="linenos">33</span></a>    <span class="k">def</span> <span class="nf">default</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ModelResult&quot;</span><span class="p">:</span>
-</span><span id="ModelResult-34"><a href="#ModelResult-34"><span class="linenos">34</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates and returns the default ModelResult instance.</span>
-</span><span id="ModelResult-35"><a href="#ModelResult-35"><span class="linenos">35</span></a><span class="sd">        :return: A default ModelResult instance with predefined values.</span>
-</span><span id="ModelResult-36"><a href="#ModelResult-36"><span class="linenos">36</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="ModelResult-37"><a href="#ModelResult-37"><span class="linenos">37</span></a>        <span class="k">return</span> <span class="n">ModelResult</span><span class="p">(</span>
-</span><span id="ModelResult-38"><a href="#ModelResult-38"><span class="linenos">38</span></a>            <span class="n">ResponseModel</span><span class="o">.</span><span class="n">NEUTRAL</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;Default model&quot;</span><span class="p">,</span> <span class="s2">&quot;Provide the answer as received by the AI&quot;</span>
-</span><span id="ModelResult-39"><a href="#ModelResult-39"><span class="linenos">39</span></a>        <span class="p">)</span>
-</span><span id="ModelResult-40"><a href="#ModelResult-40"><span class="linenos">40</span></a>
-</span><span id="ModelResult-41"><a href="#ModelResult-41"><span class="linenos">41</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="ModelResult-42"><a href="#ModelResult-42"><span class="linenos">42</span></a>    <span class="nd">@lru_cache</span>
-</span><span id="ModelResult-43"><a href="#ModelResult-43"><span class="linenos">43</span></a>    <span class="k">def</span> <span class="nf">final_answer</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ModelResult&quot;</span><span class="p">:</span>
-</span><span id="ModelResult-44"><a href="#ModelResult-44"><span class="linenos">44</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates and returns the final answer model result.</span>
-</span><span id="ModelResult-45"><a href="#ModelResult-45"><span class="linenos">45</span></a><span class="sd">        :return: An instance of ModelResult representing the final answer model.</span>
-</span><span id="ModelResult-46"><a href="#ModelResult-46"><span class="linenos">46</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="ModelResult-47"><a href="#ModelResult-47"><span class="linenos">47</span></a>        <span class="k">return</span> <span class="n">ModelResult</span><span class="p">(</span>
-</span><span id="ModelResult-48"><a href="#ModelResult-48"><span class="linenos">48</span></a>            <span class="n">ResponseModel</span><span class="o">.</span><span class="n">FINAL_ANSWER</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;Final Answer model&quot;</span><span class="p">,</span> <span class="s2">&quot;Provide the answer as received by the AI&quot;</span>
-</span><span id="ModelResult-49"><a href="#ModelResult-49"><span class="linenos">49</span></a>        <span class="p">)</span>
-</span><span id="ModelResult-50"><a href="#ModelResult-50"><span class="linenos">50</span></a>
-</span><span id="ModelResult-51"><a href="#ModelResult-51"><span class="linenos">51</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="ModelResult-52"><a href="#ModelResult-52"><span class="linenos">52</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mid</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ModelResult-21"><a href="#ModelResult-21"><span class="linenos">21</span></a><span class="nd">@dataclass</span>
+</span><span id="ModelResult-22"><a href="#ModelResult-22"><span class="linenos">22</span></a><span class="k">class</span> <span class="nc">ModelResult</span><span class="p">:</span>
+</span><span id="ModelResult-23"><a href="#ModelResult-23"><span class="linenos">23</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Track and store the responses from the selected model. This class is used to encapsulate the model selection</span>
+</span><span id="ModelResult-24"><a href="#ModelResult-24"><span class="linenos">24</span></a><span class="sd">    returned by the LLM, including any relevant data associated with the model&#39;s response.&quot;&quot;&quot;</span>
+</span><span id="ModelResult-25"><a href="#ModelResult-25"><span class="linenos">25</span></a>
+</span><span id="ModelResult-26"><a href="#ModelResult-26"><span class="linenos">26</span></a>    <span class="n">mid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="ModelResult-27"><a href="#ModelResult-27"><span class="linenos">27</span></a>    <span class="n">goal</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="ModelResult-28"><a href="#ModelResult-28"><span class="linenos">28</span></a>    <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="ModelResult-29"><a href="#ModelResult-29"><span class="linenos">29</span></a>
+</span><span id="ModelResult-30"><a href="#ModelResult-30"><span class="linenos">30</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="ModelResult-31"><a href="#ModelResult-31"><span class="linenos">31</span></a>    <span class="nd">@lru_cache</span>
+</span><span id="ModelResult-32"><a href="#ModelResult-32"><span class="linenos">32</span></a>    <span class="k">def</span> <span class="nf">default</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ModelResult&quot;</span><span class="p">:</span>
+</span><span id="ModelResult-33"><a href="#ModelResult-33"><span class="linenos">33</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates and returns the default ModelResult instance.</span>
+</span><span id="ModelResult-34"><a href="#ModelResult-34"><span class="linenos">34</span></a><span class="sd">        :return: A default ModelResult instance with predefined values.</span>
+</span><span id="ModelResult-35"><a href="#ModelResult-35"><span class="linenos">35</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="ModelResult-36"><a href="#ModelResult-36"><span class="linenos">36</span></a>        <span class="k">return</span> <span class="n">ModelResult</span><span class="p">(</span><span class="n">ResponseModel</span><span class="o">.</span><span class="n">NEUTRAL</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;Default model&quot;</span><span class="p">,</span> <span class="s2">&quot;Provide the answer as received by the AI&quot;</span><span class="p">)</span>
+</span><span id="ModelResult-37"><a href="#ModelResult-37"><span class="linenos">37</span></a>
+</span><span id="ModelResult-38"><a href="#ModelResult-38"><span class="linenos">38</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="ModelResult-39"><a href="#ModelResult-39"><span class="linenos">39</span></a>    <span class="nd">@lru_cache</span>
+</span><span id="ModelResult-40"><a href="#ModelResult-40"><span class="linenos">40</span></a>    <span class="k">def</span> <span class="nf">final_answer</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ModelResult&quot;</span><span class="p">:</span>
+</span><span id="ModelResult-41"><a href="#ModelResult-41"><span class="linenos">41</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates and returns the final answer model result.</span>
+</span><span id="ModelResult-42"><a href="#ModelResult-42"><span class="linenos">42</span></a><span class="sd">        :return: An instance of ModelResult representing the final answer model.</span>
+</span><span id="ModelResult-43"><a href="#ModelResult-43"><span class="linenos">43</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="ModelResult-44"><a href="#ModelResult-44"><span class="linenos">44</span></a>        <span class="k">return</span> <span class="n">ModelResult</span><span class="p">(</span>
+</span><span id="ModelResult-45"><a href="#ModelResult-45"><span class="linenos">45</span></a>            <span class="n">ResponseModel</span><span class="o">.</span><span class="n">FINAL_ANSWER</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;Final Answer model&quot;</span><span class="p">,</span> <span class="s2">&quot;Provide the answer as received by the AI&quot;</span>
+</span><span id="ModelResult-46"><a href="#ModelResult-46"><span class="linenos">46</span></a>        <span class="p">)</span>
+</span><span id="ModelResult-47"><a href="#ModelResult-47"><span class="linenos">47</span></a>
+</span><span id="ModelResult-48"><a href="#ModelResult-48"><span class="linenos">48</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="ModelResult-49"><a href="#ModelResult-49"><span class="linenos">49</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mid</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span>
 </span></pre></div>
 
 
@@ -252,15 +247,13 @@ returned by the LLM, including any relevant data associated with the model's res
 
     </div>
     <a class="headerlink" href="#ModelResult.default"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ModelResult.default-31"><a href="#ModelResult.default-31"><span class="linenos">31</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="ModelResult.default-32"><a href="#ModelResult.default-32"><span class="linenos">32</span></a>    <span class="nd">@lru_cache</span>
-</span><span id="ModelResult.default-33"><a href="#ModelResult.default-33"><span class="linenos">33</span></a>    <span class="k">def</span> <span class="nf">default</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ModelResult&quot;</span><span class="p">:</span>
-</span><span id="ModelResult.default-34"><a href="#ModelResult.default-34"><span class="linenos">34</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates and returns the default ModelResult instance.</span>
-</span><span id="ModelResult.default-35"><a href="#ModelResult.default-35"><span class="linenos">35</span></a><span class="sd">        :return: A default ModelResult instance with predefined values.</span>
-</span><span id="ModelResult.default-36"><a href="#ModelResult.default-36"><span class="linenos">36</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="ModelResult.default-37"><a href="#ModelResult.default-37"><span class="linenos">37</span></a>        <span class="k">return</span> <span class="n">ModelResult</span><span class="p">(</span>
-</span><span id="ModelResult.default-38"><a href="#ModelResult.default-38"><span class="linenos">38</span></a>            <span class="n">ResponseModel</span><span class="o">.</span><span class="n">NEUTRAL</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;Default model&quot;</span><span class="p">,</span> <span class="s2">&quot;Provide the answer as received by the AI&quot;</span>
-</span><span id="ModelResult.default-39"><a href="#ModelResult.default-39"><span class="linenos">39</span></a>        <span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ModelResult.default-30"><a href="#ModelResult.default-30"><span class="linenos">30</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="ModelResult.default-31"><a href="#ModelResult.default-31"><span class="linenos">31</span></a>    <span class="nd">@lru_cache</span>
+</span><span id="ModelResult.default-32"><a href="#ModelResult.default-32"><span class="linenos">32</span></a>    <span class="k">def</span> <span class="nf">default</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ModelResult&quot;</span><span class="p">:</span>
+</span><span id="ModelResult.default-33"><a href="#ModelResult.default-33"><span class="linenos">33</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates and returns the default ModelResult instance.</span>
+</span><span id="ModelResult.default-34"><a href="#ModelResult.default-34"><span class="linenos">34</span></a><span class="sd">        :return: A default ModelResult instance with predefined values.</span>
+</span><span id="ModelResult.default-35"><a href="#ModelResult.default-35"><span class="linenos">35</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="ModelResult.default-36"><a href="#ModelResult.default-36"><span class="linenos">36</span></a>        <span class="k">return</span> <span class="n">ModelResult</span><span class="p">(</span><span class="n">ResponseModel</span><span class="o">.</span><span class="n">NEUTRAL</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;Default model&quot;</span><span class="p">,</span> <span class="s2">&quot;Provide the answer as received by the AI&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -288,15 +281,15 @@ returned by the LLM, including any relevant data associated with the model's res
 
     </div>
     <a class="headerlink" href="#ModelResult.final_answer"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ModelResult.final_answer-41"><a href="#ModelResult.final_answer-41"><span class="linenos">41</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="ModelResult.final_answer-42"><a href="#ModelResult.final_answer-42"><span class="linenos">42</span></a>    <span class="nd">@lru_cache</span>
-</span><span id="ModelResult.final_answer-43"><a href="#ModelResult.final_answer-43"><span class="linenos">43</span></a>    <span class="k">def</span> <span class="nf">final_answer</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ModelResult&quot;</span><span class="p">:</span>
-</span><span id="ModelResult.final_answer-44"><a href="#ModelResult.final_answer-44"><span class="linenos">44</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates and returns the final answer model result.</span>
-</span><span id="ModelResult.final_answer-45"><a href="#ModelResult.final_answer-45"><span class="linenos">45</span></a><span class="sd">        :return: An instance of ModelResult representing the final answer model.</span>
-</span><span id="ModelResult.final_answer-46"><a href="#ModelResult.final_answer-46"><span class="linenos">46</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="ModelResult.final_answer-47"><a href="#ModelResult.final_answer-47"><span class="linenos">47</span></a>        <span class="k">return</span> <span class="n">ModelResult</span><span class="p">(</span>
-</span><span id="ModelResult.final_answer-48"><a href="#ModelResult.final_answer-48"><span class="linenos">48</span></a>            <span class="n">ResponseModel</span><span class="o">.</span><span class="n">FINAL_ANSWER</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;Final Answer model&quot;</span><span class="p">,</span> <span class="s2">&quot;Provide the answer as received by the AI&quot;</span>
-</span><span id="ModelResult.final_answer-49"><a href="#ModelResult.final_answer-49"><span class="linenos">49</span></a>        <span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="ModelResult.final_answer-38"><a href="#ModelResult.final_answer-38"><span class="linenos">38</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="ModelResult.final_answer-39"><a href="#ModelResult.final_answer-39"><span class="linenos">39</span></a>    <span class="nd">@lru_cache</span>
+</span><span id="ModelResult.final_answer-40"><a href="#ModelResult.final_answer-40"><span class="linenos">40</span></a>    <span class="k">def</span> <span class="nf">final_answer</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ModelResult&quot;</span><span class="p">:</span>
+</span><span id="ModelResult.final_answer-41"><a href="#ModelResult.final_answer-41"><span class="linenos">41</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates and returns the final answer model result.</span>
+</span><span id="ModelResult.final_answer-42"><a href="#ModelResult.final_answer-42"><span class="linenos">42</span></a><span class="sd">        :return: An instance of ModelResult representing the final answer model.</span>
+</span><span id="ModelResult.final_answer-43"><a href="#ModelResult.final_answer-43"><span class="linenos">43</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="ModelResult.final_answer-44"><a href="#ModelResult.final_answer-44"><span class="linenos">44</span></a>        <span class="k">return</span> <span class="n">ModelResult</span><span class="p">(</span>
+</span><span id="ModelResult.final_answer-45"><a href="#ModelResult.final_answer-45"><span class="linenos">45</span></a>            <span class="n">ResponseModel</span><span class="o">.</span><span class="n">FINAL_ANSWER</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;Final Answer model&quot;</span><span class="p">,</span> <span class="s2">&quot;Provide the answer as received by the AI&quot;</span>
+</span><span id="ModelResult.final_answer-46"><a href="#ModelResult.final_answer-46"><span class="linenos">46</span></a>        <span class="p">)</span>
 </span></pre></div>
 
 

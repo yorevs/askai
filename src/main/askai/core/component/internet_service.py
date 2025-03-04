@@ -96,16 +96,16 @@ class InternetService(metaclass=Singleton):
         return url.replace(url, cls.SITE_ICONS[url]) if cls.SITE_ICONS[url] else url
 
     @classmethod
-    def wrap_response(cls, terms: str, output: str, search: SearchResult) -> str:
-        """Format and wrap the search response based on the search terms, output, and method used.
-        :param terms: The search terms used in the query.
+    def wrap_response(cls, keywords: str, output: str, search: SearchResult) -> str:
+        """Format and wrap the search response based on the search keywords, output, and method used.
+        :param keywords: The search keywords used in the query.
         :param output: The raw output or results from the search.
         :param search: The search result.
         :return: A formatted string that encapsulates the search response.
         """
         re_site: str = r"site:([a-zA-Z0-9._%+-]+(?:\.[a-zA-Z]{2,})+)"
-        sites: list = re.findall(re_site, terms)
-        terms: str = re.sub(r"\s{2,}", " ", re.sub(r"OR", "", re.sub(re_site, "", terms)))
+        sites: list = re.findall(re_site, keywords)
+        terms: str = re.sub(r"\s{2,}", " ", re.sub(r"OR", "", re.sub(re_site, "", keywords)))
         sources: str = " ".join(sorted([f"{cls._url_to_icon(s):<2}".strip() or s for s in sites], key=len))
         # fmt: off
         return (
@@ -156,8 +156,8 @@ class InternetService(metaclass=Singleton):
         return f"{google_query} {sites}"
 
     def __init__(self):
-        self._google: GoogleSearchAPIWrapper | None = None
-        self._tool: Tool | None = None
+        self._google: GoogleSearchAPIWrapper
+        self._tool: Tool
         self._text_splitter: TextSplitter = RecursiveCharacterTextSplitter(
             chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap
         )
@@ -183,6 +183,7 @@ class InternetService(metaclass=Singleton):
         events.reply.emit(reply=AIReply.info(msg.searching()))
         terms: str = self._build_google_query(search).strip()
         question: str = re.sub(r"(\w+:)*|((\w+\.\w+)*)", "", terms, flags=re.DOTALL | re.MULTILINE)
+
         try:
             log.info("Searching Google for '%s'", terms)
             events.reply.emit(reply=AIReply.debug(msg.final_query(terms)))

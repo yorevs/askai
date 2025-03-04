@@ -112,72 +112,62 @@ src<wbr>.main<wbr>.<a href="./../../../../askai.html">askai</a><wbr>.<a href="./
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">Copyright (c) 2024, AskAI</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="kn">from</span> <span class="nn">askai.core.engine.ai_model</span> <span class="kn">import</span> <span class="n">AIModel</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="kn">from</span> <span class="nn">hspylib.core.enums.enumeration</span> <span class="kn">import</span> <span class="n">Enumeration</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="kn">from</span> <span class="nn">askai.core.engine.ai_model</span> <span class="kn">import</span> <span class="n">AIModel</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="kn">from</span> <span class="nn">hspylib.core.enums.enumeration</span> <span class="kn">import</span> <span class="n">Enumeration</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>
 </span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="k">class</span> <span class="nc">OpenAIModel</span><span class="p">(</span><span class="n">Enumeration</span><span class="p">):</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration for the supported OpenAI models. This class implements the AIModel protocol.</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">    Reference: https://www.pluralsight.com/resources/blog/data/ai-gpt-models-differences</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="c1"># ID of the model to use. Currently, only the values below are supported:</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="c1"># fmt: off</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="n">GPT_4</span>                   <span class="o">=</span> <span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span> <span class="mi">8192</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="n">GPT_4_TURBO</span>             <span class="o">=</span> <span class="s2">&quot;gpt-4-turbo&quot;</span><span class="p">,</span> <span class="mi">128000</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="n">GPT_4_O</span>                 <span class="o">=</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span> <span class="mi">128000</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="n">GPT_4_O_MINI</span>            <span class="o">=</span> <span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">,</span> <span class="mi">128000</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="n">O1_PREVIEW</span>              <span class="o">=</span> <span class="s2">&quot;o1-preview&quot;</span><span class="p">,</span> <span class="mi">128000</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="n">O1_MINI</span>                 <span class="o">=</span> <span class="s2">&quot;o1-mini&quot;</span><span class="p">,</span> <span class="mi">128000</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="c1"># fmt: on</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="k">def</span> <span class="nf">models</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;AIModel&quot;</span><span class="p">]:</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the list of available models for the engine.</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="sd">        :return: A list of available AI models.</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>        <span class="k">return</span> <span class="p">[</span><span class="n">OpenAIModel</span><span class="o">.</span><span class="n">of_value</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">OpenAIModel</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="k">def</span> <span class="nf">of_name</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AIModel&quot;</span><span class="p">:</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the AIModel instance corresponding to the given model name.</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="sd">        :param model_name: The name of the AI model.</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="sd">        :return: The corresponding AIModel instance.</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>        <span class="n">found</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>            <span class="p">(</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>                <span class="n">m</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>                <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">OpenAIModel</span><span class="o">.</span><span class="n">models</span><span class="p">()</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>                <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">model_name</span><span class="p">()</span> <span class="o">==</span> <span class="n">model_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>            <span class="p">),</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>            <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>        <span class="p">)</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>        <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>                <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">&quot; name does not correspond to a valid &quot;</span><span class="si">{</span><span class="n">OpenAIModel</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&quot; enum&#39;</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>            <span class="p">)</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>        <span class="k">return</span> <span class="n">found</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">token_limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span> <span class="o">=</span> <span class="n">model_name</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_token_limit</span> <span class="o">=</span> <span class="n">token_limit</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>
-</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">()</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">token_limit</span><span class="p">()</span><span class="si">}</span><span class="s2">k tokens&quot;</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>
-</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>    <span class="k">def</span> <span class="nf">model_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the official model&#39;s name.&quot;&quot;&quot;</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>
-</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>    <span class="k">def</span> <span class="nf">token_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the official model tokens limit.&quot;&quot;&quot;</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_limit</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="k">class</span> <span class="nc">OpenAIModel</span><span class="p">(</span><span class="n">Enumeration</span><span class="p">):</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration for the supported OpenAI models. This class implements the AIModel protocol.</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">    Reference: https://www.pluralsight.com/resources/blog/data/ai-gpt-models-differences</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="c1"># ID of the model to use. Currently, only the values below are supported:</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="c1"># fmt: off</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="n">GPT_4</span>                   <span class="o">=</span> <span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span> <span class="mi">8192</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="n">GPT_4_TURBO</span>             <span class="o">=</span> <span class="s2">&quot;gpt-4-turbo&quot;</span><span class="p">,</span> <span class="mi">128000</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="n">GPT_4_O</span>                 <span class="o">=</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span> <span class="mi">128000</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="n">GPT_4_O_MINI</span>            <span class="o">=</span> <span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">,</span> <span class="mi">128000</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="n">O1_PREVIEW</span>              <span class="o">=</span> <span class="s2">&quot;o1-preview&quot;</span><span class="p">,</span> <span class="mi">128000</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="n">O1_MINI</span>                 <span class="o">=</span> <span class="s2">&quot;o1-mini&quot;</span><span class="p">,</span> <span class="mi">128000</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="c1"># fmt: on</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="k">def</span> <span class="nf">models</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;AIModel&quot;</span><span class="p">]:</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the list of available models for the engine.</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="sd">        :return: A list of available AI models.</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>        <span class="k">return</span> <span class="p">[</span><span class="n">OpenAIModel</span><span class="o">.</span><span class="n">of_value</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">OpenAIModel</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>    <span class="k">def</span> <span class="nf">of_name</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AIModel&quot;</span><span class="p">:</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the AIModel instance corresponding to the given model name.</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">        :param model_name: The name of the AI model.</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="sd">        :return: The corresponding AIModel instance.</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>        <span class="n">found</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">OpenAIModel</span><span class="o">.</span><span class="n">models</span><span class="p">()</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">model_name</span><span class="p">()</span> <span class="o">==</span> <span class="n">model_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()),</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>        <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">&quot; name does not correspond to a valid &quot;</span><span class="si">{</span><span class="n">OpenAIModel</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&quot; enum&#39;</span><span class="p">)</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>        <span class="k">return</span> <span class="n">found</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">token_limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span> <span class="o">=</span> <span class="n">model_name</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_token_limit</span> <span class="o">=</span> <span class="n">token_limit</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">()</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">token_limit</span><span class="p">()</span><span class="si">}</span><span class="s2">k tokens&quot;</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>    <span class="k">def</span> <span class="nf">model_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the official model&#39;s name.&quot;&quot;&quot;</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>
+</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>    <span class="k">def</span> <span class="nf">token_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the official model tokens limit.&quot;&quot;&quot;</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_limit</span>
 </span></pre></div>
 
 
@@ -193,66 +183,57 @@ src<wbr>.main<wbr>.<a href="./../../../../askai.html">askai</a><wbr>.<a href="./
 
     </div>
     <a class="headerlink" href="#OpenAIModel"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="OpenAIModel-23"><a href="#OpenAIModel-23"><span class="linenos">23</span></a><span class="k">class</span> <span class="nc">OpenAIModel</span><span class="p">(</span><span class="n">Enumeration</span><span class="p">):</span>
-</span><span id="OpenAIModel-24"><a href="#OpenAIModel-24"><span class="linenos">24</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration for the supported OpenAI models. This class implements the AIModel protocol.</span>
-</span><span id="OpenAIModel-25"><a href="#OpenAIModel-25"><span class="linenos">25</span></a><span class="sd">    Reference: https://www.pluralsight.com/resources/blog/data/ai-gpt-models-differences</span>
-</span><span id="OpenAIModel-26"><a href="#OpenAIModel-26"><span class="linenos">26</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="OpenAIModel-27"><a href="#OpenAIModel-27"><span class="linenos">27</span></a>
-</span><span id="OpenAIModel-28"><a href="#OpenAIModel-28"><span class="linenos">28</span></a>    <span class="c1"># ID of the model to use. Currently, only the values below are supported:</span>
-</span><span id="OpenAIModel-29"><a href="#OpenAIModel-29"><span class="linenos">29</span></a>
-</span><span id="OpenAIModel-30"><a href="#OpenAIModel-30"><span class="linenos">30</span></a>    <span class="c1"># fmt: off</span>
-</span><span id="OpenAIModel-31"><a href="#OpenAIModel-31"><span class="linenos">31</span></a>
-</span><span id="OpenAIModel-32"><a href="#OpenAIModel-32"><span class="linenos">32</span></a>    <span class="n">GPT_4</span>                   <span class="o">=</span> <span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span> <span class="mi">8192</span>
-</span><span id="OpenAIModel-33"><a href="#OpenAIModel-33"><span class="linenos">33</span></a>    <span class="n">GPT_4_TURBO</span>             <span class="o">=</span> <span class="s2">&quot;gpt-4-turbo&quot;</span><span class="p">,</span> <span class="mi">128000</span>
-</span><span id="OpenAIModel-34"><a href="#OpenAIModel-34"><span class="linenos">34</span></a>    <span class="n">GPT_4_O</span>                 <span class="o">=</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span> <span class="mi">128000</span>
-</span><span id="OpenAIModel-35"><a href="#OpenAIModel-35"><span class="linenos">35</span></a>    <span class="n">GPT_4_O_MINI</span>            <span class="o">=</span> <span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">,</span> <span class="mi">128000</span>
-</span><span id="OpenAIModel-36"><a href="#OpenAIModel-36"><span class="linenos">36</span></a>    <span class="n">O1_PREVIEW</span>              <span class="o">=</span> <span class="s2">&quot;o1-preview&quot;</span><span class="p">,</span> <span class="mi">128000</span>
-</span><span id="OpenAIModel-37"><a href="#OpenAIModel-37"><span class="linenos">37</span></a>    <span class="n">O1_MINI</span>                 <span class="o">=</span> <span class="s2">&quot;o1-mini&quot;</span><span class="p">,</span> <span class="mi">128000</span>
-</span><span id="OpenAIModel-38"><a href="#OpenAIModel-38"><span class="linenos">38</span></a>
-</span><span id="OpenAIModel-39"><a href="#OpenAIModel-39"><span class="linenos">39</span></a>    <span class="c1"># fmt: on</span>
-</span><span id="OpenAIModel-40"><a href="#OpenAIModel-40"><span class="linenos">40</span></a>
-</span><span id="OpenAIModel-41"><a href="#OpenAIModel-41"><span class="linenos">41</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="OpenAIModel-42"><a href="#OpenAIModel-42"><span class="linenos">42</span></a>    <span class="k">def</span> <span class="nf">models</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;AIModel&quot;</span><span class="p">]:</span>
-</span><span id="OpenAIModel-43"><a href="#OpenAIModel-43"><span class="linenos">43</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the list of available models for the engine.</span>
-</span><span id="OpenAIModel-44"><a href="#OpenAIModel-44"><span class="linenos">44</span></a><span class="sd">        :return: A list of available AI models.</span>
-</span><span id="OpenAIModel-45"><a href="#OpenAIModel-45"><span class="linenos">45</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="OpenAIModel-46"><a href="#OpenAIModel-46"><span class="linenos">46</span></a>        <span class="k">return</span> <span class="p">[</span><span class="n">OpenAIModel</span><span class="o">.</span><span class="n">of_value</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">OpenAIModel</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
-</span><span id="OpenAIModel-47"><a href="#OpenAIModel-47"><span class="linenos">47</span></a>
-</span><span id="OpenAIModel-48"><a href="#OpenAIModel-48"><span class="linenos">48</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="OpenAIModel-49"><a href="#OpenAIModel-49"><span class="linenos">49</span></a>    <span class="k">def</span> <span class="nf">of_name</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AIModel&quot;</span><span class="p">:</span>
-</span><span id="OpenAIModel-50"><a href="#OpenAIModel-50"><span class="linenos">50</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the AIModel instance corresponding to the given model name.</span>
-</span><span id="OpenAIModel-51"><a href="#OpenAIModel-51"><span class="linenos">51</span></a><span class="sd">        :param model_name: The name of the AI model.</span>
-</span><span id="OpenAIModel-52"><a href="#OpenAIModel-52"><span class="linenos">52</span></a><span class="sd">        :return: The corresponding AIModel instance.</span>
-</span><span id="OpenAIModel-53"><a href="#OpenAIModel-53"><span class="linenos">53</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="OpenAIModel-54"><a href="#OpenAIModel-54"><span class="linenos">54</span></a>        <span class="n">found</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
-</span><span id="OpenAIModel-55"><a href="#OpenAIModel-55"><span class="linenos">55</span></a>            <span class="p">(</span>
-</span><span id="OpenAIModel-56"><a href="#OpenAIModel-56"><span class="linenos">56</span></a>                <span class="n">m</span>
-</span><span id="OpenAIModel-57"><a href="#OpenAIModel-57"><span class="linenos">57</span></a>                <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">OpenAIModel</span><span class="o">.</span><span class="n">models</span><span class="p">()</span>
-</span><span id="OpenAIModel-58"><a href="#OpenAIModel-58"><span class="linenos">58</span></a>                <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">model_name</span><span class="p">()</span> <span class="o">==</span> <span class="n">model_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
-</span><span id="OpenAIModel-59"><a href="#OpenAIModel-59"><span class="linenos">59</span></a>            <span class="p">),</span>
-</span><span id="OpenAIModel-60"><a href="#OpenAIModel-60"><span class="linenos">60</span></a>            <span class="kc">None</span><span class="p">,</span>
-</span><span id="OpenAIModel-61"><a href="#OpenAIModel-61"><span class="linenos">61</span></a>        <span class="p">)</span>
-</span><span id="OpenAIModel-62"><a href="#OpenAIModel-62"><span class="linenos">62</span></a>        <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="OpenAIModel-63"><a href="#OpenAIModel-63"><span class="linenos">63</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="OpenAIModel-64"><a href="#OpenAIModel-64"><span class="linenos">64</span></a>                <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">&quot; name does not correspond to a valid &quot;</span><span class="si">{</span><span class="n">OpenAIModel</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&quot; enum&#39;</span>
-</span><span id="OpenAIModel-65"><a href="#OpenAIModel-65"><span class="linenos">65</span></a>            <span class="p">)</span>
-</span><span id="OpenAIModel-66"><a href="#OpenAIModel-66"><span class="linenos">66</span></a>
-</span><span id="OpenAIModel-67"><a href="#OpenAIModel-67"><span class="linenos">67</span></a>        <span class="k">return</span> <span class="n">found</span>
-</span><span id="OpenAIModel-68"><a href="#OpenAIModel-68"><span class="linenos">68</span></a>
-</span><span id="OpenAIModel-69"><a href="#OpenAIModel-69"><span class="linenos">69</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">token_limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-</span><span id="OpenAIModel-70"><a href="#OpenAIModel-70"><span class="linenos">70</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span> <span class="o">=</span> <span class="n">model_name</span>
-</span><span id="OpenAIModel-71"><a href="#OpenAIModel-71"><span class="linenos">71</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_token_limit</span> <span class="o">=</span> <span class="n">token_limit</span>
-</span><span id="OpenAIModel-72"><a href="#OpenAIModel-72"><span class="linenos">72</span></a>
-</span><span id="OpenAIModel-73"><a href="#OpenAIModel-73"><span class="linenos">73</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="OpenAIModel-74"><a href="#OpenAIModel-74"><span class="linenos">74</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">()</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">token_limit</span><span class="p">()</span><span class="si">}</span><span class="s2">k tokens&quot;</span>
-</span><span id="OpenAIModel-75"><a href="#OpenAIModel-75"><span class="linenos">75</span></a>
-</span><span id="OpenAIModel-76"><a href="#OpenAIModel-76"><span class="linenos">76</span></a>    <span class="k">def</span> <span class="nf">model_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="OpenAIModel-77"><a href="#OpenAIModel-77"><span class="linenos">77</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the official model&#39;s name.&quot;&quot;&quot;</span>
-</span><span id="OpenAIModel-78"><a href="#OpenAIModel-78"><span class="linenos">78</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span>
-</span><span id="OpenAIModel-79"><a href="#OpenAIModel-79"><span class="linenos">79</span></a>
-</span><span id="OpenAIModel-80"><a href="#OpenAIModel-80"><span class="linenos">80</span></a>    <span class="k">def</span> <span class="nf">token_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="OpenAIModel-81"><a href="#OpenAIModel-81"><span class="linenos">81</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the official model tokens limit.&quot;&quot;&quot;</span>
-</span><span id="OpenAIModel-82"><a href="#OpenAIModel-82"><span class="linenos">82</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_limit</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="OpenAIModel-22"><a href="#OpenAIModel-22"><span class="linenos">22</span></a><span class="k">class</span> <span class="nc">OpenAIModel</span><span class="p">(</span><span class="n">Enumeration</span><span class="p">):</span>
+</span><span id="OpenAIModel-23"><a href="#OpenAIModel-23"><span class="linenos">23</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration for the supported OpenAI models. This class implements the AIModel protocol.</span>
+</span><span id="OpenAIModel-24"><a href="#OpenAIModel-24"><span class="linenos">24</span></a><span class="sd">    Reference: https://www.pluralsight.com/resources/blog/data/ai-gpt-models-differences</span>
+</span><span id="OpenAIModel-25"><a href="#OpenAIModel-25"><span class="linenos">25</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="OpenAIModel-26"><a href="#OpenAIModel-26"><span class="linenos">26</span></a>
+</span><span id="OpenAIModel-27"><a href="#OpenAIModel-27"><span class="linenos">27</span></a>    <span class="c1"># ID of the model to use. Currently, only the values below are supported:</span>
+</span><span id="OpenAIModel-28"><a href="#OpenAIModel-28"><span class="linenos">28</span></a>
+</span><span id="OpenAIModel-29"><a href="#OpenAIModel-29"><span class="linenos">29</span></a>    <span class="c1"># fmt: off</span>
+</span><span id="OpenAIModel-30"><a href="#OpenAIModel-30"><span class="linenos">30</span></a>
+</span><span id="OpenAIModel-31"><a href="#OpenAIModel-31"><span class="linenos">31</span></a>    <span class="n">GPT_4</span>                   <span class="o">=</span> <span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span> <span class="mi">8192</span>
+</span><span id="OpenAIModel-32"><a href="#OpenAIModel-32"><span class="linenos">32</span></a>    <span class="n">GPT_4_TURBO</span>             <span class="o">=</span> <span class="s2">&quot;gpt-4-turbo&quot;</span><span class="p">,</span> <span class="mi">128000</span>
+</span><span id="OpenAIModel-33"><a href="#OpenAIModel-33"><span class="linenos">33</span></a>    <span class="n">GPT_4_O</span>                 <span class="o">=</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span> <span class="mi">128000</span>
+</span><span id="OpenAIModel-34"><a href="#OpenAIModel-34"><span class="linenos">34</span></a>    <span class="n">GPT_4_O_MINI</span>            <span class="o">=</span> <span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">,</span> <span class="mi">128000</span>
+</span><span id="OpenAIModel-35"><a href="#OpenAIModel-35"><span class="linenos">35</span></a>    <span class="n">O1_PREVIEW</span>              <span class="o">=</span> <span class="s2">&quot;o1-preview&quot;</span><span class="p">,</span> <span class="mi">128000</span>
+</span><span id="OpenAIModel-36"><a href="#OpenAIModel-36"><span class="linenos">36</span></a>    <span class="n">O1_MINI</span>                 <span class="o">=</span> <span class="s2">&quot;o1-mini&quot;</span><span class="p">,</span> <span class="mi">128000</span>
+</span><span id="OpenAIModel-37"><a href="#OpenAIModel-37"><span class="linenos">37</span></a>
+</span><span id="OpenAIModel-38"><a href="#OpenAIModel-38"><span class="linenos">38</span></a>    <span class="c1"># fmt: on</span>
+</span><span id="OpenAIModel-39"><a href="#OpenAIModel-39"><span class="linenos">39</span></a>
+</span><span id="OpenAIModel-40"><a href="#OpenAIModel-40"><span class="linenos">40</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="OpenAIModel-41"><a href="#OpenAIModel-41"><span class="linenos">41</span></a>    <span class="k">def</span> <span class="nf">models</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;AIModel&quot;</span><span class="p">]:</span>
+</span><span id="OpenAIModel-42"><a href="#OpenAIModel-42"><span class="linenos">42</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the list of available models for the engine.</span>
+</span><span id="OpenAIModel-43"><a href="#OpenAIModel-43"><span class="linenos">43</span></a><span class="sd">        :return: A list of available AI models.</span>
+</span><span id="OpenAIModel-44"><a href="#OpenAIModel-44"><span class="linenos">44</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="OpenAIModel-45"><a href="#OpenAIModel-45"><span class="linenos">45</span></a>        <span class="k">return</span> <span class="p">[</span><span class="n">OpenAIModel</span><span class="o">.</span><span class="n">of_value</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">OpenAIModel</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+</span><span id="OpenAIModel-46"><a href="#OpenAIModel-46"><span class="linenos">46</span></a>
+</span><span id="OpenAIModel-47"><a href="#OpenAIModel-47"><span class="linenos">47</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="OpenAIModel-48"><a href="#OpenAIModel-48"><span class="linenos">48</span></a>    <span class="k">def</span> <span class="nf">of_name</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AIModel&quot;</span><span class="p">:</span>
+</span><span id="OpenAIModel-49"><a href="#OpenAIModel-49"><span class="linenos">49</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the AIModel instance corresponding to the given model name.</span>
+</span><span id="OpenAIModel-50"><a href="#OpenAIModel-50"><span class="linenos">50</span></a><span class="sd">        :param model_name: The name of the AI model.</span>
+</span><span id="OpenAIModel-51"><a href="#OpenAIModel-51"><span class="linenos">51</span></a><span class="sd">        :return: The corresponding AIModel instance.</span>
+</span><span id="OpenAIModel-52"><a href="#OpenAIModel-52"><span class="linenos">52</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="OpenAIModel-53"><a href="#OpenAIModel-53"><span class="linenos">53</span></a>        <span class="n">found</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">OpenAIModel</span><span class="o">.</span><span class="n">models</span><span class="p">()</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">model_name</span><span class="p">()</span> <span class="o">==</span> <span class="n">model_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()),</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="OpenAIModel-54"><a href="#OpenAIModel-54"><span class="linenos">54</span></a>        <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="OpenAIModel-55"><a href="#OpenAIModel-55"><span class="linenos">55</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">&quot; name does not correspond to a valid &quot;</span><span class="si">{</span><span class="n">OpenAIModel</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&quot; enum&#39;</span><span class="p">)</span>
+</span><span id="OpenAIModel-56"><a href="#OpenAIModel-56"><span class="linenos">56</span></a>
+</span><span id="OpenAIModel-57"><a href="#OpenAIModel-57"><span class="linenos">57</span></a>        <span class="k">return</span> <span class="n">found</span>
+</span><span id="OpenAIModel-58"><a href="#OpenAIModel-58"><span class="linenos">58</span></a>
+</span><span id="OpenAIModel-59"><a href="#OpenAIModel-59"><span class="linenos">59</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">token_limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span><span id="OpenAIModel-60"><a href="#OpenAIModel-60"><span class="linenos">60</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span> <span class="o">=</span> <span class="n">model_name</span>
+</span><span id="OpenAIModel-61"><a href="#OpenAIModel-61"><span class="linenos">61</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_token_limit</span> <span class="o">=</span> <span class="n">token_limit</span>
+</span><span id="OpenAIModel-62"><a href="#OpenAIModel-62"><span class="linenos">62</span></a>
+</span><span id="OpenAIModel-63"><a href="#OpenAIModel-63"><span class="linenos">63</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="OpenAIModel-64"><a href="#OpenAIModel-64"><span class="linenos">64</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">()</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">token_limit</span><span class="p">()</span><span class="si">}</span><span class="s2">k tokens&quot;</span>
+</span><span id="OpenAIModel-65"><a href="#OpenAIModel-65"><span class="linenos">65</span></a>
+</span><span id="OpenAIModel-66"><a href="#OpenAIModel-66"><span class="linenos">66</span></a>    <span class="k">def</span> <span class="nf">model_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="OpenAIModel-67"><a href="#OpenAIModel-67"><span class="linenos">67</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the official model&#39;s name.&quot;&quot;&quot;</span>
+</span><span id="OpenAIModel-68"><a href="#OpenAIModel-68"><span class="linenos">68</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span>
+</span><span id="OpenAIModel-69"><a href="#OpenAIModel-69"><span class="linenos">69</span></a>
+</span><span id="OpenAIModel-70"><a href="#OpenAIModel-70"><span class="linenos">70</span></a>    <span class="k">def</span> <span class="nf">token_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="OpenAIModel-71"><a href="#OpenAIModel-71"><span class="linenos">71</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the official model tokens limit.&quot;&quot;&quot;</span>
+</span><span id="OpenAIModel-72"><a href="#OpenAIModel-72"><span class="linenos">72</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_limit</span>
 </span></pre></div>
 
 
@@ -345,12 +326,12 @@ Reference: <a href="https://www.pluralsight.com/resources/blog/data/ai-gpt-model
 
     </div>
     <a class="headerlink" href="#OpenAIModel.models"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="OpenAIModel.models-41"><a href="#OpenAIModel.models-41"><span class="linenos">41</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="OpenAIModel.models-42"><a href="#OpenAIModel.models-42"><span class="linenos">42</span></a>    <span class="k">def</span> <span class="nf">models</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;AIModel&quot;</span><span class="p">]:</span>
-</span><span id="OpenAIModel.models-43"><a href="#OpenAIModel.models-43"><span class="linenos">43</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the list of available models for the engine.</span>
-</span><span id="OpenAIModel.models-44"><a href="#OpenAIModel.models-44"><span class="linenos">44</span></a><span class="sd">        :return: A list of available AI models.</span>
-</span><span id="OpenAIModel.models-45"><a href="#OpenAIModel.models-45"><span class="linenos">45</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="OpenAIModel.models-46"><a href="#OpenAIModel.models-46"><span class="linenos">46</span></a>        <span class="k">return</span> <span class="p">[</span><span class="n">OpenAIModel</span><span class="o">.</span><span class="n">of_value</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">OpenAIModel</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="OpenAIModel.models-40"><a href="#OpenAIModel.models-40"><span class="linenos">40</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="OpenAIModel.models-41"><a href="#OpenAIModel.models-41"><span class="linenos">41</span></a>    <span class="k">def</span> <span class="nf">models</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;AIModel&quot;</span><span class="p">]:</span>
+</span><span id="OpenAIModel.models-42"><a href="#OpenAIModel.models-42"><span class="linenos">42</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the list of available models for the engine.</span>
+</span><span id="OpenAIModel.models-43"><a href="#OpenAIModel.models-43"><span class="linenos">43</span></a><span class="sd">        :return: A list of available AI models.</span>
+</span><span id="OpenAIModel.models-44"><a href="#OpenAIModel.models-44"><span class="linenos">44</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="OpenAIModel.models-45"><a href="#OpenAIModel.models-45"><span class="linenos">45</span></a>        <span class="k">return</span> <span class="p">[</span><span class="n">OpenAIModel</span><span class="o">.</span><span class="n">of_value</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">OpenAIModel</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
 </span></pre></div>
 
 
@@ -377,26 +358,17 @@ Reference: <a href="https://www.pluralsight.com/resources/blog/data/ai-gpt-model
 
     </div>
     <a class="headerlink" href="#OpenAIModel.of_name"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="OpenAIModel.of_name-48"><a href="#OpenAIModel.of_name-48"><span class="linenos">48</span></a>    <span class="nd">@staticmethod</span>
-</span><span id="OpenAIModel.of_name-49"><a href="#OpenAIModel.of_name-49"><span class="linenos">49</span></a>    <span class="k">def</span> <span class="nf">of_name</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AIModel&quot;</span><span class="p">:</span>
-</span><span id="OpenAIModel.of_name-50"><a href="#OpenAIModel.of_name-50"><span class="linenos">50</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the AIModel instance corresponding to the given model name.</span>
-</span><span id="OpenAIModel.of_name-51"><a href="#OpenAIModel.of_name-51"><span class="linenos">51</span></a><span class="sd">        :param model_name: The name of the AI model.</span>
-</span><span id="OpenAIModel.of_name-52"><a href="#OpenAIModel.of_name-52"><span class="linenos">52</span></a><span class="sd">        :return: The corresponding AIModel instance.</span>
-</span><span id="OpenAIModel.of_name-53"><a href="#OpenAIModel.of_name-53"><span class="linenos">53</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="OpenAIModel.of_name-54"><a href="#OpenAIModel.of_name-54"><span class="linenos">54</span></a>        <span class="n">found</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
-</span><span id="OpenAIModel.of_name-55"><a href="#OpenAIModel.of_name-55"><span class="linenos">55</span></a>            <span class="p">(</span>
-</span><span id="OpenAIModel.of_name-56"><a href="#OpenAIModel.of_name-56"><span class="linenos">56</span></a>                <span class="n">m</span>
-</span><span id="OpenAIModel.of_name-57"><a href="#OpenAIModel.of_name-57"><span class="linenos">57</span></a>                <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">OpenAIModel</span><span class="o">.</span><span class="n">models</span><span class="p">()</span>
-</span><span id="OpenAIModel.of_name-58"><a href="#OpenAIModel.of_name-58"><span class="linenos">58</span></a>                <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">model_name</span><span class="p">()</span> <span class="o">==</span> <span class="n">model_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
-</span><span id="OpenAIModel.of_name-59"><a href="#OpenAIModel.of_name-59"><span class="linenos">59</span></a>            <span class="p">),</span>
-</span><span id="OpenAIModel.of_name-60"><a href="#OpenAIModel.of_name-60"><span class="linenos">60</span></a>            <span class="kc">None</span><span class="p">,</span>
-</span><span id="OpenAIModel.of_name-61"><a href="#OpenAIModel.of_name-61"><span class="linenos">61</span></a>        <span class="p">)</span>
-</span><span id="OpenAIModel.of_name-62"><a href="#OpenAIModel.of_name-62"><span class="linenos">62</span></a>        <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="OpenAIModel.of_name-63"><a href="#OpenAIModel.of_name-63"><span class="linenos">63</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="OpenAIModel.of_name-64"><a href="#OpenAIModel.of_name-64"><span class="linenos">64</span></a>                <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">&quot; name does not correspond to a valid &quot;</span><span class="si">{</span><span class="n">OpenAIModel</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&quot; enum&#39;</span>
-</span><span id="OpenAIModel.of_name-65"><a href="#OpenAIModel.of_name-65"><span class="linenos">65</span></a>            <span class="p">)</span>
-</span><span id="OpenAIModel.of_name-66"><a href="#OpenAIModel.of_name-66"><span class="linenos">66</span></a>
-</span><span id="OpenAIModel.of_name-67"><a href="#OpenAIModel.of_name-67"><span class="linenos">67</span></a>        <span class="k">return</span> <span class="n">found</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="OpenAIModel.of_name-47"><a href="#OpenAIModel.of_name-47"><span class="linenos">47</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="OpenAIModel.of_name-48"><a href="#OpenAIModel.of_name-48"><span class="linenos">48</span></a>    <span class="k">def</span> <span class="nf">of_name</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AIModel&quot;</span><span class="p">:</span>
+</span><span id="OpenAIModel.of_name-49"><a href="#OpenAIModel.of_name-49"><span class="linenos">49</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the AIModel instance corresponding to the given model name.</span>
+</span><span id="OpenAIModel.of_name-50"><a href="#OpenAIModel.of_name-50"><span class="linenos">50</span></a><span class="sd">        :param model_name: The name of the AI model.</span>
+</span><span id="OpenAIModel.of_name-51"><a href="#OpenAIModel.of_name-51"><span class="linenos">51</span></a><span class="sd">        :return: The corresponding AIModel instance.</span>
+</span><span id="OpenAIModel.of_name-52"><a href="#OpenAIModel.of_name-52"><span class="linenos">52</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="OpenAIModel.of_name-53"><a href="#OpenAIModel.of_name-53"><span class="linenos">53</span></a>        <span class="n">found</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">OpenAIModel</span><span class="o">.</span><span class="n">models</span><span class="p">()</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">model_name</span><span class="p">()</span> <span class="o">==</span> <span class="n">model_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()),</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="OpenAIModel.of_name-54"><a href="#OpenAIModel.of_name-54"><span class="linenos">54</span></a>        <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="OpenAIModel.of_name-55"><a href="#OpenAIModel.of_name-55"><span class="linenos">55</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">&quot; name does not correspond to a valid &quot;</span><span class="si">{</span><span class="n">OpenAIModel</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&quot; enum&#39;</span><span class="p">)</span>
+</span><span id="OpenAIModel.of_name-56"><a href="#OpenAIModel.of_name-56"><span class="linenos">56</span></a>
+</span><span id="OpenAIModel.of_name-57"><a href="#OpenAIModel.of_name-57"><span class="linenos">57</span></a>        <span class="k">return</span> <span class="n">found</span>
 </span></pre></div>
 
 
@@ -428,9 +400,9 @@ Reference: <a href="https://www.pluralsight.com/resources/blog/data/ai-gpt-model
 
     </div>
     <a class="headerlink" href="#OpenAIModel.model_name"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="OpenAIModel.model_name-76"><a href="#OpenAIModel.model_name-76"><span class="linenos">76</span></a>    <span class="k">def</span> <span class="nf">model_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="OpenAIModel.model_name-77"><a href="#OpenAIModel.model_name-77"><span class="linenos">77</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the official model&#39;s name.&quot;&quot;&quot;</span>
-</span><span id="OpenAIModel.model_name-78"><a href="#OpenAIModel.model_name-78"><span class="linenos">78</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="OpenAIModel.model_name-66"><a href="#OpenAIModel.model_name-66"><span class="linenos">66</span></a>    <span class="k">def</span> <span class="nf">model_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="OpenAIModel.model_name-67"><a href="#OpenAIModel.model_name-67"><span class="linenos">67</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the official model&#39;s name.&quot;&quot;&quot;</span>
+</span><span id="OpenAIModel.model_name-68"><a href="#OpenAIModel.model_name-68"><span class="linenos">68</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span>
 </span></pre></div>
 
 
@@ -450,9 +422,9 @@ Reference: <a href="https://www.pluralsight.com/resources/blog/data/ai-gpt-model
 
     </div>
     <a class="headerlink" href="#OpenAIModel.token_limit"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="OpenAIModel.token_limit-80"><a href="#OpenAIModel.token_limit-80"><span class="linenos">80</span></a>    <span class="k">def</span> <span class="nf">token_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="OpenAIModel.token_limit-81"><a href="#OpenAIModel.token_limit-81"><span class="linenos">81</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the official model tokens limit.&quot;&quot;&quot;</span>
-</span><span id="OpenAIModel.token_limit-82"><a href="#OpenAIModel.token_limit-82"><span class="linenos">82</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_limit</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="OpenAIModel.token_limit-70"><a href="#OpenAIModel.token_limit-70"><span class="linenos">70</span></a>    <span class="k">def</span> <span class="nf">token_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="OpenAIModel.token_limit-71"><a href="#OpenAIModel.token_limit-71"><span class="linenos">71</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the official model tokens limit.&quot;&quot;&quot;</span>
+</span><span id="OpenAIModel.token_limit-72"><a href="#OpenAIModel.token_limit-72"><span class="linenos">72</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_limit</span>
 </span></pre></div>
 
 
