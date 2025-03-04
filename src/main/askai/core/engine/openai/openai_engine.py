@@ -12,9 +12,9 @@
 
    Copyright (c) 2024, AskAI
 """
-from askai.core.component.audio_player import player
 from askai.core.component.cache_service import cache
-from askai.core.component.recorder import Recorder
+from askai.core.component.multimedia.audio_player import player
+from askai.core.component.multimedia.recorder import Recorder
 from askai.core.component.text_streamer import streamer
 from askai.core.engine.ai_model import AIModel
 from askai.core.engine.ai_vision import AIVision
@@ -94,10 +94,7 @@ class OpenAIEngine:
         :return: An instance of BaseLLM.
         """
         return langchain_openai.OpenAI(
-            openai_api_key=self._api_key,
-            model=self._model.model_name(),
-            temperature=temperature,
-            top_p=top_p,
+            openai_api_key=self._api_key, model=self._model.model_name(), temperature=temperature, top_p=top_p
         )
 
     def lc_chat_model(self, temperature: float) -> BaseChatModel:
@@ -106,9 +103,7 @@ class OpenAIEngine:
         :return: An instance of BaseChatModel.
         """
         return langchain_openai.ChatOpenAI(
-            openai_api_key=self._api_key,
-            model=self._model.model_name(),
-            temperature=temperature,
+            openai_api_key=self._api_key, model=self._model.model_name(), temperature=temperature
         )
 
     def lc_embeddings(self, model: str) -> Embeddings:
@@ -116,9 +111,7 @@ class OpenAIEngine:
         :param model: The LLM embeddings model string.
         :return: An instance of Embeddings.
         """
-        return langchain_openai.OpenAIEmbeddings(
-            openai_api_key=self._api_key, model=model
-        )
+        return langchain_openai.OpenAIEmbeddings(openai_api_key=self._api_key, model=model)
 
     def ai_name(self) -> str:
         """Get the AI engine name.
@@ -138,9 +131,7 @@ class OpenAIEngine:
         """
         return self._model.token_limit()
 
-    def ask(
-        self, chat_context: List[dict], temperature: float = 0.8, top_p: float = 0.0
-    ) -> AIReply:
+    def ask(self, chat_context: List[dict], temperature: float = 0.8, top_p: float = 0.0) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
         :param chat_context: The chat history or context.
         :param temperature: The model engine temperature.
@@ -151,24 +142,17 @@ class OpenAIEngine:
             check_not_none(chat_context)
             log.debug(f"Generating AI answer")
             response = self.client.chat.completions.create(
-                model=self.ai_model_name(),
-                messages=chat_context,
-                temperature=temperature,
-                top_p=top_p,
+                model=self.ai_model_name(), messages=chat_context, temperature=temperature, top_p=top_p
             )
             reply = AIReply(response.choices[0].message.content, True)
             log.debug("Response received from LLM: %s", str(reply))
         except APIError as error:
             body: dict = error.body or {"message": "Message not provided"}
-            reply = AIReply(
-                f"%RED%{error.__class__.__name__} => {body['message']}%NC%", False
-            )
+            reply = AIReply(f"%RED%{error.__class__.__name__} => {body['message']}%NC%", False)
 
         return reply
 
-    def text_to_speech(
-        self, text: str, prefix: str = "", stream: bool = True, playback: bool = True
-    ) -> Optional[Path]:
+    def text_to_speech(self, text: str, prefix: str = "", stream: bool = True, playback: bool = True) -> Optional[Path]:
         """Convert the provided text to speech.
         :param text: The text to convert to speech.
         :param prefix: The prefix of the streamed text.
@@ -181,11 +165,7 @@ class OpenAIEngine:
                 text, self._configs.tts_voice, self._configs.tts_format
             )
             if not file_exists:
-                log.debug(
-                    f'Audio file "%s" not found in cache. Generating from %s.',
-                    self.nickname(),
-                    speech_file_path,
-                )
+                log.debug(f'Audio file "%s" not found in cache. Generating from %s.', self.nickname(), speech_file_path)
                 with self.client.audio.speech.with_streaming_response.create(
                     input=text,
                     model=self._configs.tts_model,
@@ -195,14 +175,10 @@ class OpenAIEngine:
                     response.stream_to_file(speech_file_path)
                     log.debug(f"Audio file created: '%s' at %s", text, speech_file_path)
             else:
-                log.debug(
-                    f"Audio file found in cache: '%s' at %s", text, speech_file_path
-                )
+                log.debug(f"Audio file found in cache: '%s' at %s", text, speech_file_path)
             if playback:
                 speak_thread = Thread(
-                    daemon=True,
-                    target=player.play_audio_file,
-                    args=(speech_file_path, self._configs.tempo),
+                    daemon=True, target=player.play_audio_file, args=(speech_file_path, self._configs.tempo)
                 )
                 speak_thread.start()
                 if stream:
@@ -225,9 +201,7 @@ class OpenAIEngine:
         :param text: The text for which to calculate tokens.
         :return: The number of tokens in the text.
         """
-        encoding: tiktoken.Encoding = tiktoken.encoding_for_model(
-            self._model.model_name()
-        )
+        encoding: tiktoken.Encoding = tiktoken.encoding_for_model(self._model.model_name())
         tokens: list[int] = encoding.encode(text)
         log.debug(f"Tokens calculated. Text: '{text}'  Tokens: '{tokens}'")
         return len(tokens)

@@ -1,10 +1,9 @@
 from hspylib.core.tools.commons import sysout
 from hspylib.modules.cli.vt100.vt_color import VtColor
+from src.demo.devel.spinner import Spinner
 
 import os
 import pause
-
-from src.demo.devel.spinner import Spinner
 
 
 def echo(message: str, prefix: str | None = None, end=os.linesep) -> None:

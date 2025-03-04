@@ -5,11 +5,5 @@
 # Package: main.askai.core.router
 """Package initialization."""
 
-__all__ = [
-    'agent_tools', 
-    'evaluation', 
-    'model_selector', 
-    'task_agent', 
-    'tools'
-]
-__version__ = '1.2.11'
+__all__ = ["agent_tools", "evaluation", "model_selector", "task_agent", "tools"]
+__version__ = "1.2.11"

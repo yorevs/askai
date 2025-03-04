@@ -35,9 +35,7 @@ class QnA(metaclass=Singleton):
 
         if not question:
             raise TerminatingQuery("The user wants to exit!")
-        if question.casefold() in ["exit", "leave", "quit", "q"] or not (
-            response := summarizer.query(question)
-        ):
+        if question.casefold() in ["exit", "leave", "quit", "q"] or not (response := summarizer.query(question)):
             events.reply.emit(reply=AIReply.info(msg.leave_qna()))
             events.mode_changed.emit(mode="DEFAULT")
             return None

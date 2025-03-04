@@ -12,16 +12,6 @@
 
    Copyright (c) 2024, AskAI
 """
-from pathlib import Path
-from types import SimpleNamespace
-from typing import Optional
-import logging as log
-
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.messages import AIMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables import RunnableWithMessageHistory, Runnable
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -41,6 +31,15 @@ from askai.core.router.tools.general import final_answer
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables import Runnable, RunnableWithMessageHistory
+from pathlib import Path
+from types import SimpleNamespace
+from typing import Optional
+
+import logging as log
 
 
 class SplitterActions(metaclass=Singleton):

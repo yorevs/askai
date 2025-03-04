@@ -6,13 +6,13 @@
 """Package initialization."""
 
 __all__ = [
-    'camera_demo', 
-    'internet_demo', 
-    'recorder_demo', 
-    'scheduler_demo', 
-    'summarizer_demo', 
-    'text_streamer_demo', 
-    'vision_demo', 
-    'webcam_demo'
+    "camera_demo",
+    "internet_demo",
+    "recorder_demo",
+    "scheduler_demo",
+    "summarizer_demo",
+    "text_streamer_demo",
+    "vision_demo",
+    "webcam_demo",
 ]
-__version__ = '1.2.11'
+__version__ = "1.2.11"

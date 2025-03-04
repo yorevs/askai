@@ -1,14 +1,15 @@
-import os
+from askai.core.askai_configs import configs
+from askai.core.askai_events import events
+from askai.core.askai_messages import msg
+from askai.core.component.multimedia.camera import camera
+from askai.core.model.ai_reply import AIReply
+from askai.core.router.tools.vision import image_captioner, parse_image_caption
+from hspylib.core.metaclass.classpath import AnyPath
 from os.path import basename
 from string import Template
 from textwrap import indent
 
-from askai.core.askai_configs import configs
-from askai.core.askai_events import events
-from askai.core.askai_messages import msg
-from askai.core.component.camera import camera
-from askai.core.model.ai_reply import AIReply
-from askai.core.router.tools.vision import image_captioner, parse_image_caption
+import os
 
 PHOTO_TEMPLATE: Template = Template(
     """\
@@ -43,7 +44,7 @@ ${image_caption}
 )
 
 
-def webcam_capturer(photo_name: str | None, detect_faces: bool = False, query: str | None = None) -> str:
+def webcam_capturer(photo_name: AnyPath, detect_faces: bool = False, query: str | None = None) -> str:
     """Capture a photo using the webcam and save it locally. Optionally detect faces in the photo.
     :param photo_name: The name of the photo file. If None, a default name will be used.
     :param detect_faces: Whether to detect faces in the photo.
@@ -56,7 +57,7 @@ def webcam_capturer(photo_name: str | None, detect_faces: bool = False, query: s
     ln: str = os.linesep
 
     if detect_faces:
-        face_files, face_datas = camera.detect_faces(pic_data, photo_name)
+        face_files, _ = camera.detect_faces(pic_data, photo_name)
         faces: int = len(face_files)
         face_description: list[str] = (
             [

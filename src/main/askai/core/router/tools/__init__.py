@@ -5,14 +5,5 @@
 # Package: main.askai.core.router.tools
 """Package initialization."""
 
-__all__ = [
-    'analysis', 
-    'browser', 
-    'general', 
-    'generation', 
-    'summarization', 
-    'terminal', 
-    'vision', 
-    'webcam'
-]
-__version__ = '1.2.11'
+__all__ = ["analysis", "browser", "general", "generation", "summarization", "terminal", "vision", "webcam"]
+__version__ = "1.2.11"

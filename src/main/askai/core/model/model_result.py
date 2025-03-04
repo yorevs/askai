@@ -12,10 +12,9 @@
 
    Copyright (c) 2024, AskAI
 """
+from askai.core.enums.response_model import ResponseModel
 from dataclasses import dataclass
 from functools import lru_cache
-
-from askai.core.enums.response_model import ResponseModel
 
 
 @dataclass
@@ -33,9 +32,7 @@ class ModelResult:
         """Creates and returns the default ModelResult instance.
         :return: A default ModelResult instance with predefined values.
         """
-        return ModelResult(
-            ResponseModel.NEUTRAL.model, "Default model", "Provide the answer as received by the AI"
-        )
+        return ModelResult(ResponseModel.NEUTRAL.model, "Default model", "Provide the answer as received by the AI")
 
     @staticmethod
     @lru_cache

@@ -36,8 +36,7 @@ class ModelSelector(metaclass=Singleton):
     def model_template(self) -> PromptTemplate:
         """Retrieve the Routing Model Template."""
         return PromptTemplate(
-            input_variables=["datetime", "models", "question"],
-            template=prompt.read_prompt("model-select.txt"),
+            input_variables=["datetime", "models", "question"], template=prompt.read_prompt("model-select.txt")
         )
 
     def select_model(self, question: str) -> ModelResult:
@@ -46,21 +45,13 @@ class ModelSelector(metaclass=Singleton):
         :return: An instance of ModelResult representing the selected model.
         """
         final_prompt: str = self.model_template.format(
-            datetime=geo_location.datetime,
-            models=ResponseModel.enlist(),
-            question=question,
+            datetime=geo_location.datetime, models=ResponseModel.enlist(), question=question
         )
         llm: BaseChatModel = lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
         if response := llm.invoke(final_prompt):
             json_string: str = response.content  # from AIMessage
-            model_result: ModelResult | str = object_mapper.of_json(
-                json_string, ModelResult
-            )
-            model_result: ModelResult = (
-                model_result
-                if isinstance(model_result, ModelResult)
-                else ModelResult.default()
-            )
+            model_result: ModelResult | str = object_mapper.of_json(json_string, ModelResult)
+            model_result: ModelResult = model_result if isinstance(model_result, ModelResult) else ModelResult.default()
         else:
             model_result: ModelResult = ModelResult.default()
 

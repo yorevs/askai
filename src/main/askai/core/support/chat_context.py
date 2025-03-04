@@ -36,16 +36,10 @@ ContextEntry = namedtuple("ContextEntry", ["role", "content"])
 class ChatContext:
     """Provide a chat context helper for AI engines."""
 
-    LANGCHAIN_ROLE_MAP: dict = {
-        "human": HumanMessage,
-        "system": SystemMessage,
-        "assistant": AIMessage,
-    }
+    LANGCHAIN_ROLE_MAP: dict = {"human": HumanMessage, "system": SystemMessage, "assistant": AIMessage}
 
     def __init__(self, token_limit: int, max_context_size: int):
-        self._store: dict[AnyStr, deque] = defaultdict(
-            partial(deque, maxlen=max_context_size)
-        )
+        self._store: dict[AnyStr, deque] = defaultdict(partial(deque, maxlen=max_context_size))
         self._token_limit: int = token_limit * 1024  # The limit is given in KB
         self._max_context_size: int = max_context_size
 
@@ -87,12 +81,8 @@ class ChatContext:
         """
         check_argument(role in get_args(ChatRoles), f"Invalid ChatRole: '{role}'")
         if (token_length := (self.length(key)) + len(content)) > self._token_limit:
-            raise TokenLengthExceeded(
-                f"Required token length={token_length}  limit={self._token_limit}"
-            )
-        if (entry := ContextEntry(role, content.strip())) not in (
-            ctx := self.store[key]
-        ):
+            raise TokenLengthExceeded(f"Required token length={token_length}  limit={self._token_limit}")
+        if (entry := ContextEntry(role, content.strip())) not in (ctx := self.store[key]):
             ctx.append(entry)
 
         return self.get(key)
@@ -103,9 +93,7 @@ class ChatContext:
         :return: The context message associated with the key.
         """
 
-        return [
-            {"role": ctx.role, "content": ctx.content} for ctx in self.store[key]
-        ] or []
+        return [{"role": ctx.role, "content": ctx.content} for ctx in self.store[key]] or []
 
     def set(self, key: str, content: Any, role: ChatRoles = "human") -> ContextRaw:
         """Set the context message in the chat with the specified role.
@@ -136,11 +124,7 @@ class ChatContext:
         :return: The length of the context (e.g., number of content entries).
         """
         ctx = self.store[key]
-        return (
-            reduce(lambda total, e: total + len(e.content), ctx, 0)
-            if len(ctx) > 0
-            else 0
-        )
+        return reduce(lambda total, e: total + len(e.content), ctx, 0) if len(ctx) > 0 else 0
 
     def join(self, *keys: str) -> LangChainContext:
         """Join multiple contexts identified by the specified keys.
@@ -154,9 +138,7 @@ class ChatContext:
             content: str = os.linesep.join([tk["content"] for tk in ctx])
             token_length += len(content or "")
             if token_length > self._token_limit:
-                raise TokenLengthExceeded(
-                    f"Required token length={token_length}k  limit={self._token_limit}k"
-                )
+                raise TokenLengthExceeded(f"Required token length={token_length}k  limit={self._token_limit}k")
             if content and ctx not in context:
                 list(map(context.append, [(t["role"], t["content"]) for t in ctx]))
         return context

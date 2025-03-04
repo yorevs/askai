@@ -12,12 +12,11 @@
 
 Copyright (c) 2024, AskAI
 """
-import os
-import re
-import tempfile
-from textwrap import dedent
-from typing import Callable, Optional
-
+from askai.core.commander.commands.history_cmd import HistoryCmd
+from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
+from askai.core.support.shared_instances import shared
+from askai.tui.app_icons import AppIcons
+from askai.tui.app_suggester import InputSuggester
 from rich.text import Text
 from textual import work
 from textual.app import ComposeResult, RenderResult
@@ -25,13 +24,13 @@ from textual.containers import Container
 from textual.events import Click
 from textual.reactive import Reactive
 from textual.widget import Widget
-from textual.widgets import Collapsible, DataTable, Markdown, Static, Input
+from textual.widgets import Collapsible, DataTable, Input, Markdown, Static
+from textwrap import dedent
+from typing import Callable, Optional
 
-from askai.core.commander.commands.history_cmd import HistoryCmd
-from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
-from askai.core.support.shared_instances import shared
-from askai.tui.app_icons import AppIcons
-from askai.tui.app_suggester import InputSuggester
+import os
+import re
+import tempfile
 
 
 class MenuIcon(Widget):
@@ -194,10 +193,7 @@ class InputActions(Static):
         """Read the last reply aloud using hte default voice."""
         if (ctx := str(shared.context.flat("LAST_REPLY"))) and (
             last_reply := re.sub(
-                r"^((system|human|AI|assistant):\s*)",
-                "",
-                ctx,
-                flags=re.MULTILINE | re.DOTALL | re.IGNORECASE,
+                r"^((system|human|AI|assistant):\s*)", "", ctx, flags=re.MULTILINE | re.DOTALL | re.IGNORECASE
             )
         ):
             TtsSttCmd.tts(last_reply.strip(), os.environ.get("TEMP", tempfile.gettempdir()), True)

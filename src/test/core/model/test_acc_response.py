@@ -13,13 +13,12 @@
 Copyright (c) 2024, AskAI
 """
 from askai.core.model.acc_response import AccResponse
+from fixtures.acc_response_stubs import stub_response
 from hspylib.core.tools.commons import dirname
 from pathlib import Path
 
 import sys
 import unittest
-
-from fixtures.acc_response_stubs import stub_response
 
 
 class TestClass(unittest.TestCase):

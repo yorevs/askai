@@ -18,7 +18,7 @@ from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.component.cache_service import cache
 from askai.core.component.geo_location import geo_location
-from askai.core.component.recorder import recorder
+from askai.core.component.multimedia.recorder import recorder
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.engine.engine_factory import EngineFactory
 from askai.core.support.chat_context import ChatContext, ContextEntry
@@ -180,9 +180,7 @@ class SharedInstances(metaclass=Singleton):
         """
         if self._memory is None:
             self._memory = ConversationBufferWindowMemory(
-                memory_key=memory_key,
-                k=configs.max_short_memory_size,
-                return_messages=True,
+                memory_key=memory_key, k=configs.max_short_memory_size, return_messages=True
             )
             if configs.is_keep_context:
                 entries: list[str] = cache.read_memory()

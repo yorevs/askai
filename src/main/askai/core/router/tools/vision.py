@@ -1,30 +1,29 @@
-import os
-from string import Template
-from textwrap import indent
-from typing import Literal
-
-import pause
-import pyautogui
-import torch
-from PIL import Image
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.classpath import AnyPath
-from hspylib.core.preconditions import check_argument
-from hspylib.core.tools.text_tools import ensure_endswith
-from hspylib.core.zoned_datetime import now
-from transformers import BlipForConditionalGeneration, BlipProcessor
-
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
-from askai.core.component.audio_player import player
 from askai.core.component.cache_service import PICTURE_DIR, SCREENSHOTS_DIR
+from askai.core.component.multimedia.audio_player import player
 from askai.core.engine.ai_vision import AIVision
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.image_result import ImageResult
 from askai.core.model.screenshot_result import ScreenshotResult
 from askai.core.router.evaluation import resolve_x_refs
 from askai.core.support.shared_instances import shared
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.classpath import AnyPath
+from hspylib.core.preconditions import check_argument
+from hspylib.core.tools.text_tools import ensure_endswith
+from hspylib.core.zoned_datetime import now
+from PIL import Image
+from string import Template
+from textwrap import indent
+from transformers import BlipForConditionalGeneration, BlipProcessor
+from typing import Literal
+
+import os
+import pause
+import pyautogui
+import torch
 
 SCREENSHOT_TEMPLATE: Template = Template(
     """\

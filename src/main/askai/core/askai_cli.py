@@ -13,25 +13,15 @@
 Copyright (c) 2024, AskAI
 """
 
-import logging as log
-import os
-import signal
-from pathlib import Path
-from textwrap import indent
-from threading import Thread
-from typing import Optional
-
-import nltk
-import pause
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
 from askai.core.askai_events import *
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import commands
-from askai.core.component.audio_player import player
-from askai.core.component.cache_service import CACHE_DIR, cache
-from askai.core.component.recorder import recorder
+from askai.core.component.cache_service import cache, CACHE_DIR
+from askai.core.component.multimedia.audio_player import player
+from askai.core.component.multimedia.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.enums.router_mode import RouterMode
 from askai.core.model.ai_reply import AIReply
@@ -43,9 +33,19 @@ from clitt.core.term.screen import screen
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import console_out
-from hspylib.core.zoned_datetime import TIME_FORMAT, now
+from hspylib.core.zoned_datetime import now, TIME_FORMAT
 from hspylib.modules.eventbus.event import Event
+from pathlib import Path
 from rich.progress import Progress
+from textwrap import indent
+from threading import Thread
+from typing import Optional
+
+import logging as log
+import nltk
+import os
+import pause
+import signal
 
 
 class AskAiCli(AskAi):
@@ -192,42 +192,18 @@ class AskAiCli(AskAi):
             task = progress.add_task(f'[green] {msg.t("Starting up...")}', total=len(tasks))
             with progress:
                 os.chdir(Path.home())
-                progress.update(
-                    task,
-                    advance=1,
-                    description=f'[green] {msg.t("Downloading nltk data")}',
-                )
+                progress.update(task, advance=1, description=f'[green] {msg.t("Downloading nltk data")}')
                 nltk.download("averaged_perceptron_tagger", quiet=True, download_dir=CACHE_DIR)
                 cache.cache_enable = configs.is_cache
-                progress.update(
-                    task,
-                    advance=1,
-                    description=f'[green] {msg.t("Loading input history")}',
-                )
+                progress.update(task, advance=1, description=f'[green] {msg.t("Loading input history")}')
                 KeyboardInput.preload_history(cache.load_input_history(commands()))
-                progress.update(
-                    task,
-                    advance=1,
-                    description=f'[green] {msg.t("Starting scheduler")}',
-                )
+                progress.update(task, advance=1, description=f'[green] {msg.t("Starting scheduler")}')
                 scheduler.start()
-                progress.update(
-                    task,
-                    advance=1,
-                    description=f'[green] {msg.t("Setting up recorder")}',
-                )
+                progress.update(task, advance=1, description=f'[green] {msg.t("Setting up recorder")}')
                 recorder.setup()
-                progress.update(
-                    task,
-                    advance=1,
-                    description=f'[green] {msg.t("Starting player delay")}',
-                )
+                progress.update(task, advance=1, description=f'[green] {msg.t("Starting player delay")}')
                 player.start_delay()
-                progress.update(
-                    task,
-                    advance=1,
-                    description=f'[green] {msg.t("Finalizing startup")}',
-                )
+                progress.update(task, advance=1, description=f'[green] {msg.t("Finalizing startup")}')
                 pause.seconds(1)
             self._ready = True
             splash_thread.join()

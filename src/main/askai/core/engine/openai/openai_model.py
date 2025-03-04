@@ -13,10 +13,9 @@
 Copyright (c) 2024, AskAI
 """
 
-from typing import List
-
 from askai.core.engine.ai_model import AIModel
 from hspylib.core.enums.enumeration import Enumeration
+from typing import List
 
 
 class OpenAIModel(Enumeration):
@@ -50,18 +49,9 @@ class OpenAIModel(Enumeration):
         :param model_name: The name of the AI model.
         :return: The corresponding AIModel instance.
         """
-        found = next(
-            (
-                m
-                for m in OpenAIModel.models()
-                if m.model_name() == model_name.casefold()
-            ),
-            None,
-        )
+        found = next((m for m in OpenAIModel.models() if m.model_name() == model_name.casefold()), None)
         if found is None:
-            raise ValueError(
-                f'"{model_name}" name does not correspond to a valid "{OpenAIModel.__name__}" enum'
-            )
+            raise ValueError(f'"{model_name}" name does not correspond to a valid "{OpenAIModel.__name__}" enum')
 
         return found
 

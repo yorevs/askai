@@ -1,8 +1,8 @@
-import ast
-import json
-
 from pydantic import BaseModel, Field
 from typing import AnyStr, Optional
+
+import ast
+import json
 
 
 class ImageResult(BaseModel):

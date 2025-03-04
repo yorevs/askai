@@ -20,7 +20,7 @@ from askai.core.commander.commands.general_cmd import GeneralCmd
 from askai.core.commander.commands.history_cmd import HistoryCmd
 from askai.core.commander.commands.settings_cmd import SettingsCmd
 from askai.core.commander.commands.tts_stt_cmd import TtsSttCmd
-from askai.core.component.rag_provider import RAGProvider, RAG_EXT_DIR
+from askai.core.component.rag_provider import RAG_EXT_DIR, RAGProvider
 from askai.core.enums.router_mode import RouterMode
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
@@ -32,7 +32,7 @@ from functools import lru_cache
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import sysout, to_bool
 from hspylib.modules.eventbus.event import Event
-from os.path import dirname, basename
+from os.path import basename, dirname
 from pathlib import Path
 from string import Template
 from textwrap import dedent
@@ -105,7 +105,7 @@ def commander_help(command: str | None = None) -> str:
         help_str: str = ""
         for cmd, obj in __module__.items():
             if obj and isinstance(obj, Command) and not isinstance(obj, Group):
-                cmd_doc: str = f"{obj.__doc__.split(os.linesep, 1)[0]}**"
+                cmd_doc: str = f"{(obj.__doc__ or '').split(os.linesep, 1)[0]}**"
                 help_str += f"| /{'*' + cmd + '*':<8} | **{cmd_doc:<43} |\n"
         h_str: str = f"| {'**Command**':<9} | {'**Description**':<45} |\n"
         h_str += f"| {'-' * 9} | {'-' * 45} |\n"
@@ -126,20 +126,27 @@ def _format_help(command: Command) -> str:
     :return: A formatted string containing the help information for the specified command.
     """
     docstr: str = ""
-    re_flags = re.MULTILINE | re.IGNORECASE
-    splits: list[str] = re.split(os.linesep, command.__doc__, flags=re_flags)
+    cmd_help: str = str(command.__doc__ or "")
+    re_flags: int = re.MULTILINE | re.IGNORECASE
+    splits: list[str] = re.split(os.linesep, cmd_help, flags=re_flags)
     for i, arg in enumerate(splits):
         if mat := re.match(r":\w+\s+(\w+):\s+(.+)", arg.strip()):
             docstr += f"\n\t\t- %BLUE%{mat.group(1).casefold():<15}%WHITE%\t: {mat.group(2).title()}"
         elif arg.strip():
             docstr += f"{arg}\n\n%CYAN%Arguments:%NC%\n"
-    usage_str: str = f"{command.name} {' '.join(['<' + p.name + '>' for p in command.params])}"
+    usage_str: str = f"{command.name} {' '.join([f'<{p.name}>' for p in command.params])}"
+    cmd_title: str = (command.name or "").title()
 
-    return COMMANDER_HELP_CMD_TPL.substitute(command=command.name.title(), docstr=docstr, usage=usage_str)
+    return COMMANDER_HELP_CMD_TPL.substitute(command=cmd_title, docstr=docstr, usage=usage_str)
 
 
 def color_bool(condition: bool, true_text: str = "ON", false_text: str = "OFF") -> str:
-    """TODO"""
+    """Returns a formatted string with a colored toggle symbol based on the boolean condition.
+    :param condition: Boolean value determining the toggle state.
+    :param true_text: Text to display when condition is True.
+    :param false_text: Text to display when condition is False.
+    :return: A string representing the colored toggle state.
+    """
     return ("%GREEN%  " + true_text if condition else "%RED%  " + false_text) + "%NC%"
 
 
@@ -181,7 +188,7 @@ def ask_commander(_) -> None:
 
 @ask_commander.command()
 @click.argument("command", default="")
-def help(command: str | None) -> None:
+def help(command: str) -> None:
     """Display the help message for the specified command and exit. If no command is provided, it displays the general
     help message.
     :param command: The command to retrieve help for (optional).
@@ -275,7 +282,7 @@ def devices(operation: str, name: str | None = None) -> None:
 @click.argument("operation", default="list")
 @click.argument("name", default="")
 @click.argument("value", default="")
-def settings(operation: str, name: str | None = None, value: str | None = None) -> None:
+def settings(operation: str, name: str, value: str) -> None:
     """Handles modifications to AskAI settings.
     :param operation: The action to perform on settings. Options: [list|get|set|reset]
     :param name: The key for the setting to modify.
@@ -372,16 +379,16 @@ def voices(operation: str, name: str | int | None = None) -> None:
 
 
 @ask_commander.command()
-@click.argument("text")
+@click.argument("string", default="")
 @click.argument("dest_dir", default="")
 @click.argument("playback", default="True")
-def tts(text: str, dest_dir: str | None = None, playback: bool = True) -> None:
+def tts(string: str, dest_dir: str, playback: bool) -> None:
     """Convert text to speech using the default AI engine.
-    :param text: The text to convert. If text represents a valid file, its contents will be used instead.
+    :param string: The text to convert. If text represents a valid file, its contents will be used instead.
     :param dest_dir: The directory where the converted audio file will be saved.
     :param playback: Whether to play the audio file after conversion.
     """
-    if (text_path := Path(text)).exists and text_path.is_file():
+    if (text_path := Path(string)).exists and text_path.is_file():
         text: str = text_path.read_text(encoding=Charset.UTF_8.val)
     TtsSttCmd.tts(text.strip(), dirname(dest_dir), playback)
 
@@ -438,7 +445,7 @@ def translate(from_locale_str: AnyLocale, to_locale_str: AnyLocale, texts: tuple
 @ask_commander.command()
 @click.argument("operation", default="capture")
 @click.argument("args", nargs=-1)
-def camera(operation: str, args: tuple[str, ...]) -> None:
+def camera(operation: str, *args) -> None:
     """Take photos, import images, or identify a person using the WebCam.
     :param operation: The camera operation to perform. Options: [capture|identify|import]
     :param args: The arguments required for the operation.

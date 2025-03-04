@@ -1,12 +1,11 @@
 # fmt: off
-import os
-from textwrap import dedent
-
+from askai.core.component.multimedia.recorder import recorder
 from clitt.core.term.cursor import cursor
 from clitt.core.tui.line_input.line_input import line_input
-
-from askai.core.component.recorder import recorder
+from textwrap import dedent
 from utils import init_context
+
+import os
 
 MENU = dedent(f"""\
 > Recorder Demo options

@@ -5,7 +5,5 @@
 # Package: demo.features.rag
 """Package initialization."""
 
-__all__ = [
-    'x_refs_demo'
-]
-__version__ = '1.2.11'
+__all__ = ["x_refs_demo"]
+__version__ = "1.2.11"

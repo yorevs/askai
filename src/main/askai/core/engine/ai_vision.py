@@ -13,7 +13,7 @@
    Copyright (c) 2024, AskAI
 """
 from hspylib.core.metaclass.classpath import AnyPath
-from typing import Protocol, Literal
+from typing import Literal, Protocol
 
 
 class AIVision(Protocol):

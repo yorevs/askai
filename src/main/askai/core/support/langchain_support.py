@@ -26,7 +26,6 @@ class LangChainSupport(metaclass=Singleton):
     INSTANCE: "LangChainSupport"
 
     @staticmethod
-    @lru_cache
     def create_model(temperature: float = 0.0, top_p: float = 0.0) -> BaseLLM:
         """Create a LangChain LLM model instance using the current AI engine.
         :param temperature: The temperature setting for the LLM model, which controls the randomness of the output.
@@ -38,7 +37,6 @@ class LangChainSupport(metaclass=Singleton):
         return shared.engine.lc_model(temperature, top_p)
 
     @staticmethod
-    @lru_cache
     def create_chat_model(temperature: float = 0.0) -> BaseChatModel:
         """Create a LangChain LLM chat model instance using the current AI engine.
         :param temperature: The temperature setting for the LLM chat model, which controls the randomness of the
@@ -50,7 +48,6 @@ class LangChainSupport(metaclass=Singleton):
         return shared.engine.lc_chat_model(temperature)
 
     @staticmethod
-    @lru_cache
     def create_embeddings(model: str = "text-embedding-3-small") -> Embeddings:
         """Create a LangChain LLM embeddings model instance using the current AI engine.
         :param model: The name of the embeddings model to use (default is "text-embedding-3-small").

@@ -42,15 +42,10 @@ def query_output(query: str, context: str = None) -> str:
     if context or (context := str(shared.context.flat("HISTORY"))):
         runnable = template | lc_llm.create_chat_model(Temperature.DATA_ANALYSIS.temp)
         runnable = RunnableWithMessageHistory(
-            runnable,
-            shared.context.flat,
-            input_messages_key="input",
-            history_messages_key="chat_history",
+            runnable, shared.context.flat, input_messages_key="input", history_messages_key="chat_history"
         )
         log.info("Analysis::[QUERY] '%s'  context=%s", query, context)
-        if response := runnable.invoke(
-            {"input": query}, config={"configurable": {"session_id": "HISTORY"}}
-        ):
+        if response := runnable.invoke({"input": query}, config={"configurable": {"session_id": "HISTORY"}}):
             output = response.content
             events.reply.emit(reply=AIReply.detailed(msg.analysis(output)))
 

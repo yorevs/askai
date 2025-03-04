@@ -98,7 +98,6 @@ class Summarizer(metaclass=Singleton):
     def retriever(self) -> RetrievalQA:
         return self._retriever
 
-    @lru_cache
     def generate(self, folder: AnyPath, glob: str) -> bool:
         """Generate a summarization of the contents within a specified folder. This method analyzes files within the
         given folder that match the provided glob pattern and creates a summarization of their contents.
@@ -115,31 +114,18 @@ class Summarizer(metaclass=Singleton):
         try:
             if self.persist_dir.exists():
                 log.info("Recovering vector store from: '%s'", self.persist_dir)
-                v_store = Chroma(
-                    persist_directory=str(self.persist_dir),
-                    embedding_function=embeddings,
-                )
+                v_store = Chroma(persist_directory=str(self.persist_dir), embedding_function=embeddings)
             else:
                 log.info("Summarizing documents from '%s'", self.sum_path)
                 with Status(f"[green]{msg.summarizing(self.folder)}[/green]"):
-                    documents: list[Document] = DirectoryLoader(
-                        self.folder, glob=self.glob
-                    ).load()
+                    documents: list[Document] = DirectoryLoader(self.folder, glob=self.glob).load()
                     if len(documents) <= 0:
-                        raise DocumentsNotFound(
-                            f"Unable to find any document to summarize at: '{self.sum_path}'"
-                        )
-                    texts: list[Document] = self._text_splitter.split_documents(
-                        documents
-                    )
-                    v_store = Chroma.from_documents(
-                        texts, embeddings, persist_directory=str(self.persist_dir)
-                    )
+                        raise DocumentsNotFound(f"Unable to find any document to summarize at: '{self.sum_path}'")
+                    texts: list[Document] = self._text_splitter.split_documents(documents)
+                    v_store = Chroma.from_documents(texts, embeddings, persist_directory=str(self.persist_dir))
 
             self._retriever = RetrievalQA.from_chain_type(
-                llm=lc_llm.create_chat_model(),
-                chain_type="stuff",
-                retriever=v_store.as_retriever(),
+                llm=lc_llm.create_chat_model(), chain_type="stuff", retriever=v_store.as_retriever()
             )
             return True
         except ImportError as err:
@@ -157,10 +143,7 @@ class Summarizer(metaclass=Singleton):
         :return: True if a summarization exists for the given folder and glob pattern; False otherwise.
         """
         summary_hash = hash_text(f"{ensure_endswith(folder, '/')}{glob}")
-        return (
-            self._retriever is not None
-            and Path(f"{PERSIST_DIR}/{summary_hash}").exists()
-        )
+        return self._retriever is not None and Path(f"{PERSIST_DIR}/{summary_hash}").exists()
 
     def query(self, *queries: str) -> Optional[list[SummaryResult]]:
         """Answer questions about the summarized content.

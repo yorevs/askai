@@ -51,9 +51,7 @@ class OpenAiConfigs(AskAiConfigs, metaclass=Singleton):
         return self._tts_voice
 
     @tts_voice.setter
-    def tts_voice(
-        self, value: Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
-    ) -> None:
+    def tts_voice(self, value: Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"]) -> None:
         self._tts_voice = value
 
     @property

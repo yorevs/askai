@@ -14,7 +14,7 @@
 """
 
 from askai.core.askai_cli import AskAiCli
-from askai.core.component.audio_player import AudioPlayer
+from askai.core.component.multimedia.audio_player import AudioPlayer
 from askai.core.support.shared_instances import shared
 from clitt.core.term.terminal import Terminal
 from datetime import datetime, timedelta
@@ -69,17 +69,7 @@ def taius_intro() -> None:
     with open(welcome_file) as f_pt:
         Terminal.clear()
         sysout(f"%GREEN%{intro}%NC%")
-        ai = AskAiCli(
-            False,
-            False,
-            False,
-            False,
-            1,
-            "taius",
-            "openai",
-            "gpt-3.5-turbo",
-            f_pt.readlines(),
-        )
+        ai = AskAiCli(False, False, False, False, 1, "taius", "openai", "gpt-3.5-turbo", f_pt.readlines())
         ai.run()
         pause.seconds(1)
         Terminal.shell_exec(f"open {ppt_url}")
@@ -93,9 +83,7 @@ def play_intro() -> None:
 
 
 if __name__ == "__main__":
-    y: datetime = today.replace(
-        day=today.day, hour=hh, minute=mm, second=ss, microsecond=0
-    )
+    y: datetime = today.replace(day=today.day, hour=hh, minute=mm, second=ss, microsecond=0)
     delta_t: timedelta = y - today
     secs: float = max(0, delta_t.seconds) + 1
 

@@ -24,11 +24,7 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.exception.exceptions import InaccurateResponse
 from langchain_core.messages import AIMessage
-from langchain_core.prompts import (
-    ChatPromptTemplate,
-    MessagesPlaceholder,
-    PromptTemplate,
-)
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from textwrap import dedent
 
@@ -56,12 +52,9 @@ def eval_response(question: str, ai_response: str) -> AccResponse:
     """
     if ai_response and ai_response not in msg.accurate_responses:
         eval_template = PromptTemplate(
-            input_variables=["rag", "input", "response"],
-            template=prompt.read_prompt("evaluation"),
+            input_variables=["rag", "input", "response"], template=prompt.read_prompt("evaluation")
         )
-        final_prompt = eval_template.format(
-            rag=RAG.get_rag_examples(question), input=question, response=ai_response
-        )
+        final_prompt = eval_template.format(rag=RAG.get_rag_examples(question), input=question, response=ai_response)
         log.info("Assert::[QUESTION] '%s'  context: '%s'", question, ai_response)
         llm = lc_llm.create_chat_model(Temperature.COLDEST.temp)
         response: AIMessage = llm.invoke(final_prompt)
@@ -89,16 +82,11 @@ def resolve_x_refs(ref_name: str, context: str | None = None) -> str:
     if context or (context := str(shared.context.flat("HISTORY"))):
         runnable = template | lc_llm.create_chat_model(Temperature.CODE_GENERATION.temp)
         runnable = RunnableWithMessageHistory(
-            runnable,
-            shared.context.flat,
-            input_messages_key="pathname",
-            history_messages_key="context",
+            runnable, shared.context.flat, input_messages_key="pathname", history_messages_key="context"
         )
         log.info("Analysis::[QUERY] '%s'  context=%s", ref_name, context)
         events.reply.emit(reply=AIReply.debug(msg.x_reference(ref_name)))
-        response = runnable.invoke(
-            {"pathname": ref_name}, config={"configurable": {"session_id": "HISTORY"}}
-        )
+        response = runnable.invoke({"pathname": ref_name}, config={"configurable": {"session_id": "HISTORY"}})
         if response and (output := response.content) and shared.UNCERTAIN_ID != output:
             output = response.content
 

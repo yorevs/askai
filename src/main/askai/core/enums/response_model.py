@@ -59,9 +59,7 @@ class ResponseModel(Enumeration):
     )
 
     # CHAT_MASTER
-    CHAT_MASTER = "ASK_006", (
-        "Select this model for providing conversational responses or engaging in general chat."
-    )
+    CHAT_MASTER = "ASK_006", ("Select this model for providing conversational responses or engaging in general chat.")
 
     # MEDIA_MANAGEMENT_AND_PLAYBACK
     MEDIA_MANAGEMENT_AND_PLAYBACK = "ASK_007", (
@@ -79,9 +77,7 @@ class ResponseModel(Enumeration):
     )
 
     # WEB_FETCH
-    WEB_FETCH = "ASK_010", (
-        "Select this model for retrieving information about current events from the web."
-    )
+    WEB_FETCH = "ASK_010", ("Select this model for retrieving information about current events from the web.")
 
     # WELL_KNOWN
     FINAL_ANSWER = "ASK_011", (

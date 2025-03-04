@@ -12,23 +12,22 @@
 
    Copyright (c) 2024, AskAI
 """
-import datetime
-import os
-from json import JSONDecodeError
-from textwrap import dedent
-import json
-import logging as log
-
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import file_is_not_empty
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.namespace import Namespace
-from hspylib.modules.fetch import fetch
-from requests.exceptions import ConnectionError, ReadTimeout
-import pytz
-
 from askai.core.askai_configs import configs
 from askai.core.component.cache_service import GEO_LOC_CACHE_FILE
+from hspylib.core.enums.charset import Charset
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.namespace import Namespace
+from hspylib.core.tools.commons import file_is_not_empty
+from hspylib.modules.fetch import fetch
+from json import JSONDecodeError
+from requests.exceptions import ConnectionError, ReadTimeout
+from textwrap import dedent
+
+import datetime
+import json
+import logging as log
+import os
+import pytz
 
 
 class GeoLocation(metaclass=Singleton):
@@ -61,9 +60,7 @@ class GeoLocation(metaclass=Singleton):
 
         try:
             if file_is_not_empty(str(GEO_LOC_CACHE_FILE)):
-                geo_req = Namespace(
-                    body=GEO_LOC_CACHE_FILE.read_text(Charset.UTF_8.val)
-                )
+                geo_req = Namespace(body=GEO_LOC_CACHE_FILE.read_text(Charset.UTF_8.val))
             elif configs.ip_api_enabled:
                 url = f"{cls.GEO_LOC_URL}{'/' + ip if ip else ''}"
                 log.debug("Fetching the Geo Position from: %s", url)

@@ -13,12 +13,6 @@
 Copyright (c) 2024, AskAI
 """
 
-import logging as log
-import os
-from pathlib import Path
-from typing import Optional
-
-import nltk
 from askai.__classpath__ import classpath
 from askai.core.askai import AskAi
 from askai.core.askai_configs import configs
@@ -26,9 +20,9 @@ from askai.core.askai_events import *
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
 from askai.core.commander.commander import commander_help
-from askai.core.component.audio_player import player
-from askai.core.component.cache_service import CACHE_DIR, cache
-from askai.core.component.recorder import recorder
+from askai.core.component.cache_service import cache, CACHE_DIR
+from askai.core.component.multimedia.audio_player import player
+from askai.core.component.multimedia.recorder import recorder
 from askai.core.component.scheduler import scheduler
 from askai.core.engine.ai_engine import AIEngine
 from askai.core.enums.router_mode import RouterMode
@@ -38,25 +32,24 @@ from askai.core.support.text_formatter import text_formatter
 from askai.tui.app_header import Header
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_suggester import InputSuggester
-from askai.tui.app_widgets import (
-    AppHelp,
-    AppInfo,
-    AppSettings,
-    InputActions,
-    InputArea,
-    Splash,
-)
+from askai.tui.app_widgets import AppHelp, AppInfo, AppSettings, InputActions, InputArea, Splash
 from hspylib.core.enums.charset import Charset
 from hspylib.core.tools.commons import file_is_not_empty
 from hspylib.core.tools.text_tools import ensure_endswith
-from hspylib.core.zoned_datetime import DATE_FORMAT, TIME_FORMAT, now
+from hspylib.core.zoned_datetime import DATE_FORMAT, now, TIME_FORMAT
 from hspylib.modules.application.version import Version
 from hspylib.modules.cli.vt100.vt_color import VtColor
 from hspylib.modules.eventbus.event import Event
+from pathlib import Path
 from textual import on, work
 from textual.app import App, ComposeResult
 from textual.containers import ScrollableContainer
 from textual.widgets import Footer, Input, MarkdownViewer
+from typing import Optional
+
+import logging as log
+import nltk
+import os
 
 SOURCE_DIR: Path = classpath.source_path
 
@@ -85,14 +78,7 @@ class AskAiApp(App[None]):
     ENABLE_COMMAND_PALETTE = False
 
     def __init__(
-        self,
-        speak: bool,
-        debug: bool,
-        cacheable: bool,
-        tempo: int,
-        engine_name: str,
-        model_name: str,
-        mode: RouterMode,
+        self, speak: bool, debug: bool, cacheable: bool, tempo: int, engine_name: str, model_name: str, mode: RouterMode
     ):
         super().__init__()
         self._askai: AskAi = AskAi(speak, debug, cacheable, tempo, engine_name, model_name, mode)

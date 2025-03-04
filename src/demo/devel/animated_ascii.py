@@ -1,32 +1,27 @@
+from askai.core.component.multimedia.audio_player import player
+from clitt.core.term.cursor import cursor
+from clitt.core.term.terminal import terminal, Terminal
+from hspylib.core.exception.exceptions import InvalidArgumentError
+from hspylib.core.metaclass.classpath import AnyPath
+from hspylib.modules.application.exit_status import ExitStatus
+from os.path import dirname, expandvars
+from pathlib import Path
+from PIL import Image
+from PIL.Image import Resampling
+from rich.console import Console
+from rich.text import Text
+from threading import Thread
+from typing import Optional
+
+import os
+import pause
 import shutil
 import signal
 import sys
 import threading
 import time
-from os.path import dirname, expandvars
-import os
-from pathlib import Path
-from threading import Thread
-from typing import Optional
 
-from hspylib.core.exception.exceptions import InvalidArgumentError
-from hspylib.core.metaclass.classpath import AnyPath
-from rich.console import Console
-from rich.text import Text
-import pause
-from PIL import Image
-from PIL.Image import Resampling
-from clitt.core.term.cursor import cursor
-from hspylib.modules.application.exit_status import ExitStatus
-from clitt.core.term.terminal import terminal, Terminal
-
-from askai.core.component.audio_player import player
-
-PALETTES = {
-    1: " .:-=+*#%@",
-    2: " ▁▂▃▄▅▆▇█▊",
-    3: " ░▒▓█▓▒░▒▓",
-}
+PALETTES = {1: " .:-=+*#%@", 2: " ▁▂▃▄▅▆▇█▊", 3: " ░▒▓█▓▒░▒▓"}
 
 FPS: int = 10
 
@@ -36,17 +31,12 @@ VIDEO_DIR: Path = Path(expandvars("${HOME}/Movies"))
 if not VIDEO_DIR.exists():
     VIDEO_DIR.mkdir(parents=True, exist_ok=True)
 
-DATA_PATH: Path = Path(os.path.join(dirname(__file__), 'AscVideos'))
+DATA_PATH: Path = Path(os.path.join(dirname(__file__), "AscVideos"))
 if not DATA_PATH.exists():
     DATA_PATH.mkdir(parents=True, exist_ok=True)
 
 
-def image_to_ascii(
-    frame_path: str,
-    width: int,
-    palette: str,
-    reverse: bool
-) -> str:
+def image_to_ascii(frame_path: str, width: int, palette: str, reverse: bool) -> str:
     """Converts an image frame to an ASCII art representation.
     :param frame_path: Path to the image file to be converted.
     :param width: Width of the output ASCII art in characters.
@@ -61,17 +51,12 @@ def image_to_ascii(
     img = img.resize((width, new_height), resample=Resampling.BILINEAR)
     pixels = list(img.getdata())
     ascii_str = "".join(palette[min(pixel * num_chars // 256, num_chars - 1)] for pixel in pixels)
-    ascii_lines = [ascii_str[i:i + width] for i in range(0, len(ascii_str), width)]
+    ascii_lines = [ascii_str[i : i + width] for i in range(0, len(ascii_str), width)]
 
     return "\n".join(ascii_lines)
 
 
-def get_frames(
-    frames_path: Path,
-    width: int = 80,
-    palette: str = DEFAULT_PALETTE,
-    reverse: bool = True
-) -> list[str]:
+def get_frames(frames_path: Path, width: int = 80, palette: str = DEFAULT_PALETTE, reverse: bool = True) -> list[str]:
     """Converts all frame files in the specified directory to ASCII format.
     :param frames_path: Path to the directory containing frame files.
     :param width: Width of the output ASCII art in characters. Defaults to 80.
@@ -96,8 +81,8 @@ def extract_audio_and_video_frames(video_path: Path) -> tuple[Optional[Path], Pa
     """
     assert video_path.exists(), f"Video path does not exist: {video_path}"
     video_name, _ = os.path.splitext(os.path.basename(video_path))
-    frame_dir: Path = Path(os.path.join(DATA_PATH, video_name, 'frames'))
-    audio_dir: Path = Path(os.path.join(DATA_PATH, video_name, 'audio'))
+    frame_dir: Path = Path(os.path.join(DATA_PATH, video_name, "frames"))
+    audio_dir: Path = Path(os.path.join(DATA_PATH, video_name, "audio"))
     audio_path: Path = Path(os.path.join(audio_dir, "audio.mp3"))
 
     # If output directory doesn't exist, perform extraction
@@ -146,7 +131,7 @@ def print_ascii_image(image: str) -> None:
     cursor.write("%HOM%")
     cols, _ = shutil.get_terminal_size()
     for line in image.splitlines()[:cols]:
-        console.print(Text(line, justify="center"), end='')
+        console.print(Text(line, justify="center"), end="")
         cursor.write(f"%EL0%%EOL%")
 
 
@@ -206,8 +191,7 @@ def play(video_name: str, width: int = 80) -> None:
     # print(cols, rows, cols / rows)
     # exit()
     video_path: Path = Path(
-        os.path.join(VIDEO_DIR, video_name)
-        if not os.path.exists(expandvars(video_name)) else expandvars(video_name)
+        os.path.join(VIDEO_DIR, video_name) if not os.path.exists(expandvars(video_name)) else expandvars(video_name)
     )
     audio_path, frames_path = extract_audio_and_video_frames(video_path)
     ascii_video = get_frames(frames_path, width, PALETTES[1], True)
@@ -220,7 +204,7 @@ def play(video_name: str, width: int = 80) -> None:
     cleanup()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     play("${DESKTOP}/robot.mp4", 50)
     # asc_img = image_to_ascii(expandvars("${DESKTOP}/robot.png"), 74, DEFAULT_PALETTE, True)
     # print_ascii_image(asc_img)

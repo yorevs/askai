@@ -12,31 +12,6 @@
 
 Copyright (c) 2024, AskAI
 """
-import os
-import threading
-from pathlib import Path
-from typing import Callable, Optional, TypeAlias
-import logging as log
-import operator
-import sys
-
-import pause
-from hspylib.core.tools.text_tools import ensure_endswith
-from hspylib.core.enums.enumeration import Enumeration
-from hspylib.core.metaclass.classpath import AnyPath
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.preconditions import check_argument, check_state
-from hspylib.core.zoned_datetime import now_ms
-from hspylib.modules.application.exit_status import ExitStatus
-from speech_recognition import (
-    AudioData,
-    Microphone,
-    Recognizer,
-    RequestError,
-    UnknownValueError,
-    WaitTimeoutError,
-)
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -46,6 +21,23 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.support.utilities import display_text, seconds
 from askai.exception.exceptions import InvalidInputDevice, InvalidRecognitionApiError
 from askai.language.language import Language
+from hspylib.core.enums.enumeration import Enumeration
+from hspylib.core.metaclass.classpath import AnyPath
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.preconditions import check_argument, check_state
+from hspylib.core.tools.text_tools import ensure_endswith
+from hspylib.core.zoned_datetime import now_ms
+from hspylib.modules.application.exit_status import ExitStatus
+from pathlib import Path
+from speech_recognition import AudioData, Microphone, Recognizer, RequestError, UnknownValueError, WaitTimeoutError
+from typing import Callable, Optional, TypeAlias
+
+import logging as log
+import operator
+import os
+import pause
+import sys
+import threading
 
 InputDevice: TypeAlias = tuple[int, str]
 
@@ -113,10 +105,7 @@ class Recorder(metaclass=Singleton):
     def setup(self) -> None:
         """Setup the microphone recorder."""
         self._devices = self.get_device_list()
-        log.debug(
-            "Available audio devices:\n%s",
-            "\n".join([f"{d[0]} - {d[1]}" for d in self._devices]),
-        )
+        log.debug("Available audio devices:\n%s", "\n".join([f"{d[0]} - {d[1]}" for d in self._devices]))
         self._select_device()
         scheduler.set_interval(3000, self.__device_watcher, 5000)
 
@@ -131,10 +120,7 @@ class Recorder(metaclass=Singleton):
     @property
     def input_device(self) -> Optional[InputDevice]:
         if self._input_device is not None:
-            check_state(
-                isinstance(self._input_device, tuple),
-                "Input device is not a InputDevice",
-            )
+            check_state(isinstance(self._input_device, tuple), "Input device is not a InputDevice")
         return self._input_device
 
     @property
@@ -152,10 +138,7 @@ class Recorder(metaclass=Singleton):
         :param device: The audio input device to be set as the current device.
         :return: True if the device was successfully set, False otherwise.
         """
-        check_argument(
-            device and isinstance(device, tuple),
-            f"Invalid device: {device} -> {type(device)}",
-        )
+        check_argument(device and isinstance(device, tuple), f"Invalid device: {device} -> {type(device)}")
         if ret := self.test_device(device[0]):
             log.info(msg.device_switch(str(device)))
             events.device_changed.emit(device=device)
@@ -232,9 +215,7 @@ class Recorder(metaclass=Singleton):
         return audio_path, stt_text
 
     def dictate(
-        self,
-        recognition_api: RecognitionApi = RecognitionApi.GOOGLE,
-        language: Language = Language.EN_US,
+        self, recognition_api: RecognitionApi = RecognitionApi.GOOGLE, language: Language = Language.EN_US
     ) -> Optional[str]:
         """Captures dictated speech, processes it into text, and returns the transcribed text.
         :param recognition_api: The API to use for recognizing the speech. Defaults to GOOGLE.
@@ -257,11 +238,7 @@ class Recorder(metaclass=Singleton):
         return ensure_endswith(dictated_text.capitalize(), "." + os.linesep) if dictated_text else dictated_text
 
     def _write_audio_file(
-        self,
-        audio: AudioData,
-        audio_path: AnyPath,
-        language: Language,
-        recognition_api: RecognitionApi,
+        self, audio: AudioData, audio_path: AnyPath, language: Language, recognition_api: RecognitionApi
     ) -> Optional[str]:
         """Write the provided audio data to disk as a file and transcribe the contents into text using the specified
         recognition API.

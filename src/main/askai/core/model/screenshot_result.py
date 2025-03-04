@@ -1,8 +1,8 @@
-import ast
-import json
+from pydantic import BaseModel, Field
 from typing import AnyStr
 
-from pydantic import BaseModel, Field
+import ast
+import json
 
 
 class ScreenshotResult(BaseModel):

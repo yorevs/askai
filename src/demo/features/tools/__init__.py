@@ -5,7 +5,5 @@
 # Package: demo.features.tools
 """Package initialization."""
 
-__all__ = [
-    'query_output_demo'
-]
-__version__ = '1.2.11'
+__all__ = ["query_output_demo"]
+__version__ = "1.2.11"

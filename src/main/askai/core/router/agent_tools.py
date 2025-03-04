@@ -12,41 +12,28 @@
 
 Copyright (c) 2024, AskAI
 """
-import inspect
-import logging as log
-import os
-import re
-from functools import lru_cache
-from textwrap import dedent
-from typing import Callable, Optional
-
-from clitt.core.tui.line_input.line_input import line_input
-from hspylib.core.metaclass.classpath import AnyPath
-from hspylib.core.metaclass.singleton import Singleton
-from langchain_core.tools import BaseTool, StructuredTool
-
 from askai.core.askai_messages import msg
 from askai.core.router.tools.analysis import query_output
 from askai.core.router.tools.browser import browse, open_url
 from askai.core.router.tools.general import display_tool
 from askai.core.router.tools.generation import generate_content, save_content
 from askai.core.router.tools.summarization import summarize
-from askai.core.router.tools.terminal import (
-    execute_command,
-    list_contents,
-    open_command,
-)
-from askai.core.router.tools.vision import (
-    image_captioner,
-    parse_image_caption,
-    capture_screenshot,
-)
-from askai.core.router.tools.webcam import (
-    webcam_capturer,
-    webcam_identifier,
-    CAPTION_TEMPLATE,
-)
+from askai.core.router.tools.terminal import execute_command, list_contents, open_command
+from askai.core.router.tools.vision import capture_screenshot, image_captioner, parse_image_caption
+from askai.core.router.tools.webcam import CAPTION_TEMPLATE, webcam_capturer, webcam_identifier
 from askai.exception.exceptions import TerminatingQuery
+from clitt.core.tui.line_input.line_input import line_input
+from functools import lru_cache
+from hspylib.core.metaclass.classpath import AnyPath
+from hspylib.core.metaclass.singleton import Singleton
+from langchain_core.tools import BaseTool, StructuredTool
+from textwrap import dedent
+from typing import Callable, Optional
+
+import inspect
+import logging as log
+import os
+import re
 
 
 class AgentTools(metaclass=Singleton):
@@ -145,16 +132,10 @@ class AgentTools(metaclass=Singleton):
         """
         image_caption: list[str] = parse_image_caption(image_captioner(image_path))
         return CAPTION_TEMPLATE.substitute(
-            image_path=image_path,
-            image_caption=os.linesep.join(image_caption) if image_caption else "",
+            image_path=image_path, image_caption=os.linesep.join(image_caption) if image_caption else ""
         )
 
-    def webcam_capturer(
-        self,
-        photo_name: str | None,
-        detect_faces: bool = False,
-        question: str | None = None,
-    ) -> str:
+    def webcam_capturer(self, photo_name: str | None, detect_faces: bool = False, question: str | None = None) -> str:
         """Capture a photo via the webcam, and save it locally. Also provide a description of the objects and people
         depicted in the picture. An additional question may address specific details regarding the photo.
         Usage: `webcam_capturer(photo_name, detect_faces, question)`

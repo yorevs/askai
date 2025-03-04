@@ -15,9 +15,7 @@ Copyright (c) 2024, AskAI
 from askai.core.router.tools.vision import offline_captioner
 from chromadb.api.types import IncludeEnum
 from chromadb.utils.data_loaders import ImageLoader
-from chromadb.utils.embedding_functions.open_clip_embedding_function import (
-    OpenCLIPEmbeddingFunction,
-)
+from chromadb.utils.embedding_functions.open_clip_embedding_function import OpenCLIPEmbeddingFunction
 from collections import namedtuple
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
@@ -84,19 +82,9 @@ class ImageStore(metaclass=Singleton):
         for dir_path, dir_names, file_names in os.walk(cache.PICTURE_DIR):
             if dir_path in load_dirs:
                 cat: str = category()
-                files: list[str] = list(
-                    filter(
-                        is_image_file,
-                        map(lambda fn: os.path.join(dir_path, fn), file_names),
-                    )
-                )
+                files: list[str] = list(filter(is_image_file, map(lambda fn: os.path.join(dir_path, fn), file_names)))
                 img_files.extend(
-                    ImageFile(
-                        hash_text(basename(f)),
-                        f,
-                        cat,
-                        offline_captioner(f) if with_caption else "No caption",
-                    )
+                    ImageFile(hash_text(basename(f)), f, cat, offline_captioner(f) if with_caption else "No caption")
                     for f in files
                 )
 
@@ -105,9 +93,7 @@ class ImageStore(metaclass=Singleton):
     def __init__(self):
         self._db_client = chromadb.PersistentClient(path=str(self.persist_dir))
         self._img_collection = self._db_client.get_or_create_collection(
-            self.COLLECTION_NAME,
-            embedding_function=OpenCLIPEmbeddingFunction(),
-            data_loader=ImageLoader(),
+            self.COLLECTION_NAME, embedding_function=OpenCLIPEmbeddingFunction(), data_loader=ImageLoader()
         )
 
     @property
@@ -153,9 +139,7 @@ class ImageStore(metaclass=Singleton):
         log.info("Clearing image store collection: '%s'", self.COLLECTION_NAME)
         self._db_client.delete_collection(self.COLLECTION_NAME)
         self._img_collection = self._db_client.get_or_create_collection(
-            self.COLLECTION_NAME,
-            embedding_function=OpenCLIPEmbeddingFunction(),
-            data_loader=ImageLoader(),
+            self.COLLECTION_NAME, embedding_function=OpenCLIPEmbeddingFunction(), data_loader=ImageLoader()
         )
 
     def sync_store(self, re_caption: bool = False) -> int:

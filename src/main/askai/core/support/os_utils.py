@@ -19,9 +19,7 @@ import platform
 
 SupportedPlatforms: TypeAlias = Literal["linux", "windows", "darwin"] | None
 
-SupportedShells: TypeAlias = (
-    Literal["bash", "csh", "dash", "ksh", "tcsh", "zsh", "sh"] | None
-)
+SupportedShells: TypeAlias = Literal["bash", "csh", "dash", "ksh", "tcsh", "zsh", "sh"] | None
 
 
 @lru_cache
@@ -39,11 +37,7 @@ def get_shell() -> SupportedShells:
     :return: The current shell as a `SupportedShells` literal value.
     """
     shell = basename(os.getenv("SHELL", "bash")).lower()
-    return (
-        shell
-        if shell and shell in ["bash", "csh", "dash", "ksh", "tcsh", "zsh", "sh"]
-        else None
-    )
+    return shell if shell and shell in ["bash", "csh", "dash", "ksh", "tcsh", "zsh", "sh"] else None
 
 
 @lru_cache

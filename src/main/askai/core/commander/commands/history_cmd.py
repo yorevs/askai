@@ -13,13 +13,12 @@
    Copyright (c) 2024, AskAI
 """
 from abc import ABC
-from typing import Optional
-
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
 from clitt.core.tui.line_input.keyboard_input import KeyboardInput
 from textwrap import indent
+from typing import Optional
 
 import os
 import pyperclip
@@ -80,18 +79,13 @@ class HistoryCmd(ABC):
         if (name := name.upper()) in shared.context.keys:
             if (ctx := str(shared.context.flat(name.upper()))) and (
                 copied_text := re.sub(
-                    r"^((system|human|AI|assistant):\s*)",
-                    "",
-                    ctx,
-                    flags=re.MULTILINE | re.DOTALL | re.IGNORECASE,
+                    r"^((system|human|AI|assistant):\s*)", "", ctx, flags=re.MULTILINE | re.DOTALL | re.IGNORECASE
                 )
             ):
                 pyperclip.copy(copied_text)
                 text_formatter.commander_print(f"`{name}` copied to the clipboard!")
             else:
-                text_formatter.commander_print(
-                    f"There is nothing to copy from `{name}`!"
-                )
+                text_formatter.commander_print(f"There is nothing to copy from `{name}`!")
         else:
             text_formatter.commander_print(f"Context name not found: `{name}`!")
 

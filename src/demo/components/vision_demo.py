@@ -1,11 +1,10 @@
 from askai.core.engine.ai_vision import AIVision
 from askai.core.router.tools import vision
 from askai.core.router.tools.vision import offline_captioner
-
-import os
-
 from askai.core.support.shared_instances import shared
 from utils import init_context
+
+import os
 
 if __name__ == "__main__":
     init_context("vision-demo")

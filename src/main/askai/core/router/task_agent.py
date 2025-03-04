@@ -12,18 +12,6 @@
 
    Copyright (c) 2024, AskAI
 """
-from typing import AnyStr, Optional
-import logging as log
-
-from pydantic import ValidationError
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.metaclass.singleton import Singleton
-from langchain.agents import AgentExecutor, create_structured_chat_agent
-from langchain.memory.chat_memory import BaseChatMemory
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.runnables import Runnable
-import openai
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -33,6 +21,17 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.router.agent_tools import features
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.metaclass.singleton import Singleton
+from langchain.agents import AgentExecutor, create_structured_chat_agent
+from langchain.memory.chat_memory import BaseChatMemory
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables import Runnable
+from pydantic import ValidationError
+from typing import AnyStr, Optional
+
+import logging as log
+import openai
 
 
 class TaskAgent(metaclass=Singleton):
@@ -49,12 +48,8 @@ class TaskAgent(metaclass=Singleton):
         Reference: https://smith.langchain.com/hub/hwchase17/structured-chat-agent
         :return: An instance of ChatPromptTemplate representing the structured agent template.
         """
-        prompt_file: PathObject = PathObject.of(
-            prompt.append_path(f"langchain/structured-chat-agent")
-        )
-        final_prompt: str = prompt.read_prompt(
-            prompt_file.filename, prompt_file.abs_dir
-        )
+        prompt_file: PathObject = PathObject.of(prompt.append_path(f"langchain/structured-chat-agent"))
+        final_prompt: str = prompt.read_prompt(prompt_file.filename, prompt_file.abs_dir)
         return ChatPromptTemplate.from_messages(
             [
                 ("system", final_prompt),
@@ -78,9 +73,7 @@ class TaskAgent(metaclass=Singleton):
 
         return output
 
-    def _create_lc_agent(
-        self, temperature: Temperature = Temperature.COLDEST
-    ) -> Runnable:
+    def _create_lc_agent(self, temperature: Temperature = Temperature.COLDEST) -> Runnable:
         """Create and return a LangChain agent.
         :param temperature: The LLM temperature, which controls the randomness of the responses (default is
                             Temperature.COLDEST).

@@ -1,39 +1,38 @@
-import random
-import threading
+from askai.core.component.multimedia.audio_player import player
 from functools import cached_property, lru_cache
-from os.path import dirname
-from pathlib import Path
-import os
-from typing import TypeAlias, Sequence, Any
-
-import cv2
-import numpy as np
 from keras.src.utils import to_categorical
+from matplotlib import pyplot as plt
 from mediapipe.python.solutions import drawing_utils
 from mediapipe.python.solutions.drawing_utils import GREEN_COLOR
 from mediapipe.python.solutions.face_mesh_connections import FACEMESH_TESSELATION
 from mediapipe.python.solutions.hands_connections import HAND_CONNECTIONS
 from mediapipe.python.solutions.holistic import Holistic
 from mediapipe.python.solutions.pose_connections import POSE_CONNECTIONS
-from matplotlib import pyplot as plt
 from numpy import ndarray
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
-from tensorflow.keras.callbacks import TensorBoard
+from os.path import dirname
+from pathlib import Path
 from sklearn.model_selection import train_test_split
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.layers import Dense, LSTM
+from tensorflow.keras.models import Sequential
 from tensorflow.keras.utils import to_categorical
+from typing import Any, Sequence, TypeAlias
 
-from askai.core.component.audio_player import player
+import cv2
+import numpy as np
+import os
+import random
+import threading
 
-DATA_PATH: Path = Path(os.path.join(dirname(__file__), 'mp-data'))
+DATA_PATH: Path = Path(os.path.join(dirname(__file__), "mp-data"))
 if not DATA_PATH.exists():
     DATA_PATH.mkdir(parents=True, exist_ok=True)
 
-LOGS_PATH: Path = Path(os.path.join(dirname(__file__), 'logs'))
+LOGS_PATH: Path = Path(os.path.join(dirname(__file__), "logs"))
 if not LOGS_PATH.exists():
     LOGS_PATH.mkdir(parents=True, exist_ok=True)
 
-MODEL_PATH: Path = Path(os.path.join(dirname(__file__), 'models'))
+MODEL_PATH: Path = Path(os.path.join(dirname(__file__), "models"))
 if not MODEL_PATH.exists():
     MODEL_PATH.mkdir(parents=True, exist_ok=True)
 
@@ -88,42 +87,46 @@ class GestureActionManager:
 
     @staticmethod
     def draw_landmarks(image, results) -> None:
+        drawing_utils.draw_landmarks(image, results.face_landmarks, FACEMESH_TESSELATION)  # Draw face connections
+        drawing_utils.draw_landmarks(image, results.pose_landmarks, POSE_CONNECTIONS)  # Draw pose connections
+        drawing_utils.draw_landmarks(image, results.left_hand_landmarks, HAND_CONNECTIONS)  # Draw left hand connections
         drawing_utils.draw_landmarks(
-            image, results.face_landmarks, FACEMESH_TESSELATION)  # Draw face connections
-        drawing_utils.draw_landmarks(
-            image, results.pose_landmarks, POSE_CONNECTIONS)  # Draw pose connections
-        drawing_utils.draw_landmarks(
-            image, results.left_hand_landmarks,
-            HAND_CONNECTIONS)  # Draw left hand connections
-        drawing_utils.draw_landmarks(
-            image, results.right_hand_landmarks,
-            HAND_CONNECTIONS)  # Draw right hand connections
+            image, results.right_hand_landmarks, HAND_CONNECTIONS
+        )  # Draw right hand connections
 
     @staticmethod
     def draw_styled_landmarks(image, results) -> None:
         # Draw face connections
         drawing_utils.draw_landmarks(
-            image, results.face_landmarks, FACEMESH_TESSELATION,
+            image,
+            results.face_landmarks,
+            FACEMESH_TESSELATION,
             drawing_utils.DrawingSpec(color=(80, 110, 10), thickness=1, circle_radius=1),
-            drawing_utils.DrawingSpec(color=(80, 256, 121), thickness=1, circle_radius=1)
+            drawing_utils.DrawingSpec(color=(80, 256, 121), thickness=1, circle_radius=1),
         )
         # Draw pose connections
         drawing_utils.draw_landmarks(
-            image, results.pose_landmarks, POSE_CONNECTIONS,
+            image,
+            results.pose_landmarks,
+            POSE_CONNECTIONS,
             drawing_utils.DrawingSpec(color=(80, 22, 10), thickness=2, circle_radius=4),
-            drawing_utils.DrawingSpec(color=(80, 44, 121), thickness=2, circle_radius=2)
+            drawing_utils.DrawingSpec(color=(80, 44, 121), thickness=2, circle_radius=2),
         )
         # Draw left hand connections
         drawing_utils.draw_landmarks(
-            image, results.left_hand_landmarks, HAND_CONNECTIONS,
+            image,
+            results.left_hand_landmarks,
+            HAND_CONNECTIONS,
             drawing_utils.DrawingSpec(color=(121, 22, 76), thickness=2, circle_radius=4),
-            drawing_utils.DrawingSpec(color=(121, 44, 250), thickness=2, circle_radius=2)
+            drawing_utils.DrawingSpec(color=(121, 44, 250), thickness=2, circle_radius=2),
         )
         # Draw right hand connections
         drawing_utils.draw_landmarks(
-            image, results.right_hand_landmarks, HAND_CONNECTIONS,
+            image,
+            results.right_hand_landmarks,
+            HAND_CONNECTIONS,
             drawing_utils.DrawingSpec(color=(245, 117, 66), thickness=2, circle_radius=4),
-            drawing_utils.DrawingSpec(color=(245, 66, 230), thickness=2, circle_radius=2)
+            drawing_utils.DrawingSpec(color=(245, 66, 230), thickness=2, circle_radius=2),
         )
 
     @classmethod
@@ -133,18 +136,18 @@ class GestureActionManager:
         lh_lm = results.left_hand_landmarks
         rh_lm = results.right_hand_landmarks
 
-        pose = np.array(
-            [[res.x, res.y, res.z, res.visibility]
-             for res in pose_lm.landmark]).flatten() if pose_lm else np.zeros(cls.POSE_LM)
-        face = np.array(
-            [[res.x, res.y, res.z]
-             for res in face_lm.landmark]).flatten() if face_lm else np.zeros(cls.FACE_LM)
-        lh = np.array(
-            [[res.x, res.y, res.z]
-             for res in lh_lm.landmark]).flatten() if lh_lm else np.zeros(cls.HAND_LM)
-        rh = np.array(
-            [[res.x, res.y, res.z]
-             for res in rh_lm.landmark]).flatten() if rh_lm else np.zeros(cls.HAND_LM)
+        pose = (
+            np.array([[res.x, res.y, res.z, res.visibility] for res in pose_lm.landmark]).flatten()
+            if pose_lm
+            else np.zeros(cls.POSE_LM)
+        )
+        face = (
+            np.array([[res.x, res.y, res.z] for res in face_lm.landmark]).flatten()
+            if face_lm
+            else np.zeros(cls.FACE_LM)
+        )
+        lh = np.array([[res.x, res.y, res.z] for res in lh_lm.landmark]).flatten() if lh_lm else np.zeros(cls.HAND_LM)
+        rh = np.array([[res.x, res.y, res.z] for res in rh_lm.landmark]).flatten() if rh_lm else np.zeros(cls.HAND_LM)
 
         return np.concatenate([pose, face, lh, rh])
 
@@ -157,16 +160,18 @@ class GestureActionManager:
         font_face: int = cv2.FONT_HERSHEY_SIMPLEX,
         font_scale: float = 1,
         thickness: int = 2,
-        line_type: int = cv2.LINE_AA
+        line_type: int = cv2.LINE_AA,
     ) -> None:
-        cv2.putText(
-            image, text, pos, font_face, font_scale, color, thickness, line_type)
+        cv2.putText(image, text, pos, font_face, font_scale, color, thickness, line_type)
 
     def __init__(self):
-        self._actions = np.array([
-            # 'maximize', 'minimize', 'grab', 'click',  'pointer', 'next', 'previous', 'dispose'
-            'maximize', 'grab'
-        ])
+        self._actions = np.array(
+            [
+                # 'maximize', 'minimize', 'grab', 'click',  'pointer', 'next', 'previous', 'dispose'
+                "maximize",
+                "grab",
+            ]
+        )
         self._tb_callback = TensorBoard(log_dir=LOGS_PATH)
 
     @property
@@ -177,12 +182,12 @@ class GestureActionManager:
     def label_map(self) -> dict[tuple[int, Any], int]:
         return {label: num for num, label in enumerate(self._actions)}
 
-    def capture_landmarks(self, start_at: str = 'maximize', end_at: str = 'dispose') -> None:
+    def capture_landmarks(self, start_at: str = "maximize", end_at: str = "dispose") -> None:
         cap = cv2.VideoCapture(0)
         with Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
             start_index = np.where(self.actions == start_at)[0][0]
             end_index = np.where(self.actions == end_at)[0][0]
-            for action in self.actions[start_index:end_index + 1]:
+            for action in self.actions[start_index : end_index + 1]:
                 for video_num in range(self.NUM_VIDEOS):
                     for frame_num in range(self.NUM_FRAMES):
                         self.setup_folder(action, video_num)
@@ -191,24 +196,25 @@ class GestureActionManager:
                         self.draw_styled_landmarks(image, results)
 
                         if frame_num == 0:
-                            threading.Thread(target=player.play_sfx, args=('beep-new-1s',)).start()
+                            threading.Thread(target=player.play_sfx, args=("beep-new-1s",)).start()
+                            self.display(image, "STARTING COLLECTION", (120, 120), TITLE)
                             self.display(
-                                image, 'STARTING COLLECTION', (120, 120), TITLE)
-                            self.display(
-                                image, f'Collecting frames for "{action}" Video: # {video_num}', (120, 60), SUB_TITLE)
-                            cv2.imshow('OpenCV Feed', image)
+                                image, f'Collecting frames for "{action}" Video: # {video_num}', (120, 60), SUB_TITLE
+                            )
+                            cv2.imshow("OpenCV Feed", image)
                             cv2.waitKey(500)
                         else:
                             self.display(
-                                image, f'Collecting frames for "{action}" Video: # {video_num}', (120, 60), SUB_TITLE)
-                            cv2.imshow('OpenCV Feed', image)
+                                image, f'Collecting frames for "{action}" Video: # {video_num}', (120, 60), SUB_TITLE
+                            )
+                            cv2.imshow("OpenCV Feed", image)
 
                         # Extract and save keypoints
                         keypoints = self.extract_keypoints(results)
                         npy_path = os.path.join(DATA_PATH, action, str(video_num), str(frame_num))
                         np.save(npy_path, keypoints)
 
-                        if cv2.waitKey(10) & 0xFF == ord('q'):
+                        if cv2.waitKey(10) & 0xFF == ord("q"):
                             break
 
             cap.release()
@@ -235,9 +241,9 @@ class GestureActionManager:
                 image, results = self.mediapipe_detection(frame, holistic)
                 self.draw_styled_landmarks(image, results)
                 keypoints = self.extract_keypoints(results)
-                self.display(image, f'Keypoints: {keypoints.shape} ', (120, 60), SUB_TITLE)
-                cv2.imshow('OpenCV Feed', image)
-                if cv2.waitKey(10) & 0xFF == ord('q'):
+                self.display(image, f"Keypoints: {keypoints.shape} ", (120, 60), SUB_TITLE)
+                cv2.imshow("OpenCV Feed", image)
+                if cv2.waitKey(10) & 0xFF == ord("q"):
                     break
         cap.release()
         cv2.destroyAllWindows()
@@ -250,14 +256,14 @@ class GestureActionManager:
         x_train, x_test, y_train, y_test = train_test_split(x_arr, y_arr, test_size=0.05)
         model_path: str = os.path.join(MODEL_PATH, f"taius-{'-'.join(self.actions)}-gestures.h5")
         model = Sequential()
-        model.add(LSTM(64, return_sequences=True, activation='relu', input_shape=(self.NUM_FRAMES, self.NUM_KEYPOINTS)))
-        model.add(LSTM(128, return_sequences=True, activation='relu'))
-        model.add(LSTM(64, return_sequences=False, activation='relu'))
-        model.add(Dense(64, activation='relu'))
-        model.add(Dense(32, activation='relu'))
-        model.add(Dense(self.actions.shape[0], activation='softmax'))
+        model.add(LSTM(64, return_sequences=True, activation="relu", input_shape=(self.NUM_FRAMES, self.NUM_KEYPOINTS)))
+        model.add(LSTM(128, return_sequences=True, activation="relu"))
+        model.add(LSTM(64, return_sequences=False, activation="relu"))
+        model.add(Dense(64, activation="relu"))
+        model.add(Dense(32, activation="relu"))
+        model.add(Dense(self.actions.shape[0], activation="softmax"))
         if not load:
-            model.compile(optimizer='Adam', loss='categorical_crossentropy', metrics=['categorical_accuracy'])
+            model.compile(optimizer="Adam", loss="categorical_crossentropy", metrics=["categorical_accuracy"])
             model.fit(x_train, y_train, epochs=epochs, callbacks=[self._tb_callback])
             model.save(model_path)
         else:
@@ -271,17 +277,13 @@ class GestureActionManager:
         return random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
 
     def prob_vis(self, results, input_frame) -> Any:
-        colors = [
-            self.rrgb(n) for n in range(len(self.actions))
-        ]
+        colors = [self.rrgb(n) for n in range(len(self.actions))]
         output_frame = input_frame.copy()
         for num, prob in enumerate(results):
-            self.display(
-                output_frame, str(self.actions[num]), (0, 85 + num * 40), (255, 255, 255))
+            self.display(output_frame, str(self.actions[num]), (0, 85 + num * 40), (255, 255, 255))
             if prob >= 0.95:
-                print('Action:', str(self.actions[num]))
-            cv2.rectangle(
-                output_frame, (0, 60 + num * 40), (int(prob * 100), 90 + num * 40), colors[num], -1)
+                print("Action:", str(self.actions[num]))
+            cv2.rectangle(output_frame, (0, 60 + num * 40), (int(prob * 100), 90 + num * 40), colors[num], -1)
 
         return output_frame
 
@@ -300,7 +302,7 @@ class GestureActionManager:
 
                 keypoints = self.extract_keypoints(results)
                 sequence.append(keypoints)
-                sequence = sequence[-self.NUM_FRAMES:]  # Get the latest sequence.
+                sequence = sequence[-self.NUM_FRAMES :]  # Get the latest sequence.
 
                 if len(sequence) == self.NUM_FRAMES:  # Number of frames to be able to predict.
                     results = model.predict(np.expand_dims(sequence, axis=0))[0]
@@ -319,17 +321,17 @@ class GestureActionManager:
                     image = self.prob_vis(results, image)
 
                 cv2.rectangle(image, (0, 0), (640, 40), (245, 117, 16), -1)
-                self.display(image, ' '.join(actions), (3, 30), (255, 255, 255))
-                cv2.imshow('OpenCV Feed', image)
+                self.display(image, " ".join(actions), (3, 30), (255, 255, 255))
+                cv2.imshow("OpenCV Feed", image)
 
-                if cv2.waitKey(10) & 0xFF == ord('q'):
+                if cv2.waitKey(10) & 0xFF == ord("q"):
                     break
 
             cap.release()
             cv2.destroyAllWindows()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     gm: GestureActionManager = GestureActionManager()
     # gm.demo_media_pipe()
     # gm.capture_landmarks(start_at='dispose', end_at='dispose')

@@ -12,17 +12,6 @@
 
 Copyright 2024, HSPyLib team
 """
-from typing import Any, Optional
-
-from clitt.core.term.cursor import cursor
-from hspylib.core.config.path_object import PathObject
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.dict_tools import get_or_default_by_key
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
-from langchain_core.runnables import RunnableWithMessageHistory
-from rich.live import Live
-from rich.spinner import Spinner
-
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
 from askai.core.askai_prompt import prompt
@@ -32,6 +21,15 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter as tf
 from askai.exception.exceptions import TerminatingQuery
+from clitt.core.term.cursor import cursor
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.dict_tools import get_or_default_by_key
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.runnables import RunnableWithMessageHistory
+from rich.live import Live
+from rich.spinner import Spinner
+from typing import Any, Optional
 
 
 class ChatProcessor(metaclass=Singleton):

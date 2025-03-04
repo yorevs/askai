@@ -27,9 +27,7 @@ class InputSuggester(Suggester):
         KeyboardInput.preload_history(cache.load_input_history(commands()))
         self._suggestions: list[str] = KeyboardInput.history()
         self._for_comparison: list[str] = list(
-            self._suggestions
-            if self.case_sensitive
-            else [suggestion.casefold() for suggestion in self._suggestions]
+            self._suggestions if self.case_sensitive else [suggestion.casefold() for suggestion in self._suggestions]
         )
 
     async def suggestions(self) -> list[str]:
@@ -40,9 +38,7 @@ class InputSuggester(Suggester):
         """Add a new suggestion."""
         if value not in self._suggestions and value not in self._for_comparison:
             self._suggestions.append(value)
-            self._for_comparison.append(
-                value if self.case_sensitive else value.casefold()
-            )
+            self._for_comparison.append(value if self.case_sensitive else value.casefold())
 
     async def get_suggestion(self, value: str) -> Optional[str]:
         """Get a suggestion from the list."""

@@ -24,9 +24,7 @@ from typing import Optional
 import dotenv
 import os
 
-API_KEY_FILE: str = os.environ.get(
-    "HHS_ENV_FILE", str(os.path.join(Path.home(), ".env"))
-)
+API_KEY_FILE: str = os.environ.get("HHS_ENV_FILE", str(os.path.join(Path.home(), ".env")))
 
 dotenv.load_dotenv(API_KEY_FILE)
 
@@ -49,9 +47,7 @@ class ApiKeys(BaseSettings):
         :return: True if the API key exists and is not empty, otherwise False.
         """
         api_key: str = key_name.upper()
-        return hasattr(self, api_key) and (
-            (kv := getattr(self, api_key)) is not None and len(kv) > 0
-        )
+        return hasattr(self, api_key) and ((kv := getattr(self, api_key)) is not None and len(kv) > 0)
 
     class Config:
         """Configuration class for setting environment variables related to API keys."""
@@ -110,6 +106,4 @@ class ApiKeys(BaseSettings):
         :raises MissingApiKeyError: If the API key is not valid.
         """
         if not self.has_key(api_key):
-            raise MissingApiKeyError(
-                f"ApiKey '{api_key}' is required to use '{feature}'"
-            )
+            raise MissingApiKeyError(f"ApiKey '{api_key}' is required to use '{feature}'")

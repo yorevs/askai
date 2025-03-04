@@ -10,24 +10,20 @@
 Copyright (c) 2024, AskAI
 """
 
-from textwrap import dedent
-from typing import Any, AnyStr
-import os
-import re
-
 from askai.core.askai_events import events
 from askai.core.model.ai_reply import AIReply
 from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.text_tools import (
-    ensure_endswith,
-    ensure_startswith,
-    strip_escapes,
-)
+from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith, strip_escapes
 from hspylib.modules.cli.vt100.vt_code import VtCode
 from hspylib.modules.cli.vt100.vt_color import VtColor
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.text import Text
+from textwrap import dedent
+from typing import Any, AnyStr
+
+import os
+import re
 
 
 class TextFormatter(metaclass=Singleton):

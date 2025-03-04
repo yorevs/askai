@@ -12,10 +12,6 @@
 
 Copyright (c) 2024, AskAI
 """
-from clitt.core.term.cursor import cursor
-from rich.live import Live
-from rich.spinner import Spinner
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -25,8 +21,9 @@ from askai.core.component.rag_provider import RAG_EXT_DIR, RAGProvider
 from askai.core.engine.openai.temperature import Temperature
 from askai.core.model.ai_reply import AIReply
 from askai.core.support.langchain_support import lc_llm
-from askai.exception.exceptions import DocumentsNotFound, TerminatingQuery
 from askai.core.support.text_formatter import text_formatter as tf
+from askai.exception.exceptions import DocumentsNotFound, TerminatingQuery
+from clitt.core.term.cursor import cursor
 from functools import lru_cache
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.classpath import AnyPath
@@ -40,6 +37,8 @@ from langchain_core.prompts import BasePromptTemplate, ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pathlib import Path
+from rich.live import Live
+from rich.spinner import Spinner
 from rich.status import Status
 from typing import Optional
 
@@ -97,10 +96,7 @@ class Rag(metaclass=Singleton):
         # FIXME Include kwargs to specify rag dir and glob
         self.generate()
 
-        with Live(
-            Spinner("dots", f"[green]{msg.wait()}[/green]", style="green"),
-            console=tf.console,
-        ):
+        with Live(Spinner("dots", f"[green]{msg.wait()}[/green]", style="green"), console=tf.console):
             if not (output := self._rag_chain.invoke(question)):
                 output = msg.invalid_response(output)
 
@@ -144,10 +140,7 @@ class Rag(metaclass=Singleton):
                 return "\n\n".join(doc.page_content for doc in docs)
 
             self._rag_chain = (
-                {
-                    "context": retriever | _format_docs_,
-                    "question": RunnablePassthrough(),
-                }
+                {"context": retriever | _format_docs_, "question": RunnablePassthrough()}
                 | rag_prompt
                 | llm
                 | StrOutputParser()

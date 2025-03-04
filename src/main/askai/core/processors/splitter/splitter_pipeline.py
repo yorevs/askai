@@ -20,10 +20,7 @@ from askai.core.model.acc_response import AccResponse
 from askai.core.model.action_plan import ActionPlan
 from askai.core.model.model_result import ModelResult
 from askai.core.processors.splitter.splitter_actions import actions
-from askai.core.processors.splitter.splitter_result import (
-    PipelineResponse,
-    SplitterResult,
-)
+from askai.core.processors.splitter.splitter_result import PipelineResponse, SplitterResult
 from askai.core.processors.splitter.splitter_states import States
 from askai.core.processors.splitter.splitter_transitions import Transition, TRANSITIONS
 from askai.core.router.evaluation import eval_response, EVALUATION_GUIDE
@@ -276,11 +273,7 @@ class SplitterPipeline:
         """
 
         model: ModelResult = (
-            ModelResult(
-                ResponseModel.ASSISTIVE_TECH_HELPER.model,
-                self.model.goal,
-                self.model.reason,
-            )
+            ModelResult(ResponseModel.ASSISTIVE_TECH_HELPER.model, self.model.goal, self.model.reason)
             if configs.is_assistive
             else self.model
         )

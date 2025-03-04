@@ -1,6 +1,6 @@
 from abc import ABC
 from askai.core.askai_configs import configs
-from askai.core.component.camera import camera
+from askai.core.component.multimedia.camera import camera
 from askai.core.router.tools.webcam import webcam_capturer, webcam_identifier
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text

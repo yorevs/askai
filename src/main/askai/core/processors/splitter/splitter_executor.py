@@ -65,9 +65,7 @@ class SplitterExecutor(Thread):
     def run(self) -> None:
         """Execute the splitter pipeline."""
 
-        with Live(
-            Spinner("dots", f"[green]{self.pipeline.state}…[/green]", style="green"), console=tf.console
-        ) as live:
+        with Live(Spinner("dots", f"[green]{self.pipeline.state}…[/green]", style="green"), console=tf.console) as live:
             try:
                 while not (self._interrupted or self.pipeline.state == States.COMPLETE):
                     self.pipeline.track_previous()

@@ -13,21 +13,20 @@
 Copyright (c) 2024, AskAI
 """
 from abc import ABC
-from pathlib import Path
-import os
-from textwrap import dedent
-
-from hspylib.core.metaclass.classpath import AnyPath
-from clitt.core.tui.mselect.mselect import mselect
-import pause
-
 from askai.core.askai_configs import configs
 from askai.core.askai_settings import settings
-from askai.core.component.audio_player import player
-from askai.core.component.recorder import InputDevice, recorder
+from askai.core.component.multimedia.audio_player import player
+from askai.core.component.multimedia.recorder import InputDevice, recorder
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import copy_file
+from clitt.core.tui.mselect.mselect import mselect
+from hspylib.core.metaclass.classpath import AnyPath
+from pathlib import Path
+from textwrap import dedent
+
+import os
+import pause
 
 
 class TtsSttCmd(ABC):
@@ -50,14 +49,14 @@ class TtsSttCmd(ABC):
         :param name_or_index: The name or index of the voice to set. If None, the default voice will be used.
         """
         all_voices = shared.engine.voices()
-        if name_or_index.isdecimal() and 0 <= int(name_or_index) <= len(all_voices):
+        if name_or_index and name_or_index.isdecimal() and 0 <= int(name_or_index) <= len(all_voices):
             name_or_index = all_voices[int(name_or_index)]
-        if name_or_index in all_voices:
+        if name_or_index and name_or_index in all_voices:
             settings.put("openai.text.to.speech.voice", name_or_index)
             shared.engine.configs().tts_voice = name_or_index
             text_formatter.commander_print(f"`Speech-To-Text` voice changed to %GREEN%{name_or_index.title()}%NC%")
         else:
-            text_formatter.commander_print(f"%RED%Invalid voice: '{name_or_index}'%NC%")
+            text_formatter.commander_print(f"%RED%Invalid voice name/index: '{name_or_index}'%NC%")
 
     @staticmethod
     def voice_play(name_or_index: str | int | None = None) -> None:
@@ -66,13 +65,13 @@ class TtsSttCmd(ABC):
         """
         all_voices = shared.engine.voices()
         ai_name = shared.engine.ai_name().lower().replace("engine", "")
-        if name_or_index.isdecimal() and 0 <= int(name_or_index) <= len(all_voices):
+        if name_or_index and name_or_index.isdecimal() and 0 <= int(name_or_index) <= len(all_voices):
             name_or_index = all_voices[int(name_or_index)]
-        if name_or_index in all_voices:
+        if name_or_index and name_or_index in all_voices:
             text_formatter.commander_print(f"Sampling voice `{name_or_index}` …")
             player.play_sfx(f"voices/{ai_name}-{name_or_index}-sample")
         else:
-            text_formatter.commander_print(f"%RED%Invalid voice: '{name_or_index}'%NC%")
+            text_formatter.commander_print(f"%RED%Invalid voice name/index: '{name_or_index}'%NC%")
 
     @staticmethod
     def tempo(speed: int | None = None) -> None:
@@ -119,10 +118,7 @@ class TtsSttCmd(ABC):
             return False
 
         if not name_or_index:
-            device: InputDevice = mselect(
-                all_devices,
-                f"{'-=' * 40}%EOL%AskAI::Select the Audio Input device%EOL%{'=-' * 40}%EOL%",
-            )
+            device = mselect(all_devices, f"{'-=' * 40}%EOL%AskAI::Select the Audio Input device%EOL%{'=-' * 40}%EOL%")
         elif name_or_index.isdecimal() and 0 <= int(name_or_index) <= len(all_devices):
             name_or_index = all_devices[int(name_or_index)][1]
             device = next((dev for dev in all_devices if dev[1] == name_or_index), None)

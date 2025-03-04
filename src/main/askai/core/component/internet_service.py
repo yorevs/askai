@@ -95,7 +95,6 @@ class InternetService(metaclass=Singleton):
         """
         return url.replace(url, cls.SITE_ICONS[url]) if cls.SITE_ICONS[url] else url
 
-
     @classmethod
     def wrap_response(cls, terms: str, output: str, search: SearchResult) -> str:
         """Format and wrap the search response based on the search terms, output, and method used.

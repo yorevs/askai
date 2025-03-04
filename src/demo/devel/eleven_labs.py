@@ -1,5 +1,4 @@
 import os
-
 import requests
 
 ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
@@ -7,9 +6,7 @@ ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
 
 def get_available_voices():
     url = "https://api.elevenlabs.io/v1/voices"
-    headers = {
-        "xi-api-key": ELEVENLABS_API_KEY,
-    }
+    headers = {"xi-api-key": ELEVENLABS_API_KEY}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         voices = response.json().get("voices", [])

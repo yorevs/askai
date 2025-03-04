@@ -12,12 +12,10 @@
 
 Copyright (c) 2024, AskAI
 """
-import shutil
-from pathlib import Path
-import glob
-import os
-
-
+from askai.__classpath__ import classpath
+from askai.core.askai_configs import configs
+from askai.core.askai_settings import ASKAI_DIR
+from askai.core.support.langchain_support import lc_llm
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.preconditions import check_state
@@ -27,11 +25,11 @@ from langchain_community.document_loaders import CSVLoader
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStore
+from pathlib import Path
 
-from askai.__classpath__ import classpath
-from askai.core.askai_configs import configs
-from askai.core.askai_settings import ASKAI_DIR
-from askai.core.support.langchain_support import lc_llm
+import glob
+import os
+import shutil
 
 # External RAG Directory
 RAG_EXT_DIR: Path = Path(f"{ASKAI_DIR}/rag")
@@ -45,12 +43,7 @@ class RAGProvider:
     RAG_DIR: Path = Path(os.path.join(classpath.resource_path, "rag"))
 
     @classmethod
-    def copy_rag(
-        cls,
-        path_name: AnyPath,
-        dest_name: AnyPath | None = None,
-        rag_dir: AnyPath = RAG_EXT_DIR,
-    ) -> bool:
+    def copy_rag(cls, path_name: AnyPath, dest_name: AnyPath | None = None, rag_dir: AnyPath = RAG_EXT_DIR) -> bool:
         """Copy RAG documents into the specified RAG directory.
         :param path_name: The path of the RAG documents to copy.
         :param dest_name: The destination, within the RAG directory, where the documents will be copied to. If None,
@@ -80,11 +73,7 @@ class RAGProvider:
         return True
 
     @classmethod
-    def del_rag(
-        cls,
-        path_name: AnyPath,
-        rag_dir: AnyPath = RAG_EXT_DIR,
-    ) -> bool:
+    def del_rag(cls, path_name: AnyPath, rag_dir: AnyPath = RAG_EXT_DIR) -> bool:
         """Delete RAG documents from the specified RAG directory.
         :param path_name: The path of the RAG documents to delete.
         :param rag_dir: The directory where RAG documents will be deleted from.
@@ -109,10 +98,7 @@ class RAGProvider:
         return ret_val
 
     @classmethod
-    def clear(
-        cls,
-        rag_dir: AnyPath = RAG_EXT_DIR,
-    ) -> bool:
+    def clear(cls, rag_dir: AnyPath = RAG_EXT_DIR) -> bool:
         """Wipe RAG documents from the specified RAG directory.
         :param rag_dir: The directory where RAG documents will be deleted from.
         :return: True if the deletion operation was successful, False otherwise.

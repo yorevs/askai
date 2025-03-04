@@ -1,5 +1,5 @@
-from askai.core.component.camera import camera
 from askai.core.component.image_store import ImageMetadata, store
+from askai.core.component.multimedia.camera import camera
 from askai.core.router.tools.terminal import open_command
 from clitt.core.term.cursor import cursor
 from clitt.core.tui.line_input.line_input import line_input

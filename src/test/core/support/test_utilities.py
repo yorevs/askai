@@ -12,12 +12,7 @@
 
    Copyright (c) 2024, AskAI
 """
-from askai.core.support.utilities import (
-    encode_image,
-    extract_codeblock,
-    extract_path,
-    media_type_of,
-)
+from askai.core.support.utilities import encode_image, extract_codeblock, extract_path, media_type_of
 from pathlib import Path
 from textwrap import dedent
 
@@ -141,9 +136,7 @@ class TestClass(unittest.TestCase):
                 self.assertEqual(result, expected)
 
     def test_encode_image(self):
-        test_image_content = (
-            b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR"  # Sample PNG header bytes
-        )
+        test_image_content = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR"  # Sample PNG header bytes
         with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
             tmp_file.write(test_image_content)
             tmp_file_name = tmp_file.name

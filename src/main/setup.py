@@ -38,10 +38,7 @@ setuptools.setup(
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/yorevs/hspylib",
-    project_urls={
-        "GitHub": "https://github.com/yorevs/hspylib",
-        "PyPi": "https://pypi.org/project/hspylib-askai/",
-    },
+    project_urls={"GitHub": "https://github.com/yorevs/hspylib", "PyPi": "https://pypi.org/project/hspylib-askai/"},
     license="MIT",
     license_files="LICENSE.md",
     packages=setuptools.find_namespace_packages(),

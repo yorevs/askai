@@ -12,10 +12,10 @@
 
 Copyright (c) 2024, AskAI
 """
-from typing import Literal, TypeAlias
-import logging as log
-
 from hspylib.core.enums.enumeration import Enumeration
+from typing import Literal, TypeAlias
+
+import logging as log
 
 AccuracyColors: TypeAlias = Literal["Blue", "White", "Blue", "Green", "Yellow", "Red"]
 

@@ -30,6 +30,7 @@ class Language(Enumeration):
 
     # fmt: off
 
+    C     = 'C', 'POSIX', 'Minimal C (POSIX) locale'
     AF_ZA = 'af_ZA', 'Afrikaans', 'South Africa'
     AR_AE = 'ar_AE', 'Arabic', 'United Arab Emirates'
     AR_BH = 'ar_BH', 'Arabic', 'Bahrain'
@@ -165,7 +166,7 @@ class Language(Enumeration):
         """
         # Replace possible 'loc[:.]charset' values
         loc_enc: tuple = tuple(map(
-            lambda s: re.sub(r'(/C|C/|\'|\")+', '', s), loc
+            lambda s: re.sub(r'(/C|C/|\'|\")+', 'UTF-8', s), loc
             if isinstance(loc, tuple)
             else re.split(r"[:.]", loc)
         ))
@@ -188,7 +189,7 @@ class Language(Enumeration):
         self._encoding: Charset = Charset.of_value(self._locale[1])
         self._idiom = self._locale[0]
         lang = locale_str.split("_")
-        self._language, self._territory = lang[0], lang[1]
+        self._language, self._territory = lang[0], get_or_default(lang, 1, 'UTF-8')
 
     def __str__(self):
         return f"{self.name} '{self.country.title()}', '{self.encoding}'"

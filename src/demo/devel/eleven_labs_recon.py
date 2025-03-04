@@ -1,10 +1,9 @@
-import os
-
-import speech_recognition as sr
-import requests
-
 # Replace these with your actual API keys
-from askai.core.component.audio_player import player
+from askai.core.component.multimedia.audio_player import player
+
+import os
+import requests
+import speech_recognition as sr
 
 # -------------------- Configuration --------------------
 
@@ -40,10 +39,7 @@ def synthesize_speech(text):
     print("Synthesizing speech with ElevenLabs...")
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
 
-    headers = {
-        "Content-Type": "application/json",
-        "xi-api-key": ELEVENLABS_API_KEY,
-    }
+    headers = {"Content-Type": "application/json", "xi-api-key": ELEVENLABS_API_KEY}
 
     data = {"text": text, "voice_settings": {"stability": 0.75, "similarity_boost": 0.75}}
 

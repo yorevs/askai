@@ -31,9 +31,7 @@ class AskAiConfigs(metaclass=Singleton):
     RESOURCE_DIR = str(classpath.resource_path)
 
     def __init__(self):
-        self._recorder_devices: set[str] = set(
-            map(str.strip, settings.get_list("askai.recorder.devices"))
-        )
+        self._recorder_devices: set[str] = set(map(str.strip, settings.get_list("askai.recorder.devices")))
 
     @property
     def engine(self) -> str:
@@ -168,9 +166,7 @@ class AskAiConfigs(metaclass=Singleton):
     @property
     def pass_threshold(self) -> AccColor:
         try:
-            color: AccColor = AccColor.value_of(
-                settings.get("askai.router.pass.threshold")
-            )
+            color: AccColor = AccColor.value_of(settings.get("askai.router.pass.threshold"))
         except ValueError:
             color: AccColor = AccColor.MODERATE
 

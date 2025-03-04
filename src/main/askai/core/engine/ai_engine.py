@@ -92,9 +92,7 @@ class AIEngine(Protocol):
         """
         ...
 
-    def ask(
-        self, chat_context: list[dict], temperature: float = 0.8, top_p: float = 0.0
-    ) -> AIReply:
+    def ask(self, chat_context: list[dict], temperature: float = 0.8, top_p: float = 0.0) -> AIReply:
         """Ask AI assistance for the given question and expect a response.
         :param chat_context: The chat history or context.
         :param temperature: The model engine temperature.
@@ -103,9 +101,7 @@ class AIEngine(Protocol):
         """
         ...
 
-    def text_to_speech(
-        self, text: str, prefix: str = "", stream: bool = True, playback: bool = True
-    ) -> Optional[Path]:
+    def text_to_speech(self, text: str, prefix: str = "", stream: bool = True, playback: bool = True) -> Optional[Path]:
         """Convert the provided text to speech.
         :param text: The text to convert to speech.
         :param prefix: The prefix of the streamed text.

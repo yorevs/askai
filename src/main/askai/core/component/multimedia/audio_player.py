@@ -67,10 +67,7 @@ class AudioPlayer(metaclass=Singleton):
         :return: True if the sound effect is played successfully, otherwise False.
         """
         filename = f"{AudioPlayer.SFX_DIR}/{ensure_endswith(filename, file_ext)}"
-        check_argument(
-            file_is_not_empty(filename),
-            f"Sound effects file does not exist: {filename}",
-        )
+        check_argument(file_is_not_empty(filename), f"Sound effects file does not exist: {filename}")
 
         return AudioPlayer.play_audio_file(filename, loop=loop)
 

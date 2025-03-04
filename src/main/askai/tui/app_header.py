@@ -13,7 +13,7 @@
    Copyright (c) 2024, AskAI
 """
 from askai.core.askai_configs import configs
-from askai.core.component.recorder import recorder
+from askai.core.component.multimedia.recorder import recorder
 from askai.core.support.shared_instances import shared
 from askai.tui.app_icons import AppIcons
 from askai.tui.app_widgets import MenuIcon
@@ -47,22 +47,16 @@ class Header(Widget):
     def screen_sub_title(self) -> str:
         """The sub-title that this header will display."""
         screen_sub_title = self.screen.sub_title
-        sub_title = (
-            screen_sub_title if screen_sub_title is not None else self.app.sub_title
-        )
+        sub_title = screen_sub_title if screen_sub_title is not None else self.app.sub_title
         return sub_title
 
     def compose(self):
         """Compose the Header Widget."""
         yield MenuIcon(AppIcons.EXIT.value, "Exit the application", self.app.exit)
-        yield MenuIcon(
-            AppIcons.TOC.value, "Show/Hide Table of Contents", self._show_toc
-        )
+        yield MenuIcon(AppIcons.TOC.value, "Show/Hide Table of Contents", self._show_toc)
         yield MenuIcon(AppIcons.CONSOLE.value, "Show console", self._show_console)
         yield MenuIcon(AppIcons.SETTINGS.value, "Show settings", self._show_settings)
-        yield MenuIcon(
-            AppIcons.INFO.value, "Show application information", self._show_info
-        )
+        yield MenuIcon(AppIcons.INFO.value, "Show application information", self._show_info)
         yield MenuIcon(AppIcons.HELP.value, "Show application help", self._show_help)
         yield HeaderTitle()
         yield HeaderNotifications()
@@ -147,9 +141,7 @@ class HeaderNotifications(Widget):
         self.tooltip = str(self)
 
     def __str__(self):
-        device_info: str = (
-            f"{recorder.input_device[1]}" if recorder.input_device else "-"
-        )
+        device_info: str = f"{recorder.input_device[1]}" if recorder.input_device else "-"
         voice: str = shared.engine.configs().tts_voice
         # fmt: off
         return dedent(f"""\

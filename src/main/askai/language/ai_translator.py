@@ -49,13 +49,9 @@ class AITranslator(ABC):
 
         try:
             # Perform batch translation
-            translated_texts: list[str] = list(
-                map(self._translate_text, texts_to_translate)
-            )
+            translated_texts: list[str] = list(map(self._translate_text, texts_to_translate))
         except Exception as err:
-            events.reply.emit(
-                reply=AIReply.debug(f"Error during batch translation: {err}")
-            )
+            events.reply.emit(reply=AIReply.debug(f"Error during batch translation: {err}"))
             return text
 
         # Replace translated texts in the parts list

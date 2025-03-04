@@ -33,18 +33,14 @@ import logging as log
 import os
 
 
-def generate_content(
-    instructions: str, mime_type: str, filepath: AnyPath | None = None
-) -> str:
+def generate_content(instructions: str, mime_type: str, filepath: AnyPath | None = None) -> str:
     """Generate content using the AI. It's a general function now, but it can be specialized afterwards.
     :param instructions: The instructions for generating the content.
     :param mime_type: The generated content type (use MIME types).
     :param filepath: Optional file path for saving the content.
     """
     check_not_none((instructions, mime_type))
-    template = PromptTemplate(
-        input_variables=["mime_type", "input"], template=prompt.read_prompt("generator")
-    )
+    template = PromptTemplate(input_variables=["mime_type", "input"], template=prompt.read_prompt("generator"))
     final_prompt: str = template.format(mime_type=mime_type, input=instructions)
     instructions += "\nFormat the content into a markdown code block.\n"
 
@@ -71,9 +67,7 @@ def save_content(filepath: AnyPath, content: AnyStr | None = None) -> str:
     if filepath:
         path_obj = PathObject.of(filepath)
         base_dir = path_obj.abs_dir
-        if Path(base_dir).exists and (
-            output := str(content or shared.context.flat("GENERATED"))
-        ):
+        if Path(base_dir).exists and (output := str(content or shared.context.flat("GENERATED"))):
             filename: str = path_obj.join()
             with open(filename, "w") as f_path_name:
                 lang, content = extract_codeblock(output)

@@ -13,37 +13,36 @@
 Copyright (c) 2024, AskAI
 """
 
-from os.path import basename
-from pathlib import Path
-from typing import Optional, TypeAlias
-import atexit
-import glob
-import logging as log
-import os.path
-import shutil
-
-from hspylib.core.metaclass.classpath import AnyPath
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.tools.dict_tools import get_or_default
-from hspylib.core.tools.text_tools import hash_text
-from hspylib.core.zoned_datetime import now_ms
-from retry import retry
-from torchvision.datasets.folder import is_image_file
-import cv2
-import pause
-
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
-from askai.core.component.audio_player import player
 from askai.core.component.cache_service import FACE_DIR, IMG_IMPORTS_DIR, PHOTO_DIR
 from askai.core.component.image_store import ImageData, ImageFile, ImageMetadata, store
+from askai.core.component.multimedia.audio_player import player
 from askai.core.model.ai_reply import AIReply
 from askai.core.model.image_result import ImageResult
 from askai.core.router.tools.vision import image_captioner, parse_image_caption
 from askai.core.support.utilities import build_img_path
 from askai.exception.exceptions import CameraAccessFailure, WebCamInitializationFailure
+from hspylib.core.metaclass.classpath import AnyPath
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.dict_tools import get_or_default
+from hspylib.core.tools.text_tools import hash_text
+from hspylib.core.zoned_datetime import now_ms
+from os.path import basename
+from pathlib import Path
+from retry import retry
+from torchvision.datasets.folder import is_image_file
+from typing import Optional, TypeAlias
+
+import atexit
+import cv2
+import glob
+import logging as log
+import os.path
+import pause
+import shutil
 
 InputDevice: TypeAlias = tuple[int, str]
 
@@ -99,11 +98,7 @@ class Camera(metaclass=Singleton):
             self._cam.release()
 
     def capture(
-        self,
-        filename: AnyPath,
-        countdown: int = 3,
-        with_caption: bool = True,
-        store_image: bool = True,
+        self, filename: AnyPath, countdown: int = 3, with_caption: bool = True, store_image: bool = True
     ) -> Optional[tuple[ImageFile, ImageData]]:
         """Capture a webcam frame (take a photo).
         :param filename: The file name for the capturing image.
@@ -143,11 +138,7 @@ class Camera(metaclass=Singleton):
         return None
 
     def detect_faces(
-        self,
-        photo: ImageData,
-        filename: AnyPath = None,
-        with_caption: bool = True,
-        store_image: bool = True,
+        self, photo: ImageData, filename: AnyPath = None, with_caption: bool = True, store_image: bool = True
     ) -> tuple[list[ImageFile], list[ImageData]]:
         """Detect all faces in the provided photo.
         :param photo: The image data in which to detect faces.
@@ -161,10 +152,7 @@ class Camera(metaclass=Singleton):
         face_datas: list[ImageData] = []
         gray_img = cv2.cvtColor(photo, cv2.COLOR_BGR2GRAY)
         faces = self._face_classifier.detectMultiScale(
-            gray_img,
-            scaleFactor=configs.scale_factor,
-            minNeighbors=configs.min_neighbors,
-            minSize=configs.min_max_size,
+            gray_img, scaleFactor=configs.scale_factor, minNeighbors=configs.min_neighbors, minSize=configs.min_max_size
         )
         log.debug("Detected faces: %d", len(faces))
 
@@ -211,11 +199,7 @@ class Camera(metaclass=Singleton):
         return id_data
 
     def import_images(
-        self,
-        pathname: AnyPath,
-        detect_faces: bool = False,
-        with_caption: bool = True,
-        store_image: bool = True,
+        self, pathname: AnyPath, detect_faces: bool = False, with_caption: bool = True, store_image: bool = True
     ) -> tuple[int, ...]:
         """Import image files into the image collection.
         :param pathname: The path or glob pattern of the images to be imported.
