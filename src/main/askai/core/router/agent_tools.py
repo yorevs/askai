@@ -26,9 +26,10 @@ from clitt.core.tui.line_input.line_input import line_input
 from functools import lru_cache
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.tools.commons import to_bool
 from langchain_core.tools import BaseTool, StructuredTool
 from textwrap import dedent
-from typing import Callable, Optional
+from typing import AnyStr, Callable, Optional
 
 import inspect
 import logging as log
@@ -53,7 +54,6 @@ class AgentTools(metaclass=Singleton):
             )
         )
 
-    @lru_cache
     def tools(self) -> list[BaseTool]:
         """Return a cached list of LangChain base tools.
         :return: A list of BaseTool's instances available for use.
@@ -78,7 +78,7 @@ class AgentTools(metaclass=Singleton):
     def _human_approval(self) -> bool:
         """Prompt for human approval."""
         confirm_msg = msg.access_grant()
-        if (resp := line_input(confirm_msg).lower()) not in ("yes", "y"):
+        if (to_bool(resp := line_input(confirm_msg))):
             raise ValueError(f"Terminal command execution was not approved '{resp}' !")
         self._approved = True
 
@@ -192,7 +192,7 @@ class AgentTools(metaclass=Singleton):
         """
         return display_tool(*(texts if isinstance(texts, list) else [texts]))
 
-    def list_tool(self, folder: str, filters: str | None = None) -> str:
+    def list_tool(self, folder: str, filters: AnyStr = "") -> str:
         """Access and list the contents of a specified folder. This tool is used to retrieve the contents of a folder,
         optionally filtering the results based on specified criteria.
         Usage: `list_tool(folder, filters)`

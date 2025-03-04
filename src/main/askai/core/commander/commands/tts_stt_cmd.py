@@ -141,9 +141,12 @@ class TtsSttCmd(ABC):
 
     @staticmethod
     def dictate(dest_file: str | None) -> None:
-        """TODO"""
+        """Dictates text and optionally saves it to a file.
+        :param dest_file: The destination file path where the dictated text will be saved, or None if no file is specified.
+        """
         file_info: str = f"Dictated text saved: *'{dest_file}'*" if dest_file else ""
         dictated_text: str | None = recorder.dictate()
+
         if dictated_text:
             if dest_file and os.path.exists(os.path.dirname(dest_file)):
                 with open(dest_file, "w") as f_dictation:

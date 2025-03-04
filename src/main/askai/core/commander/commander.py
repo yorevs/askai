@@ -12,6 +12,22 @@
 
 Copyright (c) 2024, AskAI
 """
+from functools import lru_cache
+from os.path import basename
+from pathlib import Path
+from string import Template
+from textwrap import dedent
+import os
+import re
+
+from click import Command, Group
+from clitt.core.term.cursor import cursor
+from hspylib.core.config.path_object import PathObject
+from hspylib.core.enums.charset import Charset
+from hspylib.core.tools.commons import sysout, to_bool
+from hspylib.modules.eventbus.event import Event
+import click
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import ASKAI_BUS_NAME, AskAiEvents, events, REPLY_EVENT
 from askai.core.commander.commands.cache_cmd import CacheCmd
@@ -26,20 +42,6 @@ from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import display_text
 from askai.language.language import AnyLocale, Language
-from click import Command, Group
-from clitt.core.term.cursor import cursor
-from functools import lru_cache
-from hspylib.core.enums.charset import Charset
-from hspylib.core.tools.commons import sysout, to_bool
-from hspylib.modules.eventbus.event import Event
-from os.path import basename, dirname
-from pathlib import Path
-from string import Template
-from textwrap import dedent
-
-import click
-import os
-import re
 
 # fmt: off
 COMMANDER_HELP_TPL = Template(
@@ -379,30 +381,34 @@ def voices(operation: str, name: str | int | None = None) -> None:
 
 
 @ask_commander.command()
-@click.argument("string", default="")
-@click.argument("dest_dir", default="")
-@click.argument("playback", default="True")
-def tts(string: str, dest_dir: str, playback: bool) -> None:
+@click.argument("texts", type=click.STRING, nargs=-1)
+@click.option("--dest-dir", type=click.Path(exists=True, file_okay=False, dir_okay=True))
+@click.option("--playback/--no-playback", default=True)
+def tts(texts: tuple[str, ...], dest_dir: str, playback: bool) -> None:
     """Convert text to speech using the default AI engine.
-    :param string: The text to convert. If text represents a valid file, its contents will be used instead.
+    :param texts: The strings to convert. If text represents a valid file, its contents will be used instead.
     :param dest_dir: The directory where the converted audio file will be saved.
     :param playback: Whether to play the audio file after conversion.
     """
-    if (text_path := Path(string)).exists and text_path.is_file():
-        text: str = text_path.read_text(encoding=Charset.UTF_8.val)
-    TtsSttCmd.tts(text.strip(), dirname(dest_dir), playback)
+    if text := ' '.join(texts):
+        f_path: PathObject | None = PathObject.of(text)
+        if f_path and f_path.exists and f_path.is_file:
+            text = Path(str(f_path)).read_text(encoding=Charset.UTF_8.val)
+        TtsSttCmd.tts(text.strip(), dest_dir, playback)
 
 
 @ask_commander.command()
-@click.argument("dest_file", default="")
-def dictate(dest_file: str | None) -> None:
-    """TODO"""
+@click.option("--dest-file", type=click.Path(exists=False, file_okay=True, dir_okay=False))
+def dictate(dest_file: str) -> None:
+    """Dictates text and optionally saves it to a file.
+    :param dest_file: The destination file path where the dictated text will be saved, or None if no file is specified.
+    """
     TtsSttCmd.dictate(dest_file)
 
 
 @ask_commander.command()
-@click.argument("folder")
-@click.argument("glob", default="**/*")
+@click.argument("folder", type=click.Path(exists=True, file_okay=False, dir_okay=True))
+@click.argument("glob", type=click.STRING, default="**/*")
 def summarize(folder: str, glob: str) -> None:
     """Create a summary of the folder's contents.
     :param folder: The root directory for the summary.
@@ -412,10 +418,10 @@ def summarize(folder: str, glob: str) -> None:
 
 
 @ask_commander.command()
-@click.argument("locale_str", default="")
+@click.option("--locale-str", type=click.STRING, help="The locale identifier, e.g., 'en_US'")
 def idiom(locale_str: str) -> None:
     """Set the application's language preference.
-    :param locale_str: The locale identifier, e.g., 'pt_BR'.
+    :param locale_str: The locale identifier, e.g., 'en_US'.
     """
     GeneralCmd.idiom(locale_str)
 
@@ -431,15 +437,13 @@ def info() -> None:
 
 @ask_commander.command()
 @click.argument("from_locale_str")
-@click.argument("to_locale_str")
 @click.argument("texts", nargs=-1)
-def translate(from_locale_str: AnyLocale, to_locale_str: AnyLocale, texts: tuple[str, ...]) -> None:
+def translate(from_locale_str: AnyLocale, texts: tuple[str, ...]) -> None:
     """Translate text from the source language to the target language.
-    :param from_locale_str: The source locale identifier, e.g., 'pt_BR'.
-    :param to_locale_str: The target locale identifier, e.g., 'en_US'.
+    :param from_locale_str: The source locale identifier, e.g., 'en_US'.
     :param texts: The list of texts to translate.
     """
-    GeneralCmd.translate(Language.of_locale(from_locale_str), Language.of_locale(to_locale_str), " ".join(texts))
+    GeneralCmd.translate(Language.of_locale(from_locale_str), " ".join(texts))
 
 
 @ask_commander.command()

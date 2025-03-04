@@ -53,8 +53,8 @@ class GeneralCmd(ABC):
         :param folder: The base folder from which the summarization will be generated.
         :param glob: The glob pattern specifying which files or folders to include in the summarization.
         """
-        sum_dir: PathObject = PathObject.of(folder)
-        if os.path.exists(sum_dir.abs_dir):
+        sum_dir: PathObject | None = PathObject.of(folder)
+        if sum_dir and os.path.exists(sum_dir.abs_dir):
             if summarizer.generate(sum_dir.abs_dir, glob):
                 text_formatter.commander_print(f"Summarization complete. Folder: *{folder}*  Glob: *{glob}* !")
             else:
@@ -73,17 +73,18 @@ class GeneralCmd(ABC):
                 settings.put("askai.preferred.language", language.idiom)
                 text_formatter.commander_print(f"Locale changed to: {language}")
             else:
-                language = Language.of_locale(locale.getlocale(locale.LC_ALL))
+                current_locale = locale.getlocale(locale.LC_ALL)
+                loc_str = f"{current_locale[0]}.{current_locale[1]}" if all(current_locale) else ""
+                language = Language.of_locale(loc_str)
                 text_formatter.commander_print(f"Current locale: {language}")
         except (ValueError, TypeError) as err:
             display_text(f"\n%RED%-=- Failed to set idiom: '{str(err)}'! -=-%NC%")
 
     @staticmethod
-    def translate(from_lang: Language, to_lang: Language, *texts: str) -> None:
+    def translate(from_lang: Language, *texts: str) -> None:
         """Translate text from the source language to the target language.
         :param from_lang: The source language.
-        :param to_lang: The target language.
         :param texts: The texts to be translated.
         """
-        translator = AskAiMessages.get_translator(from_lang, to_lang)
+        translator = AskAiMessages.get_translator(from_lang)
         list(map(display_text, map(translator.translate, texts)))

@@ -166,7 +166,7 @@ class Language(Enumeration):
         """
         # Replace possible 'loc[:.]charset' values
         loc_enc: tuple = tuple(map(
-            lambda s: re.sub(r'(/C|C/|\'|\")+', 'UTF-8', s), loc
+            lambda s: re.sub(r'(/C|C/|\'|\")+', '', s), loc
             if isinstance(loc, tuple)
             else re.split(r"[:.]", loc)
         ))

@@ -21,6 +21,7 @@ from hspylib.core.tools.commons import syserr, to_bool
 from hspylib.modules.application.argparse.parser_action import ParserAction
 from hspylib.modules.application.exit_status import ExitStatus
 from hspylib.modules.application.version import Version
+from typing import Any, AnyStr, Optional
 
 import logging as log
 import os
@@ -45,7 +46,7 @@ class Main(TUIApplication):
     INSTANCE: "Main"
 
     @staticmethod
-    def _execute_command(command_str: typing.AnyStr) -> ExitStatus:
+    def _execute_command(command_str: AnyStr) -> ExitStatus:
         """Execute an AskAI-commander command. This method avoids loading all AskAI context and modules.
         :param command_str: The command string to be executed.
         :return: The exit status of the command execution.
@@ -69,10 +70,10 @@ class Main(TUIApplication):
 
     def __init__(self, app_name: str):
         super().__init__(app_name, self.VERSION, self.DESCRIPTION.format(self.VERSION), resource_dir=self.RESOURCE_DIR)
-        self._askai: typing.Any
+        self._askai: Any
 
     @property
-    def askai(self) -> typing.Any:
+    def askai(self) -> Any:
         return self._askai
 
     def _setup_arguments(self) -> None:
@@ -201,7 +202,7 @@ class Main(TUIApplication):
 
         return ExitStatus.SUCCESS
 
-    def _get_argument(self, arg_name: str, default: typing.Any = None) -> typing.Optional[typing.Any]:
+    def _get_argument(self, arg_name: str, default: Any = None) -> Any:
         """Get a command line argument, converting to the appropriate type.
         :param arg_name: The name of the command line argument to retrieve.
         :param default: The default value to return if the argument is not found. Defaults to None.
@@ -220,7 +221,7 @@ class Main(TUIApplication):
 
         return None
 
-    def _get_query_string(self) -> typing.Optional[str]:
+    def _get_query_string(self) -> Optional[str]:
         """Return the query_string parameter.
         :return: The query_string if it exists, None otherwise.
         """

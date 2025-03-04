@@ -22,7 +22,7 @@ openai==1.55.3
 google-api-python-client==2.154.0
 fake_useragent==1.5.1
 requests==2.32.3
-urllib3==2.2.3
+urllib3==2.3.0
 protobuf==4.25.4
 aiohttp==3.10.5
 html2text==2024.2.26

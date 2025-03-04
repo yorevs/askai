@@ -132,15 +132,15 @@ class InternetService(metaclass=Singleton):
                 defaults = ["linkedin.com", "github.com", "instagram.com", "facebook.com"]
                 if any((f.find("intext:") >= 0 for f in search.filters)):
                     google_query = (
-                        "background OR current work OR achievements "
-                        f'{next((f for f in search.filters if f.startswith("intext:")), None)}'
+                        "(profile OR background OR current work OR achievements) "
+                        f'{next((f[len("intext:"):] for f in search.filters if f.startswith("intext:")), None)}'
                     )
             case "weather":
                 defaults = ["weather.com", "accuweather.com", "weather.gov"]
                 if any((f.find("weather:") >= 0 for f in search.filters)):
                     google_query = (
-                        f"{now('%B %d %Y')}"
-                        f'{next((f for f in search.filters if f.startswith("weather:")), None)}'
+                        f"{now('%B %d %Y')} "
+                        f"{next((f'{f} ' for f in search.filters if f.startswith('weather:')), None)}"
                     )
             case "programming":
                 defaults = ["stackoverflow.com", "github.com"]
@@ -148,16 +148,15 @@ class InternetService(metaclass=Singleton):
                 defaults = ["google.com", "bing.com", "duckduckgo.com", "ask.com"]
             case _:
                 if search.keywords:
-                    # Gather the sites to be used in the search.
                     google_query = f"{' OR '.join(set(sorted(search.keywords)))}"
         # fmt: on
-        sites = f"{' OR '.join(set('site:' + url for url in search.sites + defaults))}"
+        sites = f"({' OR '.join(set('site:' + url for url in search.sites + defaults))})"
 
         return f"{google_query} {sites}"
 
     def __init__(self):
-        self._google: GoogleSearchAPIWrapper
-        self._tool: Tool
+        self._google: GoogleSearchAPIWrapper | None = None
+        self._tool: Tool | None = None
         self._text_splitter: TextSplitter = RecursiveCharacterTextSplitter(
             chunk_size=configs.chunk_size, chunk_overlap=configs.chunk_overlap
         )
@@ -176,7 +175,7 @@ class InternetService(metaclass=Singleton):
         # Lazy initialization to allow GOOGLE_API_KEY be optional.
         if not self._google:
             API_KEYS.ensure("GOOGLE_API_KEY", "google_search")
-            self._google = GoogleSearchAPIWrapper(k=10, google_api_key=API_KEYS.GOOGLE_API_KEY)
+            self._google = GoogleSearchAPIWrapper(k=5, google_api_key=API_KEYS.GOOGLE_API_KEY)
             self._tool = Tool(
                 name="google_search", description="Search Google for recent results.", func=self._google.run
             )
