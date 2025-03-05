@@ -102,7 +102,7 @@ jobs:
       - name: Install Python tools
         run: gradle installBuildTools sdist
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: build/dist/
