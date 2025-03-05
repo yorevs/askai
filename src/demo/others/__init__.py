@@ -1,17 +1,17 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.2.11
+# hspylib-askai v1.2.12
 #
 # Package: demo.others
 """Package initialization."""
 
 __all__ = [
-    "commander_demo",
-    "deepl_demo",
-    "screenshot_demo",
-    "spinner_demo",
-    "tech_week_demo",
-    "translate_demo",
-    "vision_model_demos",
+    'commander_demo', 
+    'deepl_demo', 
+    'screenshot_demo', 
+    'spinner_demo', 
+    'tech_week_demo', 
+    'translate_demo', 
+    'vision_model_demos'
 ]
-__version__ = "1.2.11"
+__version__ = '1.2.12'
