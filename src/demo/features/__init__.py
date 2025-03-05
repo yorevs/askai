@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.2.12
+# hspylib-askai v1.2.13
 #
 # Package: demo.features
 """Package initialization."""
@@ -10,4 +10,4 @@ __all__ = [
     'router_demo', 
     'tools'
 ]
-__version__ = '1.2.12'
+__version__ = '1.2.13'
