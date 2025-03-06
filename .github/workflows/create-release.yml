@@ -9,6 +9,13 @@ on:
       - "v?[0-9]+.[0-9]+.[0-9]+b[0-9]+"
       - "v?[0-9]+.[0-9]+.[0-9]+rc[0-9]+"
 
+  workflow_dispatch:
+    inputs:
+      tag-name:
+        description: 'Release Tag name ?'
+        required: true
+        type: string
+
 env:
   PACKAGE_NAME: "${{ vars.PACKAGE_NAME }}"
   OWNER: "${{ vars.OWNER }}"
@@ -31,6 +38,8 @@ jobs:
         run: |
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             TAG_NAME="${GITHUB_REF#refs/tags/}"
+          elif [[ -n "${{ inputs.tag-name }}" ]]; then
+            TAG_NAME="${{ inputs.tag-name }}"
           else
             echo "No tags found!"
             exit 1
@@ -139,7 +148,7 @@ jobs:
         id: change-log
         uses: yorevs/hspylib/.github/actions/changelog@master
         with:
-          tag-name: "v${{ needs.init.outputs.version }}"
+          tag-name: "v${{ needs.details.outputs.tag_name }}"
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -150,4 +159,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create ${{ needs.details.outputs.tag_name }} dist/* --title "${{ vars.PACKAGE_NAME }}-${{ needs.details.outputs.tag_name }}-rc${{ github.run_number }}" --generate-notes
+          echo "${{ steps.change-log.outputs.changelog }}" > changelog
+          gh release create ${{ needs.details.outputs.tag_name }} --title "${{ vars.PACKAGE_NAME }}-${{ needs.details.outputs.tag_name }}-rc${{ github.run_number }}" --notes-file changelog  dist/*
