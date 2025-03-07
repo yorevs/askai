@@ -96,12 +96,17 @@ task sdist(type: Task) {
   }
 }
 
-/* Publish the module to PyPi repository */
+/* Publish a new AskAI version */
 task publish(type: Task) {
   group = 'Publish'
   description = "Publish the module to PyPi repository"
+  if (!project.hasProperty('no-patch') || !Boolean.valueOf(project.getProperty('no-patch'))) {
+    dependsOn patchVersion
+  }
   doLast {
     def out = new ByteArrayOutputStream()
+    def version = new File("${versionFile}").text
+    println "Publishing HomeSetup v${version} ..."
     exec {
       commandLine 'git', 'log', '--pretty=format:%s', 'origin/master..HEAD'
       standardOutput = out
@@ -111,14 +116,12 @@ task publish(type: Task) {
     def prefix = commit_logs?.trim() ? commit_logs?.split('\n').size() + ' commits' : ' No commits'
     def commitMsg = "New ${project.app_name} revision: '${tag}' >> ${prefix}"
     println("Publishing ${project.app_name}...")
-    println("Revision commits: ${commitMsg}  Tag?= ${tag}")
-    if (tag) {
-      exec {
-        commandLine 'git', 'tag', '-a', "${tag}", '-m', "New ${project.app_name} revision ${tag}"
-      }
-      exec {
-        commandLine 'git', 'push', 'origin', "${tag}"
-      }
+    println("Revision commits: ${commitMsg}  Tag: ${tag}")
+    exec {
+      commandLine 'git', 'tag', '-a', "${tag}", '-m', "New ${project.app_name} revision ${tag}"
+    }
+    exec {
+      commandLine 'git', 'push', 'origin', "${tag}"
     }
     exec {
       commandLine 'git', 'add', '-A', ':/'

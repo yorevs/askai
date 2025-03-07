@@ -12,6 +12,7 @@ ext {
   gradleDir = "${rootDir}/gradle"
   buildDir = "${project.projectDir}/build"
   application = "${sourceRoot}/main/__main__.py"
+  versionFile = "${sourceRoot}/main/askai/.version"
   pythonPath = "${sourceRoot}/main:${sourceRoot}/test:${sourceRoot}/demo"
   buildToolsFile = file("${project.projectDir}/buildTools.txt")
   startTime = System.currentTimeMillis()

@@ -8,7 +8,6 @@ push = false
 
 [bumpver.file_patterns]
 "bumpver.toml" = ['current_version = "{version}"']
-"pyproject.toml" = ['version = "{version}"']
 "gradle.properties" = ['app_version   = {version}']
 "README.md" = ['release/v{version}/gray']
 "src/main/askai/.version" = ['{version}']
