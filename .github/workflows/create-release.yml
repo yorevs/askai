@@ -15,6 +15,11 @@ on:
         description: 'Release Tag name ?'
         required: true
         type: string
+      pypi-publish:
+        description: 'Publish to PyPi ?'
+        default: true
+        required: true
+        type: boolean
 
 env:
   PACKAGE_NAME: "${{ vars.PACKAGE_NAME }}"
@@ -54,6 +59,7 @@ jobs:
           echo "Tag name is $TAG_NAME" >> $GITHUB_STEP_SUMMARY
 
   check_pypi:
+    if: ${{ inputs['pypi-publish'] }}
     needs: details
     runs-on: ubuntu-latest
     steps:
@@ -117,6 +123,7 @@ jobs:
           path: build/dist/
 
   pypi_publish:
+    if: ${{ inputs['pypi-publish'] }}
     name: Upload release to PyPI
     needs: [build_and_test, details]
     runs-on: ubuntu-latest
@@ -135,7 +142,7 @@ jobs:
 
   github_release:
     name: Create GitHub Release
-    needs: [build_and_test, details, pypi_publish]
+    needs: [build_and_test]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -148,7 +155,7 @@ jobs:
         id: change-log
         uses: yorevs/hspylib/.github/actions/changelog@master
         with:
-          tag-name: "v${{ needs.details.outputs.tag_name }}"
+          tag-name: ${{ needs.details.outputs.new_version }}
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -160,4 +167,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           echo "${{ steps.change-log.outputs.changelog }}" > changelog
-          gh release create ${{ needs.details.outputs.tag_name }} --title "${{ vars.PACKAGE_NAME }}-${{ needs.details.outputs.tag_name }}-rc${{ github.run_number }}" --notes-file changelog  dist/*
+          gh release create ${{ needs.details.outputs.tag_name }} --title "${{ vars.PACKAGE_NAME }}-${{ needs.details.outputs.tag_name }}-rc${{ github.run_number }}" --notes-file changelog dist/*
