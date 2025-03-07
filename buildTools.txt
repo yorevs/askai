@@ -2,6 +2,7 @@
 
 setuptools
 wheel
+sentencepiece
 build
 twine
 bumpver
@@ -12,4 +13,3 @@ mypy
 pylint
 pdoc
 pytest
-PyInstaller
