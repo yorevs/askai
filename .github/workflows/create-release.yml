@@ -12,9 +12,10 @@ on:
   workflow_dispatch:
     inputs:
       tag-name:
-        description: 'Release Tag name ?'
-        required: true
+        description: 'Release Tag name (default to latest)'
+        required: false
         type: string
+
       pypi-publish:
         description: 'Publish to PyPi ?'
         default: true
@@ -45,9 +46,6 @@ jobs:
             TAG_NAME="${GITHUB_REF#refs/tags/}"
           elif [[ -n "${{ inputs.tag-name }}" ]]; then
             TAG_NAME="${{ inputs.tag-name }}"
-          else
-            echo "No tags found!"
-            exit 1
           fi
           NEW_VERSION=$(echo $TAG_NAME | awk -F'-' '{print $1}')
           SUFFIX=$(echo $TAG_NAME | grep -oP '[a-z]+[0-9]+' || echo "")
