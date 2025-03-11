@@ -13,14 +13,14 @@ on:
     inputs:
       tag-name:
         description: 'Release Tag name (default to latest)'
-        required: false
         type: string
+        required: false
 
       pypi-publish:
         description: 'Publish to PyPi ?'
-        default: true
-        required: true
         type: boolean
+        required: true
+        default: false
 
 env:
   PACKAGE_NAME: "${{ vars.PACKAGE_NAME }}"
@@ -34,8 +34,6 @@ jobs:
   details:
     runs-on: ubuntu-latest
     outputs:
-      new_version: ${{ steps.release.outputs.new_version }}
-      suffix: ${{ steps.release.outputs.suffix }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: actions/checkout@v4
@@ -47,14 +45,8 @@ jobs:
           elif [[ -n "${{ inputs.tag-name }}" ]]; then
             TAG_NAME="${{ inputs.tag-name }}"
           fi
-          NEW_VERSION=$(echo $TAG_NAME | awk -F'-' '{print $1}')
-          SUFFIX=$(echo $TAG_NAME | grep -oP '[a-z]+[0-9]+' || echo "")
-          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
-          echo "suffix=$SUFFIX" >> "$GITHUB_OUTPUT"
-          echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
-          echo "New Version is $NEW_VERSION" >> $GITHUB_STEP_SUMMARY
-          echo "Suffix is $SUFFIX" >> $GITHUB_STEP_SUMMARY
-          echo "Tag name is $TAG_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "TAG-NAME: ${TAG_NAME}" >> $GITHUB_STEP_SUMMARY
+          echo "tag_name=$(echo ${TAG_NAME})" >> "$GITHUB_OUTPUT"
 
   check_pypi:
     if: ${{ inputs['pypi-publish'] }}
@@ -73,7 +65,7 @@ jobs:
           echo "latest_previous_version=$latest_previous_version" >> $GITHUB_ENV
       - name: Ensure new Version
         run: |
-          NEW_VERSION=${{ needs.details.outputs.new_version }}
+          NEW_VERSION=${{ needs.details.outputs.tag_name }}
           LATEST_VERSION=$latest_previous_version
           if [ "$(printf '%s\n' "$LATEST_VERSION" "$NEW_VERSION" | sort -rV | head -n 1)" != "$NEW_VERSION" ] || [ "$NEW_VERSION" == "$LATEST_VERSION" ]; then
             echo "The new version $NEW_VERSION is not greater than the latest version $LATEST_VERSION on PyPI."
@@ -83,10 +75,13 @@ jobs:
           fi
 
   build_and_test:
-    needs: [details, check_pypi]
+    if: ${{ inputs['pypi-publish'] }}
+    needs: check_pypi
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.details.outputs.tag_name }}
       - uses: actions/setup-java@v3
         with:
           distribution: temurin
@@ -123,7 +118,7 @@ jobs:
   pypi_publish:
     if: ${{ inputs['pypi-publish'] }}
     name: Upload release to PyPI
-    needs: [build_and_test, details]
+    needs: build_and_test
     runs-on: ubuntu-latest
     environment:
       name: release
@@ -140,7 +135,7 @@ jobs:
 
   github_release:
     name: Create GitHub Release
-    needs: [build_and_test]
+    needs: details
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -153,8 +148,9 @@ jobs:
         id: change-log
         uses: yorevs/hspylib/.github/actions/changelog@master
         with:
-          tag-name: ${{ needs.details.outputs.new_version }}
+          tag-name: ${{ needs.details.outputs.tag_name }}
       - name: Download artifacts
+        if: ${{ inputs['pypi-publish'] }}
         uses: actions/download-artifact@v4
         with:
           name: dist
@@ -165,4 +161,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           echo "${{ steps.change-log.outputs.changelog }}" > changelog
-          gh release create ${{ needs.details.outputs.tag_name }} --title "${{ vars.PACKAGE_NAME }}-${{ needs.details.outputs.tag_name }}-rc${{ github.run_number }}" --notes-file changelog dist/*
+          [[ "${{ inputs['pypi-publish'] }}" == 'true' ]] && assets="dist/*"
+          gh release create ${{ needs.details.outputs.tag_name }} \
+            --title "${{ vars.PACKAGE_NAME }}-${{ needs.details.outputs.tag_name }}-rc${{ github.run_number }}" \
+            --notes-file changelog ${assets}
