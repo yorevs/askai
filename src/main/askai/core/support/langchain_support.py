@@ -12,12 +12,12 @@
 
    Copyright (c) 2024, AskAI
 """
-from askai.core.support.shared_instances import shared
-from functools import lru_cache
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.preconditions import check_not_none
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models import BaseChatModel, BaseLLM
+
+from askai.core.support.shared_instances import shared
 
 
 class LangChainSupport(metaclass=Singleton):

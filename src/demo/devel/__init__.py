@@ -13,7 +13,9 @@ __all__ = [
     'google_suggestions', 
     'gpt2_suggester', 
     'gpt_zip', 
+    'saridom', 
     'spinner', 
+    'transcribe', 
     'vision-tests'
 ]
 __version__ = '1.2.15'

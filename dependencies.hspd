@@ -14,68 +14,69 @@ package: hspylib-clitt, version: 0.9.141, mode: ge
 package: hspylib-setman, version: 0.10.43, mode: ge
 
 /* General */
-package: retry2, version: 0.9.5, mode: eq
-package: pause, version: 0.3, mode: eq
-package: tqdm, version: 4.66.5, mode: eq
-package: pyperclip, version: 1.9.0, mode: eq
-package: python-magic, version: 0.4.27, mode: eq
-package: pytz, version: 2024.2, mode: eq
-package: transitions, version: 0.9.2, mode: eq
-package: pydantic, version: 2.10.2, mode: eq
-package: cryptography, version: 44.0.0, mode: ge
+package: retry2, version: 0.9.5, mode: ge
+package: pause, version: 0.3, mode: ge
+package: tqdm, version: 4.67.1, mode: ge
+package: pyperclip, version: 1.11.0, mode: ge
+package: python-magic, version: 0.4.27, mode: ge
+package: pytz, version: 2025.2, mode: ge
+package: transitions, version: 0.9.3, mode: ge
+package: pydantic, version: 2.12.3, mode: ge
+package: cryptography, version: 46.0.3, mode: ge
 
 /* LangChain */
-package: langchain, version: 0.3.9, mode: eq
-package: langchain-openai, version: 0.2.10, mode: ge
-package: langchain-community, version: 0.3.8, mode: eq
-package: langchain-google-community, version: 2.0.3, mode: eq
+package: langchain, version: 1.0.2, mode: eq
+package: langchain-openai, version: 1.0.1, mode: eq
+package: langchain-community, version: 0.4.0, mode: eq
+package: langchain-google-community, version: 3.0.0, mode: eq
 
 /* OpenAI */
-package: openai-whisper, version: 20240930, mode: eq
-package: openai, version: 1.55.3, mode: eq
+package: openai-whisper, version: 20250625, mode: eq
+package: openai, version: 2.6.0, mode: eq
 
 /* Google */
-package: google-api-python-client, version: 2.154.0, mode: eq
+package: google-api-python-client, version: 2.185.0, mode: eq
 
 /* Web */
-package: fake_useragent, version: 1.5.1, mode: eq
-package: requests, version: 2.32.3, mode: eq
-package: urllib3, version: 2.3.0, mode: eq
-package: protobuf, version: 4.25.4, mode: eq
-package: aiohttp, version: 3.10.5, mode: eq
-package: html2text, version: 2024.2.26, mode: eq
+package: fake_useragent, version: 2.2.0, mode: compat
+package: requests, version: 2.32.5, mode: compat
+package: urllib3, version: 2.3.0, mode: compat
+package: aiohttp, version: 3.13.1, mode: compat
+package: html2text, version: 2025.4.15, mode: compat
 
 /* CLI/TUI */
-package: rich, version: 13.9.4, mode: eq
-package: textual, version: 1.0.0, mode: eq
+package: rich, version: 14.2.0, mode: ge
+package: textual, version: 6.3.0, mode: ge
 
 /* Audio */
-package: soundfile, version: 0.12.1, mode: eq
+package: soundfile, version: 0.13.1, mode: eq
 package: PyAudio, version: 0.2.14, mode: eq
-package: SpeechRecognition, version: 3.10.4, mode: eq
+package: SpeechRecognition, version: 3.14.3, mode: eq
 
 /* Video */
-package: opencv-python, version: 4.10.0.84, mode: eq
+package: opencv-python, version: 4.12.0.88, mode: eq
 package: pyautogui, version: 0.9.54, mode: eq
 
 /* Pre-Trained and AI */
-package: torch, version: 2.2.2, mode: ge
-package: torchvision, version: 0.17.2, mode: ge
-package: open-clip-torch, version 2.28.0, mode: eq
-package: opentelemetry-api, version: 1.27.0, mode: eq
-package: opentelemetry-sdk, version: 1.27.0, mode: eq
-package: opentelemetry-proto, version: 1.27.0, mode: eq
-package: transformers, version: 4.45.2, mode: eq
-package: unstructured, version: 0.16.0, mode: eq
-package: unstructured[md], version: 0.16.0, mode: eq
-package: tiktoken, version: 0.8.0, mode: eq
-package: stanza, version: 1.1.1, mode: eq
-package: nltk, version: 3.9.1, mode: eq
+package: torch, version: 2.8.0, mode: compat
+package: torchvision, version: 0.23.0, mode: compat
+package: open-clip-torch, version 3.1.0, mode: compat
+package: opentelemetry-api, version: 1.36.0, mode: compat
+package: opentelemetry-sdk, version: 1.36.0, mode: compat
+package: opentelemetry-proto, version: 1.36.0, mode: compat
+package: opentelemetry-semantic-conventions, version: 0.48b0, mode: compat
+package: opentelemetry-instrumentation-fastapi, version: 0.48b0, mode: compat
+package: opentelemetry-instrumentation-asgi, version: 0.48b0, mode: compat
+package: transformers, version: 4.55.2, mode: compat
+package: unstructured, version: 0.18.13, mode: compat
+package: unstructured[md], version: 0.18.13, mode: compat
+package: tiktoken, version: 0.11.0, mode: compat
+package: nltk, version: 3.9.1, mode: compat
 
 /* Vector Store and Databases */
-package: faiss-cpu, version: 1.8.0.post1, mode: eq
-package: chromadb, version: 0.5.5, mode: eq
+package: faiss-cpu, version: 1.12.0, mode: compat
+package: chromadb, version: 1.2.1, mode: compat
 
 /* Translations */
-package: deepl, version: 1.18.0, mode: eq
-package: argostranslate, version: 1.9.1, mode: eq
+package: deepl, version: 1.23.0, mode: eq
+package: argostranslate, version: 1.10.0, mode: eq

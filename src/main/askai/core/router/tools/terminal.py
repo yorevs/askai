@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, AskAI
 """
+import shlex
 
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -71,9 +72,9 @@ def open_command(file_path: str) -> str:
                 x_ref_path: PathObject | None = PathObject.of(x_referenced)
                 posix_path = x_ref_path if x_ref_path and x_ref_path.exists else posix_path
 
-    if posix_path and  posix_path.exists:
+    if posix_path and posix_path.exists:
         # find the best app to open the file.
-        path_name: str = str(posix_path)
+        path_name: str = shlex.quote(str(posix_path))
         mtype: tuple[str | None, ...] = media_type_of(file_path) or ("text", "plain")
         match mtype:
             case ("audio", _) | ("video", _):

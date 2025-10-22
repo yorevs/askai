@@ -12,6 +12,7 @@
 
    Copyright (c) 2024, AskAI
 """
+from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 
 from askai.__classpath__ import API_KEYS
 from askai.core.askai_configs import configs
@@ -28,7 +29,6 @@ from collections import defaultdict
 from googleapiclient.errors import HttpError
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.zoned_datetime import now
-from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.tools import Tool

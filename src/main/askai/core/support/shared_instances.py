@@ -12,6 +12,8 @@
 
 Copyright (c) 2024, AskAI
 """
+from langchain_classic.memory import ConversationBufferWindowMemory
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_messages import msg
@@ -30,7 +32,6 @@ from hspylib.core.preconditions import check_state
 from hspylib.core.tools.text_tools import elide_text
 from hspylib.modules.application.version import Version
 from hspylib.modules.cli.keyboard import Keyboard
-from langchain.memory import ConversationBufferWindowMemory
 from pathlib import Path
 from textwrap import dedent
 from typing import Any, Optional

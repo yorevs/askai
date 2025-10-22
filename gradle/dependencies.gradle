@@ -75,13 +75,13 @@ void readDependencies() {
     def dep = null
     // Python Packages {
     // All fields syntax
-    if ((dep = line =~ /package: (([\w.-]+)(\[[\w.-]+\])?), version: (latest|\d+(\.\d+){0,4}), mode: (lt|le|eq|compat|ne|gt|ge|none)/)) {
+    if ((dep = line =~ /package: (([\w.-]+)(\[[\w.-]+\])?), version: (latest|\d+(\.\w+){0,5}), mode: (lt|le|eq|compat|ne|gt|ge|none)/)) {
       dep.each {
         deps << [package: "${it[1]}", version: "${it[4]}", mode: "${it[6]}"]
       }
     }
     // All except mode syntax
-    else if ((dep = line =~ /package: (([\w.-]+)(\[[\w.-]+\])?), version: (latest|\d+(\.\d+){0,4})/)) {
+    else if ((dep = line =~ /package: (([\w.-]+)(\[[\w.-]+\])?), version: (latest|\d+(\.\w+){0,5})/)) {
       dep.each {
         deps << [package: "${it[1]}", version: "${it[4]}", mode: it[4] && it[4] != "latest" ? "compat" : "ge"]
       }
@@ -95,7 +95,7 @@ void readDependencies() {
     // } Python Packages
     // System Apps {
     // All fields syntax
-    else if ((dep = line =~ /binary: (([\w.-]+)(\[[\w.-]+\])?), version: (latest|\d+(\.\d+){0,4})/)) {
+    else if ((dep = line =~ /binary: (([\w.-]+)(\[[\w.-]+\])?), version: (latest|\d+(\.\w+){0,5})/)) {
       dep.each {
         apps << [binary: "${it[1]}", version: "${it[4]}"]
       }

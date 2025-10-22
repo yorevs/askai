@@ -12,6 +12,8 @@
 
 Copyright (c) 2024, AskAI
 """
+from langchain_classic.chains.transform import TransformChain
+
 from askai.core.askai_prompt import prompt
 from askai.core.model.image_result import ImageResult
 from askai.core.model.screenshot_result import ScreenshotResult
@@ -19,7 +21,6 @@ from askai.core.support.utilities import encode_image, find_file
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.preconditions import check_argument
 from hspylib.core.tools.commons import file_is_not_empty
-from langchain.chains.transform import TransformChain
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import BaseMessage, HumanMessage
 from langchain_core.output_parsers import JsonOutputParser

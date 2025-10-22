@@ -1,5 +1,6 @@
 import gzip
 
+
 def compress(s: str) -> bytes:
     return gzip.compress(s.encode('utf-8'))
 

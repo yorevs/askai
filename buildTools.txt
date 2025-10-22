@@ -2,7 +2,6 @@
 
 setuptools
 wheel
-sentencepiece
 build
 twine
 bumpver

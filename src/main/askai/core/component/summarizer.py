@@ -12,6 +12,8 @@
 
    Copyright (c) 2024, AskAI
 """
+from langchain_classic.chains.retrieval_qa.base import RetrievalQA
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -25,7 +27,6 @@ from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.classpath import AnyPath
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import ensure_endswith, hash_text
-from langchain.chains import RetrievalQA
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document

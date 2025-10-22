@@ -13,7 +13,6 @@
 Copyright (c) 2024, AskAI
 """
 from askai.core.router.tools.vision import offline_captioner
-from chromadb.api.types import IncludeEnum
 from chromadb.utils.data_loaders import ImageLoader
 from chromadb.utils.embedding_functions.open_clip_embedding_function import OpenCLIPEmbeddingFunction
 from collections import namedtuple
@@ -208,11 +207,11 @@ class ImageStore(metaclass=Singleton):
             **kwargs,
             n_results=5,
             include=[
-                IncludeEnum.documents,
-                IncludeEnum.distances,
-                IncludeEnum.metadatas,
-                IncludeEnum.data,
-                IncludeEnum.uris,
+                "documents",
+                "distances",
+                "metadatas",
+                "data",
+                "uris",
             ],
             where=filters,
         )

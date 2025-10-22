@@ -36,7 +36,7 @@ class Temperature(Enumeration):
 
     # fmt: off
 
-    COLDEST                     = 0.0, 0.
+    COLDEST                     = 1, 0.0
 
     # Generates data analysis scripts that are more likely to be correct and efficient. Output is more deterministic
     # and focused.
@@ -61,6 +61,9 @@ class Temperature(Enumeration):
     CREATIVE_WRITING            = 0.7, 0.8
 
     HOTTEST                     = 1.0, 1.0
+
+    # Default OpenAI temperature
+    DEFAULT                     = 0.7, 1.0
 
     # fmt: on
 

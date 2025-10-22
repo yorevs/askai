@@ -12,6 +12,9 @@
 
    Copyright (c) 2024, AskAI
 """
+from langchain_classic.agents import create_structured_chat_agent, AgentExecutor
+from langchain_classic.memory.chat_memory import BaseChatMemory
+
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -23,8 +26,6 @@ from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
 from hspylib.core.config.path_object import PathObject
 from hspylib.core.metaclass.singleton import Singleton
-from langchain.agents import AgentExecutor, create_structured_chat_agent
-from langchain.memory.chat_memory import BaseChatMemory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable
 from pydantic import ValidationError

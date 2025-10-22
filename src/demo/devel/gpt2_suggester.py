@@ -66,5 +66,6 @@ def predict_next_word(text: AnyStr, num_words: int = 2, top_k: int = 5) -> list[
 
 if __name__ == "__main__":
     while (query := input("$ ")) and query not in ["e", "q"]:
+        print('Predicting...')
         result = predict_next_word(query)
         print(result)

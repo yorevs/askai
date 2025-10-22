@@ -9,6 +9,7 @@ Name: Charlie               , ID: IKne3meq5aSn9XLyUdCD
 Name: Charlotte             , ID: XB0fDUnXU5powFXDhCwa  
 Name: Chris                 , ID: iP95p4xoKVk53GoZ742B  
 Name: Daniel                , ID: onwK4e9ZLuTAKqWW03F9  
+Name: Elian 1               , ID: Mn5NOLlh1gXI6vEC5JRt  
 Name: Eric                  , ID: cjVigY5qzO86Huf0OWal  
 Name: George                , ID: JBFqnCBsd6RMkjVDRZzb  
 Name: Jessica               , ID: cgSgspJ2msm6clMCkdW9  
@@ -17,7 +18,8 @@ Name: Laura                 , ID: FGY2WhTYpPnrIDTdsKH5
 Name: Liam                  , ID: TX3LPaxmHKxFdv7VOQHJ  
 Name: Lily                  , ID: pFZP5JQG7iQjIQuC4Bku  
 Name: Matilda               , ID: XrExE9yKIg1WjnnlVkGX  
+Name: Papai Cloned Voice    , ID: Ofc1NPqAVzE1naN2KU9g  
 Name: River                 , ID: SAz9YHcvj6GT2YYXdXww  
-Name: Roger                 , ID: CwhRBWXzGAHq8TQ4Fs17  
 Name: Sarah                 , ID: EXAVITQu4vr4xnSDxMaL  
 Name: Will                  , ID: bIHbv24MWmeRgasZH58o  
+Name: Zabra - Serious & Deep Narrative, ID: G6LT3kjUUW86fQaWfBaj  

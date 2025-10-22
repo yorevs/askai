@@ -27,12 +27,28 @@ class OpenAIModel(Enumeration):
 
     # fmt: off
 
-    GPT_4                   = "gpt-4", 8192
-    GPT_4_TURBO             = "gpt-4-turbo", 128000
-    GPT_4_O                 = "gpt-4o", 128000
-    GPT_4_O_MINI            = "gpt-4o-mini", 128000
-    O1_PREVIEW              = "o1-preview", 128000
-    O1_MINI                 = "o1-mini", 128000
+    GPT_5           = "gpt-5", 1_000_000
+    GPT_5_MINI      = "gpt-5-mini", 1_000_000
+    GPT_5_NANO      = "gpt-5-nano", 1_000_000
+    GPT_5_CHAT      = "gpt-5-chat", 1_000_000
+    GPT_4           = "gpt-4", 8192
+    GPT_4_TURBO     = "gpt-4-turbo", 128000
+    GPT_4_O         = "gpt-4o", 128000
+    GPT_4_O_MINI    = "gpt-4o-mini", 128000
+    GPT_4_1         = "gpt-4.1", 1_000_000
+    GPT_4_1_MINI    = "gpt-4.1-mini", 1_000_000
+    GPT_4_1_NANO    = "gpt-4.1-nano", 1_000_000
+    GPT_4_5         = "gpt-4.5", 128000
+    O1              = "o1", 128000
+    O1_PREVIEW      = "o1-preview", 128000
+    O1_MINI         = "o1-mini", 128000
+    O1_PRO          = "o1-pro", 128000
+    O3              = "o3", 128000
+    O3_MINI         = "o3-mini", 128000
+    O3_MINI_HIGH    = "o3-mini-high", 128000
+    O3_PRO          = "o3-pro", 128000
+    O4_MINI         = "o4-mini", 128000
+    O4_MINI_HIGH    = "o4-mini-high", 128000
 
     # fmt: on
 

@@ -10,7 +10,7 @@ import speech_recognition as sr
 ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
 
 # ElevenLabs Voice ID (obtained from the previous step)
-VOICE_ID = "7fbQ7yJuEo56rYjrYaEh"
+VOICE_ID = "Ofc1NPqAVzE1naN2KU9g"
 
 # Path to save the synthesized audio
 AUDIO_OUTPUT_PATH = "resources/response_audio.mp3"
