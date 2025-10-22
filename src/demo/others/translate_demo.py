@@ -10,19 +10,22 @@ if __name__ == "__main__":
     1. Bullet 1
     2. Bullet 2
     "This should not be translated"
+    'This should not be translated'
     ∆ Finished.
     """
     from_lang: Language = Language.EN_US
     to_lang: Language = Language.PT_BR
 
-    # # DeepL
-    # t = DeepLTranslator(from_lang, to_lang)
-    # sysout("DeepL: ", t.translate(text))
-    #
-    # # Marian
-    # m = MarianTranslator(from_lang, to_lang)
-    # sysout("Marian: ", m.translate(text))
-
-    # Argos-Translate
-    a = ArgosTranslator(from_lang, to_lang)
-    sysout("Argos: ", a.translate(text))
+    match tt := input("\n1. DeepL\n2. Marian\n3. Argos-Translate\nChoose Translator [Argos-Translate]: "):
+        case '1':
+            # DeepL
+            t = DeepLTranslator(from_lang, to_lang)
+            sysout("DeepL: ", t.translate(text))
+        case '2':
+            # Marian
+            m = MarianTranslator(from_lang, to_lang)
+            sysout("Marian: ", m.translate(text))
+        case _:
+            # Argos-Translate
+            a = ArgosTranslator(from_lang, to_lang)
+            sysout("Argos: ", a.translate(text))
