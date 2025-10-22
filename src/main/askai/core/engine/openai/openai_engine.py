@@ -59,6 +59,14 @@ class OpenAIEngine:
     def client(self) -> OpenAI:
         return self._client
 
+    @property
+    def whisper_voices(self) -> list[str]:
+        return [
+            'alloy', 'echo', 'fable', 'onyx',
+            'nova', 'shimmer', 'coral', 'verse',
+            'ballad', 'ash', 'sage', 'marin', 'cedar'
+        ]
+
     def configs(self) -> OpenAiConfigs:
         """Return the engine-specific configurations."""
         return self._configs
@@ -79,7 +87,7 @@ class OpenAIEngine:
         """Return the available model voices for speech to text.
         :return: A list of available voices.
         """
-        return ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
+        return self.whisper_voices
 
     def vision(self) -> AIVision:
         """Return the engine's vision component.
@@ -94,7 +102,7 @@ class OpenAIEngine:
         :return: An instance of BaseLLM.
         """
         return langchain_openai.OpenAI(
-            openai_api_key=self._api_key, model=self._model.model_name(), temperature=temperature, top_p=top_p
+            model=self._model.model_name(), temperature=temperature, top_p=top_p
         )
 
     def lc_chat_model(self, temperature: float) -> BaseChatModel:
@@ -103,7 +111,7 @@ class OpenAIEngine:
         :return: An instance of BaseChatModel.
         """
         return langchain_openai.ChatOpenAI(
-            openai_api_key=self._api_key, model=self._model.model_name(), temperature=temperature
+            model=self._model.model_name(), temperature=temperature
         )
 
     def lc_embeddings(self, model: str) -> Embeddings:
@@ -111,7 +119,7 @@ class OpenAIEngine:
         :param model: The LLM embeddings model string.
         :return: An instance of Embeddings.
         """
-        return langchain_openai.OpenAIEmbeddings(openai_api_key=self._api_key, model=model)
+        return langchain_openai.OpenAIEmbeddings(model=model)
 
     def ai_name(self) -> str:
         """Get the AI engine name.

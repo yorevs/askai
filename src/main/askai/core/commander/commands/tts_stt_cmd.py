@@ -13,6 +13,13 @@
 Copyright (c) 2024, AskAI
 """
 from abc import ABC
+from pathlib import Path
+from textwrap import dedent
+import os
+
+from clitt.core.tui.mselect.mselect import mselect
+import pause
+
 from askai.core.askai_configs import configs
 from askai.core.askai_settings import settings
 from askai.core.component.multimedia.audio_player import player
@@ -20,13 +27,6 @@ from askai.core.component.multimedia.recorder import InputDevice, recorder
 from askai.core.support.shared_instances import shared
 from askai.core.support.text_formatter import text_formatter
 from askai.core.support.utilities import copy_file
-from clitt.core.tui.mselect.mselect import mselect
-from hspylib.core.metaclass.classpath import AnyPath
-from pathlib import Path
-from textwrap import dedent
-
-import os
-import pause
 
 
 class TtsSttCmd(ABC):

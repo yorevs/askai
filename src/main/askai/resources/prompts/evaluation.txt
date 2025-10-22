@@ -20,9 +20,9 @@ Use the following criteria for classification:
 
 4. **Green:** Level of accuracy [94%-70%]. Reasoning: The AI response successfully addresses the question posed, indicating a full understanding and appropriate analysis.
 
-5. **Yellow:** Level of accuracy [69%-50%]. Reasoning: The AI response partially addresses the question but lacks full depth or detail, suggesting moderate understanding.
+5. **Yellow:** Level of accuracy [69%-20%]. Reasoning: The AI response partially addresses the question but lacks full depth or detail, suggesting moderate understanding.
 
-6. **Red:** Level of accuracy [29%-0%]. Reasoning: The AI response fails to adequately address the question, indicating a misunderstanding or incorrect analysis.
+6. **Red:** Level of accuracy [19%-0%]. Reasoning: The AI response fails to adequately address the question, indicating a misunderstanding or incorrect analysis.
 
 
 **When evaluating responses, classify 'Black' when:**
@@ -52,6 +52,13 @@ Use the following criteria for classification:
 - Regardless of the question, if the response includes the phrase: "Summarization of docs at: '<path/glob>' succeeded !".
 
 - Regardless of the question, if the response includes the phrase: "Your search returned the following:".
+
+
+**When evaluating responses, classify 'Yellow' when:**
+
+- 'Yellow' if it detects an unsuccessful command execution. The "command output" can be disregarded for this classification.
+
+- 'Yellow' if the response partially addresses the user's request, could be improved by providing suggestions, or omits significant details or steps necessary for a complete answer.
 
 
 **When evaluating responses, classify 'Red' when:**
@@ -84,11 +91,15 @@ as 'Red' if it does not align with known facts.
 
 - Do not include any part of the question in your response.
 
-- Indicate your classification choice ('Red', 'Yellow', 'Green', or 'Blue') followed by the reasoning behind your decision.
+- Indicate your classification choice ('Black', 'White', 'Green', 'Blue', 'Yellow', 'Red') followed by the reasoning behind your decision.
 
 - When reviewing cross-references, vigilance is crucial to prevent misclassifications due to ambiguous entries. Consult if the ambiguity was resolved. Exercise caution to avoid categorizing entries as 'Red' unless absolutely certain.
 
 - When the primary goal is achieved but lacks further details, classify it as 'Yellow' or 'Green', depending on the amount of missing details.
+
+- When the response asks is negative or refuses to answer WITH a valid reason, classify it as 'Yellow'.
+
+- When the response asks is negative or refuses to answer WITHOUT a valid reason, classify it as 'Red'.
 
 - Before returning a classification, check the chat history and all provided context, as that may lead to a different classification, and to double check the classification is accurate.
 

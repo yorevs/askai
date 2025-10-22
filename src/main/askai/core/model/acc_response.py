@@ -39,7 +39,7 @@ class AccResponse:
         Path(Path.home() / "acc-resp.txt").write_text(response)
 
         acc_color: AccColor = AccColor.of_color(parse_field("@color", response))
-        accuracy: float = float(parse_field("@accuracy", response).strip("%"))
+        accuracy: float = float(parse_field("@accuracy", response).strip('%"\''))
         reasoning: str = parse_field("@reasoning", response)
         tips: str = parse_field("@tips", response)
 

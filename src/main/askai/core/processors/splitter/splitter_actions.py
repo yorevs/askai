@@ -30,7 +30,7 @@ from askai.core.router.task_agent import agent
 from askai.core.router.tools.general import final_answer
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from askai.core.support.text_formatter import text_formatter
+from askai.core.support.text_formatter import text_formatter, TextFormatter
 from hspylib.core.metaclass.singleton import Singleton
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
@@ -91,8 +91,8 @@ class SplitterActions(metaclass=Singleton):
                 "locale": configs.language.locale,
                 "user": prompt.user.title(),
                 "improvements": acc_response.details,
-                "context": ctx,
-                "response": answer,
+                "context": TextFormatter.escape_markdown(ctx),
+                "response": TextFormatter.escape_markdown(answer),
                 "question": question,
             }
             prompt_args = [k for k in args.keys()]

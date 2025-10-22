@@ -78,11 +78,11 @@ class Splash(Container):
 class AppHelp(Markdown):
     """Application Help Widget."""
 
-    help_text: str
+    info_text: str = Reactive("")
 
     def __init__(self, help_text: str):
         super().__init__()
-        self.update(help_text)
+        self.info_text = help_text
 
     async def on_mount(self) -> None:
         self.set_class(True, "-hidden")

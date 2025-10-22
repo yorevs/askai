@@ -10,8 +10,11 @@
 Copyright (c) 2024, AskAI
 """
 
-from askai.core.askai_events import events
-from askai.core.model.ai_reply import AIReply
+from textwrap import dedent
+from typing import Any, AnyStr
+import os
+import re
+
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.tools.text_tools import ensure_endswith, ensure_startswith, strip_escapes
 from hspylib.modules.cli.vt100.vt_code import VtCode
@@ -19,11 +22,6 @@ from hspylib.modules.cli.vt100.vt_color import VtColor
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.text import Text
-from textwrap import dedent
-from typing import Any, AnyStr
-
-import os
-import re
 
 
 class TextFormatter(metaclass=Singleton):
@@ -35,6 +33,18 @@ class TextFormatter(metaclass=Singleton):
 
     INSTANCE: "TextFormatter"
 
+    RICH_THEMES = {
+        "solarized-dark": "solarized-dark",
+        "solarized-light": "solarized-light",
+        "monokai": "monokai",
+        "dracula": "dracula",
+        "github-dark": "github-dark",
+        "github-light": "github-light",
+        "ansi_dark": "ansi_dark",
+        "ansi_light": "ansi_light",
+        "nord": "nord",
+    }
+
     RE_URL = (
         r"(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s')]{2,}|"
         r"www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s')]{2,}|https?:\/\/(?:www\.|(?!www))"
@@ -42,6 +52,8 @@ class TextFormatter(metaclass=Singleton):
     )
 
     RE_MD_CODE_BLOCK = r"(```.+```)"
+
+    RE_MD_ESCAPES = re.compile(r'([\\`*_{}[\]()#+\-.!>~|])')
 
     CHAT_ICONS = {
         "": "%RED% Oops! %NC%",
@@ -104,7 +116,15 @@ class TextFormatter(metaclass=Singleton):
         :param text: The input string containing markdown formatting and ANSI escape codes.
         :return: A string with the formatting removed.
         """
-        return strip_escapes(TextFormatter.remove_markdown(text))
+        return strip_escapes(TextFormatter.remove_markdown(str(text)))
+
+    @staticmethod
+    def escape_markdown(text: str) -> str:
+        """Escape characters that interfere with markdown rendering.
+        :param text: The input string containing unescaped markdown characters.
+        :return: A string with markdown characters escaped.
+        """
+        return TextFormatter.RE_MD_ESCAPES.sub(r'\\\1', str(text))
 
     def __init__(self):
         self._console: Console = Console(log_time=False, log_path=False)
@@ -137,12 +157,13 @@ class TextFormatter(metaclass=Singleton):
 
         return text
 
-    def display_markdown(self, text: AnyStr) -> None:
+    def display_markdown(self, text: AnyStr, theme: str = RICH_THEMES['ansi_dark']) -> None:
         """Display a markdown-formatted text.
         :param text: The markdown-formatted text to be displayed.
+        :param theme: The rich theme to be used for rendering (default is 'ansi_dark').
         """
-        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(str(text))))
-        self.console.print(Markdown(colorized))
+        colorized: str = VtColor.colorize(VtCode.decode(self.beautify(text)))
+        self.console.print(Markdown(colorized, code_theme=theme))
 
     def display_text(self, text: AnyStr) -> None:
         """Display a VT100 formatted text.
