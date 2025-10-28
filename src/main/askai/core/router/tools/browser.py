@@ -41,7 +41,7 @@ def open_url(url: str) -> str:
     return f"Unable to open URL: '{url}'"
 
 
-def browse(query: str) -> Optional[str]:
+def browse(query: str, search_engine) -> Optional[str]:
     """Fetch the information from the Internet.
     :param query: The search query.
     """

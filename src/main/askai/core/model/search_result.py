@@ -4,7 +4,7 @@
 """
 @project: HsPyLib-AskAI
 @package: askai.core.model
-   @file: search_result.py
+   @file: search.py
 @created: Sun, 12 Mar 2024
  @author: <B>H</B>ugo <B>S</B>aporetti <B>J</B>unior
    @site: https://github.com/yorevs/askai

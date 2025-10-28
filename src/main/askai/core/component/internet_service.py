@@ -12,7 +12,26 @@
 
    Copyright (c) 2024, AskAI
 """
-from langchain_classic.chains.combine_documents import create_stuff_documents_chain
+from collections import defaultdict
+from typing import List
+import logging as log
+import re
+
+from fake_useragent import UserAgent
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from googleapiclient.errors import HttpError
+from hspylib.core.metaclass.singleton import Singleton
+from hspylib.core.zoned_datetime import now
+from langchain_core.documents import Document
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.tools import Tool
+from langchain_google_community import GoogleSearchAPIWrapper
+from langchain_text_splitters import RecursiveCharacterTextSplitter, TextSplitter
+from openai import APIError
+import requests
+from bs4 import BeautifulSoup
+from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
 
 from askai.__classpath__ import API_KEYS
 from askai.core.askai_configs import configs
@@ -25,20 +44,6 @@ from askai.core.model.ai_reply import AIReply
 from askai.core.model.search_result import SearchResult
 from askai.core.support.langchain_support import lc_llm
 from askai.core.support.shared_instances import shared
-from collections import defaultdict
-from googleapiclient.errors import HttpError
-from hspylib.core.metaclass.singleton import Singleton
-from hspylib.core.zoned_datetime import now
-from langchain_core.documents import Document
-from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
-from langchain_core.tools import Tool
-from langchain_google_community import GoogleSearchAPIWrapper
-from langchain_text_splitters import RecursiveCharacterTextSplitter, TextSplitter
-from openai import APIError
-from typing import List
-
-import logging as log
-import re
 
 
 class InternetService(metaclass=Singleton):
@@ -200,6 +205,44 @@ class InternetService(metaclass=Singleton):
             return msg.fail_to_search(str(err))
 
         return self.wrap_response(terms, output, search)
+
+    def scrap_sites(self, search: SearchResult) -> list[dict]:
+        """Crawl and summarize the content of URLs contained in the SearchResult.
+        :param search: The SearchResult object containing a list of target URLs to scrape.
+        :param limit: The maximum number of sites to scrape and summarize.
+        :return: A list of dictionaries, each containing 'url', 'title', and 'summary' of the scraped pages.
+        """
+        scrap_prompt: str = (
+            "Summarize the following webpage content in concise, factual English (max 150 words):\n\n{text}\n\nSummary:"
+        )
+        llm_prompt = ChatPromptTemplate.from_messages([("system", scrap_prompt)])
+        chain = LLMChain(llm=lc_llm.create_chat_model(temperature=Temperature.COLDEST.temp), prompt=llm_prompt)
+
+        ua: UserAgent = UserAgent()
+        summaries: list[dict] = []
+
+        for i, url in enumerate(search.sites[:5]):
+            try:
+                headers = {"User-Agent": ua.random}
+                html = requests.get(url, headers=headers, timeout=10).text
+                soup = BeautifulSoup(html, "html.parser")
+                text = " ".join(s.strip() for s in soup.stripped_strings)
+                text = text[:6000]  # truncate large pages
+
+                summary = chain.invoke({"text": text})
+                summaries.append({
+                    "url": url,
+                    "title": soup.title.string if soup.title else "Untitled",
+                    "summary": summary["text"].strip()
+                })
+            except Exception as e:
+                summaries.append({
+                    "url": url,
+                    "title": "Error",
+                    "summary": f"Failed to process ({e})"
+                })
+
+        return summaries
 
 
 assert (internet := InternetService().INSTANCE) is not None

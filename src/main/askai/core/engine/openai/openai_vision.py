@@ -12,7 +12,7 @@
 
 Copyright (c) 2024, AskAI
 """
-from langchain_classic.chains.transform import TransformChain
+from langchain.chains.transform import TransformChain
 
 from askai.core.askai_prompt import prompt
 from askai.core.model.image_result import ImageResult

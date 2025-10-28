@@ -12,8 +12,8 @@
 
    Copyright (c) 2024, AskAI
 """
-from langchain_classic.agents import create_structured_chat_agent, AgentExecutor
-from langchain_classic.memory.chat_memory import BaseChatMemory
+from langchain.agents import create_structured_chat_agent, AgentExecutor
+from langchain.memory.chat_memory import BaseChatMemory
 
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events

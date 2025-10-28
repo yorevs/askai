@@ -12,7 +12,7 @@
 
    Copyright (c) 2024, AskAI
 """
-from langchain_classic.chains.retrieval_qa.base import RetrievalQA
+from langchain.chains.retrieval_qa.base import RetrievalQA
 
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events

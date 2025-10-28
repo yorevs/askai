@@ -12,7 +12,7 @@
 
 Copyright (c) 2024, AskAI
 """
-from langchain_classic.memory import ConversationBufferWindowMemory
+from langchain.memory import ConversationBufferWindowMemory
 
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
