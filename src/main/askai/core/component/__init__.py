@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.2.17
+# hspylib-askai v1.2.19
 #
 # Package: main.askai.core.component
 """Package initialization."""
@@ -16,4 +16,4 @@ __all__ = [
     'summarizer', 
     'text_streamer'
 ]
-__version__ = '1.2.17'
+__version__ = '1.2.19'

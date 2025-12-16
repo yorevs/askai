@@ -114,7 +114,7 @@ class AskAi:
 
     @property
     def app_settings(self) -> list[tuple[str, ...]]:
-        all_settings = [("UUID", "Setting", "Value")]
+        all_settings: list[tuple[str, ...]] = [("UUID", "Setting", "Value")]
         for s in settings.settings.search():
             r: tuple[str, ...] = str(s.identity["uuid"]), str(s.name), str(s.value)
             all_settings.append(r)

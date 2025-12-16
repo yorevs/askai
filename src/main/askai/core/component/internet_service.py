@@ -18,20 +18,19 @@ import logging as log
 import re
 
 from fake_useragent import UserAgent
-from langchain.chains.combine_documents import create_stuff_documents_chain
 from googleapiclient.errors import HttpError
 from hspylib.core.metaclass.singleton import Singleton
 from hspylib.core.zoned_datetime import now
+from langchain_classic.chains.combine_documents import create_stuff_documents_chain
+from langchain_classic.chains.llm import LLMChain
 from langchain_core.documents import Document
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.tools import Tool
 from langchain_google_community import GoogleSearchAPIWrapper
 from langchain_text_splitters import RecursiveCharacterTextSplitter, TextSplitter
 from openai import APIError
 import requests
 from bs4 import BeautifulSoup
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
 
 from askai.__classpath__ import API_KEYS
 from askai.core.askai_configs import configs

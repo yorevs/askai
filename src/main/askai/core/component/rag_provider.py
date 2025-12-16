@@ -12,6 +12,8 @@
 
 Copyright (c) 2024, AskAI
 """
+from typing import Optional
+
 from askai.__classpath__ import classpath
 from askai.core.askai_configs import configs
 from askai.core.askai_settings import ASKAI_DIR
@@ -133,7 +135,7 @@ class RAGProvider:
         self._rag_db: VectorStore | None = None
         check_state(file_is_not_empty(self._rag_path))
 
-    def get_rag_examples(self, query: str, k: int = configs.rag_retrival_amount) -> str:
+    def get_rag_examples(self, query: str, k: int = configs.rag_retrival_amount) -> Optional[str]:
         """Retrieve a list of relevant examples based on the provided query.
         :param query: The search query used to retrieve examples.
         :param k: The number of examples to retrieve (default is 3).
@@ -145,3 +147,5 @@ class RAGProvider:
             example_docs: list[Document] = self._rag_db.similarity_search(query, k=k)
             rag_examples: list[str] = [doc.page_content for doc in example_docs]
             return f'**Examples:**\n"""{(2 * os.linesep).join(rag_examples)}"""'
+
+        return None

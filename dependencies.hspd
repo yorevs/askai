@@ -69,11 +69,12 @@ package: opentelemetry-proto, version: 1.36.0, mode: compat
 package: opentelemetry-semantic-conventions, version: 0.48b0, mode: compat
 package: opentelemetry-instrumentation-fastapi, version: 0.48b0, mode: compat
 package: opentelemetry-instrumentation-asgi, version: 0.48b0, mode: compat
-package: transformers, version: 4.55.2, mode: compat
-package: unstructured, version: 0.18.13, mode: compat
-package: unstructured[md], version: 0.18.13, mode: compat
-package: tiktoken, version: 0.11.0, mode: compat
-package: nltk, version: 3.9.1, mode: compat
+package: transformers, version: 4.57.3, mode: compat
+package: unstructured, version: 0.18.21, mode: compat
+package: unstructured[md], version: 0.18.21, mode: compat
+package: tiktoken, version: 0.12.0, mode: compat
+package: nltk, version: 3.9.2, mode: compat
+package: tokenizers, version: 0.22.1, mode: compat
 
 /* Vector Store and Databases */
 package: faiss-cpu, version: 1.13.0, mode: compat

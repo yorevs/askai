@@ -1,6 +1,6 @@
 # _*_ coding: utf-8 _*_
 #
-# hspylib-askai v1.2.17
+# hspylib-askai v1.2.19
 #
 # Package: demo.devel
 """Package initialization."""
@@ -21,4 +21,4 @@ __all__ = [
     'vision-tests', 
     'whisper_tests'
 ]
-__version__ = '1.2.17'
+__version__ = '1.2.19'
