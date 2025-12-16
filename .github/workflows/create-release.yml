@@ -40,11 +40,13 @@ jobs:
       - name: Extract tag and Details
         id: release
         run: |
+          set -euo pipefail
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             TAG_NAME="${GITHUB_REF#refs/tags/}"
           elif [[ -n "${{ inputs.tag-name }}" ]]; then
             TAG_NAME="${{ inputs.tag-name }}"
           fi
+          : "${TAG_NAME:?missing tag_name output}"
           echo "TAG-NAME: ${TAG_NAME}" >> $GITHUB_STEP_SUMMARY
           echo "tag_name=$(echo ${TAG_NAME})" >> "$GITHUB_OUTPUT"
 
@@ -75,8 +77,7 @@ jobs:
           fi
 
   build_and_test:
-    if: ${{ inputs['pypi-publish'] }}
-    needs: check_pypi
+    needs: details
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -118,7 +119,9 @@ jobs:
   pypi_publish:
     if: ${{ inputs['pypi-publish'] }}
     name: Upload release to PyPI
-    needs: build_and_test
+    needs:
+      - check_pypi
+      - build_and_test
     runs-on: ubuntu-latest
     environment:
       name: release
@@ -135,10 +138,14 @@ jobs:
 
   github_release:
     name: Create GitHub Release
-    needs: details
+    needs:
+      - details
+      - build_and_test
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      TAG: ${{ needs.details.outputs.tag_name }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -146,7 +153,7 @@ jobs:
           fetch-depth: 0
       - name: Create Changelog
         id: change-log
-        uses: yorevs/hspylib/.github/actions/changelog@master
+        uses: HS-Teams/hspylib/.github/actions/changelog@master
         with:
           tag-name: ${{ needs.details.outputs.tag_name }}
       - name: Download artifacts
@@ -160,8 +167,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
+          : "${TAG:?missing tag_name output}"
           echo "${{ steps.change-log.outputs.changelog }}" > changelog
+          assets=""  # Empty by default
           [[ "${{ inputs['pypi-publish'] }}" == 'true' ]] && assets="dist/*"
-          gh release create ${{ needs.details.outputs.tag_name }} \
-            --title "${{ vars.PACKAGE_NAME }}-${{ needs.details.outputs.tag_name }}-rc${{ github.run_number }}" \
+          gh release create "${TAG}" \
+            --title "${{ vars.PACKAGE_NAME }}-${TAG}-rc${{ github.run_number }}" \
             --notes-file changelog ${assets}

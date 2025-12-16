@@ -1,3 +1,5 @@
+import os
+
 from askai.core.router.evaluation import resolve_x_refs
 from askai.core.support.shared_instances import shared
 from askai.core.support.utilities import display_text
@@ -29,6 +31,9 @@ from utils import get_resource, init_context
 
 from tokenizers.decoders import DecodeStream
 from transformers import AutoTokenizer
+from huggingface_hub import login
+HF_TOKEN = os.getenv('HF_TOKEN')
+login(token=HF_TOKEN)
 tok = AutoTokenizer.from_pretrained('meta-llama/Meta-Llama-3-8B-Instruct')
 stream = DecodeStream(skip_special_tokens=False)
 
