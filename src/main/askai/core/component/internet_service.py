@@ -111,11 +111,12 @@ class InternetService(metaclass=Singleton):
         sites: list = re.findall(re_site, keywords)
         terms: str = re.sub(r"\s{2,}", " ", re.sub(r"OR", "", re.sub(re_site, "", keywords)))
         sources: str = " ".join(sorted([f"{cls._url_to_icon(s):<2}".strip() or s for s in sites], key=len))
+        category: str = search.category.capitalize()
         # fmt: off
         return (
             f"Your {search.engine.title()} search has returned the following results:"
             f"\n\n{output}\n\n---\n\n"
-            f"`{cls.CATEGORY_ICONS[search.category]:<2}{search.category}`  "
+            f"`{cls.CATEGORY_ICONS[category]:<2}{category}`  "
             f"**Sources:** *{sources}*  "
             f"**Access:** {geo_location.location} - *{now('%B %d, %Y')}*\n\n"
             f">   Terms: {terms} \n")
@@ -169,17 +170,18 @@ class InternetService(metaclass=Singleton):
     def refine_template(self) -> str:
         return prompt.read_prompt("refine-search")
 
-    def google_search(self, search: SearchResult) -> str:
+    def google_search(self, search: SearchResult, k: int = 5) -> str:
         """Search the web using the Google Search API. This method utilizes advanced Google search operators to refine
         and execute the search.
         Reference: https://ahrefs.com/blog/google-advanced-search-operators/
         :param search: The AI search parameters encapsulated in a SearchResult object.
+        :param k: The number of top search results to retrieve.
         :return: A refined string containing the search results.
         """
         # Lazy initialization to allow GOOGLE_API_KEY be optional.
         if not self._google:
             API_KEYS.ensure("GOOGLE_API_KEY", "google_search")
-            self._google = GoogleSearchAPIWrapper(k=5, google_api_key=API_KEYS.GOOGLE_API_KEY)
+            self._google = GoogleSearchAPIWrapper(k=k, google_api_key=API_KEYS.GOOGLE_API_KEY)
             self._tool = Tool(
                 name="google_search", description="Search Google for recent results.", func=self._google.run
             )

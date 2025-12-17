@@ -12,9 +12,6 @@
 
    Copyright (c) 2024, AskAI
 """
-from langchain_classic.agents import create_structured_chat_agent, AgentExecutor
-from langchain_classic.memory.chat_memory import BaseChatMemory
-
 from askai.core.askai_configs import configs
 from askai.core.askai_events import events
 from askai.core.askai_messages import msg
@@ -106,7 +103,7 @@ class TaskAgent(metaclass=Singleton):
         output: dict[str, str] | None = None
         try:
             lc_agent: Runnable = self._create_lc_agent()
-            output: dict[str, str] = lc_agent.invoke({"input": task})
+            output: dict[str, str] = lc_agent.invoke({"input": task, "stop": None})
         except (openai.APIError, ValueError, ValidationError) as err:
             log.error(str(err))
             output: dict[str, str] = {"output": str(err)}

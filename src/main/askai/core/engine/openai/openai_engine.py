@@ -111,7 +111,8 @@ class OpenAIEngine:
         :return: An instance of BaseChatModel.
         """
         return langchain_openai.ChatOpenAI(
-            model=self._model.model_name(), temperature=temperature
+            model=self._model.model_name(),
+            temperature=temperature
         )
 
     def lc_embeddings(self, model: str) -> Embeddings:

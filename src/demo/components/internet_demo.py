@@ -67,10 +67,15 @@ if __name__ == "__main__":
 
     while (question := line_input("You: ")) not in ["exit", "q", "quit"]:
         kw: list[str] = re.split("[ ,;]", question)
-        sites: list[str] = ["https://flamengo.com.br/"]
+        sites: list[str] = [
+            "https://google.com/",
+            "https://linkedin.com/",
+            "https://github.com/",
+            "https://instagram.com/"
+        ]
         q = SearchResult(question, geo_location.datetime, "news", kw, sites)
-        # answer = internet.google_search(q)
-        answer = internet.scrap_sites(q)
+        answer = internet.google_search(q)
+        # answer = internet.scrap_sites(q)
         # answer = serapi_search(qq)
         sysout(f"%GREEN%AI: {answer}")
         cache.save_input_history()
